@@ -4,12 +4,12 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>Cliqz</em:name>
-		<em:version>0.3.1</em:version>
+		<em:version>0.3.2</em:version>
 		<em:type>2</em:type>
-		<em:creator>lucian@cliqz.com</em:creator>
+		<em:creator>beta@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
-		<em:description>Greatest productivity tool!</em:description>
+		<em:description>Mit uns kommst Du ohne Umweg aus Deinem Browser zu Deinem Ziel. Nie mehr suchen, sondern direkt finden. Wir stellen Dir keine Werbung und keine gekauften Suchergebnisse in den Weg. Und wir speichern keine Daten von Dir.</em:description>
 		<em:homepageURL>http://www.cliqz.com/</em:homepageURL>
 
 		<em:targetApplication>
