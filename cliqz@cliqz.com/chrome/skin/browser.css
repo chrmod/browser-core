@@ -19,6 +19,14 @@
   -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
 }
 
+.cliqz-ac-site-icon-ssl {
+  background: url(chrome://cliqzres/content/skin/lock_light.jpg) no-repeat center 25%;
+}
+
+.cliqz-left-separator {
+  width: 20px;
+  height: 24px;
+}
 
 /* CLIQZ STYLE */
 
@@ -59,7 +67,7 @@
 
 /* source text from richlistitem */
 .cliqz-ac-source-icon {
-  width: 28px;
+  width: 8px;
   height: 30px;
   margin-right: 5px solid white;
 }

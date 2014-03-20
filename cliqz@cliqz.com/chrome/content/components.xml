@@ -213,6 +213,7 @@
             <!-- 
             <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
             -->
+            <xul:spacer class="cliqz-left-separator"/>
             <xul:hbox anonid="title-box" class="ac-title" flex="1"
                       onunderflow="_doUnderflow('_title');"
                       onoverflow="_doOverflow('_title');">
@@ -232,6 +233,8 @@
             <xul:spacer class="ac-site-icon"/>
             <xul:image class="ac-action-icon"/>
             -->
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
             <xul:description anonid="url-details" xbl:inherits="selected type"/>
             <xul:hbox anonid="url-box" class="ac-url" flex="1"
                       onunderflow="_doUnderflow('_url');"
@@ -262,6 +265,9 @@
                 urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
                 domainDefClass = '';
 
+            this._url_type = this._url_type || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
+            this._url_type.className = 'cliqz-left-separator';
+            
             /*
             this._source = this._source || document.getAnonymousElementByAttribute(this, "anonid", "source");
             if(source === 'history'){
@@ -284,6 +290,13 @@
               // add logo
               this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
               this._logo.className = 'cliqz-ac-logo-icon logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+              
+              // add lock
+              if(urlDetails.ssl){
+                this._url_type.className += ' cliqz-ac-site-icon-ssl';
+              }
+              
+              
               // remove default
               this._url.textContent = '';
               this._urlOverflowEllipsis.value = '';
