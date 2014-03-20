@@ -1,0 +1,174 @@
+/* CLIQZ BINDINGS  */
+
+#PopupAutoCompleteRichResult {
+  -moz-binding: url("chrome://cliqz/content/components.xml#urlbar-rich-result-popup-cliqz");
+}
+
+.autocomplete-richlistbox {
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
+}
+
+.autocomplete-richlistitem {
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
+}
+
+.button-cliqz {
+  -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
+}
+
+
+/* CLIQZ STYLE */
+
+/* autocomplete popup container */
+#PopupAutoCompleteRichResult {
+  height: 110px !important;
+}
+
+/* progress bar */
+#cliqz-progress {
+  height: 5px;
+  background-color: green;
+}
+
+.autocomplete-richlistitem[type="cliqz-results"] {
+  /* background-color: green; */
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"] {
+  /* background-color: lightgreen; */
+}
+
+.autocomplete-richlistitem[type="favicon"] .ac-title-box, 
+.autocomplete-richlistitem[type="bookmark"] .ac-title-box,
+.autocomplete-richlistitem[type="switchtab"] .ac-title-box {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  /* font-weight: bold; */
+  color: #663366;
+}
+
+.autocomplete-richlistitem[type="cliqz-results"] .ac-title-box {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  /* font-weight: bold; */
+  color: #333333;
+}
+
+/* source text from richlistitem */
+.cliqz-ac-source-icon {
+  /* width: 35px; */
+  width: 28px;
+  height: 30px;
+  margin-right: 5px solid white;
+}
+
+.cliqz-history {
+  background: url(chrome://skin/content/skin/visited.gif) no-repeat center center;
+}
+
+.cliqz-bookmark {
+  background: url(chrome://skin/content/skin/bookmarked.gif) no-repeat center center;
+}
+
+.cliqz-results {
+  background: url(chrome://skin/content/skin/un-bookmarked.gif) no-repeat center center;
+}
+
+.cliqz-ac-url-detail-box {
+  padding: 0px 5px;
+  border-right: 2px solid white;
+}
+
+.cliqz-ac-url-domain {
+  font-weight: bold;
+}
+
+.cliqz-ac-url-host {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #000000;
+}
+
+.cliqz-ac-url-path {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9pt;
+  color: #cccccc;
+}
+
+.cliqz-autocomplete-container {
+  
+}
+
+.cliqz-urlBar {
+  background-color: green;
+}
+/*
+@media (max-width: 1250px) {
+  #right-cliqz {
+    display: none;
+  }
+}
+@media (min-width: 1250px) {
+  #right-cliqz {
+    width: 250px;
+    background-color: green;
+  }
+}
+*/
+#right-cliqz {
+  display: none;
+}
+
+/* general autocomplete item styles */
+.ac-title-box {
+}
+
+.ac-url-box {
+}
+
+.ac-emphasize-text  {
+  color: green;
+  background-color: white;
+  box-shadow: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  /* font-weight: bold; */
+  color: #669999;
+}
+
+.autocomplete-richlistitem{
+}
+
+.autocomplete-richlistitem[type="bookmark"]{
+}
+
+.autocomplete-richlistitem[type="switchtab"]{
+}
+/* history */
+.autocomplete-richlistitem[type="favicon"]{
+}
+
+
+/* misc */
+
+.hidden {
+  visibility: hidden;
+  display: none !important;
+}
+
+/*
+#urlbar {
+    height: 30px !important;
+    font-size: 30px !important;
+}
+*/
+
+/* sidebar anchored in the right side 
+hbox#browser { 
+    direction: rtl !important;
+     }  
+hbox#browser > vbox {
+    direction: ltr !important; 
+    }
+
+    */
