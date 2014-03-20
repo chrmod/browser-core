@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+
+<bindings id="cliqzBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false">
+      <!-- 
+      <xul:vbox flex="1" anonid="cliqzbox" class='cliqz-autocomplete-container'>
+      -->
+        <xul:hbox flex="1">
+          <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
+          <xul:hbox id="right-cliqz">
+            <xul:hbox flex="1">
+              <xul:button label="Google" anonid="button-google" 
+                class="button-cliqz" oncommand="this.click();"/>
+            </xul:hbox>
+            <xul:hbox flex="1">
+              <xul:button label="Amazon" anonid="button-amazon" 
+                class="button-cliqz" oncommand="this.click();"/>
+            </xul:hbox>
+            <xul:hbox flex="1">
+              <xul:button label="Wiki" anonid="button-wiki" 
+                class="button-cliqz" oncommand="this.click();"/>
+            </xul:hbox>
+          </xul:hbox>
+        </xul:hbox>
+      <!-- 
+      </xul:vbox>
+
+      <xul:hbox class="cliqz-progress-box">
+          <xul:hbox id="cliqz-progress" anonid="progress-bar" >
+          </xul:hbox>
+        </xul:hbox>
+      -->
+    </content>
+
+    <implementation >
+      <method name="_openAutocompletePopup">
+        <parameter name="aInput"/>
+        <parameter name="aElement"/>
+        <body>
+          <![CDATA[
+          if (!this.mPopupOpen) {
+            this.mInput = aInput;
+            // clear any previous selection, see bugs 400671 and 488357
+            this.selectedIndex = -1;
+
+            var width = aElement.getBoundingClientRect().width;
+            this.setAttribute("width", width > 100 ? width : 100);
+            // invalidate() depends on the width attribute
+            this._invalidate();
+
+            // CLIQZ START
+            
+            CLIQZ.Core.popupEvent(true);
+
+            this.openPopup(aElement, "after_start", 0, 0, false, true);
+            //this.moveTo(window.screenX + 35, window.screenY + 88);
+            
+            // THIS IS NOT WORKING :(
+            //this.sizeTo(window.outerWidth,500)
+           
+            // CLIQZ END
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="_appendCurrentResult">
+        <body>
+          <![CDATA[
+          var controller = this.mInput.controller;
+          var matchCount = this._matchCount;
+          var existingItemsCount = this.richlistbox.childNodes.length;
+
+          // CLIQZ START
+
+          // trim the leading/trailing whitespace
+          var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
+
+          if(this._currentIndex == 0){
+            this._google = this._google || document.getAnonymousElementByAttribute(this, "anonid", "button-google");
+            this._amazon = this._amazon || document.getAnonymousElementByAttribute(this, "anonid", "button-amazon");
+            this._wiki = this._wiki || document.getAnonymousElementByAttribute(this, "anonid", "button-wiki");
+            //this._progress = this._progress || document.getAnonymousElementByAttribute(this, "anonid", "progress-bar");
+
+            this._google.setAttribute('url', 'http://www.google.de/#q=' + trimmedSearchString);
+            this._amazon.setAttribute('url', 'http://www.amazon.de/s?field-keywords=' + trimmedSearchString);
+            this._wiki.setAttribute('url', 'http://de.wikipedia.org/wiki/' + trimmedSearchString);
+
+            // clearTimeout(this.progressTimeout);
+            // this.progressTimeout = setTimeout(function(){
+            //  CLIQZ.Core.updateProgress(document.getElementById('PopupAutoCompleteRichResult'), matchCount);
+            // },10);
+          }
+
+          // CLIQZ END
+
+          // Process maxRows per chunk to improve performance and user experience
+          for (let i = 0; i < this.maxRows; i++) {
+            if (this._currentIndex >= matchCount)
+              return;
+
+            var item;
+
+            // trim the leading/trailing whitespace
+            // var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
+
+            // Unescape the URI spec for showing as an entry in the popup
+            let url = Components.classes["@mozilla.org/intl/texttosuburi;1"].
+              getService(Components.interfaces.nsITextToSubURI).
+              unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
+
+            if (typeof this.input.trimValue == "function")
+              url = this.input.trimValue(url);
+
+            if (this._currentIndex < existingItemsCount) {
+              // re-use the existing item
+              item = this.richlistbox.childNodes[this._currentIndex];
+
+              // Completely re-use the existing richlistitem if it's the same
+              if (item.getAttribute("text") == trimmedSearchString &&
+                  item.getAttribute("url") == url) {
+                item.collapsed = false;
+                this._currentIndex++;
+                continue;
+              }
+            }
+            else {
+              // need to create a new item
+              item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "richlistitem");
+            }
+
+            // set these attributes before we set the class
+            // so that we can use them from the constructor
+            item.setAttribute("image", controller.getImageAt(this._currentIndex));
+            item.setAttribute("url", url);
+            item.setAttribute("title", controller.getCommentAt(this._currentIndex));
+            item.setAttribute("type", controller.getStyleAt(this._currentIndex));
+            item.setAttribute("text", trimmedSearchString);
+
+            if (this._currentIndex < existingItemsCount) {
+              // re-use the existing item
+              item._adjustAcItem();
+              item.collapsed = false;
+            }
+            else {
+              // set the class at the end so we can use the attributes
+              // in the xbl constructor
+              item.className = "autocomplete-richlistitem";
+              this.richlistbox.appendChild(item);
+            }
+
+            // CLIQZ START
+            item.setAttribute("source", controller.getStyleAt(this._currentIndex).replace('favicon', 'history'));
+            let _item = item;
+            setTimeout(function(){
+              _item._cliqzEnhancements();
+            },0);
+            // CLIQZ END
+
+            this._currentIndex++;
+          }
+
+          // yield after each batch of items so that typing the url bar is responsive
+          setTimeout(function (self) { self._appendCurrentResult(); }, 0, this);
+        ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+
+  <!-- clone of chrome://browser/content/urlbarBindings.xml#urlbar-rich-result-popup with diferent inheritance -->
+  <binding id="urlbar-rich-result-popup-cliqz" extends="chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz">
+  </binding>
+
+
+  <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+    <handlers>
+      <handler event="mouseup">
+        <![CDATA[
+        // don't call onPopupClick for the scrollbar buttons, thumb, slider, etc.
+        var item = event.originalTarget;
+
+        while (item && item.localName != "richlistitem")
+          item = item.parentNode;
+
+        if (!item)
+          return;
+
+        // CLIQZ START
+        CLIQZ.Core.popupClick(item);
+        this.parentNode.parentNode.onPopupClick(event);
+        // CLIQZ END
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+   <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
+    <content>
+      <xul:hbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox flex="1">
+          <xul:hbox align="center" class="ac-title-box" >
+            <!-- 
+            <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
+            -->
+            <xul:hbox anonid="title-box" class="ac-title" flex="1"
+                      onunderflow="_doUnderflow('_title');"
+                      onoverflow="_doOverflow('_title');">
+              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-comment"/>
+            <xul:hbox anonid="extra-box" class="ac-extra" align="center" hidden="true">
+              <xul:image class="ac-result-type-tag"/>
+              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
+              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:image anonid="type-image" class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox align="center" class="ac-url-box">
+            <!-- 
+            <xul:spacer class="ac-site-icon"/>
+            <xul:image class="ac-action-icon"/>
+            -->
+            <xul:description anonid="url-details" xbl:inherits="selected type"/>
+            <xul:hbox anonid="url-box" class="ac-url" flex="1"
+                      onunderflow="_doUnderflow('_url');"
+                      onoverflow="_doOverflow('_url');">
+              <xul:description anonid="url" class="ac-normal-text ac-url-text"
+                               xbl:inherits="selected type"/>
+              <xul:description anonid="action" class="ac-normal-text ac-action-text"
+                               xbl:inherits="selected type"/>
+            </xul:hbox>
+            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-url-text"/>
+            <xul:spacer class="ac-type-icon"/>
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+    <implementation>
+     <method name="_cliqzEnhancements">
+        <body>
+          <![CDATA[
+            // add here all the custom UI elements for an item
+            var url = this.getAttribute("url"),
+                source = this.getAttribute('source'),
+                urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
+                domainDefClass = '';
+
+            /*
+            this._source = this._source || document.getAnonymousElementByAttribute(this, "anonid", "source");
+            if(source === 'history'){
+              this._source.className = 'cliqz-ac-source-icon cliqz-history';
+            } else if(source === 'bookmark'){
+              this._source.className = 'cliqz-ac-source-icon cliqz-bookmark';
+            } else {
+              this._source.className = 'cliqz-ac-source-icon cliqz-results';
+            } 
+            */
+            //this._source.textContent = source;
+
+            this._urlDetails = this._urlDetails || document.getAnonymousElementByAttribute(this, "anonid", "url-details");
+            
+            while (this._urlDetails.hasChildNodes()){
+              this._urlDetails.removeChild(this._urlDetails.firstChild);
+            }
+
+            if(source !== 'cliqz-suggestions' && urlDetails){
+              // remove default
+              this._url.textContent = '';
+              this._urlOverflowEllipsis.value = '';
+
+              var span;
+              span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = domainDefClass + ' cliqz-ac-url-host';
+              span.textContent = urlDetails.host;
+
+              span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = domainDefClass + ' cliqz-ac-url-path';
+              span.textContent = urlDetails.path;
+
+              /*
+              for(var i=urlDetails.subdomains.length-1; i >= 0; i--){
+                span = this._urlDetails.appendChild(
+                  document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+                span.className = domainDefClass;
+                span.textContent = urlDetails.subdomains[i];
+              }
+
+              // create detail elements
+              span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = domainDefClass + ' cliqz-ac-url-domain bc-background-' + urlDetails.name;
+              span.textContent = urlDetails.name;
+
+              span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = domainDefClass;
+              span.textContent = "." + urlDetails.tld;
+
+              span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = domainDefClass + ' flag flag-' + urlDetails.tld;
+              span.textContent = '';
+              */
+            } 
+          ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+
+  <binding id="button-cliqz"
+           extends="chrome://global/content/bindings/button.xml#button">
+    <implementation>
+      <method name="click">
+        <body>
+        <![CDATA[
+          gBrowser.selectedBrowser.contentDocument.location = this.getAttribute('url');
+        ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+</bindings>
