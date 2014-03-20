@@ -208,11 +208,15 @@
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
         </xul:vbox>
+        <xul:vbox>
+          <xul:image class="cliqz-ac-image" anonid="image" />
+        </xul:vbox>
         <xul:vbox flex="1">
           <xul:hbox align="center" class="ac-title-box" >
             <!-- 
             <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
             -->
+            <xul:spacer class="cliqz-left-separator"/>
             <xul:hbox anonid="title-box" class="ac-title" flex="1"
                       onunderflow="_doUnderflow('_title');"
                       onoverflow="_doOverflow('_title');">
@@ -232,6 +236,8 @@
             <xul:spacer class="ac-site-icon"/>
             <xul:image class="ac-action-icon"/>
             -->
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
             <xul:description anonid="url-details" xbl:inherits="selected type"/>
             <xul:hbox anonid="url-box" class="ac-url" flex="1"
                       onunderflow="_doUnderflow('_url');"
@@ -246,6 +252,10 @@
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
         </xul:vbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
       </xul:hbox>
     </content>
     <implementation>
@@ -257,6 +267,13 @@
                 source = this.getAttribute('source'),
                 urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
                 domainDefClass = '';
+
+            this._url_type = this._url_type || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
+            this._url_type.className = 'cliqz-left-separator';
+            
+            this._image = this._image || document.getAnonymousElementByAttribute(this, "anonid", "image");
+            this._image.setAttribute("src", "");
+            this._image.className = '';
 
             /*
             this._source = this._source || document.getAnonymousElementByAttribute(this, "anonid", "source");
@@ -277,6 +294,21 @@
             }
 
             if(source !== 'cliqz-suggestions' && urlDetails){
+              // add logo
+              this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
+              this._logo.className = 'cliqz-ac-logo-icon logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+              
+              // add lock
+              if(urlDetails.ssl){
+                this._url_type.className += ' cliqz-ac-site-icon-ssl';
+              }
+              
+              // add image
+              if(urlDetails.name == "facebook"){
+                this._image.className = 'cliqz-ac-image';
+                this._image.setAttribute("src", "chrome://cliqzres/content/skin/yt.jpg");
+              }
+              
               // remove default
               this._url.textContent = '';
               this._urlOverflowEllipsis.value = '';

@@ -8,20 +8,31 @@
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
 }
 
+/* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
+  padding: 2px 0;
+  border-bottom: 2px solid lightgrey;
 }
 
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
 }
 
+.cliqz-ac-site-icon-ssl {
+  background: url(chrome://cliqzres/content/skin/lock_light.jpg) no-repeat center 25%;
+}
+
+.cliqz-left-separator {
+  width: 20px;
+  height: 24px;
+}
 
 /* CLIQZ STYLE */
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  height: 110px !important;
+  height: 135px !important;
 }
 
 /* progress bar */
@@ -56,22 +67,26 @@
 
 /* source text from richlistitem */
 .cliqz-ac-source-icon {
-  /* width: 35px; */
-  width: 28px;
+  width: 8px;
   height: 30px;
   margin-right: 5px solid white;
 }
 
+.cliqz-ac-logo-icon {
+  width: 70px;
+  height: 48px;
+}
+
 .cliqz-history {
-  background: url(chrome://skin/content/skin/visited.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/visited.gif) no-repeat center center;
 }
 
 .cliqz-bookmark {
-  background: url(chrome://skin/content/skin/bookmarked.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/bookmarked.gif) no-repeat center center;
 }
 
 .cliqz-results {
-  background: url(chrome://skin/content/skin/un-bookmarked.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/un-bookmarked.gif) no-repeat center center;
 }
 
 .cliqz-ac-url-detail-box {
@@ -119,16 +134,25 @@
   display: none;
 }
 
-/* general autocomplete item styles */
-.ac-title-box {
+.cliqz-ac-image {
+  width: 105px;
+  height: 48px;
+  padding-left: 20px;
 }
 
+/* general autocomplete item styles */
+.ac-title-box {
+  height: 24px;
+}
+
+/* url container */
 .ac-url-box {
+  height: 24px;
 }
 
 .ac-emphasize-text  {
   color: green;
-  background-color: white;
+  background-color: transparent;
   box-shadow: none;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;
