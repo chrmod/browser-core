@@ -134,6 +134,12 @@
   display: none;
 }
 
+.cliqz-ac-image {
+  width: 105px;
+  height: 48px;
+  padding-left: 20px;
+}
+
 /* general autocomplete item styles */
 .ac-title-box {
   height: 24px;
