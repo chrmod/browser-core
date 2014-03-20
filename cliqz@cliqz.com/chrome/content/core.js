@@ -19,6 +19,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.elem.push(css);
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css');
+        CLIQZ.Core.elem.push(css);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');

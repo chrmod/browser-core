@@ -246,6 +246,10 @@
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
         </xul:vbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
       </xul:hbox>
     </content>
     <implementation>
@@ -277,6 +281,9 @@
             }
 
             if(source !== 'cliqz-suggestions' && urlDetails){
+              // add logo
+              this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
+              this._logo.className = 'cliqz-ac-logo-icon logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
               // remove default
               this._url.textContent = '';
               this._urlOverflowEllipsis.value = '';

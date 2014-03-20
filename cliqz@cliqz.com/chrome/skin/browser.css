@@ -8,8 +8,11 @@
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
 }
 
+/* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
+  padding: 2px 0;
+  border-bottom: 2px solid lightgrey;
 }
 
 .button-cliqz {
@@ -21,7 +24,7 @@
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  height: 110px !important;
+  height: 135px !important;
 }
 
 /* progress bar */
@@ -56,10 +59,14 @@
 
 /* source text from richlistitem */
 .cliqz-ac-source-icon {
-  /* width: 35px; */
   width: 28px;
   height: 30px;
   margin-right: 5px solid white;
+}
+
+.cliqz-ac-logo-icon {
+  width: 70px;
+  height: 48px;
 }
 
 .cliqz-history {
@@ -121,14 +128,17 @@
 
 /* general autocomplete item styles */
 .ac-title-box {
+  height: 24px;
 }
 
+/* url container */
 .ac-url-box {
+  height: 24px;
 }
 
 .ac-emphasize-text  {
   color: green;
-  background-color: white;
+  background-color: transparent;
   box-shadow: none;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10pt;

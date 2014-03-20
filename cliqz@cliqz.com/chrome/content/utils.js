@@ -52,6 +52,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     if (parts[0] === 'www' && parts[1] !== 'com'){
         parts.shift();
     }
+    var hostClean = parts.join('.');
     var ln = parts.length, i = ln, minLength = parts[parts.length-1].length, part;
 
     // iterate backwards
@@ -67,7 +68,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
               tld: parts.slice(i+1).join('.'),
               subdomains: [],
               path: url.replace(host,''),
-              host: host
+              host: hostClean
             };
 
             while(i>0){
