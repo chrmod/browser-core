@@ -9,7 +9,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 // LOADING scripts
 
 var addScript = function(src, win) {
-    Services.scriptloader.loadSubScript(BASE_URI + src + '.js', win);
+    Services.scriptloader.loadSubScript(BASE_URI + src + '.js?rand='+Math.random(), win);
 };
 /*devel__)*/
 
