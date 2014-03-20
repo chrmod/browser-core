@@ -30,6 +30,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
 
+    CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
   log: function(msg, key){
@@ -125,7 +126,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   trk: [],
   trkTimer: null,
-  track: function(msg) {
+  track: function(msg, instantPush) {
     CLIQZ.Utils.log(JSON.stringify(msg));
 
     msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
@@ -133,7 +134,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
     CLIQZ.Utils.trk.push(msg);
     CLIQZ.Utils.clearTimeout(CLIQZ.Utils.trkTimer);
-    if(CLIQZ.Utils.trk.length > 100){
+    if(instantPush || CLIQZ.Utils.trk.length > 100){
       CLIQZ.Utils.pushTrack();
     } else {
       CLIQZ.Utils.trkTimer = CLIQZ.Utils.setTimeout(CLIQZ.Utils.pushTrack, 60000);
@@ -173,4 +174,23 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
   },
   clearInterval: this.clearTimeout,
+  loadFile: function (fileName, callback) {
+    var self = this;
+    $.ajax({
+        url: fileName,
+        dataType: 'text',
+        success: callback,
+        error: function(data){ callback(data.responseText); }
+    });
+  },
+  locale: {},
+  loadLocale : function(){
+    CLIQZ.Utils.httpGet('chrome://cliqzres/content/locale/de-DE/cliqz.json',
+        function(req){
+            CLIQZ.Utils.locale = JSON.parse(req.response);
+        });
+  },
+  getLocalizedString: function(key){
+    return (CLIQZ.Utils.locale[key] && CLIQZ.Utils.locale[key].message) || key;
+  }
 };

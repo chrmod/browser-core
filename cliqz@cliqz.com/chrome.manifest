@@ -1,10 +1,2 @@
 content cliqz chrome/content/
-
-# overlay chrome://browser/content/browser.xul chrome://cliqz/content/cliqz.xul
-
-content skin chrome/
-# style chrome://browser/content/browser.xul chrome://skin/content/skin/browser.css
-
-
-# component {59a99d57-b4ad-fa7e-aead-da9d4f4e77c8} components/cliqz-results.js
-# contract @mozilla.org/autocomplete/search;1?name=cliqz-results {59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}
+content cliqzres chrome/

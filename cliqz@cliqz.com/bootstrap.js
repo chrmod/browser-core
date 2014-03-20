@@ -6,7 +6,6 @@ var Cu = Components.utils;
 var BASE_URI = 'chrome://cliqz/content/';
 var {classes: Cc, interfaces: Ci, utils: Cu} = Components;
 Cu.import('resource://gre/modules/Services.jsm');
-
 // LOADING scripts
 
 var addScript = function(src, win) {
@@ -45,6 +44,7 @@ function windowWatcher(win, topic) {
 // DEFAULT BOOTSTRAP
 
 function startup(aData, aReason) {
+    Cu.import('chrome://cliqz/content/utils.js');
     setDefaultPrefs();
     // Load into any existing windows
     var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -81,6 +81,7 @@ function shutdown(aData, aReason) {
     }
 
     Services.ww.unregisterNotification(windowWatcher);
+    Cu.unload('resource://cliqz/content/utils.js');
 }
 
 function eventLog(ev){
@@ -89,7 +90,7 @@ function eventLog(ev){
         action: ev
     };
 
-    //CLIQZ.Utils.track(action);
+    CLIQZ.Utils.track(action, true);
 }
 
 function install(aData, aReason) {

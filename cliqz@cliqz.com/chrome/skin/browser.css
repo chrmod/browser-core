@@ -63,15 +63,15 @@
 }
 
 .cliqz-history {
-  background: url(chrome://skin/content/skin/visited.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/visited.gif) no-repeat center center;
 }
 
 .cliqz-bookmark {
-  background: url(chrome://skin/content/skin/bookmarked.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/bookmarked.gif) no-repeat center center;
 }
 
 .cliqz-results {
-  background: url(chrome://skin/content/skin/un-bookmarked.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/un-bookmarked.gif) no-repeat center center;
 }
 
 .cliqz-ac-url-detail-box {

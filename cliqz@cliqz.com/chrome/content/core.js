@@ -17,7 +17,7 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://skin/content/skin/browser.css');
+        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.elem.push(css);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
@@ -151,7 +151,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Utils.getLatestVersion(function(latest){
                 if(latest.status == 200 && version != latest.response){
                     pref.setCharPref('messageUpdate', now.toString());
-                    if(confirm('CLIQZ Extension update found.\nDo you want to update?')){
+                    if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
                         gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
                     }
                 }
