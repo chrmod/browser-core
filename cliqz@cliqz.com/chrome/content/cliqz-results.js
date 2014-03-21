@@ -156,7 +156,7 @@ var CLIQZResults = CLIQZResults || {
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
             // mixes history, results and suggestions
-            mixResults: function() {
+            mixResults_old: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
 
                 for (let i = 0;
@@ -181,6 +181,146 @@ var CLIQZResults = CLIQZResults || {
                     else results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
                 }
 
+                if(results.length < 3){
+                    for(let i in this.cliqzSuggestions || []) {
+                        results.push(
+                            this.resultFactory(
+                                CLIQZResults.CLIQZS,
+                                this.cliqzSuggestions[i],
+                                CLIQZResults.CLIQZICON,
+                                this.cliqzSuggestions[i]
+                            )
+                        );
+                    }
+                }
+
+
+                if(results.length === 0) {
+                    let message = 'Search "' + this.searchString + '" on your default search engine !';
+                    //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
+                }
+
+                results = results.slice(0,prefs.getIntPref('maxRichResults'));
+
+                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
+
+                CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
+                  + ' (results:' + (this.cliqzResults || []).length
+                  //+ ', suggestions: ' + (this.cliqzSuggestions || []).length 
+                  + ')' );
+
+                if(results.length > 0){
+                    var action = {
+                        type: 'action',
+                        action: 'results',
+                        cliqzResults: (this.cliqzResults || []).length,
+                        historyResults: histResults,
+                        bookmarkResults: bookmarkResults
+                    };
+
+                    CLIQZ.Utils.track(action);
+                }
+
+                return mergedResult;
+            },
+            // mixes history, results and suggestions
+            // Sean's test
+            mixResults: function() {
+                var results = [], histResults = 0, bookmarkResults = 0;
+
+                /// 1) put each result into a bucket
+                var bucketHistoryDomain = [],
+                    bucketHistoryOther = [],
+                    bucketCache = [],
+                    bucketHistoryCache = [];
+
+
+                for (let i = 0;
+                     this.historyResults && i < this.historyResults.matchCount && i < 2;
+                     i++) {
+                    let style = this.historyResults.getStyleAt(i),
+                        value = this.historyResults.getValueAt(i),
+                        image = this.historyResults.getImageAt(i),
+                        comment = this.historyResults.getCommentAt(i),
+                        label = this.historyResults.getLabelAt(i);
+
+                    if(style === 'bookmark')bookmarkResults++;
+                    else histResults++;
+
+                    // Deduplicate: check if this result is also in the cache results
+                    let cacheIndex = -1;
+                    for(let i = 0; i < this.cliqzResults.length; i++) {
+                        if(this.cliqzResults[i].url.indexOf(label) != -1) {
+                            bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));
+                            cacheIndex = i;
+                            break;
+                        }
+                    }
+
+                    if(cacheIndex >= 0) {
+                        // if also found in cache, remove so it is not added to cache-only bucket
+                        this.cliqzResults.splice(cacheIndex, 1);
+                    } else {
+                        // does search string occur in hostname
+                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+                        if(urlparts.host.indexOf(this.searchString) !=-1)
+                            bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label));
+                        else
+                            bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label));
+                    }
+                }
+
+                for(let i in this.cliqzResults || []) {
+                    let r = this.cliqzResults[i];
+
+                    let bucket = bucketCache;
+
+                    if(r.snippet)
+                        bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
+                    else bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
+                }
+
+                /// 2) Prepare final result list from buckets
+                
+                // all bucketHistoryCache
+                for(let i = 0; i < bucketHistoryCache.length; i++) {
+                    bucketHistoryCache[i].comment += " (History and Cache)";
+                    results.push(bucketHistoryCache[i]);
+                }
+
+                // top 1 of bucketHistoryDomain
+                if(bucketHistoryDomain.length > 0) {
+                    bucketHistoryDomain[0].comment += " (History Domain top)";
+                    results.push(bucketHistoryDomain[0]);
+                }
+
+                // top 1 of bucketCache
+                if(bucketCache.length > 0) {
+                    bucketCache[0].comment += " (Cache top)";
+                    results.push(bucketCache[0]);
+                }
+
+                // rest of bucketHistoryDomain 
+                for(let i = 1; i < bucketHistoryDomain.length; i++) {
+                    bucketHistoryDomain[i].comment += " (History Domain)";
+                    results.push(bucketHistoryDomain[i]);
+                }
+
+                // rest of bucketCache
+                for(let i = 1; i < bucketCache.length && i < 4; i++) {
+                    bucketCache[i].comment += " (Cache)";
+                    results.push(bucketCache[i]);
+                }
+
+                // all bucketHistoryOther
+                for(let i = 0; i < bucketHistoryOther.length; i++) {
+                    bucketHistoryOther[i].comment += " (History Other)";
+                    results.push(bucketHistoryOther[i]);
+                }
+
+
+                /// 4) Show suggests if not enough else
                 if(results.length < 3){
                     for(let i in this.cliqzSuggestions || []) {
                         results.push(

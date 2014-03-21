@@ -142,7 +142,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
                 CLIQZ.Utils.track(info);
 
-                CLIQZ.Core.updateCheck(beVersion);
+                //CLIQZ.Core.updateCheck(beVersion);
             });
         });
     },
