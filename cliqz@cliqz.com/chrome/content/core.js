@@ -9,6 +9,7 @@ CLIQZ.Core = CLIQZ.Core || {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
+    _messageOFF: true, // no message shown
     init: function(){
         CLIQZ.Utils.init();
 
@@ -168,8 +169,12 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Utils.getLatestVersion(function(latest){
                 if(latest.status == 200 && version != latest.response){
                     pref.setCharPref('messageUpdate', now.toString());
-                    if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
-                        gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+                    if(CLIQZ.Core._messageOFF){
+                        CLIQZ.Core._messageOFF = false;
+                        if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
+                            gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+                        }
+                        CLIQZ.Core._messageOFF = true;
                     }
                 }
             });
