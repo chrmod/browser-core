@@ -11,8 +11,12 @@
 /* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
-  padding: 2px 0;
+  padding: 0 0;
   border-bottom: 2px solid lightgrey;
+}
+
+.autocomplete-richlistitem:hover {
+  background-color: azure;
 }
 
 .button-cliqz {
@@ -65,18 +69,36 @@
   color: #333333;
 }
 
-/* source text from richlistitem */
+/* source color */
 .cliqz-ac-source-icon {
-  width: 8px;
-  height: 30px;
-  margin-right: 5px solid white;
+  width: 10px;
+  height: 52px;
+  border-left: 4px solid;
+}
+
+.autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
+  border-color: green;
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon {
+  border-color: lightgreen;
+}
+
+/* history */
+.autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon {
+  border-color: blue;
+}
+
+.autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon {
+  border-color: purple;
 }
 
 .cliqz-ac-logo-icon {
-  width: 65px;
+  width: 64px;
   height: 48px;
   background-repeat: no-repeat;
   background-position: left center;
+  margin-top: 2px;
 }
 
 .cliqz-history {
@@ -153,6 +175,7 @@
   width: 105px;
   height: 48px;
   padding-left: 20px;
+  padding-top: 2px;
 }
 
 /* general autocomplete item styles */
