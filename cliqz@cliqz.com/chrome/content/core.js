@@ -113,11 +113,15 @@ CLIQZ.Core = CLIQZ.Core || {
             if(siblings[i] == item)
                 pos = i;
         }
+        var source = item.getAttribute('source');
+        if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+            source = 'tab_result';
+        }
         var action = {
             type: 'activity',
             action: 'result_click',
             position: pos,
-            position_type: item.getAttribute('source')
+            position_type: source
         };
 
         CLIQZ.Utils.track(action);
@@ -217,11 +221,16 @@ CLIQZ.Core = CLIQZ.Core || {
             var index = popup.selectedIndex;
             if(index != -1){
                 let item = popup.richlistbox._currentItem
+
+                var source = item.getAttribute('source');
+                if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+                    source = 'tab_result';
+                }
                 var action = {
                     type: 'activity',
                     action: 'result_enter',
                     current_position: index,
-                    position_type: item.getAttribute('source')
+                    position_type: source
                 };
 
                 CLIQZ.Utils.track(action);
@@ -242,7 +251,11 @@ CLIQZ.Core = CLIQZ.Core || {
                     let item = popup.richlistbox._currentItem,
                         value = item.getAttribute('url');
 
-                    action.position_type = item.getAttribute('source');
+                    var source = item.getAttribute('source');
+                    if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+                        source = 'tab_result';
+                    }
+                    action.position_type = source;
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }
