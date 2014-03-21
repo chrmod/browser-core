@@ -115,7 +115,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 pos = i;
         }
         var source = item.getAttribute('source');
-        if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+        if(source.indexOf('action') > -1){
             source = 'tab_result';
         }
         var action = {
@@ -128,7 +128,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     urlbarfocus: function() {
-        CLIQZ.Core.urlbarMessage();
+        setTimeout(CLIQZ.Core.urlbarMessage, 20);
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function() {
@@ -228,7 +228,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 let item = popup.richlistbox._currentItem
 
                 var source = item.getAttribute('source');
-                if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+                if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
                 var action = {
@@ -257,7 +257,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         value = item.getAttribute('url');
 
                     var source = item.getAttribute('source');
-                    if(source.indexOf('action') > -1 && source.indexOf('history') > -1){
+                    if(source.indexOf('action') > -1){
                         source = 'tab_result';
                     }
                     action.position_type = source;
