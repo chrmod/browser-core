@@ -275,6 +275,9 @@
             this._image.setAttribute("src", "");
             this._image.className = '';
 
+            this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
+            this._logo.className = '';
+            
             /*
             this._source = this._source || document.getAnonymousElementByAttribute(this, "anonid", "source");
             if(source === 'history'){
@@ -295,7 +298,6 @@
 
             if(source !== 'cliqz-suggestions' && urlDetails){
               // add logo
-              this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
               this._logo.className = 'cliqz-ac-logo-icon logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
               
               // add lock

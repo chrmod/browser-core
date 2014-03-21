@@ -67,6 +67,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZResults.init();
 
         CLIQZ.Utils.log('Initialized', 'CORE');
+
+
+        // add cliqz message button
+        var cliqzMessage = document.createElement('hbox');
+        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus 
+        var sibling = document.getElementById('urlbar-icons');
+        sibling.parentNode.insertBefore(cliqzMessage, sibling);
+        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
+        CLIQZ.Core.elem.push(cliqzMessage);
     },
     // restoring
     destroy: function(){
@@ -114,9 +123,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     urlbarfocus: function() {
+        CLIQZ.Core.urlbarMessage();
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function() {
+        CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
@@ -186,9 +197,21 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     locationChangeTO: null,
+    urlbarMessage: function() {
+        if(CLIQZ.Core.popup.selectedIndex !== -1 ||
+            CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
+            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+        } else {
+            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+        }
+    },
     urlbarkeydown: function(ev){
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
+
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;

@@ -73,8 +73,10 @@
 }
 
 .cliqz-ac-logo-icon {
-  width: 70px;
+  width: 65px;
   height: 48px;
+  background-repeat: no-repeat;
+  background-position: left center;
 }
 
 .cliqz-history {
@@ -114,9 +116,22 @@
   
 }
 
-.cliqz-urlBar {
+.cliqz-urlbar-message-search {
+  color: white;
   background-color: green;
+  margin: 1px;
+  padding: 1px 5px;
+  border-radius: 1px;
 }
+
+.cliqz-urlbar-message-navigate {
+  color: white;
+  background-color: blue;
+  margin: 1px;
+  padding: 1px 5px;
+  border-radius: 1px;
+}
+
 /*
 @media (max-width: 1250px) {
   #right-cliqz {
