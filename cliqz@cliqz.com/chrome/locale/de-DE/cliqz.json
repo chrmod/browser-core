@@ -7,5 +7,8 @@
 	},
 	"urlbarNavigate":{
 		"message":"Los ▶"
+	},
+	"searchFor":{
+		"message":"Suchergebnisse für "
 	}
 }

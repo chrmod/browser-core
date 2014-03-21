@@ -101,7 +101,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     popupEvent: function(open) {
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'dropdown_' + (open ? 'open' : 'close')
         };
 
@@ -114,7 +114,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 pos = i;
         }
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'result_click',
             position: pos,
             position_type: item.getAttribute('source')
@@ -132,7 +132,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarEvent: function(ev) {
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'urlbar_' + ev
         };
 
@@ -218,7 +218,7 @@ CLIQZ.Core = CLIQZ.Core || {
             if(index != -1){
                 let item = popup.richlistbox._currentItem
                 var action = {
-                    type: 'action',
+                    type: 'activity',
                     action: 'result_enter',
                     current_position: index,
                     position_type: item.getAttribute('source')
@@ -232,11 +232,17 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                var index = popup.selectedIndex;
+                var index = popup.selectedIndex,
+                    action = {
+                        type: 'activity',
+                        action: 'arrow_key',
+                        current_position: index
+                    };
                 if(index != -1){
                     let item = popup.richlistbox._currentItem,
                         value = item.getAttribute('url');
 
+                    action.position_type = item.getAttribute('source');
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }
@@ -245,16 +251,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;
                     }, 500);
-                    
-                    var action = {
-                        type: 'action',
-                        action: 'arrow_key',
-                        current_position: index,
-                        position_type: item.getAttribute('source')
-                    };
-
-                    CLIQZ.Utils.track(action);
                 }
+                CLIQZ.Utils.track(action);
             },0);
 
             // avoid looping through results

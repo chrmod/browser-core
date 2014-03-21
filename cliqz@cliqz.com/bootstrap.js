@@ -86,7 +86,7 @@ function shutdown(aData, aReason) {
 
 function eventLog(ev){
     var action = {
-        type: 'action',
+        type: 'activity',
         action: ev
     };
 
