@@ -9,6 +9,7 @@ CLIQZ.Core = CLIQZ.Core || {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
+    _messageOFF: true, // no message shown
     init: function(){
         CLIQZ.Utils.init();
 
@@ -67,6 +68,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZResults.init();
 
         CLIQZ.Utils.log('Initialized', 'CORE');
+
+
+        // add cliqz message button
+        var cliqzMessage = document.createElement('hbox');
+        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus 
+        var sibling = document.getElementById('urlbar-icons');
+        sibling.parentNode.insertBefore(cliqzMessage, sibling);
+        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
+        CLIQZ.Core.elem.push(cliqzMessage);
     },
     // restoring
     destroy: function(){
@@ -92,7 +102,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     popupEvent: function(open) {
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'dropdown_' + (open ? 'open' : 'close')
         };
 
@@ -104,24 +114,30 @@ CLIQZ.Core = CLIQZ.Core || {
             if(siblings[i] == item)
                 pos = i;
         }
+        var source = item.getAttribute('source');
+        if(source.indexOf('action') > -1){
+            source = 'tab_result';
+        }
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'result_click',
             position: pos,
-            position_type: item.getAttribute('source')
+            position_type: source
         };
 
         CLIQZ.Utils.track(action);
     },
     urlbarfocus: function() {
+        setTimeout(CLIQZ.Core.urlbarMessage, 20);
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function() {
+        CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
         var action = {
-            type: 'action',
+            type: 'activity',
             action: 'urlbar_' + ev
         };
 
@@ -153,8 +169,12 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Utils.getLatestVersion(function(latest){
                 if(latest.status == 200 && version != latest.response){
                     pref.setCharPref('messageUpdate', now.toString());
-                    if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
-                        gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+                    if(CLIQZ.Core._messageOFF){
+                        CLIQZ.Core._messageOFF = false;
+                        if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
+                            gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+                        }
+                        CLIQZ.Core._messageOFF = true;
                     }
                 }
             });
@@ -186,19 +206,36 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     locationChangeTO: null,
+    urlbarMessage: function() {
+        if(CLIQZ.Core.popup.selectedIndex !== -1 ||
+            CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
+            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+        } else {
+            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+        }
+    },
     urlbarkeydown: function(ev){
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
+
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;
             if(index != -1){
                 let item = popup.richlistbox._currentItem
+
+                var source = item.getAttribute('source');
+                if(source.indexOf('action') > -1){
+                    source = 'tab_result';
+                }
                 var action = {
-                    type: 'action',
+                    type: 'activity',
                     action: 'result_enter',
                     current_position: index,
-                    position_type: item.getAttribute('source')
+                    position_type: source
                 };
 
                 CLIQZ.Utils.track(action);
@@ -209,11 +246,21 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                var index = popup.selectedIndex;
+                var index = popup.selectedIndex,
+                    action = {
+                        type: 'activity',
+                        action: 'arrow_key',
+                        current_position: index
+                    };
                 if(index != -1){
                     let item = popup.richlistbox._currentItem,
                         value = item.getAttribute('url');
 
+                    var source = item.getAttribute('source');
+                    if(source.indexOf('action') > -1){
+                        source = 'tab_result';
+                    }
+                    action.position_type = source;
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }
@@ -222,16 +269,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;
                     }, 500);
-                    
-                    var action = {
-                        type: 'action',
-                        action: 'arrow_key',
-                        current_position: index,
-                        position_type: item.getAttribute('source')
-                    };
-
-                    CLIQZ.Utils.track(action);
                 }
+                CLIQZ.Utils.track(action);
             },0);
 
             // avoid looping through results
