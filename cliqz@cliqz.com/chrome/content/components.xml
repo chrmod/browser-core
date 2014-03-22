@@ -245,6 +245,7 @@
                       onoverflow="_doOverflow('_url');">
               <xul:description anonid="url" class="ac-normal-text ac-url-text"
                                xbl:inherits="selected type"/>
+              <xul:spacer class="cliqz-separator-10"/>
               <xul:description anonid="action" class="ac-normal-text ac-action-text"
                                xbl:inherits="selected type"/>
             </xul:hbox>

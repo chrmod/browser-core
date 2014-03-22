@@ -28,8 +28,19 @@
   height: 24px;
 }
 
+.cliqz-separator-10 {
+  width: 10px;
+}
+
 .cliqz-url-box {
   margin: 0px;
+}
+
+/* switch to tab*/
+.ac-action-text {
+  background-color: lightgrey;
+  color: white;
+  padding: 0 4px;
 }
 
 /* CLIQZ STYLE */
