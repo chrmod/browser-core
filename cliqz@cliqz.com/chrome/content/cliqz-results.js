@@ -112,6 +112,7 @@ var CLIQZResults = CLIQZResults || {
                     this.resultsTimer = null;
                     this.startTime = null;
                     this.cliqzResults = null;
+                    this.cliqzCache = null;
                     this.cliqzSuggestions = null;
                     this.historyResults = null;
                 } else {
@@ -123,11 +124,14 @@ var CLIQZResults = CLIQZResults || {
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    var results = [], results = [];
+                    var results = [], cache_results = [];
                     if(req.status == 200){
-                        results = JSON.parse(req.response).result;
+                        var json = JSON.parse(req.response)
+                        results = json.result;
+                        cache_results = json.cache;
                     }
                     this.cliqzResults = results;
+                    this.cliqzCache = cache_results;
                     this.pushResults();
                 }
             },
@@ -142,13 +146,14 @@ var CLIQZResults = CLIQZResults || {
                     this.pushResults();
                 }
             },
-            resultFactory: function(style, value, image, comment, label){
+            resultFactory: function(style, value, image, comment, label, query){
                 return {
                     style: style,
                     val: value,
                     image: image || this.createFavicoUrl(value),
                     comment: comment || value,
-                    label: label || value
+                    label: label || value,
+                    query: query
                 };
             },
             createFavicoUrl: function(url){
@@ -156,76 +161,91 @@ var CLIQZResults = CLIQZResults || {
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
             // mixes history, results and suggestions
-            mixResults_old: function() {
-                var results = [], histResults = 0, bookmarkResults = 0;
+            // mixResults: function() {
+            //     var results = [], histResults = 0, bookmarkResults = 0;
 
-                for (let i = 0;
-                     this.historyResults && i < this.historyResults.matchCount && i < 2;
-                     i++) {
-                    let style = this.historyResults.getStyleAt(i),
-                        value = this.historyResults.getValueAt(i),
-                        image = this.historyResults.getImageAt(i),
-                        comment = this.historyResults.getCommentAt(i),
-                        label = this.historyResults.getLabelAt(i);
+            //     for (let i = 0;
+            //          this.historyResults && i < this.historyResults.matchCount && i < 2;
+            //          i++) {
+            //         let style = this.historyResults.getStyleAt(i),
+            //             value = this.historyResults.getValueAt(i),
+            //             image = this.historyResults.getImageAt(i),
+            //             comment = this.historyResults.getCommentAt(i),
+            //             label = this.historyResults.getLabelAt(i);
 
-                    if(style === 'bookmark')bookmarkResults++;
-                    else histResults++;
+            //         if(style === 'bookmark')bookmarkResults++;
+            //         else histResults++;
 
-                    results.push(this.resultFactory(style, value, image, comment, label));
-                }
+            //         results.push(this.resultFactory(style, value, image, comment, label));
+            //     }
 
-                for(let i in this.cliqzResults || []) {
-                    let r = this.cliqzResults[i];
-                    if(r.snippet)
-                        results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
-                    else results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
-                }
+            //     for(let i in this.cliqzResults || []) {
+            //         let r = this.cliqzResults[i];
+            //         if(r.snippet)
+            //             results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
+            //         else results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
+            //     }
 
-                if(results.length < 3){
-                    for(let i in this.cliqzSuggestions || []) {
-                        results.push(
-                            this.resultFactory(
-                                CLIQZResults.CLIQZS,
-                                this.cliqzSuggestions[i],
-                                CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchFor')// +this.cliqzSuggestions[i]
-                            )
-                        );
+            //     if(results.length < 3){
+            //         for(let i in this.cliqzSuggestions || []) {
+            //             results.push(
+            //                 this.resultFactory(
+            //                     CLIQZResults.CLIQZS,
+            //                     this.cliqzSuggestions[i],
+            //                     CLIQZResults.CLIQZICON,
+            //                     CLIQZ.Utils.getLocalizedString('searchFor')// +this.cliqzSuggestions[i]
+            //                 )
+            //             );
+            //         }
+            //     }
+
+
+            //     if(results.length === 0) {
+            //         let message = 'Search "' + this.searchString + '" on your default search engine !';
+            //         //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
+            //     }
+
+            //     results = results.slice(0,prefs.getIntPref('maxRichResults'));
+
+            //     var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
+            //         Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
+
+            //     CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
+            //       + ' (results:' + (this.cliqzResults || []).length
+            //       //+ ', suggestions: ' + (this.cliqzSuggestions || []).length 
+            //       + ')' );
+
+            //     if(results.length > 0){
+            //         var action = {
+            //             type: 'activity',
+            //             action: 'results',
+            //             cliqzResults: (this.cliqzResults || []).length,
+            //             historyResults: histResults,
+            //             bookmarkResults: bookmarkResults
+            //         };
+
+            //         CLIQZ.Utils.track(action);
+            //     }
+
+            //     return mergedResult;
+            // },
+            // Find the expanded query that was used for returned URL
+            getExpandedQuery: function(url) {
+                CLIQZ.Utils.log("looking for : " + url)
+                for(let i in this.cliqzCache || []) {
+                    var query = this.cliqzCache[i].q;
+                    CLIQZ.Utils.log("expaned query: " + query)
+                    for(let j in this.cliqzCache[i].result || []) {
+                        var r = this.cliqzCache[i].result[j]
+                        CLIQZ.Utils.log("url: " + r)
+
+                        if( r == url )
+                            return query;
                     }
                 }
-
-
-                if(results.length === 0) {
-                    let message = 'Search "' + this.searchString + '" on your default search engine !';
-                    //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
-                }
-
-                results = results.slice(0,prefs.getIntPref('maxRichResults'));
-
-                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
-                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
-
-                CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
-                  + ' (results:' + (this.cliqzResults || []).length
-                  //+ ', suggestions: ' + (this.cliqzSuggestions || []).length 
-                  + ')' );
-
-                if(results.length > 0){
-                    var action = {
-                        type: 'activity',
-                        action: 'results',
-                        cliqzResults: (this.cliqzResults || []).length,
-                        historyResults: histResults,
-                        bookmarkResults: bookmarkResults
-                    };
-
-                    CLIQZ.Utils.track(action);
-                }
-
-                return mergedResult;
+                return "<unknown>" 
             },
             // mixes history, results and suggestions
-            // Sean's test
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
 
@@ -252,7 +272,11 @@ var CLIQZResults = CLIQZResults || {
                     let cacheIndex = -1;
                     for(let i = 0; i < this.cliqzResults.length; i++) {
                         if(this.cliqzResults[i].url.indexOf(label) != -1) {
-                            bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));
+                            if(this.cliqzResults[i].snippet)
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label, 
+                                    this.getExpandedQuery(this.cliqzResults[i].url)));
+                            else
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));    
                             cacheIndex = i;
                             break;
                         }
@@ -265,9 +289,9 @@ var CLIQZResults = CLIQZResults || {
                         // does search string occur in hostname
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
                         if(urlparts.host.indexOf(this.searchString) !=-1)
-                            bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label));
+                            bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label, this.searchString));
                         else
-                            bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label));
+                            bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label, this.searchString));
                     }
                 }
 
@@ -277,7 +301,7 @@ var CLIQZResults = CLIQZResults || {
                     let bucket = bucketCache;
 
                     if(r.snippet)
-                        bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
+                        bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet, null, this.getExpandedQuery(r.url)));
                     else bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
                 }
 
@@ -285,19 +309,19 @@ var CLIQZResults = CLIQZResults || {
                 
                 // all bucketHistoryCache
                 for(let i = 0; i < bucketHistoryCache.length; i++) {
-                    bucketHistoryCache[i].comment += " (History and Cache)";
+                    bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")";
                     results.push(bucketHistoryCache[i]);
                 }
 
                 // top 1 of bucketHistoryDomain
                 if(bucketHistoryDomain.length > 0) {
-                    bucketHistoryDomain[0].comment += " (History Domain top)";
+                    bucketHistoryDomain[0].comment += " (top History Domain)";
                     results.push(bucketHistoryDomain[0]);
                 }
 
                 // top 1 of bucketCache
                 if(bucketCache.length > 0) {
-                    bucketCache[0].comment += " (Cache top)";
+                    bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")";
                     results.push(bucketCache[0]);
                 }
 
@@ -309,7 +333,7 @@ var CLIQZResults = CLIQZResults || {
 
                 // rest of bucketCache
                 for(let i = 1; i < bucketCache.length && i < 4; i++) {
-                    bucketCache[i].comment += " (Cache)";
+                    bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")";
                     results.push(bucketCache[i]);
                 }
 
@@ -375,6 +399,7 @@ var CLIQZResults = CLIQZResults || {
                 CLIQZ.Utils.track(action);
 
                 this.cliqzResults = null;
+                this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzResultsFromSuggestion = null;
