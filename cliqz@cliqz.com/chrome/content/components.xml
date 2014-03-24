@@ -306,12 +306,13 @@
               if(urlDetails.ssl){
                 this._url_type.className += ' cliqz-ac-site-icon-ssl';
               }
-              
-              // add image
-              if(urlDetails.name == "facebook"){
+
+              // add video thumbnail
+              if(this.getAttribute('image') != 'null'){
                 this._image.className = 'cliqz-ac-image';
-                this._image.setAttribute("src", "chrome://cliqzres/content/skin/yt.jpg");
+                this._image.setAttribute("src", this.getAttribute('image'));
               }
+              //}
               
               // remove default
               this._url.textContent = '';

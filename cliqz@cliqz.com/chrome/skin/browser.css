@@ -126,6 +126,25 @@
   background-color: #ffcc33;
 }
 */
+
+/*
+.autocomplete-richlistitem[type="cliqz-results"]:hover {
+  background: linear-gradient(to right, #cccccc, white 40px);
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"]:hover {
+  background: linear-gradient(to right, lightgreen, white 40px);
+}
+
+.autocomplete-richlistitem[type="favicon"]:hover {
+  background: linear-gradient(to right, #996699, white 40px);
+}
+
+.autocomplete-richlistitem[type="bookmark"]:hover {
+  background: linear-gradient(to right, #ffcc33, white 40px);
+}
+*/
+
 .autocomplete-richlistitem:hover {
   background-color: azure;
 }

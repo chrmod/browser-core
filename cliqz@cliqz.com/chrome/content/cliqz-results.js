@@ -18,6 +18,7 @@ var CLIQZResults = CLIQZResults || {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
+    TYPE_VIDEO: ['video.','tvshow'],
     init: function(){
         CLIQZ.Utils.init();
         CLIQZResults.initProvider();
@@ -142,11 +143,11 @@ var CLIQZResults = CLIQZResults || {
                     this.pushResults();
                 }
             },
-            resultFactory: function(style, value, image, comment, label){
+            resultFactory: function(style, value, image, comment, label, thumbnail){
                 return {
                     style: style,
                     val: value,
-                    image: image || this.createFavicoUrl(value),
+                    image: thumbnail, //image || this.createFavicoUrl(value),
                     comment: comment || value,
                     label: label || value
                 };
@@ -176,8 +177,23 @@ var CLIQZResults = CLIQZResults || {
 
                 for(let i in this.cliqzResults || []) {
                     let r = this.cliqzResults[i];
-                    if(r.snippet)
-                        results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
+                    if(r.snippet){
+                        let og = r.snippet.og, thumbnail;
+                        if(og && og.image && og.type)
+                            for(var type in CLIQZResults.TYPE_VIDEO)
+                                if(og.type.indexOf(CLIQZResults.TYPE_VIDEO[type]) != -1){
+                                    thumbnail = og.image;
+                                    break;
+                                }
+                        results.push(this.resultFactory(
+                            CLIQZResults.CLIQZR, //style
+                            r.url, //value
+                            null, //image -> favico
+                            r.snippet.snippet, //comment
+                            null, //label
+                            thumbnail // video thumbnail
+                        ));
+                    }
                     else results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
                 }
 
