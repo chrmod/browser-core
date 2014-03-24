@@ -290,7 +290,7 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.cliqzSuggestions[i],
                                 CLIQZResults.CLIQZICON,
-                                this.cliqzSuggestions[i]
+                                CLIQZ.Utils.getLocalizedString('searchFor')// +this.cliqzSuggestions[i]
                             )
                         );
                     }
@@ -314,7 +314,7 @@ var CLIQZResults = CLIQZResults || {
 
                 if(results.length > 0){
                     var action = {
-                        type: 'action',
+                        type: 'activity',
                         action: 'results',
                         cliqzResults: (this.cliqzResults || []).length,
                         historyResults: histResults,
