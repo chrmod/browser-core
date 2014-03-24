@@ -16,7 +16,7 @@ var addScript = function(src, win) {
 
 function loadIntoWindow(win, isNew) {
     /*devel__)*/
-    for each (var src in ['core', 'historyManager', 'utils', /*'cliqz-results'*/]) 
+    for (let src of ['core', 'historyManager', 'utils', /*'cliqz-results'*/])
         addScript(src, win)
 
     try {
@@ -63,8 +63,8 @@ function shutdown(aData, aReason) {
         eventLog('browser_shutdown');
         return;
     }
-    
-    // 
+
+    //
     if (aReason == ADDON_DISABLE ) {
         eventLog('addon_disable');
     }
@@ -99,12 +99,12 @@ function install(aData, aReason) {
 function uninstall(aData, aReason) {
 }
 
-// PREFERENCES 
+// PREFERENCES
 const PREF_BRANCH = 'extensions.cliqz.';
 const PREFS = {
     'UDID': '',
     'url': 'www.cliqz.com',
-    'messageUpdate': '0', // last update message timestamp 
+    'messageUpdate': '0', // last update message timestamp
     'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
     'showQueryDebug': false, // show query debug information next to results
 };
