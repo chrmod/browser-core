@@ -12,7 +12,7 @@
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
   padding: 0 0;
-  border-bottom: 2px solid lightgrey;
+  border-bottom: 3px solid #cccccc;
 }
 
 .button-cliqz {
@@ -38,6 +38,7 @@
 
 /* switch to tab*/
 .ac-action-text {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   background-color: lightgrey;
   color: white;
   padding: 0 4px;
@@ -47,7 +48,7 @@
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  height: 155px !important;
+  height: 150px !important;
 }
 
 .ac-type-icon {
@@ -71,23 +72,25 @@
 .autocomplete-richlistitem[type="favicon"] .ac-title-box, 
 .autocomplete-richlistitem[type="bookmark"] .ac-title-box,
 .autocomplete-richlistitem[type="switchtab"] .ac-title-box {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
   font-weight: 400;
-  color: #663366;
+  color: #996699;
+  padding: 5px 0;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .ac-title-box {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
   font-weight: 400; 
   color: #003366;
+  padding: 5px 0;
 }
 
 /* source color */
 .cliqz-ac-source-icon {
   width: 10px;
-  height: 52px;
+  height: 62px;
   border-left: 5px solid;
 }
 
@@ -96,7 +99,7 @@
 }
 
 .autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon {
-  border-color: lightgreen;
+  border-color: #ffffff;
 }
 
 /* history */
@@ -146,7 +149,8 @@
 */
 
 .autocomplete-richlistitem:hover {
-  background-color: azure;
+  border-color: #ffcc33;
+  /*background-color: lightgray;*/
 }
 
 .cliqz-ac-logo-icon {
@@ -175,19 +179,22 @@
 }
 
 .cliqz-ac-url-domain {
-  font-weight: bold;
+  /*font-weight: bold;*/
 }
 
 .cliqz-ac-url-host {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 9pt;
-  color: #333333;
+  color: #666666;
+  font-weight: 400;
 }
 
 .cliqz-ac-url-path {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
+  /*font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;*/
   font-size: 9pt;
   color: #cccccc;
+  font-weight: 400;
 }
 
 .cliqz-autocomplete-container {
@@ -195,7 +202,7 @@
 }
 
 .cliqz-urlbar-message-search {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-family: Verdana, Geneva, sans-serif;
   color: white;
   background-color: #336699;
   margin: 1px;
@@ -204,7 +211,7 @@
 }
 
 .cliqz-urlbar-message-navigate {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-family: Verdana, Geneva, sans-serif;
   color: white;
   background-color: #33cc99; 
   margin: 1px;
@@ -244,15 +251,16 @@
 /* url container */
 .ac-url-box {
   height: 24px;
+  padding-bottom: 5px;
 }
 
 .ac-emphasize-text  {
   background-color: transparent;
   box-shadow: none;
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+  font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
-  /* font-weight: bold; */
-  color: #669999;
+  font-weight: 500; 
+  /*color: #669999;*/
 }
 
 .autocomplete-richlistitem{
