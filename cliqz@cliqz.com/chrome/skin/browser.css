@@ -11,7 +11,7 @@
 /* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
-  padding: 2px 0;
+  padding: 0 0;
   border-bottom: 2px solid lightgrey;
 }
 
@@ -28,11 +28,30 @@
   height: 24px;
 }
 
+.cliqz-separator-10 {
+  width: 10px;
+}
+
+.cliqz-url-box {
+  margin: 0px;
+}
+
+/* switch to tab*/
+.ac-action-text {
+  background-color: lightgrey;
+  color: white;
+  padding: 0 4px;
+}
+
 /* CLIQZ STYLE */
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  height: 135px !important;
+  height: 155px !important;
+}
+
+.ac-type-icon {
+  display: none;
 }
 
 /* progress bar */
@@ -52,29 +71,71 @@
 .autocomplete-richlistitem[type="favicon"] .ac-title-box, 
 .autocomplete-richlistitem[type="bookmark"] .ac-title-box,
 .autocomplete-richlistitem[type="switchtab"] .ac-title-box {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-size: 10pt;
-  /* font-weight: bold; */
+  font-weight: 400;
   color: #663366;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .ac-title-box {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-size: 10pt;
-  /* font-weight: bold; */
-  color: #333333;
+  font-weight: 400; 
+  color: #003366;
 }
 
-/* source text from richlistitem */
+/* source color */
 .cliqz-ac-source-icon {
-  width: 8px;
-  height: 30px;
-  margin-right: 5px solid white;
+  width: 10px;
+  height: 52px;
+  border-left: 5px solid;
+}
+
+.autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
+  border-color: #cccccc;
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon {
+  border-color: lightgreen;
+}
+
+/* history */
+.autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon {
+  border-color: #996699;
+}
+
+.autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon {
+  border-color: #ffcc33;
+}
+
+/* HOVER COLOR */
+/*
+.autocomplete-richlistitem[type="cliqz-results"]:hover {
+  background-color: #cccccc;
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"]:hover {
+  background-color: lightgreen;
+}
+
+.autocomplete-richlistitem[type="favicon"]:hover {
+  background-color: #996699;
+}
+
+.autocomplete-richlistitem[type="bookmark"]:hover {
+  background-color: #ffcc33;
+}
+*/
+.autocomplete-richlistitem:hover {
+  background-color: azure;
 }
 
 .cliqz-ac-logo-icon {
-  width: 70px;
+  width: 64px;
   height: 48px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  margin-top: 2px;
 }
 
 .cliqz-history {
@@ -101,7 +162,7 @@
 .cliqz-ac-url-host {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 9pt;
-  color: #000000;
+  color: #333333;
 }
 
 .cliqz-ac-url-path {
@@ -114,9 +175,24 @@
   
 }
 
-.cliqz-urlBar {
-  background-color: green;
+.cliqz-urlbar-message-search {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  color: white;
+  background-color: #336699;
+  margin: 1px;
+  padding: 1px 5px;
+  border-radius: 1px;
 }
+
+.cliqz-urlbar-message-navigate {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  color: white;
+  background-color: #33cc99; 
+  margin: 1px;
+  padding: 1px 5px;
+  border-radius: 1px;
+}
+
 /*
 @media (max-width: 1250px) {
   #right-cliqz {
@@ -138,6 +214,7 @@
   width: 105px;
   height: 48px;
   padding-left: 20px;
+  padding-top: 2px;
 }
 
 /* general autocomplete item styles */
@@ -151,10 +228,9 @@
 }
 
 .ac-emphasize-text  {
-  color: green;
   background-color: transparent;
   box-shadow: none;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-size: 10pt;
   /* font-weight: bold; */
   color: #669999;

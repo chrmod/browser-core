@@ -1,5 +1,14 @@
 {
 	"updateMessage":{
 		"message":"Eine neue - noch bessere - Version der cliqz-Navigation ist verfügbar.\nOk drücken zum Aktualisieren."
+	},
+	"urlbarSearch":{
+		"message":"Jetzt suchen ▶"
+	},
+	"urlbarNavigate":{
+		"message":"Los ▶"
+	},
+	"searchFor":{
+		"message":"Suchergebnisse für "
 	}
 }
