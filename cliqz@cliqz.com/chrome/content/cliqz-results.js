@@ -18,6 +18,7 @@ var CLIQZResults = CLIQZResults || {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
+    TYPE_VIDEO: ['video.','tvshow'],
     init: function(){
         CLIQZ.Utils.init();
         CLIQZResults.initProvider();
@@ -146,11 +147,11 @@ var CLIQZResults = CLIQZResults || {
                     this.pushResults();
                 }
             },
-            resultFactory: function(style, value, image, comment, label, query){
+            resultFactory: function(style, value, image, comment, label, query, thumbnail){
                 return {
                     style: style,
                     val: value,
-                    image: image || this.createFavicoUrl(value),
+                    image: thumbnail, //image || this.createFavicoUrl(value),
                     comment: comment || value,
                     label: label || value,
                     query: query
@@ -174,7 +175,28 @@ var CLIQZResults = CLIQZResults || {
                 }
                 return "<unknown>" 
             },
-
+            createCliqzResult: function(result){
+                if(result.snippet){
+                    let og = result.snippet.og, thumbnail;
+                    if(og && og.image && og.type)
+                        for(var type in CLIQZResults.TYPE_VIDEO)
+                            if(og.type.indexOf(CLIQZResults.TYPE_VIDEO[type]) != -1){
+                                thumbnail = og.image;
+                                break;
+                            }
+                    return this.resultFactory(
+                        CLIQZResults.CLIQZR, //style
+                        result.url, //value
+                        null, //image -> favico
+                        result.snippet.snippet, //comment
+                        null, //label
+                        this.getExpandedQuery(result.url), //query
+                        thumbnail // video thumbnail
+                    );
+                } else {
+                    return this.resultFactory(CLIQZResults.CLIQZR, result.url);
+                }
+            },
             // mixes history, results and suggestions
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
@@ -203,10 +225,10 @@ var CLIQZResults = CLIQZResults || {
                     for(let i in this.cliqzResults || []) {
                         if(this.cliqzResults[i].url.indexOf(label) != -1) {
                             if(this.cliqzResults[i].snippet)
-                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label, 
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label,
                                     this.getExpandedQuery(this.cliqzResults[i].url)));
                             else
-                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));    
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));
                             cacheIndex = i;
                             break;
                         }
@@ -226,13 +248,7 @@ var CLIQZResults = CLIQZResults || {
                 }
 
                 for(let i in this.cliqzResults || []) {
-                    let r = this.cliqzResults[i];
-
-                    let bucket = bucketCache;
-
-                    if(r.snippet)
-                        bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet, null, this.getExpandedQuery(r.url)));
-                    else bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
+                    bucketCache.push(this.createCliqzResult(this.cliqzResults[i]));
                 }
 
                 /// 2) Prepare final result list from buckets

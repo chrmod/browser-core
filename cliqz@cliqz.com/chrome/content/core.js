@@ -9,6 +9,7 @@ CLIQZ.Core = CLIQZ.Core || {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
+    TUTORIAL_URL: 'http://beta.cliqz.com/tutorial',
     _messageOFF: true, // no message shown
     init: function(){
         CLIQZ.Utils.init();
@@ -32,6 +33,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
+            setTimeout(function(){
+                gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+            },2000);
         }
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
@@ -57,6 +61,14 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
+        // add cliqz message button
+        var cliqzMessage = document.createElement('hbox');
+        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus 
+        var sibling = document.getElementById('urlbar-icons');
+        sibling.parentNode.insertBefore(cliqzMessage, sibling);
+        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
+        CLIQZ.Core.elem.push(cliqzMessage);
+
         //check APIs 
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
@@ -68,15 +80,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZResults.init();
 
         CLIQZ.Utils.log('Initialized', 'CORE');
-
-
-        // add cliqz message button
-        var cliqzMessage = document.createElement('hbox');
-        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus 
-        var sibling = document.getElementById('urlbar-icons');
-        sibling.parentNode.insertBefore(cliqzMessage, sibling);
-        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
-        CLIQZ.Core.elem.push(cliqzMessage);
     },
     // restoring
     destroy: function(){
@@ -132,7 +135,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function() {
-        CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
+        setTimeout(function(){
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
+        }, 25);
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
