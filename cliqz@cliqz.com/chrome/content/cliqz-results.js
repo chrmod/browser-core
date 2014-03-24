@@ -112,6 +112,7 @@ var CLIQZResults = CLIQZResults || {
                     this.resultsTimer = null;
                     this.startTime = null;
                     this.cliqzResults = null;
+                    this.cliqzCache = null;
                     this.cliqzSuggestions = null;
                     this.historyResults = null;
                 } else {
@@ -123,11 +124,14 @@ var CLIQZResults = CLIQZResults || {
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    var results = [], results = [];
+                    var results = [], cache_results = [];
                     if(req.status == 200){
-                        results = JSON.parse(req.response).result;
+                        var json = JSON.parse(req.response)
+                        results = json.result;
+                        cache_results = json.cache;
                     }
                     this.cliqzResults = results;
+                    this.cliqzCache = cache_results;
                     this.pushResults();
                 }
             },
@@ -142,22 +146,45 @@ var CLIQZResults = CLIQZResults || {
                     this.pushResults();
                 }
             },
-            resultFactory: function(style, value, image, comment, label){
+            resultFactory: function(style, value, image, comment, label, query){
                 return {
                     style: style,
                     val: value,
                     image: image || this.createFavicoUrl(value),
                     comment: comment || value,
-                    label: label || value
+                    label: label || value,
+                    query: query
                 };
             },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
+
+            // Find the expanded query that was used for returned URL
+            getExpandedQuery: function(url) {
+                for(let i in this.cliqzCache || []) {
+                    var query = this.cliqzCache[i].q;
+                    for(let j in this.cliqzCache[i].result || []) {
+                        var r = this.cliqzCache[i].result[j]
+
+                        if( r == url )
+                            return query;
+                    }
+                }
+                return "<unknown>" 
+            },
+
             // mixes history, results and suggestions
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
+
+                /// 1) put each result into a bucket
+                var bucketHistoryDomain = [],
+                    bucketHistoryOther = [],
+                    bucketCache = [],
+                    bucketHistoryCache = [];
+
 
                 for (let i = 0;
                      this.historyResults && i < this.historyResults.matchCount && i < 2;
@@ -171,16 +198,91 @@ var CLIQZResults = CLIQZResults || {
                     if(style === 'bookmark')bookmarkResults++;
                     else histResults++;
 
-                    results.push(this.resultFactory(style, value, image, comment, label));
+                    // Deduplicate: check if this result is also in the cache results
+                    let cacheIndex = -1;
+                    for(let i in this.cliqzResults || []) {
+                        if(this.cliqzResults[i].url.indexOf(label) != -1) {
+                            if(this.cliqzResults[i].snippet)
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label, 
+                                    this.getExpandedQuery(this.cliqzResults[i].url)));
+                            else
+                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));    
+                            cacheIndex = i;
+                            break;
+                        }
+                    }
+
+                    if(cacheIndex >= 0) {
+                        // if also found in cache, remove so it is not added to cache-only bucket
+                        this.cliqzResults.splice(cacheIndex, 1);
+                    } else {
+                        // does search string occur in hostname
+                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+                        if(urlparts.host.indexOf(this.searchString) !=-1)
+                            bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                        else
+                            bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                    }
                 }
 
                 for(let i in this.cliqzResults || []) {
                     let r = this.cliqzResults[i];
+
+                    let bucket = bucketCache;
+
                     if(r.snippet)
-                        results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet));
-                    else results.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
+                        bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url, null, r.snippet.snippet, null, this.getExpandedQuery(r.url)));
+                    else bucket.push(this.resultFactory(CLIQZResults.CLIQZR, r.url));
                 }
 
+                /// 2) Prepare final result list from buckets
+
+                var showQueryDebug = CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug')
+                
+                // all bucketHistoryCache
+                for(let i = 0; i < bucketHistoryCache.length; i++) {
+                    if(showQueryDebug)
+                        bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")";
+                    results.push(bucketHistoryCache[i]);
+                }
+
+                // top 1 of bucketHistoryDomain
+                if(bucketHistoryDomain.length > 0) {
+                    if(showQueryDebug)
+                        bucketHistoryDomain[0].comment += " (top History Domain)";
+                    results.push(bucketHistoryDomain[0]);
+                }
+
+                // top 1 of bucketCache
+                if(bucketCache.length > 0) {
+                    if(showQueryDebug)
+                        bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")";
+                    results.push(bucketCache[0]);
+                }
+
+                // rest of bucketHistoryDomain 
+                for(let i = 1; i < bucketHistoryDomain.length; i++) {
+                    if(showQueryDebug)
+                        bucketHistoryDomain[i].comment += " (History Domain)";
+                    results.push(bucketHistoryDomain[i]);
+                }
+
+                // rest of bucketCache
+                for(let i = 1; i < bucketCache.length && i < 4; i++) {
+                    if(showQueryDebug)
+                        bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")";
+                    results.push(bucketCache[i]);
+                }
+
+                // all bucketHistoryOther
+                for(let i = 0; i < bucketHistoryOther.length; i++) {
+                    if(showQueryDebug)
+                        bucketHistoryOther[i].comment += " (History Other)";
+                    results.push(bucketHistoryOther[i]);
+                }
+
+
+                /// 4) Show suggests if not enough else
                 if(results.length < 3){
                     for(let i in this.cliqzSuggestions || []) {
                         results.push(
@@ -235,6 +337,7 @@ var CLIQZResults = CLIQZResults || {
                 CLIQZ.Utils.track(action);
 
                 this.cliqzResults = null;
+                this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzResultsFromSuggestion = null;
