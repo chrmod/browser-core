@@ -9,6 +9,7 @@ CLIQZ.Core = CLIQZ.Core || {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
+    TUTORIAL_URL: 'http://beta.cliqz.com/tutorial',
     _messageOFF: true, // no message shown
     init: function(){
         CLIQZ.Utils.init();
@@ -32,6 +33,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
+            setTimeout(function(){
+                gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+            },2000);
         }
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
