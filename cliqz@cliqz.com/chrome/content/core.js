@@ -33,7 +33,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             setTimeout(function(){
-                gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+                //gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
             },2000);
         }
 
