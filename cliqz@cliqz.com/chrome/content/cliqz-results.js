@@ -197,10 +197,58 @@ var CLIQZResults = CLIQZResults || {
                     return this.resultFactory(CLIQZResults.CLIQZR, result.url);
                 }
             },
+            // TODO - do this in the mix results after it gets stable
+            logResults: function() {
+                var bookmarkResults = 0,
+                    histResults = 0,
+                    tabResults = 0,
+                    cliqzResult = 0,
+                    cliqzResultSnippet = 0,
+                    cliqzResultTitle = 0;
+
+                for (let i = 0;
+                     this.historyResults && i < this.historyResults.matchCount && i < 2;
+                     i++) {
+                    let style = this.historyResults.getStyleAt(i);
+
+                    if(style === 'bookmark')bookmarkResults++;
+                    if(style.indexOf('action') !== -1)tabResults++;
+                    else histResults++;
+                }
+
+                for(let i in this.cliqzResults || []) {
+                    let r = this.cliqzResults[i];
+                    if(r.snippet){
+                        if(r.snippet.snippet){
+                            cliqzResultTitle++; //result with snippet and title
+                        }
+                        else {
+                            cliqzResultSnippet++; //result with snippet but no title
+                        }
+                    } else {
+                        cliqzResult++; //result with no snippet
+                    }
+                }
+
+                var action = {
+                    type: 'activity',
+                    action: 'results',
+                    cliqz_results: cliqzResult,
+                    cliqz_results_snippet: cliqzResultSnippet,
+                    cliqz_results_title: cliqzResultTitle,
+                    history_results: histResults,
+                    bookmark_results: bookmarkResults,
+                    tab_results: tabResults
+                };
+
+                CLIQZ.Utils.track(action);
+            },
             // mixes history, results and suggestions
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
 
+                this.logResults();
+                
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
                     bucketHistoryOther = [],
@@ -327,18 +375,6 @@ var CLIQZResults = CLIQZResults || {
                   + ' (results:' + (this.cliqzResults || []).length
                   //+ ', suggestions: ' + (this.cliqzSuggestions || []).length 
                   + ')' );
-
-                if(results.length > 0){
-                    var action = {
-                        type: 'activity',
-                        action: 'results',
-                        cliqz_results: (this.cliqzResults || []).length,
-                        history_results: histResults,
-                        bookmark_results: bookmarkResults
-                    };
-
-                    CLIQZ.Utils.track(action);
-                }
 
                 return mergedResult;
             },
