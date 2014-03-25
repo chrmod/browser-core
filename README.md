@@ -8,7 +8,8 @@ Firefox Navigation Browser extension
 
 The extension sends the following list of data points
 
-### Environment (sent at startup and every 1 hour afterwards)
+### Environment 
+Sent at startup and every 1 hour afterwards
 
 ``` bash
 {
@@ -62,6 +63,19 @@ Result click (mouse)
 }
 ``` 
 
+Result enter (keyboard)
+
+``` bash
+{
+    "UDID": "10378300660576423|16148",
+    "ts": 1395151332340,
+	"type": "activity",
+    "action": "result_enter",
+    "current_position": 1, // 0 = the first result, 1 = the second result ...
+    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+}
+``` 
+
 Results - results shown in the dropdown
 ``` bash
 {
@@ -76,6 +90,7 @@ Results - results shown in the dropdown
     "UDID": "10378300660576423|16148",
     "ts": 1395151332340
 }
+``` 
 
 Urlbar focus - user clicks in the url bar
 ``` bash
