@@ -13,9 +13,9 @@ Sent at startup and every 1 hour afterwards
 
 ``` bash
 {
-    "UDID": "10378300660576423|16148",    //random ID + separator  + number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",    //random ID + separator  + number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits eg:     10378300660576423|16148"
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
-    "ts": 1395151314278, // UNIX timestamp + ms (last 3 digits)
+    "ts": <UNIX_TIMESTAMP>, // UNIX timestamp + ms (last 3 digits) eg: 1395151314278
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
@@ -31,8 +31,8 @@ Keystoke - any key stroke which triggers a search
 {
     "action": "key_stroke",
     "type": "activity",
-    "UDID": "10378300660576423|16148",
-    "ts": 1395151332340
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>
 }
 ``` 
 
@@ -40,8 +40,8 @@ Arrow key (up/down) - navigation through the results with keyboard
 
 ``` bash
 {
-    "UDID": "10378300660576423|16148",
-    "ts": 1395151332340,
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "arrow_key",
     "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
@@ -54,8 +54,8 @@ Result click (mouse)
 
 ``` bash
 {
-    "UDID": "10378300660576423|16148",
-    "ts": 1395151332340,
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
     "current_position": "1", // 0 = the first result, 1 = the second result ...
@@ -67,8 +67,8 @@ Result enter (keyboard)
 
 ``` bash
 {
-    "UDID": "10378300660576423|16148",
-    "ts": 1395151332340,
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>,
 	"type": "activity",
     "action": "result_enter",
     "current_position": 1, // 0 = the first result, 1 = the second result ...
@@ -87,8 +87,8 @@ Results - results shown in the dropdown
 	"history_results": 2,         // history results
 	"bookmark_results": 0,        // bookmark results
 	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
-    "UDID": "10378300660576423|16148",
-    "ts": 1395151332340
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>
 }
 ``` 
 
@@ -96,9 +96,9 @@ Urlbar focus - user clicks in the url bar
 ``` bash
 {
     "action": "urlbar_focus",
-    "UDID": "10378300660576423|16148",
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
-    "ts": 1395151329786
+    "ts": <UNIX_TIMESTAMP>
 }
 ``` 
 
@@ -106,9 +106,9 @@ Urlbar blur - url bar loses focus - user selects a result, click outside or brow
 ``` bash
 {
     "action": "urlbar_blur", 
-    "UDID": "10378300660576423|16148",
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
-    "ts": 1395151329786
+    "ts": <UNIX_TIMESTAMP>
 }
 ``` 
 
@@ -116,18 +116,38 @@ Dropdown open
 ``` bash
 {
     "action": "dropdown_open", 
-    "UDID": "10378300660576423|16148",
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
-    "ts": 1395151332224
+    "ts": <UNIX_TIMESTAMP>
 }
 ```
 
 Dropdown close
 ``` bash
 {
-    "action": "dropdown_open", 
-    "UDID": "10378300660576423|16148",
+    "action": "dropdown_close", 
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
-    "ts": 1395151332224
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Browser shutdown
+``` bash
+{
+    "action": "browser_shutdown", 
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Addon disable
+``` bash
+{
+    "action": "addon_disable", 
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
 }
 ```
