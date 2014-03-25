@@ -8,7 +8,7 @@ Firefox Navigation Browser extension
 
 The extension sends the following list of data points
 
-### Environment 
+### Environment (sent at startup and every 1 hour afterwards)
 
 ``` bash
 {
@@ -23,69 +23,96 @@ The extension sends the following list of data points
 }
 ```
 
-2. action
+### Actions 
 
-eg1 - keystoke
+Keystoke - any key stroke which triggers a search
+``` bash
 {
     "action": "key_stroke",
+    "type": "activity",
     "UDID": "10378300660576423|16148",
-    "type": "action",
+    "ts": 1395151332340
+}
+``` 
+
+Arrow key (up/down) - navigation through the results with keyboard
+
+``` bash
+{
+    "UDID": "10378300660576423|16148",
+    "ts": 1395151332340,
+    "type": "activity",
+    "action": "arrow_key",
+    "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
+    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+}
+``` 
+
+
+Result click (mouse)
+
+``` bash
+{
+    "UDID": "10378300660576423|16148",
+    "ts": 1395151332340,
+    "type": "activity",
+    "action": "result_click",
+    "current_position": "1", // 0 = the first result, 1 = the second result ...
+    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+}
+``` 
+
+Results - results shown in the dropdown
+``` bash
+{
+    "type": "activity",
+    "action": "results",
+	"cliqz_results": 0,           // cliqz results with no snippet
+	"cliqz_results_snippet": 5,   // cliqz results with snippet but no title
+	"cliqz_results_title": 0,     // cliqz results with snippet and title
+	"history_results": 2,         // history results
+	"bookmark_results": 0,        // bookmark results
+	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
+    "UDID": "10378300660576423|16148",
     "ts": 1395151332340
 }
 
-eg2 - results shown
+Urlbar focus - user clicks in the url bar
+``` bash
 {
-    "bookmarkResults": 0,
-    "cliqzResults": 6,
+    "action": "urlbar_focus",
     "UDID": "10378300660576423|16148",
-    "historyResults": 20,
-    "ts": 1395151332585,
-    "action": "results",
-    "type": "action"
-}
-
-(because this two happen at different moments in time it would be wiser to keep them separated. We can merge them if needed)
-
-eg3 - arrow_key (keyboard)
-{
-    "action": "arrow_key",
-    "currentPosition": 0, // 0 indexed position
-    "UDID": "10378300660576423|16148",
-    "type": "action",
-    "ts": 1395151313585
-}
-
-eg4 - result click (mouse)
-{
-    "action": "result_click",
-    "position": "19",  // 0 indexed position
-    "UDID": "10378300660576423|16148",
-    "type": "action",
-    "ts": 1395151328286
-}
-
-eg5 - other actions 
-{
-    "action": "urlbar_focus", // user clicks in the url bar  - MIGHT BE USED AS SESSION START
-    "UDID": "10378300660576423|16148",
-    "type": "action",
+    "type": "activity",
     "ts": 1395151329786
 }
+``` 
+
+Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
+``` bash
 {
-    "action": "urlbar_blur", //url bar loses focus - user selects a resul, click outside or browser looses focus -  - MIGHT BE USED AS SESSION END
+    "action": "urlbar_blur", 
     "UDID": "10378300660576423|16148",
-    "type": "action",
-    "ts": 1395151334026
+    "type": "activity",
+    "ts": 1395151329786
 }
+``` 
+
+Dropdown open
+``` bash
 {
-    "action": "dropdown_open", // drop down opens 
+    "action": "dropdown_open", 
     "UDID": "10378300660576423|16148",
-    "type": "action",
+    "type": "activity",
     "ts": 1395151332224
-}{
-    "action": "dropdown_close",  // drop down closes 
+}
+```
+
+Dropdown close
+``` bash
+{
+    "action": "dropdown_open", 
     "UDID": "10378300660576423|16148",
-    "type": "action",
-    "ts": 1395151334023
+    "type": "activity",
+    "ts": 1395151332224
 }
 ```

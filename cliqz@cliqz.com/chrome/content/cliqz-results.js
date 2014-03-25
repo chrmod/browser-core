@@ -18,7 +18,7 @@ var CLIQZResults = CLIQZResults || {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
-    TYPE_VIDEO: ['video.','tvshow'],
+    TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
     init: function(){
         CLIQZ.Utils.init();
         CLIQZResults.initProvider();

@@ -4,8 +4,7 @@ var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
-    //INFO_INTERVAL: 0.5 * 60 * 60 * 1e3, // 6 hours
-    INFO_INTERVAL: 30 * 60 * 1e3, // 0.5 hours
+    INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
