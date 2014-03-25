@@ -124,8 +124,8 @@ CLIQZ.Core = CLIQZ.Core || {
         var action = {
             type: 'activity',
             action: 'result_click',
-            position: pos,
-            position_type: source
+            current_position: pos,
+            position_type: source.replace('-', '_')
         };
 
         CLIQZ.Utils.track(action);
@@ -156,8 +156,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     type: 'environment',
                     agent: navigator.userAgent,
                     version: beVersion,
-                    historyDays: history.days,
-                    historyUrls: history.size,
+                    history_days: history.days,
+                    history_urls: history.size,
                     startup: startup? true: false
                 };
 
@@ -240,7 +240,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     type: 'activity',
                     action: 'result_enter',
                     current_position: index,
-                    position_type: source
+                    position_type: source.replace('-', '_')
                 };
 
                 CLIQZ.Utils.track(action);
@@ -265,7 +265,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     if(source.indexOf('action') > -1){
                         source = 'tab_result';
                     }
-                    action.position_type = source;
+                    action.position_type = source.replace('-', '_');
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }

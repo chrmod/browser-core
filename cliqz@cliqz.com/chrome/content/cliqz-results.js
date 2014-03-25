@@ -332,9 +332,9 @@ var CLIQZResults = CLIQZResults || {
                     var action = {
                         type: 'activity',
                         action: 'results',
-                        cliqzResults: (this.cliqzResults || []).length,
-                        historyResults: histResults,
-                        bookmarkResults: bookmarkResults
+                        cliqz_results: (this.cliqzResults || []).length,
+                        history_results: histResults,
+                        bookmark_results: bookmarkResults
                     };
 
                     CLIQZ.Utils.track(action);
