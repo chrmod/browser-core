@@ -3,10 +3,10 @@
 		"message":"Eine neue - noch bessere - Version der cliqz-Navigation ist verfügbar.\nOk drücken zum Aktualisieren."
 	},
 	"urlbarSearch":{
-		"message":"Jetzt suchen ▶"
+		"message":"Suchen"
 	},
 	"urlbarNavigate":{
-		"message":"Los ▶"
+		"message":"Los"
 	},
 	"searchFor":{
 		"message":"Suchergebnisse für "
