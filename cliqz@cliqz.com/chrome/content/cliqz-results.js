@@ -478,9 +478,15 @@ var CLIQZResults = CLIQZResults || {
                     }
                 }
 
-                if(results.length === 0) {
-                    let message = 'Search "' + this.searchString + '" on your default search engine !';
-                    //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
+                if(results.length > 0) {
+                    results.push(
+                            this.resultFactory(
+                                CLIQZResults.CLIQZS,
+                                this.searchString,
+                                CLIQZResults.CLIQZICON,
+                                CLIQZ.Utils.getLocalizedString('searchFor')
+                            )
+                        );
                 }
                 
                 results = this.removeDuplicates(results, -1, 1, 1);
