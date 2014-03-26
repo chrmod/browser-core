@@ -10,5 +10,8 @@
 	},
 	"searchFor":{
 		"message":"Suchergebnisse für "
+	},
+	"searchForDescription":{
+		"message":"mit der Suchmaschine deiner Wahl"
 	}
 }
