@@ -206,10 +206,12 @@ var CLIQZResults = CLIQZResults || {
             // max_by_domain is the maximum number of urls with the same domain (after
             // normalization).
             // max_by_domain_and_path, the maximum number of urls with the same domain+path
+            // max_by_domain_title, the maximum number of urls with the same domain and the same title
             // put -1 to leave them unbounded. 
-            // typical use case, only check by path: removeDuplicates(results, -1, 1)
-            // if you want to not have more than 2 wikipedias: removeDuplicates(results, 2, 1)
-            removeDuplicates: function(results, max_by_domain, max_by_domain_path) {
+            // they all work as a logical AND
+            // typical use case, only check by path: removeDuplicates(results, -1, 1, 1)
+            // if you want to not have more than 2 wikipedias: removeDuplicates(results, 2, 1, 1)
+            removeDuplicates: function(results, max_by_domain, max_by_domain_path, max_by_domain_title) {
                 
                 var filterTLDs = function(domain) {
                     var v = domain.toLowerCase().split('.');
@@ -250,14 +252,20 @@ var CLIQZResults = CLIQZResults || {
                     return v.filter(function(n){ return n != null }).join('.');
                 }
                 
+                var cleanMozillaGarbage = function(url) {
+                    // sometimes firefox might add garbage to the URL, for instance:
+                    // moz-action:switchtab,https://twitter.com/
+                    return url.replace('moz-action:switchtab,','');
+                }
                 
-                var extractKeys = function(url) {
+                var extractKeys = function(url, title) {
                     var domain = null;
                     var path = null;
                     var clean_url = url.toLowerCase().replace(/^http[s]*:\/\//,'').replace(/^www\./,'');
                     var v = clean_url.split('/');
                     var domain = v[0];
                     var path = '/';
+                    
                     if (v.length > 1) {
                         // remove the query string
                         v[v.length-1] = v[v.length-1].split('?')[0];
@@ -266,25 +274,37 @@ var CLIQZResults = CLIQZResults || {
                     
                     domain = filterTLDs(domain);
                     
-                    return [domain, domain + path];
+                    // if no title or empty, generate a random key. This is a fail-safe mechanism
+                    if ((title==undefined) || (title==null) || (title.trim()=='')) {
+                        title = '' + Math.random();
+                    }
+                    
+                    return [domain, domain + path, domain + title];
                 }
                 
                 var deduplicated_results = [];
                 var memo_domain = {};
                 var memo_domain_path = {};
+                var memo_domain_title = {};
                 
                 if (max_by_domain_path==-1) max_by_domain_path = results.length;
                 if (max_by_domain==-1) max_by_domain = results.length;
+                if (max_by_domain_title==-1) max_by_domain_title = results.length;
                 
                 for (let i = 0; i<results.length; i++) {
-                    var w = extractKeys(results[i].val);
+                    //CLIQZ.Utils.log("TITLE: "+ JSON.stringify(results[i]));
+                    //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
+                    var w = extractKeys(cleanMozillaGarbage(results[i].val), results[i].comment);
                     var by_domain = w[0];
                     var by_domain_path = w[1];
+                    var by_domain_title = w[2];
                     
                     (memo_domain[by_domain]==null) ? memo_domain[by_domain]=1 : memo_domain[by_domain]+=1;
                     (memo_domain_path[by_domain_path]==null) ? memo_domain_path[by_domain_path]=1 : memo_domain_path[by_domain_path]+=1;
+                    (memo_domain_title[by_domain_title]==null) ? memo_domain_title[by_domain_title]=1 : memo_domain_title[by_domain_title]+=1;
                     
-                    if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path)) {
+                    
+                    if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                         deduplicated_results.push(results[i]);
                         CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
                     }
@@ -415,7 +435,7 @@ var CLIQZResults = CLIQZResults || {
                     //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
                 }
                 
-                results = this.removeDuplicates(results, -1, 1)
+                results = this.removeDuplicates(results, -1, 1, 1);
                 
                 results = results.slice(0,prefs.getIntPref('maxRichResults'));
 
