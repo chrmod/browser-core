@@ -15,6 +15,13 @@
   border-bottom: 3px solid #cccccc;
 }
 
+/*
+.autocomplete-richlistitem * {
+  background-color: red;
+  border: 1px solid black;
+}
+*/
+
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
 }
@@ -24,7 +31,7 @@
 }
 
 .cliqz-left-separator {
-  width: 20px;
+  width: 10px;
   height: 24px;
 }
 
@@ -91,8 +98,10 @@
 .cliqz-ac-source-icon {
   width: 5px;
   height: 62px;
-  border-right: 10px;
-  transition: width 0.15s ease-in-out;
+  margin-right: 17px;
+  background-position:right 5px center;
+  background-repeat: no-repeat;
+  transition: width 0.2s;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
@@ -106,85 +115,27 @@
 /* history */
 .autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon {
   background-color: #996699;
-  background-image: url(chrome://cliqzres/content/skin/history.png);
-  background-repeat: no-repeat;
-  background-position: right 5px center;
+  background-image: url(chrome://cliqzres/content/skin/history-1.png);
 }
 
 .autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon {
   background-color: #ffcc33;
-  background-image: url(chrome://cliqzres/content/skin/favorite.png);
-  background-repeat: no-repeat;
-  background-position: right 5px center;
+  background-image: url(chrome://cliqzres/content/skin/favorite-1.png);
 }
 
-
-
-.autocomplete-richlistitem:hover .cliqz-ac-source-icon {
-  width: 35px;
-}
-/*
-
-.autocomplete-richlistitem[type="cliqz-results"]:hover .cliqz-ac-source-icon {
-  width: 50px;
-}
-.autocomplete-richlistitem[type="cliqz-suggestions"]:hover .cliqz-ac-source-icon {
-  background-color: lightgreen;
-}
-
-.autocomplete-richlistitem[type="favicon"]:hover .cliqz-ac-source-icon {
-  background-color: #996699;
-}
-
-.autocomplete-richlistitem[type="bookmark"]:hover .cliqz-ac-source-icon {
-  background-color: #ffcc33;
-}
-
-
-
-*/
-
-
-/* HOVER COLOR */
-/*
-.autocomplete-richlistitem[type="cliqz-results"]:hover {
-  background-color: #cccccc;
-}
-
-.autocomplete-richlistitem[type="cliqz-suggestions"]:hover {
-  background-color: lightgreen;
-}
-
-.autocomplete-richlistitem[type="favicon"]:hover {
-  background-color: #996699;
-}
-
-.autocomplete-richlistitem[type="bookmark"]:hover {
-  background-color: #ffcc33;
-}
-*/
-
-/*
-.autocomplete-richlistitem[type="cliqz-results"]:hover {
-  background: linear-gradient(to right, #cccccc, white 40px);
-}
-
-.autocomplete-richlistitem[type="cliqz-suggestions"]:hover {
-  background: linear-gradient(to right, lightgreen, white 40px);
-}
-
-.autocomplete-richlistitem[type="favicon"]:hover {
-  background: linear-gradient(to right, #996699, white 40px);
-}
-
-.autocomplete-richlistitem[type="bookmark"]:hover {
-  background: linear-gradient(to right, #ffcc33, white 40px);
-}
-*/
 
 .autocomplete-richlistitem:hover {
-  border-color: #33cc99;
-  /*background-color: lightgray;*/
+  background-color: rgba(204,204,204,0.1);
+}
+
+.autocomplete-richlistitem[selected="true"] {
+  background-color: rgba(204,204,204,0.3);
+  border: 1px solid black;
+}
+
+.autocomplete-richlistitem:hover .cliqz-ac-source-icon, .autocomplete-richlistitem[selected="true"] .cliqz-ac-source-icon {
+  width: 22px;
+  /* margin-right: 0px; */
 }
 
 .cliqz-ac-logo-icon {
