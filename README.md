@@ -31,6 +31,7 @@ Keystoke - any key stroke which triggers a search
 {
     "action": "key_stroke",
     "type": "activity",
+    "current_length": 2, //current length on the query/url from the urlbar
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -101,6 +102,7 @@ Results - results shown in the dropdown
 	"history_results": 2,         // history results
 	"bookmark_results": 0,        // bookmark results
 	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
+    "result_order": "TBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }

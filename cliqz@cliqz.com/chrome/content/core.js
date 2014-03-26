@@ -211,13 +211,17 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     locationChangeTO: null,
     urlbarMessage: function() {
-        if(CLIQZ.Core.popup.selectedIndex !== -1 ||
-            CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
-            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+        if(CLIQZ.Core.urlbar.value.length > 0){
+            if(CLIQZ.Core.popup.selectedIndex !== -1 ||
+                CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+            } else {
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+            }
         } else {
-            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
         }
     },
     urlbarkeydown: function(ev){
