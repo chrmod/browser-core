@@ -31,6 +31,7 @@ Keystoke - any key stroke which triggers a search
 {
     "action": "key_stroke",
     "type": "activity",
+    "current_length": 2, //current length on the query/url from the urlbar
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -65,6 +66,7 @@ Result click (mouse)
 
 Result enter (keyboard)
 
+1. With a focused result
 ``` bash
 {
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
@@ -73,6 +75,19 @@ Result enter (keyboard)
     "action": "result_enter",
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+}
+``` 
+2. With no focused result - in the urlbar
+``` bash
+{
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "result_enter",
+    "current_position": -1, 
+    "position_type": "inbar_url"/"inbar_query" 
+    // inbar_url = the typed value looks like an url and it should load on enter
+    // inbar_query = the typed value looks like a quer and it should load in the default search engine
 }
 ``` 
 
@@ -87,6 +102,7 @@ Results - results shown in the dropdown
 	"history_results": 2,         // history results
 	"bookmark_results": 0,        // bookmark results
 	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
+    "result_order": "TBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }

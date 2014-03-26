@@ -245,7 +245,7 @@ var CLIQZResults = CLIQZResults || {
                     tab_results: tabResults
                 };
 
-                CLIQZ.Utils.track(action);
+                return action;
             },
             // removes duplicates from the results list. Returns the list with the elements
             // removed. 
@@ -345,7 +345,7 @@ var CLIQZResults = CLIQZResults || {
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0;
 
-                this.logResults();
+                var temp_log = this.logResults();
                 
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
@@ -467,6 +467,18 @@ var CLIQZResults = CLIQZResults || {
                 
                 results = results.slice(0,prefs.getIntPref('maxRichResults'));
 
+                var order = '';
+                for (let r of results){
+                    if(r.style.indexOf('action') !== -1)order+='T';
+                    else if(r.style === 'bookmark')order+='B';
+                    else if(r.style === 'favicon')order+='H';
+                    else if(r.style === 'cliqz-results')order+='R';
+                    else if(r.style === 'cliqz-suggestions')order+='S';
+                    else order+=r.style; //fallback to style - it should never happen
+                }
+                temp_log.result_order = order;
+                CLIQZ.Utils.track(temp_log);
+
                 var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
                     Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
 
@@ -479,12 +491,12 @@ var CLIQZResults = CLIQZResults || {
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
-
+                
                 var action = {
                     type: 'activity',
-                    action: 'key_stroke'
+                    action: 'key_stroke',
+                    current_length: searchString.length
                 };
-
                 CLIQZ.Utils.track(action);
 
                 this.cliqzResults = null;

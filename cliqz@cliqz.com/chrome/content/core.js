@@ -33,7 +33,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             setTimeout(function(){
-                gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+                //gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
             },2000);
         }
 
@@ -211,13 +211,17 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     locationChangeTO: null,
     urlbarMessage: function() {
-        if(CLIQZ.Core.popup.selectedIndex !== -1 ||
-            CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
-            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+        if(CLIQZ.Core.urlbar.value.length > 0){
+            if(CLIQZ.Core.popup.selectedIndex !== -1 ||
+                CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+            } else {
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+            }
         } else {
-            CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
         }
     },
     urlbarkeydown: function(ev){
@@ -228,6 +232,11 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if(code == 13){
             var index = popup.selectedIndex;
+            var action = {
+                    type: 'activity',
+                    action: 'result_enter',
+                    current_position: index
+                };
             if(index != -1){
                 let item = popup.richlistbox._currentItem
 
@@ -235,15 +244,11 @@ CLIQZ.Core = CLIQZ.Core || {
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
-                var action = {
-                    type: 'activity',
-                    action: 'result_enter',
-                    current_position: index,
-                    position_type: source.replace('-', '_')
-                };
-
-                CLIQZ.Utils.track(action);
+                action.position_type = source.replace('-', '_');
+            } else { //enter while on urlbar and no result selected
+                action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
             }
+            CLIQZ.Utils.track(action);
         }
 
         if(code == 38 || code == 40){
