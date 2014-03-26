@@ -479,12 +479,12 @@ var CLIQZResults = CLIQZResults || {
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
-
+                
                 var action = {
                     type: 'activity',
-                    action: 'key_stroke'
+                    action: 'key_stroke',
+                    current_length: searchString.length
                 };
-
                 CLIQZ.Utils.track(action);
 
                 this.cliqzResults = null;

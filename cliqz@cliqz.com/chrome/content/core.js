@@ -228,6 +228,11 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if(code == 13){
             var index = popup.selectedIndex;
+            var action = {
+                    type: 'activity',
+                    action: 'result_enter',
+                    current_position: index
+                };
             if(index != -1){
                 let item = popup.richlistbox._currentItem
 
@@ -235,15 +240,11 @@ CLIQZ.Core = CLIQZ.Core || {
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
-                var action = {
-                    type: 'activity',
-                    action: 'result_enter',
-                    current_position: index,
-                    position_type: source.replace('-', '_')
-                };
-
-                CLIQZ.Utils.track(action);
+                action.position_type = source.replace('-', '_');
+            } else { //enter while on urlbar and no result selected
+                action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
             }
+            CLIQZ.Utils.track(action);
         }
 
         if(code == 38 || code == 40){

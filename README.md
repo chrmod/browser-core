@@ -65,6 +65,7 @@ Result click (mouse)
 
 Result enter (keyboard)
 
+1. With a focused result
 ``` bash
 {
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
@@ -73,6 +74,19 @@ Result enter (keyboard)
     "action": "result_enter",
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+}
+``` 
+2. With no focused result - in the urlbar
+``` bash
+{
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "result_enter",
+    "current_position": -1, 
+    "position_type": "inbar_url"/"inbar_query" 
+    // inbar_url = the typed value looks like an url and it should load on enter
+    // inbar_query = the typed value looks like a quer and it should load in the default search engine
 }
 ``` 
 
