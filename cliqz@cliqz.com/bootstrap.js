@@ -19,13 +19,82 @@ function loadIntoWindow(win, isNew) {
     for (let src of ['core', 'historyManager', 'utils', /*'cliqz-results'*/])
         addScript(src, win)
 
+    addButtons(win);
+
     try {
         win.CLIQZ.Core.init();
     } catch(e) {Cu.reportError(e)}
 }
 
+function $(node, childId) {
+  if (node.getElementById) {
+    return node.getElementById(childId);
+  } else {
+    return node.querySelector('#' + childId);
+  }
+}
+
+function addButtons(win){
+    let document = win.document,
+        navBar = win.document.getElementById('nav-bar');
+
+    let button = win.document.createElement('toolbarbutton');
+    button.setAttribute('id', 'cliqz-button');
+    button.setAttribute('type', 'menu-button'); 
+    button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
+    button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
+  
+    var menupopup = document.createElement('menupopup');
+    menupopup.setAttribute('id', 'menupopup');
+    menupopup.addEventListener('command', function(event) {
+
+    }, false);
+
+
+    var menuitem1 = document.createElement('menuitem');
+    menuitem1.setAttribute('id', 'menuitem1');
+    menuitem1.setAttribute('label', 'Feedback');
+    menuitem1.addEventListener('command', function(event) {
+        openTab(document, 'http://beta.cliqz.com/feedback');    
+    }, false);
+
+    var menuitem2 = document.createElement('menuitem');
+    menuitem2.setAttribute('id', 'menuitem2');
+    menuitem2.setAttribute('label', 'FAQ');
+    menuitem2.addEventListener('command', function(event) {
+        openTab(document, 'http://beta.cliqz.com/faq');    
+    }, false);
+
+    var menuitem3 = document.createElement('menuitem');
+    menuitem3.setAttribute('id', 'menuitem3');
+    menuitem3.setAttribute('label', 'Tutorial');
+    menuitem3.addEventListener('command', function(event) {
+        openTab(document, 'http://beta.cliqz.com/tutorial');    
+    }, false);
+
+    menupopup.appendChild(menuitem1);
+    menupopup.appendChild(menuitem2);
+    menupopup.appendChild(menuitem3);
+    button.appendChild(menupopup);
+
+
+    button.addEventListener('click', function() {
+        //win.BrowserOpenTab('about:home');
+    }, false);
+
+    //anchor.parentNode.insertBefore(button, anchor);
+    navBar.appendChild(button);
+}
+
+function openTab(doc, url){
+    var tBrowser = doc.getElementById('content');
+    var tab = tBrowser.addTab(url);
+    tBrowser.selectedTab = tab;
+}
+
 function unloadFromWindow(win){
     try {
+        win.document.getElementById('cliqz-button').remove();
         win.CLIQZ.Core.destroy();
         delete win.CLIQZ;
     }catch(e){Cu.reportError(e)}

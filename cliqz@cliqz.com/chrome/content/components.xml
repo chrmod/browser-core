@@ -353,7 +353,37 @@
               span.className = domainDefClass + ' flag flag-' + urlDetails.tld;
               span.textContent = '';
               */
-            } 
+            } else { //suggestions
+              return;
+              var title = this.getAttribute("title"),
+                  text = this.getAttribute("text");
+
+                  
+              while (this._titleBox.hasChildNodes()){
+                this._titleBox.removeChild(this._titleBox.firstChild);
+              }
+              // remove default
+              this._url.textContent = '';
+              this._urlOverflowEllipsis.value = '';
+              this._titleBox.textContent = ''
+
+              // url
+              var span = this._urlDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-url-path';
+              span.textContent = url;
+
+              // title
+              span = this._titleBox.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-title-suggestion-desc';
+              span.textContent = title;
+
+              span = this._titleBox.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-title-suggestion';
+              span.textContent = text;
+            }
           ]]>
         </body>
       </method>

@@ -53,11 +53,12 @@
   padding: 0 4px;
 }
 
+.toolbarbutton-1 {}
 /* CLIQZ STYLE */
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  height: 800px;
+  max-height: 150px;
 }
 
 .ac-type-icon {
@@ -88,12 +89,24 @@
   padding: 10px 0 5px 0;
 }
 
-.autocomplete-richlistitem[type="cliqz-results"] .ac-title-box {
+.autocomplete-richlistitem[type="cliqz-results"] .ac-title-box,
+.autocomplete-richlistitem[type="cliqz-suggestions"] .ac-title-box {
   font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
   font-weight: 400; 
   color: #003366;
   padding: 10px 0 5px 0;
+}
+
+.cliqz-ac-title-suggestion-desc {
+  color: #cccccc;
+  font-weight: 500;
+}
+
+.cliqz-ac-title-suggestion {
+  color: #99cccc;
+  font-weight: 400;
+  font-style: italic;
 }
 
 /* source color */
@@ -108,6 +121,7 @@
 
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   background-color: #336699;
+  background-image: url(chrome://cliqzres/content/skin/page.png);
 }
 
 .autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon {

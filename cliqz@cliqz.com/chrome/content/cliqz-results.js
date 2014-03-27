@@ -470,9 +470,10 @@ var CLIQZResults = CLIQZResults || {
                     results.push(
                         this.resultFactory(
                             CLIQZResults.CLIQZS,
-                            CLIQZ.Utils.getLocalizedString('searchForDescription'),
+                            this.cliqzSuggestions[i],
                             CLIQZResults.CLIQZICON,
-                            CLIQZ.Utils.getLocalizedString('searchFor') + this.cliqzSuggestions[i]
+                            CLIQZ.Utils.getLocalizedString('searchFor'), + this.cliqzSuggestions[i],
+                            CLIQZ.Utils.getLocalizedString('searchForDescription')
                         )
                     );
                 }
@@ -483,9 +484,10 @@ var CLIQZResults = CLIQZResults || {
                     results.push(
                             this.resultFactory(
                                 CLIQZResults.CLIQZS,
-                                CLIQZ.Utils.getLocalizedString('searchForDescription'),
+                                this.searchString,
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchFor') + this.searchString
+                                CLIQZ.Utils.getLocalizedString('searchFor'), + this.searchString,
+                                CLIQZ.Utils.getLocalizedString('searchForDescription')
                             )
                         );
                 }
