@@ -390,9 +390,9 @@ var CLIQZResults = CLIQZResults || {
             },
             // mixes history, results and suggestions
             mixResults: function() {
-                var results = [], histResults = 0, bookmarkResults = 0;
-
-                var temp_log = this.logResults();
+                var results = [], histResults = 0, bookmarkResults = 0,
+                    maxResults = prefs.getIntPref('maxRichResults'),
+                    temp_log = this.logResults();
                 
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
@@ -490,21 +490,8 @@ var CLIQZResults = CLIQZResults || {
 
                 results = this.removeDuplicates(results, -1, 1, 1);
 
-                /// 4) Show suggests if not enough else
-                for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
-                    results.push(
-                        this.resultFactory(
-                            CLIQZResults.CLIQZS,
-                            this.cliqzSuggestions[i],
-                            CLIQZResults.CLIQZICON,
-                            CLIQZ.Utils.getLocalizedString('searchFor')
-                        )
-                    );
-                }
-
-                results = results.slice(0,prefs.getIntPref('maxRichResults'));
-
-                if(results.length > 0 && (this.cliqzSuggestions || []).indexOf(this.searchString) === -1){
+                /// 4) Show suggests if not enough results
+                if(results.length > 0 && results.length < maxResults){
                     results.push(
                             this.resultFactory(
                                 CLIQZResults.CLIQZS,
@@ -513,8 +500,22 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZ.Utils.getLocalizedString('searchFor')
                             )
                         );
+
+                    for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
+                        if(this.cliqzSuggestions[i] != this.searchString){
+                            results.push(
+                                this.resultFactory(
+                                    CLIQZResults.CLIQZS,
+                                    this.cliqzSuggestions[i],
+                                    CLIQZResults.CLIQZICON,
+                                    CLIQZ.Utils.getLocalizedString('searchFor')
+                                )
+                            );
+                        }
+                    }
                 }
-                
+
+                results = results.slice(0, maxResults);
 
                 var order = '';
                 for (let r of results){
