@@ -182,12 +182,17 @@
   background-image: none;
 }
 
-.autocomplete-richlistitem:hover .cliqz-ac-source-icon, .autocomplete-richlistitem[selected="true"] .cliqz-ac-source-icon {
+/*.autocomplete-richlistitem:hover .cliqz-ac-source-icon, */
+.autocomplete-richlistitem[selected="true"] .cliqz-ac-source-icon {
   width: 28px;
   /* margin-right: 0px; */
 }
 .autocomplete-richlistitem:hover {
   background-color: rgba(204, 204, 204, 0.3);
+}
+
+.autocomplete-richlistitem[selected="true"]:hover {
+  background-color: white;
 }
 
 .cliqz-ac-logo-icon {
