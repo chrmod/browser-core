@@ -109,9 +109,10 @@ var CLIQZResults = CLIQZResults || {
 
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function() {
+                CLIQZ.Utils.clearTimeout(this.resultsTimer);
                 var now = (new Date()).getTime();
                 if((now > this.startTime + CLIQZResults.TIMEOUT) ||
-                    this.historyResults && this.cliqzResults /* && this.cliqzSuggestions */){
+                    this.historyResults && this.cliqzResults  && this.cliqzSuggestions ){
 
                     this.listener.onSearchResult(this, this.mixResults());
                     this.resultsTimer = null;
@@ -121,7 +122,6 @@ var CLIQZResults = CLIQZResults || {
                     this.cliqzSuggestions = null;
                     this.historyResults = null;
                 } else {
-                    CLIQZ.Utils.clearTimeout(this.resultsTimer);
                     let timeout = this.startTime + CLIQZResults.TIMEOUT - now + 1;
                     this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout);
                 }
@@ -463,29 +463,33 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketHistoryOther[i]);
                 }
 
+                results = this.removeDuplicates(results, -1, 1, 1);
 
                 /// 4) Show suggests if not enough else
-                if(results.length < 3){
-                    for(let i in this.cliqzSuggestions || []) {
-                        results.push(
-                            this.resultFactory(
-                                CLIQZResults.CLIQZS,
-                                this.cliqzSuggestions[i],
-                                CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchFor')// +this.cliqzSuggestions[i]
-                            )
-                        );
-                    }
+                for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
+                    results.push(
+                        this.resultFactory(
+                            CLIQZResults.CLIQZS,
+                            this.cliqzSuggestions[i],
+                            CLIQZResults.CLIQZICON,
+                            CLIQZ.Utils.getLocalizedString('searchFor')
+                        )
+                    );
                 }
 
-                if(results.length === 0) {
-                    let message = 'Search "' + this.searchString + '" on your default search engine !';
-                    //results.push(this.resultFactory(CLIQZS, this.searchString, CLIQZICON, message));
+                results = results.slice(0,prefs.getIntPref('maxRichResults'));
+
+                if(results.length > 0 && (this.cliqzSuggestions || []).indexOf(this.searchString) === -1){
+                    results.push(
+                            this.resultFactory(
+                                CLIQZResults.CLIQZS,
+                                this.searchString,
+                                CLIQZResults.CLIQZICON,
+                                CLIQZ.Utils.getLocalizedString('searchFor')
+                            )
+                        );
                 }
                 
-                results = this.removeDuplicates(results, -1, 1, 1);
-                
-                results = results.slice(0,prefs.getIntPref('maxRichResults'));
 
                 var order = '';
                 for (let r of results){
@@ -504,7 +508,7 @@ var CLIQZResults = CLIQZResults || {
 
                 CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
-                  //+ ', suggestions: ' + (this.cliqzSuggestions || []).length 
+                  + ', suggestions: ' + (this.cliqzSuggestions || []).length 
                   + ')' );
 
                 return mergedResult;
