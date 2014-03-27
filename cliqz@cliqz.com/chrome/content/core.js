@@ -46,7 +46,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
         CLIQZ.Core.popup.setAttribute('onpopuphiding', 
-            CLIQZ.Core.popup.getAttribute('onpopuphiding') + ' CLIQZ.Core.popupEvent(false)');
+            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
         // document.getElementById('PopupAutoCompleteRichResult').onscroll =
         //    function(el){
         //        CLIQZ.Core.updateProgress(el.originalTarget);
