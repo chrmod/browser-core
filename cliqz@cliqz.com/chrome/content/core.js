@@ -78,7 +78,13 @@ CLIQZ.Core = CLIQZ.Core || {
         Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
 
+        
+        CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    // force component reload at install/uninstall
+    reloadComponent: function(el) {
+        return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
     destroy: function(){
@@ -99,8 +105,8 @@ CLIQZ.Core = CLIQZ.Core || {
         var searchContainer = document.getElementById('search-container');
         searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
 
-
         CLIQZResults.destroy();
+        CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
     popupEvent: function(open) {
         var action = {
