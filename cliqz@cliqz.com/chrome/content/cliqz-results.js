@@ -402,11 +402,9 @@ var CLIQZResults = CLIQZResults || {
                     let cacheIndex = -1;
                     for(let i in this.cliqzResults || []) {
                         if(this.cliqzResults[i].url.indexOf(label) != -1) {
-                            if(this.cliqzResults[i].snippet)
-                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label,
-                                    this.getExpandedQuery(this.cliqzResults[i].url)));
-                            else
-                                bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label));
+                            var tempResult = this.createCliqzResult(this.cliqzResults[i])
+                            bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label, 
+                                tempResult.query, tempResult.image));
                             cacheIndex = i;
                             break;
                         }
