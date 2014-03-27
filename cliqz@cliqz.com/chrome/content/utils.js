@@ -61,6 +61,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
     var name_tld = name + "." + tld;
     var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
 
+    //remove www if exists
+    host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     var urlDetails = {
               name: name,
               tld: tld,
