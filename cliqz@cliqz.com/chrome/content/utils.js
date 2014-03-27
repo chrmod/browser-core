@@ -74,6 +74,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
     return urlDetails;
   },
+  // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
   isUrl: function(input){
     CLIQZ.Utils.log(input);
     var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
@@ -82,6 +83,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    if(!pattern.test(input)) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  // checks if a string is a complete url 
+  isCompleteUrl: function(input){
+    CLIQZ.Utils.log(input);
+    var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
       return false;
     } else {

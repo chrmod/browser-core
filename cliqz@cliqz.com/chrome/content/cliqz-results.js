@@ -152,11 +152,23 @@ var CLIQZResults = CLIQZResults || {
                 }
             },
             resultFactory: function(style, value, image, comment, label, query, thumbnail){
+                //try to show host if no comment(page title) is provided
+                if(style !== CLIQZResults.CLIQZS       // is not a suggestion
+                   && (!comment || value == comment || value == label)   // no comment(page title) or comment is exactly the url
+                   && CLIQZ.Utils.isCompleteUrl(value)){       // looks like an url
+                    let host = CLIQZ.Utils.getDetailsFromUrl(value).host
+                    if(host){
+                        comment = host;
+                    }
+                }
+                if(!comment){
+                    comment = value;
+                }
                 return {
                     style: style,
                     val: value,
                     image: thumbnail, //image || this.createFavicoUrl(value),
-                    comment: comment || value,
+                    comment: comment,
                     label: label || value,
                     query: query
                 };
