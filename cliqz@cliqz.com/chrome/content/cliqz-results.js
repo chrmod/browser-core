@@ -379,10 +379,10 @@ var CLIQZResults = CLIQZResults || {
                     
                     if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                         deduplicated_results.push(results[i]);
-                        CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
+                        // CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
                     }
                     else {
-                        CLIQZ.Utils.log('duplicate: ' + results[i].val);
+                        // CLIQZ.Utils.log('duplicate: ' + results[i].val);
                     }
                     
                 }
@@ -529,8 +529,12 @@ var CLIQZResults = CLIQZResults || {
                 temp_log.result_order = order;
                 CLIQZ.Utils.track(temp_log);
 
-                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
-                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
+                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(
+                    this.searchString,
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 
+                    -2, // blocks autocomplete
+                    '', 
+                    results);
 
                 CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length

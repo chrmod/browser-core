@@ -81,8 +81,10 @@
 
           // trim the leading/trailing whitespace
           var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
-          /*
+          
           if(this._currentIndex == 0){
+            CLIQZ.Core.autocompleteQuery(controller.getValueAt(this._currentIndex));
+            /*
             this._google = this._google || document.getAnonymousElementByAttribute(this, "anonid", "button-google");
             this._amazon = this._amazon || document.getAnonymousElementByAttribute(this, "anonid", "button-amazon");
             this._wiki = this._wiki || document.getAnonymousElementByAttribute(this, "anonid", "button-wiki");
@@ -96,8 +98,8 @@
             // this.progressTimeout = setTimeout(function(){
             //  CLIQZ.Core.updateProgress(document.getElementById('PopupAutoCompleteRichResult'), matchCount);
             // },10);
+            */
           }
-          */
           // CLIQZ END
 
           // Process maxRows per chunk to improve performance and user experience

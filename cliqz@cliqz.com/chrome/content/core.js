@@ -10,6 +10,7 @@ CLIQZ.Core = CLIQZ.Core || {
     UPDATE_URL: 'http://beta.cliqz.com/latest',
     TUTORIAL_URL: 'http://beta.cliqz.com/tutorial',
     _messageOFF: true, // no message shown
+    _lastKey:0,
     init: function(){
         CLIQZ.Utils.init();
 
@@ -38,7 +39,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
-        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'urlinline cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
@@ -234,6 +235,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
 
+        CLIQZ.Core._lastKey = ev.keyCode;
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
@@ -294,6 +296,29 @@ CLIQZ.Core = CLIQZ.Core || {
                 ev.preventDefault();
             }
         //ev.preventDefault();
+        }
+    },
+    // autocomplete query inline
+    autocompleteQuery: function(firstResult){   
+        if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
+           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
+            return;
+        }
+
+        let urlBar = CLIQZ.Core.urlbar,
+            endPoint = urlBar.value.length;
+
+
+
+        if(firstResult.indexOf('://') !== -1){
+           firstResult = firstResult.split('://')[1];
+        }
+
+        firstResult = firstResult.replace('www.', '');
+
+        if(firstResult.indexOf(urlBar.value) === 0) {
+            urlBar.value += firstResult.substr(endPoint);
+            urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     }
 };

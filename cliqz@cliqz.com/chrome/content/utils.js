@@ -86,7 +86,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
   isUrl: function(input){
-    CLIQZ.Utils.log(input);
     var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
     '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
@@ -101,7 +100,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   // checks if a string is a complete url 
   isCompleteUrl: function(input){
-    CLIQZ.Utils.log(input);
     var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
       return false;
