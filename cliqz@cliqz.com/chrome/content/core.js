@@ -75,7 +75,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.whoAmI(true); //startup
         setInterval(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
 
-        Cu.import('chrome://cliqz/content/cliqz-results.js');
+        Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
 
         CLIQZ.Utils.log('Initialized', 'CORE');

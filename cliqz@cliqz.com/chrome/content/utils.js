@@ -41,28 +41,38 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   getDetailsFromUrl: function(originalUrl){
     // exclude protocol
-    var url = originalUrl;
+    var url = originalUrl,
+        name = originalUrl,
+        tld = '',
+        subdomains = [],
+        path = '',
+        ssl = originalUrl.indexOf('https') == 0;
+
     if(url.indexOf('://') !== -1){
       url = url.split('://')[1];
     }
     // extract only hostname
     var host = url.split('/')[0];
 
-    var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                                .getService(Components.interfaces.nsIEffectiveTLDService);
+    try {
+      var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                                  .getService(Components.interfaces.nsIEffectiveTLDService);
 
-    var tld = eTLDService.getPublicSuffixFromHost(host);
-    var path = url.replace(host,'');
-    var ssl = originalUrl.indexOf('https') == 0;
-    // Get the domain name w/o subdomains and w/o TLD
-    var tld_with_prefix_dot = "." + tld;
-    var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
-    // Get subdomains
-    var name_tld = name + "." + tld;
-    var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+      var tld = eTLDService.getPublicSuffixFromHost(host);
+      var path = url.replace(host,'');
+      
+      // Get the domain name w/o subdomains and w/o TLD
+      var tld_with_prefix_dot = "." + tld;
+      var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
+      // Get subdomains
+      var name_tld = name + "." + tld;
+      var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+      //remove www if exists
+      host = host.indexOf('www.') == 0 ? host.slice(4) : host;
+    } catch(e){
+      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'ERROR');
+    }
 
-    //remove www if exists
-    host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     var urlDetails = {
               name: name,
               tld: tld,
