@@ -314,6 +314,21 @@ var CLIQZResults = CLIQZResults || {
                     // sometimes firefox might add garbage to the URL, for instance:
                     // moz-action:switchtab,https://twitter.com/
                     return url.replace('moz-action:switchtab,','');
+
+                    /*
+                    General action url parsing
+                    <method name="_parseActionUrl">
+                        <parameter name="aUrl"/>
+                        <body><![CDATA[
+                          if (!aUrl.startsWith("moz-action:"))
+                            return null;
+
+                          // url is in the format moz-action:ACTION,PARAM
+                          let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+                          return {type: action, param: param};
+                        ]]></body>
+                      </method>
+                    */
                 }
                 
                 var extractKeys = function(url, title) {
