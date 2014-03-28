@@ -55,7 +55,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       </method>
     */
     if(url.startsWith("moz-action:")) {
-        let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+        let [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
         url = param;
     }
     return url;
@@ -199,22 +199,22 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils.trk = [];
   },
   timers: [],
-  setTimer: function(func, timeout, type) {
+  setTimer: function(func, timeout, type, param) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
     CLIQZ.Utils.timers.push(timer);
     var event = {
       notify: function (timer) {
-        func();
+        func(param);
       }
     };
     timer.initWithCallback(event, timeout, type);
     return timer;
   },
-  setTimeout: function(func, timeout) {
-    return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+  setTimeout: function(func, timeout, param) {
+    return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
   setInterval: function(func, timeout) {
-  return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
   },
   clearTimeout: function(timer) {
     if (!timer) {

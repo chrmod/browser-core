@@ -70,7 +70,7 @@
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  max-height: 150px; 
+  max-height: 165px; 
 }
 
 .ac-type-icon {
@@ -102,7 +102,8 @@
 
 .autocomplete-richlistitem[type="favicon"] .ac-title-box, 
 .autocomplete-richlistitem[type="bookmark"] .ac-title-box,
-.autocomplete-richlistitem[type="switchtab"] .ac-title-box {
+.autocomplete-richlistitem[type="switchtab"] .ac-title-box,
+.autocomplete-richlistitem[type^="action"] .ac-title-box {
   color: #996699;
 }
 
@@ -144,12 +145,14 @@
 }
 
 /* history */
-.autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon {
+.autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon,
+.autocomplete-richlistitem[type="action favicon"] .cliqz-ac-source-icon {
   background-color: #996699;
   background-image: url(chrome://cliqzres/content/skin/history.png);
 }
 
-.autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon {
+.autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon,
+.autocomplete-richlistitem[type="action bookmark"] .cliqz-ac-source-icon {
   background-color: #ffcc33;
   background-image: url(chrome://cliqzres/content/skin/favorite.png);
 }
