@@ -155,7 +155,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     whoAmI: function(startup){
+        var start = (new Date()).getTime();
         CLIQZ.historyManager.getStats(function(history){
+            CLIQZ.Utils.log((new Date()).getTime() - start,"TIMEEE1");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
@@ -236,7 +238,7 @@ CLIQZ.Core = CLIQZ.Core || {
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
-        //setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;

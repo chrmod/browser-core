@@ -99,31 +99,29 @@ var CLIQZResults = CLIQZResults || {
 
             // history sink
             onSearchResult: function(search, result) {
-                // be sure this is not a delayed result
-                if(result.searchString == this.searchString){ 
-                    //CLIQZ.Utils.log('history results: ' + result.matchCount);
-                    this.historyResults = result;
-                    this.pushResults();
-                }
+                this.historyResults = result;
+                this.pushResults(result.searchString);
             },
 
             // checks if all the results are ready or if the timeout is exceeded
-            pushResults: function() {
-                CLIQZ.Utils.clearTimeout(this.resultsTimer);
-                var now = (new Date()).getTime();
-                if((now > this.startTime + CLIQZResults.TIMEOUT) ||
-                    this.historyResults && this.cliqzResults  && this.cliqzSuggestions ){
+            pushResults: function(q) {
+                if(q == this.searchString){ // be sure this is not a delayed result
+                    CLIQZ.Utils.clearTimeout(this.resultsTimer);
+                    var now = (new Date()).getTime();
+                    if((now > this.startTime + CLIQZResults.TIMEOUT) ||
+                        this.historyResults && this.cliqzResults  && this.cliqzSuggestions ){
 
-                    this.listener.onSearchResult(this, this.mixResults());
-                    this.resultsTimer = null;
-                    this.startTime = null;
-                    this.cliqzResults = null;
-                    this.cliqzCache = null;
-                    this.cliqzSuggestions = null;
-                    this.historyResults = null;
-                } else {
-                    let timeout = this.startTime + CLIQZResults.TIMEOUT - now + 1;
-                    this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout);
+                        this.listener.onSearchResult(this, this.mixResults());
+                        this.resultsTimer = null;
+                        this.startTime = null;
+                        this.cliqzResults = null;
+                        this.cliqzCache = null;
+                        this.cliqzSuggestions = null;
+                        this.historyResults = null;
+                    } else {
+                        let timeout = this.startTime + CLIQZResults.TIMEOUT - now + 1;
+                        this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout, this.searchString);
+                    }
                 }
             },
             // handles fetched results from the cache
@@ -137,8 +135,8 @@ var CLIQZResults = CLIQZResults || {
                     }
                     this.cliqzResults = results;
                     this.cliqzCache = cache_results;
-                    this.pushResults();
                 }
+                this.pushResults(q);
             },
             // handles suggested queries 
             cliqzSuggestionFetcher: function(req, q) {
@@ -147,9 +145,8 @@ var CLIQZResults = CLIQZResults || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
-                    this.cliqzSuggestions = response[1];
-                    this.pushResults();
                 }
+                this.pushResults(q);
             },
             resultFactory: function(style, value, image, comment, label, query, thumbnail){
                 //try to show host if no comment(page title) is provided
@@ -181,12 +178,12 @@ var CLIQZResults = CLIQZResults || {
             // Find the expanded query that was used for returned URL
             getExpandedQuery: function(url) {
                 for(let i in this.cliqzCache || []) {
-                    var query = this.cliqzCache[i].q;
-                    for(let j in this.cliqzCache[i].result || []) {
-                        var r = this.cliqzCache[i].result[j]
+                    let el = this.cliqzCache[i];
+                    for(let j in el.result || []) {
+                        var r = el.result[j]
 
                         if( r == url )
-                            return query;
+                            return 'Query[' +el.q + '] BIGRAM[' + el.bigram + ']';
                     }
                 }
                 return "<unknown>" 
@@ -560,7 +557,8 @@ var CLIQZResults = CLIQZResults || {
             * Stops an asynchronous search that is in progress
             */
             stopSearch: function() {
-            // do we need to something at this step?
+                this.searchString = '';
+                CLIQZ.Utils.clearTimeout(this.resultsTimer);
             }
         }
     }
