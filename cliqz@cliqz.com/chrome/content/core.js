@@ -291,7 +291,7 @@ CLIQZ.Core = CLIQZ.Core || {
             },0);
 
             // avoid looping through results
-            if((code == 40 && popup.selectedIndex === popup.richlistbox.children.length - 1) ||
+            if((code == 40 && popup.selectedIndex === CLIQZ.Core.urlbar.popup._currentIndex - 1) ||
                (code == 38 && popup.selectedIndex === - 1)) {
                 ev.preventDefault();
             }
