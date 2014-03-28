@@ -105,7 +105,6 @@ var CLIQZResults = CLIQZResults || {
 
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
-                CLIQZ.Utils.log('push ' + q,'RURU');
                 if(q == this.searchString){ // be sure this is not a delayed result
                     CLIQZ.Utils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
@@ -123,8 +122,6 @@ var CLIQZResults = CLIQZResults || {
                         let timeout = this.startTime + CLIQZResults.TIMEOUT - now + 1;
                         this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout, this.searchString);
                     }
-                } else {
-                    CLIQZ.Utils.log('ERRRR ' + q,'RURU');
                 }
             },
             // handles fetched results from the cache
