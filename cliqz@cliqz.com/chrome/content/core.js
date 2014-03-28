@@ -301,7 +301,8 @@ CLIQZ.Core = CLIQZ.Core || {
     // autocomplete query inline
     autocompleteQuery: function(firstResult){   
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
-           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
+           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
+           CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
             return;
         }
 
