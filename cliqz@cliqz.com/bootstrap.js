@@ -176,6 +176,7 @@ const PREFS = {
     'messageUpdate': '0', // last update message timestamp
     'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
     'showQueryDebug': false, // show query debug information next to results
+    'showDebugLogs': false, // show debug logs in console
 };
 
 function setDefaultPrefs() {

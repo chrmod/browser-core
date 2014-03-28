@@ -34,7 +34,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
   log: function(msg, key){
-    CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);
+    if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
+      CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);
+    }
   },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);

@@ -238,7 +238,7 @@ CLIQZ.Core = CLIQZ.Core || {
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
-        //setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;

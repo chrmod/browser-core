@@ -118,7 +118,7 @@
 }
 
 .cliqz-ac-title-suggestion {
-  color: #99cccc;
+  color: #669999;
   font-weight: 500;
   font-style: italic;
 }
@@ -156,9 +156,6 @@
   background-color: #ffcc33;
   background-image: url(chrome://cliqzres/content/skin/favorite.png);
 }
-
-
-
 
 .autocomplete-richlistitem[type="cliqz-results"][selected="true"] {
   border-color: #336699;
