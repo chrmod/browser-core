@@ -181,12 +181,12 @@ var CLIQZResults = CLIQZResults || {
             // Find the expanded query that was used for returned URL
             getExpandedQuery: function(url) {
                 for(let i in this.cliqzCache || []) {
-                    var query = this.cliqzCache[i].q;
-                    for(let j in this.cliqzCache[i].result || []) {
-                        var r = this.cliqzCache[i].result[j]
+                    let el = this.cliqzCache[i];
+                    for(let j in el.result || []) {
+                        var r = el.result[j]
 
                         if( r == url )
-                            return query;
+                            return 'Query[' +el.q + '] BIGRAM[' + el.bigram + ']';
                     }
                 }
                 return "<unknown>" 
