@@ -37,29 +37,65 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);
   },
   getDay: function() {
-    return Math.round(new Date().getTime() / 86400000);
+    return Math.floor(new Date().getTime() / 86400000);
+  },
+  cleanMozillaGarbage: function(url){
+    /*
+    General action url parsing
+    <method name="_parseActionUrl">
+        <parameter name="aUrl"/>
+        <body><![CDATA[
+          if (!aUrl.startsWith("moz-action:"))
+            return null;
+
+          // url is in the format moz-action:ACTION,PARAM
+          let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+          return {type: action, param: param};
+        ]]></body>
+      </method>
+    */
+    if(url.startsWith("moz-action:")) {
+        let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+        url = param;
+    }
+    return url;
   },
   getDetailsFromUrl: function(originalUrl){
+    originalUrl = CLIQZ.Utils.cleanMozillaGarbage(originalUrl);
     // exclude protocol
-    var url = originalUrl;
-    if(url.indexOf('://') !== -1){
+    var url = originalUrl,
+        name = originalUrl,
+        tld = '',
+        subdomains = [],
+        path = '',
+        ssl = originalUrl.indexOf('https') == 0,
+        protocolPos = url.indexOf('://');
+
+
+    if(protocolPos != -1 && protocolPos <= 6){
       url = url.split('://')[1];
     }
     // extract only hostname
     var host = url.split('/')[0];
 
-    var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                                .getService(Components.interfaces.nsIEffectiveTLDService);
+    try {
+      var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                                  .getService(Components.interfaces.nsIEffectiveTLDService);
 
-    var tld = eTLDService.getPublicSuffixFromHost(host);
-    var path = url.replace(host,'');
-    var ssl = originalUrl.indexOf('https') == 0;
-    // Get the domain name w/o subdomains and w/o TLD
-    var tld_with_prefix_dot = "." + tld;
-    var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
-    // Get subdomains
-    var name_tld = name + "." + tld;
-    var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+      var tld = eTLDService.getPublicSuffixFromHost(host);
+      var path = url.replace(host,'');
+      
+      // Get the domain name w/o subdomains and w/o TLD
+      var tld_with_prefix_dot = "." + tld;
+      var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
+      // Get subdomains
+      var name_tld = name + "." + tld;
+      var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+      //remove www if exists
+      host = host.indexOf('www.') == 0 ? host.slice(4) : host;
+    } catch(e){
+      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'ERROR');
+    }
 
     var urlDetails = {
               name: name,
@@ -72,14 +108,23 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
     return urlDetails;
   },
+  // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
   isUrl: function(input){
-    CLIQZ.Utils.log(input);
     var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
     '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    if(!pattern.test(input)) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  // checks if a string is a complete url 
+  isCompleteUrl: function(input){
+    var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
       return false;
     } else {

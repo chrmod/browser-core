@@ -10,6 +10,7 @@ CLIQZ.Core = CLIQZ.Core || {
     UPDATE_URL: 'http://beta.cliqz.com/latest',
     TUTORIAL_URL: 'http://beta.cliqz.com/tutorial',
     _messageOFF: true, // no message shown
+    _lastKey:0,
     init: function(){
         CLIQZ.Utils.init();
 
@@ -38,7 +39,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
-        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'urlinline cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
@@ -46,7 +47,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
         CLIQZ.Core.popup.setAttribute('onpopuphiding', 
-            CLIQZ.Core.popup.getAttribute('onpopuphiding') + ' CLIQZ.Core.popupEvent(false)');
+            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
         // document.getElementById('PopupAutoCompleteRichResult').onscroll =
         //    function(el){
         //        CLIQZ.Core.updateProgress(el.originalTarget);
@@ -75,10 +76,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.whoAmI(true); //startup
         setInterval(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
 
-        Cu.import('chrome://cliqz/content/cliqz-results.js');
+        Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
 
+        
+        CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    // force component reload at install/uninstall
+    reloadComponent: function(el) {
+        return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
     destroy: function(){
@@ -99,8 +106,8 @@ CLIQZ.Core = CLIQZ.Core || {
         var searchContainer = document.getElementById('search-container');
         searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
 
-
         CLIQZResults.destroy();
+        CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
     popupEvent: function(open) {
         var action = {
@@ -228,7 +235,8 @@ CLIQZ.Core = CLIQZ.Core || {
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
 
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+        CLIQZ.Core._lastKey = ev.keyCode;
+        //setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;
@@ -283,11 +291,36 @@ CLIQZ.Core = CLIQZ.Core || {
             },0);
 
             // avoid looping through results
-            if((code == 40 && popup.selectedIndex === popup.richlistbox.children.length - 1) ||
+            if((code == 40 && popup.selectedIndex === CLIQZ.Core.urlbar.popup._currentIndex - 1) ||
                (code == 38 && popup.selectedIndex === - 1)) {
                 ev.preventDefault();
             }
         //ev.preventDefault();
+        }
+    },
+    // autocomplete query inline
+    autocompleteQuery: function(firstResult){   
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+        if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
+           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
+           CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
+            return;
+        }
+
+        let urlBar = CLIQZ.Core.urlbar,
+            endPoint = urlBar.value.length;
+
+
+
+        if(firstResult.indexOf('://') !== -1){
+           firstResult = firstResult.split('://')[1];
+        }
+
+        firstResult = firstResult.replace('www.', '');
+
+        if(firstResult.indexOf(urlBar.value) === 0) {
+            urlBar.value += firstResult.substr(endPoint);
+            urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     }
 };

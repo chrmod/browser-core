@@ -152,11 +152,23 @@ var CLIQZResults = CLIQZResults || {
                 }
             },
             resultFactory: function(style, value, image, comment, label, query, thumbnail){
+                //try to show host if no comment(page title) is provided
+                if(style !== CLIQZResults.CLIQZS       // is not a suggestion
+                   && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
+                   && CLIQZ.Utils.isCompleteUrl(value)){       // looks like an url
+                    let host = CLIQZ.Utils.getDetailsFromUrl(value).host
+                    if(host){
+                        comment = host;
+                    }
+                }
+                if(!comment){
+                    comment = value;
+                }
                 return {
                     style: style,
                     val: value,
                     image: thumbnail, //image || this.createFavicoUrl(value),
-                    comment: comment || value,
+                    comment: comment,
                     label: label || value,
                     query: query
                 };
@@ -298,12 +310,6 @@ var CLIQZResults = CLIQZResults || {
                     return v.filter(function(n){ return n != null }).join('.');
                 }
                 
-                var cleanMozillaGarbage = function(url) {
-                    // sometimes firefox might add garbage to the URL, for instance:
-                    // moz-action:switchtab,https://twitter.com/
-                    return url.replace('moz-action:switchtab,','');
-                }
-                
                 var extractKeys = function(url, title) {
                     var domain = null;
                     var path = null;
@@ -340,7 +346,7 @@ var CLIQZResults = CLIQZResults || {
                 for (let i = 0; i<results.length; i++) {
                     //CLIQZ.Utils.log("TITLE: "+ JSON.stringify(results[i]));
                     //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
-                    var w = extractKeys(cleanMozillaGarbage(results[i].val), results[i].comment);
+                    var w = extractKeys(CLIQZ.Utils.cleanMozillaGarbage(results[i].val), results[i].comment);
                     var by_domain = w[0];
                     var by_domain_path = w[1];
                     var by_domain_title = w[2];
@@ -352,10 +358,10 @@ var CLIQZResults = CLIQZResults || {
                     
                     if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                         deduplicated_results.push(results[i]);
-                        CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
+                        // CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
                     }
                     else {
-                        CLIQZ.Utils.log('duplicate: ' + results[i].val);
+                        // CLIQZ.Utils.log('duplicate: ' + results[i].val);
                     }
                     
                 }
@@ -363,9 +369,9 @@ var CLIQZResults = CLIQZResults || {
             },
             // mixes history, results and suggestions
             mixResults: function() {
-                var results = [], histResults = 0, bookmarkResults = 0;
-
-                var temp_log = this.logResults();
+                var results = [], histResults = 0, bookmarkResults = 0,
+                    maxResults = prefs.getIntPref('maxRichResults'),
+                    temp_log = this.logResults();
                 
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
@@ -463,21 +469,8 @@ var CLIQZResults = CLIQZResults || {
 
                 results = this.removeDuplicates(results, -1, 1, 1);
 
-                /// 4) Show suggests if not enough else
-                for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
-                    results.push(
-                        this.resultFactory(
-                            CLIQZResults.CLIQZS,
-                            this.cliqzSuggestions[i],
-                            CLIQZResults.CLIQZICON,
-                            CLIQZ.Utils.getLocalizedString('searchFor')
-                        )
-                    );
-                }
-
-                results = results.slice(0,prefs.getIntPref('maxRichResults'));
-
-                if(results.length > 0 && (this.cliqzSuggestions || []).indexOf(this.searchString) === -1){
+                /// 4) Show suggests if not enough results
+                if(results.length > 0 && results.length < maxResults){
                     results.push(
                             this.resultFactory(
                                 CLIQZResults.CLIQZS,
@@ -486,8 +479,22 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZ.Utils.getLocalizedString('searchFor')
                             )
                         );
+
+                    for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
+                        if(this.cliqzSuggestions[i] != this.searchString){
+                            results.push(
+                                this.resultFactory(
+                                    CLIQZResults.CLIQZS,
+                                    this.cliqzSuggestions[i],
+                                    CLIQZResults.CLIQZICON,
+                                    CLIQZ.Utils.getLocalizedString('searchFor')
+                                )
+                            );
+                        }
+                    }
                 }
-                
+
+                results = results.slice(0, maxResults);
 
                 var order = '';
                 for (let r of results){
@@ -501,8 +508,12 @@ var CLIQZResults = CLIQZResults || {
                 temp_log.result_order = order;
                 CLIQZ.Utils.track(temp_log);
 
-                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(this.searchString,
-                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 0, '', results);
+                var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(
+                    this.searchString,
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 
+                    -2, // blocks autocomplete
+                    '', 
+                    results);
 
                 CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length

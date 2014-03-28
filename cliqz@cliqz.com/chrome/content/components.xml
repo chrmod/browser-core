@@ -81,8 +81,10 @@
 
           // trim the leading/trailing whitespace
           var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
-          /*
+          
           if(this._currentIndex == 0){
+            CLIQZ.Core.autocompleteQuery(controller.getValueAt(this._currentIndex));
+            /*
             this._google = this._google || document.getAnonymousElementByAttribute(this, "anonid", "button-google");
             this._amazon = this._amazon || document.getAnonymousElementByAttribute(this, "anonid", "button-amazon");
             this._wiki = this._wiki || document.getAnonymousElementByAttribute(this, "anonid", "button-wiki");
@@ -96,8 +98,8 @@
             // this.progressTimeout = setTimeout(function(){
             //  CLIQZ.Core.updateProgress(document.getElementById('PopupAutoCompleteRichResult'), matchCount);
             // },10);
+            */
           }
-          */
           // CLIQZ END
 
           // Process maxRows per chunk to improve performance and user experience
@@ -240,13 +242,13 @@
             -->
             <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
 
-            <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
-                             class='cliqz-url-box'/>
             <xul:hbox anonid="url-box" class="ac-url" flex="1"
                       onunderflow="_doUnderflow('_url');"
                       onoverflow="_doOverflow('_url');">
               <xul:description anonid="url" class="ac-normal-text ac-url-text"
                                xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
               <xul:spacer class="cliqz-separator-10"/>
               <xul:description anonid="action" class="ac-normal-text ac-action-text"
                                xbl:inherits="selected type"/>
@@ -384,7 +386,7 @@
               // url
               var span = this._cliqzUrlDetails.appendChild(
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-url-path';
+              span.className = 'cliqz-ac-title-suggestion-desc';
               span.textContent = CLIQZ.Utils.getLocalizedString('searchForDescription');
 
               // title
