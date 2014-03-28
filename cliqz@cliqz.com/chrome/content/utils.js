@@ -37,7 +37,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);
   },
   getDay: function() {
-    return Math.round(new Date().getTime() / 86400000);
+    return Math.floor(new Date().getTime() / 86400000);
   },
   getDetailsFromUrl: function(originalUrl){
     // exclude protocol
@@ -46,9 +46,11 @@ CLIQZ.Utils = CLIQZ.Utils || {
         tld = '',
         subdomains = [],
         path = '',
-        ssl = originalUrl.indexOf('https') == 0;
+        ssl = originalUrl.indexOf('https') == 0,
+        protocolPos = url.indexOf('://');
 
-    if(url.indexOf('://') !== -1){
+
+    if(protocolPos != -1 && protocolPos <= 6){
       url = url.split('://')[1];
     }
     // extract only hostname
