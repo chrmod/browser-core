@@ -72,7 +72,7 @@ function addButtons(win){
     menuitem3.setAttribute('id', 'menuitem3');
     menuitem3.setAttribute('label', 'Tutorial');
     menuitem3.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/tutorial');    
+        openTab(document, 'http://beta.cliqz.com/anleitung');    
     }, false);
 
     menupopup.appendChild(menuitem1);
