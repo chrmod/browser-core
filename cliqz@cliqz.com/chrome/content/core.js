@@ -236,7 +236,7 @@ CLIQZ.Core = CLIQZ.Core || {
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+        //setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             var index = popup.selectedIndex;
@@ -300,6 +300,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){   
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){

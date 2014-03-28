@@ -4,6 +4,11 @@
   -moz-binding: url("chrome://cliqz/content/components.xml#urlbar-rich-result-popup-cliqz");
 }
 
+/* bookmark icon ovveride */
+#star-button {
+  list-style-image: url(chrome://cliqzres/content/skin/star-icons.png);
+}
+
 .autocomplete-richlistbox {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
 }

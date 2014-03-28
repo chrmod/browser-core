@@ -310,27 +310,6 @@ var CLIQZResults = CLIQZResults || {
                     return v.filter(function(n){ return n != null }).join('.');
                 }
                 
-                var cleanMozillaGarbage = function(url) {
-                    // sometimes firefox might add garbage to the URL, for instance:
-                    // moz-action:switchtab,https://twitter.com/
-                    return url.replace('moz-action:switchtab,','');
-
-                    /*
-                    General action url parsing
-                    <method name="_parseActionUrl">
-                        <parameter name="aUrl"/>
-                        <body><![CDATA[
-                          if (!aUrl.startsWith("moz-action:"))
-                            return null;
-
-                          // url is in the format moz-action:ACTION,PARAM
-                          let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
-                          return {type: action, param: param};
-                        ]]></body>
-                      </method>
-                    */
-                }
-                
                 var extractKeys = function(url, title) {
                     var domain = null;
                     var path = null;
@@ -367,7 +346,7 @@ var CLIQZResults = CLIQZResults || {
                 for (let i = 0; i<results.length; i++) {
                     //CLIQZ.Utils.log("TITLE: "+ JSON.stringify(results[i]));
                     //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
-                    var w = extractKeys(cleanMozillaGarbage(results[i].val), results[i].comment);
+                    var w = extractKeys(CLIQZ.Utils.cleanMozillaGarbage(results[i].val), results[i].comment);
                     var by_domain = w[0];
                     var by_domain_path = w[1];
                     var by_domain_title = w[2];
