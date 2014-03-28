@@ -17,22 +17,28 @@ CLIQZ.historyManager = CLIQZ.historyManager || {
 
         this.PlacesInterestsStorage
             ._execute(
-                "SELECT rev_host, v.visit_date / 86400000000 day, url " +
+                //"SELECT rev_host, v.visit_date / 86400000000 day, url " +
+                "SELECT count(*) cnt, MIN(v.visit_date) first " +
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
                 "WHERE h.hidden = 0 AND h.visit_count > 0 ", 
                 {
-                    columns: ["rev_host", "day", "url"],
-                    onRow: function({rev_host, day, url}) {
+                    //columns: ["rev_host", "day", "url"],
+                    //onRow: function({rev_host, day, url}) {
+                    columns: ["cnt", "first"],
+                    onRow: function({cnt, first}) {
                     try {
+                        history = Math.ceil(first / 86400000000);
+                        historysize = cnt;
+                        /*
                         let host = rev_host.slice(0, -1).split("").reverse().join("");
                         let base = host;
                         historysize = historysize + 1;
                         if (day < history) {
                             history= day;
                         } 
-                        /*
+                        
                         base = base.replace("www.", "");
                         //let base = Services.eTLD.getBaseDomainFromHost(host);
                         var m = url.split("/");

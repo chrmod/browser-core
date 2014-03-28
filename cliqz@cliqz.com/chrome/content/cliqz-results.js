@@ -168,7 +168,7 @@ var CLIQZResults = CLIQZResults || {
                     style: style,
                     val: value,
                     image: thumbnail, //image || this.createFavicoUrl(value),
-                    comment: comment + '  ' + style,
+                    comment: comment,
                     label: label || value,
                     query: query
                 };
