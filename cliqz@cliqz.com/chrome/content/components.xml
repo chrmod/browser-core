@@ -309,8 +309,20 @@
 
             if(source !== 'cliqz-suggestions' && urlDetails){
               // add logo
-              this._logo.className = 'cliqz-ac-logo-icon logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
-              
+              this._logo.className = 'cliqz-ac-logo-icon ';
+              // lowest priority: base domain, no tld
+              this._logo.className += ' logo-' + urlDetails.name;
+              // domain.tld
+              this._logo.className += ' logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+              if(urlDetails.subdomains.length > 0){
+                // subdomain.domain - to match domains like maps.google.co.uk and maps.google.de with maps-google
+                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-' 
+                                     + urlDetails.name;
+                // subdomain.domain.tld
+                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-' 
+                                     + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+              }
+
               // add lock
               if(urlDetails.ssl){
                 this._url_type.className += ' cliqz-ac-site-icon-ssl';

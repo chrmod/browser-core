@@ -67,14 +67,14 @@
 .logo-alternate-de {
 	background-image: url(http://beta.cliqz.com/logo/alternate.de.png);
 }
-.logo-amazon-com {
-	background-image: url(http://beta.cliqz.com/logo/amazon.com.png);
+.logo-amazon {
+	background-image: url(http://beta.cliqz.com/logo/amazon.png);
 }
-.logo-amazon-co-uk {
-	background-image: url(http://beta.cliqz.com/logo/amazon.co.uk.png);
+.logo-aws-amazon-com {
+	background-image: url(http://beta.cliqz.com/logo/aws.amazon.com.png);
 }
-.logo-amazon-de {
-	background-image: url(http://beta.cliqz.com/logo/amazon.de.png);
+.logo-amazonaws-com {
+	background-image: url(http://beta.cliqz.com/logo/amazonaws.com.png);
 }
 .logo-androidpit-de {
 	background-image: url(http://beta.cliqz.com/logo/androidpit.de.png);
@@ -82,11 +82,8 @@
 .logo-anyoption-com {
 	background-image: url(http://beta.cliqz.com/logo/anyoption.com.png);
 }
-.logo-aol-com {
-	background-image: url(http://beta.cliqz.com/logo/aol.com.png);
-}
-.logo-aol-de {
-	background-image: url(http://beta.cliqz.com/logo/aol.de.png);
+.logo-aol {
+	background-image: url(http://beta.cliqz.com/logo/aol.png);
 }
 .logo-apotheken-umschau-de {
 	background-image: url(http://beta.cliqz.com/logo/apotheken-umschau.de.png);
@@ -274,14 +271,8 @@
 .logo-dw-de {
 	background-image: url(http://beta.cliqz.com/logo/dw.de.png);
 }
-.logo-ebay-com {
-	background-image: url(http://beta.cliqz.com/logo/ebay.com.png);
-}
-.logo-ebay-co-uk {
-	background-image: url(http://beta.cliqz.com/logo/ebay.co.uk.png);
-}
-.logo-ebay-de {
-	background-image: url(http://beta.cliqz.com/logo/ebay.de.png);
+.logo-ebay {
+	background-image: url(http://beta.cliqz.com/logo/ebay.png);
 }
 .logo-ebesucher-de {
 	background-image: url(http://beta.cliqz.com/logo/ebesucher.de.png);
@@ -316,7 +307,7 @@
 .logo-fiducia-de {
 	background-image: url(http://beta.cliqz.com/logo/fiducia.de.png);
 }
-.logo-files.wordpress-com {
+.logo-files-wordpress-com {
 	background-image: url(http://beta.cliqz.com/logo/files.wordpress.com.png);
 }
 .logo-filmstarts-de {
@@ -388,20 +379,14 @@
 .logo-goodgamestudios-com {
 	background-image: url(http://beta.cliqz.com/logo/goodgamestudios.com.png);
 }
-.logo-google-com {
-	background-image: url(http://beta.cliqz.com/logo/google.com.png);
+.logo-google {
+	background-image: url(http://beta.cliqz.com/logo/google.png);
 }
-.logo-google-co-uk {
-	background-image: url(http://beta.cliqz.com/logo/google.co.uk.png);
+.logo-mail-google { 
+	background-image: url(http://beta.cliqz.com/logo/mail.google.png);	
 }
-.logo-google-de {
-	background-image: url(http://beta.cliqz.com/logo/google.de.png);
-}
-.logo-google-es {
-	background-image: url(http://beta.cliqz.com/logo/google.es.png);
-}
-.logo-google-fr {
-	background-image: url(http://beta.cliqz.com/logo/google.fr.png);
+.logo-maps-google { 
+	background-image: url(http://beta.cliqz.com/logo/maps.google.png);	
 }
 .logo-groupon-de {
 	background-image: url(http://beta.cliqz.com/logo/groupon.de.png);
@@ -679,11 +664,8 @@
 .logo-outbrain-com {
 	background-image: url(http://beta.cliqz.com/logo/outbrain.com.png);
 }
-.logo-paypal-com {
-	background-image: url(http://beta.cliqz.com/logo/paypal.com.png);
-}
-.logo-paypal-de {
-	background-image: url(http://beta.cliqz.com/logo/paypal.de.png);
+.logo-paypal {
+	background-image: url(http://beta.cliqz.com/logo/paypal.png);
 }
 .logo-pcgames-de {
 	background-image: url(http://beta.cliqz.com/logo/pcgames.de.png);
@@ -1087,9 +1069,6 @@
 .logo-affili-net {
 	background-image: url(http://beta.cliqz.com/logo/affili.net.png);
 }
-.logo-amazonaws-com {
-	background-image: url(http://beta.cliqz.com/logo/amazonaws.com.png);
-}
 .logo-amica-de {
 	background-image: url(http://beta.cliqz.com/logo/amica.de.png);
 }
@@ -1132,7 +1111,7 @@
 .logo-battlefield-com {
 	background-image: url(http://beta.cliqz.com/logo/battlefield.com.png);
 }
-.logo-bbc-co-uk {
+.logo-bbc.co-uk {
 	background-image: url(http://beta.cliqz.com/logo/bbc.co.uk.png);
 }
 .logo-bertelsmann-de {
@@ -1180,7 +1159,7 @@
 .logo-cyberport-de {
 	background-image: url(http://beta.cliqz.com/logo/cyberport.de.png);
 }
-.logo-dailymail-co-uk {
+.logo-dailymail.co-uk {
 	background-image: url(http://beta.cliqz.com/logo/dailymail.co.uk.png);
 }
 .logo-daskochrezept-de {
@@ -1231,7 +1210,7 @@
 .logo-fcbayern-de {
 	background-image: url(http://beta.cliqz.com/logo/fcbayern.de.png);
 }
-.logo-fcbayern.telekom-de {
+.logo-fcbayern-telekom-de {
 	background-image: url(http://beta.cliqz.com/logo/fcbayern.telekom.de.png);
 }
 .logo-fck-de {
@@ -1339,7 +1318,7 @@
 .logo-o2online-de {
 	background-image: url(http://beta.cliqz.com/logo/o2online.de.png);
 }
-.logo-opodo-co-uk {
+.logo-opodo.co-uk {
 	background-image: url(http://beta.cliqz.com/logo/opodo.co.uk.png);
 }
 .logo-organize-me {
