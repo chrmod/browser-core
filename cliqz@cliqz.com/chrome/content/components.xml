@@ -374,7 +374,7 @@
               // url
               var span = this._cliqzUrlDetails.appendChild(
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-url-path';
+              span.className = 'cliqz-ac-title-suggestion-desc';
               span.textContent = CLIQZ.Utils.getLocalizedString('searchForDescription');
 
               // title
