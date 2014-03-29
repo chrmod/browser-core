@@ -98,6 +98,9 @@
   font-size: 10pt;
   font-weight: 500;
   padding: 10px 0 2px 0;
+
+  /* windows */
+  margin: 0px;
 }
 
 .autocomplete-richlistitem[type="favicon"] .ac-title-box, 
@@ -194,6 +197,9 @@
 .autocomplete-richlistitem[selected="true"] {
   background-color: white;
   background-image: none;
+  /* override windows aero styles*/
+  border-radius: 0px;
+  outline: none;
 }
 
 .autocomplete-richlistitem:hover .cliqz-ac-source-icon, 
