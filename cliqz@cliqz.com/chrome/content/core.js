@@ -34,7 +34,8 @@ CLIQZ.Core = CLIQZ.Core || {
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             setTimeout(function(){
-                gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+                // open tutorial page and focus it
+                gBrowser.selectedTab = gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
             },2000);
         }
 
@@ -323,6 +324,48 @@ CLIQZ.Core = CLIQZ.Core || {
         if(firstResult.indexOf(urlBar.value) === 0) {
             urlBar.value += firstResult.substr(endPoint);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
+        }
+    },
+    openOrReuseTab: function(oldUrl, newUrl) {
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                         .getService(Components.interfaces.nsIWindowMediator);
+        var browserEnumerator = wm.getEnumerator('navigator:browser');
+
+        // Check each browser instance for our URL
+        var found = false;
+        while (!found && browserEnumerator.hasMoreElements()) {
+            var browserWin = browserEnumerator.getNext();
+            var tabbrowser = browserWin.gBrowser;
+
+            // Check each tab of this browser instance
+            var numTabs = tabbrowser.browsers.length;
+            for (var index = 0; index < numTabs; index++) {
+                var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+                if (oldUrl == currentBrowser.currentURI.spec) {
+
+                    // The URL is already opened. Select this tab.
+                    tabbrowser.selectedTab = tabbrowser.tabContainer.childNodes[index];
+
+                    // Focus *this* browser-window
+                    browserWin.focus();
+
+                    found = true;
+                break;
+                }
+            }
+        }
+
+        // Our URL isn't open. Open it now.
+        if (!found) {
+            var recentWindow = wm.getMostRecentWindow("navigator:browser");
+            if (recentWindow) {
+              // Use an existing browser window
+              recentWindow.delayedOpenTab(newUrl, null, null, null, null);
+            }
+            else {
+              // No browser windows are open, so open a new one.
+              window.open(newUrl);
+            }
         }
     }
 };
