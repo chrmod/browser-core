@@ -8,7 +8,8 @@ CLIQZ.Core = CLIQZ.Core || {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
     UPDATE_URL: 'http://beta.cliqz.com/latest',
-    TUTORIAL_URL: 'http://beta.cliqz.com/tutorial',
+    TUTORIAL_URL: 'http://beta.cliqz.com/anleitung',
+    INSTAL_URL: 'http://beta.cliqz.com/code-verified',
     _messageOFF: true, // no message shown
     _lastKey:0,
     init: function(){
@@ -34,7 +35,11 @@ CLIQZ.Core = CLIQZ.Core || {
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             setTimeout(function(){
-                //gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+                // open tutorial page and focus it
+                // gBrowser.selectedTab = gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
+
+                // try to redirect install url to tutorial url
+                CLIQZ.Core.openOrReuseTab(CLIQZ.Core.TUTORIAL_URL, CLIQZ.Core.INSTAL_URL);
             },2000);
         }
 
@@ -323,6 +328,53 @@ CLIQZ.Core = CLIQZ.Core || {
         if(firstResult.indexOf(urlBar.value) === 0) {
             urlBar.value += firstResult.substr(endPoint);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
+        }
+    },
+    openOrReuseTab: function(newUrl, oldUrl) {
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                         .getService(Components.interfaces.nsIWindowMediator);
+        var browserEnumerator = wm.getEnumerator('navigator:browser');
+
+        // Check each browser instance for our URL
+        var found = false;
+        if(oldUrl){ // only look for an already open tab if old url provided
+            while (!found && browserEnumerator.hasMoreElements()) {
+                var browserWin = browserEnumerator.getNext();
+                var tabbrowser = browserWin.gBrowser;
+
+                // Check each tab of this browser instance
+                var numTabs = tabbrowser.browsers.length;
+                for (var index = 0; index < numTabs; index++) {
+                    var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+                    if (oldUrl == currentBrowser.currentURI.spec) {
+                        var tab = tabbrowser.tabContainer.childNodes[index];
+                        // The URL is already opened. Select this tab.
+                        tabbrowser.selectedTab = tab;
+
+                        // redirect tab to new url
+                        tab.linkedBrowser.contentWindow.location.href = newUrl;
+                        
+                        // Focus *this* browser-window
+                        browserWin.focus();
+
+                        found = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Our URL isn't open. Open it now.
+        if (!found) {
+            var recentWindow = wm.getMostRecentWindow("navigator:browser");
+            if (recentWindow) {
+              // Use an existing browser window
+              recentWindow.delayedOpenTab(newUrl, null, null, null, null);
+            }
+            else {
+              // No browser windows are open, so open a new one.
+              window.open(newUrl);
+            }
         }
     }
 };

@@ -55,7 +55,10 @@ function addButtons(win){
     menuitem1.setAttribute('id', 'menuitem1');
     menuitem1.setAttribute('label', 'Feedback');
     menuitem1.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/feedback');    
+        win.Application.getExtensions(function(extensions) {
+                var beVersion = extensions.get('cliqz@cliqz.com').version
+                openTab(document, 'http://beta.cliqz.com/feedback/' + beVersion);
+        });    
     }, false);
 
     var menuitem2 = document.createElement('menuitem');
@@ -69,7 +72,7 @@ function addButtons(win){
     menuitem3.setAttribute('id', 'menuitem3');
     menuitem3.setAttribute('label', 'Tutorial');
     menuitem3.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/tutorial');    
+        openTab(document, 'http://beta.cliqz.com/anleitung');    
     }, false);
 
     menupopup.appendChild(menuitem1);
