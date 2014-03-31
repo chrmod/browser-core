@@ -12,6 +12,7 @@ CLIQZ.Core = CLIQZ.Core || {
     INSTAL_URL: 'http://beta.cliqz.com/code-verified',
     _messageOFF: true, // no message shown
     _lastKey:0,
+    _updateAvailable: false,
     init: function(){
         CLIQZ.Utils.init();
 
@@ -190,9 +191,11 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         });
     },
-    updateCheck: function(currentVersion) {
+    updateCheck: function(currentVersion, alertNegative) {
         var pref = CLIQZ.Core.cliqzPrefs,
             now = (new Date()).getTime();
+
+        CLIQZ.Core._updateAvailable = false;
         if(now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
             CLIQZ.Utils.getLatestVersion(function(latestVersion){
                 if(currentVersion != latestVersion){
@@ -205,9 +208,14 @@ CLIQZ.Core = CLIQZ.Core || {
                     }
 
                     CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
+                    CLIQZ.Core._updateAvailable = true;
                     CLIQZ.Core.showUpdateMessage();
                 }
             });
+        }
+
+        if(alertNegative && !CLIQZ.Core._updateAvailable){
+            alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
         }
     },
     showUpdateMessage: function(){
