@@ -180,6 +180,7 @@ const PREFS = {
     'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
     'showQueryDebug': false, // show query debug information next to results
     'showDebugLogs': false, // show debug logs in console
+    'popupHeight': 165 // popup/dropdown height in pixels 
 };
 
 function setDefaultPrefs() {

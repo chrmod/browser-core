@@ -176,11 +176,6 @@
     </implementation>
   </binding>
 
-  <!-- clone of chrome://browser/content/urlbarBindings.xml#urlbar-rich-result-popup with diferent inheritance -->
-  <binding id="urlbar-rich-result-popup-cliqz" extends="chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz">
-  </binding>
-
-
   <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <handlers>
       <handler event="mouseup">
@@ -210,9 +205,14 @@
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
         </xul:vbox>
-        <xul:vbox>
-          <xul:image anonid="cliqz-image" />
-        </xul:vbox>
+        <xul:stack>
+          <xul:hbox class="cliqz-image-box">
+            <xul:image anonid="cliqz-image" />
+          </xul:hbox>
+          <xul:hbox right="0" bottom="0">
+            <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+          </xul:hbox>
+        </xul:stack>
         <xul:vbox flex="1">
           <xul:hbox align="center" class="ac-title-box" >
             <!-- 
@@ -274,12 +274,16 @@
                 urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
                 domainDefClass = '';
 
-            this._url_type = this._url_type || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
-            this._url_type.className = 'cliqz-left-separator';
+            this._cliqzUrlType = this._cliqzUrlType || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
+            this._cliqzUrlType.className = 'cliqz-left-separator';
             
             this._cliqzImage = this._cliqzImage || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image");
             this._cliqzImage.setAttribute("src", "");
-            this._cliqzImage.className = '';
+            this._cliqzImage.className = "";
+
+            this._cliqzImageDesc = this._cliqzImageDesc || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image-desc");
+            this._cliqzImageDesc.textContent = "";
+            this._cliqzImageDesc.className = "";
 
             this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
             this._logo.className = '';
@@ -325,13 +329,20 @@
 
               // add lock
               if(urlDetails.ssl){
-                this._url_type.className += ' cliqz-ac-site-icon-ssl';
+                this._cliqzUrlType.className += ' cliqz-ac-site-icon-ssl';
               }
 
               // add video thumbnail
               if(this.getAttribute('image') != 'null'){
+                let img = JSON.parse(this.getAttribute('image'));
+
                 this._cliqzImage.className = 'cliqz-ac-image';
-                this._cliqzImage.setAttribute("src", this.getAttribute('image'));
+                this._cliqzImage.setAttribute("src", img.image);
+
+                if(img.description){
+                  this._cliqzImageDesc.textContent = "▶ " + img.description;
+                  this._cliqzImageDesc.className = 'cliqz-image-desc';
+                }
               }
               //}
               

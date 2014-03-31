@@ -84,7 +84,16 @@ var CLIQZResults = CLIQZResults || {
             getValueAt: function(index) { return this._results[index].val; },
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
-            getImageAt: function (index) { return this._results[index].image; },
+            getImageAt: function (index) { 
+                if(this._results[index].image){
+                    return JSON.stringify({
+                        image: this._results[index].image,
+                        description: this._results[index].imageDescription
+                    });
+                } else {
+                    return undefined;
+                }
+            },
             getLabelAt: function(index) { return this._results[index].label; },
             QueryInterface: XPCOMUtils.generateQI([  ])
         };
@@ -145,10 +154,11 @@ var CLIQZResults = CLIQZResults || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
+                    this.cliqzSuggestions = response[1];
                 }
                 this.pushResults(q);
             },
-            resultFactory: function(style, value, image, comment, label, query, thumbnail){
+            resultFactory: function(style, value, image, comment, label, query, thumbnail, imageDescription){
                 //try to show host if no comment(page title) is provided
                 if(style !== CLIQZResults.CLIQZS       // is not a suggestion
                    && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
@@ -167,7 +177,8 @@ var CLIQZResults = CLIQZResults || {
                     image: thumbnail, //image || this.createFavicoUrl(value),
                     comment: comment,
                     label: label || value,
-                    query: query
+                    query: query,
+                    imageDescription: imageDescription
                 };
             },
             createFavicoUrl: function(url){
@@ -190,11 +201,15 @@ var CLIQZResults = CLIQZResults || {
             },
             createCliqzResult: function(result){
                 if(result.snippet){
-                    let og = result.snippet.og, thumbnail;
+                    let og = result.snippet.og, thumbnail, duration;
                     if(og && og.image && og.type)
                         for(var type in CLIQZResults.TYPE_VIDEO)
                             if(og.type.indexOf(CLIQZResults.TYPE_VIDEO[type]) != -1){
                                 thumbnail = og.image;
+                                if(og.duration && parseInt(og.duration)){
+                                    let seconds = parseInt(og.duration);
+                                    duration = Math.floor(seconds/60) + ':' + seconds%60; //might be undefined
+                                }
                                 break;
                             }
                     return this.resultFactory(
@@ -204,7 +219,8 @@ var CLIQZResults = CLIQZResults || {
                         result.snippet.snippet, //comment
                         null, //label
                         this.getExpandedQuery(result.url), //query
-                        thumbnail // video thumbnail
+                        thumbnail, // video thumbnail
+                        duration // image description -> video duration
                     );
                 } else {
                     return this.resultFactory(CLIQZResults.CLIQZR, result.url);
@@ -545,9 +561,15 @@ var CLIQZResults = CLIQZResults || {
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
 
-                // start fetching results and suggestions
-                CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
-                CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                if(searchString.trim().length){
+                    // start fetching results and suggestions
+                    CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
+                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                } else {
+                    this.cliqzResults = [];
+                    this.cliqzCache = [];
+                    this.cliqzSuggestions = [];
+                }
 
                 // trigger history search
                 this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
