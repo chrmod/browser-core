@@ -334,11 +334,15 @@
 
               // add video thumbnail
               if(this.getAttribute('image') != 'null'){
-                this._cliqzImage.className = 'cliqz-ac-image';
-                this._cliqzImage.setAttribute("src", this.getAttribute('image'));
+                let img = JSON.parse(this.getAttribute('image'));
 
-                this._cliqzImageDesc.textContent = "▶ LALA";
-                this._cliqzImageDesc.className = 'cliqz-image-desc';
+                this._cliqzImage.className = 'cliqz-ac-image';
+                this._cliqzImage.setAttribute("src", img.image);
+
+                if(img.description){
+                  this._cliqzImageDesc.textContent = "▶ " + img.description;
+                  this._cliqzImageDesc.className = 'cliqz-image-desc';
+                }
               }
               //}
               
