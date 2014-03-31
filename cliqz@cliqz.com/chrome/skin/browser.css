@@ -54,7 +54,25 @@
 }
 
 .cliqz-url-box {
-  margin: 0px;
+}
+
+.cliqz-image-box {
+}
+
+.cliqz-ac-image {
+  width: 96px;
+  height: 54px;
+  padding: 5px 5px 5px 0px;
+}
+
+.cliqz-image {
+}
+
+.cliqz-image-desc {
+  background-color: black;
+  color: white;
+  padding: 2px;
+  margin: 0px 5px 10px 0px;
 }
 
 /* switch to tab*/
@@ -298,14 +316,6 @@
 #right-cliqz {
   display: none;
 }
-
-.cliqz-ac-image {
-  width: 96px;
-  height: 54px;
-  padding-left: 5px;
-  padding-top: 7px;
-}
-
 
 /* url container */
 .ac-url-box {
