@@ -9,6 +9,12 @@
   list-style-image: url(chrome://cliqzres/content/skin/star-icons.png);
 }
 
+@media (min-resolution: 2dppx) {
+  #star-button {
+    list-style-image: url(chrome://cliqzres/content/skin/star-icons@2x.png);
+  }
+}
+
 .autocomplete-richlistbox {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
 }

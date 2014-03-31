@@ -483,7 +483,7 @@ var CLIQZResults = CLIQZResults || {
                 results = this.removeDuplicates(results, -1, 1, 1);
 
                 /// 4) Show suggests if not enough results
-                if(results.length > 0 && results.length < maxResults){
+                if(this.searchString && results.length > 0 && results.length < maxResults){
                     results.push(
                             this.resultFactory(
                                 CLIQZResults.CLIQZS,
@@ -494,7 +494,7 @@ var CLIQZResults = CLIQZResults || {
                         );
 
                     for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
-                        if(this.cliqzSuggestions[i] != this.searchString){
+                        if(this.cliqzSuggestions[i].toLowerCase() != this.searchString.toLowerCase()){
                             results.push(
                                 this.resultFactory(
                                     CLIQZResults.CLIQZS,

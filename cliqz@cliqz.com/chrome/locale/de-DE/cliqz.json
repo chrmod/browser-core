@@ -2,6 +2,9 @@
 	"updateMessage":{
 		"message":"Eine neue - noch bessere - Version der cliqz-Navigation ist verfügbar.\nOk drücken zum Aktualisieren."
 	},
+	"noUpdateMessage":{
+		"message":"Kein Update verfügbar"
+	},
 	"urlbarSearch":{
 		"message":"Suchen"
 	},

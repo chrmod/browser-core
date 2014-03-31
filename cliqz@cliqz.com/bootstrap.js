@@ -56,7 +56,7 @@ function addButtons(win){
     menuitem1.setAttribute('label', 'Feedback');
     menuitem1.addEventListener('command', function(event) {
         win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version
+                var beVersion = extensions.get('cliqz@cliqz.com').version;
                 openTab(document, 'http://beta.cliqz.com/feedback/' + beVersion);
         });    
     }, false);
@@ -75,9 +75,22 @@ function addButtons(win){
         openTab(document, 'http://beta.cliqz.com/anleitung');    
     }, false);
 
+
+    var menuitem4 = document.createElement('menuitem');
+    menuitem4.setAttribute('id', 'menuitem4');
+    menuitem4.setAttribute('label', 'Update Suchen');
+    menuitem4.addEventListener('command', function(event) {
+        win.Application.getExtensions(function(extensions) {
+            var beVersion = extensions.get('cliqz@cliqz.com').version;
+            win.CLIQZ.Core.updateCheck(beVersion, true);
+        });      
+    }, false);
+
     menupopup.appendChild(menuitem1);
     menupopup.appendChild(menuitem2);
     menupopup.appendChild(menuitem3);
+    menupopup.appendChild(document.createElement('menuseparator'));
+    menupopup.appendChild(menuitem4);
     button.appendChild(menupopup);
 
 
