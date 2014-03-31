@@ -176,11 +176,6 @@
     </implementation>
   </binding>
 
-  <!-- clone of chrome://browser/content/urlbarBindings.xml#urlbar-rich-result-popup with diferent inheritance -->
-  <binding id="urlbar-rich-result-popup-cliqz" extends="chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz">
-  </binding>
-
-
   <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <handlers>
       <handler event="mouseup">

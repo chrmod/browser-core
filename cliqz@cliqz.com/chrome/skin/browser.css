@@ -1,7 +1,7 @@
 /* CLIQZ BINDINGS  */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml#urlbar-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */

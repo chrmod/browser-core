@@ -170,7 +170,7 @@ CLIQZ.Core = CLIQZ.Core || {
     whoAmI: function(startup){
         var start = (new Date()).getTime();
         CLIQZ.historyManager.getStats(function(history){
-            CLIQZ.Utils.log((new Date()).getTime() - start,"TIMEEE1");
+            CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
