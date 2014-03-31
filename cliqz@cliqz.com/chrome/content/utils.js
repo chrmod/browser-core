@@ -6,7 +6,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   HOST: 'http://beta.cliqz.com',
   //SUGGESTIONS: HOST + '/api/suggestions?q=',
   SUGGESTIONS: 'https://www.google.com/complete/search?client=firefox&q=',
-  //RESULTS_PROVIDER: 'http://search-cache.fbt.co/api/cache-json?n=5&q=',
   RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/cliqz-results?q=',
   LOG: 'http://logging.cliqz.com',
   VERSION_URL: 'http://beta.cliqz.com/version',
