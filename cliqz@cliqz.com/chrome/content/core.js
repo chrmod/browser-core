@@ -27,6 +27,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
+
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
         CLIQZ.Core.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -74,6 +75,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
         CLIQZ.Core.elem.push(cliqzMessage);
 
+        // preferences
+        CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
+        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core.cliqzPrefs.getIntPref('popupHeight') + 'px';
+
         //check APIs 
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
@@ -110,6 +115,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         var searchContainer = document.getElementById('search-container');
         searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
+
+        // restore preferences
+        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
         CLIQZResults.destroy();
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
