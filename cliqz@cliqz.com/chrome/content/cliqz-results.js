@@ -101,7 +101,7 @@ var CLIQZResults = CLIQZResults || {
     initResults: function(){
         CLIQZResults.CliqzResults.prototype = {
             classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
-            classDescription : 'Cliqz Search ',
+            classDescription : 'Cliqz',
             contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
             QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
             resultsTimer: null,
