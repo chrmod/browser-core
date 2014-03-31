@@ -191,12 +191,12 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         });
     },
-    updateCheck: function(currentVersion, alertNegative) {
+    updateCheck: function(currentVersion, force) {
         var pref = CLIQZ.Core.cliqzPrefs,
             now = (new Date()).getTime();
 
         CLIQZ.Core._updateAvailable = false;
-        if(now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
+        if(force || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
             CLIQZ.Utils.getLatestVersion(function(latestVersion){
                 if(currentVersion != latestVersion){
                     if(!CLIQZ.Core.cliqzPrefs.getBoolPref('betaGroup')){
@@ -214,7 +214,7 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         }
 
-        if(alertNegative && !CLIQZ.Core._updateAvailable){
+        if(force && !CLIQZ.Core._updateAvailable){
             alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
         }
     },
