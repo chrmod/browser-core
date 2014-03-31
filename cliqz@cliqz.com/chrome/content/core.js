@@ -270,6 +270,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.position_type = source.replace('-', '_');
             } else { //enter while on urlbar and no result selected
                 action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
+                action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
+
             }
             CLIQZ.Utils.track(action);
         }

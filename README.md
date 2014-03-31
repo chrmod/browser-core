@@ -85,9 +85,10 @@ Result enter (keyboard)
     "type": "activity",
     "action": "result_enter",
     "current_position": -1, 
-    "position_type": "inbar_url"/"inbar_query" 
+    "position_type": "inbar_url"/"inbar_query",
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
+    "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
 }
 ``` 
 
