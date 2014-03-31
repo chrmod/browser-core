@@ -84,7 +84,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getSuggestions();
 
         CLIQZ.Core.whoAmI(true); //startup
-        setInterval(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
 
         Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
@@ -168,6 +167,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     whoAmI: function(startup){
+        // schedule another signal
+        setTimeout(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
+
         var start = (new Date()).getTime();
         CLIQZ.historyManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
@@ -188,22 +190,33 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         });
     },
-    updateCheck: function(version) {
+    updateCheck: function(currentVersion) {
         var pref = CLIQZ.Core.cliqzPrefs,
             now = (new Date()).getTime();
         if(now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
-            CLIQZ.Utils.getLatestVersion(function(latest){
-                if(latest.status == 200 && version != latest.response){
-                    pref.setCharPref('messageUpdate', now.toString());
-                    if(CLIQZ.Core._messageOFF){
-                        CLIQZ.Core._messageOFF = false;
-                        if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
-                            gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+            CLIQZ.Utils.getLatestVersion(function(latestVersion){
+                if(currentVersion != latestVersion){
+                    if(!CLIQZ.Core.cliqzPrefs.getBoolPref('betaGroup')){
+                        // production users get only major updates
+                        if(currentVersion.split('.').slice(0, -1).join('') ==
+                           latestVersion.split('.').slice(0, -1).join('')) {
+                            return;
                         }
-                        CLIQZ.Core._messageOFF = true;
                     }
+
+                    CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
+                    CLIQZ.Core.showUpdateMessage();
                 }
             });
+        }
+    },
+    showUpdateMessage: function(){
+        if(CLIQZ.Core._messageOFF){
+            CLIQZ.Core._messageOFF = false;
+            if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
+                gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+            }
+            CLIQZ.Core._messageOFF = true;
         }
     },
     _lastProgress: Date.now(),
@@ -270,6 +283,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.position_type = source.replace('-', '_');
             } else { //enter while on urlbar and no result selected
                 action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
+                action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
+
             }
             CLIQZ.Utils.track(action);
         }

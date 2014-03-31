@@ -3,6 +3,19 @@ navigation-extension
 
 Firefox Navigation Browser extension
 
+#Settings
+
+1. Navigate to `about:config`
+2. Filter for `extensions.cliqz.`
+3. Preferences:
+``` bash
+    'UDID': '1234567890|12345', //unique identifier
+    'messageInterval': 3600000 , // interval between update messages - 1H 
+    'showQueryDebug': false, // show query debug information next to results
+    'showDebugLogs': false, // show debug logs in console
+    'popupHeight': 165, // popup (dropdown) height in pixels (requires restart)
+    'betaGroup': false // if set to true the extension gets all the updates. Else only the major version
+```
 
 #Logging
 
@@ -85,9 +98,10 @@ Result enter (keyboard)
     "type": "activity",
     "action": "result_enter",
     "current_position": -1, 
-    "position_type": "inbar_url"/"inbar_query" 
+    "position_type": "inbar_url"/"inbar_query",
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
+    "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
 }
 ``` 
 
