@@ -145,6 +145,7 @@ var CLIQZResults = CLIQZResults || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
+                    this.cliqzSuggestions = response[1];
                 }
                 this.pushResults(q);
             },
@@ -545,9 +546,15 @@ var CLIQZResults = CLIQZResults || {
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
 
-                // start fetching results and suggestions
-                CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
-                CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                if(searchString.trim().length){
+                    // start fetching results and suggestions
+                    CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
+                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                } else {
+                    this.cliqzResults = [];
+                    this.cliqzCache = [];
+                    this.cliqzSuggestions = [];
+                }
 
                 // trigger history search
                 this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
