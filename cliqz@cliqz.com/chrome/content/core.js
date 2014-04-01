@@ -84,13 +84,14 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
 
-        CLIQZ.Core.whoAmI(true); //startup
-
         Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
 
         
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+        
+        CLIQZ.historyManager.init();
+        CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
     // force component reload at install/uninstall
