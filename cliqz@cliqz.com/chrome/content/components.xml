@@ -333,7 +333,7 @@
               }
 
               // add video thumbnail
-              if(this.getAttribute('image') != 'null'){
+              if(this.getAttribute('image') != 'null' && this.getAttribute('image') != ''){
                 let img = JSON.parse(this.getAttribute('image'));
 
                 this._cliqzImage.className = 'cliqz-ac-image';
