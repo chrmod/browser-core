@@ -1,11 +1,11 @@
 'use strict';
 
-var CLIQZ = CLIQZ || {};
+Components.utils.import('chrome://cliqz/content/promise.js');
 
+var CLIQZ = CLIQZ || {};
 CLIQZ.historyManager = CLIQZ.historyManager || {
 	_db: null,
 	init: function() {
-		//
 	},
     getStats: function(callback){
         let historysize = 0;
