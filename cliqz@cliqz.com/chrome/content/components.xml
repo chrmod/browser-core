@@ -209,7 +209,7 @@
           <xul:hbox class="cliqz-image-box">
             <xul:image anonid="cliqz-image" />
           </xul:hbox>
-          <xul:hbox right="0" bottom="0">
+          <xul:hbox right="0" bottom="0" class="hidden">
             <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
           </xul:hbox>
         </xul:stack>
@@ -284,6 +284,7 @@
             this._cliqzImageDesc = this._cliqzImageDesc || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image-desc");
             this._cliqzImageDesc.textContent = "";
             this._cliqzImageDesc.className = "";
+            this._cliqzImageDesc.parentNode.className = "hidden";
 
             this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
             this._logo.className = '';
@@ -342,6 +343,7 @@
                 if(img.description){
                   this._cliqzImageDesc.textContent = "▶ " + img.description;
                   this._cliqzImageDesc.className = 'cliqz-image-desc';
+                  this._cliqzImageDesc.parentNode.className = '';
                 }
               }
               //}
