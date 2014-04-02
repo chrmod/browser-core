@@ -60,6 +60,8 @@
 }
 
 .cliqz-url-box {
+  margin: 0px;
+  padding: 0px;
 }
 
 .cliqz-image-box {
@@ -89,7 +91,7 @@
   font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   background-color: lightgrey;
   color: white;
-  padding: 0 4px;
+  padding: 2px 4px;
 }
 
 .toolbarbutton-1 {}
