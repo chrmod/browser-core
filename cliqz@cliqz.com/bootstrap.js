@@ -75,6 +75,13 @@ function addButtons(win){
         openTab(document, 'http://beta.cliqz.com/tutorial');    
     }, false);
 
+    var priv = "Privatsph" + String.fromCharCode("0228") + "re",
+        menuitem5 = document.createElement('menuitem');
+    menuitem5.setAttribute('id', 'menuitem5');
+    menuitem5.setAttribute('label', priv);
+    menuitem5.addEventListener('command', function(event) {
+        openTab(document, 'http://beta.cliqz.com/img/privacy.jpg');
+    }, false);
 
     var menuitem4 = document.createElement('menuitem');
     menuitem4.setAttribute('id', 'menuitem4');
@@ -89,6 +96,7 @@ function addButtons(win){
     menupopup.appendChild(menuitem1);
     menupopup.appendChild(menuitem2);
     menupopup.appendChild(menuitem3);
+    menupopup.appendChild(menuitem5);
     menupopup.appendChild(document.createElement('menuseparator'));
     menupopup.appendChild(menuitem4);
     button.appendChild(menupopup);
