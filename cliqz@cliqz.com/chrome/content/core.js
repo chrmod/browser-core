@@ -374,6 +374,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // optimistic search
         if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
             gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
+            return;
         }
 
         // heavy hearch
