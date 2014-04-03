@@ -146,9 +146,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
     //CLIQZ.Utils.log('cache ' + q);
     CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + q, function(res){ callback && callback(res, q); } );
   },
-  getLatestVersion: function(callback){
+  getLatestVersion: function(callback, error){
     CLIQZ.Utils.httpGet(CLIQZ.Utils.VERSION_URL + '?' + Math.random(), function(res) {
       if(res.status == 200) callback(res.response);
+      else error();
     });
   },
   isPrivate: function(window) {

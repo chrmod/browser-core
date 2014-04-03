@@ -211,12 +211,14 @@ CLIQZ.Core = CLIQZ.Core || {
                     CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
                     CLIQZ.Core._updateAvailable = true;
                     CLIQZ.Core.showUpdateMessage();
+                } else {
+                    //if no newer version
+                    force && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
                 }
+            }, function(){
+                //on error
+                force && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
             });
-        }
-
-        if(force && !CLIQZ.Core._updateAvailable){
-            alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
         }
     },
     showUpdateMessage: function(){
