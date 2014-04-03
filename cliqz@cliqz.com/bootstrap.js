@@ -104,6 +104,7 @@ function addButtons(win){
 
     button.addEventListener('click', function() {
         //win.BrowserOpenTab('about:home');
+        menupopup.openPopup(button,"after_start", 0, 0, false, true);
     }, false);
 
     //anchor.parentNode.insertBefore(button, anchor);
