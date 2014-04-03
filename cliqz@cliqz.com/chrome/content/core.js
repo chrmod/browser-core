@@ -36,13 +36,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
-            setTimeout(function(){
-                // open tutorial page and focus it
-                // gBrowser.selectedTab = gBrowser.addTab(CLIQZ.Core.TUTORIAL_URL);
-
-                // try to redirect install url to tutorial url
-                CLIQZ.Core.openOrReuseTab(CLIQZ.Core.TUTORIAL_URL, CLIQZ.Core.INSTAL_URL);
-            },2000);
+            CLIQZ.Core.showTutorial(true);
+        } else {
+            CLIQZ.Core.showTutorial(false);
         }
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
@@ -93,6 +89,13 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
+    showTutorial: function(onInstall){
+        setTimeout(function(){
+            var onlyReuse = onInstall ? false: true;
+            CLIQZ.Core.openOrReuseTab(CLIQZ.Core.TUTORIAL_URL, CLIQZ.Core.INSTAL_URL, onlyReuse);
+        }, 100);
     },
     // force component reload at install/uninstall
     reloadComponent: function(el) {
@@ -192,12 +195,13 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         });
     },
-    updateCheck: function(currentVersion, force) {
+    updateCheck: function(currentVersion, withFeedback) {
         var pref = CLIQZ.Core.cliqzPrefs,
             now = (new Date()).getTime();
 
         CLIQZ.Core._updateAvailable = false;
-        if(force || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
+        if(withFeedback || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
+            CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
             CLIQZ.Utils.getLatestVersion(function(latestVersion){
                 if(currentVersion != latestVersion){
                     if(!CLIQZ.Core.cliqzPrefs.getBoolPref('betaGroup')){
@@ -207,16 +211,16 @@ CLIQZ.Core = CLIQZ.Core || {
                             return;
                         }
                     }
-
-                    CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
                     CLIQZ.Core._updateAvailable = true;
                     CLIQZ.Core.showUpdateMessage();
+                } else {
+                    //if no newer version
+                    withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
                 }
+            }, function(){
+                //on error
+                withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
             });
-        }
-
-        if(force && !CLIQZ.Core._updateAvailable){
-            alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
         }
     },
     showUpdateMessage: function(){
@@ -362,42 +366,42 @@ CLIQZ.Core = CLIQZ.Core || {
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     },
-    openOrReuseTab: function(newUrl, oldUrl) {
+    // redirects a tab in which oldUrl is loaded to newUrl
+    // 
+    openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
         var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                          .getService(Components.interfaces.nsIWindowMediator);
         var browserEnumerator = wm.getEnumerator('navigator:browser');
 
         // Check each browser instance for our URL
         var found = false;
-        if(oldUrl){ // only look for an already open tab if old url provided
-            while (!found && browserEnumerator.hasMoreElements()) {
-                var browserWin = browserEnumerator.getNext();
-                var tabbrowser = browserWin.gBrowser;
+        while (!found && browserEnumerator.hasMoreElements()) {
+            var browserWin = browserEnumerator.getNext();
+            var tabbrowser = browserWin.gBrowser;
 
-                // Check each tab of this browser instance
-                var numTabs = tabbrowser.browsers.length;
-                for (var index = 0; index < numTabs; index++) {
-                    var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                    if (oldUrl == currentBrowser.currentURI.spec) {
-                        var tab = tabbrowser.tabContainer.childNodes[index];
-                        // The URL is already opened. Select this tab.
-                        tabbrowser.selectedTab = tab;
+            // Check each tab of this browser instance
+            var numTabs = tabbrowser.browsers.length;
+            for (var index = 0; index < numTabs; index++) {
+                var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+                if (oldUrl == currentBrowser.currentURI.spec) {
+                    var tab = tabbrowser.tabContainer.childNodes[index];
+                    // The URL is already opened. Select this tab.
+                    tabbrowser.selectedTab = tab;
 
-                        // redirect tab to new url
-                        tab.linkedBrowser.contentWindow.location.href = newUrl;
-                        
-                        // Focus *this* browser-window
-                        browserWin.focus();
+                    // redirect tab to new url
+                    tab.linkedBrowser.contentWindow.location.href = newUrl;
+                    
+                    // Focus *this* browser-window
+                    browserWin.focus();
 
-                        found = true;
-                        break;
-                    }
+                    found = true;
+                    break;
                 }
             }
         }
 
-        // Our URL isn't open. Open it now.
-        if (!found) {
+        // oldUrl is not open
+        if (!found && !onlyReuse) {
             var recentWindow = wm.getMostRecentWindow("navigator:browser");
             if (recentWindow) {
               // Use an existing browser window
