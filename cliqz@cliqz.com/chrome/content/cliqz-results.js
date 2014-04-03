@@ -493,7 +493,7 @@ var CLIQZResults = CLIQZResults || {
                             )
                         );
 
-                    for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < 5 ; i++) {
+                    for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < maxResults ; i++) {
                         if(this.cliqzSuggestions[i].toLowerCase() != this.searchString.toLowerCase()){
                             results.push(
                                 this.resultFactory(
