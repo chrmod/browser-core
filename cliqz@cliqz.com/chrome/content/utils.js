@@ -20,6 +20,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     };
     if(callback)req.timeout = 1000;
     req.send(data);
+    return req;
   },
   init: function(){
     this._log = Components.classes['@mozilla.org/consoleservice;1']
@@ -133,18 +134,26 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
   },
   httpGet: function(url, callback){
-    CLIQZ.Utils.httpHandler('GET', url, callback);
+    return CLIQZ.Utils.httpHandler('GET', url, callback);
   },
   httpPost: function(url, callback, data) {
     CLIQZ.Utils.httpHandler('POST', url, callback, data);
   },
+  _suggestionsReq: null,
   getSuggestions: function(q, callback){
-    //log('suggestions ' + q);
-    CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + q, function(res){ callback && callback(res, q); });
+    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + q,
+                                    function(res){
+                                      callback && callback(res, q);
+                                    });
   },
+  _resultsReq: null,
   getCachedResults: function(q, callback){
-    //CLIQZ.Utils.log('cache ' + q);
-    CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + q, function(res){ callback && callback(res, q); } );
+    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
+    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + q,
+                                function(res){
+                                  callback && callback(res, q);
+                                });
   },
   getLatestVersion: function(callback, error){
     CLIQZ.Utils.httpGet(CLIQZ.Utils.VERSION_URL + '?' + Math.random(), function(res) {
