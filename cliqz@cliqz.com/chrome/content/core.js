@@ -369,33 +369,41 @@ CLIQZ.Core = CLIQZ.Core || {
     // redirects a tab in which oldUrl is loaded to newUrl
     // 
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                         .getService(Components.interfaces.nsIWindowMediator);
-        var browserEnumerator = wm.getEnumerator('navigator:browser');
-
-        // Check each browser instance for our URL
         var found = false;
-        while (!found && browserEnumerator.hasMoreElements()) {
-            var browserWin = browserEnumerator.getNext();
-            var tabbrowser = browserWin.gBrowser;
 
-            // Check each tab of this browser instance
-            var numTabs = tabbrowser.browsers.length;
-            for (var index = 0; index < numTabs; index++) {
-                var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                if (oldUrl == currentBrowser.currentURI.spec) {
-                    var tab = tabbrowser.tabContainer.childNodes[index];
-                    // The URL is already opened. Select this tab.
-                    tabbrowser.selectedTab = tab;
+        // optimistic search
+        if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
+            gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
+        }
 
-                    // redirect tab to new url
-                    tab.linkedBrowser.contentWindow.location.href = newUrl;
-                    
-                    // Focus *this* browser-window
-                    browserWin.focus();
+        // heavy hearch
+        if(!found){
+            var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                             .getService(Components.interfaces.nsIWindowMediator);
+            var browserEnumerator = wm.getEnumerator('navigator:browser');
 
-                    found = true;
-                    break;
+            while (!found && browserEnumerator.hasMoreElements()) {
+                var browserWin = browserEnumerator.getNext();
+                var tabbrowser = browserWin.gBrowser;
+
+                // Check each tab of this browser instance
+                var numTabs = tabbrowser.browsers.length;
+                for (var index = 0; index < numTabs; index++) {
+                    var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+                    if (oldUrl == currentBrowser.currentURI.spec) {
+                        var tab = tabbrowser.tabContainer.childNodes[index];
+                        // The URL is already opened. Select this tab.
+                        tabbrowser.selectedTab = tab;
+
+                        // redirect tab to new url
+                        tab.linkedBrowser.contentWindow.location.href = newUrl;
+                        
+                        // Focus *this* browser-window
+                        browserWin.focus();
+
+                        found = true;
+                        break;
+                    }
                 }
             }
         }
