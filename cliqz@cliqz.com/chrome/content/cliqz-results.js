@@ -492,20 +492,20 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZ.Utils.getLocalizedString('searchFor')
                             )
                         );
-
-                    for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < maxResults ; i++) {
-                        if(this.cliqzSuggestions[i].toLowerCase() != this.searchString.toLowerCase()){
-                            results.push(
-                                this.resultFactory(
-                                    CLIQZResults.CLIQZS,
-                                    this.cliqzSuggestions[i],
-                                    CLIQZResults.CLIQZICON,
-                                    CLIQZ.Utils.getLocalizedString('searchFor')
-                                )
-                            );
-                        }
+                }
+                for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < maxResults ; i++) {
+                    if(this.cliqzSuggestions[i].toLowerCase() != this.searchString.toLowerCase()){
+                        results.push(
+                            this.resultFactory(
+                                CLIQZResults.CLIQZS,
+                                this.cliqzSuggestions[i],
+                                CLIQZResults.CLIQZICON,
+                                CLIQZ.Utils.getLocalizedString('searchFor')
+                            )
+                        );
                     }
                 }
+                
 
                 results = results.slice(0, maxResults);
 
