@@ -3,12 +3,16 @@ var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
-  HOST: 'http://beta.cliqz.com',
-  //SUGGESTIONS: HOST + '/api/suggestions?q=',
-  SUGGESTIONS: 'https://www.google.com/complete/search?client=firefox&q=',
+  HOST:             'http://beta.cliqz.com',
+  SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/cliqz-results?q=',
-  LOG: 'http://logging.cliqz.com',
-  VERSION_URL: 'http://beta.cliqz.com/version',
+  LOG:              'http://logging.cliqz.com',
+  VERSION_URL:      'http://beta.cliqz.com/version',
+  //UPDATE_URL:     'http://beta.cliqz.com/latest',
+  UPDATE_URL:       'chrome://cliqz/content/update.html',
+  TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
+  INSTAL_URL:       'http://beta.cliqz.com/code-verified',
+  CHANGELOG:        'chrome://cliqz/content/changelog.html',
   httpHandler: function(method, url, callback, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
@@ -194,7 +198,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   trkTimer: null,
   track: function(msg, instantPush) {
     CLIQZ.Utils.log(JSON.stringify(msg));
-
+    if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
     msg.ts = (new Date()).getTime();
 
@@ -258,5 +262,52 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   getLocalizedString: function(key){
     return (CLIQZ.Utils.locale[key] && CLIQZ.Utils.locale[key].message) || key;
+  },
+  openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                     .getService(Components.interfaces.nsIWindowMediator),
+        browserEnumerator = wm.getEnumerator('navigator:browser'),
+        found = false;
+
+    while (!found && browserEnumerator.hasMoreElements()) {
+        var browserWin = browserEnumerator.getNext();
+        var tabbrowser = browserWin.gBrowser;
+
+        // Check each tab of this browser instance
+        var numTabs = tabbrowser.browsers.length;
+        for (var index = 0; index < numTabs; index++) {
+            var currentBrowser = tabbrowser.getBrowserAtIndex(index);
+            if (currentBrowser.currentURI.spec.indexOf(oldUrl) === 0) {
+                var tab = tabbrowser.tabContainer.childNodes[index];
+                // The URL is already opened. Select this tab.
+                tabbrowser.selectedTab = tab;
+
+                // redirect tab to new url
+                tab.linkedBrowser.contentWindow.location.href = newUrl;
+                
+                // Focus *this* browser-window
+                browserWin.focus();
+
+                found = true;
+                break;
+            }
+        }
+    }
+    // oldUrl is not open
+    if (!found && !onlyReuse) {
+        var recentWindow = wm.getMostRecentWindow("navigator:browser");
+        if (recentWindow) {
+          // Use an existing browser window
+          recentWindow.delayedOpenTab(newUrl, null, null, null, null);
+        }
+        else {
+          // No browser windows are open, so open a new one.
+          try {
+            window.open(newUrl);
+          } catch(e){
+            // just in case this branch gets executed during bootstraping process (window can be null)
+          }
+        }
+    }
   }
 };

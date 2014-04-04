@@ -9,7 +9,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 // LOADING scripts
 
 var addScript = function(src, win) {
-    Services.scriptloader.loadSubScript(BASE_URI + src + '.js?rand='+Math.random(), win);
+    Services.scriptloader.loadSubScript(BASE_URI + src + '.js?r='+Math.random(), win);
 };
 /*devel__)*/
 
@@ -138,7 +138,7 @@ function windowWatcher(win, topic) {
 // DEFAULT BOOTSTRAP
 
 function startup(aData, aReason) {
-    Cu.import('chrome://cliqz/content/utils.js');
+    Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
     setDefaultPrefs();
     // Load into any existing windows
     var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -148,6 +148,11 @@ function startup(aData, aReason) {
     }
     // Load into all new windows
     Services.ww.registerNotification(windowWatcher);
+
+    if(aReason == ADDON_UPGRADE){
+        // open changelog on update
+        CLIQZ.Utils.openOrReuseAnyTab(CLIQZ.Utils.CHANGELOG, CLIQZ.Utils.UPDATE_URL, false);
+    }
 }
 
 function shutdown(aData, aReason) {
@@ -175,7 +180,6 @@ function shutdown(aData, aReason) {
     }
 
     Services.ww.unregisterNotification(windowWatcher);
-    Cu.unload('resource://cliqz/content/utils.js');
 }
 
 function eventLog(ev){
@@ -203,7 +207,8 @@ const PREFS = {
     'showQueryDebug': false, // show query debug information next to results
     'showDebugLogs': false, // show debug logs in console
     'popupHeight': 165, // popup/dropdown height in pixels 
-    'betaGroup': false // if set to true the extension gets all the updates. Else only the major ones 
+    'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
+    'dnt': false // if set to true the extension will not send any tracking signals
 };
 
 function setDefaultPrefs() {

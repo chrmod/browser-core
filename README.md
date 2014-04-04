@@ -14,7 +14,8 @@ Firefox Navigation Browser extension
     'showQueryDebug': false, // show query debug information next to results
     'showDebugLogs': false, // show debug logs in console
     'popupHeight': 165, // popup (dropdown) height in pixels (requires restart)
-    'betaGroup': false // if set to true the extension gets all the updates. Else only the major version
+    'betaGroup': false, // if set to true the extension gets all the updates. Else only the major version
+    'dnt': false // if set to true the extension will not send any tracking signals
 ```
 
 #Logging

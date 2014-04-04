@@ -7,9 +7,6 @@ CLIQZ.Core = CLIQZ.Core || {
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown'],
-    UPDATE_URL: 'http://beta.cliqz.com/latest',
-    TUTORIAL_URL: 'http://beta.cliqz.com/anleitung',
-    INSTAL_URL: 'http://beta.cliqz.com/code-verified',
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
@@ -94,7 +91,7 @@ CLIQZ.Core = CLIQZ.Core || {
     showTutorial: function(onInstall){
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(CLIQZ.Core.TUTORIAL_URL, CLIQZ.Core.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(CLIQZ.Utils.TUTORIAL_URL, CLIQZ.Utils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // force component reload at install/uninstall
@@ -227,7 +224,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if(CLIQZ.Core._messageOFF){
             CLIQZ.Core._messageOFF = false;
             if(confirm(CLIQZ.Utils.getLocalizedString('updateMessage'))){
-                gBrowser.addTab(CLIQZ.Core.UPDATE_URL + '?' + Math.random());
+                gBrowser.addTab(CLIQZ.Utils.UPDATE_URL);
             }
             CLIQZ.Core._messageOFF = true;
         }
@@ -369,48 +366,17 @@ CLIQZ.Core = CLIQZ.Core || {
     // redirects a tab in which oldUrl is loaded to newUrl
     // 
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                         .getService(Components.interfaces.nsIWindowMediator);
-        var browserEnumerator = wm.getEnumerator('navigator:browser');
-
-        // Check each browser instance for our URL
         var found = false;
-        while (!found && browserEnumerator.hasMoreElements()) {
-            var browserWin = browserEnumerator.getNext();
-            var tabbrowser = browserWin.gBrowser;
 
-            // Check each tab of this browser instance
-            var numTabs = tabbrowser.browsers.length;
-            for (var index = 0; index < numTabs; index++) {
-                var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                if (oldUrl == currentBrowser.currentURI.spec) {
-                    var tab = tabbrowser.tabContainer.childNodes[index];
-                    // The URL is already opened. Select this tab.
-                    tabbrowser.selectedTab = tab;
-
-                    // redirect tab to new url
-                    tab.linkedBrowser.contentWindow.location.href = newUrl;
-                    
-                    // Focus *this* browser-window
-                    browserWin.focus();
-
-                    found = true;
-                    break;
-                }
-            }
+        // optimistic search
+        if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
+            gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
+            return;
         }
 
-        // oldUrl is not open
-        if (!found && !onlyReuse) {
-            var recentWindow = wm.getMostRecentWindow("navigator:browser");
-            if (recentWindow) {
-              // Use an existing browser window
-              recentWindow.delayedOpenTab(newUrl, null, null, null, null);
-            }
-            else {
-              // No browser windows are open, so open a new one.
-              window.open(newUrl);
-            }
+        // heavy hearch
+        if(!found){
+            CLIQZ.Utils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
         }
     }
 };
