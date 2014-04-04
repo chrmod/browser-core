@@ -9,7 +9,7 @@ Cu.import('resource://gre/modules/Services.jsm');
 // LOADING scripts
 
 var addScript = function(src, win) {
-    Services.scriptloader.loadSubScript(BASE_URI + src + '.js?rand='+Math.random(), win);
+    Services.scriptloader.loadSubScript(BASE_URI + src + '.js?r='+Math.random(), win);
 };
 /*devel__)*/
 
@@ -138,7 +138,7 @@ function windowWatcher(win, topic) {
 // DEFAULT BOOTSTRAP
 
 function startup(aData, aReason) {
-    Cu.import('chrome://cliqz/content/utils.js');
+    Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
     setDefaultPrefs();
     // Load into any existing windows
     var enumerator = Services.wm.getEnumerator('navigator:browser');
