@@ -198,7 +198,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   trkTimer: null,
   track: function(msg, instantPush) {
     CLIQZ.Utils.log(JSON.stringify(msg));
-
+    if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
     msg.ts = (new Date()).getTime();
 

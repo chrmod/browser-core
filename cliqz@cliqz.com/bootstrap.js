@@ -207,7 +207,8 @@ const PREFS = {
     'showQueryDebug': false, // show query debug information next to results
     'showDebugLogs': false, // show debug logs in console
     'popupHeight': 165, // popup/dropdown height in pixels 
-    'betaGroup': false // if set to true the extension gets all the updates. Else only the major ones 
+    'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
+    'dnt': false // if set to true the extension will not send any tracking signals
 };
 
 function setDefaultPrefs() {
