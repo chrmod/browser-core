@@ -175,7 +175,6 @@ function shutdown(aData, aReason) {
     }
 
     Services.ww.unregisterNotification(windowWatcher);
-    Cu.unload('resource://cliqz/content/utils.js');
 }
 
 function eventLog(ev){
