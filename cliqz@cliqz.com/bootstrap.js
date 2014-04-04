@@ -148,6 +148,11 @@ function startup(aData, aReason) {
     }
     // Load into all new windows
     Services.ww.registerNotification(windowWatcher);
+
+    if(aReason == ADDON_UPGRADE){
+        // open changelog on update
+        CLIQZ.Utils.openOrReuseAnyTab(CLIQZ.Utils.CHANGELOG, CLIQZ.Utils.UPDATE_URL, false);
+    }
 }
 
 function shutdown(aData, aReason) {
