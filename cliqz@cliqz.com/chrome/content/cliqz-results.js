@@ -421,12 +421,19 @@ var CLIQZResults = CLIQZResults || {
                         // if also found in cache, remove so it is not added to cache-only bucket
                         this.cliqzResults.splice(cacheIndex, 1);
                     } else {
-                        // does search string occur in hostname
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
-                        if(urlparts.host.indexOf(this.searchString) !=-1)
-                            bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label, this.searchString));
-                        else
-                            bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+
+                        // Ignore result if is this a google search result from history
+                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" && 
+                           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+                            CLIQZ.Utils.log("Discarding google result page from history: " + label)
+                        } else {
+                            // Assign to different buckets if the search string occurs in hostname
+                            if(urlparts.host.indexOf(this.searchString) !=-1)
+                                bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                            else
+                                bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                        }
                     }
                 }
 

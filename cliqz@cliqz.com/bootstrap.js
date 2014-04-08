@@ -47,7 +47,7 @@ function addButtons(win){
     var menupopup = document.createElement('menupopup');
     menupopup.setAttribute('id', 'menupopup');
     menupopup.addEventListener('command', function(event) {
-
+        win.console.log('22')
     }, false);
 
 
@@ -102,9 +102,10 @@ function addButtons(win){
     button.appendChild(menupopup);
 
 
-    button.addEventListener('click', function() {
-        //win.BrowserOpenTab('about:home');
-        menupopup.openPopup(button,"after_start", 0, 0, false, true);
+    button.addEventListener('click', function(ev) {
+        win.console.log('-----');
+        for(k in ev)win.console.log(ev[k]);
+        openTab(document, 'chrome://cliqz/content/options.xul');
     }, false);
 
     //anchor.parentNode.insertBefore(button, anchor);
@@ -208,7 +209,12 @@ const PREFS = {
     'showDebugLogs': false, // show debug logs in console
     'popupHeight': 165, // popup/dropdown height in pixels 
     'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
-    'dnt': false // if set to true the extension will not send any tracking signals
+    'dnt': false, // if set to true the extension will not send any tracking signals
+    'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
+    'hideQuickSearch': true, // hides quick search
+    'pagePreload': true, // hides quick search
+    'inPrivate': false, // enables extension in private mode
+    'bwFonts': false, // uses only black and white fonts for titles
 };
 
 function setDefaultPrefs() {

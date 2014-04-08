@@ -12,8 +12,10 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
     init: function(){
         CLIQZ.Utils.init();
+        CLIQZ.Core.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
 
-        if(CLIQZ.Utils.isPrivate(window)){
+        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Core.cliqzPrefs.getBoolPref('inPrivate')){
             CLIQZ.Utils.log('private window -> halt', 'CORE');
             return;
         }
@@ -23,13 +25,16 @@ CLIQZ.Core = CLIQZ.Core || {
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
 
+        if(CLIQZ.Core.cliqzPrefs.getBoolPref('bwFonts')){
+            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
+            CLIQZ.Core.elem.push(css);
+        }
+
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-        CLIQZ.Core.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
 
         if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
             CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
@@ -54,7 +59,9 @@ CLIQZ.Core = CLIQZ.Core || {
         //    };
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
-        searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
+        if (CLIQZ.Core.cliqzPrefs.getBoolPref('hideQuickSearch')){
+            searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
+        }
         
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -295,6 +302,24 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
 
+                // TEMP
+                if(CLIQZ.Core.cliqzPrefs.getBoolPref('enterLoadsFirst')){
+                    ev.preventDefault();
+
+                    CLIQZ.Utils.log(popup.richlistbox.childNodes[0].getAttribute('url'), "AAAAA");
+                    var item = popup.richlistbox.childNodes[0],
+                        value = item.getAttribute('url');
+
+                    if(item.getAttribute('type') === 'cliqz-suggestions'){
+                        value = Services.search.defaultEngine.getSubmission(value).uri.spec;
+                    }
+                    else if(value.indexOf('http') !== 0) value = 'http://' + value;
+                    
+                    gBrowser.selectedBrowser.contentDocument.location = value;
+                    popup.closePopup();
+                }
+                // ENDTEMP
+
             }
             CLIQZ.Utils.track(action);
         }
@@ -323,9 +348,14 @@ CLIQZ.Core = CLIQZ.Core || {
                     }
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
+                    // TEMP
+                    if(CLIQZ.Core.cliqzPrefs.getBoolPref('pagePreload')){
+                    // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;
                     }, 500);
+
+                    }
                 }
                 CLIQZ.Utils.track(action);
             },0);
