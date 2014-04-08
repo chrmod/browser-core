@@ -104,7 +104,20 @@ function addButtons(win){
 
     button.addEventListener('click', function() {
         //win.BrowserOpenTab('about:home');
-        menupopup.openPopup(button,"after_start", 0, 0, false, true);
+        var optionsPopup = document.createElement('menupopup');
+        optionsPopup.setAttribute('id', 'optionsPopup');
+        optionsPopup.addEventListener('command', function(event) {
+
+        }, false);
+
+        var optionsIframe = document.createElement('iframe');
+        optionsIframe.setAttribute('id', 'optionsIframe');
+
+        optionsPopup.appendChild(menuitem4);
+        optionsPopup.appendChild(optionsIframe);
+        button.appendChild(optionsPopup);
+
+        optionsPopup.openPopup(button,'after_start', 0, 0, false, true);
     }, false);
 
     //anchor.parentNode.insertBefore(button, anchor);
