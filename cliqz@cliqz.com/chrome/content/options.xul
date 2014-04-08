@@ -3,53 +3,100 @@
  
 <prefwindow id="cliqz-prefs"
      title="Cliqz Options"
-     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+     onload='javascript:load()'>
  
+<script type="text/javascript">
+
+	var init = false;
+	//load preferences
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+	         .getService(Components.interfaces.nsIPrefService)
+	         .getBranch("extensions.cliqz.");
+	prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
+
+	function loadpref() //call this in the prefwindow onload
+	{
+	    var val = document.getElementById('rowsSlider').value = prefs.getIntPref('popupHeight');  
+	    init = true;
+	    sliderChange(val);
+	}
+
+	function sliderChange(val){
+		 if(init) //onchange for scale fires before onload for the window
+	     {
+	         prefs.setIntPref('popupHeight',val);
+	         document.getElementById('popupRows').value = val/66;
+	     }
+		
+	}
+
+	function load(){
+		loadpref();
+	}
+
+</script>
+
 <prefpane id="preferences" label="Cliqz Preferences">
   <preferences>
     <preference id="pref_query_debug" name="extensions.cliqz.showQueryDebug" type="bool"/>
+	<preference id="pref_beta_group" name="extensions.cliqz.betaGroup" type="bool"/>
+	<preference id="pref_dnt" name="extensions.cliqz.dnt" type="bool"/>
+	<preference id="pref_popup_height" name="extensions.cliqz.popupHeight" type="int"/>
+	<preference id="pref_enter_load_first" name="extensions.cliqz.enterLoadsFirst" type="bool"/>
+	<preference id="pref_hide_quick_search" name="extensions.cliqz.hideQuickSearch" type="bool"/>
+	<preference id="pref_page_preload" name="extensions.cliqz.pagePreload" type="bool"/>
+	<preference id="pref_in_private" name="extensions.cliqz.inPrivate" type="bool"/>
+	<preference id="pref_bw_fonts" name="extensions.cliqz.bwFonts" type="bool"/>
   </preferences>
  
   <hbox align="center">
+  	<checkbox preference="pref_query_debug" id="symbol" />
     <label control="symbol" value="Show Query Debug: "/>
-    <checkbox preference="pref_query_debug" id="symbol" />
   </hbox>
 
-  <preferences>
-    <preference id="pref_beta_group" name="extensions.cliqz.betaGroup" type="bool"/>
-  </preferences>
- 
   <hbox align="center">
+  	<checkbox preference="pref_beta_group" id="symbol" />
     <label control="symbol" value="Beta Group: "/>
-    <checkbox preference="pref_beta_group" id="symbol" />
   </hbox>
 
-  <preferences>
-    <preference id="pref_dnt" name="extensions.cliqz.dnt" type="bool"/>
-  </preferences>
- 
   <hbox align="center">
+  	<checkbox preference="pref_dnt" id="symbol" />
     <label control="symbol" value="Do not track "/>
-    <checkbox preference="pref_dnt" id="symbol" />
   </hbox>
 
-  <preferences>
-    <preference id="pref_popup_height" name="extensions.cliqz.popupHeight" type="int"/>
-  </preferences>
- 
   <hbox align="center">
-    <label control="symbol" value="Popup Height: "/>
-    <textbox preference="pref_popup_height" id="symbol" maxlength="4" />
+    <scale min="66" max="396" increment="33" onchange='javascript:sliderChange(this.value)' id='rowsSlider'/>
+    <label control="symbol" value="Popup Height "/>
+    <label id="popupRows" value=""/>
+    <label control="symbol" value=" rows (restart)"/>
   </hbox>
 
-   <preferences>
-    <preference id="pref_enter_load_first" name="extensions.cliqz.enterLoadsFirst" type="bool"/>
-  </preferences>
- 
+
   <hbox align="center">
+  	<checkbox preference="pref_enter_load_first" id="symbol" />
     <label control="symbol" value="Enter loads first result: "/>
-    <checkbox preference="pref_enter_load_first" id="symbol" maxlength="4" />
+  </hbox>
+
+
+  <hbox align="center">
+  	<checkbox preference="pref_hide_quick_search" id="symbol" />
+    <label control="symbol" value="Hide quick search (restart): "/>
+  </hbox>
+
+  <hbox align="center">
+  	<checkbox preference="pref_page_preload" id="symbol" />
+    <label control="symbol" value="Page Preload on arrow key navigation: "/>
+  </hbox>
+
+  <hbox align="center">
+  	<checkbox preference="pref_in_private" id="symbol" />
+    <label control="symbol" value="Enable extension in private windows: "/>
+  </hbox>
+
+  <hbox align="center">
+  	<checkbox preference="pref_bw_fonts" id="symbol" />
+    <label control="symbol" value="Black and white fonts (restart): "/>
   </hbox>
 </prefpane>
- 
 </prefwindow>
