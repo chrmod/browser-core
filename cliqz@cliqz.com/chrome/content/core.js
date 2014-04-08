@@ -295,6 +295,24 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
 
+                // TEMP
+                if(CLIQZ.Core.cliqzPrefs.getBoolPref('enterLoadsFirst')){
+                    ev.preventDefault();
+
+                    CLIQZ.Utils.log(popup.richlistbox.childNodes[0].getAttribute('url'), "AAAAA");
+                    var item = popup.richlistbox.childNodes[0],
+                        value = item.getAttribute('url');
+
+                    if(item.getAttribute('type') === 'cliqz-suggestions'){
+                        value = Services.search.defaultEngine.getSubmission(value).uri.spec;
+                    }
+                    else if(value.indexOf('http') !== 0) value = 'http://' + value;
+                    
+                    gBrowser.selectedBrowser.contentDocument.location = value;
+                    popup.closePopup();
+                }
+                // ENDTEMP
+
             }
             CLIQZ.Utils.track(action);
         }

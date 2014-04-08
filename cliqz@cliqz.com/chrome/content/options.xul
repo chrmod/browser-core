@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+ 
+<prefwindow id="cliqz-prefs"
+     title="Cliqz Options"
+     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ 
+<prefpane id="preferences" label="Cliqz Preferences">
+  <preferences>
+    <preference id="pref_query_debug" name="extensions.cliqz.showQueryDebug" type="bool"/>
+  </preferences>
+ 
+  <hbox align="center">
+    <label control="symbol" value="Show Query Debug: "/>
+    <checkbox preference="pref_query_debug" id="symbol" />
+  </hbox>
+
+  <preferences>
+    <preference id="pref_beta_group" name="extensions.cliqz.betaGroup" type="bool"/>
+  </preferences>
+ 
+  <hbox align="center">
+    <label control="symbol" value="Beta Group: "/>
+    <checkbox preference="pref_beta_group" id="symbol" />
+  </hbox>
+
+  <preferences>
+    <preference id="pref_dnt" name="extensions.cliqz.dnt" type="bool"/>
+  </preferences>
+ 
+  <hbox align="center">
+    <label control="symbol" value="Do not track "/>
+    <checkbox preference="pref_dnt" id="symbol" />
+  </hbox>
+
+  <preferences>
+    <preference id="pref_popup_height" name="extensions.cliqz.popupHeight" type="int"/>
+  </preferences>
+ 
+  <hbox align="center">
+    <label control="symbol" value="Popup Height: "/>
+    <textbox preference="pref_popup_height" id="symbol" maxlength="4" />
+  </hbox>
+
+   <preferences>
+    <preference id="pref_enter_load_first" name="extensions.cliqz.enterLoadsFirst" type="bool"/>
+  </preferences>
+ 
+  <hbox align="center">
+    <label control="symbol" value="Enter loads first result: "/>
+    <checkbox preference="pref_enter_load_first" id="symbol" maxlength="4" />
+  </hbox>
+</prefpane>
+ 
+</prefwindow>

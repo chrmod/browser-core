@@ -103,21 +103,7 @@ function addButtons(win){
 
 
     button.addEventListener('click', function() {
-        //win.BrowserOpenTab('about:home');
-        var optionsPopup = document.createElement('menupopup');
-        optionsPopup.setAttribute('id', 'optionsPopup');
-        optionsPopup.addEventListener('command', function(event) {
-
-        }, false);
-
-        var optionsIframe = document.createElement('iframe');
-        optionsIframe.setAttribute('id', 'optionsIframe');
-
-        optionsPopup.appendChild(menuitem4);
-        optionsPopup.appendChild(optionsIframe);
-        button.appendChild(optionsPopup);
-
-        optionsPopup.openPopup(button,'after_start', 0, 0, false, true);
+        openTab(document, 'chrome://cliqz/content/options.xul');
     }, false);
 
     //anchor.parentNode.insertBefore(button, anchor);
@@ -221,7 +207,8 @@ const PREFS = {
     'showDebugLogs': false, // show debug logs in console
     'popupHeight': 165, // popup/dropdown height in pixels 
     'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
-    'dnt': false // if set to true the extension will not send any tracking signals
+    'dnt': false, // if set to true the extension will not send any tracking signals
+    'enterLoadsFirst': false // if set to true the extension will not send any tracking signals
 };
 
 function setDefaultPrefs() {
