@@ -12,7 +12,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   UPDATE_URL:       'chrome://cliqz/content/update.html',
   TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
   INSTAL_URL:       'http://beta.cliqz.com/code-verified',
-  CHANGELOG:        'chrome://cliqz/content/changelog.html',
+  CHANGELOG:        'http://beta.cliqz.com/changelog',
   httpHandler: function(method, url, callback, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
