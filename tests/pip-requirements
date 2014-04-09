@@ -1,0 +1,5 @@
+pytest==2.3.5
+pytest-xdist==1.9
+mock==1.0.1
+testfixtures==3.0.1
+pytest-cov==1.6
