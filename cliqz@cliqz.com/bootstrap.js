@@ -47,7 +47,7 @@ function addButtons(win){
     var menupopup = document.createElement('menupopup');
     menupopup.setAttribute('id', 'menupopup');
     menupopup.addEventListener('command', function(event) {
-        win.console.log('22')
+
     }, false);
 
 
@@ -103,8 +103,6 @@ function addButtons(win){
 
 
     button.addEventListener('click', function(ev) {
-        win.console.log('-----');
-        for(k in ev)win.console.log(ev[k]);
         openTab(document, 'chrome://cliqz/content/options.xul');
     }, false);
 
@@ -140,6 +138,8 @@ function windowWatcher(win, topic) {
 
 function startup(aData, aReason) {
     Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
+    CLIQZ.Utils.init();
+    
     setDefaultPrefs();
     // Load into any existing windows
     var enumerator = Services.wm.getEnumerator('navigator:browser');
