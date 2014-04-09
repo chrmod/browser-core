@@ -24,10 +24,10 @@ def test_twitter_suggestion(urlbar):
     assert res['autocompletion']['selection_end'] == len('twitter.com/')
 
 
-
 @fixture
 def urlbar(mozcmd):
     import json
+    import re
     from time import sleep
 
     mozcmd('var c = document.getElementById("urlbar-container");')
@@ -64,7 +64,9 @@ def urlbar(mozcmd):
             var suggestion_res = JSON.stringify([suggestions, [input.value, input.selectionStart, input.selectionEnd]])
         ''')
 
-        suggestion_res = mozcmd('suggestion_res').strip()[1:-1];
+        suggestion_res = mozcmd('suggestion_res')
+        suggestion_res = suggestion_res.strip()
+        suggestion_res = re.sub('^"*(.*)"?$', lambda m: m.group(1), suggestion_res)
         suggestions, autocompletion = json.loads(suggestion_res)
 
         autocompletion, selection_start, selection_end = autocompletion
