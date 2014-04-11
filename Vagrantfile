@@ -26,7 +26,6 @@ ubuntu_inline = ERB.new(%{
     mv firefox $VERSION
     rm `ls *.tar.bz2`
     <% end %>
-
 }).result(binding)
 
 
@@ -34,7 +33,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.define :ubuntu do |node|
         node.vm.box = "ubuntu-12.04-desktop"
-        # node.vm.box_url = "http://bit.ly/1elrTrM"
+        node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/testing/ubuntu-12.04-desktop.box"
 
         node.vm.hostname = :ubuntu
         node.vm.network :private_network, ip: "192.168.33.22"

@@ -33,6 +33,9 @@ def run_linux(ip, manifests=[], port=22,
     user='vagrant', private_key_path='~/.vagrant.d/insecure_private_key',
     platform='', verbose=False):
 
+    # shell fonts
+    # http://unix.stackexchange.com/questions/37260/change-font-in-echo-command
+
     pk = _get_ssh_pk(private_key_path)
     exec_ssh_command = ssh(ip, port, user, pk)
 
