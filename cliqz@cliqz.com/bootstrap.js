@@ -186,7 +186,6 @@ function uninstall(aData, aReason) {
 }
 
 // PREFERENCES
-const PREF_BRANCH = 'extensions.cliqz.';
 const PREFS = {
     'UDID': '',
     'url': 'www.cliqz.com',
@@ -207,7 +206,7 @@ const PREFS = {
 };
 
 function setDefaultPrefs() {
-  let branch = Services.prefs.getDefaultBranch(PREF_BRANCH);
+  let branch = CLIQZ.Utils.cliqzPrefs;
   for (let [key, val] in Iterator(PREFS)) {
     if(!branch.prefHasUserValue(key)){
         switch (typeof val) {

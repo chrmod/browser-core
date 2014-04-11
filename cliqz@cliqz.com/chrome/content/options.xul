@@ -156,6 +156,8 @@
   </hbox>
   -->
 </prefpane>
-<button class='i18n' label='ok' oncommand='window.close()' />
-<button class='i18n' label='loadDefaults' oncommand='restoreDefaults()' />
+<hbox flex="1" pack="center">
+  <button class='i18n' label='ok' oncommand='window.close()' />
+  <button class='i18n' label='loadDefaults' oncommand='restoreDefaults()' />
+</hbox>
 </prefwindow>

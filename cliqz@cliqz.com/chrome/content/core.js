@@ -29,7 +29,8 @@ CLIQZ.Core = CLIQZ.Core || {
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
-
+        // TEMP
+        /*
         var scale = CLIQZ.Core.cliqzPrefs.getIntPref('scale');
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
@@ -39,7 +40,8 @@ CLIQZ.Core = CLIQZ.Core || {
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
-
+        */
+        // ENDTEMP
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
 
@@ -313,6 +315,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
 
                 // TEMP
+                /*
                 if(CLIQZ.Core.cliqzPrefs.getBoolPref('enterLoadsFirst')){
                     ev.preventDefault();
 
@@ -328,6 +331,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     gBrowser.selectedBrowser.contentDocument.location = value;
                     popup.closePopup();
                 }
+                */
                 // ENDTEMP
 
             }
@@ -359,13 +363,13 @@ CLIQZ.Core = CLIQZ.Core || {
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
                     // TEMP
-                    if(CLIQZ.Core.cliqzPrefs.getBoolPref('pagePreload')){
+                    //if(CLIQZ.Core.cliqzPrefs.getBoolPref('pagePreload')){
                     // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;
                     }, 500);
 
-                    }
+                    //}
                 }
                 CLIQZ.Utils.track(action);
             },0);
