@@ -30,6 +30,16 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.elem.push(css);
         }
 
+        var scale = CLIQZ.Core.cliqzPrefs.getIntPref('scale');
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
+        CLIQZ.Core.elem.push(css);
+
+        var logoPosition = CLIQZ.Core.cliqzPrefs.getIntPref('logoPosition');
+        if(logoPosition != 1){
+            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css?rand='+Math.random());
+            CLIQZ.Core.elem.push(css);
+        }
+
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
 

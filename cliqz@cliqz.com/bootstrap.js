@@ -34,76 +34,63 @@ function $(node, childId) {
   }
 }
 
-function addButtons(win){
-    let document = win.document,
-        navBar = win.document.getElementById('nav-bar');
+function addButtonToMenu(document, menu, label, cmd){
+    var menuItem = document.createElement('menuitem');
+    menuItem.setAttribute('label', label);
+    menuItem.addEventListener('command', cmd, false);
+    menu.appendChild(menuItem);
+}
 
-    let button = win.document.createElement('toolbarbutton');
+function addButtons(win){
+    let doc = win.document,
+        navBar = doc.getElementById('nav-bar');
+
+    let button = doc.createElement('toolbarbutton');
     button.setAttribute('id', 'cliqz-button');
-    button.setAttribute('type', 'menu-button'); 
+    button.setAttribute('type', 'menu-button');
     button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
     button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
   
-    var menupopup = document.createElement('menupopup');
-    menupopup.setAttribute('id', 'menupopup');
-    menupopup.addEventListener('command', function(event) {
+    var menupopup = doc.createElement('menupopup');
 
-    }, false);
-
-
-    var menuitem1 = document.createElement('menuitem');
-    menuitem1.setAttribute('id', 'menuitem1');
-    menuitem1.setAttribute('label', 'Feedback');
-    menuitem1.addEventListener('command', function(event) {
+    addButtonToMenu(doc, menupopup, 'Feedback', function() {
         win.Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
-                openTab(document, 'http://beta.cliqz.com/feedback/' + beVersion);
-        });    
-    }, false);
+                openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+        });
+    });
 
-    var menuitem2 = document.createElement('menuitem');
-    menuitem2.setAttribute('id', 'menuitem2');
-    menuitem2.setAttribute('label', 'FAQ');
-    menuitem2.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/faq');    
-    }, false);
+    addButtonToMenu(doc, menupopup,'FAQ', function() {
+        openTab(doc, 'http://beta.cliqz.com/faq');
+    });
 
-    var menuitem3 = document.createElement('menuitem');
-    menuitem3.setAttribute('id', 'menuitem3');
-    menuitem3.setAttribute('label', 'Tutorial');
-    menuitem3.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/tutorial');    
-    }, false);
+    addButtonToMenu(doc, menupopup, 'Tutorial', function() {
+        openTab(doc, 'http://beta.cliqz.com/tutorial');
+    });
 
-    var priv = "Privatsph" + String.fromCharCode("0228") + "re",
-        menuitem5 = document.createElement('menuitem');
-    menuitem5.setAttribute('id', 'menuitem5');
-    menuitem5.setAttribute('label', priv);
-    menuitem5.addEventListener('command', function(event) {
-        openTab(document, 'http://beta.cliqz.com/img/privacy.jpg');
-    }, false);
+    var priv = 'Privatsph' + String.fromCharCode('0228') + 're';
+    addButtonToMenu(doc, menupopup, priv, function() {
+        openTab(doc, 'http://beta.cliqz.com/img/privacy.jpg');
+    });
 
-    var menuitem4 = document.createElement('menuitem');
-    menuitem4.setAttribute('id', 'menuitem4');
-    menuitem4.setAttribute('label', 'Update Suchen');
-    menuitem4.addEventListener('command', function(event) {
+    menupopup.appendChild(doc.createElement('menuseparator'));
+    addButtonToMenu(doc, menupopup, 'Options', function() {
+        win.openDialog('chrome://cliqz/content/options.xul', 'Cliqz Options', 'chrome,toolbar,modal');
+    });
+
+    menupopup.appendChild(doc.createElement('menuseparator'));
+    addButtonToMenu(doc, menupopup, 'Update Suchen', function() {
         win.Application.getExtensions(function(extensions) {
             var beVersion = extensions.get('cliqz@cliqz.com').version;
             win.CLIQZ.Core.updateCheck(beVersion, true);
-        });      
-    }, false);
+        });
+    });
 
-    menupopup.appendChild(menuitem1);
-    menupopup.appendChild(menuitem2);
-    menupopup.appendChild(menuitem3);
-    menupopup.appendChild(menuitem5);
-    menupopup.appendChild(document.createElement('menuseparator'));
-    menupopup.appendChild(menuitem4);
     button.appendChild(menupopup);
 
 
-    button.addEventListener('click', function(ev) {
-        openTab(document, 'chrome://cliqz/content/options.xul');
+    button.addEventListener('click', function() {
+        menupopup.openPopup(button,'after_start', 0, 0, false, true);
     }, false);
 
     //anchor.parentNode.insertBefore(button, anchor);
@@ -139,7 +126,7 @@ function windowWatcher(win, topic) {
 function startup(aData, aReason) {
     Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
     CLIQZ.Utils.init();
-    
+
     setDefaultPrefs();
     // Load into any existing windows
     var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -215,6 +202,8 @@ const PREFS = {
     'pagePreload': true, // hides quick search
     'inPrivate': false, // enables extension in private mode
     'bwFonts': false, // uses only black and white fonts for titles
+    'scale': 3, // 1-xsmall, 2-small, 3-normal, 4-large, 5-xlarge
+    'logoPosition': 1, // -1-left, 0-none, 1-right
 };
 
 function setDefaultPrefs() {
