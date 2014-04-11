@@ -1,5 +1,5 @@
 'use strict';
-var EXPORTED_SYMBOLS = ['CLIQZ'];
+const EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
