@@ -1,7 +1,6 @@
 'use strict';
 function startup(aData, aReason) {
     Components.utils.import('chrome://cliqz/content/extension.js?r=' + Math.random());
-    CLIQZExtension.init();
     CLIQZExtension.load(aReason == ADDON_UPGRADE);
 }
 

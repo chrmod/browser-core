@@ -1,5 +1,5 @@
 'use strict';
-const EXPORTED_SYMBOLS = ['CLIQZ'];
+var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
@@ -30,13 +30,11 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
-
-    CLIQZ.Utils.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
-
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
+  cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
       CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);

@@ -1,6 +1,6 @@
 'use strict';
 
-const EXPORTED_SYMBOLS = ['CLIQZExtension'],
+var EXPORTED_SYMBOLS = ['CLIQZExtension'],
       Cu = Components.utils;
 
 var CLIQZExtension = CLIQZExtension || {
@@ -12,7 +12,7 @@ var CLIQZExtension = CLIQZExtension || {
         'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 165, // popup/dropdown height in pixels 
+        'popupHeight': 160, // popup/dropdown height in pixels 
         'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
         'dnt': false, // if set to true the extension will not send any tracking signals
         'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
@@ -26,10 +26,13 @@ var CLIQZExtension = CLIQZExtension || {
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
         Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
+
+        CLIQZExtension.setDefaultPrefs();
         CLIQZ.Utils.init();
+
+        this.track = CLIQZ.Utils.track;
     },
     load: function(upgrade){
-        CLIQZExtension.setDefaultPrefs();
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -54,9 +57,18 @@ var CLIQZExtension = CLIQZExtension || {
 
         Services.ww.unregisterNotification(CLIQZExtension.windowWatcher);
     },
+    restart: function(){
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            //win.CLIQZ.Core.restart();
+            win.CLIQZ.Core.destroy();
+            win.CLIQZ.Core.init();
+        }
+    },
     setDefaultPrefs: function() {
       let branch = CLIQZ.Utils.cliqzPrefs;
-      for (let [key, val] in Iterator(CLIQZExtension.PREFS)) {
+      for (let [key, val] in new Iterator(CLIQZExtension.PREFS)) {
         if(!branch.prefHasUserValue(key)){
             switch (typeof val) {
               case 'boolean':
@@ -124,8 +136,8 @@ var CLIQZExtension = CLIQZExtension || {
         });
 
         menupopup.appendChild(doc.createElement('menuseparator'));
-        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Options', function() {
-            win.openDialog('chrome://cliqz/content/options.xul', 'Cliqz Options', 'chrome,toolbar,modal');
+        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Einstellungen', function() {
+            win.openDialog('chrome://cliqz/content/options.xul', 'Cliqz Einstellungen', 'chrome,modal');
         });
 
         menupopup.appendChild(doc.createElement('menuseparator'));
@@ -155,7 +167,10 @@ var CLIQZExtension = CLIQZExtension || {
         try {
             win.document.getElementById('cliqz-button').remove();
             win.CLIQZ.Core.destroy();
-            delete win.CLIQZ;
+            delete win.CLIQZ.Core;
+            delete win.CLIQZ.Utils;
+            win.CLIQZ = null;
+            win.CLIQZResults = null;
         }catch(e){Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
@@ -168,3 +183,5 @@ var CLIQZExtension = CLIQZExtension || {
         }
     }
 };
+
+CLIQZExtension.init();

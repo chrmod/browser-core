@@ -142,6 +142,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZResults.destroy();
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
+    restart: function(){
+        CLIQZ.Core.destroy();
+        CLIQZ.Core.init();
+    },
     popupEvent: function(open) {
         var action = {
             type: 'activity',

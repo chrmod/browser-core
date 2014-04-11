@@ -4,12 +4,13 @@
 <prefwindow id='cliqz-prefs'
      title='Cliqz Options'
      xmlns='http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul'
-     onload='javascript:load()'>
+     onload='javascript:load()'
+     buttons=','>
  
 <script type='text/javascript'>
 	var init = false;
   var SLIDERS = {
-    'popupHeight':66, 
+    'popupHeight':64, 
     //'scale':1, 
     //'logoPosition':1
   };
@@ -21,6 +22,10 @@
 
 	function loadpref() //call this in the prefwindow onload
 	{
+      //tmp
+      if(prefs.getIntPref('popupHeight') == 165) prefs.setIntPref('popupHeight', 160);
+      //endtemp
+
       init = true;
       for (var item in SLIDERS){
         let val = document.getElementById(item).value = prefs.getIntPref(item);  
@@ -31,12 +36,13 @@
 	function sliderChange(prop, val){
 		 if(init) //onchange for scale fires before onload for the window
 	     {
-	         prefs.setIntPref(prop, val);
+	         changePrefVal(prop, val);
 	         document.getElementById('lbl_' + prop).value = val / SLIDERS[prop];
 	     }
 	}
 
   function localizePage() {
+    return;
     var labels = document.getElementsByClassName('i18n');
     for (let lbl of labels){
       lbl.label = CLIQZ.Utils.getLocalizedString(lbl.label);
@@ -66,8 +72,17 @@
     if(lblElement) lblElement.value = val / (SLIDERS[pref] || 1);
   }
   function restoreDefaults(){
-    changePrefVal('popupHeight', 165);
+    changePrefVal('popupHeight', 160);
     changePrefVal('bwFonts', false);
+  }
+
+  function okSettings(){
+      //windows
+      changePrefVal('bwFonts', document.getElementById('bwFonts').checked); 
+
+      Components.utils.import('chrome://cliqz/content/extension.js?r=' + Math.random());
+      CLIQZExtension.restart();
+      window.close();
   }
 
 </script>
@@ -89,14 +104,14 @@
     <preference id='pref_bw_fonts' name='extensions.cliqz.bwFonts' type='bool'/>
   </preferences>
   <hbox align='center'>
-    <checkbox preference='pref_bw_fonts' id='bwFonts' />
-    <label control='checkbox_bw_fonts' value='Black and white fonts (restart): '/>
+    <checkbox preference='pref_bw_fonts' id='bwFonts'/>
+    <label control='checkbox_bw_fonts' value='Erhöhung der Lesbarkeit (schwarz auf weißem Hintergrund)'/>
   </hbox>
   <hbox align='center'>
-    <scale min='66' max='396' increment='33' onchange="javascript:sliderChange('popupHeight', this.value)" id='popupHeight'/>
-    <label value='Popup Height '/>
+    <scale min='64' max='384' increment='32' onchange="javascript:sliderChange('popupHeight', this.value)" id='popupHeight'/>
+    <label value='Anzahl der in Dropdown-Liste angezeigter Vorschläge'/>
     <label id='lbl_popupHeight' value=''/>
-    <label value=' rows (restart)'/>
+    <label value=' Ergebnisse'/>
   </hbox>
   <!--
   <hbox align='center'>
@@ -157,7 +172,7 @@
   -->
 </prefpane>
 <hbox flex="1" pack="center">
-  <button class='i18n' label='ok' oncommand='window.close()' />
-  <button class='i18n' label='loadDefaults' oncommand='restoreDefaults()' />
+  <button class='i18n' label='OK' oncommand='okSettings()' />
+  <button class='i18n' label='Zurücksetzen' oncommand='restoreDefaults()' />
 </hbox>
 </prefwindow>
