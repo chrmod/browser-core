@@ -431,4 +431,146 @@
       </method>
     </implementation>
   </binding>
+
+
+
+
+
+
+
+
+  <binding id="autocomplete-richlistitem-cliqz-nologo" extends="chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz">
+    <content>
+      <xul:hbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:stack>
+          <xul:hbox class="cliqz-image-box">
+            <xul:image anonid="cliqz-image" />
+          </xul:hbox>
+          <xul:hbox right="0" bottom="0" class="hidden">
+            <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+          </xul:hbox>
+        </xul:stack>
+        <xul:vbox flex="1">
+          <xul:hbox align="center" class="ac-title-box" >
+            <!-- 
+            <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
+            -->
+            <xul:spacer class="cliqz-left-separator"/>
+            <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+            <xul:hbox anonid="title-box" class="ac-title" flex="1"
+                      onunderflow="_doUnderflow('_title');"
+                      onoverflow="_doOverflow('_title');">
+              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-comment"/>
+            <xul:hbox anonid="extra-box" class="ac-extra" align="center" hidden="true">
+              <xul:image class="ac-result-type-tag"/>
+              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
+              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:image anonid="type-image" class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox align="center" class="ac-url-box">
+            <!-- 
+            <xul:spacer class="ac-site-icon"/>
+            <xul:image class="ac-action-icon"/>
+            -->
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+            <xul:hbox anonid="url-box" class="ac-url" flex="1"
+                      onunderflow="_doUnderflow('_url');"
+                      onoverflow="_doOverflow('_url');">
+              <xul:description anonid="url" class="ac-normal-text ac-url-text"
+                               xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+              <xul:spacer class="cliqz-separator-10"/>
+              <xul:description anonid="action" class="ac-normal-text ac-action-text"
+                               xbl:inherits="selected type"/>
+            </xul:hbox>
+            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-url-text"/>
+            <xul:spacer class="ac-type-icon"/>
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox hidden="true">
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+  </binding>
+  <binding id="autocomplete-richlistitem-cliqz-leftlogo" extends="chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz">
+    <content>
+      <xul:hbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox>
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:stack>
+          <xul:hbox class="cliqz-image-box">
+            <xul:image anonid="cliqz-image" />
+          </xul:hbox>
+          <xul:hbox right="0" bottom="0" class="hidden">
+            <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+          </xul:hbox>
+        </xul:stack>
+        <xul:vbox flex="1">
+          <xul:hbox align="center" class="ac-title-box" >
+            <!-- 
+            <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
+            -->
+            <xul:spacer class="cliqz-left-separator"/>
+            <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+            <xul:hbox anonid="title-box" class="ac-title" flex="1"
+                      onunderflow="_doUnderflow('_title');"
+                      onoverflow="_doOverflow('_title');">
+              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-comment"/>
+            <xul:hbox anonid="extra-box" class="ac-extra" align="center" hidden="true">
+              <xul:image class="ac-result-type-tag"/>
+              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
+              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:image anonid="type-image" class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox align="center" class="ac-url-box">
+            <!-- 
+            <xul:spacer class="ac-site-icon"/>
+            <xul:image class="ac-action-icon"/>
+            -->
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+            <xul:hbox anonid="url-box" class="ac-url" flex="1"
+                      onunderflow="_doUnderflow('_url');"
+                      onoverflow="_doOverflow('_url');">
+              <xul:description anonid="url" class="ac-normal-text ac-url-text"
+                               xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+              <xul:spacer class="cliqz-separator-10"/>
+              <xul:description anonid="action" class="ac-normal-text ac-action-text"
+                               xbl:inherits="selected type"/>
+            </xul:hbox>
+            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-url-text"/>
+            <xul:spacer class="ac-type-icon"/>
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+  </binding>
 </bindings>

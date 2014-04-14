@@ -1,102 +1,178 @@
-<?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml version='1.0'?>
+<?xml-stylesheet href='chrome://global/skin/' type='text/css'?>
  
-<prefwindow id="cliqz-prefs"
-     title="Cliqz Options"
-     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-     onload='javascript:load()'>
+<prefwindow id='cliqz-prefs'
+     title='Cliqz Options'
+     xmlns='http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul'
+     onload='javascript:load()'
+     buttons=','>
  
-<script type="text/javascript">
-
+<script type='text/javascript'>
 	var init = false;
-	//load preferences
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-	         .getService(Components.interfaces.nsIPrefService)
-	         .getBranch("extensions.cliqz.");
-	prefs.QueryInterface(Components.interfaces.nsIPrefBranch2);
+  var SLIDERS = {
+    'popupHeight':64, 
+    //'scale':1, 
+    //'logoPosition':1
+  };
+
+  Components.utils.import('chrome://cliqz/content/utils.js?r='+ Math.random());
+  CLIQZ.Utils.init();
+
+  var prefs = CLIQZ.Utils.cliqzPrefs;
 
 	function loadpref() //call this in the prefwindow onload
 	{
-	    var val = document.getElementById('rowsSlider').value = prefs.getIntPref('popupHeight');  
-	    init = true;
-	    sliderChange(val);
+      //tmp
+      if(prefs.getIntPref('popupHeight') == 165) prefs.setIntPref('popupHeight', 160);
+      //endtemp
+
+      init = true;
+      for (var item in SLIDERS){
+        let val = document.getElementById(item).value = prefs.getIntPref(item);  
+        sliderChange(item, val);
+      }
 	}
 
-	function sliderChange(val){
+	function sliderChange(prop, val){
 		 if(init) //onchange for scale fires before onload for the window
 	     {
-	         prefs.setIntPref('popupHeight',val);
-	         document.getElementById('popupRows').value = val/66;
+	         changePrefVal(prop, val);
+	         document.getElementById('lbl_' + prop).value = val / SLIDERS[prop];
 	     }
-		
 	}
+
+  function localizePage() {
+    return;
+    var labels = document.getElementsByClassName('i18n');
+    for (let lbl of labels){
+      lbl.label = CLIQZ.Utils.getLocalizedString(lbl.label);
+    } 
+  }
 
 	function load(){
 		loadpref();
+    localizePage();
 	}
+
+  function changePrefVal(pref, val){
+    document.getElementById(pref).value = val;
+    switch (typeof val) {
+        case 'boolean':
+          prefs.setBoolPref(pref, val);
+          break;
+        case 'number':
+          prefs.setIntPref(pref, val);
+          break;
+        case 'string':
+          prefs.setCharPref(pref, val);
+          break;
+      }
+
+    var lblElement = document.getElementById('lbl_' + pref);
+    if(lblElement) lblElement.value = val / (SLIDERS[pref] || 1);
+  }
+  function restoreDefaults(){
+    changePrefVal('popupHeight', 160);
+    changePrefVal('bwFonts', false);
+  }
+
+  function okSettings(){
+      //windows
+      changePrefVal('bwFonts', document.getElementById('bwFonts').checked); 
+
+      Components.utils.import('chrome://cliqz/content/extension.js?r=' + Math.random());
+      CLIQZExtension.restart();
+      window.close();
+  }
 
 </script>
 
-<prefpane id="preferences" label="Cliqz Preferences">
+<prefpane id='preferences' label='Cliqz Preferences'>
   <preferences>
-    <preference id="pref_query_debug" name="extensions.cliqz.showQueryDebug" type="bool"/>
-	<preference id="pref_beta_group" name="extensions.cliqz.betaGroup" type="bool"/>
-	<preference id="pref_dnt" name="extensions.cliqz.dnt" type="bool"/>
-	<preference id="pref_popup_height" name="extensions.cliqz.popupHeight" type="int"/>
-	<preference id="pref_enter_load_first" name="extensions.cliqz.enterLoadsFirst" type="bool"/>
-	<preference id="pref_hide_quick_search" name="extensions.cliqz.hideQuickSearch" type="bool"/>
-	<preference id="pref_page_preload" name="extensions.cliqz.pagePreload" type="bool"/>
-	<preference id="pref_in_private" name="extensions.cliqz.inPrivate" type="bool"/>
-	<preference id="pref_bw_fonts" name="extensions.cliqz.bwFonts" type="bool"/>
+    <!--
+    <preference id='pref_query_debug' name='extensions.cliqz.showQueryDebug' type='bool'/>
+  	<preference id='pref_beta_group' name='extensions.cliqz.betaGroup' type='bool'/>
+  	<preference id='pref_dnt' name='extensions.cliqz.dnt' type='bool'/>
+  	<preference id='pref_enter_load_first' name='extensions.cliqz.enterLoadsFirst' type='bool'/>
+  	<preference id='pref_hide_quick_search' name='extensions.cliqz.hideQuickSearch' type='bool'/>
+  	<preference id='pref_page_preload' name='extensions.cliqz.pagePreload' type='bool'/>
+  	<preference id='pref_in_private' name='extensions.cliqz.inPrivate' type='bool'/>
+    <preference name='extensions.cliqz.scale' type='int'/>
+    <preference id='logo_position' name='extensions.cliqz.logoPosition' type='int'/>
+    -->
+    <preference name='extensions.cliqz.popupHeight' type='int'/>
+    <preference id='pref_bw_fonts' name='extensions.cliqz.bwFonts' type='bool'/>
   </preferences>
- 
-  <hbox align="center">
-  	<checkbox preference="pref_query_debug" id="symbol" />
-    <label control="symbol" value="Show Query Debug: "/>
+  <hbox align='center'>
+    <checkbox preference='pref_bw_fonts' id='bwFonts'/>
+    <label control='checkbox_bw_fonts' value='Erhöhung der Lesbarkeit (schwarz auf weißem Hintergrund)'/>
+  </hbox>
+  <hbox align='center'>
+    <scale min='64' max='384' increment='32' onchange="javascript:sliderChange('popupHeight', this.value)" id='popupHeight'/>
+    <label value='Anzahl der in Dropdown-Liste angezeigter Vorschläge'/>
+    <label id='lbl_popupHeight' value=''/>
+    <label value=' Ergebnisse'/>
+  </hbox>
+  <!--
+  <hbox align='center'>
+  	<checkbox preference='pref_query_debug' />
+    <label value='Show Query Debug: '/>
   </hbox>
 
-  <hbox align="center">
-  	<checkbox preference="pref_beta_group" id="symbol" />
-    <label control="symbol" value="Beta Group: "/>
+  <hbox align='center'>
+  	<checkbox preference='pref_beta_group' />
+    <label value='Beta Group: '/>
   </hbox>
 
-  <hbox align="center">
-  	<checkbox preference="pref_dnt" id="symbol" />
-    <label control="symbol" value="Do not track "/>
+  <hbox align='center'>
+  	<checkbox preference='pref_dnt' />
+    <label value='Do not track '/>
   </hbox>
 
-  <hbox align="center">
-    <scale min="66" max="396" increment="33" onchange='javascript:sliderChange(this.value)' id='rowsSlider'/>
-    <label control="symbol" value="Popup Height "/>
-    <label id="popupRows" value=""/>
-    <label control="symbol" value=" rows (restart)"/>
-  </hbox>
-
-
-  <hbox align="center">
-  	<checkbox preference="pref_enter_load_first" id="symbol" />
-    <label control="symbol" value="Enter loads first result: "/>
+  <hbox align='center'>
+    <scale min='66' max='396' increment='33' onchange='javascript:sliderChange('popupHeight', this.value)' id='popupHeight'/>
+    <label value='Popup Height '/>
+    <label id='lbl_popupHeight' value='/>
+    <label value=' rows (restart)'/>
   </hbox>
 
 
-  <hbox align="center">
-  	<checkbox preference="pref_hide_quick_search" id="symbol" />
-    <label control="symbol" value="Hide quick search (restart): "/>
+  <hbox align='center'>
+  	<checkbox preference='pref_enter_load_first' />
+    <label value='Enter loads first result: '/>
   </hbox>
 
-  <hbox align="center">
-  	<checkbox preference="pref_page_preload" id="symbol" />
-    <label control="symbol" value="Page Preload on arrow key navigation: "/>
+
+  <hbox align='center'>
+  	<checkbox preference='pref_hide_quick_search' />
+    <label value='Hide quick search (restart): '/>
   </hbox>
 
-  <hbox align="center">
-  	<checkbox preference="pref_in_private" id="symbol" />
-    <label control="symbol" value="Enable extension in private windows: "/>
+  <hbox align='center'>
+  	<checkbox preference='pref_page_preload' />
+    <label value='Page Preload on arrow key navigation: '/>
   </hbox>
 
-  <hbox align="center">
-  	<checkbox preference="pref_bw_fonts" id="symbol" />
-    <label control="symbol" value="Black and white fonts (restart): "/>
+  <hbox align='center'>
+  	<checkbox preference='pref_in_private' />
+    <label value='Enable extension in private windows: '/>
   </hbox>
+
+  <hbox align='center'>
+    <scale min='3' max='5' increment='1' onchange="javascript:sliderChange('scale' ,this.value)" id='scale'/>
+    <label value='Scale (restart) '/>
+    <label id='lbl_scale' value='/>
+  </hbox>
+
+  <hbox align='center'>
+    <scale min='-1' max='1' increment='1' onchange='javascript:sliderChange('logoPosition' ,this.value)' id='logoPosition'/>
+    <label value='LogoPosition (restart) '/>
+    <label id='lbl_logoPosition' value='/>
+  </hbox>
+  -->
 </prefpane>
+<hbox flex="1" pack="center">
+  <button class='i18n' label='OK' oncommand='okSettings()' />
+  <button class='i18n' label='Zurücksetzen' oncommand='restoreDefaults()' />
+</hbox>
 </prefwindow>
