@@ -8,34 +8,23 @@
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <content ignorekeys="true" level="top" consumeoutsideclicks="false">
-      <!-- 
-      <xul:vbox flex="1" anonid="cliqzbox" class='cliqz-autocomplete-container'>
-      -->
         <xul:hbox flex="1">
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
           <xul:hbox id="right-cliqz">
             <xul:hbox flex="1">
-              <xul:button label="Google" anonid="button-google" 
+              <xul:button label="Google" anonid="button-google"
                 class="button-cliqz" oncommand="this.click();"/>
             </xul:hbox>
             <xul:hbox flex="1">
-              <xul:button label="Amazon" anonid="button-amazon" 
+              <xul:button label="Amazon" anonid="button-amazon"
                 class="button-cliqz" oncommand="this.click();"/>
             </xul:hbox>
             <xul:hbox flex="1">
-              <xul:button label="Wiki" anonid="button-wiki" 
+              <xul:button label="Wiki" anonid="button-wiki"
                 class="button-cliqz" oncommand="this.click();"/>
             </xul:hbox>
           </xul:hbox>
         </xul:hbox>
-      <!-- 
-      </xul:vbox>
-
-      <xul:hbox class="cliqz-progress-box">
-          <xul:hbox id="cliqz-progress" anonid="progress-bar" >
-          </xul:hbox>
-        </xul:hbox>
-      -->
     </content>
 
     <implementation >
@@ -55,15 +44,15 @@
             this._invalidate();
 
             // CLIQZ START
-            
+
             CLIQZ.Core.popupEvent(true);
 
             this.openPopup(aElement, "after_start", 0, 0, false, true);
             //this.moveTo(window.screenX + 35, window.screenY + 88);
-            
+
             // THIS IS NOT WORKING :(
             //this.sizeTo(window.outerWidth,500)
-           
+
             // CLIQZ END
           }
         ]]>
@@ -81,24 +70,9 @@
 
           // trim the leading/trailing whitespace
           var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
-          
+
           if(this._currentIndex == 0){
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(this._currentIndex));
-            /*
-            this._google = this._google || document.getAnonymousElementByAttribute(this, "anonid", "button-google");
-            this._amazon = this._amazon || document.getAnonymousElementByAttribute(this, "anonid", "button-amazon");
-            this._wiki = this._wiki || document.getAnonymousElementByAttribute(this, "anonid", "button-wiki");
-            //this._progress = this._progress || document.getAnonymousElementByAttribute(this, "anonid", "progress-bar");
-
-            this._google.setAttribute('url', 'http://www.google.de/#q=' + trimmedSearchString);
-            this._amazon.setAttribute('url', 'http://www.amazon.de/s?field-keywords=' + trimmedSearchString);
-            this._wiki.setAttribute('url', 'http://de.wikipedia.org/wiki/' + trimmedSearchString);
-
-            // clearTimeout(this.progressTimeout);
-            // this.progressTimeout = setTimeout(function(){
-            //  CLIQZ.Core.updateProgress(document.getElementById('PopupAutoCompleteRichResult'), matchCount);
-            // },10);
-            */
           }
           // CLIQZ END
 
@@ -215,9 +189,6 @@
         </xul:stack>
         <xul:vbox flex="1">
           <xul:hbox align="center" class="ac-title-box" >
-            <!-- 
-            <xul:image xbl:inherits="src=image" class="ac-site-icon"/>
-            -->
             <xul:spacer class="cliqz-left-separator"/>
             <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
                              class='cliqz-url-box'/>
@@ -236,10 +207,6 @@
             <xul:image anonid="type-image" class="ac-type-icon"/>
           </xul:hbox>
           <xul:hbox align="center" class="ac-url-box">
-            <!-- 
-            <xul:spacer class="ac-site-icon"/>
-            <xul:image class="ac-action-icon"/>
-            -->
             <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
 
             <xul:hbox anonid="url-box" class="ac-url" flex="1"
@@ -276,7 +243,7 @@
 
             this._cliqzUrlType = this._cliqzUrlType || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
             this._cliqzUrlType.className = 'cliqz-left-separator';
-            
+
             this._cliqzImage = this._cliqzImage || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image");
             this._cliqzImage.setAttribute("src", "");
             this._cliqzImage.className = "";
@@ -288,17 +255,7 @@
 
             this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
             this._logo.className = '';
-            
-            /*
-            this._source = this._source || document.getAnonymousElementByAttribute(this, "anonid", "source");
-            if(source === 'history'){
-              this._source.className = 'cliqz-ac-source-icon cliqz-history';
-            } else if(source === 'bookmark'){
-              this._source.className = 'cliqz-ac-source-icon cliqz-bookmark';
-            } else {
-              this._source.className = 'cliqz-ac-source-icon cliqz-results';
-            } 
-            */
+
             //this._source.textContent = source;
 
             this._cliqzUrlDetails = this._cliqzUrlDetails || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-url-details");
@@ -321,10 +278,10 @@
               this._logo.className += ' logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
               if(urlDetails.subdomains.length > 0){
                 // subdomain.domain - to match domains like maps.google.co.uk and maps.google.de with maps-google
-                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-' 
+                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-'
                                      + urlDetails.name;
                 // subdomain.domain.tld
-                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-' 
+                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-'
                                      + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
               }
 
@@ -347,7 +304,7 @@
                 }
               }
               //}
-              
+
               // remove default
               this._url.textContent = '';
               this._urlOverflowEllipsis.value = '';
@@ -363,30 +320,6 @@
               span.className = domainDefClass + ' cliqz-ac-url-path';
               span.textContent = urlDetails.path;
 
-              /*
-              for(var i=urlDetails.subdomains.length-1; i >= 0; i--){
-                span = this._cliqzUrlDetails.appendChild(
-                  document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-                span.className = domainDefClass;
-                span.textContent = urlDetails.subdomains[i];
-              }
-
-              // create detail elements
-              span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = domainDefClass + ' cliqz-ac-url-domain bc-background-' + urlDetails.name;
-              span.textContent = urlDetails.name;
-
-              span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = domainDefClass;
-              span.textContent = "." + urlDetails.tld;
-
-              span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = domainDefClass + ' flag flag-' + urlDetails.tld;
-              span.textContent = '';
-              */
             } else { //suggestions
               var title = this.getAttribute("title"),
                   text = this.getAttribute("text");

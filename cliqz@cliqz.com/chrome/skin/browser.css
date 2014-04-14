@@ -28,19 +28,6 @@
   border-color: #cccccc;
 }
 
-.autocomplete-richlistitem  * {
-  /*
-  background-color: red;
-  border: 1px solid green;
-  */
-}
-
-/*
-.autocomplete-richlistitem * {
-  background-color: red;
-  border: 1px solid black;
-}
-*/
 
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
@@ -99,7 +86,7 @@
 
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
-  max-height: 165px; 
+  max-height: 165px;
 }
 
 .ac-type-icon {
@@ -132,7 +119,7 @@
   margin: 0px;
 }
 
-.autocomplete-richlistitem[type="favicon"] .ac-title-box, 
+.autocomplete-richlistitem[type="favicon"] .ac-title-box,
 .autocomplete-richlistitem[type="bookmark"] .ac-title-box,
 .autocomplete-richlistitem[type="switchtab"] .ac-title-box,
 .autocomplete-richlistitem[type^="action"] .ac-title-box {
@@ -231,7 +218,7 @@
   outline: none;
 }
 
-.autocomplete-richlistitem:hover .cliqz-ac-source-icon, 
+.autocomplete-richlistitem:hover .cliqz-ac-source-icon,
 .autocomplete-richlistitem[selected="true"] .cliqz-ac-source-icon {
   width: 28px;
   /* margin-right: 0px; */
@@ -283,14 +270,13 @@
 
 .cliqz-ac-url-path {
   font-family: Verdana, Geneva, sans-serif;
-  /*font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;*/
   font-size: 9pt;
   color: #cccccc;
   font-weight: 400;
 }
 
 .cliqz-autocomplete-container {
-  
+
 }
 
 .cliqz-urlbar-message-search {
@@ -305,25 +291,13 @@
 .cliqz-urlbar-message-navigate {
   font-family: Verdana, Geneva, sans-serif;
   color: white;
-  background-color: #ff6666; 
+  background-color: #ff6666;
   margin: 1px;
   padding: 1px 5px;
   border-radius: 1px;
 }
 
-/*
-@media (max-width: 1250px) {
-  #right-cliqz {
-    display: none;
-  }
-}
-@media (min-width: 1250px) {
-  #right-cliqz {
-    width: 250px;
-    background-color: green;
-  }
-}
-*/
+
 #right-cliqz {
   display: none;
 }
@@ -339,7 +313,7 @@
   box-shadow: none;
   font-family: Verdana, Geneva, sans-serif;
   font-size: 10pt;
-  font-weight: 500; 
+  font-weight: 500;
   /*color: #669999;*/
 }
 
@@ -362,20 +336,3 @@
   visibility: hidden;
   display: none !important;
 }
-
-/*
-#urlbar {
-    height: 30px !important;
-    font-size: 30px !important;
-}
-*/
-
-/* sidebar anchored in the right side 
-hbox#browser { 
-    direction: rtl !important;
-     }  
-hbox#browser > vbox {
-    direction: ltr !important; 
-    }
-
-    */
