@@ -1,4 +1,6 @@
 *.xpi
 .DS_Store
 *.pyc
+mozilla-release
+.vagrant
 
