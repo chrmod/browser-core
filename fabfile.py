@@ -1,5 +1,5 @@
 """
-    Manages packaging and deplyment of the navigation extension.
+    Manages packaging, deplyment and testing of the navigation extension.
 """
 
 import urllib2
@@ -49,6 +49,16 @@ def install_in_browser():
             pass  # Success (Extension Auto-Installer returns 500)
     except urllib2.URLError as exception:
         abort("Extension Auto-Installer not running :(")
+
+
+@task
+def test():
+    """Run mozmill tests from tests folder."""
+    firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
+    tests_folder = 'tests/mozmill/'
+    output_file_name = package()
+    local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
+                                                        firefox_binary_path))
 
 
 @task
