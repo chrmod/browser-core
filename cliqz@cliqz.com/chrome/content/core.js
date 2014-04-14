@@ -166,7 +166,8 @@ CLIQZ.Core = CLIQZ.Core || {
             type: 'activity',
             action: 'result_click',
             current_position: pos,
-            position_type: source.replace('-', '_')
+            position_type: source.replace('-', '_'),
+            search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
         };
 
         CLIQZ.Utils.track(action);
@@ -299,22 +300,30 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
-            var index = popup.selectedIndex;
-            var action = {
+            let index = popup.selectedIndex,
+                inputValue = CLIQZ.Core.urlbar.value,
+                action = {
                     type: 'activity',
                     action: 'result_enter',
-                    current_position: index
+                    current_position: index,
+                    search: false
                 };
             if(index != -1){
-                let item = popup.richlistbox._currentItem
+                let item = popup.richlistbox._currentItem;
 
                 var source = item.getAttribute('source');
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
                 action.position_type = source.replace('-', '_');
+                action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
             } else { //enter while on urlbar and no result selected
-                action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
+                
+                if(CLIQZ.Utils.isUrl(inputValue)){
+                    action.position_type = 'inbar_url';
+                    action.search = CLIQZ.Utils.isSearch(inputValue);
+                }
+                else action.position_type = 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
 
                 // TEMP
@@ -345,7 +354,7 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                var index = popup.selectedIndex,
+                let index = popup.selectedIndex,
                     action = {
                         type: 'activity',
                         action: 'arrow_key',
@@ -360,6 +369,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         source = 'tab_result';
                     }
                     action.position_type = source.replace('-', '_');
+                    action.search = CLIQZ.Utils.isSearch(value);
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }

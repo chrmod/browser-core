@@ -98,7 +98,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       url = url.split('://')[1];
     }
     // extract only hostname
-    var host = url.split('/')[0];
+    var host = url.split('/')[0].toLowerCase();
 
     try {
       var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
@@ -143,6 +143,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
     } else {
       return true;
     }
+  },
+  // checks if a value represents an url which is a seach engine
+  isSearch: function(value){
+    if(CLIQZ.Utils.isUrl(value)){
+       return CLIQZ.Utils.getDetailsFromUrl(value).host.indexOf('google') === 0 ? true: false;
+    }
+    return false;
   },
   // checks if a string is a complete url 
   isCompleteUrl: function(input){
@@ -213,7 +220,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   trk: [],
   trkTimer: null,
   track: function(msg, instantPush) {
-    CLIQZ.Utils.log(JSON.stringify(msg));
+    CLIQZ.Utils.log(JSON.stringify(msg), 'Utils.track');
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
     msg.ts = (new Date()).getTime();
