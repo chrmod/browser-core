@@ -1,6 +1,10 @@
 'use strict';
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
+var PREF_STRING = 32,
+    PREF_INT = 64,
+    PREF_BOOL = 128;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
   HOST:             'http://beta.cliqz.com',
@@ -35,6 +39,20 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  getPrefs: function(){
+    var prefs = {};
+    for(let pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
+      prefs[pref] = CLIQZ.Utils.getPref(pref);
+    }
+    return prefs;
+  },
+  getPref: function(pref){
+    switch(CLIQZ.Utils.cliqzPrefs.getPrefType(pref)) {
+      case PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
+      case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
+      case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
+    }
+  },
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
       CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);

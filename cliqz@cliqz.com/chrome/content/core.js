@@ -12,10 +12,8 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
     init: function(){
         CLIQZ.Utils.init();
-        CLIQZ.Core.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
 
-        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Core.cliqzPrefs.getBoolPref('inPrivate')){
+        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivate')){
             CLIQZ.Utils.log('private window -> halt', 'CORE');
             return;
         }
@@ -25,17 +23,17 @@ CLIQZ.Core = CLIQZ.Core || {
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
 
-        if(CLIQZ.Core.cliqzPrefs.getBoolPref('bwFonts')){
+        if(CLIQZ.Utils.cliqzPrefs.getBoolPref('bwFonts')){
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
         // TEMP
         /*
-        var scale = CLIQZ.Core.cliqzPrefs.getIntPref('scale');
+        var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
 
-        var logoPosition = CLIQZ.Core.cliqzPrefs.getIntPref('logoPosition');
+        var logoPosition = CLIQZ.Utils.cliqzPrefs.getIntPref('logoPosition');
         if(logoPosition != 1){
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
@@ -48,8 +46,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
-            CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+            CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             CLIQZ.Core.showTutorial(true);
         } else {
             CLIQZ.Core.showTutorial(false);
@@ -71,7 +69,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //    };
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
-        if (CLIQZ.Core.cliqzPrefs.getBoolPref('hideQuickSearch')){
+        if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
             searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
         }
         
@@ -90,7 +88,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
-        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core.cliqzPrefs.getIntPref('popupHeight') + 'px';
+        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
         //check APIs 
         CLIQZ.Utils.getCachedResults();
@@ -206,7 +204,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,
-                    startup: startup? true: false
+                    startup: startup? true: false,
+                    prefs: CLIQZ.Utils.getPrefs()
                 };
 
                 CLIQZ.Utils.track(info);
@@ -216,15 +215,15 @@ CLIQZ.Core = CLIQZ.Core || {
         });
     },
     updateCheck: function(currentVersion, withFeedback) {
-        var pref = CLIQZ.Core.cliqzPrefs,
+        var pref = CLIQZ.Utils.cliqzPrefs,
             now = (new Date()).getTime();
 
         CLIQZ.Core._updateAvailable = false;
         if(withFeedback || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
-            CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
+            CLIQZ.Utils.cliqzPrefs.setCharPref('messageUpdate', now.toString());
             CLIQZ.Utils.getLatestVersion(function(latestVersion){
                 if(currentVersion != latestVersion){
-                    if(!CLIQZ.Core.cliqzPrefs.getBoolPref('betaGroup')){
+                    if(!CLIQZ.Utils.cliqzPrefs.getBoolPref('betaGroup')){
                         // production users get only major updates
                         if(currentVersion.split('.').slice(0, -1).join('') ==
                            latestVersion.split('.').slice(0, -1).join('')) {
@@ -320,7 +319,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
                 // TEMP
                 /*
-                if(CLIQZ.Core.cliqzPrefs.getBoolPref('enterLoadsFirst')){
+                if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
                     ev.preventDefault();
 
                     CLIQZ.Utils.log(popup.richlistbox.childNodes[0].getAttribute('url'), "AAAAA");
@@ -367,7 +366,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
                     // TEMP
-                    //if(CLIQZ.Core.cliqzPrefs.getBoolPref('pagePreload')){
+                    //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
                     // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;

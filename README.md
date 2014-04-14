@@ -9,13 +9,14 @@ Firefox Navigation Browser extension
 2. Filter for `extensions.cliqz.`
 3. Preferences:
 ``` bash
-    'UDID': '1234567890|12345', //unique identifier
-    'messageInterval': 3600000 , // interval between update messages - 1H 
-    'showQueryDebug': false, // show query debug information next to results
-    'showDebugLogs': false, // show debug logs in console
-    'popupHeight': 165, // popup (dropdown) height in pixels (requires restart)
-    'betaGroup': false, // if set to true the extension gets all the updates. Else only the major version
-    'dnt': false // if set to true the extension will not send any tracking signals
+    "UDID": "1234567890|12345", //unique identifier
+    "messageInterval": 3600000 , // interval between update messages - 1H 
+    "showQueryDebug": false, // show query debug information next to results
+    "showDebugLogs": false, // show debug logs in console
+    "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
+    "betaGroup": false, // if set to true the extension gets all the updates. Else only the major version
+    "dnt": false, // if set to true the extension will not send any tracking signals
+    "bwFonts": false, // titles only in Black and white
 ```
 
 #Logging
@@ -34,7 +35,8 @@ Sent at startup and every 1 hour afterwards
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point
-    "type": "environment" // signal type
+    "type": "environment", // signal type
+    "prefs": {...} // a snapshot of the current preferences described in [Settings](#settings) 
 }
 ```
 
