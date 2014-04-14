@@ -55,10 +55,10 @@ def install_in_browser():
 def test():
     """Run mozmill tests from tests folder."""
     firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
-    tests_folder = 'tests'
+    tests_folder = 'tests/mozmill/'
     output_file_name = package()
-    local("mozmill --test=tests/ --addon=%s"
-          "        --binary=%s" % (output_file_name, firefox_binary_path))
+    local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
+                                                        firefox_binary_path))
 
 
 @task
