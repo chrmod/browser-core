@@ -12,10 +12,8 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
     init: function(){
         CLIQZ.Utils.init();
-        CLIQZ.Core.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
 
-        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Core.cliqzPrefs.getBoolPref('inPrivate')){
+        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivate')){
             CLIQZ.Utils.log('private window -> halt', 'CORE');
             return;
         }
@@ -25,19 +23,31 @@ CLIQZ.Core = CLIQZ.Core || {
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
 
-        if(CLIQZ.Core.cliqzPrefs.getBoolPref('bwFonts')){
+        if(CLIQZ.Utils.cliqzPrefs.getBoolPref('bwFonts')){
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
+        // TEMP
+        /*
+        var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
+        CLIQZ.Core.elem.push(css);
 
+        var logoPosition = CLIQZ.Utils.cliqzPrefs.getIntPref('logoPosition');
+        if(logoPosition != 1){
+            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css?rand='+Math.random());
+            CLIQZ.Core.elem.push(css);
+        }
+        */
+        // ENDTEMP
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        if (CLIQZ.Core.cliqzPrefs.getCharPref('UDID') == ''){
-            CLIQZ.Core.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+            CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
             CLIQZ.Core.showTutorial(true);
         } else {
             CLIQZ.Core.showTutorial(false);
@@ -59,7 +69,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //    };
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
-        if (CLIQZ.Core.cliqzPrefs.getBoolPref('hideQuickSearch')){
+        if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
             searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
         }
         
@@ -78,7 +88,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
-        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core.cliqzPrefs.getIntPref('popupHeight') + 'px';
+        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
         //check APIs 
         CLIQZ.Utils.getCachedResults();
@@ -130,6 +140,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZResults.destroy();
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
+    restart: function(){
+        CLIQZ.Core.destroy();
+        CLIQZ.Core.init();
+    },
     popupEvent: function(open) {
         var action = {
             type: 'activity',
@@ -152,7 +166,8 @@ CLIQZ.Core = CLIQZ.Core || {
             type: 'activity',
             action: 'result_click',
             current_position: pos,
-            position_type: source.replace('-', '_')
+            position_type: source.replace('-', '_'),
+            search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
         };
 
         CLIQZ.Utils.track(action);
@@ -190,7 +205,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,
-                    startup: startup? true: false
+                    startup: startup? true: false,
+                    prefs: CLIQZ.Utils.getPrefs()
                 };
 
                 CLIQZ.Utils.track(info);
@@ -200,15 +216,15 @@ CLIQZ.Core = CLIQZ.Core || {
         });
     },
     updateCheck: function(currentVersion, withFeedback) {
-        var pref = CLIQZ.Core.cliqzPrefs,
+        var pref = CLIQZ.Utils.cliqzPrefs,
             now = (new Date()).getTime();
 
         CLIQZ.Core._updateAvailable = false;
         if(withFeedback || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
-            CLIQZ.Core.cliqzPrefs.setCharPref('messageUpdate', now.toString());
+            CLIQZ.Utils.cliqzPrefs.setCharPref('messageUpdate', now.toString());
             CLIQZ.Utils.getLatestVersion(function(latestVersion){
                 if(currentVersion != latestVersion){
-                    if(!CLIQZ.Core.cliqzPrefs.getBoolPref('betaGroup')){
+                    if(!CLIQZ.Utils.cliqzPrefs.getBoolPref('betaGroup')){
                         // production users get only major updates
                         if(currentVersion.split('.').slice(0, -1).join('') ==
                            latestVersion.split('.').slice(0, -1).join('')) {
@@ -284,26 +300,35 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
-            var index = popup.selectedIndex;
-            var action = {
+            let index = popup.selectedIndex,
+                inputValue = CLIQZ.Core.urlbar.value,
+                action = {
                     type: 'activity',
                     action: 'result_enter',
-                    current_position: index
+                    current_position: index,
+                    search: false
                 };
             if(index != -1){
-                let item = popup.richlistbox._currentItem
+                let item = popup.richlistbox._currentItem;
 
                 var source = item.getAttribute('source');
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
                 action.position_type = source.replace('-', '_');
+                action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
             } else { //enter while on urlbar and no result selected
-                action.position_type = CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value) ? 'inbar_url' : 'inbar_query';
+                
+                if(CLIQZ.Utils.isUrl(inputValue)){
+                    action.position_type = 'inbar_url';
+                    action.search = CLIQZ.Utils.isSearch(inputValue);
+                }
+                else action.position_type = 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
 
                 // TEMP
-                if(CLIQZ.Core.cliqzPrefs.getBoolPref('enterLoadsFirst')){
+                /*
+                if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
                     ev.preventDefault();
 
                     CLIQZ.Utils.log(popup.richlistbox.childNodes[0].getAttribute('url'), "AAAAA");
@@ -318,6 +343,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     gBrowser.selectedBrowser.contentDocument.location = value;
                     popup.closePopup();
                 }
+                */
                 // ENDTEMP
 
             }
@@ -328,7 +354,7 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                var index = popup.selectedIndex,
+                let index = popup.selectedIndex,
                     action = {
                         type: 'activity',
                         action: 'arrow_key',
@@ -343,19 +369,20 @@ CLIQZ.Core = CLIQZ.Core || {
                         source = 'tab_result';
                     }
                     action.position_type = source.replace('-', '_');
+                    action.search = CLIQZ.Utils.isSearch(value);
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
                     // TEMP
-                    if(CLIQZ.Core.cliqzPrefs.getBoolPref('pagePreload')){
+                    //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
                     // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
                         gBrowser.selectedBrowser.contentDocument.location = value;
                     }, 500);
 
-                    }
+                    //}
                 }
                 CLIQZ.Utils.track(action);
             },0);

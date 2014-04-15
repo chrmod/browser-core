@@ -16,5 +16,11 @@
 	},
 	"searchForDescription":{
 		"message":"mit der Suchmaschine deiner Wahl"
+	},
+	"ok":{
+		"message":"OK"
+	},
+	"loadDefaults":{
+		"message":"Load Defaults"
 	}
 }

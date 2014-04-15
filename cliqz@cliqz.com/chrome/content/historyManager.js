@@ -29,7 +29,7 @@ CLIQZ.historyManager = CLIQZ.historyManager || {
                     columns: ["cnt", "first"],
                     onRow: function({cnt, first}) {
                     try {
-                        history = Math.ceil(first / 86400000000);
+                        history = Math.floor(first / 86400000000);
                         historysize = cnt;
                         /*
                         let host = rev_host.slice(0, -1).split("").reverse().join("");

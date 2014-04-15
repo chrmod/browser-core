@@ -9,13 +9,14 @@ Firefox Navigation Browser extension
 2. Filter for `extensions.cliqz.`
 3. Preferences:
 ``` bash
-    'UDID': '1234567890|12345', //unique identifier
-    'messageInterval': 3600000 , // interval between update messages - 1H 
-    'showQueryDebug': false, // show query debug information next to results
-    'showDebugLogs': false, // show debug logs in console
-    'popupHeight': 165, // popup (dropdown) height in pixels (requires restart)
-    'betaGroup': false, // if set to true the extension gets all the updates. Else only the major version
-    'dnt': false // if set to true the extension will not send any tracking signals
+    "UDID": "1234567890|12345", //unique identifier
+    "messageInterval": 3600000 , // interval between update messages - 1H 
+    "showQueryDebug": false, // show query debug information next to results
+    "showDebugLogs": false, // show debug logs in console
+    "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
+    "betaGroup": false, // if set to true the extension gets all the updates. Else only the major version
+    "dnt": false, // if set to true the extension will not send any tracking signals
+    "bwFonts": false, // titles only in Black and white
 ```
 
 #Logging
@@ -34,7 +35,8 @@ Sent at startup and every 1 hour afterwards
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point
-    "type": "environment" // signal type
+    "type": "environment", // signal type
+    "prefs": {...} // a snapshot of the current preferences described in Settings
 }
 ```
 
@@ -60,7 +62,8 @@ Arrow key (up/down) - navigation through the results with keyboard
     "type": "activity",
     "action": "arrow_key",
     "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ``` 
 
@@ -74,7 +77,8 @@ Result click (mouse)
     "type": "activity",
     "action": "result_click",
     "current_position": "1", // 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ``` 
 
@@ -89,6 +93,7 @@ Result enter (keyboard)
     "action": "result_enter",
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ``` 
 2. With no focused result - in the urlbar
@@ -103,6 +108,7 @@ Result enter (keyboard)
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
+    "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ``` 
 

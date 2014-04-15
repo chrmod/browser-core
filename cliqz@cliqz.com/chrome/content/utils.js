@@ -1,6 +1,10 @@
 'use strict';
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
+var PREF_STRING = 32,
+    PREF_INT = 64,
+    PREF_BOOL = 128;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
   HOST:             'http://beta.cliqz.com',
@@ -30,12 +34,24 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
-
-    CLIQZ.Utils.cliqzPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.');
-
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
+  },
+  cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  getPrefs: function(){
+    var prefs = {};
+    for(let pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
+      prefs[pref] = CLIQZ.Utils.getPref(pref);
+    }
+    return prefs;
+  },
+  getPref: function(pref){
+    switch(CLIQZ.Utils.cliqzPrefs.getPrefType(pref)) {
+      case PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
+      case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
+      case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
+    }
   },
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
@@ -82,7 +98,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       url = url.split('://')[1];
     }
     // extract only hostname
-    var host = url.split('/')[0];
+    var host = url.split('/')[0].toLowerCase();
 
     try {
       var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
@@ -127,6 +143,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
     } else {
       return true;
     }
+  },
+  // checks if a value represents an url which is a seach engine
+  isSearch: function(value){
+    if(CLIQZ.Utils.isUrl(value)){
+       return CLIQZ.Utils.getDetailsFromUrl(value).host.indexOf('google') === 0 ? true: false;
+    }
+    return false;
   },
   // checks if a string is a complete url 
   isCompleteUrl: function(input){
@@ -197,7 +220,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   trk: [],
   trkTimer: null,
   track: function(msg, instantPush) {
-    CLIQZ.Utils.log(JSON.stringify(msg));
+    CLIQZ.Utils.log(JSON.stringify(msg), 'Utils.track');
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
     msg.ts = (new Date()).getTime();
