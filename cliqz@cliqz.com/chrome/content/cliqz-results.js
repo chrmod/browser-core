@@ -84,7 +84,7 @@ var CLIQZResults = CLIQZResults || {
             getValueAt: function(index) { return this._results[index].val; },
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
-            getImageAt: function (index) { 
+            getImageAt: function (index) {
                 if(this._results[index].image){
                     return JSON.stringify({
                         image: this._results[index].image,
@@ -147,7 +147,7 @@ var CLIQZResults = CLIQZResults || {
                 }
                 this.pushResults(q);
             },
-            // handles suggested queries 
+            // handles suggested queries
             cliqzSuggestionFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var response = [];
@@ -197,7 +197,7 @@ var CLIQZResults = CLIQZResults || {
                             return 'Query[' +el.q + '] BIGRAM[' + el.bigram + ']';
                     }
                 }
-                return "<unknown>" 
+                return "<unknown>"
             },
             createCliqzResult: function(result){
                 if(result.snippet){
@@ -273,39 +273,39 @@ var CLIQZResults = CLIQZResults || {
                 return action;
             },
             // removes duplicates from the results list. Returns the list with the elements
-            // removed. 
+            // removed.
             // max_by_domain is the maximum number of urls with the same domain (after
             // normalization).
             // max_by_domain_and_path, the maximum number of urls with the same domain+path
             // max_by_domain_title, the maximum number of urls with the same domain and the same title
-            // put -1 to leave them unbounded. 
+            // put -1 to leave them unbounded.
             // they all work as a logical AND
             // typical use case, only check by path: removeDuplicates(results, -1, 1, 1)
             // if you want to not have more than 2 wikipedias: removeDuplicates(results, 2, 1, 1)
             removeDuplicates: function(results, max_by_domain, max_by_domain_path, max_by_domain_title) {
-                
+
                 var filterTLDs = function(domain) {
                     var v = domain.toLowerCase().split('.');
-                    
+
                     // remove the first level yes or yes
                     var first_level = TLDs[v[v.length-1]];
                     v[v.length-1]=null;
-                    
+
                     if ((v.length > 2) && (first_level=='cc')) {
                         // check if we also have to remove the second level, only if 3 or more levels
                         // and the first_level was a country code
                         if (TLDs[v[v.length-2]]) {
                             v[v.length-2] = null;
                         }
-                    } 
-                    
+                    }
+
                     // remove the nulls
                     v = v.filter(function(n){ return n != null });
-                    
+
                     // let's go to remove locales from the beginning, only if at least 2 or more
                     // levels remaining and if the first_level was not a country code
                     if ((v.length > 1) && (first_level!='cc')) {
-                        
+
                         // cover the case de.wikipedia.org
                         if (TLDs[v[0]]=='cc' || v[0]=='en') {
                             v[0] = null;
@@ -315,14 +315,14 @@ var CLIQZResults = CLIQZResults || {
                             var w = v[0].split("-");
                             if ((w.length == 2) && (TLDs[w[0]]=='cc' || TLDs[w[0]]=='en') && (TLDs[w[1]]=='cc' || TLDs[w[1]]=='en')) {
                                 v[0] = null;
-                            }    
-                        }   
+                            }
+                        }
                     }
-                    
+
                     // remove the nulls and join
                     return v.filter(function(n){ return n != null }).join('.');
                 }
-                
+
                 var extractKeys = function(url, title) {
                     var domain = null;
                     var path = null;
@@ -330,32 +330,32 @@ var CLIQZResults = CLIQZResults || {
                     var v = clean_url.split('/');
                     var domain = v[0];
                     var path = '/';
-                    
+
                     if (v.length > 1) {
                         // remove the query string
                         v[v.length-1] = v[v.length-1].split('?')[0];
                         path = '/' + v.splice(1, v.length-1).join('/');
                     }
-                    
+
                     domain = filterTLDs(domain);
-                    
+
                     // if no title or empty, generate a random key. This is a fail-safe mechanism
                     if ((title==undefined) || (title==null) || (title.trim()=='')) {
                         title = '' + Math.random();
                     }
-                    
+
                     return [domain, domain + path, domain + title];
                 }
-                
+
                 var deduplicated_results = [];
                 var memo_domain = {};
                 var memo_domain_path = {};
                 var memo_domain_title = {};
-                
+
                 if (max_by_domain_path==-1) max_by_domain_path = results.length;
                 if (max_by_domain==-1) max_by_domain = results.length;
                 if (max_by_domain_title==-1) max_by_domain_title = results.length;
-                
+
                 for (let i = 0; i<results.length; i++) {
                     //CLIQZ.Utils.log("TITLE: "+ JSON.stringify(results[i]));
                     //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
@@ -363,12 +363,12 @@ var CLIQZResults = CLIQZResults || {
                     var by_domain = w[0];
                     var by_domain_path = w[1];
                     var by_domain_title = w[2];
-                    
+
                     (memo_domain[by_domain]==null) ? memo_domain[by_domain]=1 : memo_domain[by_domain]+=1;
                     (memo_domain_path[by_domain_path]==null) ? memo_domain_path[by_domain_path]=1 : memo_domain_path[by_domain_path]+=1;
                     (memo_domain_title[by_domain_title]==null) ? memo_domain_title[by_domain_title]=1 : memo_domain_title[by_domain_title]+=1;
-                    
-                    
+
+
                     if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                         deduplicated_results.push(results[i]);
                         // CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
@@ -376,7 +376,7 @@ var CLIQZResults = CLIQZResults || {
                     else {
                         // CLIQZ.Utils.log('duplicate: ' + results[i].val);
                     }
-                    
+
                 }
                 return deduplicated_results;
             },
@@ -385,7 +385,7 @@ var CLIQZResults = CLIQZResults || {
                 var results = [], histResults = 0, bookmarkResults = 0,
                     maxResults = prefs.getIntPref('maxRichResults'),
                     temp_log = this.logResults();
-                
+
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
                     bucketHistoryOther = [],
@@ -410,7 +410,7 @@ var CLIQZResults = CLIQZResults || {
                     for(let i in this.cliqzResults || []) {
                         if(this.cliqzResults[i].url.indexOf(label) != -1) {
                             var tempResult = this.createCliqzResult(this.cliqzResults[i])
-                            bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label, 
+                            bucketHistoryCache.push(this.resultFactory(style, value, image, comment, label,
                                 tempResult.query, tempResult.image));
                             cacheIndex = i;
                             break;
@@ -424,7 +424,7 @@ var CLIQZResults = CLIQZResults || {
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
                         // Ignore result if is this a google search result from history
-                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" && 
+                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" &&
                            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
                             CLIQZ.Utils.log("Discarding google result page from history: " + label)
                         } else {
@@ -444,7 +444,7 @@ var CLIQZResults = CLIQZResults || {
                 /// 2) Prepare final result list from buckets
 
                 var showQueryDebug = CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug')
-                
+
                 // all bucketHistoryCache
                 for(let i = 0; i < bucketHistoryCache.length; i++) {
                     if(showQueryDebug)
@@ -466,7 +466,7 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketCache[0]);
                 }
 
-                // rest of bucketHistoryDomain 
+                // rest of bucketHistoryDomain
                 for(let i = 1; i < bucketHistoryDomain.length; i++) {
                     if(showQueryDebug)
                         bucketHistoryDomain[i].comment += " (History Domain)";
@@ -496,7 +496,7 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.searchString,
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchFor')
+                                CLIQZ.Utils.getLocalizedString('searchForBegin')
                             )
                         );
                 }
@@ -507,12 +507,12 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.cliqzSuggestions[i],
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchFor')
+                                CLIQZ.Utils.getLocalizedString('searchForBegin')
                             )
                         );
                     }
                 }
-                
+
 
                 results = results.slice(0, maxResults);
 
@@ -530,21 +530,21 @@ var CLIQZResults = CLIQZResults || {
 
                 var mergedResult = new CLIQZResults.ProviderAutoCompleteResultCliqz(
                     this.searchString,
-                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS, 
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
                     -2, // blocks autocomplete
-                    '', 
+                    '',
                     results);
 
                 CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
-                  + ', suggestions: ' + (this.cliqzSuggestions || []).length 
+                  + ', suggestions: ' + (this.cliqzSuggestions || []).length
                   + ')' );
 
                 return mergedResult;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
-                
+
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',

@@ -126,9 +126,18 @@
   color: #996699;
 }
 
-.autocomplete-richlistitem[type="cliqz-results"] .ac-title-box,
+.autocomplete-richlistitem[type="cliqz-results"] .ac-title-box {
+  color: #003366;
+}
+
 .autocomplete-richlistitem[type="cliqz-suggestions"] .ac-title-box {
   color: #003366;
+  height: 12px;
+  padding: 6px 0 2px 0;
+}
+
+.autocomplete-richlistitem[type="cliqz-suggestions"] .ac-url-box {
+  display: none;
 }
 
 .cliqz-ac-title-suggestion-desc {
@@ -161,6 +170,7 @@
 .autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon {
   background-color: #99cccc;
   background-image: url(chrome://cliqzres/content/skin/search.png);
+  height: 31px;
 }
 
 /* history */
@@ -317,7 +327,7 @@
   /*color: #669999;*/
 }
 
-.autocomplete-richlistitem{
+.autocomplete-richlistitem {
 }
 
 .autocomplete-richlistitem[type="bookmark"]{

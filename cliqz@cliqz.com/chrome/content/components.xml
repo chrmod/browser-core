@@ -329,12 +329,6 @@
               this._urlOverflowEllipsis.value = '';
               this._title.textContent = ''
 
-              // url
-              var span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion-desc';
-              span.textContent = CLIQZ.Utils.getLocalizedString('searchForDescription');
-
               // title
               span = this._cliqzTitleDetails.appendChild(
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
@@ -345,6 +339,11 @@
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
               span.className = 'cliqz-ac-title-suggestion';
               span.textContent = url;
+
+              var span = this._cliqzTitleDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-title-suggestion-desc';
+              span.textContent = CLIQZ.Utils.getLocalizedString('searchForEnd');
             }
           ]]>
         </body>
