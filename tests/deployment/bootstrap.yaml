@@ -1,0 +1,46 @@
+- hosts: all
+  gather_facts: no
+  vars:
+    firefox_versions:
+      releases:
+        - '26.0'
+        - '27.0'
+        - '28.0'
+  tasks:
+    - pip: name={{ item }}
+      with_items:
+        - flask
+        - ipython
+        - mozmill
+        - mozdownload
+        - paramiko
+    - copy: dest=/etc/init/cliqz-backend.conf
+            src=cliqz-backend.conf
+            mode=0644
+    - service: name=cliqz-backend enabled=yes state=started
+    - lineinfile: dest=/etc/hosts state=present line="127.0.0.1    webbeta.cliqz.com"
+
+    - file: state=directory dest={{ item }} mode=0744 owner=vagrant group=vagrant
+      with_items:
+        - /opt/browsers/firefox
+        - /opt/browsers/firefox-releases
+
+
+    - name: Download releases
+      get_url: url="https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/{{ item }}/linux-x86_64/de/firefox-{{ item }}.tar.bz2"
+               dest="/opt/browsers/firefox-releases/{{ item }}.tar.bz2"
+               owner=vagrant group=vagrant
+      with_items: firefox_versions["releases"]
+
+    - name: Create target directories for extracting releases
+      file: state=directory dest="/opt/browsers/firefox/{{ item }}" mode=0744 owner=vagrant group=vagrant
+      with_items: firefox_versions["releases"]
+
+    - name: Extract releases
+      command: tar xf ../firefox-releases/{{ item }}.tar.bz2 --strip-components 1 -C {{ item }}
+               chdir=/opt/browsers/firefox/
+               creates=/opt/browsers/firefox/{{ item }}/firefox
+      with_items: firefox_versions["releases"]
+
+      # mozdownload -l de -d /opt/browsers/firefox -a firefox -p linux64 -t release -v $VERSION
+
