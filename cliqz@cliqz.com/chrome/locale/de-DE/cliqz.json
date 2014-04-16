@@ -11,11 +11,11 @@
 	"urlbarNavigate":{
 		"message":"Los"
 	},
-	"searchFor":{
+	"searchForBegin":{
 		"message":"Suchergebnisse für "
 	},
-	"searchForDescription":{
-		"message":"mit der Suchmaschine deiner Wahl"
+	"searchForEnd":{
+		"message":" mit der Suchmaschine deiner Wahl"
 	},
 	"ok":{
 		"message":"OK"

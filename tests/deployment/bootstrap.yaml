@@ -14,11 +14,18 @@
         - mozmill
         - mozdownload
         - paramiko
-    - copy: dest=/etc/init/cliqz-backend.conf
-            src=cliqz-backend.conf
-            mode=0644
-    - service: name=cliqz-backend enabled=yes state=started
+
+    - include: http-server.yaml
+      service_name: cliqz-ssl-backend
+      port: 443
+
+    - include: http-server.yaml
+      service_name: cliqz-backend
+      port: 80
+
     - lineinfile: dest=/etc/hosts state=present line="127.0.0.1    webbeta.cliqz.com"
+    - lineinfile: dest=/etc/hosts state=present line="127.0.0.1    logging.cliqz.com"
+    - lineinfile: dest=/etc/hosts state=present line="127.0.0.1    www.google.com"
 
     - file: state=directory dest={{ item }} mode=0744 owner=vagrant group=vagrant
       with_items:

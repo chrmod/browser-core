@@ -58,10 +58,10 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
-        
+
 
         CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
-        CLIQZ.Core.popup.setAttribute('onpopuphiding', 
+        CLIQZ.Core.popup.setAttribute('onpopuphiding',
             'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
         // document.getElementById('PopupAutoCompleteRichResult').onscroll =
         //    function(el){
@@ -72,7 +72,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
             searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
         }
-        
+
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
@@ -80,7 +80,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // add cliqz message button
         var cliqzMessage = document.createElement('hbox');
-        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus 
+        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus
         var sibling = document.getElementById('urlbar-icons');
         sibling.parentNode.insertBefore(cliqzMessage, sibling);
         CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
@@ -90,16 +90,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
-        //check APIs 
+        //check APIs
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
 
         Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
         CLIQZResults.init();
 
-        
+
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
-        
+
         CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
@@ -228,6 +228,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         // production users get only major updates
                         if(currentVersion.split('.').slice(0, -1).join('') ==
                            latestVersion.split('.').slice(0, -1).join('')) {
+                            withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
                             return;
                         }
                     }
@@ -318,7 +319,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.position_type = source.replace('-', '_');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
             } else { //enter while on urlbar and no result selected
-                
+
                 if(CLIQZ.Utils.isUrl(inputValue)){
                     action.position_type = 'inbar_url';
                     action.search = CLIQZ.Utils.isSearch(inputValue);
@@ -339,7 +340,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;
                     }
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
-                    
+
                     gBrowser.selectedBrowser.contentDocument.location = value;
                     popup.closePopup();
                 }
@@ -396,7 +397,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult){   
+    autocompleteQuery: function(firstResult){
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
@@ -421,7 +422,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     // redirects a tab in which oldUrl is loaded to newUrl
-    // 
+    //
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
         var found = false;
 
