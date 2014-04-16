@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: linux
   gather_facts: no
   vars:
     firefox_versions:
@@ -23,13 +23,12 @@
     - file: state=directory dest={{ item }} mode=0744 owner=vagrant group=vagrant
       with_items:
         - /opt/browsers/firefox
-        - /opt/browsers/firefox-releases
-
+        - /opt/browsers/firefox-releases/linux-x86_64
 
     - name: Download releases
       get_url: url="https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/{{ item }}/linux-x86_64/de/firefox-{{ item }}.tar.bz2"
-               dest="/opt/browsers/firefox-releases/{{ item }}.tar.bz2"
-               owner=vagrant group=vagrant
+               dest="/opt/browsers/firefox-releases/linux-x86_64/{{ item }}.tar.bz2"
+               owner=vagrant group=vagrant validate_certs=no
       with_items: firefox_versions["releases"]
 
     - name: Create target directories for extracting releases
@@ -37,10 +36,46 @@
       with_items: firefox_versions["releases"]
 
     - name: Extract releases
-      command: tar xf ../firefox-releases/{{ item }}.tar.bz2 --strip-components 1 -C {{ item }}
+      command: tar xf ../firefox-releases/linux-x86_64/{{ item }}.tar.bz2 --strip-components 1 -C {{ item }}
                chdir=/opt/browsers/firefox/
                creates=/opt/browsers/firefox/{{ item }}/firefox
       with_items: firefox_versions["releases"]
 
       # mozdownload -l de -d /opt/browsers/firefox -a firefox -p linux64 -t release -v $VERSION
 
+
+- hosts: osx
+  gather_facts: no
+  vars:
+    firefox_versions:
+      releases:
+        - '26.0'
+        - '27.0'
+        - '28.0'
+  tasks:
+    - command: easy_install pip
+    - pip: name=mozmill executable=/usr/local/bin/pip
+
+    - file: state=directory dest={{ item }} mode=0744 owner=vagrant
+      with_items:
+        - /opt/browsers/firefox
+        - /opt/browsers/firefox-releases/mac
+
+    - name: Download releases
+      get_url: url="https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/{{ item }}/mac/de/Firefox%20{{ item }}.dmg"
+               dest="/opt/browsers/firefox-releases/mac/{{ item }}.dmg"
+               owner=vagrant
+               validate_certs=no
+      with_items: firefox_versions["releases"]
+
+    - command: hdiutil attach -plist -nobrowse -readonly -quiet -mountpoint "/Volumes/{{ item }}" "/opt/browsers/firefox-releases/mac/{{ item }}.dmg"
+               creates=/opt/browsers/Firefox {{ item }}.app
+      with_items: firefox_versions["releases"]
+
+    - command: cp -r "/Volumes/{{ item }}/Firefox.app" "/opt/browsers/firefox/Firefox {{ item }}.app"
+               creates=/opt/browsers/Firefox {{ item }}.app
+      with_items: firefox_versions["releases"]
+
+    - command: hdiutil detach /Volumes/{{ item }}
+               removes=/Volumes/{{ item }}
+      with_items: firefox_versions["releases"]

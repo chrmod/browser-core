@@ -39,19 +39,25 @@ def run_linux(ip, manifests=[], port=22,
     pk = _get_ssh_pk(private_key_path)
     exec_ssh_command = ssh(ip, port, user, pk)
 
-    versions, _ = exec_ssh_command('ls /opt/browsers/firefox')
-    versions = versions.strip().split()
+    versions, _ = exec_ssh_command('ls -1 /opt/browsers/firefox')
+    versions = versions.strip().split('\n')
     print('\n\033[1m{platform} available versions\033[00m: {versions}'.format(
         versions=', '.join(versions), platform=platform))
 
+    # cmd = ' '.join([
+    #     'DISPLAY=:0',
+    #     'mozmill',
+    #     '--binary=/opt/browsers/firefox/{version}/firefox',
+    #     '--manifest=/vagrant/tests/mozmill/{manifest}',
+    #     '--addon=/vagrant/cliqz\\@cliqz.com',
+    #     '--screenshots-path=/tmp',
+    #     # '--format=json'
+    # ])
+
     cmd = ' '.join([
-        'DISPLAY=:0',
-        'mozmill',
-        '--binary=/opt/browsers/firefox/{version}/firefox',
-        '--manifest=/vagrant/tests/mozmill/{manifest}',
-        '--addon=/vagrant/cliqz\\@cliqz.com',
-        '--screenshots-path=/tmp',
-        # '--format=json'
+        '/usr/local/bin/mozmill',
+        '-b "/opt/browsers/firefox/{version}"',
+        '-m "/Volumes/VMware Shared Folders/navigation-extension/tests/mozmill/all-tests.ini"'
     ])
 
     for (manifest, version) in ((m, v) for m in manifests for v in versions):
@@ -65,5 +71,7 @@ def run_mac(): pass
 def run_win(): pass
 
 if __name__ == '__main__':
-    run_linux(ip='192.168.33.22', manifests=['all-tests.ini'],
+    ip = '192.168.33.22'
+    ip = '192.168.61.134'
+    run_linux(ip=ip, manifests=['all-tests.ini'],
         platform='Ubuntu 12.04')
