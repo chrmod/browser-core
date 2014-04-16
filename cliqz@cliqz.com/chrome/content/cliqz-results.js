@@ -111,7 +111,8 @@ var CLIQZResults = CLIQZResults || {
             onSearchResult: function(search, result) {
                 this.historyResults = result;
 
-                if(result.searchResult == Ci.nsIAutoCompleteResult.RESULT_SUCCESS){
+                // push first history result as fast as we have it
+                if(this.historyResults.matchCount > 0 && this.mixedResults.matchCount == 0){
                     this.mixedResults.addResults([{
                         style: this.historyResults.getStyleAt(0),
                         val: this.historyResults.getValueAt(0),
@@ -121,7 +122,7 @@ var CLIQZResults = CLIQZResults || {
                     this.historyResults.removeValueAt(0, false);
                 }
 
-                this.pushResults();
+                this.pushResults(result.searchString);
             },
 
             // checks if all the results are ready or if the timeout is exceeded
@@ -131,8 +132,7 @@ var CLIQZResults = CLIQZResults || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CLIQZResults.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults  && this.cliqzSuggestions ){
-
+                        this.historyResults && this.cliqzResults && this.cliqzSuggestions ){
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults())
                         this.resultsTimer = null;
@@ -502,11 +502,46 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketHistoryOther[i]);
                 }
 
+                //TEMP - add more history results if any
+                if(true || results.length < maxResults){
+                    var dom = [], oth = [];
+                    for (let i = 2;
+                         this.historyResults && i < this.historyResults.matchCount;
+                         i++) {
+                        let style = this.historyResults.getStyleAt(i),
+                            value = this.historyResults.getValueAt(i),
+                            image = this.historyResults.getImageAt(i),
+                            comment = this.historyResults.getCommentAt(i),
+                            label = this.historyResults.getLabelAt(i);
+
+                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+
+                        // Ignore result if is this a google search result from history
+                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" &&
+                           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+                            CLIQZ.Utils.log("Discarding google result page from history: " + label)
+                        } else {
+                            // Assign to different buckets if the search string occurs in hostname
+                            if(urlparts.host.indexOf(this.searchString) !=-1)
+                                dom.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                            else
+                                oth.push(this.resultFactory(style, value, image, comment, label, this.searchString));
+                        }
+
+                    }
+
+                    results = results.concat(dom).concat(oth);
+
+                }
+                //ENDTEMP
+
                 results = this.removeDuplicates(this.mixedResults._results.concat(results), -1, 1, 1);
                 results = results.slice(this.mixedResults._results.length);
 
                 /// 4) Show suggests if not enough results
-                if(this.searchString && results.length > 0 && results.length < maxResults){
+                if(this.searchString && results.length < maxResults &&
+                    (results.length > 0 || (this.cliqzSuggestions || []).length > 0)){
+
                     results.push(
                             this.resultFactory(
                                 CLIQZResults.CLIQZS,
@@ -600,8 +635,8 @@ var CLIQZResults = CLIQZResults || {
             * Stops an asynchronous search that is in progress
             */
             stopSearch: function() {
-                this.searchString = '';
-                this.mixedResults = null;
+                //this.searchString = '';
+                //this.mixedResults = null;
                 CLIQZ.Utils.clearTimeout(this.resultsTimer);
             }
         }
