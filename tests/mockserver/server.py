@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -41,7 +43,7 @@ def cliqz_results():
 @app.route('/complete/search')
 def suggestions():
     q = request.values.get('q', '')
-    return str([str(q),['one', 'three', 'two']])
+    return json.dumps([q,['one', 'three', 'two']])
 
 
 if __name__ == '__main__':
@@ -54,8 +56,8 @@ if __name__ == '__main__':
         return os.path.join(current_dir, file_name)
 
     context = SSL.Context(SSL.SSLv23_METHOD)
-    context.use_privatekey_file(rel_loc('localhost.key'))
-    context.use_certificate_file(rel_loc('localhost.cert'))
+    context.use_privatekey_file(rel_loc('google.key'))
+    context.use_certificate_file(rel_loc('google.cert'))
 
     port = int(sys.argv[1])
 

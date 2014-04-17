@@ -34,6 +34,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
+    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
+      CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
@@ -52,6 +55,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
       case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
       case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
     }
+  },
+  setPref: function(pref, val){
+    switch (typeof val) {
+      case 'boolean':
+        CLIQZ.Utils.cliqzPrefs.setBoolPref(pref, val);
+        break;
+      case 'number':
+        CLIQZ.Utils.cliqzPrefs.setIntPref(pref, val);
+        break;
+      case 'string':
+        CLIQZ.Utils.cliqzPrefs.setCharPref(pref, val);
+        break;
+      }
   },
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
@@ -106,7 +122,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
       var tld = eTLDService.getPublicSuffixFromHost(host);
       var path = url.replace(host,'');
-      
+
       // Get the domain name w/o subdomains and w/o TLD
       var tld_with_prefix_dot = "." + tld;
       var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
@@ -151,7 +167,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     return false;
   },
-  // checks if a string is a complete url 
+  // checks if a string is a complete url
   isCompleteUrl: function(input){
     var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
@@ -307,7 +323,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
                 // redirect tab to new url
                 tab.linkedBrowser.contentWindow.location.href = newUrl;
-                
+
                 // Focus *this* browser-window
                 browserWin.focus();
 
