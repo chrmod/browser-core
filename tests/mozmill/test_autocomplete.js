@@ -49,10 +49,7 @@ var locationAction = function(){
 
 function testAutocomplete() {
   let action = new locationAction();
-  for(let key of 'facebook'){
+  for(let key of 'facebook the social page'){
     action.kepPress(key);
   }
-
-  action.open("https://www.facebook.com/", true);
-  action.open("https://www.google.com/", true);
 }

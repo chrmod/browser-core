@@ -204,6 +204,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
       else error();
     });
   },
+  stopSearch: function(){
+    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
+    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
+  },
   isPrivate: function(window) {
     try {
           // Firefox 20+
