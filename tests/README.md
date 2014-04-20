@@ -1,22 +1,50 @@
-https://github.com/mozilla/mozdownload - download FF releases and branches
+## Configuring host
 
+Requirements:
 
-mozdownload -l de -d /opt/browsers/downloads -a firefox -p linux64 -t release -v 28.0
+- Ansible
+- Vagrant
+- VMWare Fusion
+- Vagrant VMWare Fusion Plugin
+- Vagrant Windows Plugin
 
+```shell
+cd navigation-extension/tests
 
-mozmill --binary=/Applications/Firefox.app --test=tests/test_cliqz_suggestions.js --addon=cliqz\@cliqz.com/ --list
+vagrant plugin install vagrant-windows
+vagrant plugin license vagrant-vmware-fusion deployment/vagrant-fusion-license.lic
 
+pip install -r dev-dependencies
+```
 
-## General FF info
+## Running and Provisioning boxes
 
-- [Releases](https://ftp.mozilla.org/pub/mozilla.org/firefox/releases/)
+IMPORTANT OSX box has some weird issues with networking.
+I have found a workaround: comment out hostname and network during first run, then uncomment and reload.
 
-## Configuring Ubuntu box
+IMPORTANT Windows bos gets weird 192.168.33.xxx ip
+Update the ip in deployment/invetory.ini for Windows box
 
-- [Configuring Vagrant Box](https://github.com/fespinoza/checklist_and_guides/wiki/Creating-a-vagrant-base-box-for-ubuntu-12.04-32bit-server)
-- [Removing password + Auto Login](http://askubuntu.com/questions/281074/can-i-set-my-user-account-to-have-no-password)
+1. Comment-out node.vm.hostname and node.vm.network in vagrant file for osx
+2. Start osx box `vagrant up osx --provider=vmware_fusion` and stop it `vagrant halt osx`
+3. Comment-in node.vm.hostname and node.vm.network in vagrant file for osx
+4. Start all boxes with `vagrant up --provider=vmware_fusion`
+5. Provision boxes
+6. Windows box might pop up security-related window on running python program. Accept it and reload box.
+7. Add required mock-server ip to hosts file on Windows box manually
 
-## Configuring Crap OS X box
+### Boxes provisioning
 
-- sshpass is required to run ansible against OS X [sshpass installation](http://thornelabs.net/2014/02/09/ansible-os-x-mavericks-you-must-install-the-sshpass-program.html)
-- vagrant must be in sudoers [without password](http://wiki.summercode.com/sudo_without_a_password_in_mac_os_x)
+```shell
+cd navigation-extension/tests/deployment
+
+# Provision linux/osx boxes
+ansible-playbook bootstrap.yaml -i inventory.ini -u vagrant --private-key ~/.vagrant.d/insecure_private_key -s -l nonwin
+
+# Provision win box
+ansible-playbook bootstrap.yaml -i inventory.ini -u vagrant --private-key ~/.vagrant.d/insecure_private_key -l win
+```
+
+## Running tests
+
+Use `run-targets.py` to run mozmill tests on virtual boxes. It will read IP addresses and OS types from the inventory.ini and execute tests.
