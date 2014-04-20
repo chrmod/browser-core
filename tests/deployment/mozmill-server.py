@@ -4,7 +4,6 @@ import json
 import flask
 import mozmill
 
-from testfixtures import OutputCapture
 from subprocess import Popen, PIPE
 
 
