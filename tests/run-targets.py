@@ -61,7 +61,7 @@ class linux_api(ssh_api):
             'DISPLAY=:0',
             'mozmill',
             '-b /opt/browsers/firefox/{version}/firefox',
-            '-m /vagrant/tests/mozmill/{manifest}',
+            '-m /vagrant/tests/mozmill/{manifest}.ini',
             '-a /vagrant/cliqz\\@cliqz.com',
             # '--screenshots-path=/tmp',
             # '--format=json'
@@ -74,15 +74,15 @@ class osx_api(ssh_api):
     def versions(self):
         if not hasattr(self, '_versions'):
             out, _ = self.ssh('ls -1 /opt/browsers/firefox')
-            self._versions = re.findall('Firefox (.*).app')
+            self._versions = re.findall('Firefox (.*).app', out)
         return list(self._versions)
 
     def exec_test(self, version, manifest):
         cmd = ' '.join([
             '/usr/local/bin/mozmill',
-            '-b "/opt/browsers/firefox/Firefor {version}.app"',
-            '-m "/vagrant/navigation-extension/tests/mozmill/{manifest}.ini"',
-            '-a "/vagrant/cliqz\\@cliqz.com"'
+            '-b "/opt/browsers/firefox/Firefox {version}.app"',
+            '-m "/vagrant/tests/mozmill/{manifest}.ini"',
+            '-a "/vagrant/cliqz@cliqz.com"'
         ])
         return self.ssh(cmd.format(**locals()))
 

@@ -30,7 +30,7 @@ Update the ip in deployment/invetory.ini for Windows box
 3. Comment-in node.vm.hostname and node.vm.network in vagrant file for osx
 4. Start all boxes with `vagrant up --provider=vmware_fusion`
 5. Provision boxes
-6. Windows box might pop up security-related window on running python program. Accept it and reload box.
+6. Windows box might pop up security-related window on running python program. Allow python to work on all network types.
     - check that http://localhost is working
 7. Add required mock-server ip to hosts file on Windows box manually:
     - 192.168.33.22 webbeta.cliqz.com
