@@ -1,0 +1,4 @@
+ansible
+commandr
+paramiko
+requests
