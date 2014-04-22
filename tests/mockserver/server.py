@@ -43,7 +43,7 @@ def cliqz_results():
 @app.route('/complete/search')
 def suggestions():
     q = request.values.get('q', '')
-    return json.dumps([q,['one', 'three', 'two']])
+    return json.dumps([q,['one', 'two', 'three']])
 
 
 if __name__ == '__main__':
