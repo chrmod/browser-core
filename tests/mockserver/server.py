@@ -43,8 +43,12 @@ def cliqz_results():
 @app.route('/complete/search')
 def suggestions():
     q = request.values.get('q', '')
-    return json.dumps([q,['one', 'two', 'three']])
+    return json.dumps([q, ['one', 'two', 'three']])
 
+
+@app.route('/anleitung')
+def tutorial():
+    return 'Cliqz-Results Mock Server\n'
 
 if __name__ == '__main__':
     import sys
