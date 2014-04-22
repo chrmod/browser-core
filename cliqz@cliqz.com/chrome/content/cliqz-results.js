@@ -23,6 +23,7 @@ var CLIQZResults = CLIQZResults || {
     CLIQZS: 'cliqz-suggestions',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
+    lastSearch: '',
     init: function(){
         CLIQZ.Utils.init();
         CLIQZResults.initProvider();
@@ -590,6 +591,7 @@ var CLIQZResults = CLIQZResults || {
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
 
+                CLIQZResults.lastSearch = searchString;
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',

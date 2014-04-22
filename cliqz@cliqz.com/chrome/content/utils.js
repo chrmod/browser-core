@@ -106,7 +106,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
       var tld = eTLDService.getPublicSuffixFromHost(host);
       var path = url.replace(host,'');
-      
+
       // Get the domain name w/o subdomains and w/o TLD
       var tld_with_prefix_dot = "." + tld;
       var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
@@ -151,7 +151,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     return false;
   },
-  // checks if a string is a complete url 
+  // checks if a string is a complete url
   isCompleteUrl: function(input){
     var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
@@ -307,7 +307,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
                 // redirect tab to new url
                 tab.linkedBrowser.contentWindow.location.href = newUrl;
-                
+
                 // Focus *this* browser-window
                 browserWin.focus();
 

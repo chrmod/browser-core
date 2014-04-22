@@ -78,13 +78,20 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
-        // add cliqz message button
-        var cliqzMessage = document.createElement('hbox');
-        //cliqzMessage.className = 'cliqz-urlbar-message'; //-> added on focus
+        // add cliqz last search
+        var cliqzLastSearch = document.createElement('hbox');
+        // FIXME: We should find another way to deal with events that take time
+        // to finish, like a disk read. A 100ms wait is not a good solution.
+        setTimeout(function () {
+            cliqzLastSearch.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch');
+        }, 100);
+
+        cliqzLastSearch.className = 'hidden';  // Hide on start
+        cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
         var sibling = document.getElementById('urlbar-icons');
-        sibling.parentNode.insertBefore(cliqzMessage, sibling);
-        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
-        CLIQZ.Core.elem.push(cliqzMessage);
+        sibling.parentNode.insertBefore(cliqzLastSearch, sibling);
+        CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
+        CLIQZ.Core.elem.push(cliqzLastSearch);
 
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
@@ -103,6 +110,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    returnToLastSearch: function () {
+        CLIQZ.Core.urlbar.mInputField.focus()
+        CLIQZ.Core.urlbar.mInputField.setUserInput(CLIQZResults.lastSearch);
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
@@ -173,13 +184,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     urlbarfocus: function() {
-        setTimeout(CLIQZ.Core.urlbarMessage, 20);
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function() {
-        setTimeout(function(){
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
-        }, 25);
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
@@ -279,26 +288,11 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     locationChangeTO: null,
-    urlbarMessage: function() {
-        if(CLIQZ.Core.urlbar.value.length > 0){
-            if(CLIQZ.Core.popup.selectedIndex !== -1 ||
-                CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
-                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
-                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
-            } else {
-                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
-                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
-            }
-        } else {
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
-        }
-    },
     urlbarkeydown: function(ev){
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             let index = popup.selectedIndex,
@@ -398,7 +392,6 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
