@@ -12,6 +12,7 @@ Requirements:
 cd navigation-extension/tests
 
 vagrant plugin install vagrant-windows
+vagrant plugin install vagrant-vmware-fusion
 vagrant plugin license vagrant-vmware-fusion deployment/vagrant-fusion-license.lic
 
 pip install -r dev-dependencies
@@ -23,10 +24,10 @@ IMPORTANT OSX box has some weird issues with networking.
 I have found a workaround: comment out hostname and network during first run, then uncomment and reload.
 
 IMPORTANT Windows bos gets weird 192.168.33.xxx ip
-Update the ip in deployment/invetory.ini for Windows box
+Update the ip in deployment/inventory.ini for Windows box
 
 1. Comment-out node.vm.hostname and node.vm.network in vagrant file for osx
-2. Start osx box `vagrant up osx --provider=vmware_fusion` and stop it `vagrant halt osx`
+2. Start osx box `vagrant up osxmaverics --provider=vmware_fusion` and stop it `vagrant halt osxmaverics`
 3. Comment-in node.vm.hostname and node.vm.network in vagrant file for osx
 4. Start all boxes with `vagrant up --provider=vmware_fusion`
 5. Provision boxes

@@ -34,6 +34,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
+    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
+      CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
@@ -52,6 +55,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
       case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
       case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
     }
+  },
+  setPref: function(pref, val){
+    switch (typeof val) {
+      case 'boolean':
+        CLIQZ.Utils.cliqzPrefs.setBoolPref(pref, val);
+        break;
+      case 'number':
+        CLIQZ.Utils.cliqzPrefs.setIntPref(pref, val);
+        break;
+      case 'string':
+        CLIQZ.Utils.cliqzPrefs.setCharPref(pref, val);
+        break;
+      }
   },
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
@@ -187,6 +203,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
       if(res.status == 200) callback(res.response);
       else error();
     });
+  },
+  stopSearch: function(){
+    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
+    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
   },
   isPrivate: function(window) {
     try {

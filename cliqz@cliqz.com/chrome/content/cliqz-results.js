@@ -121,9 +121,8 @@ var CLIQZResults = CLIQZResults || {
                         label: this.historyResults.getLabelAt(0),
                     }]);
                     this.historyResults.removeValueAt(0, false);
+                    this.pushResults(result.searchString);
                 }
-
-                this.pushResults(result.searchString);
             },
 
             // checks if all the results are ready or if the timeout is exceeded
@@ -135,18 +134,23 @@ var CLIQZResults = CLIQZResults || {
                     if((now > this.startTime + CLIQZResults.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions ){
                         //this.listener.onSearchResult(this, this.mixResults());
-                        this.mixedResults.addResults(this.mixResults())
+                        this.mixedResults.addResults(this.mixResults());
+                        this.listener.onSearchResult(this, this.mixedResults);
                         this.resultsTimer = null;
                         this.startTime = null;
                         this.cliqzResults = null;
                         this.cliqzCache = null;
                         this.cliqzSuggestions = null;
                         this.historyResults = null;
+                        return;
                     } else {
                         let timeout = this.startTime + CLIQZResults.TIMEOUT - now + 1;
                         this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout, this.searchString);
+
+                        // force update as offen as possible if new results are ready
+                        // TODO - try to check if the same results are currently displaying
+                        this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
                     }
-                    this.listener.onSearchResult(this, this.mixedResults);
                 }
             },
             // handles fetched results from the cache
