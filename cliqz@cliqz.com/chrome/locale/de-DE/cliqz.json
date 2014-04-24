@@ -5,11 +5,8 @@
 	"noUpdateMessage":{
 		"message":"Kein Update verfügbar"
 	},
-	"urlbarSearch":{
-		"message":"Suchen"
-	},
-	"urlbarNavigate":{
-		"message":"Los"
+	"urlBarLastSearch":{
+		"message":"Letzte Suche"
 	},
 	"searchForBegin":{
 		"message":"Suchergebnisse für "
