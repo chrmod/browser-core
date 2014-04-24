@@ -11,6 +11,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/cliqz-results?q=',
   LOG:              'http://logging.cliqz.com',
+  CLIQZ_URL:        'http://beta.cliqz.com/',
   VERSION_URL:      'http://beta.cliqz.com/version',
   //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -44,7 +45,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   getPrefs: function(){
     var prefs = {};
-    for(let pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
+    for(var pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
       prefs[pref] = CLIQZ.Utils.getPref(pref);
     }
     return prefs;
@@ -87,13 +88,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
             return null;
 
           // url is in the format moz-action:ACTION,PARAM
-          let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+          var [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
           return {type: action, param: param};
         ]]></body>
       </method>
     */
     if(url.startsWith("moz-action:")) {
-        let [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
+        var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
         url = param;
     }
     return url;
@@ -351,6 +352,24 @@ CLIQZ.Utils = CLIQZ.Utils || {
             // just in case this branch gets executed during bootstraping process (window can be null)
           }
         }
+    }
+  },
+  version: function(callback){
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                     .getService(Components.interfaces.nsIWindowMediator),
+        win = wm.getMostRecentWindow("navigator:browser");
+      win.Application.getExtensions(function(extensions) {
+            callback(extensions.get('cliqz@cliqz.com').version);
+      });
+  },
+  extensionRestart: function(){
+    Components.utils.import('resource://gre/modules/Services.jsm');
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+        var win = enumerator.getNext();
+        //win.CLIQZ.Core.restart();
+        win.CLIQZ.Core.destroy();
+        win.CLIQZ.Core.init();
     }
   }
 };

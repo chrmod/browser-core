@@ -11,8 +11,8 @@ var CLIQZExtension = CLIQZExtension || {
         'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 160, // popup/dropdown height in pixels 
-        'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones 
+        'popupHeight': 160, // popup/dropdown height in pixels
+        'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones
         'dnt': false, // if set to true the extension will not send any tracking signals
         'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
         'hideQuickSearch': true, // hides quick search
@@ -57,13 +57,7 @@ var CLIQZExtension = CLIQZExtension || {
         Services.ww.unregisterNotification(CLIQZExtension.windowWatcher);
     },
     restart: function(){
-        var enumerator = Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            //win.CLIQZ.Core.restart();
-            win.CLIQZ.Core.destroy();
-            win.CLIQZ.Core.init();
-        }
+        CLIQZ.Utils.extensionRestart();
     },
     setDefaultPrefs: function() {
       let branch = CLIQZ.Utils.cliqzPrefs;
@@ -108,10 +102,10 @@ var CLIQZExtension = CLIQZExtension || {
 
         let button = doc.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
-        button.setAttribute('type', 'menu-button');
+        //button.setAttribute('type', 'menu-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
-      
+        /*
         var menupopup = doc.createElement('menupopup');
 
         CLIQZExtension.addButtonToMenu(doc, menupopup, 'Feedback', function() {
@@ -136,7 +130,7 @@ var CLIQZExtension = CLIQZExtension || {
 
         menupopup.appendChild(doc.createElement('menuseparator'));
         CLIQZExtension.addButtonToMenu(doc, menupopup, 'Einstellungen', function() {
-            win.openDialog('chrome://cliqz/content/options.xul', 'Cliqz Einstellungen', 'chrome,modal');
+            win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
         });
 
         menupopup.appendChild(doc.createElement('menuseparator'));
@@ -149,9 +143,9 @@ var CLIQZExtension = CLIQZExtension || {
 
         button.appendChild(menupopup);
 
-
+        */
         button.addEventListener('click', function() {
-            menupopup.openPopup(button,'after_start', 0, 0, false, true);
+             win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
         }, false);
 
         //anchor.parentNode.insertBefore(button, anchor);
