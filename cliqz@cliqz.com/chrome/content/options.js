@@ -16,6 +16,9 @@ CLIQZ.Options = CLIQZ.Options || {
 		if(prefs.getIntPref('popupHeight') > 352) prefs.setIntPref('popupHeight', 352); // 5.5 results
 
 		var results = prefs.getIntPref('popupHeight') / 64;
+		//round things up
+		results = parseInt(results*2)/2;
+
 		$('#lblresults').text(results);
 		$('#results-slider').slider({
 			min: 2.5,

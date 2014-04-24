@@ -10,7 +10,7 @@ Firefox Navigation Browser extension
 3. Preferences:
 ``` bash
     "UDID": "1234567890|12345", //unique identifier
-    "messageInterval": 3600000 , // interval between update messages - 1H 
+    "messageInterval": 3600000 , // interval between update messages - 1H
     "showQueryDebug": false, // show query debug information next to results
     "showDebugLogs": false, // show debug logs in console
     "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
@@ -23,7 +23,7 @@ Firefox Navigation Browser extension
 
 The extension sends the following list of data points
 
-### Environment 
+### Environment
 Sent at startup and every 1 hour afterwards
 
 ``` bash
@@ -40,7 +40,7 @@ Sent at startup and every 1 hour afterwards
 }
 ```
 
-### Actions 
+### Actions
 
 Keystoke - any key stroke which triggers a search
 ``` bash
@@ -51,7 +51,7 @@ Keystoke - any key stroke which triggers a search
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
-``` 
+```
 
 Arrow key (up/down) - navigation through the results with keyboard
 
@@ -65,7 +65,7 @@ Arrow key (up/down) - navigation through the results with keyboard
     "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
-``` 
+```
 
 
 Result click (mouse)
@@ -80,7 +80,7 @@ Result click (mouse)
     "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
-``` 
+```
 
 Result enter (keyboard)
 
@@ -95,7 +95,7 @@ Result enter (keyboard)
     "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
-``` 
+```
 2. With no focused result - in the urlbar
 ``` bash
 {
@@ -103,14 +103,14 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_enter",
-    "current_position": -1, 
+    "current_position": -1,
     "position_type": "inbar_url"/"inbar_query",
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
-``` 
+```
 
 Results - results shown in the dropdown
 ``` bash
@@ -127,7 +127,7 @@ Results - results shown in the dropdown
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
-``` 
+```
 
 Urlbar focus - user clicks in the url bar
 ``` bash
@@ -137,22 +137,32 @@ Urlbar focus - user clicks in the url bar
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
-``` 
+```
 
-Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
+Last search button pressed
 ``` bash
 {
-    "action": "urlbar_blur", 
+    "action": "last_search",
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
-``` 
+```
+
+Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
+``` bash
+{
+    "action": "urlbar_blur",
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
 
 Dropdown open
 ``` bash
 {
-    "action": "dropdown_open", 
+    "action": "dropdown_open",
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
@@ -162,7 +172,7 @@ Dropdown open
 Dropdown close
 ``` bash
 {
-    "action": "dropdown_close", 
+    "action": "dropdown_close",
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
@@ -172,7 +182,7 @@ Dropdown close
 Browser shutdown
 ``` bash
 {
-    "action": "browser_shutdown", 
+    "action": "browser_shutdown",
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
@@ -182,7 +192,7 @@ Browser shutdown
 Addon disable
 ``` bash
 {
-    "action": "addon_disable", 
+    "action": "addon_disable",
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
