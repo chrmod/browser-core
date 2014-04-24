@@ -78,6 +78,14 @@ CLIQZ.Options = CLIQZ.Options || {
 			case 'privacy':
 				url += 'img/privacy.jpg';
 				break;
+			case 'restore':
+				CLIQZ.Utils.cliqzPrefs.setBoolPref('bwFonts', false);
+				//$('#bw_fonts').removeAttr('checked');
+				$('#color_fonts').click();
+				CLIQZ.Utils.cliqzPrefs.setIntPref('popupHeight', 160);
+				CLIQZ.Options.loadpref();
+				return;
+				break;
 
 		}
 		url != CLIQZ.Utils.CLIQZ_URL && CLIQZ.Utils.openOrReuseAnyTab(url, url, false);

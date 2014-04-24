@@ -1,6 +1,6 @@
     	body {
     		padding: 20px;
-    		width: 500px;
+    		width: 505px;
     		background-color: white;
     	}
     	.buttons {
@@ -30,6 +30,11 @@
 		.btn-save {
 			padding: 8px 4px 4px 4px;
 			background-color: #bbb;
+		}
+
+		.btn-restore {
+			padding: 8px 4px 4px 4px;
+			background-color: #999;
 		}
 
 		.btn-feedback {
