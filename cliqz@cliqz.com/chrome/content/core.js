@@ -114,6 +114,13 @@ CLIQZ.Core = CLIQZ.Core || {
     returnToLastSearch: function () {
         CLIQZ.Core.urlbar.mInputField.focus()
         CLIQZ.Core.urlbar.mInputField.setUserInput(CLIQZResults.lastSearch);
+
+        var action = {
+            type: 'activity',
+            action: 'last_search'
+        };
+
+        CLIQZ.Utils.track(action);
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
