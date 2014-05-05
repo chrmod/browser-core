@@ -128,9 +128,10 @@ var CLIQZResults = CLIQZResults || {
                         // check it should not be filtered, and matches only the domain
                         if(!this.filterResult(label, urlparts) &&
                            urlparts.host.toLowerCase().indexOf(this.searchString) !=-1) {
+                            var instant = this.resultFactory(style, value, image, comment, label, this.searchString);
                             if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
-                                comment += " (instant History Domain)";
-                            this.mixedResults.addResults([{style: style, val: value, comment: comment, label: label}])
+                                instant.comment += " (instant History Domain)";
+                            this.mixedResults.addResults([instant])
                             this.historyResults.removeValueAt(i, false);
                             this.pushResults(result.searchString);
                             break;
