@@ -112,16 +112,30 @@ var CLIQZResults = CLIQZResults || {
             onSearchResult: function(search, result) {
                 this.historyResults = result;
 
-                // push first history result as fast as we have it
-                if(this.historyResults.matchCount > 0 && this.mixedResults.matchCount == 0){
-                    this.mixedResults.addResults([{
-                        style: this.historyResults.getStyleAt(0),
-                        val: this.historyResults.getValueAt(0),
-                        comment: this.historyResults.getCommentAt(0),
-                        label: this.historyResults.getLabelAt(0),
-                    }]);
-                    this.historyResults.removeValueAt(0, false);
-                    this.pushResults(result.searchString);
+                // push a history result as fast as we have it
+                if( this.mixedResults.matchCount == 0) {
+
+                    for (let i = 0;
+                         this.historyResults && i < this.historyResults.matchCount; i++) {
+                        let style = this.historyResults.getStyleAt(i),
+                            value = this.historyResults.getValueAt(i),
+                            image = this.historyResults.getImageAt(i),
+                            comment = this.historyResults.getCommentAt(i),
+                            label = this.historyResults.getLabelAt(i);
+
+                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+
+                        // check it should not be filtered, and matches only the domain
+                        if(!this.filterResult(label, urlparts) &&
+                           urlparts.host.toLowerCase().indexOf(this.searchString) !=-1) {
+                            if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
+                                comment += " (instant History Domain)";
+                            this.mixedResults.addResults([{style: style, val: value, comment: comment, label: label}])
+                            this.historyResults.removeValueAt(i, false);
+                            this.pushResults(result.searchString);
+                            break;
+                        }
+                    }
                 }
             },
 
@@ -400,6 +414,16 @@ var CLIQZResults = CLIQZResults || {
                 }
                 return deduplicated_results;
             },
+            // check if a result should be kept in final result list
+            filterResult: function (url, urlparts) {
+                // Ignore result if is this a google search result from history
+                if(urlparts.name.toLowerCase() == "google" && urlparts.subdomains[0].toLowerCase() == "www" &&
+                   (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+                    CLIQZ.Utils.log("Discarding google result page from history: " + url)
+                    return true;
+                }
+                return false;
+            },
             // mixes history, results and suggestions
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0,
@@ -414,7 +438,7 @@ var CLIQZResults = CLIQZResults || {
 
 
                 for (let i = 0;
-                     this.historyResults && i < this.historyResults.matchCount && i < 2;
+                     this.historyResults && i < this.historyResults.matchCount;
                      i++) {
                     let style = this.historyResults.getStyleAt(i),
                         value = this.historyResults.getValueAt(i),
@@ -443,13 +467,9 @@ var CLIQZResults = CLIQZResults || {
                     } else {
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
-                        // Ignore result if is this a google search result from history
-                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" &&
-                           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-                            CLIQZ.Utils.log("Discarding google result page from history: " + label)
-                        } else {
+                        if(!this.filterResult(label, urlparts)) {
                             // Assign to different buckets if the search string occurs in hostname
-                            if(urlparts.host.indexOf(this.searchString) !=-1)
+                            if(urlparts.host.toLowerCase().indexOf(this.searchString) !=-1)
                                 bucketHistoryDomain.push(this.resultFactory(style, value, image, comment, label, this.searchString));
                             else
                                 bucketHistoryOther.push(this.resultFactory(style, value, image, comment, label, this.searchString));
@@ -465,18 +485,13 @@ var CLIQZResults = CLIQZResults || {
 
                 var showQueryDebug = CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug')
 
+                // the top history with matching domain will be show already via instant-serve
+
                 // all bucketHistoryCache
                 for(let i = 0; i < bucketHistoryCache.length; i++) {
                     if(showQueryDebug)
                         bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")";
                     results.push(bucketHistoryCache[i]);
-                }
-
-                // top 1 of bucketHistoryDomain
-                if(bucketHistoryDomain.length > 0) {
-                    if(showQueryDebug)
-                        bucketHistoryDomain[0].comment += " (top History Domain)";
-                    results.push(bucketHistoryDomain[0]);
                 }
 
                 // top 1 of bucketCache
@@ -486,10 +501,11 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketCache[0]);
                 }
 
-                // rest of bucketHistoryDomain
-                for(let i = 1; i < bucketHistoryDomain.length; i++) {
+                // top 2 of bucketHistoryDomain
+                for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
+                    CLIQZ.Utils.log("adding " + bucketHistoryDomain[i].label)
                     if(showQueryDebug)
-                        bucketHistoryDomain[i].comment += " (History Domain)";
+                        bucketHistoryDomain[i].comment += " (top History Domain)";
                     results.push(bucketHistoryDomain[i]);
                 }
 
@@ -500,6 +516,13 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketCache[i]);
                 }
 
+                // rest of bucketHistoryDomain
+                for(let i = 2; i < bucketHistoryDomain.length; i++) {
+                    if(showQueryDebug)
+                        bucketHistoryDomain[i].comment += " (History Domain)";
+                    results.push(bucketHistoryDomain[i]);
+                }
+
                 // all bucketHistoryOther
                 for(let i = 0; i < bucketHistoryOther.length; i++) {
                     if(showQueryDebug)
@@ -507,41 +530,10 @@ var CLIQZResults = CLIQZResults || {
                     results.push(bucketHistoryOther[i]);
                 }
 
-                //TEMP - add more history results if any
-                if(true || results.length < maxResults){
-                    var dom = [], oth = [];
-                    for (let i = 2;
-                         this.historyResults && i < this.historyResults.matchCount;
-                         i++) {
-                        let style = this.historyResults.getStyleAt(i),
-                            value = this.historyResults.getValueAt(i),
-                            image = this.historyResults.getImageAt(i),
-                            comment = this.historyResults.getCommentAt(i),
-                            label = this.historyResults.getLabelAt(i);
-
-                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
-
-                        // Ignore result if is this a google search result from history
-                        if(urlparts.name == "google" && urlparts.subdomains[0] == "www" &&
-                           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-                            CLIQZ.Utils.log("Discarding google result page from history: " + label)
-                        } else {
-                            // Assign to different buckets if the search string occurs in hostname
-                            if(urlparts.host.indexOf(this.searchString) !=-1)
-                                dom.push(this.resultFactory(style, value, image, comment, label, this.searchString));
-                            else
-                                oth.push(this.resultFactory(style, value, image, comment, label, this.searchString));
-                        }
-
-                    }
-
-                    results = results.concat(dom).concat(oth);
-
-                }
-                //ENDTEMP
-
                 results = this.removeDuplicates(this.mixedResults._results.concat(results), -1, 1, 1);
                 results = results.slice(this.mixedResults._results.length);
+
+                // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
                 /// 4) Show suggests if not enough results
                 if(this.searchString && results.length < maxResults &&
@@ -622,6 +614,7 @@ var CLIQZResults = CLIQZResults || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
+                this.filterResult = this.filterResult.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
