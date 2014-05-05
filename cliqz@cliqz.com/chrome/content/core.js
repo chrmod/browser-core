@@ -81,10 +81,10 @@ CLIQZ.Core = CLIQZ.Core || {
         // add cliqz last search
         var cliqzLastSearch = document.createElement('hbox');
         // FIXME: We should find another way to deal with events that take time
-        // to finish, like a disk read. A 100ms wait is not a good solution.
+        // to finish, like a disk read. A 250ms wait is not a good solution.
         setTimeout(function () {
             cliqzLastSearch.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch');
-        }, 100);
+        }, 250);
 
         cliqzLastSearch.className = 'hidden';  // Hide on start
         cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
