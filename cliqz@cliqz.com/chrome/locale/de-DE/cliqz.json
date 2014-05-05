@@ -9,10 +9,10 @@
 		"message":"↵ Letzte Eingabe"
 	},
 	"searchForBegin":{
-		"message":"Suchergebnisse für "
+		"message":"Suche "
 	},
 	"searchForEnd":{
-		"message":" mit der Suchmaschine deiner Wahl"
+		"message":" auf "
 	},
 	"ok":{
 		"message":"OK"
