@@ -251,7 +251,7 @@ var CLIQZResults = CLIQZResults || {
                         CLIQZResults.CLIQZR, //style
                         result.url, //value
                         null, //image -> favico
-                        result.snippet.snippet, //comment
+                        result.snippet.title,
                         null, //label
                         this.getExpandedQuery(result.url), //query
                         thumbnail, // video thumbnail
@@ -283,7 +283,7 @@ var CLIQZResults = CLIQZResults || {
                 for(let i in this.cliqzResults || []) {
                     let r = this.cliqzResults[i];
                     if(r.snippet){
-                        if(r.snippet.snippet){
+                        if(r.snippet.title){
                             cliqzResultTitle++; //result with snippet and title
                         }
                         else {
