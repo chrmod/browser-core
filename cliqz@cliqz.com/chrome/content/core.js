@@ -327,7 +327,12 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
                 else action.position_type = 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
-
+                if(action.autocompleted){
+                    let firstUrl = popup.richlistbox.childNodes[0].getAttribute('url');
+                    if(firstUrl.indexOf(CLIQZ.Core.urlbar.value) != -1){
+                        CLIQZ.Core.urlbar.value = firstUrl;
+                    }
+                }
                 // TEMP
                 /*
                 if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
