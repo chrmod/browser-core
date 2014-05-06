@@ -371,5 +371,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
         win.CLIQZ.Core.destroy();
         win.CLIQZ.Core.init();
     }
+  },
+  isWindows: function(){
+    return window.navigator.userAgent.indexOf('Win') != -1;
   }
 };
