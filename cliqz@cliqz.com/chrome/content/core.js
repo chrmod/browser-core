@@ -314,6 +314,12 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
                 action.position_type = source.replace('-', '_');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
+
+                //if this url is currently previewed do not load it again
+                if(CLIQZ.Core.urlbar.value == item.getAttribute('url')){
+                    ev.preventDefault();
+                    popup.closePopup();
+                }
             } else { //enter while on urlbar and no result selected
 
                 if(CLIQZ.Utils.isUrl(inputValue)){
