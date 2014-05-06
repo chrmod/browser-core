@@ -209,6 +209,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
   },
+  shouldLoad: function(window){
+    return CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CLIQZ.Utils.isPrivate(window);
+  },
   isPrivate: function(window) {
     try {
           // Firefox 20+

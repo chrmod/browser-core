@@ -13,11 +13,6 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CLIQZ.Utils.init();
 
-        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivate')){
-            CLIQZ.Utils.log('private window -> halt', 'CORE');
-            return;
-        }
-
         var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());

@@ -66,6 +66,14 @@ CLIQZ.Options = CLIQZ.Options || {
             var bw = this.value == 'true' ? true: false;
             changedOptions['bwFonts'] = bw;
         });
+
+        //inPrivate
+        if(prefs.getBoolPref('inPrivateWindows')){
+            $('#inPrivateWindows').attr('checked', 'checked');
+        }
+        $('#inPrivateWindows').change(function(){
+            changedOptions['inPrivateWindows'] = this.checked;
+        });
     },
     btnClick: function(el){
         var url = CLIQZ.Utils.CLIQZ_URL;
