@@ -419,7 +419,7 @@ var CLIQZResults = CLIQZResults || {
             filterResult: function (url, urlparts) {
                 // Ignore result if is this a google search result from history
                 if(urlparts.name.toLowerCase() == "google" && urlparts.subdomains.length > 0 &&
-                    urlparts.subdomains[0].toLowerCase() == "www" &&
+                   urlparts.subdomains[0].toLowerCase() == "www" &&
                    (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
                     CLIQZ.Utils.log("Discarding google result page from history: " + url)
                     return true;
