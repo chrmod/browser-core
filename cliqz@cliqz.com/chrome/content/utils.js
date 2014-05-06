@@ -377,5 +377,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
+  },
+  getSearchEngines: function(){
+    Components.utils.import('resource://gre/modules/Services.jsm');
+    return Services.search.getEngines();
+  },
+  setCurrentSearchEngine: function(engine){
+    var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
+
+    searchPrefs.setCharPref('defaultenginename', engine);
+    searchPrefs.setCharPref('selectedEngine', engine);
   }
 };

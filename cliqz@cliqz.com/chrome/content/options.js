@@ -74,6 +74,19 @@ CLIQZ.Options = CLIQZ.Options || {
         $('#inPrivateWindows').change(function(){
             changedOptions['inPrivateWindows'] = this.checked;
         });
+
+        //searchEngines
+        var $searchEngines = $('#searchEngines');
+        $.each(CLIQZ.Utils.getSearchEngines(), function(key, engine) {
+               $searchEngines
+                 .append($("<option></option>")
+                 .attr("value",engine.name)
+                 .text(engine.name));
+        });
+        $searchEngines.val(Services.search.currentEngine.name);
+        $searchEngines.change(function(){
+            //on save
+        });
     },
     btnClick: function(el){
         var url = CLIQZ.Utils.CLIQZ_URL;
@@ -105,10 +118,10 @@ CLIQZ.Options = CLIQZ.Options || {
                 CLIQZ.Options.loadpref();
                 return;
             case 'save':
-                debugger;
                 for(var pref in changedOptions) {
                     CLIQZ.Utils.setPref(pref, changedOptions[pref]);
                 }
+                CLIQZ.Utils.setCurrentSearchEngine($('#searchEngines').val());
                 CLIQZ.Utils.extensionRestart();
                 break;
             case 'close':
