@@ -289,24 +289,14 @@
 
 }
 
-.cliqz-urlbar-message-search {
+.cliqz-urlbar-Last-search {
   font-family: Verdana, Geneva, sans-serif;
   color: white;
-  background-color: #00ccff;
+  background-color: #66cccc;
   margin: 1px;
   padding: 1px 5px;
   border-radius: 1px;
 }
-
-.cliqz-urlbar-message-navigate {
-  font-family: Verdana, Geneva, sans-serif;
-  color: white;
-  background-color: #ff6666;
-  margin: 1px;
-  padding: 1px 5px;
-  border-radius: 1px;
-}
-
 
 #right-cliqz {
   display: none;

@@ -11,6 +11,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/cliqz-results?q=',
   LOG:              'http://logging.cliqz.com',
+  CLIQZ_URL:        'http://beta.cliqz.com/',
   VERSION_URL:      'http://beta.cliqz.com/version',
   //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -34,6 +35,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
+    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
+      CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
@@ -41,7 +45,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   getPrefs: function(){
     var prefs = {};
-    for(let pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
+    for(var pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
       prefs[pref] = CLIQZ.Utils.getPref(pref);
     }
     return prefs;
@@ -52,6 +56,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
       case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
       case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
     }
+  },
+  setPref: function(pref, val){
+    switch (typeof val) {
+      case 'boolean':
+        CLIQZ.Utils.cliqzPrefs.setBoolPref(pref, val);
+        break;
+      case 'number':
+        CLIQZ.Utils.cliqzPrefs.setIntPref(pref, val);
+        break;
+      case 'string':
+        CLIQZ.Utils.cliqzPrefs.setCharPref(pref, val);
+        break;
+      }
   },
   log: function(msg, key){
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
@@ -71,13 +88,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
             return null;
 
           // url is in the format moz-action:ACTION,PARAM
-          let [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
+          var [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
           return {type: action, param: param};
         ]]></body>
       </method>
     */
     if(url.startsWith("moz-action:")) {
-        let [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
+        var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
         url = param;
     }
     return url;
@@ -106,7 +123,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
       var tld = eTLDService.getPublicSuffixFromHost(host);
       var path = url.replace(host,'');
-      
+
       // Get the domain name w/o subdomains and w/o TLD
       var tld_with_prefix_dot = "." + tld;
       var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
@@ -151,7 +168,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     return false;
   },
-  // checks if a string is a complete url 
+  // checks if a string is a complete url
   isCompleteUrl: function(input){
     var pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if(!pattern.test(input)) {
@@ -187,6 +204,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
       if(res.status == 200) callback(res.response);
       else error();
     });
+  },
+  stopSearch: function(){
+    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
+    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
   },
   isPrivate: function(window) {
     try {
@@ -307,7 +328,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
                 // redirect tab to new url
                 tab.linkedBrowser.contentWindow.location.href = newUrl;
-                
+
                 // Focus *this* browser-window
                 browserWin.focus();
 
@@ -331,6 +352,24 @@ CLIQZ.Utils = CLIQZ.Utils || {
             // just in case this branch gets executed during bootstraping process (window can be null)
           }
         }
+    }
+  },
+  version: function(callback){
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                     .getService(Components.interfaces.nsIWindowMediator),
+        win = wm.getMostRecentWindow("navigator:browser");
+      win.Application.getExtensions(function(extensions) {
+            callback(extensions.get('cliqz@cliqz.com').version);
+      });
+  },
+  extensionRestart: function(){
+    Components.utils.import('resource://gre/modules/Services.jsm');
+    var enumerator = Services.wm.getEnumerator('navigator:browser');
+    while (enumerator.hasMoreElements()) {
+        var win = enumerator.getNext();
+        //win.CLIQZ.Core.restart();
+        win.CLIQZ.Core.destroy();
+        win.CLIQZ.Core.init();
     }
   }
 };

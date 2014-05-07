@@ -7,6 +7,7 @@
       with_items:
         - "{{ mock_api_host }}    webbeta.cliqz.com"
         - "{{ mock_api_host }}    logging.cliqz.com"
+        - "{{ mock_api_host }}    beta.cliqz.com"
         - "{{ mock_api_host }}    www.google.com"
 
 

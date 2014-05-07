@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="chrome://cliqzres/content/skin/options.css" rel="stylesheet" type="text/css">
+    <title>Options</title>
+</head>
+<body>
+	<div class='buttons'>
+		<button class="btn btn-feedback" data-action='feedback' onclick="">FEEDBACK</button>
+		<button class="btn btn-tutorial" data-action='tutorial'>TUTORIAL</button>
+		<button class="btn btn-faq" data-action='faq'>FAQ</button>
+		<button class="btn btn-privacy" data-action='privacy'>PRIVATSPHÄRE</button>
+	</div>
+	<div class='separator gear'></div>
+	<div class='option'>
+		<span class='option-text'>Anzahl dargestellter Ergebnisse</span>
+		<div class='option-control'>
+			<div id="results-slider"></div>
+		</div>
+		<label id="lblresults" class='option-text'></label>
+	</div>
+	<br>
+
+	<div class='option'>
+		<span class='option-text'>Ergebnistext</span>
+		<div class='option-control'>
+			<div id="bwFonts" class="button-set">
+		      <input type="radio" id="color_fonts" name="bwFonts" value="false">
+		      <label for="color_fonts" class="color_fonts">FARBCODIERT</label>
+
+		      <input type="radio" id="bw_fonts" name="bwFonts" value="true" >
+		      <label for="bw_fonts" class="bw_fonts">GRAUSTUFEN</label>
+		    </div>
+		</div>
+	</div>
+	<br>
+	<div class='separator'></div>
+	<!--
+	<div class='update'>
+		Deine Firefox-Extension ist auf dem aktuellsten Stand
+	</div>
+	-->
+	<center>
+		<button class="btn btn-save" data-action='restore'>Zurücksetzen</button>
+		<button class="btn btn-restore">Speichern und schließen</button>
+	</center>
+	<script src="extern/jquery-1.10.2.js"></script>
+	<script src="extern/jquery-ui.1.10.4.js"></script>
+	<script src="utils.js"></script>
+	<script src="options.js"></script>
+</body>
+</html>

@@ -343,7 +343,8 @@
               var span = this._cliqzTitleDetails.appendChild(
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
               span.className = 'cliqz-ac-title-suggestion-desc';
-              span.textContent = CLIQZ.Utils.getLocalizedString('searchForEnd');
+              span.textContent = CLIQZ.Utils.getLocalizedString('searchForEnd') +
+                                Services.search.defaultEngine.name;
             }
           ]]>
         </body>
