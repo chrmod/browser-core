@@ -53,3 +53,14 @@ ansible-playbook bootstrap.yaml -i inventory.ini -u vagrant --private-key ~/.vag
 ## Running tests
 
 Use `run-targets.py` to run mozmill tests on virtual boxes. It will read IP addresses and OS types from the inventory.ini and execute tests.
+
+# Issues
+
+## Ubuntu
+
+- Disable screen saver
+
+
+## Windows
+
+- allow all connections for the python.exe in the firefox settings
