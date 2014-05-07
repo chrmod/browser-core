@@ -2,7 +2,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :ubuntu do |node|
       node.vm.box = "ubuntu-12.04-desktop"
-      # node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/ubuntu-12.04-desktop.box"
+      node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/ubuntu-12.04-desktop.box"
 
       node.vm.hostname = :ubuntu
       node.vm.network :private_network, ip: "192.168.33.22"
@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :osxmaverics do |node|
     node.vm.box = "osx-10.9-maverics"
-    # node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/osx-10.9-maverics.box"
+    node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/osx-10.9-maverics.box"
 
     node.vm.hostname = :osxmaverics
     node.vm.network :private_network, ip: "192.168.33.33"
@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :win7 do |node|
     node.vm.box = "win-7"
-    # node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/win-7.box"
+    node.vm.box_url = "https://s3.amazonaws.com/cliqz-vagrant-boxes/fusion/win-7.box"
 
     node.vm.guest = :windows
     node.vm.hostname = :win7
