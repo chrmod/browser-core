@@ -3,31 +3,47 @@ import paramiko
 import yaml
 import select
 import requests
+import socket
 import os.path
 import json
 import re
+import sys
+import shlex
 import ConfigParser
+
+from termcolor import colored
 from commandr import command, Run
 from functools import partial
 from itertools import chain
 from operator import attrgetter
+from multiprocessing import Pool
+
+pred = lambda msg: sys.stdout.write(colored(msg, 'red') + '\n')
+pgrey = lambda msg: sys.stdout.write(colored(msg, 'grey') + '\n')
+pgreen = lambda msg: sys.stdout.write(colored(msg, 'green') + '\n')
 
 
-def get_ssh_pk(private_key_path):
-    private_key_path = os.path.expanduser(private_key_path)
-    key = paramiko.RSAKey.from_private_key(open(private_key_path))
-    return key
+class ssh_api(object):
 
+    def __init__(self, os, ip, port=22, user='vagrant',
+        key_path='~/.vagrant.d/insecure_private_key', version='', **kwargs):
+        self.os = os
+        self.ip = ip
+        self.port = port
+        self.user = user
+        self.key_path = key_path
+        self.version = version
+        self.args = kwargs
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-def ssh(ip, port=22, user='vagrant',
-    key_path='~/.vagrant.d/insecure_private_key'):
-
-    key = get_ssh_pk(key_path)
-    def exec_ssh_command(cmd):
+    def ssh(self, cmd, connect_timeout=30):
         ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            ssh.connect(ip, port=port, username=user, pkey=key)
+            ssh.connect(self.ip, port=self.port,
+                username=self.user, pkey=self.pk, timeout=connect_timeout)
 
             stdin, stdout, stderr = ssh.exec_command(cmd)
             output = ''.join(stdout.readlines())
@@ -37,15 +53,38 @@ def ssh(ip, port=22, user='vagrant',
         finally:
             ssh.close()
 
-    return exec_ssh_command
+    @property
+    def pk(self):
+        key_path = os.path.expanduser(self.key_path)
+        key = paramiko.RSAKey.from_private_key(open(key_path))
+        return key
 
+    def ping(self):
+        try:
+            # http://stackoverflow.com/questions/17414518/openssh-on-cygwin
+            # Windows cygwin issue: whoami is executed not in login shell
+            out, err = self.ssh('bash -l -c whoami', connect_timeout=15)
+            if out.strip() == 'vagrant':
+                return True, None
+            return False, err
+        except socket.timeout, e:
+            return False, e
+        except socket.error, e:
+            return False, e
 
-class ssh_api(object):
+    def __repr__(self):
+        args = (self.__class__.__name__, self.os, self.ip, self.version)
+        return '%s(%s, %s, version=%s)' % args
 
-    def __init__(self, ip):
-        self.ip = ip
-        self.ssh = ssh(ip)
+    @property
+    def info(self):
+        desc = '{0.ip:<14} {0.os}'.format(self)
+        if self.version:
+            desc += '({0.version})'.format(self)
+        return desc
 
+    def __call__(self, *args, **kwargs):
+        return self.exec_test(*args, **kwargs)
 
 class linux_api(ssh_api):
 
@@ -120,46 +159,129 @@ class win_api(ssh_api):
         return (res['stdout'], res['stderr'])
 
 
-def exec_tests(test_nodes, test_ini):
-    versions = chain.from_iterable(map(attrgetter('versions'), test_nodes))
-    versions = sorted(set(versions))
+def exec_tests(versions, test_nodes, test_ini, x_filter=None):
 
-    print '\nVersions: {}'.format(', '.join(versions))
+    pool = Pool(len(test_nodes))
 
     for version in versions:
-        print '\nTesting version {}'.format(version)
-        for node in (n for n in test_nodes if version in n.versions):
-            stdout, stderr = node.exec_test(version, test_ini)
-            res = 'ERROR' if 'ERROR' in stdout else 'OK'
-            print '[{node.ip}] - {res}'.format(node=node, res=res)
-            print stdout
-            print stderr
+        # Nodes supporting current browser version
+        v_nodes = [n for n in test_nodes if version in n.versions]
+        print '\nTesting version {} on {} nodes'.format(version, len(v_nodes))
+
+        v_results = [pool.apply_async(n, (version, test_ini)) for n in v_nodes]
+
+        for i, res in enumerate(v_results):
+            stdout, stderr = res.get()
+            node = v_nodes[i]
+            is_error = 'ERROR' in stdout
+
+            if is_error:
+                pred('{n.ip} - ERROR'.format(n=node))
+                print stdout
+                # print stderr
+            else:
+                pgreen('{n.ip} - SUCCESS'.format(n=node))
 
 
-@command('all')
-def run_all(test_ini='all-tests', os_filter=None):
+            # res = 'ERROR' if 'ERROR' in stdout else 'OK'
+            # print '[{node.ip}] - {res}'.format(node=node, res=res)
+            # print stdout
+            # print stderr
+
+    pool.close()
+    pool.join()
+
+
+def get_nodes():
+
+    # Get ansible inventory file path
+    current_dir = os.path.dirname(__file__)
     inventory_file = os.path.join(
-        os.path.dirname(__file__), '..',
-        'tests', 'deployment', 'inventory.ini')
+        current_dir, '..', 'tests', 'deployment', 'inventory.ini')
     inventory_file = os.path.abspath(inventory_file)
 
+    # Read all available test nodes from ansible inventory
     cfg = ConfigParser.SafeConfigParser(allow_no_value=True)
     cfg.read(inventory_file)
     sections = {'linux', 'osx', 'win'}.intersection(cfg.sections())
-
-    sections = [s for s in sections if os_filter == None or s == os_filter]
     test_nodes = []
 
+    # For each test node os-dependent test runner instance
     for section in sections:
         items = cfg.items(section)
         items = map(partial(filter, None), items)
         items = map('='.join, items)
+        items = map(shlex.split, items)
+        items = [(item[0], dict(kv.split('=') for kv in item[1:])) for item in items]
 
         api = globals()['{}_api'.format(section)]
-        apis = map(api, items)
+        apis = map(lambda item: api(section, item[0], **item[1]), items)
+
         test_nodes.extend(apis)
 
-    exec_tests(test_nodes, test_ini)
+    return test_nodes
+
+
+def filter_nodes(nodes, x_filter):
+    if not x_filter:
+        return nodes
+
+    # we filter by info (ip, version, os) and all custom args from inventory
+    n_filter = lambda n: re.search(x_filter, n.info + str(n.args), re.I)
+    filtered_nodes = filter(n_filter, nodes)
+    if len(filtered_nodes) < len(nodes):
+        pgrey('{} of {} nodes where selected with filter "{}"'.format(
+            len(filtered_nodes), len(nodes), x_filter))
+    return filtered_nodes
+
+
+def get_versions(nodes):
+    versions = chain.from_iterable(map(attrgetter('versions'), nodes))
+    versions = filter(None, versions)
+    versions = sorted(set(versions))
+    return versions
+
+
+def filter_versions(versions, x_filter):
+    if not x_filter:
+        return versions
+
+    filtered_versions = filter(lambda v: re.search(x_filter, v, re.I), versions)
+    pgrey('{} of {} versions where selected with filter "{}"'.format(
+            len(filtered_versions), len(versions), x_filter))
+    return filtered_versions
+
+
+@command('all')
+def run_all(test_ini='all-tests', node_filter=None, version_filter=None):
+    nodes = get_nodes()
+    nodes = filter_nodes(nodes, node_filter)
+
+    versions = get_versions(nodes)
+    versions = filter_versions(versions, version_filter)
+
+    exec_tests(versions, nodes, test_ini)
+
+
+@command('ping')
+def run_ping(node_filter=None):
+    test_nodes = get_nodes()
+    test_nodes = filter_nodes(test_nodes)
+    for n in test_nodes:
+        success, reason = n.ping()
+        if success:
+            pgreen('{n.info:<30} - OK'.format(n=n))
+        else:
+            pred('{n.info:<30} - {e}'.format(n=n, e=reason))
+
+
+@command('versions')
+def run_versions(node_filter=None):
+    test_nodes = get_nodes()
+    test_nodes = filter_nodes(test_nodes, node_filter)
+    for node in test_nodes:
+        pgreen('{n.info:<30} - Firefox versions: {versions}'.format(
+            n=node, versions=', '.join(node.versions)))
 
 
 if __name__ == '__main__':
