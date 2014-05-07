@@ -159,16 +159,7 @@ class win_api(ssh_api):
         return (res['stdout'], res['stderr'])
 
 
-def exec_tests(test_nodes, test_ini):
-    for node in test_nodes:
-        print '{node.info}. Firefox versions: {versions}'.format(
-            node=node, versions=', '.join(node.versions))
-
-    versions = chain.from_iterable(map(attrgetter('versions'), test_nodes))
-    versions = filter(None, versions)
-    versions = sorted(set(versions))
-
-    # print '\nVersions: {}'.format(', '.join(versions))
+def exec_tests(versions, test_nodes, test_ini, x_filter=None):
 
     pool = Pool(len(test_nodes))
 
@@ -201,7 +192,7 @@ def exec_tests(test_nodes, test_ini):
     pool.join()
 
 
-def get_test_nodes(node_filter=None):
+def get_nodes():
 
     # Get ansible inventory file path
     current_dir = os.path.dirname(__file__)
@@ -228,27 +219,53 @@ def get_test_nodes(node_filter=None):
 
         test_nodes.extend(apis)
 
-    # Filter nodes by mathing node.info attribute with node_filter
-    if node_filter:
-        n_filter = lambda n: re.search(node_filter, n.info, re.I)
-        filtered_test_nodes = filter(n_filter, test_nodes)
-        if len(filtered_test_nodes) < len(test_nodes):
-            pgrey('{} of {} nodes where selected with filter "{}"'.format(
-                len(filtered_test_nodes), len(test_nodes), node_filter))
-        return filtered_test_nodes
-
     return test_nodes
 
 
+def filter_nodes(nodes, x_filter):
+    if not x_filter:
+        return nodes
+
+    n_filter = lambda n: re.search(x_filter, n.info, re.I)
+    filtered_nodes = filter(n_filter, nodes)
+    if len(filtered_nodes) < len(nodes):
+        pgrey('{} of {} nodes where selected with filter "{}"'.format(
+            len(filtered_nodes), len(nodes), x_filter))
+    return filtered_nodes
+
+
+def get_versions(nodes):
+    versions = chain.from_iterable(map(attrgetter('versions'), nodes))
+    versions = filter(None, versions)
+    versions = sorted(set(versions))
+    return versions
+
+
+def filter_versions(versions, x_filter):
+    if not x_filter:
+        return versions
+
+    filtered_versions = filter(lambda v: re.search(x_filter, v, re.I), versions)
+    pgrey('{} of {} versions where selected with filter "{}"'.format(
+            len(filtered_versions), len(versions), x_filter))
+    return filtered_versions
+
+
 @command('all')
-def run_all(test_ini='all-tests', node_filter=None):
-    test_nodes = get_test_nodes(node_filter)
-    exec_tests(test_nodes, test_ini)
+def run_all(test_ini='all-tests', node_filter=None, version_filter=None):
+    nodes = get_nodes()
+    nodes = filter_nodes(nodes, node_filter)
+
+    versions = get_versions(nodes)
+    versions = filter_versions(versions, version_filter)
+
+    exec_tests(versions, nodes, test_ini)
 
 
 @command('ping')
 def run_ping(node_filter=None):
-    test_nodes = get_test_nodes(node_filter)
+    test_nodes = get_nodes()
+    test_nodes = filter_nodes(test_nodes)
     for n in test_nodes:
         success, reason = n.ping()
         if success:
@@ -259,7 +276,8 @@ def run_ping(node_filter=None):
 
 @command('versions')
 def run_versions(node_filter=None):
-    test_nodes = get_test_nodes(node_filter)
+    test_nodes = get_nodes()
+    test_nodes = filter_nodes(test_nodes, node_filter)
     for node in test_nodes:
         pgreen('{n.info:<30} - Firefox versions: {versions}'.format(
             n=node, versions=', '.join(node.versions)))

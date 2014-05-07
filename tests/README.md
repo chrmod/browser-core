@@ -63,4 +63,4 @@ Use `run-targets.py` to run mozmill tests on virtual boxes. It will read IP addr
 
 ## Windows
 
-- allow all connections for the python.exe in the firefox settings
+- allow all connections for the python.exe in the firewall settings
