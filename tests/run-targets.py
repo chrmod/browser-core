@@ -226,7 +226,8 @@ def filter_nodes(nodes, x_filter):
     if not x_filter:
         return nodes
 
-    n_filter = lambda n: re.search(x_filter, n.info, re.I)
+    # we filter by info (ip, version, os) and all custom args from inventory
+    n_filter = lambda n: re.search(x_filter, n.info + str(n.args), re.I)
     filtered_nodes = filter(n_filter, nodes)
     if len(filtered_nodes) < len(nodes):
         pgrey('{} of {} nodes where selected with filter "{}"'.format(
