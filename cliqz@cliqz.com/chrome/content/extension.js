@@ -89,7 +89,7 @@ var CLIQZExtension = CLIQZExtension || {
     },
     loadIntoWindow: function(win) {
         if(CLIQZ.Utils.shouldLoad(win)){
-            for (let src of ['core', 'historyManager', 'utils'])
+            for (let src of ['core', 'historyManager', 'utils', 'components'])
                 CLIQZExtension.addScript(src, win);
 
             CLIQZExtension.addButtons(win);
