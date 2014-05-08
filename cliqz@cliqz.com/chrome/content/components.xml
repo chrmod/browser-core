@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
+<!--
+	IMPORTANT !!!
 
+	Change version in browser.css of all -moz-binding if this file 
+	is changed to force its refresh between updates
+
+-->
 <bindings id="cliqzBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"
@@ -62,88 +68,7 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
-          var controller = this.mInput.controller;
-          var matchCount = this._matchCount;
-          var existingItemsCount = this.richlistbox.childNodes.length;
-
-          // CLIQZ START
-
-          // trim the leading/trailing whitespace
-          var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
-
-          if(this._currentIndex == 0){
-            CLIQZ.Core.autocompleteQuery(controller.getValueAt(this._currentIndex));
-          }
-          // CLIQZ END
-
-          // Process maxRows per chunk to improve performance and user experience
-          for (let i = 0; i < this.maxRows; i++) {
-            if (this._currentIndex >= matchCount)
-              return;
-
-            var item;
-
-            // trim the leading/trailing whitespace
-            // var trimmedSearchString = controller.searchString.replace(/^\s+/, "").replace(/\s+$/, "");
-
-            // Unescape the URI spec for showing as an entry in the popup
-            let url = Components.classes["@mozilla.org/intl/texttosuburi;1"].
-              getService(Components.interfaces.nsITextToSubURI).
-              unEscapeURIForUI("UTF-8", controller.getValueAt(this._currentIndex));
-
-            if (typeof this.input.trimValue == "function")
-              url = this.input.trimValue(url);
-
-            if (this._currentIndex < existingItemsCount) {
-              // re-use the existing item
-              item = this.richlistbox.childNodes[this._currentIndex];
-
-              // Completely re-use the existing richlistitem if it's the same
-              if (item.getAttribute("text") == trimmedSearchString &&
-                  item.getAttribute("url") == url) {
-                item.collapsed = false;
-                this._currentIndex++;
-                continue;
-              }
-            }
-            else {
-              // need to create a new item
-              item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "richlistitem");
-            }
-
-            // set these attributes before we set the class
-            // so that we can use them from the constructor
-            item.setAttribute("image", controller.getImageAt(this._currentIndex));
-            item.setAttribute("url", url);
-            item.setAttribute("title", controller.getCommentAt(this._currentIndex));
-            item.setAttribute("type", controller.getStyleAt(this._currentIndex));
-            item.setAttribute("text", trimmedSearchString);
-
-            if (this._currentIndex < existingItemsCount) {
-              // re-use the existing item
-              item._adjustAcItem();
-              item.collapsed = false;
-            }
-            else {
-              // set the class at the end so we can use the attributes
-              // in the xbl constructor
-              item.className = "autocomplete-richlistitem";
-              this.richlistbox.appendChild(item);
-            }
-
-            // CLIQZ START
-            item.setAttribute("source", controller.getStyleAt(this._currentIndex).replace('favicon', 'history'));
-            let _item = item;
-            setTimeout(function(){
-              _item._cliqzEnhancements();
-            },0);
-            // CLIQZ END
-
-            this._currentIndex++;
-          }
-
-          // yield after each batch of items so that typing the url bar is responsive
-          setTimeout(function (self) { self._appendCurrentResult(); }, 0, this);
+          CLIQZ.Components._appendCurrentResult(this);
         ]]>
         </body>
       </method>
@@ -231,125 +156,6 @@
         </xul:vbox>
       </xul:hbox>
     </content>
-    <implementation>
-     <method name="_cliqzEnhancements">
-        <body>
-          <![CDATA[
-            // add here all the custom UI elements for an item
-            var url = this.getAttribute("url"),
-                source = this.getAttribute('source'),
-                urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
-                domainDefClass = '';
-
-            this._cliqzUrlType = this._cliqzUrlType || document.getAnonymousElementByAttribute(this, "anonid", "url-type");
-            this._cliqzUrlType.className = 'cliqz-left-separator';
-
-            this._cliqzImage = this._cliqzImage || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image");
-            this._cliqzImage.setAttribute("src", "");
-            this._cliqzImage.className = "";
-
-            this._cliqzImageDesc = this._cliqzImageDesc || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-image-desc");
-            this._cliqzImageDesc.textContent = "";
-            this._cliqzImageDesc.className = "";
-            this._cliqzImageDesc.parentNode.className = "hidden";
-
-            this._logo = this._logo || document.getAnonymousElementByAttribute(this, "anonid", "logo");
-            this._logo.className = '';
-
-            //this._source.textContent = source;
-
-            this._cliqzUrlDetails = this._cliqzUrlDetails || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-url-details");
-            this._cliqzTitleDetails = this._cliqzTitleDetails || document.getAnonymousElementByAttribute(this, "anonid", "cliqz-title-details");
-
-            while (this._cliqzUrlDetails.hasChildNodes()){
-              this._cliqzUrlDetails.removeChild(this._cliqzUrlDetails.firstChild);
-            }
-
-            while (this._cliqzTitleDetails.hasChildNodes()){
-              this._cliqzTitleDetails.removeChild(this._cliqzTitleDetails.firstChild);
-            }
-
-            if(source !== 'cliqz-suggestions' && urlDetails){
-              // add logo
-              this._logo.className = 'cliqz-ac-logo-icon ';
-              // lowest priority: base domain, no tld
-              this._logo.className += ' logo-' + urlDetails.name;
-              // domain.tld
-              this._logo.className += ' logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
-              if(urlDetails.subdomains.length > 0){
-                // subdomain.domain - to match domains like maps.google.co.uk and maps.google.de with maps-google
-                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-'
-                                     + urlDetails.name;
-                // subdomain.domain.tld
-                this._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length-1] + '-'
-                                     + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
-              }
-
-              // add lock
-              if(urlDetails.ssl){
-                this._cliqzUrlType.className += ' cliqz-ac-site-icon-ssl';
-              }
-
-              // add video thumbnail
-              if(this.getAttribute('image') != 'null' && this.getAttribute('image') != ''){
-                let img = JSON.parse(this.getAttribute('image'));
-
-                this._cliqzImage.className = 'cliqz-ac-image';
-                this._cliqzImage.setAttribute("src", img.image);
-
-                if(img.description){
-                  this._cliqzImageDesc.textContent = "▶ " + img.description;
-                  this._cliqzImageDesc.className = 'cliqz-image-desc';
-                  this._cliqzImageDesc.parentNode.className = '';
-                }
-              }
-              //}
-
-              // remove default
-              this._url.textContent = '';
-              this._urlOverflowEllipsis.value = '';
-
-              var span;
-              span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = domainDefClass + ' cliqz-ac-url-host';
-              span.textContent = urlDetails.host;
-
-              span = this._cliqzUrlDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = domainDefClass + ' cliqz-ac-url-path';
-              span.textContent = urlDetails.path;
-
-            } else { //suggestions
-              var title = this.getAttribute("title"),
-                  text = this.getAttribute("text");
-
-              // remove default
-              this._url.textContent = '';
-              this._urlOverflowEllipsis.value = '';
-              this._title.textContent = ''
-
-              // title
-              span = this._cliqzTitleDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion-desc';
-              span.textContent = title;
-
-              span = this._cliqzTitleDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion';
-              span.textContent = url;
-
-              var span = this._cliqzTitleDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion-desc';
-              span.textContent = CLIQZ.Utils.getLocalizedString('searchForEnd') +
-                                Services.search.defaultEngine.name;
-            }
-          ]]>
-        </body>
-      </method>
-    </implementation>
   </binding>
 
   <binding id="button-cliqz"

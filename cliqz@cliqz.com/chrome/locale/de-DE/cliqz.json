@@ -19,5 +19,8 @@
 	},
 	"loadDefaults":{
 		"message":"Load Defaults"
+	},
+	"arrow": {
+		"message":"▶ "
 	}
 }

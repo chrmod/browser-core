@@ -17,7 +17,7 @@ var CLIQZExtension = CLIQZExtension || {
         'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
         'hideQuickSearch': true, // hides quick search
         'pagePreload': true, // hides quick search
-        'inPrivate': false, // enables extension in private mode
+        'inPrivateWindows': true, // enables extension in private mode
         'bwFonts': false, // uses only black and white fonts for titles
         'scale': 3, // 1-xsmall, 2-small, 3-normal, 4-large, 5-xlarge
         'logoPosition': 1, // -1-left, 0-none, 1-right
@@ -60,35 +60,47 @@ var CLIQZExtension = CLIQZExtension || {
         CLIQZ.Utils.extensionRestart();
     },
     setDefaultPrefs: function() {
-      let branch = CLIQZ.Utils.cliqzPrefs;
-      for (let [key, val] in new Iterator(CLIQZExtension.PREFS)) {
-        if(!branch.prefHasUserValue(key)){
-            switch (typeof val) {
-              case 'boolean':
-                branch.setBoolPref(key, val);
-                break;
-              case 'number':
-                branch.setIntPref(key, val);
-                break;
-              case 'string':
-                branch.setCharPref(key, val);
-                break;
+        //basic solution for having consistent preferences between updates
+        this.cleanPrefs();
+
+        let branch = CLIQZ.Utils.cliqzPrefs;
+        for (let [key, val] in new Iterator(CLIQZExtension.PREFS)) {
+            if(!branch.prefHasUserValue(key)){
+                switch (typeof val) {
+                    case 'boolean':
+                    branch.setBoolPref(key, val);
+                    break;
+                case 'number':
+                    branch.setIntPref(key, val);
+                    break;
+                case 'string':
+                    branch.setCharPref(key, val);
+                    break;
+                }
             }
         }
-      }
+    },
+    cleanPrefs: function(){
+        //0.4.07.003
+        CLIQZ.Utils.cliqzPrefs.clearUserPref('inPrivate');
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(CLIQZExtension.BASE_URI + src + '.js?r='+Math.random(), win);
     },
     loadIntoWindow: function(win) {
-        for (let src of ['core', 'historyManager', 'utils'])
-            CLIQZExtension.addScript(src, win);
+        if(CLIQZ.Utils.shouldLoad(win)){
+            for (let src of ['core', 'historyManager', 'utils', 'components'])
+                CLIQZExtension.addScript(src, win);
 
-        CLIQZExtension.addButtons(win);
+            CLIQZExtension.addButtons(win);
 
-        try {
-            win.CLIQZ.Core.init();
-        } catch(e) {Cu.reportError(e); }
+            try {
+                win.CLIQZ.Core.init();
+            } catch(e) {Cu.reportError(e); }
+        }
+        else {
+            CLIQZ.Utils.log('private window -> halt', 'CORE');
+        }
     },
     addButtonToMenu: function(doc, menu, label, cmd){
         var menuItem = doc.createElement('menuitem');

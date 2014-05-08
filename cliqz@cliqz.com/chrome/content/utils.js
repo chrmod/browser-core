@@ -1,4 +1,7 @@
 'use strict';
+
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
@@ -18,6 +21,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
   INSTAL_URL:       'http://beta.cliqz.com/code-verified',
   CHANGELOG:        'http://beta.cliqz.com/changelog',
+  SEPARATOR:        ' %s ',
   httpHandler: function(method, url, callback, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
@@ -199,6 +203,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
                                   callback && callback(res, q);
                                 });
   },
+  encodeResultType: function(type){
+    if(type.indexOf('action') !== -1) return 'T';
+    else if(type === 'bookmark') return 'B';
+    else if(type === 'favicon') return 'H';
+    else if(type === 'cliqz-results') return 'R';
+    else if(type === 'cliqz-suggestions') return 'S';
+    else if(type === 'cliqz-custom') return 'C';
+
+    return type; //fallback to style - it should never happen
+  },
   getLatestVersion: function(callback, error){
     CLIQZ.Utils.httpGet(CLIQZ.Utils.VERSION_URL + '?' + Math.random(), function(res) {
       if(res.status == 200) callback(res.response);
@@ -208,6 +222,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
   stopSearch: function(){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
+  },
+  shouldLoad: function(window){
+    return CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CLIQZ.Utils.isPrivate(window);
   },
   isPrivate: function(window) {
     try {
@@ -363,7 +380,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
       });
   },
   extensionRestart: function(){
-    Components.utils.import('resource://gre/modules/Services.jsm');
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
@@ -371,5 +387,49 @@ CLIQZ.Utils = CLIQZ.Utils || {
         win.CLIQZ.Core.destroy();
         win.CLIQZ.Core.init();
     }
+  },
+  isWindows: function(){
+    return window.navigator.userAgent.indexOf('Win') != -1;
+  },
+
+  getSearchEngines: function(){
+    var engines = {};
+    for(var engine of Services.search.getEngines()){
+      engines[engine.name] = {
+        prefix: '#' + engine.name.substring(0,2).toLowerCase() + ' ',
+        name: engine.name,
+        getSubmission: engine.getSubmission
+      }
+    }
+    return engines;
+  },
+  setCurrentSearchEngine: function(engine){
+    var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
+
+    searchPrefs.setCharPref('defaultenginename', engine);
+    searchPrefs.setCharPref('selectedEngine', engine);
+  },
+  hasCustomEngine: function(q){
+    var engines = CLIQZ.Utils.getSearchEngines();
+    for(var name in engines){
+        var engine = engines[name];
+        if(q.indexOf(engine.prefix) == 0 && q.length > engine.prefix.length){
+            return engine;
+        }
+    }
+
+    return null;
+  },
+  // returns the suggestion title + target search engine
+  createSuggestionTitle: function(q, engine) {
+    var elements = [];
+
+    elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([q, 'cliqz-ac-title-suggestion']);
+    elements.push([CLIQZ.Utils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
+
+    return JSON.stringify(elements);
   }
 };
