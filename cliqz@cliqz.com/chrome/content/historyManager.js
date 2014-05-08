@@ -1,6 +1,6 @@
 'use strict';
 
-Components.utils.import('chrome://cliqz/content/promise.js');
+Components.utils.import('chrome://cliqz/content/extern/promise.js');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.historyManager = CLIQZ.historyManager || {
@@ -22,7 +22,7 @@ CLIQZ.historyManager = CLIQZ.historyManager || {
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
-                "WHERE h.hidden = 0 AND h.visit_count > 0 ", 
+                "WHERE h.hidden = 0 AND h.visit_count > 0 ",
                 {
                     //columns: ["rev_host", "day", "url"],
                     //onRow: function({rev_host, day, url}) {
@@ -37,8 +37,8 @@ CLIQZ.historyManager = CLIQZ.historyManager || {
                         historysize = historysize + 1;
                         if (day < history) {
                             history= day;
-                        } 
-                        
+                        }
+
                         base = base.replace("www.", "");
                         //let base = Services.eTLD.getBaseDomainFromHost(host);
                         var m = url.split("/");

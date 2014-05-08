@@ -13,11 +13,6 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CLIQZ.Utils.init();
 
-        if(CLIQZ.Utils.isPrivate(window) && !CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivate')){
-            CLIQZ.Utils.log('private window -> halt', 'CORE');
-            return;
-        }
-
         var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());
@@ -319,6 +314,12 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
                 action.position_type = source.replace('-', '_');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
+
+                //if this url is currently previewed do not load it again
+                if(inputValue == item.getAttribute('url')){
+                    ev.preventDefault();
+                    popup.closePopup();
+                }
             } else { //enter while on urlbar and no result selected
 
                 if(CLIQZ.Utils.isUrl(inputValue)){
@@ -327,7 +328,22 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
                 else action.position_type = 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
+                if(action.autocompleted){
+                    let first = popup.richlistbox.childNodes[0],
+                        firstUrl = first.getAttribute('url');
 
+                    action.source = CLIQZ.Utils.encodeResultType(first.getAttribute('type'));
+
+                    if(firstUrl.indexOf(inputValue) != -1){
+                        CLIQZ.Core.urlbar.value = firstUrl;
+                    }
+                } else {
+                    var customEngine = CLIQZ.Utils.hasCustomEngine(inputValue);
+                    if(customEngine){
+                        var q = inputValue.substring(customEngine.prefix.length)
+                        CLIQZ.Core.urlbar.value = customEngine.getSubmission(q).uri.spec;
+                    }
+                }
                 // TEMP
                 /*
                 if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){

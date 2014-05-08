@@ -108,6 +108,7 @@ Result enter (keyboard)
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
+    "source": "R", //results type of the result which autocompleted: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```
@@ -122,8 +123,9 @@ Results - results shown in the dropdown
 	"cliqz_results_title": 0,     // cliqz results with snippet and title
 	"history_results": 2,         // history results
 	"bookmark_results": 0,        // bookmark results
+    "custom_results": 0,          // results from the custom set search engine (instantfox like)
 	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
-    "result_order": "TBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion
+    "result_order": "CTBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
