@@ -116,34 +116,58 @@ var CLIQZResults = CLIQZResults || {
             QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
             resultsTimer: null,
 
-            // history sink
+            // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
                 this.historyResults = result;
 
-                // push a history result as fast as we have it
+                // Push a history result as fast as we have it:
+                //   Pick the url that is the shortest subset of the first entry
                 if( this.mixedResults.matchCount == 0) {
+
+                    // candidate for instant history
+                    var candidate_idx = -1; 
+                    var candidate_url = ''; 
 
                     for (let i = 0;
                          this.historyResults && i < this.historyResults.matchCount; i++) {
-                        let style = this.historyResults.getStyleAt(i),
-                            value = this.historyResults.getValueAt(i),
-                            image = this.historyResults.getImageAt(i),
-                            comment = this.historyResults.getCommentAt(i),
-                            label = this.historyResults.getLabelAt(i);
-
+                        let label = this.historyResults.getLabelAt(i);
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
-                        // check it should not be filtered, and matches only the domain
+                        // check if it should not be filtered, and matches only the domain
                         if(!this.filterResult(label, urlparts) &&
-                           urlparts.host.toLowerCase().indexOf(this.searchString) !=-1) {
-                            var instant = this.resultFactory(style, value, image, comment, label, this.searchString);
-                            if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
-                                instant.comment += " (instant History Domain)";
-                            this.mixedResults.addResults([instant])
-                            this.historyResults.removeValueAt(i, false);
-                            this.pushResults(result.searchString);
-                            break;
+                           urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
+
+                            CLIQZ.Utils.log(label)
+
+                            if(candidate_idx == -1) {
+                                // first entry
+                                CLIQZ.Utils.log("first candidate: " + label)
+                                candidate_idx = i;
+                                candidate_url = label;
+                            } else if(candidate_url.indexOf(label) != -1) {
+                                // this url is a substring of the previously candidate
+                                CLIQZ.Utils.log("found shorter candidate: " + label)
+                                candidate_idx = i;
+                                candidate_url = label;
+                            }
                         }
+                    }
+
+                    if(candidate_idx != -1) {
+                        var style = this.historyResults.getStyleAt(candidate_idx),
+                            value = this.historyResults.getValueAt(candidate_idx),
+                            image = this.historyResults.getImageAt(candidate_idx),
+                            comment = this.historyResults.getCommentAt(candidate_idx),
+                            label = this.historyResults.getLabelAt(candidate_idx);
+
+                        CLIQZ.Utils.log("instant:" + label)
+                        var instant = this.resultFactory(style, value, image, comment, label, this.searchString);
+                        if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
+                            instant.comment += " (instant History Domain)";
+
+                        this.historyResults.removeValueAt(candidate_idx, false);
+                        this.mixedResults.addResults([instant]);
+                        this.pushResults(result.searchString);
                     }
                 }
             },
@@ -515,7 +539,6 @@ var CLIQZResults = CLIQZResults || {
 
                 // top 2 of bucketHistoryDomain
                 for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
-                    CLIQZ.Utils.log("adding " + bucketHistoryDomain[i].label)
                     if(showQueryDebug)
                         bucketHistoryDomain[i].comment += " (top History Domain)";
                     results.push(bucketHistoryDomain[i]);
