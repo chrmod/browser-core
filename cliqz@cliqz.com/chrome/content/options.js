@@ -17,7 +17,10 @@ CLIQZ.Options = CLIQZ.Options || {
         });
 
         $( document ).tooltip({
-            track: true
+            position: {
+            	my: 'center',
+            	at: 'top-45'
+            }
         });
     },
     loadpref: function(){
