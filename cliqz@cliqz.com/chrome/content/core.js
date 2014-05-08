@@ -316,7 +316,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
 
                 //if this url is currently previewed do not load it again
-                if(CLIQZ.Core.urlbar.value == item.getAttribute('url')){
+                if(inputValue == item.getAttribute('url')){
                     ev.preventDefault();
                     popup.closePopup();
                 }
@@ -330,8 +330,14 @@ CLIQZ.Core = CLIQZ.Core || {
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
                 if(action.autocompleted){
                     let firstUrl = popup.richlistbox.childNodes[0].getAttribute('url');
-                    if(firstUrl.indexOf(CLIQZ.Core.urlbar.value) != -1){
+                    if(firstUrl.indexOf(inputValue) != -1){
                         CLIQZ.Core.urlbar.value = firstUrl;
+                    }
+                } else {
+                    var customEngine = CLIQZ.Utils.hasCustomEngine(inputValue);
+                    if(customEngine){
+                        var q = inputValue.substring(customEngine.prefix.length)
+                        CLIQZ.Core.urlbar.value = customEngine.getSubmission(q).uri.spec;
                     }
                 }
                 // TEMP

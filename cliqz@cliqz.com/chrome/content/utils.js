@@ -416,8 +416,5 @@ CLIQZ.Utils = CLIQZ.Utils || {
            (q || CLIQZ.Utils.SEPARATOR) +
            CLIQZ.Utils.getLocalizedString('searchForEnd') +
            (engine || Services.search.defaultEngine.name);
-  },
-  getUrlForSuggestion: function(s, engine){
-    return (engine || Services.search.defaultEngine).getSubmission(s).uri.spec;
   }
 };
