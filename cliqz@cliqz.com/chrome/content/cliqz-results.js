@@ -59,6 +59,19 @@ var CLIQZResults = CLIQZResults || {
           );
         }catch(e){}
     },
+    getResultsOrder: function(results){
+        var order = '';
+        for (let r of results){
+            if(r.style.indexOf('action') !== -1)order+='T';
+            else if(r.style === 'bookmark')order+='B';
+            else if(r.style === 'favicon')order+='H';
+            else if(r.style === 'cliqz-results')order+='R';
+            else if(r.style === 'cliqz-suggestions')order+='S';
+            else if(r.style === 'cliqz-custom')order+='C';
+            else order+=r.style; //fallback to style - it should never happen
+        }
+        return order;
+    },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
     ProviderAutoCompleteResultCliqz: function(searchString, searchResult,
         defaultIndex, errorDescription) {
@@ -304,7 +317,8 @@ var CLIQZResults = CLIQZResults || {
                     cliqz_results_title: cliqzResultTitle,
                     history_results: histResults,
                     bookmark_results: bookmarkResults,
-                    tab_results: tabResults
+                    tab_results: tabResults,
+                    custom_results: (this.custom_results || []).length
                 };
 
                 return action;
@@ -432,7 +446,7 @@ var CLIQZResults = CLIQZResults || {
             mixResults: function() {
                 var results = [], histResults = 0, bookmarkResults = 0,
                     maxResults = prefs.getIntPref('maxRichResults'),
-                    temp_log = this.logResults();
+                    tempLog = this.logResults();
 
                 /// 1) put each result into a bucket
                 var bucketHistoryDomain = [],
@@ -548,7 +562,7 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.searchString,
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.createSuggestionTitle()
+                                CLIQZ.Utils.createSuggestionTitle(this.searchString)
                             )
                         );
                 }
@@ -559,7 +573,7 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.cliqzSuggestions[i],
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.createSuggestionTitle()
+                                CLIQZ.Utils.createSuggestionTitle(this.cliqzSuggestions[i])
                             )
                         );
                     }
@@ -567,18 +581,9 @@ var CLIQZResults = CLIQZResults || {
 
                 results = results.slice(0, maxResults);
 
-                var order = '';
-                for (let r of results){
-                    if(r.style.indexOf('action') !== -1)order+='T';
-                    else if(r.style === 'bookmark')order+='B';
-                    else if(r.style === 'favicon')order+='H';
-                    else if(r.style === 'cliqz-results')order+='R';
-                    else if(r.style === 'cliqz-suggestions')order+='S';
-                    else if(r.style === 'cliqz-custom')order+='C';
-                    else order+=r.style; //fallback to style - it should never happen
-                }
-                temp_log.result_order = order;
-                CLIQZ.Utils.track(temp_log);
+
+                tempLog.result_order = CLIQZResults.getResultsOrder(this.mixedResults._results) + CLIQZResults.getResultsOrder(results);
+                CLIQZ.Utils.track(tempLog);
 
 
                 CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
@@ -597,7 +602,7 @@ var CLIQZResults = CLIQZResults || {
                             CLIQZResults.CLIQZC,
                             q,
                             null,
-                            CLIQZ.Utils.createSuggestionTitle(customEngine.name, q),
+                            CLIQZ.Utils.createSuggestionTitle(q, customEngine.name),
                             customEngine.getSubmission(q).uri.spec
                         )
                     ];
@@ -609,6 +614,7 @@ var CLIQZResults = CLIQZResults || {
                 CLIQZ.Utils.log('search: ' + searchString);
 
                 CLIQZResults.lastSearch = searchString;
+                this.oldPushLength = 0;
                 this.customResults = null;
 
                 var action = {

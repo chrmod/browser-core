@@ -381,11 +381,12 @@ CLIQZ.Utils = CLIQZ.Utils || {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
+
   getSearchEngines: function(){
     var engines = {};
     for(var engine of Services.search.getEngines()){
       engines[engine.name] = {
-        prefix: engine.name.substring(0,2).toLowerCase() + ' ',
+        prefix: '#' + engine.name.substring(0,2).toLowerCase() + ' ',
         name: engine.name,
         getSubmission: engine.getSubmission
       }
@@ -411,10 +412,14 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return null;
   },
   // returns the suggestion title + target search engine
-  createSuggestionTitle: function(engine, q) {
-    return CLIQZ.Utils.getLocalizedString('searchForBegin') +
-           (q || CLIQZ.Utils.SEPARATOR) +
-           CLIQZ.Utils.getLocalizedString('searchForEnd') +
-           (engine || Services.search.defaultEngine.name);
+  createSuggestionTitle: function(q, engine) {
+    var elements = [];
+
+    elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([q, 'cliqz-ac-title-suggestion']);
+    elements.push([CLIQZ.Utils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
+
+    return JSON.stringify(elements);
   }
 };
