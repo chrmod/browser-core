@@ -108,6 +108,7 @@ Result enter (keyboard)
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
+    "source": "R", //results type of the result which autocompleted: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```

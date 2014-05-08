@@ -15,6 +15,10 @@ CLIQZ.Options = CLIQZ.Options || {
                 window.close();
             }
         });
+
+        $( document ).tooltip({
+            track: true
+        });
     },
     loadpref: function(){
         var prefs = CLIQZ.Utils.cliqzPrefs,
@@ -22,17 +26,17 @@ CLIQZ.Options = CLIQZ.Options || {
 
         //POPUP HEIGHT
         //tmp 24.04.2014
-        if(prefs.getIntPref('popupHeight') < 165) prefs.setIntPref('popupHeight', 160); // 2.5 results
-        if(prefs.getIntPref('popupHeight') > 352) prefs.setIntPref('popupHeight', 352); // 5.5 results
+        if(prefs.getIntPref('popupHeight') < 165) prefs.setIntPref('popupHeight', 128); // 2 results
+        if(prefs.getIntPref('popupHeight') > 352) prefs.setIntPref('popupHeight', 384); // 5 results
 
         var results = prefs.getIntPref('popupHeight') / 64;
         //round things up
-        results = parseInt(results*2)/2;
+        results = parseInt(results);
 
         $('#lblresults').text(results);
         $('#results-slider').slider({
-            min: 2.5,
-            max: 5.5,
+            min: 2,
+            max: 6,
             value: results,
             create: function( event, ui ) {
               var el = event.target;

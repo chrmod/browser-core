@@ -61,15 +61,9 @@ var CLIQZResults = CLIQZResults || {
     },
     getResultsOrder: function(results){
         var order = '';
-        for (let r of results){
-            if(r.style.indexOf('action') !== -1)order+='T';
-            else if(r.style === 'bookmark')order+='B';
-            else if(r.style === 'favicon')order+='H';
-            else if(r.style === 'cliqz-results')order+='R';
-            else if(r.style === 'cliqz-suggestions')order+='S';
-            else if(r.style === 'cliqz-custom')order+='C';
-            else order+=r.style; //fallback to style - it should never happen
-        }
+
+        for (let r of results) order += CLIQZ.Utils.encodeResultType(r.style);
+
         return order;
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component

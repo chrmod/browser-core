@@ -203,6 +203,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
                                   callback && callback(res, q);
                                 });
   },
+  encodeResultType: function(type){
+    if(type.indexOf('action') !== -1) return 'T';
+    else if(type === 'bookmark') return 'B';
+    else if(type === 'favicon') return 'H';
+    else if(type === 'cliqz-results') return 'R';
+    else if(type === 'cliqz-suggestions') return 'S';
+    else if(type === 'cliqz-custom') return 'C';
+
+    return type; //fallback to style - it should never happen
+  },
   getLatestVersion: function(callback, error){
     CLIQZ.Utils.httpGet(CLIQZ.Utils.VERSION_URL + '?' + Math.random(), function(res) {
       if(res.status == 200) callback(res.response);

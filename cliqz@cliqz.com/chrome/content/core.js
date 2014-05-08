@@ -329,7 +329,11 @@ CLIQZ.Core = CLIQZ.Core || {
                 else action.position_type = 'inbar_query';
                 action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
                 if(action.autocompleted){
-                    let firstUrl = popup.richlistbox.childNodes[0].getAttribute('url');
+                    let first = popup.richlistbox.childNodes[0],
+                        firstUrl = first.getAttribute('url');
+
+                    action.source = CLIQZ.Utils.encodeResultType(first.getAttribute('type'));
+
                     if(firstUrl.indexOf(inputValue) != -1){
                         CLIQZ.Core.urlbar.value = firstUrl;
                     }
