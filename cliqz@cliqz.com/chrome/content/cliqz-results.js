@@ -21,6 +21,7 @@ var CLIQZResults = CLIQZResults || {
     TIMEOUT: 500,
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
+    CLIQZC: 'cliqz-custom',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
     lastSearch: '',
@@ -196,6 +197,7 @@ var CLIQZResults = CLIQZResults || {
             resultFactory: function(style, value, image, comment, label, query, thumbnail, imageDescription){
                 //try to show host if no comment(page title) is provided
                 if(style !== CLIQZResults.CLIQZS       // is not a suggestion
+                   && style !== CLIQZResults.CLIQZC       // is not a custom search
                    && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
                    && CLIQZ.Utils.isCompleteUrl(value)){       // looks like an url
                     let host = CLIQZ.Utils.getDetailsFromUrl(value).host
@@ -546,7 +548,7 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.searchString,
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchForBegin')
+                                CLIQZ.Utils.createSuggestionTitle()
                             )
                         );
                 }
@@ -557,12 +559,11 @@ var CLIQZResults = CLIQZResults || {
                                 CLIQZResults.CLIQZS,
                                 this.cliqzSuggestions[i],
                                 CLIQZResults.CLIQZICON,
-                                CLIQZ.Utils.getLocalizedString('searchForBegin')
+                                CLIQZ.Utils.createSuggestionTitle()
                             )
                         );
                     }
                 }
-
 
                 results = results.slice(0, maxResults);
 
@@ -573,6 +574,7 @@ var CLIQZResults = CLIQZResults || {
                     else if(r.style === 'favicon')order+='H';
                     else if(r.style === 'cliqz-results')order+='R';
                     else if(r.style === 'cliqz-suggestions')order+='S';
+                    else if(r.style === 'cliqz-custom')order+='C';
                     else order+=r.style; //fallback to style - it should never happen
                 }
                 temp_log.result_order = order;
@@ -586,10 +588,29 @@ var CLIQZResults = CLIQZResults || {
 
                 return results;
             },
+            analyzeQuery: function(q){
+                var customEngine = CLIQZ.Utils.hasCustomEngine(q);
+                if(customEngine){
+                    q = q.substring(customEngine.prefix.length);
+                    this.customResults = [
+                        this.resultFactory(
+                            CLIQZResults.CLIQZC,
+                            q,
+                            null,
+                            CLIQZ.Utils.createSuggestionTitle(customEngine.name, q),
+                            customEngine.getSubmission(q).uri.spec
+                        )
+                    ];
+                }
+
+                return q
+            },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
 
                 CLIQZResults.lastSearch = searchString;
+                this.customResults = null;
+
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
@@ -597,22 +618,31 @@ var CLIQZResults = CLIQZResults || {
                 };
                 CLIQZ.Utils.track(action);
 
+                // custom results
+                searchString = this.analyzeQuery(searchString);
+
                 this.cliqzResults = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
-                this.cliqzResultsFromSuggestion = null;
+
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
                 this.searchString = searchString;
                 this.searchStringSuggest = null;
+
                 this.mixedResults = new CLIQZResults.ProviderAutoCompleteResultCliqz(
                         this.searchString,
                         Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
                         -2, // blocks autocomplete
                         '');
-                // ensure context
 
+                if(this.customResults && this.customResults.length > 0){
+                    this.mixedResults.addResults(this.customResults);
+                    this.pushResults(this.searchString);
+                }
+
+                // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
@@ -626,6 +656,7 @@ var CLIQZResults = CLIQZResults || {
                     this.cliqzResults = [];
                     this.cliqzCache = [];
                     this.cliqzSuggestions = [];
+                    this.customResults = [];
                 }
 
                 // trigger history search

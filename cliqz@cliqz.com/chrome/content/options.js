@@ -79,9 +79,9 @@ CLIQZ.Options = CLIQZ.Options || {
         var $searchEngines = $('#searchEngines');
         $.each(CLIQZ.Utils.getSearchEngines(), function(key, engine) {
                $searchEngines
-                 .append($("<option></option>")
-                 .attr("value",engine.name)
-                 .text(engine.name));
+                 .append($('<option></option>')
+                 .attr('value',engine.name)
+                 .text('[' + engine.prefix + '] ' + engine.name));
         });
         $searchEngines.val(Services.search.currentEngine.name);
         $searchEngines.change(function(){

@@ -269,7 +269,7 @@
               this._cliqzTitleDetails.removeChild(this._cliqzTitleDetails.firstChild);
             }
 
-            if(source !== 'cliqz-suggestions' && urlDetails){
+            if(urlDetails && source !== 'cliqz-suggestions' &&  source !== 'cliqz-custom'){
               // add logo
               this._logo.className = 'cliqz-ac-logo-icon ';
               // lowest priority: base domain, no tld
@@ -320,9 +320,39 @@
               span.className = domainDefClass + ' cliqz-ac-url-path';
               span.textContent = urlDetails.path;
 
-            } else { //suggestions
-              var title = this.getAttribute("title"),
-                  text = this.getAttribute("text");
+            } else if(source === 'cliqz-suggestions'){
+              var title = this.getAttribute("title");
+
+              if(title.indexOf(CLIQZ.Utils.SEPARATOR) != -1){
+                  var titleStart = title.split(CLIQZ.Utils.SEPARATOR)[0],
+                      titleEnd = title.split(CLIQZ.Utils.SEPARATOR)[1];
+              }
+
+
+              // remove default
+              this._url.textContent = '';
+              this._urlOverflowEllipsis.value = '';
+              this._title.textContent = ''
+
+              // title
+              span = this._cliqzTitleDetails.appendChild(
+                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-title-suggestion-desc';
+              span.textContent = titleStart || title;
+
+              span = this._cliqzTitleDetails.appendChild(
+                  document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+              span.className = 'cliqz-ac-title-suggestion';
+              span.textContent = url;
+
+              if(titleEnd){
+                var span = this._cliqzTitleDetails.appendChild(
+                  document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
+                span.className = 'cliqz-ac-title-suggestion-desc';
+                span.textContent = titleEnd;
+              }
+            } else if(source === 'cliqz-custom') {
+              var title = this.getAttribute("title");
 
               // remove default
               this._url.textContent = '';
@@ -334,17 +364,6 @@
                 document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
               span.className = 'cliqz-ac-title-suggestion-desc';
               span.textContent = title;
-
-              span = this._cliqzTitleDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion';
-              span.textContent = url;
-
-              var span = this._cliqzTitleDetails.appendChild(
-                document.createElementNS("http://www.w3.org/1999/xhtml", "span"));
-              span.className = 'cliqz-ac-title-suggestion-desc';
-              span.textContent = CLIQZ.Utils.getLocalizedString('searchForEnd') +
-                                Services.search.defaultEngine.name;
             }
           ]]>
         </body>

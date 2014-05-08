@@ -1,4 +1,7 @@
 'use strict';
+
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
@@ -18,6 +21,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
   INSTAL_URL:       'http://beta.cliqz.com/code-verified',
   CHANGELOG:        'http://beta.cliqz.com/changelog',
+  SEPARATOR:        ' %s ',
   httpHandler: function(method, url, callback, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
@@ -366,7 +370,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
       });
   },
   extensionRestart: function(){
-    Components.utils.import('resource://gre/modules/Services.jsm');
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
@@ -379,8 +382,15 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
   getSearchEngines: function(){
-    Components.utils.import('resource://gre/modules/Services.jsm');
-    return Services.search.getEngines();
+    var engines = {};
+    for(var engine of Services.search.getEngines()){
+      engines[engine.name] = {
+        prefix: engine.name.substring(0,2).toLowerCase() + ' ',
+        name: engine.name,
+        getSubmission: engine.getSubmission
+      }
+    }
+    return engines;
   },
   setCurrentSearchEngine: function(engine){
     var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -388,5 +398,26 @@ CLIQZ.Utils = CLIQZ.Utils || {
 
     searchPrefs.setCharPref('defaultenginename', engine);
     searchPrefs.setCharPref('selectedEngine', engine);
+  },
+  hasCustomEngine: function(q){
+    var engines = CLIQZ.Utils.getSearchEngines();
+    for(var name in engines){
+        var engine = engines[name];
+        if(q.indexOf(engine.prefix) == 0 && q.length > engine.prefix.length){
+            return engine;
+        }
+    }
+
+    return null;
+  },
+  // returns the suggestion title + target search engine
+  createSuggestionTitle: function(engine, q) {
+    return CLIQZ.Utils.getLocalizedString('searchForBegin') +
+           (q || CLIQZ.Utils.SEPARATOR) +
+           CLIQZ.Utils.getLocalizedString('searchForEnd') +
+           (engine || Services.search.defaultEngine.name);
+  },
+  getUrlForSuggestion: function(s, engine){
+    return (engine || Services.search.defaultEngine).getSubmission(s).uri.spec;
   }
 };
