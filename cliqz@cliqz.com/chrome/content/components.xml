@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
+<!--
+	IMPORTANT !!!
 
+	Change version in browser.css of all -moz-binding if this file 
+	is changed to force its refresh between updates
+
+-->
 <bindings id="cliqzBindings"
           xmlns="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"

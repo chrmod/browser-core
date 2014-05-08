@@ -1,7 +1,15 @@
 /* CLIQZ BINDINGS  */
 
+/*
+	IMPORTANT !!!
+
+	Change version of all -moz-binding if components.xml
+	is changed to force its refresh between updates
+
+*/
+
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -16,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-richlistitem-cliqz");
   padding: 0 0;
   border-width: 3px 3px 0px 0;
   border-style: solid;
@@ -30,7 +38,7 @@
 
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#button-cliqz");
 }
 
 .cliqz-ac-site-icon-ssl {
