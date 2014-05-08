@@ -1,4 +1,3 @@
-
 'use strict';
 
 var CLIQZ = CLIQZ || {};
@@ -145,7 +144,7 @@ CLIQZ.Components = CLIQZ.Components || {
                 item._cliqzImage.setAttribute('src', img.image);
 
                 if (img.description) {
-                    item._cliqzImageDesc.textContent = '▶ ' + img.description;
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.description;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }
