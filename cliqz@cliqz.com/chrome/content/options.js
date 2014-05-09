@@ -29,17 +29,17 @@ CLIQZ.Options = CLIQZ.Options || {
 
         //POPUP HEIGHT
         //tmp 24.04.2014
-        if(prefs.getIntPref('popupHeight') < 165) prefs.setIntPref('popupHeight', 128); // 2 results
-        if(prefs.getIntPref('popupHeight') > 352) prefs.setIntPref('popupHeight', 384); // 5 results
+        if(prefs.getIntPref('popupHeight') < 160) prefs.setIntPref('popupHeight', 160); // 2.5 results
+        if(prefs.getIntPref('popupHeight') > 352) prefs.setIntPref('popupHeight', 352); // 5.5 results
 
         var results = prefs.getIntPref('popupHeight') / 64;
         //round things up
-        results = parseInt(results);
+        results = parseInt(results * 2 ) /2;
 
-        $('#lblresults').text(results);
+        $('#lblresults').text(Math.floor(results));
         $('#results-slider').slider({
-            min: 2,
-            max: 6,
+            min: 2.5,
+            max: 5.5,
             value: results,
             create: function( event, ui ) {
               var el = event.target;
@@ -55,7 +55,7 @@ CLIQZ.Options = CLIQZ.Options || {
             },
             change: function(ev, el) {
                 changedOptions['popupHeight'] = el.value * 64;
-                $('#lblresults').text(el.value);
+                $('#lblresults').text(Math.floor(+el.value));
             }
         });
 

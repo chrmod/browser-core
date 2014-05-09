@@ -2,6 +2,7 @@ body {
 	padding: 20px;
 	width: 505px;
 	background-color: white;
+	overflow: hidden;
 }
 .buttons {
 }
