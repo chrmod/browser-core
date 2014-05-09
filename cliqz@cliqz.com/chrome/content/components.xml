@@ -89,10 +89,9 @@
           return;
 
         // CLIQZ START
-        var popup = this.parentNode.parentNode;
         CLIQZ.Core.popupClick(item);
-        if(event.metaKey) gBrowser.addTab(popup.getAttribute('url'));
-        else popup.onPopupClick(event);
+        if(event.metaKey) gBrowser.addTab(item.getAttribute('url'));
+        else this.parentNode.parentNode.onPopupClick(event);
         // CLIQZ END
       ]]>
       </handler>
