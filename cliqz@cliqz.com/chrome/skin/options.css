@@ -2,6 +2,7 @@ body {
 	padding: 20px;
 	width: 505px;
 	background-color: white;
+	overflow: hidden;
 }
 .buttons {
 }
@@ -236,4 +237,18 @@ body {
     font-size: 15px;
 	font-family: "Helvetica";
 	color: rgb( 153, 153, 153 );
+	margin:10px;
+}
+
+.help {
+	border-radius: 50%;
+	background-color: rgb( 204, 204, 204 );
+	padding: 5px 4px 2px 4px;
+	color: white;
+	width: 15px;
+	height: 15px;
+	text-align: center;
+	vertical-align: center;
+	font-size: 14px;
+	cursor: pointer;
 }

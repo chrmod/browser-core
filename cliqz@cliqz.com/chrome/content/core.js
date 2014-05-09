@@ -237,6 +237,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 if(currentVersion != latestVersion){
                     if(!CLIQZ.Utils.cliqzPrefs.getBoolPref('betaGroup')){
                         // production users get only major updates
+                        // TODO - use https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIVersionComparator
                         if(currentVersion.split('.').slice(0, -1).join('') ==
                            latestVersion.split('.').slice(0, -1).join('')) {
                             withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
