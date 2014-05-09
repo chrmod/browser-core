@@ -88,21 +88,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },
-  cleanMozillaGarbage: function(url){
-    /*
-    General action url parsing
-    <method name="_parseActionUrl">
-        <parameter name="aUrl"/>
-        <body><![CDATA[
-          if (!aUrl.startsWith("moz-action:"))
-            return null;
-
-          // url is in the format moz-action:ACTION,PARAM
-          var [, action, param] = aUrl.match(/^moz-action:([^,]+),(.*)$/);
-          return {type: action, param: param};
-        ]]></body>
-      </method>
-    */
+  cleanMozillaActions: function(url){
     if(url.startsWith("moz-action:")) {
         var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
         url = param;
@@ -110,7 +96,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return url;
   },
   getDetailsFromUrl: function(originalUrl){
-    originalUrl = CLIQZ.Utils.cleanMozillaGarbage(originalUrl);
+    originalUrl = CLIQZ.Utils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
         name = originalUrl,

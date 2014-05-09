@@ -22,7 +22,7 @@ CLIQZ.Core = CLIQZ.Core || {
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
-        // TEMP
+        // TEMP - EXPERIMENTAL
         /*
         var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
@@ -53,10 +53,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
         CLIQZ.Core.popup.setAttribute('onpopuphiding',
             'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
-        // document.getElementById('PopupAutoCompleteRichResult').onscroll =
-        //    function(el){
-        //        CLIQZ.Core.updateProgress(el.originalTarget);
-        //    };
+
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
         if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
@@ -365,7 +362,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         CLIQZ.Core.urlbar.value = customEngine.getSubmission(q).uri.spec;
                     }
                 }
-                // TEMP
+                // TEMP - EXPERIMENTAL
                 /*
                 if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
                     ev.preventDefault();
@@ -414,7 +411,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     }
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
-                    // TEMP
+                    // TEMP - EXPERIMENTAL
                     //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
                     // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
@@ -431,7 +428,6 @@ CLIQZ.Core = CLIQZ.Core || {
                (code == 38 && popup.selectedIndex === - 1)) {
                 ev.preventDefault();
             }
-        //ev.preventDefault();
         }
     },
     // autocomplete query inline
@@ -459,10 +455,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     // redirects a tab in which oldUrl is loaded to newUrl
-    //
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
-        var found = false;
-
         // optimistic search
         if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
             gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
@@ -470,8 +463,6 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         // heavy hearch
-        if(!found){
-            CLIQZ.Utils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
-        }
+        CLIQZ.Utils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     }
 };
