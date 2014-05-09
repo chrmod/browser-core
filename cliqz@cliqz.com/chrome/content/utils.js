@@ -22,19 +22,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
   INSTAL_URL:       'http://beta.cliqz.com/code-verified',
   CHANGELOG:        'http://beta.cliqz.com/changelog',
   SEPARATOR:        ' %s ',
-  httpHandler: function(method, url, callback, data){
-    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-    req.open(method, url, true);
-    req.overrideMimeType('application/json');
-    req.onreadystatechange = function(/* e */){
-      if (req && req.readyState == 4) {
-        callback && callback(req);
-      }
-    };
-    if(callback)req.timeout = 1000;
-    req.send(data);
-    return req;
-  },
+
+  cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+
   init: function(){
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
@@ -45,8 +36,23 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
   },
-  cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  httpHandler: function(method, url, callback, onerror, data){
+    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+    req.open(method, url, true);
+    req.overrideMimeType('application/json');
+    req.onload = function(){ callback && callback(req); }
+    req.onerror = function(){ onerror && onerror(); }
+
+    if(callback)req.timeout = 1000;
+    req.send(data);
+    return req;
+  },
+  httpGet: function(url, callback, onerror){
+    return CLIQZ.Utils.httpHandler('GET', url, callback, onerror);
+  },
+  httpPost: function(url, callback, data, onerror) {
+    CLIQZ.Utils.httpHandler('POST', url, callback, onerror, data);
+  },
   getPrefs: function(){
     var prefs = {};
     for(var pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
@@ -180,12 +186,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
     } else {
       return true;
     }
-  },
-  httpGet: function(url, callback){
-    return CLIQZ.Utils.httpHandler('GET', url, callback);
-  },
-  httpPost: function(url, callback, data) {
-    CLIQZ.Utils.httpHandler('POST', url, callback, data);
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){

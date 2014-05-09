@@ -41,12 +41,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
-            CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
-            CLIQZ.Core.showTutorial(true);
-        } else {
-            CLIQZ.Core.showTutorial(false);
-        }
+        CLIQZ.Core.checkUDID();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -105,6 +100,31 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    checkUDID: function(){
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
+                function success(req){
+                    var source = JSON.parse(req.response).shortName;
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID(source));
+                },
+                function error(){
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID());
+                }
+            );
+
+
+            CLIQZ.Core.showTutorial(true);
+        } else {
+            CLIQZ.Core.showTutorial(false);
+        }
+    },
+    generateUDID: function(source){
+        return Math.random().toString().split('.')[1]
+               + '|' +
+               CLIQZ.Utils.getDay()
+               + '|' +
+               (source || 'NONE');
     },
     returnToLastSearch: function () {
         CLIQZ.Core.urlbar.mInputField.focus()
