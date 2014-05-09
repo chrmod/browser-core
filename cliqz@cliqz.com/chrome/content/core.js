@@ -22,7 +22,7 @@ CLIQZ.Core = CLIQZ.Core || {
             css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
             CLIQZ.Core.elem.push(css);
         }
-        // TEMP
+        // TEMP - EXPERIMENTAL
         /*
         var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
@@ -41,12 +41,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
-            CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', Math.random().toString().split('.')[1] + '|' + CLIQZ.Utils.getDay());
-            CLIQZ.Core.showTutorial(true);
-        } else {
-            CLIQZ.Core.showTutorial(false);
-        }
+        CLIQZ.Core.checkUDID();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -58,10 +53,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
         CLIQZ.Core.popup.setAttribute('onpopuphiding',
             'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
-        // document.getElementById('PopupAutoCompleteRichResult').onscroll =
-        //    function(el){
-        //        CLIQZ.Core.updateProgress(el.originalTarget);
-        //    };
+
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
         if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
@@ -105,6 +97,31 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
+    },
+    checkUDID: function(){
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
+                function success(req){
+                    var source = JSON.parse(req.response).shortName;
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID(source));
+                },
+                function error(){
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID());
+                }
+            );
+
+
+            CLIQZ.Core.showTutorial(true);
+        } else {
+            CLIQZ.Core.showTutorial(false);
+        }
+    },
+    generateUDID: function(source){
+        return Math.random().toString().split('.')[1]
+               + '|' +
+               CLIQZ.Utils.getDay()
+               + '|' +
+               (source || 'NONE');
     },
     returnToLastSearch: function () {
         CLIQZ.Core.urlbar.mInputField.focus()
@@ -345,7 +362,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         CLIQZ.Core.urlbar.value = customEngine.getSubmission(q).uri.spec;
                     }
                 }
-                // TEMP
+                // TEMP - EXPERIMENTAL
                 /*
                 if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
                     ev.preventDefault();
@@ -394,7 +411,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     }
                     else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
-                    // TEMP
+                    // TEMP - EXPERIMENTAL
                     //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
                     // ENDTEMP
                     CLIQZ.Core.locationChangeTO = setTimeout(function(){
@@ -411,7 +428,6 @@ CLIQZ.Core = CLIQZ.Core || {
                (code == 38 && popup.selectedIndex === - 1)) {
                 ev.preventDefault();
             }
-        //ev.preventDefault();
         }
     },
     // autocomplete query inline
@@ -439,10 +455,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     // redirects a tab in which oldUrl is loaded to newUrl
-    //
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
-        var found = false;
-
         // optimistic search
         if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
             gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
@@ -450,8 +463,6 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         // heavy hearch
-        if(!found){
-            CLIQZ.Utils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
-        }
+        CLIQZ.Utils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     }
 };

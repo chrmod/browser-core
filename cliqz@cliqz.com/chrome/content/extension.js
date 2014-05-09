@@ -1,7 +1,8 @@
 'use strict';
 
-var EXPORTED_SYMBOLS = ['CLIQZExtension'],
-      Cu = Components.utils;
+var Cu = Components.utils;
+var EXPORTED_SYMBOLS = ['CLIQZExtension'];
+
 
 var CLIQZExtension = CLIQZExtension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -114,53 +115,13 @@ var CLIQZExtension = CLIQZExtension || {
 
         let button = doc.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
-        //button.setAttribute('type', 'menu-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
-        /*
-        var menupopup = doc.createElement('menupopup');
 
-        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Feedback', function() {
-            win.Application.getExtensions(function(extensions) {
-                    var beVersion = extensions.get('cliqz@cliqz.com').version;
-                    CLIQZExtension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
-            });
-        });
-
-        CLIQZExtension.addButtonToMenu(doc, menupopup,'FAQ', function() {
-            CLIQZExtension.openTab(doc, 'http://beta.cliqz.com/faq');
-        });
-
-        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Tutorial', function() {
-            CLIQZExtension.openTab(doc, 'http://beta.cliqz.com/tutorial');
-        });
-
-        var priv = 'Privatsph' + String.fromCharCode('0228') + 're';
-        CLIQZExtension.addButtonToMenu(doc, menupopup, priv, function() {
-            CLIQZExtension.openTab(doc, 'http://beta.cliqz.com/img/privacy.jpg');
-        });
-
-        menupopup.appendChild(doc.createElement('menuseparator'));
-        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Einstellungen', function() {
-            win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
-        });
-
-        menupopup.appendChild(doc.createElement('menuseparator'));
-        CLIQZExtension.addButtonToMenu(doc, menupopup, 'Update Suchen', function() {
-            win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                win.CLIQZ.Core.updateCheck(beVersion, true);
-            });
-        });
-
-        button.appendChild(menupopup);
-
-        */
         button.addEventListener('click', function() {
              win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
         }, false);
 
-        //anchor.parentNode.insertBefore(button, anchor);
         navBar.appendChild(button);
     },
     openTab: function(doc, url){
