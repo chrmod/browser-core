@@ -2,7 +2,7 @@
 <!--
 	IMPORTANT !!!
 
-	Change version in browser.css of all -moz-binding if this file 
+	Change version in browser.css of all -moz-binding if this file
 	is changed to force its refresh between updates
 
 -->
@@ -150,7 +150,7 @@
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
         </xul:vbox>
-        <xul:vbox>
+        <xul:vbox class="button-cliqz">
           <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
           </xul:hbox>
         </xul:vbox>
@@ -160,15 +160,15 @@
 
   <binding id="button-cliqz"
            extends="chrome://global/content/bindings/button.xml#button">
-    <implementation>
-      <method name="click">
-        <body>
+    <handlers>
+      <handler event="mouseup">
         <![CDATA[
-          gBrowser.selectedBrowser.contentDocument.location = this.getAttribute('url');
+          gBrowser.addTab(event.originalTarget.parentNode.parentNode.getAttribute('url'));
+          event.preventDefault();
+          event.stopPropagation()
         ]]>
-        </body>
-      </method>
-    </implementation>
+      </handler>
+    </handlers>
   </binding>
 
 
