@@ -80,7 +80,7 @@ CLIQZ.Components = CLIQZ.Components || {
         }
 
         // yield after each batch of items so that typing the url bar is responsive
-        setTimeout(CLIQZ.Components._appendCurrentResult, 0, popup);
+        setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
     cliqzEnhancements: function (item) {
         // add here all the custom UI elements for an item

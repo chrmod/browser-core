@@ -49,10 +49,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
 
-
-        CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
-        CLIQZ.Core.popup.setAttribute('onpopuphiding',
-            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
+        CLIQZ.Core.popup.addEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
 
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
@@ -154,7 +151,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', CLIQZ.Core._autocompletesearch);
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', CLIQZ.Core._autocompletepopup);
-        CLIQZ.Core.urlbar.setAttribute('onpopuphiding', CLIQZ.Core._onpopuphiding);
+        CLIQZ.Core.urlbar.removeEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
 
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -202,6 +199,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Utils.track(action);
     },
+    onPopupHiding:function(){
+        CLIQZ.Core.popupEvent(false);
+    },
     urlbarfocus: function() {
         CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
         CLIQZ.Core.urlbarEvent('focus');
@@ -220,7 +220,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     whoAmI: function(startup){
         // schedule another signal
-        setTimeout(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
+        setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
         var start = (new Date()).getTime();
         CLIQZ.historyManager.getStats(function(history){
