@@ -162,7 +162,7 @@ var CLIQZResults = CLIQZResults || {
                         CLIQZ.Utils.log("instant:" + label)
                         var instant = this.resultFactory(style, value, image, comment, label, this.searchString);
                         if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
-                            instant.comment += " (instant History Domain)";
+                            instant.comment += " (instant History Domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
@@ -417,42 +417,42 @@ var CLIQZResults = CLIQZResults || {
                 // all bucketHistoryCache
                 for(let i = 0; i < bucketHistoryCache.length; i++) {
                     if(showQueryDebug)
-                        bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")";
+                        bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")!";
                     results.push(bucketHistoryCache[i]);
                 }
 
                 // top 1 of bucketCache
                 if(bucketCache.length > 0) {
                     if(showQueryDebug)
-                        bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")";
+                        bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")!";
                     results.push(bucketCache[0]);
                 }
 
                 // top 2 of bucketHistoryDomain
                 for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
                     if(showQueryDebug)
-                        bucketHistoryDomain[i].comment += " (top History Domain)";
+                        bucketHistoryDomain[i].comment += " (top History Domain)!";
                     results.push(bucketHistoryDomain[i]);
                 }
 
                 // rest of bucketCache
                 for(let i = 1; i < bucketCache.length && i < 4; i++) {
                     if(showQueryDebug)
-                        bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")";
+                        bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")!";
                     results.push(bucketCache[i]);
                 }
 
                 // rest of bucketHistoryDomain
                 for(let i = 2; i < bucketHistoryDomain.length; i++) {
                     if(showQueryDebug)
-                        bucketHistoryDomain[i].comment += " (History Domain)";
+                        bucketHistoryDomain[i].comment += " (History Domain)!";
                     results.push(bucketHistoryDomain[i]);
                 }
 
                 // all bucketHistoryOther
                 for(let i = 0; i < bucketHistoryOther.length; i++) {
                     if(showQueryDebug)
-                        bucketHistoryOther[i].comment += " (History Other)";
+                        bucketHistoryOther[i].comment += " (History Other)!";
                     results.push(bucketHistoryOther[i]);
                 }
 

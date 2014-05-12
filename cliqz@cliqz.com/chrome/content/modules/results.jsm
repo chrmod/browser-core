@@ -41,10 +41,11 @@ var Results = {
 
             if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                 deduplicated_results.push(results[i]);
-                // CLIQZ.Utils.log('NOT  duplicate: ' + results[i].val);
+                //Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService).logStringMessage(results[i].val)
+
             }
             else {
-                // CLIQZ.Utils.log('duplicate: ' + results[i].val);
+                //Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService).logStringMessage(results[i].val)
             }
 
         }
@@ -99,7 +100,13 @@ var Results = {
         if (v.length > 1) {
             // remove the query string
             v[v.length-1] = v[v.length-1].split('?')[0];
-            path = '/' + v.splice(1, v.length-1).join('/');
+
+            if (v[1]=='#') {
+                // the path starts with # which is used for internal routing, remove for keys
+                // http://klout.com/#/solso == http://klout.com/solso
+                if (v.length > 2) path = '/' + v.splice(2, v.length-1).join('/');
+            }
+            else path = '/' + v.splice(1, v.length-1).join('/');
         }
 
         domain = Results.filterTLDs(domain);
@@ -108,6 +115,10 @@ var Results = {
         if ((title==undefined) || (title==null) || (title.trim()=='')) {
             title = '' + Math.random();
         }
+
+        // remove debug info from title on the de-duplication, so that we have consistent behaviour
+        // the debug info is anything that has ( foo bar )~ end of line
+        title = title.replace(/\(.*\)!$/,'').trim();
 
         return [domain, domain + path, domain + title];
     },
