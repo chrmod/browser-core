@@ -30,8 +30,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
     this._log = Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService);
 
+    //use a different suggestion API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    }
+    //use a different results API
+    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('resultsAPI')){
+      CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
     }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
@@ -192,6 +197,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type === 'bookmark') return 'B';
+    else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon') return 'H';
     else if(type === 'cliqz-results') return 'R';
     else if(type === 'cliqz-suggestions') return 'S';

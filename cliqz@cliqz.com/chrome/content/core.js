@@ -196,7 +196,7 @@ CLIQZ.Core = CLIQZ.Core || {
             type: 'activity',
             action: 'result_click',
             current_position: pos,
-            position_type: source.replace('-', '_'),
+            position_type: source.replace('-', '_').replace('tag', 'bookmark'),
             search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
         };
 
@@ -330,7 +330,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
-                action.position_type = source.replace('-', '_');
+                action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
 
                 //if this url is currently previewed do not load it again
@@ -404,7 +404,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     if(source.indexOf('action') > -1){
                         source = 'tab_result';
                     }
-                    action.position_type = source.replace('-', '_');
+                    action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
                     action.search = CLIQZ.Utils.isSearch(value);
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;

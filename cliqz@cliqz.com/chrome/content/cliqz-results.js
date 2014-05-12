@@ -307,7 +307,7 @@ var CLIQZResults = CLIQZResults || {
                      i++) {
                     let style = this.historyResults.getStyleAt(i);
 
-                    if(style === 'bookmark')bookmarkResults++;
+                    if(style === 'bookmark' || style === 'tag')bookmarkResults++;
                     if(style.indexOf('action') !== -1)tabResults++;
                     else histResults++;
                 }
@@ -373,7 +373,7 @@ var CLIQZResults = CLIQZResults || {
                         comment = this.historyResults.getCommentAt(i),
                         label = this.historyResults.getLabelAt(i);
 
-                    if(style === 'bookmark')bookmarkResults++;
+                    if(style === 'bookmark' || style === 'tag')bookmarkResults++;
                     else histResults++;
 
                     // Deduplicate: check if this result is also in the cache results
