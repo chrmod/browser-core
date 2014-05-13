@@ -42,7 +42,8 @@ var Result = {
             imageDescription: imageDescription
         };
     },
-    cliqz: function(result){
+    // TODO - exclude cache
+    cliqz: function(result, cache){
         if(result.snippet){
             let og = result.snippet.og, thumbnail, duration;
             if(og && og.image && og.type)
@@ -61,7 +62,7 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                this.getExpandedQuery(result.url, this.cliqzCache), //query
+                Result.getExpandedQuery(result.url, cache), //query
                 thumbnail, // video thumbnail
                 duration // image description -> video duration
             );

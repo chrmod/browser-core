@@ -3,7 +3,11 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
-  'chrome://cliqzmodules/content/HistoryManager.js');
+  'chrome://cliqzmodules/content/HistoryManager.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
+  'chrome://cliqzmodules/content/Autocomplete.jsm');
+
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -90,8 +94,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
 
-        Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
-        CLIQZResults.init();
+        Autocomplete.init();
 
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
@@ -126,7 +129,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     returnToLastSearch: function () {
         CLIQZ.Core.urlbar.mInputField.focus()
-        CLIQZ.Core.urlbar.mInputField.setUserInput(CLIQZResults.lastSearch);
+        CLIQZ.Core.urlbar.mInputField.setUserInput(Autocomplete.lastSearch);
 
         var action = {
             type: 'activity',
@@ -168,7 +171,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // restore preferences
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
-        CLIQZResults.destroy();
+        Autocomplete.destroy();
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
     restart: function(){

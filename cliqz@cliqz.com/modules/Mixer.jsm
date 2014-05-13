@@ -15,11 +15,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
-    _log.logStringMessage('Mixer.jsm: ' + str);
-}
+        _log.logStringMessage('Mixer.jsm: ' + str);
+    };
 
 var Mixer = {
-	mix: function(history, cliqz, mixed, maxResults){
+	mix: function(history, cliqz, mixed, cache, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -42,7 +42,7 @@ var Mixer = {
             let cacheIndex = -1;
             for(let i in cliqz || []) {
                 if(cliqz[i].url.indexOf(label) != -1) {
-                    var tempResult = Result.cliqz(cliqz[i])
+                    var tempResult = Result.cliqz(cliqz[i], cache)
                     bucketHistoryCache.push(Result.generic(style, value, image, comment, label,
                         tempResult.query, tempResult.image));
                     cacheIndex = i;
@@ -67,7 +67,7 @@ var Mixer = {
         }
 
         for(let i in cliqz || []) {
-            bucketCache.push(Result.cliqz(cliqz[i]));
+            bucketCache.push(Result.cliqz(cliqz[i], cache));
         }
 
         /// 2) Prepare final result list from buckets

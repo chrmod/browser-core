@@ -3,12 +3,15 @@
 var EXPORTED_SYMBOLS = ['HistoryManager'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import('chrome://cliqz/content/extern/Promise.jsm');
 Cu.import("resource://gre/modules/PlacesUtils.jsm")
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
   'chrome://cliqz/content/utils.js');
+
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
+  'chrome://cliqzmodules/content/extern/Promise.jsm');
 
 var HistoryManager = {
 	_db: null,

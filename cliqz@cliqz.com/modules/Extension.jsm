@@ -1,10 +1,9 @@
 'use strict';
+var EXPORTED_SYMBOLS = ['Extension'];
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var Cu = Components.utils;
-var EXPORTED_SYMBOLS = ['CLIQZExtension'];
 
-
-var CLIQZExtension = CLIQZExtension || {
+var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'UDID': '',
@@ -27,7 +26,7 @@ var CLIQZExtension = CLIQZExtension || {
         Cu.import('resource://gre/modules/Services.jsm');
         Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
 
-        CLIQZExtension.setDefaultPrefs();
+        Extension.setDefaultPrefs();
         CLIQZ.Utils.init();
 
         this.track = CLIQZ.Utils.track;
@@ -37,10 +36,10 @@ var CLIQZExtension = CLIQZExtension || {
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
-            CLIQZExtension.loadIntoWindow(win);
+            Extension.loadIntoWindow(win);
         }
         // Load into all new windows
-        Services.ww.registerNotification(CLIQZExtension.windowWatcher);
+        Services.ww.registerNotification(Extension.windowWatcher);
 
         if(upgrade){
             // open changelog on update
@@ -52,10 +51,10 @@ var CLIQZExtension = CLIQZExtension || {
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
-            CLIQZExtension.unloadFromWindow(win);
+            Extension.unloadFromWindow(win);
         }
 
-        Services.ww.unregisterNotification(CLIQZExtension.windowWatcher);
+        Services.ww.unregisterNotification(Extension.windowWatcher);
     },
     restart: function(){
         CLIQZ.Utils.extensionRestart();
@@ -65,7 +64,7 @@ var CLIQZExtension = CLIQZExtension || {
         this.cleanPrefs();
 
         let branch = CLIQZ.Utils.cliqzPrefs;
-        for (let [key, val] in new Iterator(CLIQZExtension.PREFS)) {
+        for (let [key, val] in new Iterator(Extension.PREFS)) {
             if(!branch.prefHasUserValue(key)){
                 switch (typeof val) {
                     case 'boolean':
@@ -86,14 +85,14 @@ var CLIQZExtension = CLIQZExtension || {
         CLIQZ.Utils.cliqzPrefs.clearUserPref('inPrivate');
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(CLIQZExtension.BASE_URI + src + '.js?r='+Math.random(), win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?r='+Math.random(), win);
     },
     loadIntoWindow: function(win) {
         if(CLIQZ.Utils.shouldLoad(win)){
             for (let src of ['core', 'utils', 'components'])
-                CLIQZExtension.addScript(src, win);
+                Extension.addScript(src, win);
 
-            CLIQZExtension.addButtons(win);
+            Extension.addButtons(win);
 
             try {
                 win.CLIQZ.Core.init();
@@ -144,10 +143,10 @@ var CLIQZExtension = CLIQZExtension || {
             win.addEventListener('load', function loader() {
                 win.removeEventListener('load', loader, false);
                 if (win.location.href == 'chrome://browser/content/browser.xul')
-                    CLIQZExtension.loadIntoWindow(win, true);
+                    Extension.loadIntoWindow(win, true);
             }, false);
         }
     }
 };
 
-CLIQZExtension.init();
+Extension.init();
