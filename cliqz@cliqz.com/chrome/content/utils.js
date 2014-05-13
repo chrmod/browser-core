@@ -181,7 +181,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + q,
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
                                     function(res){
                                       callback && callback(res, q);
                                     });
@@ -189,7 +189,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _resultsReq: null,
   getCachedResults: function(q, callback){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + q,
+    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q),
                                 function(res){
                                   callback && callback(res, q);
                                 });

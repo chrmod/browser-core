@@ -9,7 +9,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Results',
-  'chrome://cliqz/content/modules/Results.jsm');
+  'chrome://cliqzmodules/content/Results.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -564,8 +564,8 @@ var CLIQZResults = CLIQZResults || {
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-                    CLIQZ.Utils.getCachedResults(encodeURIComponent(searchString), this.cliqzResultFetcher);
-                    CLIQZ.Utils.getSuggestions(encodeURIComponent(searchString), this.cliqzSuggestionFetcher);
+                    CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
+                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzCache = [];

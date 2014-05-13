@@ -1,6 +1,6 @@
 'use strict';
 var EXPORTED_SYMBOLS = ['Results'];
-
+const { classes: Cc, interfaces: Ci } = Components;
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
