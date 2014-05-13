@@ -127,8 +127,8 @@ var CLIQZResults = CLIQZResults || {
                     var candidate_idx = -1;
                     var candidate_url = '';
 
-                    for (let i = 0;
-                         this.historyResults && i < this.historyResults.matchCount; i++) {
+                    for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
+
                         let label = this.historyResults.getLabelAt(i);
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
@@ -564,8 +564,8 @@ var CLIQZResults = CLIQZResults || {
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-                    CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
-                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    CLIQZ.Utils.getCachedResults(encodeURIComponent(searchString), this.cliqzResultFetcher);
+                    CLIQZ.Utils.getSuggestions(encodeURIComponent(searchString), this.cliqzSuggestionFetcher);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzCache = [];
