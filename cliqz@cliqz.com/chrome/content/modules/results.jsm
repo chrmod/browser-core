@@ -47,11 +47,10 @@ var Results = {
 
             if ((memo_domain[by_domain] <= max_by_domain) && (memo_domain_path[by_domain_path] <= max_by_domain_path) && (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
                 deduplicated_results.push(results[i]);
-                //log(results[i].val)
-
+                //log("keep: " + results[i].val)
             }
             else {
-                //log(results[i].val)
+                //log("remove: " + results[i].val)
             }
 
         }
@@ -86,7 +85,7 @@ var Results = {
             else {
                 // cover the case de-de.facebook.com
                 var w = v[0].split("-");
-                if ((w.length == 2) && (TLDs[w[0]]=='cc' || TLDs[w[0]]=='en') && (TLDs[w[1]]=='cc' || TLDs[w[1]]=='en')) {
+                if ((w.length == 2) && (TLDs[w[0]]=='cc' || w[0]=='en') && (TLDs[w[1]]=='cc' || w[1]=='en')) {
                     v[0] = null;
                 }
             }
@@ -94,6 +93,42 @@ var Results = {
 
         // remove the nulls and join
         return v.filter(function(n){ return n != null }).join('.');
+    },
+    filterTLDsInPath: function(path) {
+
+        var v = path.toLowerCase().split('/');
+        // it should have at least 2, "/".split('/') => ['', '']
+
+        // we only consider the top level element in the path
+        if (v.length > 1) {
+            if (TLDs[v[1]]=='cc') {
+                v[1] = null;
+            }
+            else {
+                var w = v[1].split("-");
+                if ((w.length == 2) && (TLDs[w[0]]=='cc' || w[0]=='en') && (TLDs[w[1]]=='cc' || w[1]=='en')) {
+                    v[1] = null;
+                }
+            }
+        }
+
+        // remove the nulls and join
+
+        var clean_v = v.filter(function(n){ return n != null })
+        var new_path = '/';
+
+        if (clean_v.length>1) {
+            new_path = v.filter(function(n){ return n != null }).join('/');
+        }
+        else {
+            // special case when clean_v has only one element, it will not join the initial slash
+            new_path = '/' + v.filter(function(n){ return n != null }).join('/');
+        }
+
+        new_path = new_path.replace('//','/');
+
+        return new_path;
+
     },
     extractKeys: function(url, title) {
         var domain = null;
@@ -116,6 +151,7 @@ var Results = {
         }
 
         domain = Results.filterTLDs(domain);
+        path = Results.filterTLDsInPath(path)
 
         // if no title or empty, generate a random key. This is a fail-safe mechanism
         if ((title==undefined) || (title==null) || (title.trim()=='')) {
