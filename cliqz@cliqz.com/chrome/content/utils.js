@@ -26,10 +26,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
 
+  _log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),
   init: function(){
-    this._log = Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService);
-
     //use a different suggestion API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');

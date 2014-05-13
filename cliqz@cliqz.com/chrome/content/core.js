@@ -1,5 +1,10 @@
 'use strict';
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
+  'chrome://cliqzmodules/content/HistoryManager.js');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -91,7 +96,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
-        CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
@@ -223,13 +227,14 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
         var start = (new Date()).getTime();
-        CLIQZ.historyManager.getStats(function(history){
+        HistoryManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
                     type: 'environment',
                     agent: navigator.userAgent,
+                    language: navigator.language,
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,

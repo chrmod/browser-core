@@ -1,10 +1,10 @@
 'use strict';
-var EXPORTED_SYMBOLS = ['Results'];
+var EXPORTED_SYMBOLS = ['Filter'];
 const { classes: Cc, interfaces: Ci } = Components;
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
-    _log.logStringMessage('Results.jsm: ' + str);
+    _log.logStringMessage('Filter.jsm: ' + str);
 }
 
 // TLD list extracted from http://www.iana.org/domains/root/db,
@@ -21,7 +21,7 @@ var TLDs = {"gw": "cc", "gu": "cc", "gt": "cc", "gs": "cc", "gr": "cc", "gq": "c
 // they all work as a logical AND
 // typical use case, only check by path: removeDuplicates(results, -1, 1, 1)
 // if you want to not have more than 2 wikipedias: removeDuplicates(results, 2, 1, 1)
-var Results = {
+var Filter = {
     deduplicate: function(results, max_by_domain, max_by_domain_path, max_by_domain_title) {
         var deduplicated_results = [];
         var memo_domain = {};
@@ -35,7 +35,7 @@ var Results = {
         for (let i = 0; i<results.length; i++) {
             //log("TITLE: "+ JSON.stringify(results[i]));
             //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
-            var w = Results.extractKeys(Results.cleanMozillaActions(results[i].val), results[i].comment);
+            var w = Filter.extractKeys(Filter.cleanMozillaActions(results[i].val), results[i].comment);
             var by_domain = w[0];
             var by_domain_path = w[1];
             var by_domain_title = w[2];
@@ -150,8 +150,8 @@ var Results = {
             else path = '/' + v.splice(1, v.length-1).join('/');
         }
 
-        domain = Results.filterTLDs(domain);
-        path = Results.filterTLDsInPath(path)
+        domain = Filter.filterTLDs(domain);
+        path = Filter.filterTLDsInPath(path)
 
         // if no title or empty, generate a random key. This is a fail-safe mechanism
         if ((title==undefined) || (title==null) || (title.trim()=='')) {

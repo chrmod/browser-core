@@ -1,12 +1,17 @@
 'use strict';
 
-Components.utils.import('chrome://cliqz/content/extern/Promise.jsm');
+var EXPORTED_SYMBOLS = ['HistoryManager'];
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var CLIQZ = CLIQZ || {};
-CLIQZ.historyManager = CLIQZ.historyManager || {
+Cu.import('chrome://cliqz/content/extern/Promise.jsm');
+Cu.import("resource://gre/modules/PlacesUtils.jsm")
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
+  'chrome://cliqz/content/utils.js');
+
+var HistoryManager = {
 	_db: null,
-	init: function() {
-	},
     getStats: function(callback){
         let historysize = 0;
         let daysVisited = {};
