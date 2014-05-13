@@ -134,7 +134,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'ERROR');
+      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'WARNING');
     }
 
     var urlDetails = {

@@ -1,6 +1,6 @@
 'use strict';
 
-Components.utils.import('chrome://cliqz/content/extern/promise.js');
+Components.utils.import('chrome://cliqz/content/extern/Promise.jsm');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.historyManager = CLIQZ.historyManager || {
