@@ -1,5 +1,14 @@
 'use strict';
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
+  'chrome://cliqzmodules/content/HistoryManager.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
+  'chrome://cliqzmodules/content/Autocomplete.jsm');
+
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -49,10 +58,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
 
-
-        CLIQZ.Core._onpopuphiding = CLIQZ.Core.urlbar.getAttribute('onpopuphiding');
-        CLIQZ.Core.popup.setAttribute('onpopuphiding',
-            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
+        CLIQZ.Core.popup.addEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
 
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
@@ -88,13 +94,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getCachedResults();
         CLIQZ.Utils.getSuggestions();
 
-        Cu.import('chrome://cliqz/content/cliqz-results.js?r=' + Math.random());
-        CLIQZResults.init();
+        Autocomplete.init();
 
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
-        CLIQZ.historyManager.init();
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
@@ -125,7 +129,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     returnToLastSearch: function () {
         CLIQZ.Core.urlbar.mInputField.focus()
-        CLIQZ.Core.urlbar.mInputField.setUserInput(CLIQZResults.lastSearch);
+        CLIQZ.Core.urlbar.mInputField.setUserInput(Autocomplete.lastSearch);
 
         var action = {
             type: 'activity',
@@ -154,7 +158,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', CLIQZ.Core._autocompletesearch);
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', CLIQZ.Core._autocompletepopup);
-        CLIQZ.Core.urlbar.setAttribute('onpopuphiding', CLIQZ.Core._onpopuphiding);
+        CLIQZ.Core.urlbar.removeEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
 
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -167,7 +171,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // restore preferences
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
-        CLIQZResults.destroy();
+        Autocomplete.destroy();
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
     restart: function(){
@@ -196,11 +200,14 @@ CLIQZ.Core = CLIQZ.Core || {
             type: 'activity',
             action: 'result_click',
             current_position: pos,
-            position_type: source.replace('-', '_'),
+            position_type: source.replace('-', '_').replace('tag', 'bookmark'),
             search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
         };
 
         CLIQZ.Utils.track(action);
+    },
+    onPopupHiding:function(){
+        CLIQZ.Core.popupEvent(false);
     },
     urlbarfocus: function() {
         CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
@@ -220,16 +227,17 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     whoAmI: function(startup){
         // schedule another signal
-        setTimeout(CLIQZ.Core.whoAmI, CLIQZ.Core.INFO_INTERVAL);
+        setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
         var start = (new Date()).getTime();
-        CLIQZ.historyManager.getStats(function(history){
+        HistoryManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
                     type: 'environment',
                     agent: navigator.userAgent,
+                    language: navigator.language,
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,
@@ -330,7 +338,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 if(source.indexOf('action') > -1){
                     source = 'tab_result';
                 }
-                action.position_type = source.replace('-', '_');
+                action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
 
                 //if this url is currently previewed do not load it again
@@ -404,7 +412,7 @@ CLIQZ.Core = CLIQZ.Core || {
                     if(source.indexOf('action') > -1){
                         source = 'tab_result';
                     }
-                    action.position_type = source.replace('-', '_');
+                    action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
                     action.search = CLIQZ.Utils.isSearch(value);
                     if(item.getAttribute('type') === 'cliqz-suggestions'){
                         value = Services.search.defaultEngine.getSubmission(value).uri.spec;

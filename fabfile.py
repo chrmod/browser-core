@@ -31,7 +31,7 @@ def package():
     output_file_name = "%s.%s.xpi" % (NAME, version)
     with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
         with hide('output'):
-            local("zip  %s -r *" % output_file_name)
+            local("zip  %s -r * -x '*.DS_Store' -x '.*'"% output_file_name)
             local("mv  %s .." % output_file_name)  # Move back to root folder
     return output_file_name
 

@@ -26,12 +26,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
 
+  _log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),
   init: function(){
-    this._log = Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService);
-
+    //use a different suggestion API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    }
+    //use a different results API
+    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('resultsAPI')){
+      CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
     }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
@@ -129,7 +133,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'ERROR');
+      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'WARNING');
     }
 
     var urlDetails = {
@@ -176,7 +180,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + q,
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
                                     function(res){
                                       callback && callback(res, q);
                                     });
@@ -184,7 +188,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _resultsReq: null,
   getCachedResults: function(q, callback){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + q,
+    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q),
                                 function(res){
                                   callback && callback(res, q);
                                 });
@@ -192,6 +196,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type === 'bookmark') return 'B';
+    else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon') return 'H';
     else if(type === 'cliqz-results') return 'R';
     else if(type === 'cliqz-suggestions') return 'S';
