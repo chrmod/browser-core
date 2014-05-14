@@ -50,7 +50,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        CLIQZ.Core.checkUDID();
+        CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -102,15 +102,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
-    checkUDID: function(){
-        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+    checkSession: function(){
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('session') == ''){
             CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID(source));
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession(source));
                 },
                 function error(){
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID());
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession());
                 }
             );
 
@@ -120,7 +120,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.showTutorial(false);
         }
     },
-    generateUDID: function(source){
+    generateSession: function(source){
         return Math.random().toString().split('.')[1]
                + '|' +
                CLIQZ.Utils.getDay()
@@ -140,6 +140,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
+        return;
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(CLIQZ.Utils.TUTORIAL_URL, CLIQZ.Utils.INSTAL_URL, onlyReuse);
