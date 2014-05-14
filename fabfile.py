@@ -7,9 +7,11 @@ import xml.etree.ElementTree as ET
 
 from fabric.api import task, local, lcd, hide
 from fabric.utils import abort
+from jinja2 import Environment, FileSystemLoader
 
 NAME = "cliqz@cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
+PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
 
@@ -27,11 +29,12 @@ def get_version():
 @task
 def package():
     """Package the extension as a .xpi file."""
+    exclude_files = "--exclude=*.DS_Store*"
     version = get_version()
     output_file_name = "%s.%s.xpi" % (NAME, version)
     with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
         with hide('output'):
-            local("zip  %s -r * -x '*.DS_Store' -x '.*'"% output_file_name)
+            local("zip  %s %s -r *" % (exclude_files, output_file_name))
             local("mv  %s .." % output_file_name)  # Move back to root folder
     return output_file_name
 
@@ -49,6 +52,28 @@ def install_in_browser():
             pass  # Success (Extension Auto-Installer returns 500)
     except urllib2.URLError as exception:
         abort("Extension Auto-Installer not running :(")
+
+
+@task
+def publish():
+    """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
+    output_file_name = package()
+    latest_file_name = "latest.rdf"
+    local("s3cmd --acl-public put %s %s" % (output_file_name, PATH_TO_S3_BUCKET))
+
+    env = Environment(loader=FileSystemLoader('templates'))
+    template = env.get_template('latest.rdf')
+    version = get_version()
+    download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
+    # TODO: Extract and pass also min and max version information to the template.
+    #       Right now it's hardcoded and needs to be changed every time.
+    output_from_parsed_template = template.render(version=version,
+                                                  download_link=download_link)
+    with open(latest_file_name, "wb") as f:
+        f.write(output_from_parsed_template)
+    local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (latest_file_name, PATH_TO_S3_BUCKET))
+    # Delete generated file after upload
+    local("rm  %s" % latest_file_name)
 
 
 @task

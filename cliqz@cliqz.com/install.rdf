@@ -9,6 +9,8 @@
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 		<em:optionsURL>chrome://cliqz/content/options.html</em:optionsURL>
+		<!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
+		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
 
 		<em:description>Cliqz hat sich zum Ziel gesetzt, Dich schneller und sicherer durch das Internet zu navigieren! Weil Finden wichtiger ist als Suchen, kommst Du mit cliqz ohne Umweg aus Deinem Browser zu Deinem Ziel. Cliqz stellt Dir keine Werbung und keine gekauften Suchergebnisse in den Weg. Und speichert keine Daten von Dir.</em:description>
 		<em:homepageURL>http://beta.cliqz.com/</em:homepageURL>
@@ -17,7 +19,7 @@
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
 				<em:minVersion>2.0</em:minVersion>
-				<em:maxVersion>29.0</em:maxVersion>
+				<em:maxVersion>29.*</em:maxVersion>
 
 			</Description>
 		</em:targetApplication>
