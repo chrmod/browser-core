@@ -246,40 +246,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 };
 
                 CLIQZ.Utils.track(info);
-
-                CLIQZ.Core.updateCheck(beVersion);
             });
         });
-    },
-    updateCheck: function(currentVersion, withFeedback) {
-        var pref = CLIQZ.Utils.cliqzPrefs,
-            now = (new Date()).getTime();
-
-        CLIQZ.Core._updateAvailable = false;
-        if(withFeedback || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
-            CLIQZ.Utils.cliqzPrefs.setCharPref('messageUpdate', now.toString());
-            CLIQZ.Utils.getLatestVersion(function(latestVersion){
-                if(currentVersion != latestVersion){
-                    if(!CLIQZ.Utils.cliqzPrefs.getBoolPref('betaGroup')){
-                        // production users get only major updates
-                        // TODO - use https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIVersionComparator
-                        if(currentVersion.split('.').slice(0, -1).join('') ==
-                           latestVersion.split('.').slice(0, -1).join('')) {
-                            withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-                            return;
-                        }
-                    }
-                    CLIQZ.Core._updateAvailable = true;
-                    CLIQZ.Core.showUpdateMessage();
-                } else {
-                    //if no newer version
-                    withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-                }
-            }, function(){
-                //on error
-                withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-            });
-        }
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){
