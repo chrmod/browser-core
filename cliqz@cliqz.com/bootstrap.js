@@ -1,7 +1,12 @@
 'use strict';
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
+  'chrome://cliqzmodules/content/Extension.jsm');
+
 function startup(aData, aReason) {
-    Components.utils.import('chrome://cliqz/content/extension.js?r=' + Math.random());
-    CLIQZExtension.load(aReason == ADDON_UPGRADE);
+    Extension.load(aReason == ADDON_UPGRADE);
 }
 
 function shutdown(aData, aReason) {
