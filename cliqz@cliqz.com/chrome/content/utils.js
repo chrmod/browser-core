@@ -435,7 +435,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
               current_position: index
           };
       if(index != -1){
-          let value = item.getAttribute('url');
+          var value = item.getAttribute('url');
 
           var source = item.getAttribute('source');
           if(source.indexOf('action') > -1){
