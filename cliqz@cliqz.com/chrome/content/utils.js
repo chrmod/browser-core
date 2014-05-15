@@ -438,6 +438,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
               action: actionType,
               current_position: index
           };
+
+      if(actionType == 'result_click')action.new_tab = true;
       if(index != -1){
           var value = item.getAttribute('url');
 

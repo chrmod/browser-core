@@ -89,17 +89,19 @@
           return;
 
         // CLIQZ START
-        CLIQZ.Core.popupClick(item);
         if(event.metaKey || event.ctrlKey){
           CLIQZ.Utils.navigateToItem(
                     gBrowser,
                     0,
                     item,
-                    'open_in_new_tab',
+                    'result_click',
                     true
                 );
         }
-        else this.parentNode.parentNode.onPopupClick(event);
+        else {
+          this.parentNode.parentNode.onPopupClick(event);
+          CLIQZ.Core.popupClick(item);
+        }
         // CLIQZ END
       ]]>
       </handler>
@@ -176,7 +178,7 @@
                     gBrowser,
                     0,
                     event.originalTarget.parentNode.parentNode,
-                    'open_in_new_tab',
+                    'result_click',
                     true
                 );
           event.preventDefault();

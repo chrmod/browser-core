@@ -100,20 +100,6 @@ Arrow key (up/down) - navigation through the results with keyboard
 }
 ```
 
-Open in new tab (CTRL/CMD + Click or click on Logo)
-
-``` bash
-{
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
-    "ts": <UNIX_TIMESTAMP>,
-    "type": "activity",
-    "action": "open_in_new_tab",
-    "current_position": 0,
-    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
-    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
-}
-```
-
 Result click (mouse)
 
 ``` bash
@@ -122,6 +108,7 @@ Result click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
+    "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page

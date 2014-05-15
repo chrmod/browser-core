@@ -200,6 +200,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var action = {
             type: 'activity',
             action: 'result_click',
+            new_tab: false,
             current_position: pos,
             position_type: source.replace('-', '_').replace('tag', 'bookmark'),
             search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
