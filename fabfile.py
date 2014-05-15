@@ -66,8 +66,6 @@ def package(beta=False):
             exclude_files = "--exclude=*.DS_Store*"
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             local("mv  %s .." % output_file_name)  # Move back to root folder
-    # Delete generated file after packaging
-    local("rm  %s" % install_manifest_path)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not beta:
