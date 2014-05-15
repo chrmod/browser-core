@@ -18,6 +18,7 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
     Extension.unload();
+    Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }
 
 function eventLog(ev){

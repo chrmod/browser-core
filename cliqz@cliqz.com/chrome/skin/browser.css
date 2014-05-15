@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistitem-cliqz");
   padding: 0 0;
   border-width: 3px 3px 0px 0;
   border-style: solid;
@@ -38,7 +38,8 @@
 
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=1#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#button-cliqz");
+  cursor: pointer;
 }
 
 .cliqz-ac-site-icon-ssl {
@@ -270,6 +271,13 @@
   background-position: left center;
   margin-top: 7px;
   margin-left: 20px;
+}
+
+.button-cliqz:hover {
+  background: url(chrome://cliqzres/content/skin/visited.gif) no-repeat center center;
+}
+.button-cliqz:hover .cliqz-ac-logo-icon {
+  background: none;
 }
 
 .cliqz-history {

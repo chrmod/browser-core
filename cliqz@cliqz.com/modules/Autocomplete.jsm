@@ -6,12 +6,9 @@ var EXPORTED_SYMBOLS = ['Autocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?r=' + Math.random());
+Cu.import('chrome://cliqzmodules/content/Result.jsm?r=' + Math.random());
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'Mixer',
-  'chrome://cliqzmodules/content/Mixer.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)

@@ -367,37 +367,12 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                let index = popup.selectedIndex,
-                    action = {
-                        type: 'activity',
-                        action: 'arrow_key',
-                        current_position: index
-                    };
-                if(index != -1){
-                    let item = popup.richlistbox._currentItem,
-                        value = item.getAttribute('url');
-
-                    var source = item.getAttribute('source');
-                    if(source.indexOf('action') > -1){
-                        source = 'tab_result';
-                    }
-                    action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
-                    action.search = CLIQZ.Utils.isSearch(value);
-                    if(item.getAttribute('type') === 'cliqz-suggestions'){
-                        value = Services.search.defaultEngine.getSubmission(value).uri.spec;
-                    }
-                    else if(value.indexOf('http') !== 0) value = 'http://' + value;
-
-                    // TEMP - EXPERIMENTAL
-                    //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
-                    // ENDTEMP
-                    CLIQZ.Core.locationChangeTO = setTimeout(function(){
-                        gBrowser.selectedBrowser.contentDocument.location = value;
-                    }, 500);
-
-                    //}
-                }
-                CLIQZ.Utils.track(action);
+                CLIQZ.Utils.navigateToItem(
+                    gBrowser,
+                    popup.selectedIndex,
+                    popup.richlistbox._currentItem,
+                    'arrow_key'
+                );
             },0);
 
             // avoid looping through results
