@@ -46,7 +46,7 @@ def package(beta=False):
     # If we are not doing a beta release we need to checkout the latest stable tag
     if not beta:
         with hide('output'):
-            local("git stash")
+            local("git stash save 'packaging_temp'")
             local("git checkout %s" % (version))
 
     # Generate temporary manifest
@@ -70,8 +70,8 @@ def package(beta=False):
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not beta:
         with hide('output'):
-            local("git checkout master")
-            local("git stash apply")
+            local("git checkout -f master")
+            local("git stash apply stash^{/packaging_temp}")
 
     return output_file_name
 
