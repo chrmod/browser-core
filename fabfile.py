@@ -57,7 +57,7 @@ def package(beta=False):
                                                   version=version,
                                                   beta=beta)
     with open(install_manifest_path, "wb") as f:
-        f.write(output_from_parsed_template)
+        f.write(output_from_parsed_template.encode("utf-8"))
 
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
@@ -114,7 +114,7 @@ def publish(beta=False):
     output_from_parsed_template = template.render(version=version,
                                                   download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
-        f.write(output_from_parsed_template)
+        f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (update_manifest_file_name,
                                                           path_to_s3))
     # Delete generated file after upload
