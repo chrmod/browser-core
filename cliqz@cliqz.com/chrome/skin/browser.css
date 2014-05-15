@@ -163,6 +163,11 @@
   font-style: italic;
 }
 
+.cliqz-ac-title-suggestion-extra {
+  color: #333333;
+  font-weight: 600;
+  font-style: italic;
+}
 
 /* source color */
 .cliqz-ac-source-icon {

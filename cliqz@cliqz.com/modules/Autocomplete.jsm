@@ -277,9 +277,11 @@ var Autocomplete = Autocomplete || {
 
 
                 var results = Mixer.mix(
+                            this.searchString,
                             this.historyResults,
                             this.cliqzResults,
                             this.mixedResults,
+                            this.cliqzSuggestions,
                             this.cliqzCache,
                             maxResults
                     );

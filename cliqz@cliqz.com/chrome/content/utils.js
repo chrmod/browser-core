@@ -413,11 +413,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return null;
   },
   // returns the suggestion title + target search engine
-  createSuggestionTitle: function(q, engine) {
+  createSuggestionTitle: function(q, engine, originalQ) {
     var elements = [];
 
     elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    elements.push([q, 'cliqz-ac-title-suggestion']);
+    if(originalQ){
+      elements.push([originalQ, 'cliqz-ac-title-suggestion']);
+      elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+    } else {
+      elements.push([q, 'cliqz-ac-title-suggestion']);
+    }
     elements.push([CLIQZ.Utils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
     elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
 
