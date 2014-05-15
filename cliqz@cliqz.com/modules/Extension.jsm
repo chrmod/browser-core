@@ -6,7 +6,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'UDID': '',
+        'session': '',
         'messageUpdate': '0', // last update message timestamp
         'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
@@ -60,10 +60,11 @@ var Extension = Extension || {
         CLIQZ.Utils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        //basic solution for having consistent preferences between updates
-        this.cleanPrefs();
+        var branch = CLIQZ.Utils.cliqzPrefs;
 
-        let branch = CLIQZ.Utils.cliqzPrefs;
+        //basic solution for having consistent preferences between updates
+        this.cleanPrefs(branch);
+
         for (let [key, val] in new Iterator(Extension.PREFS)) {
             if(!branch.prefHasUserValue(key)){
                 switch (typeof val) {
@@ -80,9 +81,14 @@ var Extension = Extension || {
             }
         }
     },
-    cleanPrefs: function(){
+    cleanPrefs: function(prefs){
         //0.4.07.003
-        CLIQZ.Utils.cliqzPrefs.clearUserPref('inPrivate');
+        prefs.clearUserPref('inPrivate');
+        //0.4.08.005
+        if(prefs.prefHasUserValue('UDID')){
+            prefs.setCharPref('session', prefs.getCharPref('UDID'));
+            prefs.clearUserPref('UDID');
+        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?r='+Math.random(), win);

@@ -5,6 +5,7 @@
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>{{ name }}</em:name>
 		<em:version>{{ version }}</em:version>
+
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
@@ -17,7 +18,15 @@
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
 		{% endif %}
 
-		<em:description>Cliqz hat sich zum Ziel gesetzt, Dich schneller und sicherer durch das Internet zu navigieren! Weil Finden wichtiger ist als Suchen, kommst Du mit cliqz ohne Umweg aus Deinem Browser zu Deinem Ziel. Cliqz stellt Dir keine Werbung und keine gekauften Suchergebnisse in den Weg. Und speichert keine Daten von Dir.</em:description>
+
+		<em:description>Cliqz hilft Dir beim Finden im Internet.
+
+● Schnell - bei cliqz kommst Du direkt aus dem Browser zu Deinem Ziel
+● Sicher - cliqz speichert keinerlei persönliche Daten
+● Alles Echt - bei cliqz gibt es keine gekauften Suchergebnisse
+
+Derzeit verfügbar für Firefox
+		</em:description>
 		<em:homepageURL>http://beta.cliqz.com/</em:homepageURL>
 		<em:targetApplication>
 

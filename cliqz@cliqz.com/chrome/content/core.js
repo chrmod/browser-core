@@ -50,7 +50,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
 
-        CLIQZ.Core.checkUDID();
+        CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
@@ -102,15 +102,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.whoAmI(true); //startup
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
-    checkUDID: function(){
-        if (CLIQZ.Utils.cliqzPrefs.getCharPref('UDID') == ''){
+    checkSession: function(){
+        if (CLIQZ.Utils.cliqzPrefs.getCharPref('session') == ''){
             CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID(source));
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession(source));
                 },
                 function error(){
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('UDID', CLIQZ.Core.generateUDID());
+                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession());
                 }
             );
 
@@ -120,7 +120,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.showTutorial(false);
         }
     },
-    generateUDID: function(source){
+    generateSession: function(source){
         return Math.random().toString().split('.')[1]
                + '|' +
                CLIQZ.Utils.getDay()
@@ -140,6 +140,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
+        return;
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(CLIQZ.Utils.TUTORIAL_URL, CLIQZ.Utils.INSTAL_URL, onlyReuse);
@@ -246,40 +247,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 };
 
                 CLIQZ.Utils.track(info);
-
-                CLIQZ.Core.updateCheck(beVersion);
             });
         });
-    },
-    updateCheck: function(currentVersion, withFeedback) {
-        var pref = CLIQZ.Utils.cliqzPrefs,
-            now = (new Date()).getTime();
-
-        CLIQZ.Core._updateAvailable = false;
-        if(withFeedback || now - +pref.getCharPref('messageUpdate') > pref.getIntPref('messageInterval')){
-            CLIQZ.Utils.cliqzPrefs.setCharPref('messageUpdate', now.toString());
-            CLIQZ.Utils.getLatestVersion(function(latestVersion){
-                if(currentVersion != latestVersion){
-                    if(!CLIQZ.Utils.cliqzPrefs.getBoolPref('betaGroup')){
-                        // production users get only major updates
-                        // TODO - use https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIVersionComparator
-                        if(currentVersion.split('.').slice(0, -1).join('') ==
-                           latestVersion.split('.').slice(0, -1).join('')) {
-                            withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-                            return;
-                        }
-                    }
-                    CLIQZ.Core._updateAvailable = true;
-                    CLIQZ.Core.showUpdateMessage();
-                } else {
-                    //if no newer version
-                    withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-                }
-            }, function(){
-                //on error
-                withFeedback && alert(CLIQZ.Utils.getLocalizedString('noUpdateMessage'));
-            });
-        }
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){
@@ -398,37 +367,12 @@ CLIQZ.Core = CLIQZ.Core || {
             clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
-                let index = popup.selectedIndex,
-                    action = {
-                        type: 'activity',
-                        action: 'arrow_key',
-                        current_position: index
-                    };
-                if(index != -1){
-                    let item = popup.richlistbox._currentItem,
-                        value = item.getAttribute('url');
-
-                    var source = item.getAttribute('source');
-                    if(source.indexOf('action') > -1){
-                        source = 'tab_result';
-                    }
-                    action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
-                    action.search = CLIQZ.Utils.isSearch(value);
-                    if(item.getAttribute('type') === 'cliqz-suggestions'){
-                        value = Services.search.defaultEngine.getSubmission(value).uri.spec;
-                    }
-                    else if(value.indexOf('http') !== 0) value = 'http://' + value;
-
-                    // TEMP - EXPERIMENTAL
-                    //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
-                    // ENDTEMP
-                    CLIQZ.Core.locationChangeTO = setTimeout(function(){
-                        gBrowser.selectedBrowser.contentDocument.location = value;
-                    }, 500);
-
-                    //}
-                }
-                CLIQZ.Utils.track(action);
+                CLIQZ.Utils.navigateToItem(
+                    gBrowser,
+                    popup.selectedIndex,
+                    popup.richlistbox._currentItem,
+                    'arrow_key'
+                );
             },0);
 
             // avoid looping through results

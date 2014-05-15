@@ -2,7 +2,7 @@
 <!--
 	IMPORTANT !!!
 
-	Change version in browser.css of all -moz-binding if this file 
+	Change version in browser.css of all -moz-binding if this file
 	is changed to force its refresh between updates
 
 -->
@@ -90,7 +90,16 @@
 
         // CLIQZ START
         CLIQZ.Core.popupClick(item);
-        this.parentNode.parentNode.onPopupClick(event);
+        if(event.metaKey || event.ctrlKey){
+          CLIQZ.Utils.navigateToItem(
+                    gBrowser,
+                    0,
+                    item,
+                    'open_in_new_tab',
+                    true
+                );
+        }
+        else this.parentNode.parentNode.onPopupClick(event);
         // CLIQZ END
       ]]>
       </handler>
@@ -150,7 +159,7 @@
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
         </xul:vbox>
-        <xul:vbox>
+        <xul:vbox class="button-cliqz">
           <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
           </xul:hbox>
         </xul:vbox>
@@ -160,15 +169,21 @@
 
   <binding id="button-cliqz"
            extends="chrome://global/content/bindings/button.xml#button">
-    <implementation>
-      <method name="click">
-        <body>
+    <handlers>
+      <handler event="mouseup">
         <![CDATA[
-          gBrowser.selectedBrowser.contentDocument.location = this.getAttribute('url');
+          CLIQZ.Utils.navigateToItem(
+                    gBrowser,
+                    0,
+                    event.originalTarget.parentNode.parentNode,
+                    'open_in_new_tab',
+                    true
+                );
+          event.preventDefault();
+          event.stopPropagation()
         ]]>
-        </body>
-      </method>
-    </implementation>
+      </handler>
+    </handlers>
   </binding>
 
 
