@@ -45,7 +45,9 @@ def package(beta=False):
 
     # If we are not doing a beta release we need to checkout the latest stable tag
     if not beta:
-        local("git checkout %s" % (version))
+        with hide('output'):
+            local("git stash")
+            local("git checkout %s" % (version))
 
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
@@ -69,7 +71,9 @@ def package(beta=False):
 
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not beta:
-        local("git checkout master")
+        with hide('output'):
+            local("git checkout master")
+            local("git stash apply")
 
     return output_file_name
 
