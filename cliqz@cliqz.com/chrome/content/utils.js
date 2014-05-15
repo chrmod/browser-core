@@ -417,9 +417,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
     var elements = [];
 
     elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    if(originalQ && q.indexOf(originalQ) == 0){
-      elements.push([originalQ, 'cliqz-ac-title-suggestion']);
-      elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+    if(originalQ){
+      if(q.indexOf(originalQ) == 0){
+        elements.push([originalQ, 'cliqz-ac-title-suggestion']);
+        elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+      } else {
+        elements.push([q, 'cliqz-ac-title-suggestion-extra']);
+      }
     } else {
       elements.push([q, 'cliqz-ac-title-suggestion']);
     }
