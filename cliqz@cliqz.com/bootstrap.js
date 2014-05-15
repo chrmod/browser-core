@@ -17,7 +17,8 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_DISABLE) eventLog('addon_disable');
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
-    CLIQZExtension.unload();
+    Extension.unload();
+    Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }
 
 function eventLog(ev){
@@ -26,7 +27,7 @@ function eventLog(ev){
         action: ev
     };
 
-    CLIQZExtension.track(action, true);
+    Extension.track(action, true);
 }
 
 function install(aData, aReason) {

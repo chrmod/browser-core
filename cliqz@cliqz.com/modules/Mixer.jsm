@@ -18,8 +18,10 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
         _log.logStringMessage('Mixer.jsm: ' + str);
     };
 
+CLIQZ.Utils.init();
+
 var Mixer = {
-	mix: function(history, cliqz, mixed, cache, maxResults){
+	mix: function(q, history, cliqz, mixed, suggestions, cache, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -58,10 +60,10 @@ var Mixer = {
 
                 if(!Result.isValid(label, urlparts)) {
                     // Assign to different buckets if the search string occurs in hostname
-                    if(urlparts.host.toLowerCase().indexOf(this.searchString) !=-1)
-                        bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, this.searchString));
+                    if(urlparts.host.toLowerCase().indexOf(q) !=-1)
+                        bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, q));
                     else
-                        bucketHistoryOther.push(Result.generic(style, value, image, comment, label, this.searchString));
+                        bucketHistoryOther.push(Result.generic(style, value, image, comment, label, q));
                 }
             }
         }
@@ -124,26 +126,26 @@ var Mixer = {
         // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
         /// 4) Show suggests if not enough results
-        if(this.searchString && results.length < maxResults &&
-            (results.length > 0 || (this.cliqzSuggestions || []).length > 0)){
+        if(q && results.length < maxResults &&
+            (results.length > 0 || (suggestions || []).length > 0)){
 
             results.push(
                     Result.generic(
                         Result.CLIQZS,
-                        this.searchString,
+                        q,
                         Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(this.searchString)
+                        CLIQZ.Utils.createSuggestionTitle(q)
                     )
                 );
         }
-        for(let i=0; i < (this.cliqzSuggestions || []).length && results.length < maxResults ; i++) {
-            if(this.cliqzSuggestions[i].toLowerCase() != this.searchString.toLowerCase()){
+        for(let i=0; i < (suggestions || []).length && results.length < maxResults ; i++) {
+            if(suggestions[i].toLowerCase() != q.toLowerCase()){
                 results.push(
                     Result.generic(
                         Result.CLIQZS,
-                        this.cliqzSuggestions[i],
+                        suggestions[i],
                         Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(this.cliqzSuggestions[i])
+                        CLIQZ.Utils.createSuggestionTitle(suggestions[i], null, q)
                     )
                 );
             }

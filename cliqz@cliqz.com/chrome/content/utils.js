@@ -251,7 +251,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   track: function(msg, instantPush) {
     CLIQZ.Utils.log(JSON.stringify(msg), 'Utils.track');
     if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
-    msg.UDID = CLIQZ.Utils.cliqzPrefs.getCharPref('UDID');
+    msg.session = CLIQZ.Utils.cliqzPrefs.getCharPref('session');
     msg.ts = (new Date()).getTime();
 
     CLIQZ.Utils.trk.push(msg);
@@ -413,14 +413,52 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return null;
   },
   // returns the suggestion title + target search engine
-  createSuggestionTitle: function(q, engine) {
+  createSuggestionTitle: function(q, engine, originalQ) {
     var elements = [];
 
     elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    elements.push([q, 'cliqz-ac-title-suggestion']);
+    if(originalQ && q.indexOf(originalQ) == 0){
+      elements.push([originalQ, 'cliqz-ac-title-suggestion']);
+      elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+    } else {
+      elements.push([q, 'cliqz-ac-title-suggestion']);
+    }
     elements.push([CLIQZ.Utils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
     elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
 
     return JSON.stringify(elements);
+  },
+  navigateToItem: function(gBrowser, index, item, actionType, newTab){
+      var action = {
+              type: 'activity',
+              action: actionType,
+              current_position: index
+          };
+      if(index != -1){
+          var value = item.getAttribute('url');
+
+          var source = item.getAttribute('source');
+          if(source.indexOf('action') > -1){
+              source = 'tab_result';
+          }
+          action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
+          action.search = CLIQZ.Utils.isSearch(value);
+          if(item.getAttribute('type') === 'cliqz-suggestions'){
+              value = Services.search.defaultEngine.getSubmission(value).uri.spec;
+          }
+          else if(value.indexOf('http') !== 0) value = 'http://' + value;
+
+          // TEMP - EXPERIMENTAL
+          //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
+          // ENDTEMP
+          CLIQZ.Core.locationChangeTO = setTimeout(function(){
+              if(newTab) gBrowser.addTab(value);
+              else gBrowser.selectedBrowser.contentDocument.location = value;
+
+          }, 500);
+
+          //}
+      }
+      CLIQZ.Utils.track(action);
   }
 };
