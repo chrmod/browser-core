@@ -70,7 +70,7 @@ def package(beta=False):
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not beta:
         with hide('output'):
-            local("git checkout master")
+            local("git checkout -f master")
             local("git stash apply")
 
     return output_file_name
