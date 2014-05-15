@@ -3,7 +3,36 @@ navigation-extension
 
 Firefox Navigation Browser extension
 
-#Settings
+# Packaging and publishing
+
+To generate a stable version from source run `fab package`. For the beta version
+run `fab package:beta=True`. These tasks will generate a .xpi addon file. The
+difference between them is that the stable version is generated from the latest
+git tag and the beta version from the latest commit (HEAD).
+
+The version is calculated from GIT tags. If we want to declare a commit stable
+we give it a tag with a higher version number than the previous one (e.g. if
+the last version was 0.4.08 we increment it to 0.4.09).
+
+The beta version will append .1bN to the end(N is the commit count from last
+stable version). If we made 5 commits from last stable tag (0.4.09) it will be
+0.4.09.1b5.
+
+NOTE: We should keep this format of specifying versions d.d.dd. This will allow
+us not to worry about automatic updates. Even if we land on AMO we are following
+all the versioning rules to have 2 channels (beta and stable) and we don't need
+to change anything.
+
+To publish a stable version to CDN run `fab publish`. For the beta version
+run `fab publish:beta=True`. This will package the extension. Generate a update
+manifest file that is used by installed extensions to check for newer versions.
+Upload the newer version to S3 and replace the manifest file with a newer one.
+
+This automatic versioning allows us to publish by mistake and not change anything
+because the stable version is always taken from a tag. If we don't explicitly tag
+something with a version it will only get shipped to beta users.
+
+# Settings
 
 1. Navigate to `about:config`
 2. Filter for `extensions.cliqz.`
@@ -19,7 +48,7 @@ Firefox Navigation Browser extension
     "bwFonts": false, // titles only in Black and white
 ```
 
-#Logging
+# Logging
 
 The extension sends the following list of data points
 
