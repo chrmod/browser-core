@@ -18,7 +18,6 @@
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
 		{% endif %}
 
-
 		<em:description>Cliqz hilft Dir beim Finden im Internet.
 
 ● Schnell - bei cliqz kommst Du direkt aus dem Browser zu Deinem Ziel
