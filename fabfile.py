@@ -25,11 +25,11 @@ def get_version(beta=False):
     appended to the end, where N is the number of commits from last tag (e.g.
     0.4.08.1b123)."""
 
-    full_version = local("git describe", capture=True)  # e.g. 0.4.08-2-gb4f9f56
+    full_version = local("git describe --tags", capture=True)  # e.g. 0.4.08-2-gb4f9f56
     version_parts = full_version.split("-")
     version = version_parts[0]
     if beta:
-        # If the nummber of commits after a tag is 0 the returned version have
+        # If the number of commits after a tag is 0 the returned versions have
         # no dashes (e.g. 0.4.08)
         try:
             version = version + ".1b" + version_parts[1]
@@ -42,6 +42,11 @@ def get_version(beta=False):
 def package(beta=False):
     """Package the extension as a .xpi file."""
     version = get_version(beta)
+
+    # If we are not doing a beta release we need to checkout the latest stable tag
+    if not beta:
+        local("git checkout %s" % (version))
+
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
     env = Environment(loader=FileSystemLoader('templates'))
@@ -62,13 +67,20 @@ def package(beta=False):
     # Delete generated file after packaging
     local("rm  %s" % install_manifest_path)
 
+    # If we checked out a earlier commit we need to go back to master/HEAD
+    if not beta:
+        local("git checkout master")
+
     return output_file_name
 
 
 @task
 def install_in_browser(beta=False):
-    """Install the extension in firefox. Firefox needs the Extension Auto-Installer add-on.
-       https://addons.mozilla.org/en-US/firefox/addon/autoinstaller/"""
+    """Install the extension in firefox.
+
+    Firefox needs the Extension Auto-Installer add-on.
+    https://addons.mozilla.org/en-US/firefox/addon/autoinstaller/"""
+
     output_file_name = package(beta)
     data = open(output_file_name).read()
     try:
