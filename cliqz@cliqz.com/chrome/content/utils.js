@@ -417,9 +417,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
     var elements = [];
 
     elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    if(originalQ && q.indexOf(originalQ) == 0){
-      elements.push([originalQ, 'cliqz-ac-title-suggestion']);
-      elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+    if(originalQ){
+      if(q.indexOf(originalQ) == 0){
+        elements.push([originalQ, 'cliqz-ac-title-suggestion']);
+        elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
+      } else {
+        elements.push([q, 'cliqz-ac-title-suggestion-extra']);
+      }
     } else {
       elements.push([q, 'cliqz-ac-title-suggestion']);
     }
@@ -434,6 +438,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
               action: actionType,
               current_position: index
           };
+
+      if(actionType == 'result_click')action.new_tab = true;
       if(index != -1){
           var value = item.getAttribute('url');
 

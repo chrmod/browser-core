@@ -103,14 +103,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.log('Initialized', 'CORE');
     },
     checkSession: function(){
-        if (CLIQZ.Utils.cliqzPrefs.getCharPref('session') == ''){
+        var prefs = CLIQZ.Utils.cliqzPrefs;
+        if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
             CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession(source));
+                    prefs.setCharPref('session', CLIQZ.Core.generateSession(source));
                 },
                 function error(){
-                    CLIQZ.Utils.cliqzPrefs.setCharPref('session', CLIQZ.Core.generateSession());
+                    prefs.setCharPref('session', CLIQZ.Core.generateSession());
                 }
             );
 
@@ -200,6 +201,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var action = {
             type: 'activity',
             action: 'result_click',
+            new_tab: false,
             current_position: pos,
             position_type: source.replace('-', '_').replace('tag', 'bookmark'),
             search: CLIQZ.Utils.isSearch(item.getAttribute('url'))
