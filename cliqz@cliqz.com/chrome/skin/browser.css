@@ -274,7 +274,7 @@
 }
 
 .button-cliqz:hover {
-  background: url(chrome://cliqzres/content/skin/visited.gif) no-repeat center center;
+  background: url(chrome://cliqzres/content/skin/popout_icon.png) no-repeat center center;
 }
 .button-cliqz:hover .cliqz-ac-logo-icon {
   background: none;
