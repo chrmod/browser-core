@@ -16,7 +16,7 @@ the last version was 0.4.08 we increment it to 0.4.09).
 ```
 NOTE: In default git remote configuration you have to push tags explicitly.
 It is recommended to push single tags that we added with `git push <remote> tag <tagname>`.
-Tags get fetched automatically from remote repos.
+We should also explicitly get tags from remote repositories with `git fetch <remote> --tags`.
 ```
 The beta version will append .1bN to the end (N is the commit count from last
 stable version). If we made 5 commits from last stable tag (0.4.09) it will be
