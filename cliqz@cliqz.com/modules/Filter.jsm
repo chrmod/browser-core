@@ -165,7 +165,7 @@ var Filter = {
         return [domain, domain + path, domain + title];
     },
     cleanMozillaActions: function(url){
-        if(url.startsWith("moz-action:")) {
+        if(url.indexOf("moz-action:") == 0) {
             var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
             url = param;
         }

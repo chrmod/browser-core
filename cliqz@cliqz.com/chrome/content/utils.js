@@ -93,7 +93,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return Math.floor(new Date().getTime() / 86400000);
   },
   cleanMozillaActions: function(url){
-    if(url.startsWith("moz-action:")) {
+    if(url.indexOf("moz-action:") == 0) {
         var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
         url = param;
     }
