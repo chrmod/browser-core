@@ -250,7 +250,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var val = CLIQZ.Core.urlbar.value.trim(),
             lastQ = Autocomplete.lastSearch.trim();
 
-        if(lastQ && val && CLIQZ.Utils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
+        if(lastQ && val && !CLIQZ.Utils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);
             CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
         } else {
