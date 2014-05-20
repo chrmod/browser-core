@@ -134,9 +134,9 @@ CLIQZ.Core = CLIQZ.Core || {
                + '|' +
                (source || 'NONE');
     },
-    returnToLastSearch: function () {
-        CLIQZ.Core.urlbar.mInputField.focus()
-        CLIQZ.Core.urlbar.mInputField.setUserInput(Autocomplete.lastSearch);
+    returnToLastSearch: function (ev) {
+        CLIQZ.Core.urlbar.mInputField.focus();
+        CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.query);
 
         var action = {
             type: 'activity',
@@ -189,7 +189,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.init();
     },
     tabChange: function(ev){
-        CLIQZ.Utils.log(ev.target.linkedPanel, 'LALA');
+        //clean last search to avoid conflicts
+        Autocomplete.lastSearch = '';
 
         if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
@@ -242,8 +243,8 @@ CLIQZ.Core = CLIQZ.Core || {
         return base.indexOf(candidate) == 0;
     },
     lastQuery: function(){
-        var val = CLIQZ.Core.urlbar.value,
-            lastQ = Autocomplete.lastSearch;
+        var val = CLIQZ.Core.urlbar.value.trim(),
+            lastQ = Autocomplete.lastSearch.trim();
 
         if(lastQ && val && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);
@@ -256,10 +257,13 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
     },
     showLastQuery: function(q){
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + q;
+        var lastQContainer = CLIQZ.Core.urlbarCliqzLastSearchContainer;
+        lastQContainer.className = 'cliqz-urlbar-Last-search';
+        lastQContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + q;
+        lastQContainer.tooltipText = q;
+        lastQContainer.query = q;
     },
-    urlbarblur: function() {
+    urlbarblur: function(ev) {
         CLIQZ.Core.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
     },

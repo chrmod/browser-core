@@ -330,6 +330,9 @@
   margin: 1px;
   padding: 1px 5px;
   border-radius: 1px;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 #right-cliqz {
