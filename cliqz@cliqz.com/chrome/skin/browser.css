@@ -335,6 +335,22 @@
   overflow: hidden;
 }
 
+.cliqz-urlbar-message-search {
+    font-family: Verdana, Geneva, sans-serif;
+    color: DimGray;
+    margin: 1px;
+    padding: 1px 5px;
+    border-radius: 1px;
+}
+
+.cliqz-urlbar-message-navigate {
+    font-family: Verdana, Geneva, sans-serif;
+    color: OliveDrab;
+    margin: 1px;
+    padding: 1px 5px;
+    border-radius: 1px;
+}
+
 #right-cliqz {
   display: none;
 }
