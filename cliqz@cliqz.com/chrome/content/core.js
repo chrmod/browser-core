@@ -218,6 +218,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarblur: function() {
         CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + Autocomplete.lastSearch;
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
