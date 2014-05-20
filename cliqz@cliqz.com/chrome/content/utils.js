@@ -466,5 +466,62 @@ CLIQZ.Utils = CLIQZ.Utils || {
           //}
       }
       CLIQZ.Utils.track(action);
+  },
+  performance: {
+    backend: function(delay){
+        var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
+            reqtimes = {}, statistics = [];
+
+        function send_test(){
+          var start = 1000;
+          for(var word in INPUT){
+            var t = ''
+            for(var key in INPUT[word]){
+              t+=INPUT[word][key];
+              CLIQZ.Utils.log(t, 'PERFORMANCE');
+              setTimeout(function(t){
+                reqtimes[t] = new Date();
+                CLIQZ.Utils.getCachedResults(t, receive_test)
+              }, start, t);
+
+              start += delay || (150 + (Math.random() * 100));
+            }
+          }
+          setTimeout(function(){
+            var stats =[0, 0, 0, 0];
+            for(var i=0; i < statistics.length; i++){
+                for(var j=0; j<4; j++) stats[j] += statistics[i][j];
+            }
+            for(var j=0; j<4; j++) stats[j] = (stats[j] / statistics.length).toFixed(2);
+            CLIQZ.Utils.log(' ', 'PERFORMANCE');
+            CLIQZ.Utils.log('RESULT', 'PERFORMANCE');
+            CLIQZ.Utils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
+            CLIQZ.Utils.log(stats.join(' \t \t '), 'PERFORMANCE');
+          }, start);
+          CLIQZ.Utils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
+        }
+
+        function receive_test(ev){
+          var end = new Date(),
+            r = JSON.parse(ev.response),
+            q = r['cache'][0]['q'],
+            end1 = new Date();
+
+          var elapsed = Math.round(end - reqtimes[q]);
+
+          var point = [
+              elapsed,
+              Math.round(r.duration),
+              Math.round(r._suggestions),
+              Math.round(r._bulk_snippet_duration),
+              q
+            ]
+          statistics.push(point);
+
+          CLIQZ.Utils.log(point.join(' \t\t '), 'PERFORMANCE');
+        }
+
+        send_test()
+    }
   }
 };
