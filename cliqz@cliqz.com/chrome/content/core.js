@@ -58,7 +58,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
 
-        CLIQZ.Core.popup.addEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
+        CLIQZ.Core._onpopuphiding = CLIQZ.Core.popup.getAttribute('onpopuphiding');
+        CLIQZ.Core.popup.setAttribute('onpopuphiding',
+            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
+
 
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
@@ -141,7 +144,6 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
-        return;
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(CLIQZ.Utils.TUTORIAL_URL, CLIQZ.Utils.INSTAL_URL, onlyReuse);
@@ -160,7 +162,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', CLIQZ.Core._autocompletesearch);
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', CLIQZ.Core._autocompletepopup);
-        CLIQZ.Core.urlbar.removeEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
+        CLIQZ.Core.popup.setAttribute('onpopuphiding', CLIQZ.Core._onpopuphiding);
 
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -209,16 +211,29 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Utils.track(action);
     },
-    onPopupHiding:function(){
-        CLIQZ.Core.popupEvent(false);
-    },
     urlbarfocus: function() {
         CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
         CLIQZ.Core.urlbarEvent('focus');
     },
+    isAutocomplete: function(base, candidate){
+        if(base.indexOf('://') !== -1){
+           base = base.split('://')[1];
+        }
+        base = base.replace('www.', '');
+
+        return base.indexOf(candidate) == 0;
+    },
+    lastQuery: function(){
+        var val = CLIQZ.Core.urlbar.value,
+            lastQ = Autocomplete.lastSearch;
+
+        if(lastQ && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
+            CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
+            CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + lastQ;
+        }
+    },
     urlbarblur: function() {
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + Autocomplete.lastSearch;
+        CLIQZ.Core.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
