@@ -19,6 +19,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    lastQueryInTab:{},
     init: function(){
         CLIQZ.Utils.init();
 
@@ -89,6 +90,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
         CLIQZ.Core.elem.push(cliqzLastSearch);
 
+        // browser handlers
+        gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
@@ -98,7 +102,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getSuggestions();
 
         Autocomplete.init();
-
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -172,6 +175,9 @@ CLIQZ.Core = CLIQZ.Core || {
         var searchContainer = document.getElementById('search-container');
         searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
 
+        gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
+
         // restore preferences
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
@@ -181,6 +187,18 @@ CLIQZ.Core = CLIQZ.Core || {
     restart: function(){
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
+    },
+    tabChange: function(ev){
+        CLIQZ.Utils.log(ev.target.linkedPanel, 'LALA');
+
+        if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
+            CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
+        else CLIQZ.Core.hideLastQuery();
+
+        CLIQZ.Utils.log(ev);
+    },
+    tabRemoved: function(ev){
+        delete CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel];
     },
     popupEvent: function(open) {
         var action = {
@@ -212,7 +230,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.track(action);
     },
     urlbarfocus: function() {
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
+        CLIQZ.Core.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
     isAutocomplete: function(base, candidate){
@@ -227,10 +245,19 @@ CLIQZ.Core = CLIQZ.Core || {
         var val = CLIQZ.Core.urlbar.value,
             lastQ = Autocomplete.lastSearch;
 
-        if(lastQ && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
-            CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
-            CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + lastQ;
+        if(lastQ && val && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
+            CLIQZ.Core.showLastQuery(lastQ);
+            CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+        } else {
+            delete CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
         }
+    },
+    hideLastQuery: function(){
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
+    },
+    showLastQuery: function(q){
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + q;
     },
     urlbarblur: function() {
         CLIQZ.Core.lastQuery();
@@ -410,8 +437,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         let urlBar = CLIQZ.Core.urlbar,
             endPoint = urlBar.value.length;
-
-
 
         if(firstResult.indexOf('://') !== -1){
            firstResult = firstResult.split('://')[1];
