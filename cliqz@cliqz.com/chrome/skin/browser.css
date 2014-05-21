@@ -55,6 +55,10 @@
   width: 10px;
 }
 
+.cliqz-separator-engines {
+  width: 80px;
+}
+
 .cliqz-url-box {
   margin: 0px;
   padding: 0px;
@@ -162,6 +166,39 @@
   color: #333333;
   font-weight: 500;
   font-style: italic;
+}
+
+.cliqz-ac-engine-container {
+  border: 0px;
+  margin: 0px;
+  border-right: 3px;
+  border-style: solid;
+  border-color: #cccccc;
+}
+
+.cliqz-ac-engine {
+  padding: 4px;
+  margin: 4px;
+}
+
+.cliqz-ac-engine-default {
+  border: 1px solid #cccccc;
+}
+
+.cliqz-ac-engine:hover {
+  background-color: lightgrey;
+  cursor: pointer;
+}
+
+.cliqz-ac-engine-source {
+  width: 25px;
+  height: 31px;
+  margin-right: 2px;
+  border-left: 5px solid #cccccc;
+  background-image: url(chrome://cliqzres/content/skin/search-black.png);
+  background-size: 14px 14px;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .cliqz-ac-title-suggestion-extra {

@@ -2,6 +2,7 @@
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
+    XULNS: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
     _appendCurrentResult: function (popup) {
         var controller = popup.mInput.controller;
         var matchCount = popup._matchCount;
@@ -81,6 +82,50 @@ CLIQZ.Components = CLIQZ.Components || {
 
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
+    },
+    cliqzCreateSearchOptionsItem: function(core, others){
+        var engines = CLIQZ.Utils.getSearchEngines();
+
+        for(var name in engines){
+            var engine = engines[name],
+                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image');
+
+            imageEl.setAttribute('src', engine.icon);
+            imageEl.className = 'cliqz-ac-engine' + (engine.default? ' cliqz-ac-engine-default':'');
+            imageEl.tooltipText = name;
+            imageEl.engine = name;
+
+            if(engine.core){
+                core.appendChild(imageEl);
+            } else {
+                others.appendChild(imageEl);
+            }
+        }
+    },
+    engineClick: function(ev){
+        if(ev && ev.target && ev.target.engine){
+            var engine;
+            if(engine = Services.search.getEngineByName(ev.target.engine)){
+                var urlbar = CLIQZ.Core.urlbar,
+                    userInput = urlbar.value;
+
+                // avoid autocompleted urls
+                if(urlbar.selectionStart &&
+                   urlbar.selectionEnd &&
+                   urlbar.selectionStart != urlbar.selectionEnd){
+                    userInput = userInput.slice(0, urlbar.selectionStart);
+                }
+
+                var url = engine.getSubmission(userInput).uri.spec;
+
+                if(ev.metaKey || ev.ctrlKey){
+                    gBrowser.addTab(url);
+                } else {
+                    gBrowser.selectedBrowser.contentDocument.location = url;
+                    CLIQZ.Core.popup.closePopup();
+                }
+            }
+        }
     },
     cliqzEnhancements: function (item) {
         // add here all the custom UI elements for an item

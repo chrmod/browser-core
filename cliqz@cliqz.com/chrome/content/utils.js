@@ -384,12 +384,21 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
 
   getSearchEngines: function(){
+    var CORE_ENGINES = {
+      'Google': true,
+      'Bing': true,
+      'Yahoo': true
+    };
+
     var engines = {};
     for(var engine of Services.search.getEngines()){
       engines[engine.name] = {
         prefix: '#' + engine.name.substring(0,2).toLowerCase() + ' ',
         name: engine.name,
-        getSubmission: engine.getSubmission
+        getSubmission: engine.getSubmission,
+        icon: engine.iconURI.spec,
+        core: CORE_ENGINES[engine.name],
+        default: Services.search.defaultEngine.name == engine.name
       }
     }
     return engines;

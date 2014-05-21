@@ -14,23 +14,9 @@
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <content ignorekeys="true" level="top" consumeoutsideclicks="false">
-        <xul:hbox flex="1">
+        <xul:vbox flex="1">
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
-          <xul:hbox id="right-cliqz">
-            <xul:hbox flex="1">
-              <xul:button label="Google" anonid="button-google"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-            <xul:hbox flex="1">
-              <xul:button label="Amazon" anonid="button-amazon"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-            <xul:hbox flex="1">
-              <xul:button label="Wiki" anonid="button-wiki"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-          </xul:hbox>
-        </xul:hbox>
+        </xul:vbox>
     </content>
 
     <implementation >
@@ -68,14 +54,44 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
-          CLIQZ.Components._appendCurrentResult(this);
-        ]]>
+            CLIQZ.Components._appendCurrentResult(this);
+          ]]>
         </body>
       </method>
     </implementation>
   </binding>
 
   <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+    <content>
+      <children includes="listheader"/>
+      <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box"
+                     flex="1" style="overflow: auto;" xbl:inherits="dir,pack">
+        <xul:vbox>
+          <children/>
+        </xul:vbox>
+
+        <xul:hbox flex="1" class="cliqz-ac-engine-container">
+          <xul:hbox class="cliqz-ac-engine-source">
+          </xul:hbox>
+          <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);">
+            <html:span></html:span>
+            <xul:hbox anonid="engines-core"></xul:hbox>
+            <xul:spacer class="cliqz-separator-engines"/>
+            <xul:hbox anonid="engines-others"></xul:hbox>
+          </xul:hbox>
+        </xul:hbox>
+      </xul:scrollbox>
+    </content>
+    <implementation>
+      <constructor>
+        <![CDATA[
+          var core = document.getAnonymousElementByAttribute(this, "anonid", "engines-core"),
+              others = document.getAnonymousElementByAttribute(this, "anonid", "engines-others");
+
+          CLIQZ.Components.cliqzCreateSearchOptionsItem(core, others);
+        ]]>
+      </constructor>
+    </implementation>
     <handlers>
       <handler event="mouseup">
         <![CDATA[
