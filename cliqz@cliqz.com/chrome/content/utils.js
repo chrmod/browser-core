@@ -2,6 +2,11 @@
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Language',
+  'chrome://cliqzmodules/content/Language.jsm');
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
@@ -39,6 +44,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
+
   },
   httpHandler: function(method, url, callback, onerror, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -180,7 +186,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q) + Language.stateToQueryString(),
                                     function(res){
                                       callback && callback(res, q);
                                     });
@@ -188,7 +194,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _resultsReq: null,
   getCachedResults: function(q, callback){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q),
+    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
