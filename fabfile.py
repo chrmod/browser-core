@@ -98,25 +98,36 @@ def install_in_browser(beta=False):
 def publish(beta=False):
     """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
     update_manifest_file_name = "latest.rdf"
+    latest_html_file_name = "latest.html"
     output_file_name = package(beta)
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta else PATH_TO_S3_BUCKET
     local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
-    template = env.get_template(update_manifest_file_name)
+    manifest_template = env.get_template(update_manifest_file_name)
     version = get_version()
     if beta:
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
     else:
         download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
-    output_from_parsed_template = template.render(version=version,
-                                                  download_link=download_link)
+    output_from_parsed_template = manifest_template.render(version=version,
+                                                           download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (update_manifest_file_name,
                                                           path_to_s3))
-    # Delete generated file after upload
     local("rm  %s" % update_manifest_file_name)
+
+    # Provide a link to the latest stable version
+    if not beta:
+        latest_template = env.get_template(latest_html_file_name)
+        output_from_parsed_template = latest_template.render(download_link=download_link)
+        with open(latest_html_file_name, "wb") as f:
+            f.write(output_from_parsed_template.encode("utf-8"))
+        local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
+                                                path_to_s3))
+        local("rm  %s" % latest_html_file_name)
+
 
 
 @task
