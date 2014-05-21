@@ -116,7 +116,6 @@ def publish(beta=False):
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (update_manifest_file_name,
                                                           path_to_s3))
-    # Delete generated manifest file after upload
     local("rm  %s" % update_manifest_file_name)
 
     # Provide a link to the latest stable version
@@ -127,6 +126,8 @@ def publish(beta=False):
             f.write(output_from_parsed_template.encode("utf-8"))
         local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
                                                 path_to_s3))
+        local("rm  %s" % latest_html_file_name)
+
 
 
 @task
