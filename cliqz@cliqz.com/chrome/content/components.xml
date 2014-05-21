@@ -73,7 +73,7 @@
         <xul:hbox flex="1" class="cliqz-ac-engine-container">
           <xul:hbox class="cliqz-ac-engine-source">
           </xul:hbox>
-          <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);">
+          <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" >
             <html:span></html:span>
             <xul:hbox anonid="engines-core"></xul:hbox>
             <xul:spacer class="cliqz-separator-engines"/>
