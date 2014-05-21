@@ -381,8 +381,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
     while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
         //win.CLIQZ.Core.restart();
-        win.CLIQZ.Core.destroy();
-        win.CLIQZ.Core.init();
+        if(win.CLIQZ && win.CLIQZ.Core){
+          win.CLIQZ.Core.destroy();
+          win.CLIQZ.Core.init();
+        }
     }
   },
   isWindows: function(){
