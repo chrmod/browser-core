@@ -7,7 +7,6 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
-
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
@@ -186,7 +185,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
-
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
     CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q) + Language.stateToQueryString(),
                                     function(res){
@@ -195,7 +193,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   _resultsReq: null,
   getCachedResults: function(q, callback){
-
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
@@ -229,7 +226,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   isPrivate: function(window) {
     try {
           // Firefox 20+
-          Components.utils.import('resourxce://gre/modules/PrivateBrowsingUtils.jsm');
+          Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
           return PrivateBrowsingUtils.isWindowPrivate(window);
         } catch(e) {
           // pre Firefox 20 (if you do not have access to a doc.

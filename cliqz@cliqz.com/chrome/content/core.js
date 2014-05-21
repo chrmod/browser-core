@@ -11,8 +11,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
-
-
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -25,7 +23,6 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
     init: function(){
         CLIQZ.Utils.init();
-
 
         var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?rand='+Math.random());
         CLIQZ.Core.elem.push(css);
@@ -111,8 +108,6 @@ CLIQZ.Core = CLIQZ.Core || {
             Language.init(window);
             window.gBrowser.addProgressListener(Language.listener);
         }
-
-
 
     },
     checkSession: function(){
