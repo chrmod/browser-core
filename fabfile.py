@@ -125,8 +125,8 @@ def publish(beta=False):
         output_from_parsed_template = latest_template.render(download_link=download_link)
         with open(latest_html_file_name, "wb") as f:
             f.write(output_from_parsed_template.encode("utf-8"))
-        local("s3cmd -m 'text/rdf' --acl-public put %s %s" % (latest_html_file_name,
-                                                              path_to_s3))
+        local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
+                                                path_to_s3))
 
 
 @task
