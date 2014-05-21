@@ -186,7 +186,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q) + Language.stateToQueryString(),
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
                                     function(res){
                                       callback && callback(res, q);
                                     });
