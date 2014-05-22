@@ -88,21 +88,20 @@ CLIQZ.Components = CLIQZ.Components || {
 
         for(var name in engines){
             var engine = engines[name],
-                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image'),
+                nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span'),
                 separator = document.createElementNS(CLIQZ.Components.XULNS, 'spacer');
 
-            imageEl.setAttribute('src', engine.icon);
-            imageEl.className = 'cliqz-ac-engine' + (engine.default? ' cliqz-ac-engine-default':'');
-            imageEl.tooltipText = name;
-            imageEl.engine = name;
+            nameEl.className = 'cliqz-engine' + (engine.default? ' cliqz-engine-default':'');
+            nameEl.textContent = name;
+            nameEl.engine = name;
 
             separator.className = 'cliqz-separator-inter-engines';
 
             if(engine.core){
-                core.appendChild(imageEl);
+                core.appendChild(nameEl);
                 core.appendChild(separator);
             } else {
-                others.appendChild(imageEl);
+                others.appendChild(nameEl);
                 others.appendChild(separator);
             }
         }

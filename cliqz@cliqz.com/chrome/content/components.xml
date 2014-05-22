@@ -66,18 +66,18 @@
       <children includes="listheader"/>
       <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box"
                      flex="1" style="overflow: auto;" xbl:inherits="dir,pack">
-        <xul:vbox>
+        <xul:vbox flex="1">
           <children/>
         </xul:vbox>
 
-        <xul:hbox flex="1" class="cliqz-ac-engine-container">
-          <xul:hbox class="cliqz-ac-engine-source">
+        <xul:hbox class="cliqz-engine-container">
+          <xul:hbox class="cliqz-engine-source">
           </xul:hbox>
           <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" >
-            <html:span></html:span>
-            <xul:hbox anonid="engines-core"></xul:hbox>
-            <xul:spacer class="cliqz-separator-engines"/>
-            <xul:hbox anonid="engines-others"></xul:hbox>
+            <xul:hbox class="cliqz-engines-text">Weitere resultate auf:</xul:hbox>
+            <xul:hbox anonid="engines-core" />
+            <xul:hbox align="center" flex="1"/>
+            <xul:hbox anonid="engines-others" style="margin-right: 10px;" />
           </xul:hbox>
         </xul:hbox>
       </xul:scrollbox>
