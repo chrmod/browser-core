@@ -165,11 +165,7 @@
 }
 
 .cliqz-engine-container {
-  border: 0px;
-  margin: 0px;
-  border-right: 3px;
-  border-style: solid;
-  border-color: #cccccc;
+  -moz-appearance: -moz-window-titlebar;
 }
 
 .cliqz-engines-text {
@@ -193,6 +189,7 @@
   padding: 0 5px;
   margin: 5px 5px;
   height: 21px;
+  background-color: white;
 }
 
 .cliqz-engine-default {
