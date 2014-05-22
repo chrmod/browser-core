@@ -204,7 +204,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
         else CLIQZ.Core.hideLastQuery();
 
-        CLIQZ.Utils.log(ev);
+
     },
     tabRemoved: function(ev){
         delete CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel];
@@ -254,7 +254,9 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.showLastQuery(lastQ);
             CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
         } else {
-            delete CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+            // remove last query if the user ended his search session
+            if(CLIQZ.Utils.isUrl(lastQ))
+                delete CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
         }
     },
     hideLastQuery: function(){
