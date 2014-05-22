@@ -462,16 +462,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
           }
           else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
-          // TEMP - EXPERIMENTAL
-          //if(CLIQZ.Utils.cliqzPrefs.getBoolPref('pagePreload')){
-          // ENDTEMP
-          CLIQZ.Core.locationChangeTO = setTimeout(function(){
-              if(newTab) gBrowser.addTab(value);
-              else gBrowser.selectedBrowser.contentDocument.location = value;
+          if(actionType == 'result_click'){ // do not navigate on keyboard navigation
+            CLIQZ.Core.locationChangeTO = setTimeout(function(){
+                if(newTab) gBrowser.addTab(value);
+                else gBrowser.selectedBrowser.contentDocument.location = value;
 
-          }, 500);
-
-          //}
+            }, 0);
+          }
       }
       CLIQZ.Utils.track(action);
   },
