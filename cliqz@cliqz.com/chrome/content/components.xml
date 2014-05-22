@@ -13,12 +13,12 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="160" maxheight="352">
         <xul:vbox flex="1">
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
           <xul:vbox height="1px" style="background-color: #e0e0e0; overflow: hidden;">
             <xul:resizer dir="bottom" height="1px" style="cursor: s-resize;"
-              oncommand="CLIQZ.Utils.cliqzPrefs.setIntPref('popupHeight', CLIQZ.Core.popup.height); "/>
+              oncommand="CLIQZ.Core.updatePopupHeight();"/>
           </xul:vbox>
         </xul:vbox>
     </content>

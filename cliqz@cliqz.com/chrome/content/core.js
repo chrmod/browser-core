@@ -209,6 +209,13 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
     },
+    updatePopupHeight: function(){
+
+        var newHeight = Math.min(Math.max(CLIQZ.Core.popup.height, 160), 352);
+
+        CLIQZ.Utils.cliqzPrefs.setIntPref('popupHeight', newHeight);
+        CLIQZ.Core.popup.style.maxHeight = newHeight;
+    },
     tabChange: function(ev){
         //clean last search to avoid conflicts
         Autocomplete.lastSearch = '';
