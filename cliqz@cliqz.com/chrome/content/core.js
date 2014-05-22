@@ -21,6 +21,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    lastQueryInTab:{},
     init: function(){
         CLIQZ.Utils.init();
 
@@ -60,7 +61,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
 
-        CLIQZ.Core.popup.addEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
+        CLIQZ.Core._onpopuphiding = CLIQZ.Core.popup.getAttribute('onpopuphiding');
+        CLIQZ.Core.popup.setAttribute('onpopuphiding',
+            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
+
 
         var searchContainer = document.getElementById('search-container');
         CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
@@ -73,6 +77,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
+        var urlbarIcons = document.getElementById('urlbar-icons');
         // add cliqz last search
         var cliqzLastSearch = document.createElement('hbox');
         // FIXME: We should find another way to deal with events that take time
@@ -83,11 +88,21 @@ CLIQZ.Core = CLIQZ.Core || {
 
         cliqzLastSearch.className = 'hidden';  // Hide on start
         cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
-        var sibling = document.getElementById('urlbar-icons');
-        sibling.parentNode.insertBefore(cliqzLastSearch, sibling);
+
+        urlbarIcons.parentNode.insertBefore(cliqzLastSearch, urlbarIcons);
         CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
         CLIQZ.Core.elem.push(cliqzLastSearch);
 
+        // los and suchen
+        var cliqzMessage = document.createElement('hbox');
+        urlbarIcons.parentNode.insertBefore(cliqzMessage, urlbarIcons);
+        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
+        CLIQZ.Core.elem.push(cliqzMessage);
+
+
+        // browser handlers
+        gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
@@ -135,9 +150,9 @@ CLIQZ.Core = CLIQZ.Core || {
                + '|' +
                (source || 'NONE');
     },
-    returnToLastSearch: function () {
-        CLIQZ.Core.urlbar.mInputField.focus()
-        CLIQZ.Core.urlbar.mInputField.setUserInput(Autocomplete.lastSearch);
+    returnToLastSearch: function (ev) {
+        CLIQZ.Core.urlbar.mInputField.focus();
+        CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.query);
 
         var action = {
             type: 'activity',
@@ -148,7 +163,6 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
-        return;
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(CLIQZ.Utils.TUTORIAL_URL, CLIQZ.Utils.INSTAL_URL, onlyReuse);
@@ -167,7 +181,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', CLIQZ.Core._autocompletesearch);
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', CLIQZ.Core._autocompletepopup);
-        CLIQZ.Core.urlbar.removeEventListener('onpopuphiding', CLIQZ.Core.onPopupHiding);
+        CLIQZ.Core.popup.setAttribute('onpopuphiding', CLIQZ.Core._onpopuphiding);
 
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -176,6 +190,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         var searchContainer = document.getElementById('search-container');
         searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
+
+        gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         // restore preferences
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
@@ -191,6 +208,19 @@ CLIQZ.Core = CLIQZ.Core || {
     restart: function(){
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
+    },
+    tabChange: function(ev){
+        //clean last search to avoid conflicts
+        Autocomplete.lastSearch = '';
+
+        if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
+            CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
+        else CLIQZ.Core.hideLastQuery();
+
+        CLIQZ.Utils.log(ev);
+    },
+    tabRemoved: function(ev){
+        delete CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel];
     },
     popupEvent: function(open) {
         var action = {
@@ -221,15 +251,45 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Utils.track(action);
     },
-    onPopupHiding:function(){
-        CLIQZ.Core.popupEvent(false);
+    isAutocomplete: function(base, candidate){
+        if(base.indexOf('://') !== -1){
+           base = base.split('://')[1];
+        }
+        base = base.replace('www.', '');
+
+        return base.indexOf(candidate) == 0;
+    },
+    lastQuery: function(){
+        var val = CLIQZ.Core.urlbar.value.trim(),
+            lastQ = Autocomplete.lastSearch.trim();
+
+        if(lastQ && val && !CLIQZ.Utils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
+            CLIQZ.Core.showLastQuery(lastQ);
+            CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+        } else {
+            delete CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+        }
+    },
+    hideLastQuery: function(){
+        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
+    },
+    showLastQuery: function(q){
+        var lastQContainer = CLIQZ.Core.urlbarCliqzLastSearchContainer;
+        lastQContainer.className = 'cliqz-urlbar-Last-search';
+        lastQContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + q;
+        lastQContainer.tooltipText = q;
+        lastQContainer.query = q;
     },
     urlbarfocus: function() {
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
+        setTimeout(CLIQZ.Core.urlbarMessage, 20);
+        CLIQZ.Core.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
-    urlbarblur: function() {
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'cliqz-urlbar-Last-search';
+    urlbarblur: function(ev) {
+        CLIQZ.Core.lastQuery();
+        setTimeout(function(){
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
+        }, 25);
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
@@ -239,6 +299,20 @@ CLIQZ.Core = CLIQZ.Core || {
         };
 
         CLIQZ.Utils.track(action);
+    },
+    urlbarMessage: function() {
+        if(CLIQZ.Core.urlbar.value.length > 0){
+            if(/*CLIQZ.Core.popup.selectedIndex !== -1 ||*/
+                CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
+            } else {
+                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
+                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
+            }
+        } else {
+            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
+        }
     },
     whoAmI: function(startup){
         // schedule another signal
@@ -304,6 +378,7 @@ CLIQZ.Core = CLIQZ.Core || {
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
             let index = popup.selectedIndex,
@@ -398,6 +473,8 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){
+        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
+
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
