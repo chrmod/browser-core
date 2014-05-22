@@ -73,8 +73,8 @@
         <xul:vbox flex="1">
           <children/>
         </xul:vbox>
-
-        <xul:hbox class="cliqz-engine-container">
+      </xul:scrollbox>
+      <xul:hbox class="cliqz-engine-container">
           <xul:hbox class="cliqz-engine-source">
           </xul:hbox>
           <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" >
@@ -84,7 +84,6 @@
             <xul:hbox anonid="engines-others" style="margin-right: 10px;" />
           </xul:hbox>
         </xul:hbox>
-      </xul:scrollbox>
     </content>
     <implementation>
       <constructor>
