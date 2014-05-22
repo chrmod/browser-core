@@ -164,12 +164,17 @@
   font-style: italic;
 }
 
-.cliqz-ac-engine-container {
+.cliqz-engine-container {
   border: 0px;
   margin: 0px;
   border-right: 3px;
   border-style: solid;
   border-color: #cccccc;
+}
+
+.cliqz-engines-text {
+  padding: 0px 5px;
+  line-height: 32px;
 }
 
 .cliqz-separator-engines {
@@ -181,21 +186,25 @@
   border-left: 1px solid #cccccc;
 }
 
-.cliqz-ac-engine {
-  padding: 8px;
-  margin: 0px;
+.cliqz-engine {
+  line-height: 21px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  padding: 0 5px;
+  margin: 5px 5px;
+  height: 21px;
 }
 
-.cliqz-ac-engine-default {
-  background-color: Lavender ;
+.cliqz-engine-default {
+
 }
 
-.cliqz-ac-engine:hover {
+.cliqz-engine:hover {
   background-color: lightgrey;
   cursor: pointer;
 }
 
-.cliqz-ac-engine-source {
+.cliqz-engine-source {
   width: 25px;
   height: 25px;
   margin-right: 2px;
