@@ -508,11 +508,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
                     if(i <= suggestions.length - 1){ //not last one
                         for(var j=i+1; j < suggestions.length; j++){
-                            if(suggestions[j] && suggestions[j].className &&
-                                suggestions[j].className.indexOf('cliqz-suggestion') != -1){
-
-                                console.log(suggestions[j].offsetTop);
-                                //if(suggestions[j].top)
+                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
                                 suggestions[j].className += SEL;
                                 break;
                             }

@@ -18,6 +18,7 @@ CLIQZ.Components = CLIQZ.Components || {
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
             popup.suggestions.textContent = "";
+            popup.suggestions.pixels = 20 /* container padding */;
         }
         // CLIQZ END
 
@@ -28,7 +29,7 @@ CLIQZ.Components = CLIQZ.Components || {
 
             // CLIQZ START
             if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
-                CLIQZ.Components.addSuggestion(popup.suggestions, controller.getValueAt(popup._currentIndex));
+                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
                 popup._currentIndex++;
                 continue;
             }
@@ -94,14 +95,21 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(container, suggestion){
-        var nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+    addSuggestion: function(popup, suggestion){
+        var container = popup.suggestions,
+            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
 
         nameEl.className = 'cliqz-suggestion';
         nameEl.textContent = suggestion;
         nameEl.suggestion = suggestion;
 
         container.appendChild(nameEl);
+
+        container.pixels += nameEl.clientWidth + 10 /*padding*/ ;
+
+        //remove last child if it doesn't fit on one row
+        if(container.pixels > popup.mInput.clientWidth)
+            container.removeChild(container.lastChild);
     },
     suggestionClick: function(ev){
         if(ev && ev.target && ev.target.suggestion){
