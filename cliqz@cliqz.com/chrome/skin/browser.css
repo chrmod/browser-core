@@ -183,13 +183,20 @@
 }
 
 .cliqz-engine {
-  line-height: 21px;
-  border: 1px solid #cccccc;
-  border-radius: 5px;
-  padding: 0 5px;
-  margin: 5px 5px;
-  height: 21px;
-  background-color: white;
+  line-height: 16px;
+  margin: 8px 5px;
+  height: 16px;
+}
+
+.cliqz-engines {
+  margin-right: 10px;
+  width: 80px;
+  overflow: hidden;
+  transition: all 1s;
+}
+
+.cliqz-engines:hover {
+  width: 335px;
 }
 
 .cliqz-engine-default {
