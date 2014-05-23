@@ -9,12 +9,15 @@ CLIQZ.Components = CLIQZ.Components || {
         var existingItemsCount = popup.richlistbox.childNodes.length;
 
         // CLIQZ START
+        popup.suggestions = popup.suggestions || document.getAnonymousElementByAttribute(popup.richlistbox, "anonid", "cliqz-suggestions");
+
 
         // trim the leading/trailing whitespace
         var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
 
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
+            popup.suggestions.textContent = "";
         }
         // CLIQZ END
 
@@ -22,6 +25,14 @@ CLIQZ.Components = CLIQZ.Components || {
         for (let i = 0; i < popup.maxRows; i++) {
             if (popup._currentIndex >= matchCount)
                 return;
+
+            // CLIQZ START
+            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
+                CLIQZ.Components.addSuggestion(popup.suggestions, controller.getValueAt(popup._currentIndex));
+                popup._currentIndex++;
+                continue;
+            }
+            // CLIQZ END
 
             var item;
 
@@ -82,6 +93,25 @@ CLIQZ.Components = CLIQZ.Components || {
 
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
+    },
+    addSuggestion: function(container, suggestion){
+        var nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span'),
+            separator = document.createElementNS(CLIQZ.Components.XULNS, 'spacer');
+
+        nameEl.className = 'cliqz-engine';
+        nameEl.textContent = suggestion;
+        nameEl.suggestion = suggestion;
+
+        separator.className = 'cliqz-separator-inter-engines';
+
+        container.appendChild(nameEl);
+        container.appendChild(separator);
+    },
+    suggestionClick: function(ev){
+        if(ev && ev.target && ev.target.suggestion){
+            CLIQZ.Core.urlbar.mInputField.focus();
+            CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
+        }
     },
     cliqzCreateSearchOptionsItem: function(core, others){
         var engines = CLIQZ.Utils.getSearchEngines();

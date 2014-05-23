@@ -164,13 +164,18 @@
   font-style: italic;
 }
 
+.cliqz-suggestions-container {
+  -moz-appearance: -moz-window-titlebar;
+}
+
 .cliqz-engine-container {
   -moz-appearance: -moz-window-titlebar;
+  height: 31px;
 }
 
 .cliqz-engines-text {
   padding: 0px 5px;
-  line-height: 32px;
+  line-height: 31px;
 }
 
 .cliqz-separator-engines {
@@ -187,13 +192,14 @@
   border: 1px solid #cccccc;
   border-radius: 5px;
   padding: 0 5px;
-  margin: 5px 5px;
+  margin: 4px 5px;
   height: 21px;
   background-color: white;
 }
 
 .cliqz-engine-default {
-
+  border-color: green;
+  background-color: lightgrey;
 }
 
 .cliqz-engine:hover {
@@ -208,7 +214,7 @@
   border-left: 5px solid #cccccc;
   background-image: url(chrome://cliqzres/content/skin/search-black.png);
   background-size: 14px 14px;
-  background-position: center center;
+  background-position: 8px 8px;
   background-repeat: no-repeat;
 }
 
