@@ -95,17 +95,13 @@ CLIQZ.Components = CLIQZ.Components || {
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
     addSuggestion: function(container, suggestion){
-        var nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span'),
-            separator = document.createElementNS(CLIQZ.Components.XULNS, 'spacer');
+        var nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
 
-        nameEl.className = 'cliqz-engine';
+        nameEl.className = 'cliqz-suggestion';
         nameEl.textContent = suggestion;
         nameEl.suggestion = suggestion;
 
-        separator.className = 'cliqz-separator-inter-engines';
-
         container.appendChild(nameEl);
-        container.appendChild(separator);
     },
     suggestionClick: function(ev){
         if(ev && ev.target && ev.target.suggestion){

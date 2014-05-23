@@ -168,9 +168,27 @@
   -moz-appearance: -moz-window-titlebar;
 }
 
+.cliqz-suggestions-source {
+  width: 1px;
+  height: 30px;
+  margin-right: 10px;
+  border-left: 5px solid #cccccc;
+}
+
+.cliqz-suggestion {
+  font-style: italic;
+  border-radius: 5px;
+  padding: 0 5px 2px 5px;
+  margin: 6px 5px 0px 3px;
+}
+
+.cliqz-suggestion:hover, .cliqz-suggestion-default {
+  background-color: lightgrey;
+  cursor: pointer;
+}
+
 .cliqz-engine-container {
   -moz-appearance: -moz-window-titlebar;
-  height: 31px;
 }
 
 .cliqz-engines-text {

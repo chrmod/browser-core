@@ -390,25 +390,20 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(code == 13){
-            //suggestions
-
+            // update the urlbar if a suggestion is selected
             var suggestions = popup.suggestions.childNodes,
-                SEL = ' cliqz-engine-default';
+                SEL = ' cliqz-suggestion-default';
 
             for(var i in suggestions){
                 var s = suggestions[i];
 
-                if(s.className && s.className.indexOf('cliqz-engine') != -1 && s.className.indexOf(SEL) != -1){
+                if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                     CLIQZ.Core.urlbar.mInputField.setUserInput(s.suggestion);
 
                     ev.preventDefault();
                     return;
                 }
             }
-            // suggestions
-
-
-
 
             let index = popup.selectedIndex,
                 inputValue = CLIQZ.Core.urlbar.value,
@@ -500,39 +495,35 @@ CLIQZ.Core = CLIQZ.Core || {
             }
         }
 
-        if(code == 9) { //tab
-            CLIQZ.Utils.log('aaaaaa');
+        if(code == 9) { //tab - navigate through suggestions
+            ev.preventDefault();
+
             var suggestions = popup.suggestions.childNodes,
-                SEL = ' cliqz-engine-default';
+                SEL = ' cliqz-suggestion-default';
 
             for(var i =0; i < suggestions.length; i++){
                 var s = suggestions[i];
-                CLIQZ.Utils.log('i ' + i, 'TAB');
-                if(s.className && s.className.indexOf('cliqz-engine') != -1 && s.className.indexOf(SEL) != -1){
+                if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                     s.className = s.className.replace(SEL, '');
-
 
                     if(i <= suggestions.length - 1){ //not last one
                         for(var j=i+1; j < suggestions.length; j++){
-                            CLIQZ.Utils.log('j ' + j, 'TAB');
-                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-engine') != -1){
+                            if(suggestions[j] && suggestions[j].className &&
+                                suggestions[j].className.indexOf('cliqz-suggestion') != -1){
+
+                                console.log(suggestions[j].offsetTop);
+                                //if(suggestions[j].top)
                                 suggestions[j].className += SEL;
                                 break;
                             }
                         }
-                    } else {
-
                     }
 
-                    ev.preventDefault();
                     return;
                 }
             }
 
-            suggestions[0].className += ' cliqz-engine-default';
-
-
-            ev.preventDefault();
+            suggestions[0].className += ' cliqz-suggestion-default';
         }
     },
     // autocomplete query inline
