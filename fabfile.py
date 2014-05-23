@@ -43,6 +43,12 @@ def package(beta=False):
     """Package the extension as a .xpi file."""
     version = get_version(beta)
 
+    # If we are not doing a beta release we need to checkout the latest stable tag
+    if not beta:
+        with hide('output'):
+            local("git stash")
+            local("git checkout %s" % (version))
+
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
     env = Environment(loader=FileSystemLoader('templates'))
@@ -61,6 +67,11 @@ def package(beta=False):
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             local("mv  %s .." % output_file_name)  # Move back to root folder
 
+    # If we checked out a earlier commit we need to go back to master/HEAD
+    if not beta:
+        with hide('output'):
+            local("git checkout -f master")
+            local("git stash pop")
 
     return output_file_name
 
