@@ -9,6 +9,9 @@ Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 Cu.import('chrome://cliqzmodules/content/Mixer.jsm?r=' + Math.random());
 Cu.import('chrome://cliqzmodules/content/Result.jsm?r=' + Math.random());
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -174,6 +177,7 @@ var Autocomplete = Autocomplete || {
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         this.listener.onSearchResult(this, this.mixedResults);
+                        CliqzTimings.add("result", (new Date()).getTime() - this.startTime);
                         this.resultsTimer = null;
                         this.startTime = null;
                         this.cliqzResults = null;

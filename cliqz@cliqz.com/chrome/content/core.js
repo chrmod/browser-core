@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -259,6 +262,9 @@ CLIQZ.Core = CLIQZ.Core || {
                 CLIQZ.Utils.track(info);
             });
         });
+
+        CliqzTimings.send_log("result", 1000);
+        CliqzTimings.reset("result");
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){

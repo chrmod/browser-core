@@ -7,6 +7,9 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
