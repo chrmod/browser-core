@@ -14,7 +14,7 @@ var CliqzTimings = CliqzTimings || {
     },
     reset: function(name) {
         if(CliqzTimings.timings[name])
-            CliqzTimings.timing[name] = [];
+            CliqzTimings.timings[name] = [];
     },
     get_counts: function(name, max) {
         var num_buckets = 10;
