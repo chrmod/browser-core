@@ -164,13 +164,36 @@
   font-style: italic;
 }
 
+.cliqz-suggestions-container {
+  -moz-appearance: -moz-window-titlebar;
+}
+
+.cliqz-suggestions-source {
+  width: 1px;
+  height: 30px;
+  margin-right: 10px;
+  border-left: 5px solid #cccccc;
+}
+
+.cliqz-suggestion {
+  font-style: italic;
+  border-radius: 5px;
+  padding: 0 5px 2px 5px;
+  margin: 6px 5px 0px 3px;
+}
+
+.cliqz-suggestion:hover, .cliqz-suggestion-default {
+  background-color: lightgrey;
+  cursor: pointer;
+}
+
 .cliqz-engine-container {
   -moz-appearance: -moz-window-titlebar;
 }
 
 .cliqz-engines-text {
   padding: 0px 5px;
-  line-height: 32px;
+  line-height: 31px;
 }
 
 .cliqz-separator-engines {
@@ -201,7 +224,8 @@
 }
 
 .cliqz-engine-default {
-
+  border-color: green;
+  background-color: lightgrey;
 }
 
 .cliqz-engine:hover {
@@ -216,7 +240,7 @@
   border-left: 5px solid #cccccc;
   background-image: url(chrome://cliqzres/content/skin/search-black.png);
   background-size: 14px 14px;
-  background-position: center center;
+  background-position: 8px 8px;
   background-repeat: no-repeat;
 }
 

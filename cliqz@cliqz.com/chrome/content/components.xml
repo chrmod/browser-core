@@ -68,6 +68,13 @@
   <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
     <content>
       <children includes="listheader"/>
+        <xul:hbox class="cliqz-suggestions-container" style="overflow: hidden;">
+          <xul:hbox class="cliqz-suggestions-source">
+          </xul:hbox>
+          <xul:description flex="1" onclick="CLIQZ.Components.suggestionClick(event);" >
+            <xul:description anonid="cliqz-suggestions" style="margin: 0px;"/>
+          </xul:description>
+        </xul:hbox>
       <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box"
                      flex="1" style="overflow: auto;" xbl:inherits="dir,pack">
         <xul:vbox flex="1">
