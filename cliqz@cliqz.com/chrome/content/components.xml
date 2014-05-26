@@ -16,14 +16,26 @@
     <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="200" maxheight="390">
         <xul:vbox flex="1">
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
-          <xul:vbox height="1px" style="background-color: #e0e0e0; overflow: hidden;">
-            <xul:resizer dir="bottom" height="1px" style="cursor: s-resize;"
-              oncommand="CLIQZ.Core.updatePopupHeight();"/>
-          </xul:vbox>
+          <xul:hbox class="cliqz-engine-container">
+            <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" class="cliqz-footer">
+              <xul:hbox anonid="cliqz-navigation-message" class="cliqz-navigation-message" />
+              <xul:hbox height="1px" style="" flex="1">
+                <xul:resizer dir="bottom" height="1px" style="cursor: s-resize; opacity: 0.0" flex="1"
+                  oncommand="CLIQZ.Core.updatePopupHeight();"/>
+              </xul:hbox>
+              <xul:hbox anonid="other-engines" class="cliqz-engines" />
+            </xul:hbox>
+          </xul:hbox>
         </xul:vbox>
     </content>
 
     <implementation >
+       <constructor>
+        <![CDATA[
+          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines");
+          CLIQZ.Components.cliqzCreateSearchOptionsItem(engines);
+        ]]>
+      </constructor>
       <method name="_openAutocompletePopup">
         <parameter name="aInput"/>
         <parameter name="aElement"/>
@@ -81,25 +93,7 @@
           <children/>
         </xul:vbox>
       </xul:scrollbox>
-      <xul:hbox class="cliqz-engine-container">
-          <xul:hbox class="cliqz-engine-source">
-          </xul:hbox>
-          <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" >
-            <xul:hbox align="center" flex="1"/>
-            <xul:hbox anonid="engines-others" class="cliqz-engines" />
-          </xul:hbox>
-        </xul:hbox>
     </content>
-    <implementation>
-      <constructor>
-        <![CDATA[
-          var core = document.getAnonymousElementByAttribute(this, "anonid", "engines-core"),
-              others = document.getAnonymousElementByAttribute(this, "anonid", "engines-others");
-
-          CLIQZ.Components.cliqzCreateSearchOptionsItem(core, others);
-        ]]>
-      </constructor>
-    </implementation>
     <handlers>
       <handler event="mouseup">
         <![CDATA[

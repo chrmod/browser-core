@@ -196,6 +196,11 @@
   line-height: 31px;
 }
 
+.cliqz-navigation-message {
+  padding: 0px 5px;
+  line-height: 31px;
+}
+
 .cliqz-separator-engines {
   width: 80px;
   height: 0px;
@@ -231,17 +236,6 @@
 .cliqz-engine:hover {
   background-color: lightgrey;
   cursor: pointer;
-}
-
-.cliqz-engine-source {
-  width: 25px;
-  height: 25px;
-  margin-right: 2px;
-  border-left: 5px solid #cccccc;
-  background-image: url(chrome://cliqzres/content/skin/search-black.png);
-  background-size: 14px 14px;
-  background-position: 8px 8px;
-  background-repeat: no-repeat;
 }
 
 .cliqz-ac-title-suggestion-extra {
@@ -463,6 +457,10 @@
 .autocomplete-richlistitem[type="favicon"]{
 }
 
+
+.cliqz-footer {
+  background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 50% 50%;
+}
 
 /* misc */
 

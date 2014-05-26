@@ -10,8 +10,9 @@ CLIQZ.Components = CLIQZ.Components || {
 
         // CLIQZ START
         popup.suggestions = popup.suggestions || document.getAnonymousElementByAttribute(popup.richlistbox, "anonid", "cliqz-suggestions");
+        popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-
+        popup._cliqzMessage.textContent = matchCount + ' results in 3.6B documents';
         // trim the leading/trailing whitespace
         var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
 
@@ -117,13 +118,13 @@ CLIQZ.Components = CLIQZ.Components || {
             CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
         }
     },
-    cliqzCreateSearchOptionsItem: function(core, others){
+    cliqzCreateSearchOptionsItem: function(engineContainer){
         var engines = CLIQZ.Utils.getSearchEngines();
 
         var txt = document.createElementNS(CLIQZ.Components.XULNS, 'span');
         txt.textContent = 'noch mehr ...';
         txt.className = 'cliqz-engines-text';
-        others.appendChild(txt);
+        engineContainer.appendChild(txt);
 
         for(var name in engines){
             var engine = engines[name],
@@ -136,10 +137,10 @@ CLIQZ.Components = CLIQZ.Components || {
 
             separator.className = 'cliqz-separator-inter-engines';
 
-            others.appendChild(imageEl);
-            others.appendChild(separator);
+            engineContainer.appendChild(imageEl);
+            engineContainer.appendChild(separator);
         }
-        others.removeChild(others.lastChild);
+        engineContainer.removeChild(engineContainer.lastChild);
     },
     engineClick: function(ev){
         if(ev && ev.target && ev.target.engine){
