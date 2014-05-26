@@ -192,6 +192,7 @@
   margin-right: 10px;
   width: 80px;
   overflow: hidden;
+  border-left: 2px solid white;
   transition: all 1s;
 }
 
