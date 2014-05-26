@@ -78,10 +78,8 @@
           <xul:hbox class="cliqz-engine-source">
           </xul:hbox>
           <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" >
-            <xul:hbox class="cliqz-engines-text">Weitere resultate auf:</xul:hbox>
-            <xul:hbox anonid="engines-core" />
             <xul:hbox align="center" flex="1"/>
-            <xul:hbox anonid="engines-others" style="margin-right: 10px;" />
+            <xul:hbox anonid="engines-others" class="cliqz-engines" />
           </xul:hbox>
         </xul:hbox>
     </content>

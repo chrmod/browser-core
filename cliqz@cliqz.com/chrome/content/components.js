@@ -86,27 +86,25 @@ CLIQZ.Components = CLIQZ.Components || {
     cliqzCreateSearchOptionsItem: function(core, others){
         var engines = CLIQZ.Utils.getSearchEngines();
 
+        var txt = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+        txt.textContent = 'noch mehr ...';
+        txt.className = 'cliqz-engines-text';
+        others.appendChild(txt);
+
         for(var name in engines){
             var engine = engines[name],
-                nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span'),
+                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image'),
                 separator = document.createElementNS(CLIQZ.Components.XULNS, 'spacer');
 
-            nameEl.className = 'cliqz-engine' + (engine.default? ' cliqz-engine-default':'');
-            nameEl.textContent = name;
-            nameEl.engine = name;
+            imageEl.className = 'cliqz-engine' + (engine.default? ' cliqz-engine-default':'');
+            imageEl.setAttribute('src', engine.icon);
+            imageEl.engine = name;
 
             separator.className = 'cliqz-separator-inter-engines';
 
-            if(engine.core){
-                core.appendChild(nameEl);
-                core.appendChild(separator);
-            } else {
-                others.appendChild(nameEl);
-                others.appendChild(separator);
-            }
+            others.appendChild(imageEl);
+            others.appendChild(separator);
         }
-
-        core.removeChild(core.lastChild);
         others.removeChild(others.lastChild);
     },
     engineClick: function(ev){
