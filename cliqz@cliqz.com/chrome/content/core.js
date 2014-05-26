@@ -243,6 +243,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // schedule another signal
         setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
+        CLIQZ.Core.handleTimings();
+
         var start = (new Date()).getTime();
         HistoryManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
@@ -262,9 +264,21 @@ CLIQZ.Core = CLIQZ.Core || {
                 CLIQZ.Utils.track(info);
             });
         });
+    },
+    // Reset collection of timing data at regular intervals, send log if pref set.
+    handleTimings: function() {
+        if( CLIQZ.Utils.cliqzPrefs.prefHasUserValue('logTimings') &&
+            CLIQZ.Utils.cliqzPrefs.getBoolPref('logTimings') ) {
+            CliqzTimings.send_log("result", 1000);
+            CliqzTimings.send_log("search_history", 200);
+            CliqzTimings.send_log("search_cliqz", 1000);
+            CliqzTimings.send_log("search_suggest", 500);
+        }
 
-        CliqzTimings.send_log("result", 1000);
         CliqzTimings.reset("result");
+        CliqzTimings.reset("search_history");
+        CliqzTimings.reset("search_cliqz");
+        CliqzTimings.reset("search_suggest");
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){

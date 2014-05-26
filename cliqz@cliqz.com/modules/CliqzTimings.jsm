@@ -25,13 +25,15 @@ var CliqzTimings = CliqzTimings || {
         for(var i=0; i<=num_buckets; i++)
             buckets[i*bucket_size] = 0;
 
-        for(var i in CliqzTimings.timings[name]) {
-            var value = CliqzTimings.timings[name][i]
-            var b = Math.floor(value / bucket_size) * bucket_size;
-            if( value > max )
-                buckets[max]++;
-            else
-                buckets[b]++;
+        if(CliqzTimings.timings[name]) {
+            for(var i in CliqzTimings.timings[name]) {
+                var value = CliqzTimings.timings[name][i]
+                var b = Math.floor(value / bucket_size) * bucket_size;
+                if( value > max )
+                    buckets[max]++;
+                else
+                    buckets[b]++;
+            }
         }
 
         return buckets;
@@ -42,6 +44,7 @@ var CliqzTimings = CliqzTimings || {
             name: name,
             histogram: CliqzTimings.get_counts(name, max)
         };
+        CLIQZ.Utils.log((CliqzTimings.timings[name]||[]).join(","), "CliqzTimings " + name)
         CLIQZ.Utils.track(log);
     }
 }
