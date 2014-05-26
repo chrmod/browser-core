@@ -9,7 +9,7 @@ CLIQZ.Components = CLIQZ.Components || {
         var existingItemsCount = popup.richlistbox.childNodes.length;
 
         // CLIQZ START
-        popup.suggestions = popup.suggestions || document.getAnonymousElementByAttribute(popup.richlistbox, "anonid", "cliqz-suggestions");
+        popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
         popup._cliqzMessage.textContent = matchCount + ' results in 3.6B documents';
@@ -18,8 +18,8 @@ CLIQZ.Components = CLIQZ.Components || {
 
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
-            popup.suggestions.textContent = "";
-            popup.suggestions.pixels = 20 /* container padding */;
+            popup._suggestions.textContent = "";
+            popup._suggestions.pixels = 20 /* container padding */;
         }
         // CLIQZ END
 
@@ -97,7 +97,7 @@ CLIQZ.Components = CLIQZ.Components || {
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
     addSuggestion: function(popup, suggestion){
-        var container = popup.suggestions,
+        var container = popup._suggestions,
             nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
 
         nameEl.className = 'cliqz-suggestion';

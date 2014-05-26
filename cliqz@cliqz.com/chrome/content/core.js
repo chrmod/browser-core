@@ -498,7 +498,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if(code == 9) { //tab - navigate through suggestions
             ev.preventDefault();
 
-            var suggestions = popup.suggestions.childNodes,
+            var suggestions = popup._suggestions.childNodes,
                 SEL = ' cliqz-suggestion-default';
 
             for(var i =0; i < suggestions.length; i++){

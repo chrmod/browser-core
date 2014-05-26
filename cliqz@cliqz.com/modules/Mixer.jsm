@@ -123,6 +123,8 @@ var Mixer = {
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
 
+        //FIX-ME: Find a better way to allow suggestions on the UI
+        results = results.slice(0, maxResults - (suggestions || []).length);
         // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
         /// 4) Show suggests if not enough results

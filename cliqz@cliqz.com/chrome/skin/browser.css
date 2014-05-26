@@ -169,10 +169,13 @@
 }
 
 .cliqz-suggestions-source {
-  width: 1px;
+  height: 30px;
+  width: 2px;
+  /*
   height: 30px;
   margin-right: 10px;
   border-left: 5px solid #cccccc;
+  */
 }
 
 .cliqz-suggestion {
@@ -459,7 +462,8 @@
 
 
 .cliqz-footer {
-  background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 50% 50%;
+  background: url(chrome://cliqzres/content/skin/drag_icon.png) no-repeat 50% 50%;
+  background-size: 20px 14px;
 }
 
 /* misc */
