@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -388,10 +391,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._lastKey = ev.keyCode;
         setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
-
         if(code == 13){
             // update the urlbar if a suggestion is selected
-            var suggestions = popup.suggestions.childNodes,
+            var suggestions = popup._suggestions.childNodes,
                 SEL = ' cliqz-suggestion-default';
 
             for(var i in suggestions){
@@ -446,10 +448,9 @@ CLIQZ.Core = CLIQZ.Core || {
                         CLIQZ.Core.urlbar.value = firstUrl;
                     }
                 } else {
-                    var customEngine = CLIQZ.Utils.hasCustomEngine(inputValue);
-                    if(customEngine){
-                        var q = inputValue.substring(customEngine.prefix.length)
-                        CLIQZ.Core.urlbar.value = customEngine.getSubmission(q).uri.spec;
+                    var customQuery = ResultProviders.isCustomQuery(inputValue);
+                    if(customQuery){
+                        CLIQZ.Core.urlbar.value = customQuery.queryURI;
                     }
                 }
                 // TEMP - EXPERIMENTAL

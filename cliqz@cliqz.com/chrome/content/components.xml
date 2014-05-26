@@ -30,7 +30,7 @@
                 <xul:resizer dir="bottom" height="1px" style="cursor: s-resize; opacity: 0.0" flex="1"
                   oncommand="CLIQZ.Core.updatePopupHeight();"/>
               </xul:hbox>
-              <xul:hbox anonid="other-engines" class="cliqz-engines" />
+              <xul:hbox anonid="other-engines" class="cliqz-engines" pack="end" />
             </xul:hbox>
           </xul:hbox>
         </xul:vbox>

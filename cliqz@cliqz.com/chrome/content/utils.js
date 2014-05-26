@@ -7,6 +7,9 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
@@ -70,11 +73,12 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     return prefs;
   },
-  getPref: function(pref){
+  getPref: function(pref, notFound){
     switch(CLIQZ.Utils.cliqzPrefs.getPrefType(pref)) {
       case PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
       case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
       case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
+      default: return notFound;
     }
   },
   setPref: function(pref, val){
@@ -389,45 +393,6 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
-  },
-
-  getSearchEngines: function(){
-    var CORE_ENGINES = {
-      'Google': true,
-      'Bing': true,
-      'Yahoo': true
-    };
-
-    var engines = {};
-    for(var engine of Services.search.getEngines()){
-      engines[engine.name] = {
-        prefix: '#' + engine.name.substring(0,2).toLowerCase() + ' ',
-        name: engine.name,
-        getSubmission: engine.getSubmission,
-        icon: engine.iconURI.spec,
-        core: CORE_ENGINES[engine.name],
-        default: Services.search.defaultEngine.name == engine.name
-      }
-    }
-    return engines;
-  },
-  setCurrentSearchEngine: function(engine){
-    var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
-
-    searchPrefs.setCharPref('defaultenginename', engine);
-    searchPrefs.setCharPref('selectedEngine', engine);
-  },
-  hasCustomEngine: function(q){
-    var engines = CLIQZ.Utils.getSearchEngines();
-    for(var name in engines){
-        var engine = engines[name];
-        if(q.indexOf(engine.prefix) == 0 && q.length > engine.prefix.length){
-            return engine;
-        }
-    }
-
-    return null;
   },
   // returns the suggestion title + target search engine
   createSuggestionTitle: function(q, engine, originalQ) {

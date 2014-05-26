@@ -1,5 +1,10 @@
 'use strict';
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
     XULNS: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
@@ -12,7 +17,7 @@ CLIQZ.Components = CLIQZ.Components || {
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = matchCount + ' results in 3.6B documents';
+        popup._cliqzMessage.textContent = 'top ' + matchCount + ' results of 3.6B documents';
         // trim the leading/trailing whitespace
         var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
 
@@ -119,28 +124,24 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzCreateSearchOptionsItem: function(engineContainer){
-        var engines = CLIQZ.Utils.getSearchEngines();
+        var engines = ResultProviders.getSearchEngines();
 
         var txt = document.createElementNS(CLIQZ.Components.XULNS, 'span');
         txt.textContent = 'noch mehr ...';
         txt.className = 'cliqz-engines-text';
         engineContainer.appendChild(txt);
 
-        for(var name in engines){
-            var engine = engines[name],
-                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image'),
-                separator = document.createElementNS(CLIQZ.Components.XULNS, 'spacer');
+        for(var idx in engines){
+            var engine = engines[idx],
+                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image');
 
-            imageEl.className = 'cliqz-engine' + (engine.default? ' cliqz-engine-default':'');
+            imageEl.className = 'cliqz-engine';
             imageEl.setAttribute('src', engine.icon);
-            imageEl.engine = name;
-
-            separator.className = 'cliqz-separator-inter-engines';
+            imageEl.tooltipText = engine.name + '  ' + engine.prefix;
+            imageEl.engine = engine.name;
 
             engineContainer.appendChild(imageEl);
-            engineContainer.appendChild(separator);
         }
-        engineContainer.removeChild(engineContainer.lastChild);
     },
     engineClick: function(ev){
         if(ev && ev.target && ev.target.engine){
