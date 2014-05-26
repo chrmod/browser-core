@@ -507,10 +507,19 @@ CLIQZ.Core = CLIQZ.Core || {
                     s.className = s.className.replace(SEL, '');
 
                     if(i <= suggestions.length - 1){ //not last one
-                        for(var j=i+1; j < suggestions.length; j++){
-                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
-                                suggestions[j].className += SEL;
-                                break;
+                        if(!ev.shiftKey){ // loop right
+                            for(var j=i+1; j < suggestions.length; j++){
+                                if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
+                                    suggestions[j].className += SEL;
+                                    break;
+                                }
+                            }
+                        } else { // loop left
+                            for(var j=i-1; j >=0 ; j--){
+                                if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
+                                    suggestions[j].className += SEL;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -519,7 +528,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
             }
 
-            suggestions[0].className += ' cliqz-suggestion-default';
+            suggestions[ev.shiftKey ? suggestions.length-1 : 0].className += ' cliqz-suggestion-default';
         }
     },
     // autocomplete query inline
