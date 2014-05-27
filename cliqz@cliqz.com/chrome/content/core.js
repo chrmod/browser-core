@@ -374,6 +374,15 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core._messageOFF = true;
         }
     },
+    showUninstallMessage: function(currentVersion){
+        var UNINSTALL_PREF = 'uninstallVersion',
+            lastUninstallVersion = CLIQZ.Utils.getPref(UNINSTALL_PREF, '');
+
+        if(lastUninstallVersion != currentVersion){
+            CLIQZ.Utils.setPref(UNINSTALL_PREF, currentVersion);
+            gBrowser.selectedTab = gBrowser.addTab(CLIQZ.Utils.UNINSTALL);
+        }
+    },
     _lastProgress: Date.now(),
     updateProgress: function(el, itemCount){
         if (Date.now() - CLIQZ.Core._lastProgress > 30) {

@@ -33,6 +33,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
   INSTAL_URL:       'http://beta.cliqz.com/code-verified',
   CHANGELOG:        'http://beta.cliqz.com/changelog',
+  UNINSTALL:        'http://beta.cliqz.com/deinstall.html',
   SEPARATOR:        ' %s ',
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']

@@ -46,7 +46,15 @@ var Extension = Extension || {
             CLIQZ.Utils.openOrReuseAnyTab(CLIQZ.Utils.CHANGELOG, CLIQZ.Utils.UPDATE_URL, false);
         }
     },
-    unload: function(){
+    unload: function(version, uninstall){
+        if(uninstall){
+            var win  = Services.wm.getMostRecentWindow("navigator:browser");
+
+            try{
+                win.CLIQZ.Core.showUninstallMessage(version);
+            } catch(e){}
+        }
+
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
