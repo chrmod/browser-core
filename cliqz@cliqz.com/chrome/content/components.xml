@@ -13,17 +13,36 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="230" maxheight="420">
         <xul:vbox flex="1">
+          <xul:hbox class="cliqz-suggestions-container" style="overflow: hidden;">
+            <xul:hbox class="cliqz-suggestions-source">
+            </xul:hbox>
+            <xul:description flex="1" onclick="CLIQZ.Components.suggestionClick(event);" >
+              <xul:description anonid="cliqz-suggestions" style="margin: 0px;"/>
+            </xul:description>
+          </xul:hbox>
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
-          <xul:vbox height="1px" style="background-color: #e0e0e0; overflow: hidden;">
-            <xul:resizer dir="bottom" height="1px" style="cursor: s-resize;"
-              oncommand="CLIQZ.Utils.cliqzPrefs.setIntPref('popupHeight', CLIQZ.Core.popup.height); "/>
-          </xul:vbox>
+          <xul:hbox class="cliqz-engine-container">
+            <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" class="cliqz-footer">
+              <xul:hbox anonid="cliqz-navigation-message" class="cliqz-navigation-message" />
+              <xul:hbox height="1px" style="" flex="1">
+                <xul:resizer dir="bottom" height="1px" style="cursor: s-resize; opacity: 0.0" flex="1"
+                  oncommand="CLIQZ.Core.updatePopupHeight();"/>
+              </xul:hbox>
+              <xul:hbox anonid="other-engines" class="cliqz-engines" pack="end" />
+            </xul:hbox>
+          </xul:hbox>
         </xul:vbox>
     </content>
 
     <implementation >
+       <constructor>
+        <![CDATA[
+          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines");
+          CLIQZ.Components.cliqzCreateSearchOptionsItem(engines);
+        ]]>
+      </constructor>
       <method name="_openAutocompletePopup">
         <parameter name="aInput"/>
         <parameter name="aElement"/>
@@ -58,14 +77,23 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
-          CLIQZ.Components._appendCurrentResult(this);
-        ]]>
+            CLIQZ.Components._appendCurrentResult(this);
+          ]]>
         </body>
       </method>
     </implementation>
   </binding>
 
   <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+    <content>
+      <children includes="listheader"/>
+      <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box"
+                     flex="1" style="overflow: auto;" xbl:inherits="dir,pack">
+        <xul:vbox flex="1">
+          <children/>
+        </xul:vbox>
+      </xul:scrollbox>
+    </content>
     <handlers>
       <handler event="mouseup">
         <![CDATA[
