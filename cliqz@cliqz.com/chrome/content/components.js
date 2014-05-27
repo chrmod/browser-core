@@ -123,13 +123,10 @@ CLIQZ.Components = CLIQZ.Components || {
             CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
         }
     },
-    cliqzCreateSearchOptionsItem: function(engineContainer){
+    cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
         var engines = ResultProviders.getSearchEngines();
 
-        var txt = document.createElementNS(CLIQZ.Components.XULNS, 'span');
-        txt.textContent = 'noch mehr ...';
-        txt.className = 'cliqz-engines-text';
-        engineContainer.appendChild(txt);
+        textContainer.textContent = 'noch mehr ...';
 
         for(var idx in engines){
             var engine = engines[idx],

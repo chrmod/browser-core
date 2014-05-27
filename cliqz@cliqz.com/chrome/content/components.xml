@@ -30,7 +30,12 @@
                 <xul:resizer dir="bottom" height="1px" style="cursor: s-resize; opacity: 0.0" flex="1"
                   oncommand="CLIQZ.Core.updatePopupHeight();"/>
               </xul:hbox>
-              <xul:hbox anonid="other-engines" class="cliqz-engines" pack="end" />
+              <xul:stack class="cliqz-engines-container">
+                <xul:hbox anonid="cliqz-engines-test" class="cliqz-engines-text" pack="end" />
+                <xul:hbox pack="end">
+                  <xul:hbox anonid="other-engines" class="cliqz-engines" pack="end" />
+                </xul:hbox>
+              </xul:stack>
             </xul:hbox>
           </xul:hbox>
         </xul:vbox>
@@ -39,8 +44,9 @@
     <implementation >
        <constructor>
         <![CDATA[
-          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines");
-          CLIQZ.Components.cliqzCreateSearchOptionsItem(engines);
+          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines"),
+              text = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-engines-test");;
+          CLIQZ.Components.cliqzCreateSearchOptionsItem(engines, text);
         ]]>
       </constructor>
       <method name="_openAutocompletePopup">

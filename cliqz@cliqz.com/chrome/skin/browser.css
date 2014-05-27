@@ -165,11 +165,11 @@
 }
 
 .cliqz-suggestions-container {
-  -moz-appearance: -moz-window-titlebar;
+  background-color: #cccccc;
 }
 
 .cliqz-suggestions-source {
-  height: 30px;
+  height: 26px;
   width: 2px;
   /*
   height: 30px;
@@ -180,29 +180,33 @@
 
 .cliqz-suggestion {
   font-style: italic;
-  border-radius: 5px;
-  padding: 0 5px 2px 5px;
-  margin: 6px 5px 0px 3px;
+  padding: 0px 5px 2px 5px;
+  margin: 4px 5px 1px 3px;
 }
 
 .cliqz-suggestion:hover, .cliqz-suggestion-default {
-  background-color: lightgrey;
+  background-color: #eeeeee;
   cursor: pointer;
 }
 
 .cliqz-engine-container {
-  -moz-appearance: -moz-window-titlebar;
+  background-color: #eeeeee;
 }
 
 .cliqz-engines-text {
-  padding: 0px 5px 0px 8px;
+  padding: 0px 10px 0px 8px;
   line-height: 31px;
-  transition: all linear 0.2s ;
+  color: #333333;
+  width: 150px;
+  overflow: hidden;
+  transition: all linear 0.5s;
 }
 
 .cliqz-navigation-message {
-  padding: 0px 5px;
+  padding-left: 10px;
   line-height: 31px;
+  font-style: italic;
+  color: #999999;
 }
 
 .cliqz-separator-engines {
@@ -218,15 +222,27 @@
   line-height: 16px;
   margin: 8px 5px;
   height: 16px;
+  /*
   filter: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='grayscale'><feColorMatrix type='matrix' values='0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0'/></filter></svg>#grayscale");
+  */
 }
 
 .cliqz-engines {
   margin-right: 10px;
-  width: 90px;
+  width: 0px;
   overflow: hidden;
-  transition: all ease 0.5s ;
+  background-color: #eeeeee;
+  transition: all linear 0.8s ;
 }
+
+.cliqz-engines-container:hover .cliqz-engines {
+  width: 400px;
+}
+
+.cliqz-engines-container:hover .cliqz-engines-text {
+  opacity: 0;
+}
+
 
 .cliqz-engines:hover {
   width: 400px;
