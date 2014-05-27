@@ -212,7 +212,9 @@ CLIQZ.Components = CLIQZ.Components || {
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
         item._cliqzDescription.textContent = '';
         if(item.getAttribute('cliqzData')){
-            item._cliqzDescription.textContent = item.getAttribute('cliqzData');
+            //item._cliqzDescription.textContent = item.getAttribute('cliqzData');
+
+            item._setUpDescription(item._cliqzDescription, item.getAttribute('cliqzData'));
         }
         //item._source.textContent = source;
 
@@ -269,12 +271,13 @@ CLIQZ.Components = CLIQZ.Components || {
             span = item._cliqzUrlDetails.appendChild(
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'span'));
             span.className = domainDefClass + ' cliqz-ac-url-host';
-            span.textContent = urlDetails.host;
+
+            item._setUpDescription(span, urlDetails.host);
 
             span = item._cliqzUrlDetails.appendChild(
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'span'));
             span.className = domainDefClass + ' cliqz-ac-url-path';
-            span.textContent = urlDetails.path;
+            item._setUpDescription(span, urlDetails.path);
 
         } else { // suggestions or custom results
             var title = JSON.parse(item.getAttribute('title'));

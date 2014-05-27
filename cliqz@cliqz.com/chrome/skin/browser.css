@@ -30,7 +30,7 @@
 /* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistitem-cliqz");
-  padding: 0 0;
+  padding: 5px 0;
   border-width: 1px 1px 0px 0;
   border-style: solid;
   border-color: #cccccc;
@@ -74,7 +74,7 @@
 
 .cliqz-image-desc {
   background-color: rgba(0, 0, 0, 0.6);
-  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+
   font-weight: bold;
   font-size: 9pt;
   color: white;
@@ -84,7 +84,6 @@
 
 /* switch to tab*/
 .ac-action-text {
-  font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   background-color: lightgrey;
   color: white;
   padding: 2px 4px;
@@ -120,8 +119,7 @@
 /* general autocomplete item styles */
 .ac-title-box {
   height: 24px;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 10pt;
+  font-size: 12pt;
   font-weight: 500;
   padding: 8px 0 2px 0;
 
@@ -130,7 +128,7 @@
 }
 
 .autocomplete-richlistitem .ac-title-box {
-  color: #333333;
+  color: #000000;
 }
 
 .autocomplete-richlistitem[type="cliqz-suggestions"] .ac-title-box,
@@ -157,7 +155,7 @@
 }
 
 .cliqz-suggestions-container {
-  background-color: #cccccc;
+  background-color: #dddddd;
 }
 
 .cliqz-suggestions-source {
@@ -266,14 +264,17 @@
 }
 
 .cliqz-ac-description {
+  font-size: 10pt;
   padding-left: 13px;
-  color: #666666;
+  padding-bottom: 1px;
+  margin-bottom: 6px;
+  color: #888888;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   height: 8px;
   width: 8px;
-  background-color: lightblue;
+  background-color: #007AFF;
   border-radius: 50%;
   margin: 13px 0 0 11px;
 }
@@ -408,15 +409,13 @@
 }
 
 .cliqz-ac-url-host {
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 9pt;
-  color: #666666;
+  font-size: 10pt;
+  color: #007AFF;
   font-weight: 400;
 }
 
 .cliqz-ac-url-path {
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 9pt;
+  font-size: 10pt;
   color: #cccccc;
   font-weight: 400;
 }
@@ -426,7 +425,6 @@
 }
 
 .cliqz-urlbar-Last-search {
-  font-family: Verdana, Geneva, sans-serif;
   color: white;
   background-color: grey;
   margin: 0px;
@@ -443,16 +441,14 @@
 
 /* url container */
 .ac-url-box {
-  height: 24px;
-  padding-bottom: 5px;
+  height: 19px;
+  padding-bottom: 3px;
 }
 
 .ac-emphasize-text  {
   background-color: transparent;
   box-shadow: none;
-  font-family: Verdana, Geneva, sans-serif;
-  font-size: 10pt;
-  font-weight: 500;
+  font-weight: 700;
   /*color: #669999;*/
 }
 
