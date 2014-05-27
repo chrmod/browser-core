@@ -223,7 +223,7 @@ var Autocomplete = Autocomplete || {
                     var response = [];
 
                     if(this.startTime)
-                       CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
+                        CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
  
                     if(req.status == 200){
                         response = JSON.parse(req.response);
