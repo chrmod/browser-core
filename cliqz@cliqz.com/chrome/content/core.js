@@ -101,6 +101,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         Autocomplete.init();
 
+        CliqzTimings.init();
+
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         CLIQZ.Core.whoAmI(true); //startup
@@ -267,18 +269,10 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // Reset collection of timing data at regular intervals, send log if pref set.
     handleTimings: function() {
-        if( CLIQZ.Utils.cliqzPrefs.prefHasUserValue('logTimings') &&
-            CLIQZ.Utils.cliqzPrefs.getBoolPref('logTimings') ) {
-            CliqzTimings.send_log("result", 1000);
-            CliqzTimings.send_log("search_history", 200);
-            CliqzTimings.send_log("search_cliqz", 1000);
-            CliqzTimings.send_log("search_suggest", 500);
-        }
-
-        CliqzTimings.reset("result");
-        CliqzTimings.reset("search_history");
-        CliqzTimings.reset("search_cliqz");
-        CliqzTimings.reset("search_suggest");
+        CliqzTimings.send_log("result", 1000);
+        CliqzTimings.send_log("search_history", 200);
+        CliqzTimings.send_log("search_cliqz", 1000);
+        CliqzTimings.send_log("search_suggest", 500);
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){

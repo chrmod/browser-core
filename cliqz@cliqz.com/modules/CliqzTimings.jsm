@@ -7,10 +7,20 @@ Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 
 var CliqzTimings = CliqzTimings || {
     timings: {},
-	add: function(name, time_ms){
-        if(!CliqzTimings.timings[name])
-            CliqzTimings.timings[name] = [];
-        CliqzTimings.timings[name].push(time_ms);
+    enabled: false,
+    init: function() {
+        if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('logTimings') &&
+           CLIQZ.Utils.cliqzPrefs.getBoolPref('logTimings')) {
+            CliqzTimings.enabled = true;
+            CLIQZ.Utils.log("timings enabled", "CliqzTimings")
+        }
+    },
+	add: function(name, time_ms) {
+        if(CliqzTimings.enabled) {
+            if(!CliqzTimings.timings[name])
+                CliqzTimings.timings[name] = [];
+            CliqzTimings.timings[name].push(time_ms);
+        }
     },
     reset: function(name) {
         if(CliqzTimings.timings[name])
@@ -39,12 +49,16 @@ var CliqzTimings = CliqzTimings || {
         return buckets;
     },
     send_log: function(name, max) {
-        var log = {
-            type: 'timing',
-            name: name,
-            histogram: CliqzTimings.get_counts(name, max)
-        };
-        CLIQZ.Utils.log((CliqzTimings.timings[name]||[]).join(","), "CliqzTimings " + name)
-        CLIQZ.Utils.track(log);
+        if(CliqzTimings.enabled && CliqzTimings.timings[name] && CliqzTimings.timings[name].length) {
+            var log = {
+                type: 'timing',
+                name: name,
+                histogram: CliqzTimings.get_counts(name, max)
+            };
+            CLIQZ.Utils.log((CliqzTimings.timings[name]).join(","), "CliqzTimings " + name)
+            CLIQZ.Utils.track(log);
+
+            CliqzTimings.reset(name);
+        }
     }
 }
