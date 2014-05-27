@@ -12,11 +12,12 @@ var Language = Language || {
     READING_THRESHOLD: 10000,
     LOG_KEY: 'cliqz language: ',
     currentState: {},
-    // we keep a different namespace than cliqz so that it does not get removed after a re-install
+    // we keep a different namespace than cliqz so that it does not get
+    // removed after a re-install or sent during a logging signal
     cliqzLangPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz-lang.'),
 
-    cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
+    useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     listener: {
@@ -53,9 +54,6 @@ var Language = Language || {
         },
 
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-            if (aFlag & Ci.nsIWebProgressListener.STATE_STOP) {
-                // This fires when the load finishes
-            }
         }
     },
 
@@ -68,7 +66,7 @@ var Language = Language || {
             Language.currentState = JSON.parse(Language.cliqzLangPrefs.getCharPref('data'));
 
             // for the case that the user changes his userAgent.locale
-            var ll = Language.normalizeLocale(Language.cliqzPrefs.getCharPref('locale'));
+            var ll = Language.normalizeLocale(Language.useragentPrefs.getCharPref('locale'));
             if (ll) {
                 if (Language.currentState[ll]!='locale') {
                     Language.currentState[ll] = 'locale';
@@ -79,7 +77,7 @@ var Language = Language || {
         else {
             // it has nothing, new or removed,
 
-            var ll = Language.normalizeLocale(Language.cliqzPrefs.getCharPref('locale'));
+            var ll = Language.normalizeLocale(Language.useragentPrefs.getCharPref('locale'));
             if (ll) {
                 Language.currentState = {};
                 Language.currentState[ll] = 'locale';

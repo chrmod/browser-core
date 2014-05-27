@@ -136,7 +136,11 @@ var Extension = Extension || {
     },
     unloadFromWindow: function(win){
         try {
-            win.document.getElementById('cliqz-button').remove();
+            let doc = win.document,
+                navBar = doc.getElementById('nav-bar'),
+                btn = doc.getElementById('cliqz-button');
+
+            navBar.removeChild(btn);
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
             delete win.CLIQZ.Utils;

@@ -105,15 +105,14 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
-        CLIQZ.Core.whoAmI(true); //startup
-        CLIQZ.Utils.log('Initialized', 'CORE');
-
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             Language.init(window);
             window.gBrowser.addProgressListener(Language.listener);
         }
 
+        CLIQZ.Core.whoAmI(true); //startup
+        CLIQZ.Utils.log('Initialized', 'CORE');
     },
     checkSession: function(){
         var prefs = CLIQZ.Utils.cliqzPrefs;
@@ -187,6 +186,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
         Autocomplete.destroy();
+
+        // remove listners
+        if ('gBrowser' in window) {
+            window.gBrowser.removeProgressListener(Language.listener);
+        }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
     restart: function(){

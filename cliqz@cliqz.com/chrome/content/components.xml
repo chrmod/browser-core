@@ -14,23 +14,13 @@
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <content ignorekeys="true" level="top" consumeoutsideclicks="false">
-        <xul:hbox flex="1">
+        <xul:vbox flex="1">
           <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
-          <xul:hbox id="right-cliqz">
-            <xul:hbox flex="1">
-              <xul:button label="Google" anonid="button-google"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-            <xul:hbox flex="1">
-              <xul:button label="Amazon" anonid="button-amazon"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-            <xul:hbox flex="1">
-              <xul:button label="Wiki" anonid="button-wiki"
-                class="button-cliqz" oncommand="this.click();"/>
-            </xul:hbox>
-          </xul:hbox>
-        </xul:hbox>
+          <xul:vbox height="1px" style="background-color: #e0e0e0; overflow: hidden;">
+            <xul:resizer dir="bottom" height="1px" style="cursor: s-resize;"
+              oncommand="CLIQZ.Utils.cliqzPrefs.setIntPref('popupHeight', CLIQZ.Core.popup.height); "/>
+          </xul:vbox>
+        </xul:vbox>
     </content>
 
     <implementation >
