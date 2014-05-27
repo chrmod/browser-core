@@ -84,6 +84,7 @@ Sent with the 'environment' signal if the preference `extensions.cliqz.logTiming
         // for example: bucket "100" contains a count of the timings that were >= 100 and < 200
         {"0":0, "100":2, "200":2, "300":4 ,"400":1, "500":0, "600":0, "700":0, "800":0, "900":0, "1000":0}}
 }
+```
 
 ### Actions
 
