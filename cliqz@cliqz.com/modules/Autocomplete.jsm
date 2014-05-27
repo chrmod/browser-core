@@ -24,6 +24,7 @@ var Autocomplete = Autocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 500,
     lastSearch: '',
+    lastResult: null,
     init: function(){
         CLIQZ.Utils.init();
         Autocomplete.initProvider();
@@ -99,6 +100,7 @@ var Autocomplete = Autocomplete || {
                 }
             },
             getLabelAt: function(index) { return this._results[index].label; },
+            getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             addResults: function(results){
                 this._results = this._results.concat(results);
@@ -182,6 +184,7 @@ var Autocomplete = Autocomplete || {
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions ){
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
+                        Autocomplete.lastResult = this.mixedResults;
                         this.listener.onSearchResult(this, this.mixedResults);
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -334,6 +337,7 @@ var Autocomplete = Autocomplete || {
                 CLIQZ.Utils.log('search: ' + searchString);
 
                 Autocomplete.lastSearch = searchString;
+                Autocomplete.lastResult = null;
                 this.oldPushLength = 0;
                 this.customResults = null;
 

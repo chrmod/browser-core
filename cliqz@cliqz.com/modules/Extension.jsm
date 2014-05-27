@@ -11,7 +11,7 @@ var Extension = Extension || {
         'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 160, // popup/dropdown height in pixels
+        'popupHeight': 290, // popup/dropdown height in pixels
         'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones
         'dnt': false, // if set to true the extension will not send any tracking signals
         'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
