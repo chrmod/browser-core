@@ -85,6 +85,7 @@ var Language = Language || {
             }
         }
 
+        Language.cleanCurrentState();
         CLIQZ.Utils.log(Language.stateToQueryString(), Language.LOG_KEY);
 
     },
@@ -119,7 +120,7 @@ var Language = Language || {
     },
     // removes the country from the locale, for instance, de-de => de, en-US => en
     normalizeLocale: function(str) {
-        if (str) return str.split('-')[0].toLowerCase();
+        if (str) return str.split(/-|_/)[0].toLowerCase();
         else return srt;
     },
     // the function that decided which languages the person understands
@@ -148,6 +149,32 @@ var Language = Language || {
         }
 
         return lang_vec_clean;
+    },
+    cleanCurrentState: function() {
+        var keys = Object.keys(Language.currentState);
+        var count = 0;
+        for(let i=0;i<keys.length;i++) if (keys[i]!=Language.normalizeLocale(keys[i])) count+=1;
+
+        if (count>0) {
+            var cleanState = {};
+            for(let i=0;i<keys.length;i++) {
+                var nkey = Language.normalizeLocale(keys[i]);
+                if (Language.currentState[keys[i]]!='locale') {
+                    cleanState[nkey] = (cleanState[nkey] || []);
+
+                    for(let j=0;j<Language.currentState[keys[i]].length;j++) {
+                        var value = Language.currentState[keys[i]][j];
+                        if (cleanState[nkey].indexOf(value)==-1) cleanState[nkey].push(value);
+                    }
+                }
+            }
+
+            Language.currentState = cleanState;
+            var ll = Language.normalizeLocale(Language.cliqzPrefs.getCharPref('locale'));
+            if (ll && Language.currentState[ll]!='locale') Language.currentState[ll] = 'locale';
+
+            Language.saveCurrentState();
+        }
     },
     stateToQueryString: function() {
         return '&lang=' + Language.state().join(',');

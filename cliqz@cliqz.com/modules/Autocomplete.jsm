@@ -12,6 +12,10 @@ Cu.import('chrome://cliqzmodules/content/Result.jsm?r=' + Math.random());
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
+
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
                     .getBranch('browser.urlbar.');
@@ -121,6 +125,9 @@ var Autocomplete = Autocomplete || {
                     var candidate_idx = -1;
                     var candidate_url = '';
 
+                    if(this.startTime)
+                        CliqzTimings.add("search_history", ((new Date()).getTime() - this.startTime));
+
                     for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
                         let label = this.historyResults.getLabelAt(i);
@@ -176,8 +183,10 @@ var Autocomplete = Autocomplete || {
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         this.listener.onSearchResult(this, this.mixedResults);
+                        if(this.startTime)
+                            CliqzTimings.add("result", (now - this.startTime));
+                        this.startTime = undefined;
                         this.resultsTimer = null;
-                        this.startTime = null;
                         this.cliqzResults = null;
                         this.cliqzCache = null;
                         this.cliqzSuggestions = null;
@@ -197,6 +206,10 @@ var Autocomplete = Autocomplete || {
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var results = [], cache_results = [];
+
+                    if(this.startTime)
+                        CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
+
                     if(req.status == 200){
                         var json = JSON.parse(req.response)
                         results = json.result;
@@ -211,6 +224,10 @@ var Autocomplete = Autocomplete || {
             cliqzSuggestionFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var response = [];
+
+                    if(this.startTime)
+                        CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
+
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }

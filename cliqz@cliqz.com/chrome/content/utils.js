@@ -10,6 +10,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Language',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
+
 var EXPORTED_SYMBOLS = ['CLIQZ'];
 
 var PREF_STRING = 32,
