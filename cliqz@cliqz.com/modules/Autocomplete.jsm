@@ -9,6 +9,9 @@ Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 Cu.import('chrome://cliqzmodules/content/Mixer.jsm?r=' + Math.random());
 Cu.import('chrome://cliqzmodules/content/Result.jsm?r=' + Math.random());
 
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -224,7 +227,7 @@ var Autocomplete = Autocomplete || {
 
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
- 
+
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
@@ -312,16 +315,15 @@ var Autocomplete = Autocomplete || {
                 return results;
             },
             analyzeQuery: function(q){
-                var customEngine = CLIQZ.Utils.hasCustomEngine(q);
-                if(customEngine){
-                    q = q.substring(customEngine.prefix.length);
+                var customQuery = ResultProviders.isCustomQuery(q);
+                if(customQuery){
                     this.customResults = [
                         Result.generic(
                             Result.CLIQZC,
-                            q,
+                            customQuery.updatedQ,
                             null,
-                            CLIQZ.Utils.createSuggestionTitle(q, customEngine.name),
-                            customEngine.getSubmission(q).uri.spec
+                            CLIQZ.Utils.createSuggestionTitle(q, customQuery.engineName),
+                            customQuery.queryURI
                         )
                     ];
                 }

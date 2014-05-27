@@ -123,10 +123,12 @@ var Mixer = {
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
 
+        //FIX-ME: Find a better way to allow suggestions on the UI
+        results = results.slice(0, maxResults - (suggestions || []).length);
         // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
         /// 4) Show suggests if not enough results
-        if(q && results.length < maxResults &&
+        if(false && q && results.length < maxResults &&
             (results.length > 0 || (suggestions || []).length > 0)){
 
             results.push(
@@ -138,7 +140,7 @@ var Mixer = {
                     )
                 );
         }
-        for(let i=0; i < (suggestions || []).length && results.length < maxResults ; i++) {
+        for(let i=0; i < (suggestions || []).length /*&& results.length < maxResults */; i++) {
             if(suggestions[i].toLowerCase() != q.toLowerCase()){
                 results.push(
                     Result.generic(
@@ -151,6 +153,6 @@ var Mixer = {
             }
         }
 
-        return results.slice(0, maxResults);
+        return results;//.slice(0, maxResults);
 	}
 }

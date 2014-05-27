@@ -83,6 +83,7 @@ CLIQZ.Options = CLIQZ.Options || {
         });
 
         //searchEngines
+        return;
         var $searchEngines = $('#searchEngines');
         $.each(CLIQZ.Utils.getSearchEngines(), function(key, engine) {
                $searchEngines
@@ -128,7 +129,7 @@ CLIQZ.Options = CLIQZ.Options || {
                 for(var pref in changedOptions) {
                     CLIQZ.Utils.setPref(pref, changedOptions[pref]);
                 }
-                CLIQZ.Utils.setCurrentSearchEngine($('#searchEngines').val());
+                //CLIQZ.Utils.setCurrentSearchEngine($('#searchEngines').val());
                 CLIQZ.Utils.extensionRestart();
                 break;
             case 'close':

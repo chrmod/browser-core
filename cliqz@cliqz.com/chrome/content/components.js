@@ -1,19 +1,30 @@
 'use strict';
 
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
+    XULNS: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
     _appendCurrentResult: function (popup) {
         var controller = popup.mInput.controller;
         var matchCount = popup._matchCount;
         var existingItemsCount = popup.richlistbox.childNodes.length;
 
         // CLIQZ START
+        popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
+        popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
+        popup._cliqzMessage.textContent = 'top ' + matchCount + ' results of 3.6B documents';
         // trim the leading/trailing whitespace
         var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
 
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
+            popup._suggestions.textContent = "";
+            popup._suggestions.pixels = 20 /* container padding */;
         }
         // CLIQZ END
 
@@ -21,6 +32,14 @@ CLIQZ.Components = CLIQZ.Components || {
         for (let i = 0; i < popup.maxRows; i++) {
             if (popup._currentIndex >= matchCount)
                 return;
+
+            // CLIQZ START
+            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
+                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
+                popup._currentIndex++;
+                continue;
+            }
+            // CLIQZ END
 
             var item;
 
@@ -81,6 +100,70 @@ CLIQZ.Components = CLIQZ.Components || {
 
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
+    },
+    addSuggestion: function(popup, suggestion){
+        var container = popup._suggestions,
+            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+
+        nameEl.className = 'cliqz-suggestion';
+        nameEl.textContent = suggestion;
+        nameEl.suggestion = suggestion;
+
+        container.appendChild(nameEl);
+
+        container.pixels += nameEl.clientWidth + 10 /*padding*/ ;
+
+        //remove last child if it doesn't fit on one row
+        if(container.pixels > popup.mInput.clientWidth)
+            container.removeChild(container.lastChild);
+    },
+    suggestionClick: function(ev){
+        if(ev && ev.target && ev.target.suggestion){
+            CLIQZ.Core.urlbar.mInputField.focus();
+            CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
+        }
+    },
+    cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
+        var engines = ResultProviders.getSearchEngines();
+
+        textContainer.textContent = 'noch mehr ...';
+
+        for(var idx in engines){
+            var engine = engines[idx],
+                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image');
+
+            imageEl.className = 'cliqz-engine';
+            imageEl.setAttribute('src', engine.icon);
+            imageEl.tooltipText = engine.name + '  ' + engine.prefix;
+            imageEl.engine = engine.name;
+
+            engineContainer.appendChild(imageEl);
+        }
+    },
+    engineClick: function(ev){
+        if(ev && ev.target && ev.target.engine){
+            var engine;
+            if(engine = Services.search.getEngineByName(ev.target.engine)){
+                var urlbar = CLIQZ.Core.urlbar,
+                    userInput = urlbar.value;
+
+                // avoid autocompleted urls
+                if(urlbar.selectionStart &&
+                   urlbar.selectionEnd &&
+                   urlbar.selectionStart != urlbar.selectionEnd){
+                    userInput = userInput.slice(0, urlbar.selectionStart);
+                }
+
+                var url = engine.getSubmission(userInput).uri.spec;
+
+                if(ev.metaKey || ev.ctrlKey){
+                    gBrowser.addTab(url);
+                } else {
+                    gBrowser.selectedBrowser.contentDocument.location = url;
+                    CLIQZ.Core.popup.closePopup();
+                }
+            }
+        }
     },
     cliqzEnhancements: function (item) {
         // add here all the custom UI elements for an item
