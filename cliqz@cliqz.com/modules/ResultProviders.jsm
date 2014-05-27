@@ -34,11 +34,13 @@ var ResultProviders = {
     getSearchEngines: function(){
         var engines = {};
         for(var engine of Services.search.getEngines()){
-          engines[engine.name] = {
-            prefix: ResultProviders.getShortcut(engine.name),
-            name: engine.name,
-            icon: engine.iconURI.spec
-          }
+            if(engine.hidden != true){
+                engines[engine.name] = {
+                    prefix: ResultProviders.getShortcut(engine.name),
+                    name: engine.name,
+                    icon: engine.iconURI.spec
+                }
+            }
         }
         return engines;
     },
