@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
   'chrome://cliqzmodules/content/Language.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -97,6 +100,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getSuggestions();
 
         Autocomplete.init();
+
+        CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -240,6 +245,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // schedule another signal
         setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
+        CLIQZ.Core.handleTimings();
+
         var start = (new Date()).getTime();
         HistoryManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
@@ -259,6 +266,13 @@ CLIQZ.Core = CLIQZ.Core || {
                 CLIQZ.Utils.track(info);
             });
         });
+    },
+    // Reset collection of timing data at regular intervals, send log if pref set.
+    handleTimings: function() {
+        CliqzTimings.send_log("result", 1000);
+        CliqzTimings.send_log("search_history", 200);
+        CliqzTimings.send_log("search_cliqz", 1000);
+        CliqzTimings.send_log("search_suggest", 500);
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){
