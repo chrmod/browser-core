@@ -21,7 +21,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 CLIQZ.Utils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, suggestions, cache, maxResults){
+	mix: function(q, history, cliqz, mixed, suggestions, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -44,7 +44,7 @@ var Mixer = {
             let cacheIndex = -1;
             for(let i in cliqz || []) {
                 if(cliqz[i].url.indexOf(label) != -1) {
-                    var tempResult = Result.cliqz(cliqz[i], cache)
+                    var tempResult = Result.cliqz(cliqz[i])
                     bucketHistoryCache.push(Result.generic(style, value, image, comment, label,
                         tempResult.query, tempResult.image));
                     cacheIndex = i;
@@ -69,7 +69,7 @@ var Mixer = {
         }
 
         for(let i in cliqz || []) {
-            bucketCache.push(Result.cliqz(cliqz[i], cache));
+            bucketCache.push(Result.cliqz(cliqz[i]));
         }
 
         /// 2) Prepare final result list from buckets

@@ -52,7 +52,7 @@ var Result = {
         return item;
     },
     // TODO - exclude cache
-    cliqz: function(result, cache){
+    cliqz: function(result){
         if(result.snippet){
             let og = result.snippet.og, thumbnail, duration;
             if(og && og.image && og.type)
@@ -71,7 +71,7 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                Result.getExpandedQuery(result.url, cache), //query
+                result.q, //query
                 thumbnail, // video thumbnail
                 duration, // image description -> video duration
                 result.snippet.snippet // description
@@ -90,18 +90,5 @@ var Result = {
             return true;
         }
         return false;
-    },
-    // Find the expanded query that was used for returned URL
-    getExpandedQuery: function(url, cache) {
-        for(let i in cache || []) {
-            let el = cache[i];
-            for(let j in el.result || []) {
-                var r = el.result[j]
-
-                if( r == url )
-                    return 'Query[' +el.q + '] BIGRAM[' + el.bigram + ']';
-            }
-        }
-        return "<unknown>"
     },
 }

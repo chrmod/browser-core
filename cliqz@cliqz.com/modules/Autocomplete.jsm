@@ -208,7 +208,7 @@ var Autocomplete = Autocomplete || {
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    var results = [], cache_results = [];
+                    var results = [];
 
                     if(this.startTime)
                         CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
@@ -216,10 +216,8 @@ var Autocomplete = Autocomplete || {
                     if(req.status == 200){
                         var json = JSON.parse(req.response)
                         results = json.result;
-                        cache_results = json.cache;
                     }
                     this.cliqzResults = results;
-                    this.cliqzCache = cache_results;
                 }
                 this.pushResults(q);
             },
@@ -301,7 +299,6 @@ var Autocomplete = Autocomplete || {
                             this.cliqzResults,
                             this.mixedResults,
                             this.cliqzSuggestions,
-                            this.cliqzCache,
                             maxResults
                     );
 
@@ -379,11 +376,10 @@ var Autocomplete = Autocomplete || {
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-                    CLIQZ.Utils.getCachedResults(searchString, this.cliqzResultFetcher);
+                    CLIQZ.Utils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                 } else {
                     this.cliqzResults = [];
-                    this.cliqzCache = [];
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                 }
