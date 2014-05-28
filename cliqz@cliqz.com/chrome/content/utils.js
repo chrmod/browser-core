@@ -22,18 +22,18 @@ var PREF_STRING = 32,
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
-  HOST:             'http://beta.cliqz.com',
+  HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/cliqz-results?q=',
-  LOG:              'http://logging.cliqz.com',
-  CLIQZ_URL:        'http://beta.cliqz.com/',
-  VERSION_URL:      'http://beta.cliqz.com/version',
+  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
+  LOG:              'https://logging.cliqz.com',
+  CLIQZ_URL:        'https://beta.cliqz.com/',
+  VERSION_URL:      'https://beta.cliqz.com/version',
   //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:     'http://beta.cliqz.com/anleitung',
-  INSTAL_URL:       'http://beta.cliqz.com/code-verified',
-  CHANGELOG:        'http://beta.cliqz.com/changelog',
-  UNINSTALL:        'http://beta.cliqz.com/deinstall.html',
+  TUTORIAL_URL:     'https://beta.cliqz.com/anleitung',
+  INSTAL_URL:       'https://beta.cliqz.com/code-verified',
+  CHANGELOG:        'https://beta.cliqz.com/changelog',
+  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   SEPARATOR:        ' %s ',
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']

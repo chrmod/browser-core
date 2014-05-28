@@ -18,7 +18,7 @@ var Result = {
     CLIQZC: 'cliqz-custom',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
-	generic: function(style, value, image, comment, label, query, thumbnail, imageDescription){
+	generic: function(style, value, image, comment, label, query, thumbnail, imageDescription, description){
         //try to show host if no comment(page title) is provided
         if(style !== Result.CLIQZS       // is not a suggestion
            && style !== Result.CLIQZC       // is not a custom search
@@ -32,7 +32,8 @@ var Result = {
         if(!comment){
             comment = value;
         }
-        return {
+
+        var item = {
             style: style,
             val: value,
             image: thumbnail, //image || this.createFavicoUrl(value),
@@ -41,6 +42,14 @@ var Result = {
             query: query,
             imageDescription: imageDescription
         };
+
+        if(description){
+            item.data = {
+                description: description
+            }
+        }
+
+        return item;
     },
     // TODO - exclude cache
     cliqz: function(result, cache){
@@ -64,7 +73,8 @@ var Result = {
                 null, //label
                 Result.getExpandedQuery(result.url, cache), //query
                 thumbnail, // video thumbnail
-                duration // image description -> video duration
+                duration, // image description -> video duration
+                result.snippet.snippet // description
             );
         } else {
             return Result.generic(Result.CLIQZR, result.url);

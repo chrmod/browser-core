@@ -100,13 +100,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
         CLIQZ.Core.elem.push(cliqzLastSearch);
 
-        // los and suchen
-        var cliqzMessage = document.createElement('hbox');
-        urlbarIcons.parentNode.insertBefore(cliqzMessage, urlbarIcons);
-        CLIQZ.Core.urlbarCliqzMessageContainer = cliqzMessage;
-        CLIQZ.Core.elem.push(cliqzMessage);
-
-
         // browser handlers
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
@@ -232,8 +225,6 @@ CLIQZ.Core = CLIQZ.Core || {
         if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
         else CLIQZ.Core.hideLastQuery();
-
-
     },
     tabRemoved: function(ev){
         delete CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel];
@@ -299,15 +290,11 @@ CLIQZ.Core = CLIQZ.Core || {
         lastQContainer.query = q;
     },
     urlbarfocus: function() {
-        setTimeout(CLIQZ.Core.urlbarMessage, 20);
         CLIQZ.Core.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
         CLIQZ.Core.lastQuery();
-        setTimeout(function(){
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
-        }, 25);
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
@@ -317,20 +304,6 @@ CLIQZ.Core = CLIQZ.Core || {
         };
 
         CLIQZ.Utils.track(action);
-    },
-    urlbarMessage: function() {
-        if(CLIQZ.Core.urlbar.value.length > 0){
-            if(/*CLIQZ.Core.popup.selectedIndex !== -1 ||*/
-                CLIQZ.Utils.isUrl(CLIQZ.Core.urlbar.value)){
-                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarNavigate');
-                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-navigate';
-            } else {
-                CLIQZ.Core.urlbarCliqzMessageContainer.textContent = CLIQZ.Utils.getLocalizedString('urlbarSearch');
-                CLIQZ.Core.urlbarCliqzMessageContainer.className = 'cliqz-urlbar-message-search';
-            }
-        } else {
-            CLIQZ.Core.urlbarCliqzMessageContainer.className = 'hidden';
-        }
     },
     whoAmI: function(startup){
         // schedule another signal
@@ -414,7 +387,6 @@ CLIQZ.Core = CLIQZ.Core || {
             popup = CLIQZ.Core.popup;
 
         CLIQZ.Core._lastKey = ev.keyCode;
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
         if(code == 13){
             // update the urlbar if a suggestion is selected
             var suggestions = popup._suggestions.childNodes,
@@ -558,7 +530,6 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){
-        setTimeout(CLIQZ.Core.urlbarMessage, 20); //allow index to change
 
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||

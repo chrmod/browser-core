@@ -5,21 +5,38 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
+  'chrome://cliqzmodules/content/Autocomplete.jsm');
+
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
     XULNS: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+    computeDocNo: function(q){
+        var hash = CLIQZ.Components.getHashFromKey(q)
+        return (parseInt(2453465474 / Math.pow(q.length, 2) + hash % 100000)).toLocaleString();
+    },
+    getHashFromKey: function(q) {
+        var t = 0;
+        for(var k = 0; k<q.length; k++) t += q.charCodeAt(0);
+
+        return t;
+    },
     _appendCurrentResult: function (popup) {
         var controller = popup.mInput.controller;
         var matchCount = popup._matchCount;
         var existingItemsCount = popup.richlistbox.childNodes.length;
 
         // CLIQZ START
+
+        // trim the leading/trailing whitespace
+        var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
+
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = 'top ' + matchCount + ' results of 3.6B documents';
-        // trim the leading/trailing whitespace
-        var trimmedSearchString = controller.searchString.replace(/^\s+/, '').replace(/\s+$/, '');
+        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' Ergebnisse aus ca. ' + CLIQZ.Components.computeDocNo(trimmedSearchString) + ' Dokumenten';
+
 
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
@@ -77,6 +94,11 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('title', controller.getCommentAt(popup._currentIndex));
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
+            if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
+                item.setAttribute('cliqzData', Autocomplete.lastResult.getDataAt(popup._currentIndex).description);
+            } else {
+                item.setAttribute('cliqzData','');
+            }
 
             if (popup._currentIndex < existingItemsCount) {
                 // re-use the existing item
@@ -187,6 +209,13 @@ CLIQZ.Components = CLIQZ.Components || {
         item._logo = item._logo || document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
         item._logo.className = '';
 
+        item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
+        item._cliqzDescription.textContent = '';
+        if(item.getAttribute('cliqzData')){
+            //item._cliqzDescription.textContent = item.getAttribute('cliqzData');
+
+            item._setUpDescription(item._cliqzDescription, item.getAttribute('cliqzData'));
+        }
         //item._source.textContent = source;
 
         item._cliqzUrlDetails = item._cliqzUrlDetails || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-url-details');
@@ -242,12 +271,13 @@ CLIQZ.Components = CLIQZ.Components || {
             span = item._cliqzUrlDetails.appendChild(
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'span'));
             span.className = domainDefClass + ' cliqz-ac-url-host';
-            span.textContent = urlDetails.host;
+
+            item._setUpDescription(span, urlDetails.host);
 
             span = item._cliqzUrlDetails.appendChild(
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'span'));
             span.className = domainDefClass + ' cliqz-ac-url-path';
-            span.textContent = urlDetails.path;
+            item._setUpDescription(span, urlDetails.path);
 
         } else { // suggestions or custom results
             var title = JSON.parse(item.getAttribute('title'));

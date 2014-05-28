@@ -13,7 +13,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="230" maxheight="420">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="0" maxheight="420">
         <xul:vbox flex="1">
           <xul:hbox class="cliqz-suggestions-container" style="overflow: hidden;">
             <xul:hbox class="cliqz-suggestions-source">
@@ -184,8 +184,10 @@
                        class="ac-ellipsis-after ac-url-text"/>
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
+          <xul:description class="cliqz-ac-description" anonid="cliqz-description">
+          </xul:description>
         </xul:vbox>
-        <xul:vbox class="button-cliqz">
+        <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
           <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
           </xul:hbox>
         </xul:vbox>
