@@ -227,13 +227,17 @@ CLIQZ.Utils = CLIQZ.Utils || {
       else error();
     });
   },
-  getABTests: function(callback, error){
+  getABTests: function(callback){
     // httpGet has a timeout which it undesired here, so make the connect here
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-    req.open("GET", ABTEST + CLIQZ.Utils.cliqzPrefs.getCharPref('session') , true);
+    var url = CLIQZ.Utils.ABTEST + CLIQZ.Utils.cliqzPrefs.getCharPref('session');
     req.overrideMimeType('application/json');
+    req.timeout = 5000;
     req.onload = function(){ callback && callback(req); }
-    req.onerror = function(){ error && error(); }
+    req.onerror = function(){ CLIQZ.Utils.log("failed to get " + url, "CLIQZ.Utils.getABTests") }
+    req.ontimeout = function(){ CLIQZ.Utils.log("timeout for " + url, "CLIQZ.Utils.getABTests")}
+    req.open("GET", url, true);
+    req.send(null);
   },
   stopSearch: function(){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
