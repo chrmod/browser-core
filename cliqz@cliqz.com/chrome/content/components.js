@@ -50,14 +50,6 @@ CLIQZ.Components = CLIQZ.Components || {
             if (popup._currentIndex >= matchCount)
                 return;
 
-            // CLIQZ START
-            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
-                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
-                popup._currentIndex++;
-                continue;
-            }
-            // CLIQZ END
-
             var item;
 
             // trim the leading/trailing whitespace
@@ -71,6 +63,7 @@ CLIQZ.Components = CLIQZ.Components || {
             if (typeof popup.input.trimValue == 'function')
                 url = popup.input.trimValue(url);
 
+            /*  too barbarian?
             if (popup._currentIndex < existingItemsCount) {
                 // re-use the existing item
                 item = popup.richlistbox.childNodes[popup._currentIndex];
@@ -85,7 +78,28 @@ CLIQZ.Components = CLIQZ.Components || {
             } else {
                 // need to create a new item
                 item = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'richlistitem');
+            }*/
+
+
+            if(popup._currentIndex == 0){
+
+                while( popup.richlistbox.hasChildNodes() ){
+                    popup.richlistbox.removeChild(popup.richlistbox.lastChild);
+                }
             }
+
+            item = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'richlistitem');
+
+            // end barbarian
+
+            // CLIQZ START
+            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
+                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
+                popup._currentIndex++;
+                continue;
+            }
+            // CLIQZ END
+
 
             // set these attributes before we set the class
             // so that we can use them from the constructor
@@ -100,6 +114,7 @@ CLIQZ.Components = CLIQZ.Components || {
                 item.setAttribute('cliqzData','');
             }
 
+            /* the barbarian line - step 2
             if (popup._currentIndex < existingItemsCount) {
                 // re-use the existing item
                 item._adjustAcItem();
@@ -110,6 +125,9 @@ CLIQZ.Components = CLIQZ.Components || {
                 item.className = 'autocomplete-richlistitem';
                 popup.richlistbox.appendChild(item);
             }
+            */
+            item.className = 'autocomplete-richlistitem';
+            popup.richlistbox.appendChild(item);
 
             // CLIQZ START
             item.setAttribute('source', controller.getStyleAt(popup._currentIndex).replace('favicon', 'history'));

@@ -95,6 +95,7 @@
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
   max-height: 165px;
+  min-height: 250px;
 }
 
 .ac-type-icon {

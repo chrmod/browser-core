@@ -24,7 +24,8 @@ var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
+  //RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
+  RESULTS_PROVIDER: 'http://54.80.25.147/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   VERSION_URL:      'https://beta.cliqz.com/version',
@@ -205,6 +206,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
+                                  CLIQZ.Utils.log(q, 'RESP');
+                                  CLIQZ.Utils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },

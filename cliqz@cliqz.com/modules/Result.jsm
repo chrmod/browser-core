@@ -71,7 +71,7 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                result.q, //query
+                result.source + ' ' + result.q + ' ' + result.confidence, //query
                 thumbnail, // video thumbnail
                 duration, // image description -> video duration
                 result.snippet.snippet // description

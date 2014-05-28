@@ -108,8 +108,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Utils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
         //check APIs
-        CLIQZ.Utils.getCliqzResults();
-        CLIQZ.Utils.getSuggestions();
+        CLIQZ.Utils.getCliqzResults('');
+        CLIQZ.Utils.getSuggestions('');
 
         Autocomplete.init();
 

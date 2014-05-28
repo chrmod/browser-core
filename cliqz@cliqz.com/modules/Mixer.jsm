@@ -81,14 +81,14 @@ var Mixer = {
         // all bucketHistoryCache
         for(let i = 0; i < bucketHistoryCache.length; i++) {
             if(showQueryDebug)
-                bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")!";
+                bucketHistoryCache[i].comment += " (History and vertical: " + bucketHistoryCache[i].query + ")!";
             results.push(bucketHistoryCache[i]);
         }
 
         // top 1 of bucketCache
         if(bucketCache.length > 0) {
             if(showQueryDebug)
-                bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")!";
+                bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
             results.push(bucketCache[0]);
         }
 
@@ -102,7 +102,7 @@ var Mixer = {
         // rest of bucketCache
         for(let i = 1; i < bucketCache.length && i < 4; i++) {
             if(showQueryDebug)
-                bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")!";
+                bucketCache[i].comment += " (" + bucketCache[i].query + ")!";
             results.push(bucketCache[i]);
         }
 
