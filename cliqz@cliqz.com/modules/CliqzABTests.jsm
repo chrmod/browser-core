@@ -7,12 +7,9 @@ Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
+    URL: 'http://ux.fbt.co/ab_test/check?session=',
 	check: function() {
-        var logname = "CliqzABTests.check"
-
-        CLIQZ.Utils.log("checking", logname);
-        
-        CLIQZ.Utils.getABTests(
+        CliqzABTests.retrieve(
             function(response){
                 var prevABtests = [];
                 if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
@@ -41,6 +38,21 @@ var CliqzABTests = CliqzABTests || {
                 if(changes)
                     CLIQZ.Utils.extensionRestart();
             });
+    },
+    retrieve: function(callback) {
+        // Utils.httpGet has a short timeout which it undesired here, so I build the connection myself
+        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+        var url = CliqzABTests.URL + CLIQZ.Utils.cliqzPrefs.getCharPref('session');
+
+        req.overrideMimeType('application/json');
+        req.timeout = 5000;
+
+        req.onload = function(){ callback && callback(req); }
+        req.onerror = function(){ CLIQZ.Utils.log("failed to get " + url, "CliqzABTests.retrieve") }
+        req.ontimeout = function(){ CLIQZ.Utils.log("timeout for " + url, "CliqzABTests.retrieve")}
+
+        req.open("GET", url, true);
+        req.send(null);
     },
     enter: function(abtest, payload) {
         var logname = "CliqzABTests.enter"
