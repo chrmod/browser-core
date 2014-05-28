@@ -187,7 +187,7 @@
           <xul:description class="cliqz-ac-description" anonid="cliqz-description">
           </xul:description>
         </xul:vbox>
-        <xul:vbox class="cliqz-logo-container" pack="center">
+        <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
           <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
           </xul:hbox>
         </xul:vbox>
