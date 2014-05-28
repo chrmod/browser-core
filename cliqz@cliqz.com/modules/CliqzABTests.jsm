@@ -40,7 +40,7 @@ var CliqzABTests = CliqzABTests || {
             });
     },
     retrieve: function(callback) {
-        // Utils.httpGet has a short timeout which it undesired here, so I build the connection myself
+        // Utils.httpGet has a short timeout which is undesired here, so I build the connection myself
         var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         var url = CliqzABTests.URL + CLIQZ.Utils.cliqzPrefs.getCharPref('session');
 
@@ -83,5 +83,4 @@ var CliqzABTests = CliqzABTests || {
                 break;
         }
     },
-
 }
