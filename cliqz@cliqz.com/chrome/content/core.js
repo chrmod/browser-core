@@ -310,6 +310,7 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
         CLIQZ.Core.handleTimings();
+        CLIQZ.Core.checkABTests();
 
         var start = (new Date()).getTime();
         HistoryManager.getStats(function(history){
@@ -337,6 +338,47 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.send_log("search_history", 200);
         CliqzTimings.send_log("search_cliqz", 1000);
         CliqzTimings.send_log("search_suggest", 500);
+    },
+    // check if this client is part of any AB tests
+    checkABTests: function(){
+        var logname = "Cliqz checkABTests"
+
+        CLIQZ.Utils.log("checking", logname);
+        
+        CLIQZ.Utils.getABtests(
+            function(response){
+                CLIQZ.Utils.log("response=" + response, logname);
+                var prevABtests = [];
+                if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('ABtests'))
+                    prevABtests = JSON.parse(CLIQZ.Utils.getPref('ABtests'));
+
+                var respABtests = [];
+                if(response)
+                    respABtests = JSON.parse(response);
+
+                // find new AB tests to enter
+                var newABtests = [];
+                for(let n in respABtests) {
+                    if(prevABtests.indexOf(n) != -1) {
+                        newABtests.push(n);
+                    }
+                }
+                CLIQZ.Utils.log("begin AB test " + newABtests, logname);
+
+                var oldABtests = [];
+                // find old AB tests to exit
+                for(let o in prevABtests) {
+                    if(respABtests.indexOf(o) != -1) {
+                        oldABtests.push(o)
+                    }
+                }
+                CLIQZ.Utils.log("end AB test " + oldABtests, logname);
+
+                //CLIQZ.Utils.extensionRestart();
+            },
+            function(status) {
+                CLIQZ.Utils.log("check failed, status=" + status, logname);
+            });
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){

@@ -26,6 +26,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
   LOG:              'https://logging.cliqz.com',
+  ABTEST:           'http://ux.fbt.co/ab_test/check?session=', 
   CLIQZ_URL:        'https://beta.cliqz.com/',
   VERSION_URL:      'https://beta.cliqz.com/version',
   //UPDATE_URL:     'http://beta.cliqz.com/latest',
@@ -225,6 +226,14 @@ CLIQZ.Utils = CLIQZ.Utils || {
       if(res.status == 200) callback(res.response);
       else error();
     });
+  },
+  getABTests: function(callback, error){
+    // httpGet has a timeout which it undesired here, so make the connect here
+    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+    req.open("GET", ABTEST + CLIQZ.Utils.cliqzPrefs.getCharPref('session') , true);
+    req.overrideMimeType('application/json');
+    req.onload = function(){ callback && callback(req); }
+    req.onerror = function(){ error && error(); }
   },
   stopSearch: function(){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
