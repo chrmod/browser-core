@@ -25,6 +25,7 @@ var Autocomplete = Autocomplete || {
     TIMEOUT: 500,
     lastSearch: '',
     lastResult: null,
+    lastSuggestions: null,
     init: function(){
         CLIQZ.Utils.init();
         Autocomplete.initProvider();
@@ -185,6 +186,8 @@ var Autocomplete = Autocomplete || {
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         Autocomplete.lastResult = this.mixedResults;
+                        Autocomplete.lastSuggestions = this.cliqzSuggestions;
+
                         this.listener.onSearchResult(this, this.mixedResults);
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -298,7 +301,7 @@ var Autocomplete = Autocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.mixedResults,
-                            this.cliqzSuggestions,
+                            //this.cliqzSuggestions,
                             maxResults
                     );
 
@@ -335,6 +338,7 @@ var Autocomplete = Autocomplete || {
 
                 Autocomplete.lastSearch = searchString;
                 Autocomplete.lastResult = null;
+                Autocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;
                 this.customResults = null;
 

@@ -21,7 +21,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 CLIQZ.Utils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, suggestions, maxResults){
+	mix: function(q, history, cliqz, mixed, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -123,36 +123,8 @@ var Mixer = {
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
 
-        //FIX-ME: Find a better way to allow suggestions on the UI
-        results = results.slice(0, maxResults - (suggestions || []).length);
-        // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
-        /// 4) Show suggests if not enough results
-        if(false && q && results.length < maxResults &&
-            (results.length > 0 || (suggestions || []).length > 0)){
 
-            results.push(
-                    Result.generic(
-                        Result.CLIQZS,
-                        q,
-                        Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(q)
-                    )
-                );
-        }
-        for(let i=0; i < (suggestions || []).length /*&& results.length < maxResults */; i++) {
-            if(suggestions[i].toLowerCase() != q.toLowerCase()){
-                results.push(
-                    Result.generic(
-                        Result.CLIQZS,
-                        suggestions[i],
-                        Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(suggestions[i], null, q)
-                    )
-                );
-            }
-        }
-
-        return results;//.slice(0, maxResults);
+        return results.slice(0, maxResults);
 	}
 }
