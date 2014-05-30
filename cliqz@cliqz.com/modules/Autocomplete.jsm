@@ -128,7 +128,7 @@ var Autocomplete = Autocomplete || {
                         let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
                         // check if it should not be filtered, and matches only the domain
-                        if(!Result.isValid(label, urlparts) &&
+                        if(Result.isValid(label, urlparts) &&
                            urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
 
                             CLIQZ.Utils.log(label)
