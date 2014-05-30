@@ -167,7 +167,7 @@
 }
 
 .cliqz-suggestions-source {
-  height: 28px;
+  height: 30px;
   width: 2px;
   /*
   height: 30px;
@@ -177,13 +177,24 @@
 }
 
 .cliqz-suggestion {
-  padding: 1px 5px 2px 5px;
+  padding: 1px 5px 0px 5px;
   margin: 5px 5px 1px 3px;
 }
 
 .cliqz-suggestion:hover, .cliqz-suggestion-default {
   background-color: #eeeeee;
   cursor: pointer;
+}
+
+.cliqz-suggestion-text {
+  margin: 0px;
+  padding: 0px;
+}
+
+.cliqz-suggestion-extra {
+  margin: 0px;
+  padding: 0px;
+  font-weight: 600;
 }
 
 .cliqz-engine-container {

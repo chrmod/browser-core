@@ -44,7 +44,7 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.pixels = 20 /* container padding */;
 
             for(var i in Autocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i]);
+                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
             }
         }
         // CLIQZ END
@@ -121,17 +121,30 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion){
+    addSuggestion: function(popup, suggestion, q){
         var container = popup._suggestions,
-            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'description');
+            suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            extra = document.createElementNS(CLIQZ.Components.XULNS, 'description');
 
-        nameEl.className = 'cliqz-suggestion';
-        nameEl.textContent = suggestion;
-        nameEl.suggestion = suggestion;
+        suggestionWrapper.className = 'cliqz-suggestion';
+        extra.className = 'cliqz-suggestion-extra';
 
-        container.appendChild(nameEl);
+        if(q && suggestion.indexOf(q) == 0){
+            sugestionText.textContent = q;
+            extra.textContent = suggestion.slice(q.length);
+        } else {
+            sugestionText.textContent = suggestion;
+        }
 
-        container.pixels += nameEl.clientWidth + 10 /*padding*/ ;
+        suggestionWrapper.appendChild(sugestionText);
+        suggestionWrapper.appendChild(extra);
+
+        suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+
+        container.appendChild(suggestionWrapper);
+
+        container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
         if(container.pixels > popup.mInput.clientWidth)
