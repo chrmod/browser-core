@@ -139,14 +139,16 @@
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
         </xul:vbox>
-        <xul:stack>
-          <xul:hbox class="cliqz-image-box">
-            <xul:image anonid="cliqz-image" />
-          </xul:hbox>
-          <xul:hbox right="0" bottom="0" class="hidden">
-            <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
-          </xul:hbox>
-        </xul:stack>
+        <xul:vbox>
+          <xul:stack>
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-image"/>
+            </xul:hbox>
+            <xul:hbox right="0" bottom="0" class="hidden">
+              <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+            </xul:hbox>
+          </xul:stack>
+        </xul:vbox>
         <xul:vbox flex="1">
           <xul:hbox align="center" class="ac-title-box" >
             <xul:spacer class="cliqz-left-separator"/>

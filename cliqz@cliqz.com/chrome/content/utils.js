@@ -205,8 +205,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
-                                  CLIQZ.Utils.log(q, 'RESP');
-                                  CLIQZ.Utils.log(res.response, 'RESP');
+                                  //CLIQZ.Utils.log(q, 'RESP');
+                                  //CLIQZ.Utils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },

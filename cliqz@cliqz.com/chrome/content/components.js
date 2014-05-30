@@ -216,6 +216,7 @@ CLIQZ.Components = CLIQZ.Components || {
         item._cliqzImage = item._cliqzImage || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
         item._cliqzImage.setAttribute('src', '');
         item._cliqzImage.className = '';
+        item._cliqzImage.style.width = '';
 
         item._cliqzImageDesc = item._cliqzImageDesc || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
         item._cliqzImageDesc.textContent = '';
@@ -269,14 +270,28 @@ CLIQZ.Components = CLIQZ.Components || {
 
             // add video thumbnail
             if (cliqzData && cliqzData.image) {
+                var IMAGE_HEIGHT = 54,
+                    img = cliqzData.image;
                 item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', cliqzData.image.src);
+                item._cliqzImage.setAttribute('src', img.src);
 
-                if (cliqzData.image.duration) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + cliqzData.image.duration;
+                if (img.duration) {
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }
+                try {
+                    var ratio;
+                    if(img.ratio){
+                        ratio = parseInt(img.ratio);
+                    } else if(img.width && img.height) {
+                        ratio = parseInt(img.width) / parseInt(img.height);
+                    }
+
+                    //default ratio is 16/9
+                    if(ratio) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
+                } catch(e){}
+
             }
             //}
 

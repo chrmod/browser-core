@@ -196,9 +196,14 @@ var Extension = Extension || {
         menupopup.appendChild(menuitem2);
         menupopup.appendChild(menuitem3);
         menupopup.appendChild(menuitem4);
+        //menupopup.appendChild(Extension.createSearchOptions(doc));
 
         return menupopup;
     },
+    createSearchOptions: function(doc){
+
+    },
+
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
         var tab = tBrowser.addTab(url);
