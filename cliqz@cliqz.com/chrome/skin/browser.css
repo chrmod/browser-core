@@ -36,6 +36,12 @@
   border-color: #cccccc;
 }
 
+/*
+.autocomplete-richlistitem * {
+  border: 1px solid red;
+  background-color: green;
+}
+*/
 
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=2#button-cliqz");
@@ -67,6 +73,7 @@
   width: 96px;
   height: 54px;
   padding: 5px 5px 5px 0px;
+  margin-left: 12px;
 }
 
 .cliqz-image {

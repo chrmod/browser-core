@@ -90,16 +90,7 @@ var Autocomplete = Autocomplete || {
             getValueAt: function(index) { return this._results[index].val; },
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
-            getImageAt: function (index) {
-                if(this._results[index].image){
-                    return JSON.stringify({
-                        image: this._results[index].image,
-                        description: this._results[index].imageDescription
-                    });
-                } else {
-                    return undefined;
-                }
-            },
+            getImageAt: function (index) { return undefined; },
             getLabelAt: function(index) { return this._results[index].label; },
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),

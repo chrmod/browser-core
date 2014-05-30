@@ -18,7 +18,7 @@ var Result = {
     CLIQZC: 'cliqz-custom',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
-	generic: function(style, value, image, comment, label, query, thumbnail, imageDescription, description){
+	generic: function(style, value, image, comment, label, query, data){
         //try to show host if no comment(page title) is provided
         if(style !== Result.CLIQZS       // is not a suggestion
            && style !== Result.CLIQZC       // is not a custom search
@@ -36,35 +36,17 @@ var Result = {
         var item = {
             style: style,
             val: value,
-            image: thumbnail, //image || this.createFavicoUrl(value),
             comment: comment,
             label: label || value,
             query: query,
-            imageDescription: imageDescription
+            data: data
         };
-
-        if(description){
-            item.data = {
-                description: description
-            }
-        }
 
         return item;
     },
     // TODO - exclude cache
     cliqz: function(result){
         if(result.snippet){
-            let og = result.snippet.og, thumbnail, duration;
-            if(og && og.image && og.type)
-                for(var type in Result.TYPE_VIDEO)
-                    if(og.type.indexOf(Result.TYPE_VIDEO[type]) != -1){
-                        thumbnail = og.image;
-                        if(og.duration && parseInt(og.duration)){
-                            let seconds = parseInt(og.duration);
-                            duration = Math.floor(seconds/60) + ':' + seconds%60; //might be undefined
-                        }
-                        break;
-                    }
             return Result.generic(
                 Result.CLIQZR, //style
                 result.url, //value
@@ -72,9 +54,7 @@ var Result = {
                 result.snippet.title,
                 null, //label
                 result.source + ' ' + result.q + ' ' + result.confidence, //query
-                thumbnail, // video thumbnail
-                duration, // image description -> video duration
-                result.snippet.snippet // description
+                Result.getData(result.snippet)
             );
         } else {
             return Result.generic(Result.CLIQZR, result.url);
@@ -91,4 +71,65 @@ var Result = {
         }
         return false;
     },
+    // rich data and image
+    getData: function(snip){
+        return {
+            description: snip.desc || snip.snippet,
+            image: Result.getVerticalImage(snip.image, snip.rich_data) ||
+                   Result.getOgImage(snip.og)
+        };
+    },
+    getOgImage: function(og) {
+        if(og && og.image && og.type){
+            for(var type in Result.TYPE_VIDEO){
+                if(og.type.indexOf(Result.TYPE_VIDEO[type]) != -1){
+                    var image = { src: og.image };
+
+                    if(og.duration && parseInt(og.duration)){
+                        var parsedDuration = Result.tryGetImageDuration(og.duration)
+                        if(parsedDuration) image.duration = parsedDuration;
+                    }
+
+                    return image;
+                }
+            }
+        }
+    },
+    getVerticalImage: function(imageData, richData){
+        if(imageData == undefined || imageData.src == undefined) return;
+
+        var image = {
+            src: imageData.src
+        };
+
+
+        if(imageData.width) image.width = imageData.width;
+        if(imageData.height) image.height = imageData.height;
+        if(imageData.ratio) image.ratio = imageData.ratio;
+
+        // add duration from rich data
+        if(richData && richData.attr){
+            for(var i in richData.attr){
+                if(richData.attr[i] && richData.attr[i].length == 2) { //tuples
+                    if(richData.attr[i][0] == 'duration'){
+                        var parsedDuration = Result.tryGetImageDuration(richData.attr[i][1])
+                        if(parsedDuration) image.duration = parsedDuration;
+                    }
+                }
+            }
+        }
+
+        return image
+    },
+    tryGetImageDuration: function(duration){
+        try {
+            let totalSeconds = parseInt(duration),
+                min = Math.floor(totalSeconds/60),
+                seconds = totalSeconds%60;
+            return min + ':' + (seconds < 10 ? '0' + seconds : seconds);
+        }
+        catch(e){}
+
+        return undefined;
+    }
 }

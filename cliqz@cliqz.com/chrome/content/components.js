@@ -91,7 +91,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
             if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
-                item.setAttribute('cliqzData', Autocomplete.lastResult.getDataAt(popup._currentIndex).description);
+                // can we avoid JSON stringify here?
+                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');
             }
@@ -188,7 +190,12 @@ CLIQZ.Components = CLIQZ.Components || {
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
             urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
-            domainDefClass = '';
+            domainDefClass = '', cliqzData;
+
+
+        if(item.getAttribute('cliqzData')){
+            cliqzData = JSON.parse(item.getAttribute('cliqzData'));
+        }
 
         item._cliqzUrlType = item._cliqzUrlType || document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
         item._cliqzUrlType.className = 'cliqz-left-separator';
@@ -207,10 +214,8 @@ CLIQZ.Components = CLIQZ.Components || {
 
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
         item._cliqzDescription.textContent = '';
-        if(item.getAttribute('cliqzData')){
-            //item._cliqzDescription.textContent = item.getAttribute('cliqzData');
-
-            item._setUpDescription(item._cliqzDescription, item.getAttribute('cliqzData'));
+        if(cliqzData && cliqzData.description){
+            item._setUpDescription(item._cliqzDescription, cliqzData.description);
         }
         //item._source.textContent = source;
 
@@ -245,14 +250,12 @@ CLIQZ.Components = CLIQZ.Components || {
             }
 
             // add video thumbnail
-            if (item.getAttribute('image') != 'null' && item.getAttribute('image') != '') {
-                let img = JSON.parse(item.getAttribute('image'));
-
+            if (cliqzData && cliqzData.image) {
                 item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', img.image);
+                item._cliqzImage.setAttribute('src', cliqzData.image.src);
 
-                if (img.description) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.description;
+                if (cliqzData.image.duration) {
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + cliqzData.image.duration;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }
