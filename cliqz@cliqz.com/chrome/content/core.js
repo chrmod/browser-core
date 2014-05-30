@@ -388,21 +388,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._lastKey = ev.keyCode;
         if(code == 13){
-            // update the urlbar if a suggestion is selected
-            var suggestions = popup._suggestions.childNodes,
-                SEL = ' cliqz-suggestion-default';
-
-            for(var i in suggestions){
-                var s = suggestions[i];
-
-                if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
-                    CLIQZ.Core.urlbar.mInputField.setUserInput(s.suggestion);
-
-                    ev.preventDefault();
-                    return;
-                }
-            }
-
             let index = popup.selectedIndex,
                 inputValue = CLIQZ.Core.urlbar.value,
                 action = {
@@ -420,13 +405,23 @@ CLIQZ.Core = CLIQZ.Core || {
                 }
                 action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
                 action.search = CLIQZ.Utils.isSearch(item.getAttribute('url'));
-
-                //if this url is currently previewed do not load it again
-                if(inputValue == item.getAttribute('url')){
-                    ev.preventDefault();
-                    popup.closePopup();
-                }
             } else { //enter while on urlbar and no result selected
+
+                // update the urlbar if a suggestion is selected
+                var suggestions = popup._suggestions.childNodes,
+                    SEL = ' cliqz-suggestion-default';
+
+                for(var i in suggestions){
+                    var s = suggestions[i];
+
+                    if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
+                        CLIQZ.Core.urlbar.mInputField.setUserInput(s.suggestion);
+
+                        ev.preventDefault();
+                        return;
+                    }
+                }
+
 
                 if(CLIQZ.Utils.isUrl(inputValue)){
                     action.position_type = 'inbar_url';

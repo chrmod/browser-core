@@ -322,15 +322,16 @@
 
 /* history */
 .autocomplete-richlistitem[type="favicon"][selected="true"] {
-  border-color: #996699;
+
 }
 
 .autocomplete-richlistitem[type="bookmark"][selected="true"],
 .autocomplete-richlistitem[type="tag"][selected="true"] {
-  border-color: #ffcc33;
+
 }
 
 .autocomplete-richlistitem[selected="true"] {
+  border-color: black;
   border-width: 1px 1px 1px 0;
 }
 
