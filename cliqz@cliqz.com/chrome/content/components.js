@@ -42,6 +42,10 @@ CLIQZ.Components = CLIQZ.Components || {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
+
+            for(var i in Autocomplete.lastSuggestions){
+                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
+            }
         }
         // CLIQZ END
 
@@ -49,14 +53,6 @@ CLIQZ.Components = CLIQZ.Components || {
         for (let i = 0; i < popup.maxRows; i++) {
             if (popup._currentIndex >= matchCount)
                 return;
-
-            // CLIQZ START
-            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
-                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
-                popup._currentIndex++;
-                continue;
-            }
-            // CLIQZ END
 
             var item;
 
@@ -95,7 +91,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
             if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
-                item.setAttribute('cliqzData', Autocomplete.lastResult.getDataAt(popup._currentIndex).description);
+                // can we avoid JSON stringify here?
+                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');
             }
@@ -123,17 +121,30 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion){
+    addSuggestion: function(popup, suggestion, q){
         var container = popup._suggestions,
-            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+            suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            extra = document.createElementNS(CLIQZ.Components.XULNS, 'description');
 
-        nameEl.className = 'cliqz-suggestion';
-        nameEl.textContent = suggestion;
-        nameEl.suggestion = suggestion;
+        suggestionWrapper.className = 'cliqz-suggestion';
+        extra.className = 'cliqz-suggestion-extra';
 
-        container.appendChild(nameEl);
+        if(q && suggestion.indexOf(q) == 0){
+            sugestionText.textContent = q;
+            extra.textContent = suggestion.slice(q.length);
+        } else {
+            sugestionText.textContent = suggestion;
+        }
 
-        container.pixels += nameEl.clientWidth + 10 /*padding*/ ;
+        suggestionWrapper.appendChild(sugestionText);
+        suggestionWrapper.appendChild(extra);
+
+        suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+
+        container.appendChild(suggestionWrapper);
+
+        container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
         if(container.pixels > popup.mInput.clientWidth)
@@ -192,7 +203,12 @@ CLIQZ.Components = CLIQZ.Components || {
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
             urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
-            domainDefClass = '';
+            domainDefClass = '', cliqzData;
+
+
+        if(item.getAttribute('cliqzData')){
+            cliqzData = JSON.parse(item.getAttribute('cliqzData'));
+        }
 
         item._cliqzUrlType = item._cliqzUrlType || document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
         item._cliqzUrlType.className = 'cliqz-left-separator';
@@ -210,11 +226,14 @@ CLIQZ.Components = CLIQZ.Components || {
         item._logo.className = '';
 
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
-        item._cliqzDescription.textContent = '';
-        if(item.getAttribute('cliqzData')){
-            //item._cliqzDescription.textContent = item.getAttribute('cliqzData');
+        item._cliqzDescriptionBox = item._cliqzDescriptionBox || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
 
-            item._setUpDescription(item._cliqzDescription, item.getAttribute('cliqzData'));
+        if(cliqzData && cliqzData.description){
+            item._cliqzDescriptionBox.className = 'cliqz-ac-description-box';
+            item._setUpDescription(item._cliqzDescription, cliqzData.description);
+        } else {
+            item._cliqzDescription.textContent = '';
+            item._cliqzDescriptionBox.className = ''
         }
         //item._source.textContent = source;
 
@@ -249,14 +268,12 @@ CLIQZ.Components = CLIQZ.Components || {
             }
 
             // add video thumbnail
-            if (item.getAttribute('image') != 'null' && item.getAttribute('image') != '') {
-                let img = JSON.parse(item.getAttribute('image'));
-
+            if (cliqzData && cliqzData.image) {
                 item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', img.image);
+                item._cliqzImage.setAttribute('src', cliqzData.image.src);
 
-                if (img.description) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.description;
+                if (cliqzData.image.duration) {
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + cliqzData.image.duration;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }

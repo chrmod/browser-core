@@ -24,7 +24,7 @@ var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
+  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   VERSION_URL:      'https://beta.cliqz.com/version',
@@ -202,10 +202,12 @@ CLIQZ.Utils = CLIQZ.Utils || {
                                     });
   },
   _resultsReq: null,
-  getCachedResults: function(q, callback){
+  getCliqzResults: function(q, callback){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
+                                  CLIQZ.Utils.log(q, 'RESP');
+                                  CLIQZ.Utils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },
@@ -466,7 +468,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
               CLIQZ.Utils.log(t, 'PERFORMANCE');
               setTimeout(function(t){
                 reqtimes[t] = new Date();
-                CLIQZ.Utils.getCachedResults(t, receive_test)
+                CLIQZ.Utils.getCliqzResults(t, receive_test)
               }, start, t);
 
               start += delay || (150 + (Math.random() * 100));
@@ -489,7 +491,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
         function receive_test(ev){
           var end = new Date(),
             r = JSON.parse(ev.response),
-            q = r['cache'][0]['q'],
+            q = r['q'],
             end1 = new Date();
 
           var elapsed = Math.round(end - reqtimes[q]);

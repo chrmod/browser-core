@@ -36,6 +36,12 @@
   border-color: #cccccc;
 }
 
+/*
+.autocomplete-richlistitem * {
+  border: 1px solid red;
+  background-color: green;
+}
+*/
 
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=2#button-cliqz");
@@ -67,6 +73,7 @@
   width: 96px;
   height: 54px;
   padding: 5px 5px 5px 0px;
+  margin-left: 12px;
 }
 
 .cliqz-image {
@@ -95,6 +102,7 @@
 /* autocomplete popup container */
 #PopupAutoCompleteRichResult {
   max-height: 165px;
+  min-height: 250px;
 }
 
 .ac-type-icon {
@@ -159,7 +167,7 @@
 }
 
 .cliqz-suggestions-source {
-  height: 28px;
+  height: 30px;
   width: 2px;
   /*
   height: 30px;
@@ -169,13 +177,24 @@
 }
 
 .cliqz-suggestion {
-  padding: 1px 5px 2px 5px;
+  padding: 1px 5px 0px 5px;
   margin: 5px 5px 1px 3px;
 }
 
 .cliqz-suggestion:hover, .cliqz-suggestion-default {
   background-color: #eeeeee;
   cursor: pointer;
+}
+
+.cliqz-suggestion-text {
+  margin: 0px;
+  padding: 0px;
+}
+
+.cliqz-suggestion-extra {
+  margin: 0px;
+  padding: 0px;
+  font-weight: 600;
 }
 
 .cliqz-engine-container {
@@ -271,6 +290,12 @@
   color: #888888;
 }
 
+.cliqz-ac-description-box {
+  height: 34px;
+  overflow: hidden;
+  padding-right: 30px;
+}
+
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   height: 8px;
   width: 8px;
@@ -308,15 +333,16 @@
 
 /* history */
 .autocomplete-richlistitem[type="favicon"][selected="true"] {
-  border-color: #996699;
+
 }
 
 .autocomplete-richlistitem[type="bookmark"][selected="true"],
 .autocomplete-richlistitem[type="tag"][selected="true"] {
-  border-color: #ffcc33;
+
 }
 
 .autocomplete-richlistitem[selected="true"] {
+  border-color: black;
   border-width: 1px 1px 1px 0;
 }
 
@@ -443,6 +469,11 @@
 .ac-url-box {
   height: 19px;
   padding-bottom: 3px;
+}
+
+.ac-url-text {
+  /* we handle urls */
+  display: none;
 }
 
 .ac-emphasize-text  {

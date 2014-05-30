@@ -21,7 +21,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 CLIQZ.Utils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, suggestions, cache, maxResults){
+	mix: function(q, history, cliqz, mixed, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -44,7 +44,7 @@ var Mixer = {
             let cacheIndex = -1;
             for(let i in cliqz || []) {
                 if(cliqz[i].url.indexOf(label) != -1) {
-                    var tempResult = Result.cliqz(cliqz[i], cache)
+                    var tempResult = Result.cliqz(cliqz[i])
                     bucketHistoryCache.push(Result.generic(style, value, image, comment, label,
                         tempResult.query, tempResult.image));
                     cacheIndex = i;
@@ -69,7 +69,7 @@ var Mixer = {
         }
 
         for(let i in cliqz || []) {
-            bucketCache.push(Result.cliqz(cliqz[i], cache));
+            bucketCache.push(Result.cliqz(cliqz[i]));
         }
 
         /// 2) Prepare final result list from buckets
@@ -81,14 +81,14 @@ var Mixer = {
         // all bucketHistoryCache
         for(let i = 0; i < bucketHistoryCache.length; i++) {
             if(showQueryDebug)
-                bucketHistoryCache[i].comment += " (History and Cache: " + bucketHistoryCache[i].query + ")!";
+                bucketHistoryCache[i].comment += " (History and vertical: " + bucketHistoryCache[i].query + ")!";
             results.push(bucketHistoryCache[i]);
         }
 
         // top 1 of bucketCache
         if(bucketCache.length > 0) {
             if(showQueryDebug)
-                bucketCache[0].comment += " (top Cache: " + bucketCache[0].query + ")!";
+                bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
             results.push(bucketCache[0]);
         }
 
@@ -102,7 +102,7 @@ var Mixer = {
         // rest of bucketCache
         for(let i = 1; i < bucketCache.length && i < 4; i++) {
             if(showQueryDebug)
-                bucketCache[i].comment += " (Cache: " + bucketCache[i].query + ")!";
+                bucketCache[i].comment += " (" + bucketCache[i].query + ")!";
             results.push(bucketCache[i]);
         }
 
@@ -123,36 +123,8 @@ var Mixer = {
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
 
-        //FIX-ME: Find a better way to allow suggestions on the UI
-        results = results.slice(0, maxResults - (suggestions || []).length);
-        // TODO: move deduplication to before final ordering to make sure all important buckets have entries
 
-        /// 4) Show suggests if not enough results
-        if(false && q && results.length < maxResults &&
-            (results.length > 0 || (suggestions || []).length > 0)){
 
-            results.push(
-                    Result.generic(
-                        Result.CLIQZS,
-                        q,
-                        Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(q)
-                    )
-                );
-        }
-        for(let i=0; i < (suggestions || []).length /*&& results.length < maxResults */; i++) {
-            if(suggestions[i].toLowerCase() != q.toLowerCase()){
-                results.push(
-                    Result.generic(
-                        Result.CLIQZS,
-                        suggestions[i],
-                        Result.CLIQZICON,
-                        CLIQZ.Utils.createSuggestionTitle(suggestions[i], null, q)
-                    )
-                );
-            }
-        }
-
-        return results;//.slice(0, maxResults);
+        return results.slice(0, maxResults);
 	}
 }
