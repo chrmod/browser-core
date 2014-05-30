@@ -182,25 +182,16 @@ var Extension = Extension || {
             Extension.openTab(doc, 'http://beta.cliqz.com/faq');
         }, false);
 
-        var menuitem3 = doc.createElement('menuitem');
-        menuitem3.setAttribute('id', 'menuitem3');
-        menuitem3.setAttribute('label', 'Tutorial');
-        menuitem3.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/tutorial');
-        }, false);
-
-        var priv = "Privatsph" + String.fromCharCode("0228") + "re",
-            menuitem4 = doc.createElement('menuitem');
+        var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'menuitem4');
-        menuitem4.setAttribute('label', priv);
+        menuitem4.setAttribute('label', 'Datenschutz');
         menuitem4.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/img/privacy.jpg');
+            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
         }, false);
 
 
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem3);
         menupopup.appendChild(menuitem4);
         //menupopup.appendChild(Extension.createSearchOptions(doc));
 

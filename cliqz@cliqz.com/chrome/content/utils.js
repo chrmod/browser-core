@@ -44,11 +44,11 @@ CLIQZ.Utils = CLIQZ.Utils || {
   init: function(){
     //use a different suggestion API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
-      CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+      //CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
     }
     //use a different results API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('resultsAPI')){
-      CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
+      //CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
     }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');

@@ -35,7 +35,7 @@ CLIQZ.Components = CLIQZ.Components || {
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' von ' + CLIQZ.Components.computeDocNo(trimmedSearchString);
+        popup._cliqzMessage.textContent = trimmedSearchString ? 'Top ' + matchCount + ' Ergebnisse' : '';
 
 
         if (popup._currentIndex == 0) {
@@ -130,7 +130,7 @@ CLIQZ.Components = CLIQZ.Components || {
         suggestionWrapper.className = 'cliqz-suggestion';
         extra.className = 'cliqz-suggestion-extra';
 
-        if(q && suggestion.indexOf(q) == 0){
+        if(false && q && suggestion.indexOf(q) == 0){
             sugestionText.textContent = q;
             var extraText = suggestion.slice(q.length);
             //FIXME : this is not nice
