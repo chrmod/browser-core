@@ -182,7 +182,7 @@ var Autocomplete = Autocomplete || {
                         this.listener.onSearchResult(this, this.mixedResults);
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
-                        this.startTime = undefined;
+                        this.startTime = null;
                         this.resultsTimer = null;
                         this.cliqzResults = null;
                         this.cliqzCache = null;

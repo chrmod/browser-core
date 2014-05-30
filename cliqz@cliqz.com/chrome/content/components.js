@@ -123,7 +123,7 @@ CLIQZ.Components = CLIQZ.Components || {
     },
     addSuggestion: function(popup, suggestion){
         var container = popup._suggestions,
-            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'description');
 
         nameEl.className = 'cliqz-suggestion';
         nameEl.textContent = suggestion;

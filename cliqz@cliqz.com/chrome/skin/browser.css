@@ -280,9 +280,9 @@
 }
 
 .cliqz-ac-description-box {
-
   height: 34px;
   overflow: hidden;
+  padding-right: 30px;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
@@ -458,6 +458,11 @@
 .ac-url-box {
   height: 19px;
   padding-bottom: 3px;
+}
+
+.ac-url-text {
+  /* we handle urls */
+  display: none;
 }
 
 .ac-emphasize-text  {
