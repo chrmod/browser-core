@@ -213,9 +213,14 @@ CLIQZ.Components = CLIQZ.Components || {
         item._logo.className = '';
 
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
-        item._cliqzDescription.textContent = '';
+        item._cliqzDescriptionBox = item._cliqzDescriptionBox || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
+
         if(cliqzData && cliqzData.description){
+            item._cliqzDescriptionBox.className = 'cliqz-ac-description-box';
             item._setUpDescription(item._cliqzDescription, cliqzData.description);
+        } else {
+            item._cliqzDescription.textContent = '';
+            item._cliqzDescriptionBox.className = ''
         }
         //item._source.textContent = source;
 

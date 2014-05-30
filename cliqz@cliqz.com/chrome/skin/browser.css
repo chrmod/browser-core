@@ -279,6 +279,12 @@
   color: #888888;
 }
 
+.cliqz-ac-description-box {
+
+  height: 34px;
+  overflow: hidden;
+}
+
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   height: 8px;
   width: 8px;
