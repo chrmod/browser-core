@@ -9,7 +9,6 @@
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
-		<em:optionsURL>chrome://cliqz/content/options.html</em:optionsURL>
 
 		<!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
 

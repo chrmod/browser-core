@@ -141,14 +141,63 @@ var Extension = Extension || {
 
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
+        button.setAttribute('type', 'menu-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
 
+        var menupopup = Extension.createMenu(win.document)
+        button.appendChild(menupopup);
+
+
         button.addEventListener('click', function(ev) {
-             ev.button == 0 && win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
+            ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+    },
+    createMenu: function(doc){
+        var menupopup = doc.createElement('menupopup');
+        menupopup.setAttribute('id', 'menupopup');
+        menupopup.addEventListener('command', function(event) {
+
+        }, false);
+
+        var menuitem1 = doc.createElement('menuitem');
+        menuitem1.setAttribute('id', 'menuitem1');
+        menuitem1.setAttribute('label', 'Feedback');
+        menuitem1.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/feedback');
+        }, false);
+
+        var menuitem2 = doc.createElement('menuitem');
+        menuitem2.setAttribute('id', 'menuitem2');
+        menuitem2.setAttribute('label', 'FAQ');
+        menuitem2.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/faq');
+        }, false);
+
+        var menuitem3 = doc.createElement('menuitem');
+        menuitem3.setAttribute('id', 'menuitem3');
+        menuitem3.setAttribute('label', 'Tutorial');
+        menuitem3.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/tutorial');
+        }, false);
+
+        var priv = "Privatsph" + String.fromCharCode("0228") + "re",
+            menuitem4 = doc.createElement('menuitem');
+        menuitem4.setAttribute('id', 'menuitem4');
+        menuitem4.setAttribute('label', priv);
+        menuitem4.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/img/privacy.jpg');
+        }, false);
+
+
+        menupopup.appendChild(menuitem1);
+        menupopup.appendChild(menuitem2);
+        menupopup.appendChild(menuitem3);
+        menupopup.appendChild(menuitem4);
+
+        return menupopup;
     },
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
