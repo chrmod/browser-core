@@ -441,12 +441,15 @@ CLIQZ.Utils = CLIQZ.Utils || {
           if(item.getAttribute('type') === 'cliqz-suggestions'){
               value = Services.search.defaultEngine.getSubmission(value).uri.spec;
           }
-          else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
           if(actionType == 'result_click'){ // do not navigate on keyboard navigation
             CLIQZ.Core.locationChangeTO = setTimeout(function(){
-                if(newTab) gBrowser.addTab(value);
-                else gBrowser.selectedBrowser.contentDocument.location = value;
+                if(newTab) gBrowser.addTab(CLIQZ.Utils.cleanMozillaActions(value));
+                else {
+                  if(item.getAttribute('type') != 'cliqz-suggestions' &&
+                    value.indexOf('http') !== 0) value = 'http://' + value;
+                  gBrowser.selectedBrowser.contentDocument.location = value;
+                }
 
             }, 0);
           }

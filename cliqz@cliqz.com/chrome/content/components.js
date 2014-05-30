@@ -154,9 +154,12 @@ CLIQZ.Components = CLIQZ.Components || {
             container.removeChild(container.lastChild);
     },
     suggestionClick: function(ev){
-        if(ev && ev.target && ev.target.suggestion){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
+        if(ev && ev.target){
+            var suggestionVal = ev.target.suggestion || ev.target.parentNode.suggestion;
+            if(suggestionVal){
+                CLIQZ.Core.urlbar.mInputField.focus();
+                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+            }
         }
     },
     cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
