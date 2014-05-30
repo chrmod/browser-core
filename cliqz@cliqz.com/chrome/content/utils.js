@@ -24,8 +24,7 @@ var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  //RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/cliqz-results?q=',
-  RESULTS_PROVIDER: 'http://54.80.25.147/api/v1/results?q=',
+  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   VERSION_URL:      'https://beta.cliqz.com/version',
