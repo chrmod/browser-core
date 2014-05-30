@@ -168,7 +168,7 @@ var Autocomplete = Autocomplete || {
 
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
+                if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     CLIQZ.Utils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
 
