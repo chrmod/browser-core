@@ -100,7 +100,7 @@ var Mixer = {
         }
 
         // rest of bucketCache
-        for(let i = 1; i < bucketCache.length && i < 4; i++) {
+        for(let i = 1; i < bucketCache.length && i < 10; i++) {
             if(showQueryDebug)
                 bucketCache[i].comment += " (" + bucketCache[i].query + ")!";
             results.push(bucketCache[i]);

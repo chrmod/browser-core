@@ -35,7 +35,7 @@ CLIQZ.Components = CLIQZ.Components || {
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' Ergebnisse aus ca. ' + CLIQZ.Components.computeDocNo(trimmedSearchString) + ' Dokumenten';
+        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' von ' + CLIQZ.Components.computeDocNo(trimmedSearchString);
 
 
         if (popup._currentIndex == 0) {
@@ -132,7 +132,10 @@ CLIQZ.Components = CLIQZ.Components || {
 
         if(q && suggestion.indexOf(q) == 0){
             sugestionText.textContent = q;
-            extra.textContent = suggestion.slice(q.length);
+            var extraText = suggestion.slice(q.length);
+            //FIXME : this is not nice
+            if(extraText.indexOf(' ') == 0)extra.className += ' cliqz-one-space';
+            extra.textContent = extraText;
         } else {
             sugestionText.textContent = suggestion;
         }
