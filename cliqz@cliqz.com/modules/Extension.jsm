@@ -2,6 +2,10 @@
 var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
+  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -123,19 +127,28 @@ var Extension = Extension || {
         menu.appendChild(menuItem);
     },
     addButtons: function(win){
-        let doc = win.document,
-            navBar = doc.getElementById('nav-bar');
+        var BTN_ID = 'cliqz-button',
+            DEFAULT_TOOLBOX = 'navigator-toolbox',
+            firstRunPref = 'extensions.cliqz.firstRunDone',
+            doc = win.document,
+            toolbox = doc.getElementById(DEFAULT_TOOLBOX);
 
-        let button = doc.createElement('toolbarbutton');
+        if (!win.Application.prefs.getValue(firstRunPref, false)) {
+            win.Application.prefs.setValue(firstRunPref, true);
+
+            ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
+        }
+
+        let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
 
-        button.addEventListener('click', function() {
-             win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
+        button.addEventListener('click', function(ev) {
+             ev.button == 0 && win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
         }, false);
 
-        navBar.appendChild(button);
+        ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
     },
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
