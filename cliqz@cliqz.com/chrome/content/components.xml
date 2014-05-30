@@ -135,11 +135,11 @@
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
       <xul:hbox>
-        <xul:vbox>
+        <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
         </xul:vbox>
-        <xul:vbox>
+        <xul:vbox pack="center">
           <xul:stack>
             <xul:hbox class="cliqz-image-box">
               <xul:image anonid="cliqz-image"/>
