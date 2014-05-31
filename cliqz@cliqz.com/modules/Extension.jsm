@@ -2,6 +2,10 @@
 var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
+//XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
+//  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -123,20 +127,80 @@ var Extension = Extension || {
         menu.appendChild(menuItem);
     },
     addButtons: function(win){
+        /*
+        var BTN_ID = 'cliqz-button',
+            DEFAULT_TOOLBOX = 'navigator-toolbox',
+            firstRunPref = 'extensions.cliqz.firstRunDone',
+            doc = win.document,
+            toolbox = doc.getElementById(DEFAULT_TOOLBOX);
+
+        if (!win.Application.prefs.getValue(firstRunPref, false)) {
+            win.Application.prefs.setValue(firstRunPref, true);
+
+            ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
+        }*/
+
         let doc = win.document,
             navBar = doc.getElementById('nav-bar');
 
-        let button = doc.createElement('toolbarbutton');
+
+        let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
+        button.setAttribute('type', 'menu-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
 
-        button.addEventListener('click', function() {
-             win.openDialog('chrome://cliqz/content/options.html', 'Cliqz Einstellungen', 'chrome,modal');
+        var menupopup = Extension.createMenu(win.document)
+        button.appendChild(menupopup);
+
+
+        button.addEventListener('click', function(ev) {
+            ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
+        //ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
         navBar.appendChild(button);
     },
+    createMenu: function(doc){
+        var menupopup = doc.createElement('menupopup');
+        menupopup.setAttribute('id', 'menupopup');
+        menupopup.addEventListener('command', function(event) {
+
+        }, false);
+
+        var menuitem1 = doc.createElement('menuitem');
+        menuitem1.setAttribute('id', 'menuitem1');
+        menuitem1.setAttribute('label', 'Feedback');
+        menuitem1.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/feedback');
+        }, false);
+
+        var menuitem2 = doc.createElement('menuitem');
+        menuitem2.setAttribute('id', 'menuitem2');
+        menuitem2.setAttribute('label', 'FAQ');
+        menuitem2.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/faq');
+        }, false);
+
+        var menuitem4 = doc.createElement('menuitem');
+        menuitem4.setAttribute('id', 'menuitem4');
+        menuitem4.setAttribute('label', 'Datenschutz');
+        menuitem4.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
+        }, false);
+
+
+        menupopup.appendChild(menuitem1);
+        menupopup.appendChild(menuitem2);
+        menupopup.appendChild(menuitem4);
+        //menupopup.appendChild(Extension.createSearchOptions(doc));
+
+        return menupopup;
+    },
+    createSearchOptions: function(doc){
+
+    },
+
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
         var tab = tBrowser.addTab(url);

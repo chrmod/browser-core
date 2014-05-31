@@ -35,13 +35,17 @@ CLIQZ.Components = CLIQZ.Components || {
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' Ergebnisse aus ca. ' + CLIQZ.Components.computeDocNo(trimmedSearchString) + ' Dokumenten';
+        popup._cliqzMessage.textContent = trimmedSearchString ? 'Top ' + matchCount + ' Ergebnisse' : '';
 
 
         if (popup._currentIndex == 0) {
             CLIQZ.Core.autocompleteQuery(controller.getValueAt(popup._currentIndex));
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
+
+            for(var i in Autocomplete.lastSuggestions){
+                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
+            }
         }
         // CLIQZ END
 
@@ -49,14 +53,6 @@ CLIQZ.Components = CLIQZ.Components || {
         for (let i = 0; i < popup.maxRows; i++) {
             if (popup._currentIndex >= matchCount)
                 return;
-
-            // CLIQZ START
-            if(controller.getStyleAt(popup._currentIndex) == 'cliqz-suggestions'){
-                CLIQZ.Components.addSuggestion(popup, controller.getValueAt(popup._currentIndex));
-                popup._currentIndex++;
-                continue;
-            }
-            // CLIQZ END
 
             var item;
 
@@ -95,7 +91,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
             if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
-                item.setAttribute('cliqzData', Autocomplete.lastResult.getDataAt(popup._currentIndex).description);
+                // can we avoid JSON stringify here?
+                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');
             }
@@ -123,26 +121,45 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion){
+    addSuggestion: function(popup, suggestion, q){
         var container = popup._suggestions,
-            nameEl = document.createElementNS(CLIQZ.Components.XULNS, 'span');
+            suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
+            extra = document.createElementNS(CLIQZ.Components.XULNS, 'description');
 
-        nameEl.className = 'cliqz-suggestion';
-        nameEl.textContent = suggestion;
-        nameEl.suggestion = suggestion;
+        suggestionWrapper.className = 'cliqz-suggestion';
+        extra.className = 'cliqz-suggestion-extra';
 
-        container.appendChild(nameEl);
+        if(false && q && suggestion.indexOf(q) == 0){
+            sugestionText.textContent = q;
+            var extraText = suggestion.slice(q.length);
+            //FIXME : this is not nice
+            if(extraText.indexOf(' ') == 0)extra.className += ' cliqz-one-space';
+            extra.textContent = extraText;
+        } else {
+            sugestionText.textContent = suggestion;
+        }
 
-        container.pixels += nameEl.clientWidth + 10 /*padding*/ ;
+        suggestionWrapper.appendChild(sugestionText);
+        suggestionWrapper.appendChild(extra);
+
+        suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+
+        container.appendChild(suggestionWrapper);
+
+        container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
         if(container.pixels > popup.mInput.clientWidth)
             container.removeChild(container.lastChild);
     },
     suggestionClick: function(ev){
-        if(ev && ev.target && ev.target.suggestion){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
+        if(ev && ev.target){
+            var suggestionVal = ev.target.suggestion || ev.target.parentNode.suggestion;
+            if(suggestionVal){
+                CLIQZ.Core.urlbar.mInputField.focus();
+                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+            }
         }
     },
     cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
@@ -192,7 +209,12 @@ CLIQZ.Components = CLIQZ.Components || {
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
             urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
-            domainDefClass = '';
+            domainDefClass = '', cliqzData;
+
+
+        if(item.getAttribute('cliqzData')){
+            cliqzData = JSON.parse(item.getAttribute('cliqzData'));
+        }
 
         item._cliqzUrlType = item._cliqzUrlType || document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
         item._cliqzUrlType.className = 'cliqz-left-separator';
@@ -200,6 +222,7 @@ CLIQZ.Components = CLIQZ.Components || {
         item._cliqzImage = item._cliqzImage || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
         item._cliqzImage.setAttribute('src', '');
         item._cliqzImage.className = '';
+        item._cliqzImage.style.width = '';
 
         item._cliqzImageDesc = item._cliqzImageDesc || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
         item._cliqzImageDesc.textContent = '';
@@ -210,11 +233,14 @@ CLIQZ.Components = CLIQZ.Components || {
         item._logo.className = '';
 
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
-        item._cliqzDescription.textContent = '';
-        if(item.getAttribute('cliqzData')){
-            //item._cliqzDescription.textContent = item.getAttribute('cliqzData');
+        item._cliqzDescriptionBox = item._cliqzDescriptionBox || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
 
-            item._setUpDescription(item._cliqzDescription, item.getAttribute('cliqzData'));
+        if(cliqzData && cliqzData.description){
+            item._cliqzDescriptionBox.className = 'cliqz-ac-description-box';
+            item._setUpDescription(item._cliqzDescription, cliqzData.description);
+        } else {
+            item._cliqzDescription.textContent = '';
+            item._cliqzDescriptionBox.className = ''
         }
         //item._source.textContent = source;
 
@@ -249,17 +275,29 @@ CLIQZ.Components = CLIQZ.Components || {
             }
 
             // add video thumbnail
-            if (item.getAttribute('image') != 'null' && item.getAttribute('image') != '') {
-                let img = JSON.parse(item.getAttribute('image'));
-
+            if (cliqzData && cliqzData.image) {
+                var IMAGE_HEIGHT = 54,
+                    img = cliqzData.image;
                 item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', img.image);
+                item._cliqzImage.setAttribute('src', img.src);
 
-                if (img.description) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.description;
+                if (img.duration) {
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }
+                try {
+                    var ratio;
+                    if(img.ratio){
+                        ratio = parseInt(img.ratio);
+                    } else if(img.width && img.height) {
+                        ratio = parseInt(img.width) / parseInt(img.height);
+                    }
+
+                    //default ratio is 16/9
+                    if(ratio) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
+                } catch(e){}
+
             }
             //}
 
