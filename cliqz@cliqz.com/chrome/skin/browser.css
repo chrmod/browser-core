@@ -255,7 +255,7 @@
 }
 
 .cliqz-engines-container:hover .cliqz-engines {
-  width: 400px;
+  width: 182px; /* 7 engines */
 }
 
 .cliqz-engines-container:hover .cliqz-engines-text {
