@@ -193,12 +193,30 @@ var Extension = Extension || {
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
         menupopup.appendChild(menuitem4);
-        //menupopup.appendChild(Extension.createSearchOptions(doc));
+        menupopup.appendChild(Extension.createSearchOptions(doc));
 
         return menupopup;
     },
     createSearchOptions: function(doc){
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
 
+        menu.setAttribute('label', 'Standard-Suchmaschine');
+
+        for(var engine of CLIQZ.Utils.getSearchEngines()){
+            var item = doc.createElement('menuitem');
+            item.setAttribute('label', '[' + engine.prefix + '] ' + engine.name);
+            item.addEventListener('command', function(event) {
+
+            }, false);
+        }
+
+//        $searchEngines.val(Services.search.currentEngine.name);
+
+        menupopup.appendChild(menuitem1);
+        menu.appendChild(menupopup);
+
+        return menu;
     },
 
     openTab: function(doc, url){
