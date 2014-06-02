@@ -44,11 +44,11 @@ CLIQZ.Utils = CLIQZ.Utils || {
   init: function(){
     //use a different suggestion API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
-      CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+      //CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
     }
     //use a different results API
     if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('resultsAPI')){
-      CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
+      //CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
     }
     CLIQZ.Utils.loadLocale();
     CLIQZ.Utils.log('Initialized', 'UTILS');
@@ -206,8 +206,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
     CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
                                 function(res){
-                                  CLIQZ.Utils.log(q, 'RESP');
-                                  CLIQZ.Utils.log(res.response, 'RESP');
+                                  //CLIQZ.Utils.log(q, 'RESP');
+                                  //CLIQZ.Utils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },
@@ -442,12 +442,15 @@ CLIQZ.Utils = CLIQZ.Utils || {
           if(item.getAttribute('type') === 'cliqz-suggestions'){
               value = Services.search.defaultEngine.getSubmission(value).uri.spec;
           }
-          else if(value.indexOf('http') !== 0) value = 'http://' + value;
 
           if(actionType == 'result_click'){ // do not navigate on keyboard navigation
             CLIQZ.Core.locationChangeTO = setTimeout(function(){
-                if(newTab) gBrowser.addTab(value);
-                else gBrowser.selectedBrowser.contentDocument.location = value;
+                if(newTab) gBrowser.addTab(CLIQZ.Utils.cleanMozillaActions(value));
+                else {
+                  if(item.getAttribute('type') != 'cliqz-suggestions' &&
+                    value.indexOf('http') !== 0) value = 'http://' + value;
+                  gBrowser.selectedBrowser.contentDocument.location = value;
+                }
 
             }, 0);
           }

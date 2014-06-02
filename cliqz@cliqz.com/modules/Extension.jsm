@@ -4,8 +4,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+//XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
+//  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -127,6 +127,7 @@ var Extension = Extension || {
         menu.appendChild(menuItem);
     },
     addButtons: function(win){
+        /*
         var BTN_ID = 'cliqz-button',
             DEFAULT_TOOLBOX = 'navigator-toolbox',
             firstRunPref = 'extensions.cliqz.firstRunDone',
@@ -137,7 +138,11 @@ var Extension = Extension || {
             win.Application.prefs.setValue(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
-        }
+        }*/
+
+        let doc = win.document,
+            navBar = doc.getElementById('nav-bar');
+
 
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
@@ -153,7 +158,8 @@ var Extension = Extension || {
             ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
-        ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+        //ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+        navBar.appendChild(button);
     },
     createMenu: function(doc){
         var menupopup = doc.createElement('menupopup');
@@ -176,29 +182,25 @@ var Extension = Extension || {
             Extension.openTab(doc, 'http://beta.cliqz.com/faq');
         }, false);
 
-        var menuitem3 = doc.createElement('menuitem');
-        menuitem3.setAttribute('id', 'menuitem3');
-        menuitem3.setAttribute('label', 'Tutorial');
-        menuitem3.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/tutorial');
-        }, false);
-
-        var priv = "Privatsph" + String.fromCharCode("0228") + "re",
-            menuitem4 = doc.createElement('menuitem');
+        var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'menuitem4');
-        menuitem4.setAttribute('label', priv);
+        menuitem4.setAttribute('label', 'Datenschutz');
         menuitem4.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/img/privacy.jpg');
+            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
         }, false);
 
 
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem3);
         menupopup.appendChild(menuitem4);
+        //menupopup.appendChild(Extension.createSearchOptions(doc));
 
         return menupopup;
     },
+    createSearchOptions: function(doc){
+
+    },
+
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
         var tab = tBrowser.addTab(url);

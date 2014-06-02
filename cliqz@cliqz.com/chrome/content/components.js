@@ -35,7 +35,7 @@ CLIQZ.Components = CLIQZ.Components || {
         popup._suggestions = popup._suggestions || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-suggestions");
         popup._cliqzMessage = popup._cliqzMessage || document.getAnonymousElementByAttribute(popup, "anonid", "cliqz-navigation-message");
 
-        popup._cliqzMessage.textContent = 'Top ' + matchCount + ' Ergebnisse aus ca. ' + CLIQZ.Components.computeDocNo(trimmedSearchString) + ' Dokumenten';
+        popup._cliqzMessage.textContent = trimmedSearchString ? 'Top ' + matchCount + ' Ergebnisse' : '';
 
 
         if (popup._currentIndex == 0) {
@@ -130,9 +130,12 @@ CLIQZ.Components = CLIQZ.Components || {
         suggestionWrapper.className = 'cliqz-suggestion';
         extra.className = 'cliqz-suggestion-extra';
 
-        if(q && suggestion.indexOf(q) == 0){
+        if(false && q && suggestion.indexOf(q) == 0){
             sugestionText.textContent = q;
-            extra.textContent = suggestion.slice(q.length);
+            var extraText = suggestion.slice(q.length);
+            //FIXME : this is not nice
+            if(extraText.indexOf(' ') == 0)extra.className += ' cliqz-one-space';
+            extra.textContent = extraText;
         } else {
             sugestionText.textContent = suggestion;
         }
@@ -151,9 +154,12 @@ CLIQZ.Components = CLIQZ.Components || {
             container.removeChild(container.lastChild);
     },
     suggestionClick: function(ev){
-        if(ev && ev.target && ev.target.suggestion){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.suggestion);
+        if(ev && ev.target){
+            var suggestionVal = ev.target.suggestion || ev.target.parentNode.suggestion;
+            if(suggestionVal){
+                CLIQZ.Core.urlbar.mInputField.focus();
+                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+            }
         }
     },
     cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
@@ -216,6 +222,7 @@ CLIQZ.Components = CLIQZ.Components || {
         item._cliqzImage = item._cliqzImage || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
         item._cliqzImage.setAttribute('src', '');
         item._cliqzImage.className = '';
+        item._cliqzImage.style.width = '';
 
         item._cliqzImageDesc = item._cliqzImageDesc || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
         item._cliqzImageDesc.textContent = '';
@@ -269,14 +276,28 @@ CLIQZ.Components = CLIQZ.Components || {
 
             // add video thumbnail
             if (cliqzData && cliqzData.image) {
+                var IMAGE_HEIGHT = 54,
+                    img = cliqzData.image;
                 item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', cliqzData.image.src);
+                item._cliqzImage.setAttribute('src', img.src);
 
-                if (cliqzData.image.duration) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + cliqzData.image.duration;
+                if (img.duration) {
+                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
                     item._cliqzImageDesc.className = 'cliqz-image-desc';
                     item._cliqzImageDesc.parentNode.className = '';
                 }
+                try {
+                    var ratio;
+                    if(img.ratio){
+                        ratio = parseInt(img.ratio);
+                    } else if(img.width && img.height) {
+                        ratio = parseInt(img.width) / parseInt(img.height);
+                    }
+
+                    //default ratio is 16/9
+                    if(ratio) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
+                } catch(e){}
+
             }
             //}
 

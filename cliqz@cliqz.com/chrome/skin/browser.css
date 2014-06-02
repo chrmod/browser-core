@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-richlistitem-cliqz");
   padding: 5px 0;
   border-width: 1px 1px 0px 0;
   border-style: solid;
@@ -44,11 +44,12 @@
 */
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=2#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#button-cliqz");
   cursor: pointer;
 }
 
 .cliqz-ac-site-icon-ssl {
+  margin-left: 13px;
   background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 0% 60%;
 }
 
@@ -70,9 +71,8 @@
 }
 
 .cliqz-ac-image {
-  width: 96px;
-  height: 54px;
-  padding: 5px 5px 5px 0px;
+  width: 96px; /* 16 */
+  height: 54px; /* 9 */
   margin-left: 12px;
 }
 
@@ -86,7 +86,7 @@
   font-size: 9pt;
   color: white;
   padding: 2px 5px 2px 5px;
-  margin: 0px 5px 10px 0px;
+  margin: 0px 2px 6px 0px;
 }
 
 /* switch to tab*/
@@ -126,11 +126,10 @@
 
 /* general autocomplete item styles */
 .ac-title-box {
-  height: 24px;
+  height: 20px;
   font-size: 12pt;
   font-weight: 500;
-  padding: 8px 0 2px 0;
-
+  padding-top: 6px;
   /* windows */
   margin: 0px;
 }
@@ -176,6 +175,10 @@
   */
 }
 
+.cliqz-one-space {
+  margin-left: 5px;
+}
+
 .cliqz-suggestion {
   padding: 1px 5px 0px 5px;
   margin: 5px 5px 1px 3px;
@@ -183,6 +186,9 @@
 
 .cliqz-suggestion:hover, .cliqz-suggestion-default {
   background-color: #eeeeee;
+}
+
+.cliqz-suggestion * {
   cursor: pointer;
 }
 
@@ -277,9 +283,9 @@
 
 /* source color */
 .cliqz-ac-source-icon {
-  width: 5px;
-  height: 32px;
-  margin-right: 12px;
+  width: 10px;
+  height: 1px;
+  margin-left: 13px;
 }
 
 .cliqz-ac-description {
@@ -297,11 +303,10 @@
 }
 
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
-  height: 8px;
-  width: 8px;
-  background-color: #007AFF;
+  height: 9px;
+  width: 9px;
+  background-color: #0099FF;
   border-radius: 50%;
-  margin: 13px 0 0 11px;
 }
 
 .autocomplete-richlistitem[type="cliqz-suggestions"] .cliqz-ac-source-icon,
@@ -375,22 +380,30 @@
   background-color: rgba(204, 204, 204, 0.2);
 }
 
+.autocomplete-richlistitem:hover .cliqz-logo-container {
+  background: url(chrome://cliqzres/content/skin/popout_icon.png) no-repeat center center;
+}
+
+.autocomplete-richlistitem:hover .cliqz-logo-container .cliqz-ac-logo-icon {
+  background: none;
+}
+
 .autocomplete-richlistitem[selected="true"]:hover {
   background-color: white;
 }
 
 .cliqz-ac-logo-icon {
   height: 36px;
-  width: 36px;
+  width: 40px;
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: center center;
   background-size: 36px 36px;
 }
 
 .cliqz-logo-container {
-  width: 36px;
+  width: 40px;
   height: 48px;
-  margin: 0 18px;
+  margin: 0 24px 0 18px;
 }
 
 .cliqz-logo-container:hover {
@@ -436,7 +449,7 @@
 
 .cliqz-ac-url-host {
   font-size: 10pt;
-  color: #007AFF;
+  color: #007aff;
   font-weight: 400;
 }
 
@@ -468,7 +481,7 @@
 /* url container */
 .ac-url-box {
   height: 19px;
-  padding-bottom: 3px;
+  padding-bottom: 2px;
 }
 
 .ac-url-text {
