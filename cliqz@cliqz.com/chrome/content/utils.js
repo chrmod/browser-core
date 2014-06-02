@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm');
+  'chrome://cliqzmodules/content/Language.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
 
 
 var EXPORTED_SYMBOLS = ['CLIQZ'];
@@ -30,7 +30,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   VERSION_URL:      'https://beta.cliqz.com/version',
   //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:     'https://beta.cliqz.com/anleitung',
+  TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',

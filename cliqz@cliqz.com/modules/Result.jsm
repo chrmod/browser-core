@@ -5,7 +5,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js');
+  'chrome://cliqz/content/utils.js?v=0.4.12');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
@@ -66,26 +66,26 @@ var Result = {
         // Filter all like:
         //    www.google.*/search?
         //    www.google.*/url? - for redirects
-        if(urlparts.name.toLowerCase() == "google" && 
+        if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
             CLIQZ.Utils.log("Discarding result page from history: " + url)
             return false;
         }
         // Bing Filters
-        // Filter all like: 
+        // Filter all like:
         //    www.bing.com/search?
-        if(urlparts.name.toLowerCase() == "bing" && 
+        if(urlparts.name.toLowerCase() == "bing" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
             CLIQZ.Utils.log("Discarding result page from history: " + url)
             return false;
         }
         // Yahoo filters
-        // Filter all like: 
+        // Filter all like:
         //   search.yahoo.com/search
         //   *.search.yahooo.com/search - for international 'de.search.yahoo.com'
         //   r.search.yahoo.com - for redirects 'r.search.yahoo.com'
-        if(urlparts.name.toLowerCase() == "yahoo" && 
+        if(urlparts.name.toLowerCase() == "yahoo" &&
            ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {

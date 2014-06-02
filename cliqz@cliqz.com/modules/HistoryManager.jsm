@@ -5,13 +5,12 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import("resource://gre/modules/PlacesUtils.jsm")
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js');
-
-
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');
+
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
+  'chrome://cliqz/content/utils.js?v=0.4.12');
 
 var HistoryManager = {
 	_db: null,

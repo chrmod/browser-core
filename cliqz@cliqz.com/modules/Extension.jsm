@@ -8,7 +8,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 //  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
 
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -31,7 +31,7 @@ var Extension = Extension || {
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
-        Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
+        Cu.import('chrome://cliqz/content/utils.js?v=0.4.12');
 
         Extension.setDefaultPrefs();
         CLIQZ.Utils.init();

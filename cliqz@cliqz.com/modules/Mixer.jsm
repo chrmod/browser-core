@@ -5,13 +5,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
-  'chrome://cliqzmodules/content/Filter.jsm');
+  'chrome://cliqzmodules/content/Filter.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js');
+  'chrome://cliqz/content/utils.js?v=0.4.12');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){

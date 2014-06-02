@@ -3,19 +3,19 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
-  'chrome://cliqzmodules/content/HistoryManager.jsm');
+  'chrome://cliqzmodules/content/HistoryManager.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm');
+  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm');
+  'chrome://cliqzmodules/content/Language.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
 
 
 var CLIQZ = CLIQZ || {};
@@ -32,24 +32,24 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CLIQZ.Utils.init();
 
-        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?rand='+Math.random());
+        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css??v=0.4.12');
         CLIQZ.Core.elem.push(css);
-        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?rand='+Math.random());
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css??v=0.4.12');
         CLIQZ.Core.elem.push(css);
 
         if(CLIQZ.Utils.cliqzPrefs.getBoolPref('bwFonts')){
-            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css?rand='+Math.random());
+            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css??v=0.4.12');
             CLIQZ.Core.elem.push(css);
         }
         // TEMP - EXPERIMENTAL
         /*
         var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
-        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css?rand='+Math.random());
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css??v=0.4.12');
         CLIQZ.Core.elem.push(css);
 
         var logoPosition = CLIQZ.Utils.cliqzPrefs.getIntPref('logoPosition');
         if(logoPosition != 1){
-            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css?rand='+Math.random());
+            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css??v=0.4.12');
             CLIQZ.Core.elem.push(css);
         }
         */
@@ -129,7 +129,7 @@ CLIQZ.Core = CLIQZ.Core || {
     checkSession: function(){
         var prefs = CLIQZ.Utils.cliqzPrefs;
         if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
-            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json',
+            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json?v=0.4.12',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
                     prefs.setCharPref('session', CLIQZ.Core.generateSession(source));

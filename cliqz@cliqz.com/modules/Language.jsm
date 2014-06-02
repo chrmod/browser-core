@@ -4,7 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['Language'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
+Cu.import('chrome://cliqz/content/utils.js??v=0.4.12');
 
 
 var Language = Language || {
