@@ -295,14 +295,11 @@
 .cliqz-ac-description {
   font-size: 10pt;
   padding-left: 13px;
-  padding-bottom: 1px;
   margin-bottom: 6px;
   color: #888888;
 }
 
 .cliqz-ac-description-box {
-  height: 34px;
-  overflow: hidden;
   padding-right: 30px;
 }
 
