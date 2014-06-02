@@ -112,7 +112,7 @@ var Extension = Extension || {
         }
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?r='+Math.random(), win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.12', win);
     },
     loadIntoWindow: function(win) {
         if(CLIQZ.Utils.shouldLoad(win)){
@@ -156,7 +156,7 @@ var Extension = Extension || {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
         button.setAttribute('type', 'menu-button');
-        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional cliqz-menu-btn');
+        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
         var menupopup = Extension.createMenu(win)
