@@ -186,9 +186,11 @@
                        class="ac-ellipsis-after ac-url-text"/>
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
-          <xul:vbox anonid="cliqz-description-box">
-            <xul:description class="cliqz-ac-description" anonid="cliqz-description" />
-          </xul:vbox>
+          <xul:hbox>
+            <xul:vbox anonid="cliqz-description-box">
+              <xul:description class="cliqz-ac-description" anonid="cliqz-description" />
+            </xul:vbox>
+          </xul:hbox>
         </xul:vbox>
         <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
           <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
