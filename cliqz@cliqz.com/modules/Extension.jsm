@@ -43,6 +43,12 @@ var Extension = Extension || {
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
+
+            // check if there are any conflicting addons
+            // win.Application.getExtensions(function(extensions) {
+            //    for(var i in extensions.all)win.console.log(extensions.all[i].id)
+            // });
+
             Extension.loadIntoWindow(win);
         }
         // Load into all new windows
