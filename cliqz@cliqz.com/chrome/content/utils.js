@@ -233,7 +233,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
   },
   shouldLoad: function(window){
-    return CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CLIQZ.Utils.isPrivate(window);
+    return true; //CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CLIQZ.Utils.isPrivate(window);
   },
   isPrivate: function(window) {
     try {

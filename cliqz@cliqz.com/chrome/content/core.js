@@ -40,23 +40,6 @@ CLIQZ.Core = CLIQZ.Core || {
         css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css??v=0.4.12');
         CLIQZ.Core.elem.push(css);
 
-        if(CLIQZ.Utils.cliqzPrefs.getBoolPref('bwFonts')){
-            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/bw.css??v=0.4.12');
-            CLIQZ.Core.elem.push(css);
-        }
-        // TEMP - EXPERIMENTAL
-        /*
-        var scale = CLIQZ.Utils.cliqzPrefs.getIntPref('scale');
-        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/scale' + scale + '.css??v=0.4.12');
-        CLIQZ.Core.elem.push(css);
-
-        var logoPosition = CLIQZ.Utils.cliqzPrefs.getIntPref('logoPosition');
-        if(logoPosition != 1){
-            css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/' + (logoPosition==0?'no':'left')+ 'logo.css??v=0.4.12');
-            CLIQZ.Core.elem.push(css);
-        }
-        */
-        // ENDTEMP
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
 
@@ -448,26 +431,6 @@ CLIQZ.Core = CLIQZ.Core || {
                         CLIQZ.Core.urlbar.value = customQuery.queryURI;
                     }
                 }
-                // TEMP - EXPERIMENTAL
-                /*
-                if(CLIQZ.Utils.cliqzPrefs.getBoolPref('enterLoadsFirst')){
-                    ev.preventDefault();
-
-                    CLIQZ.Utils.log(popup.richlistbox.childNodes[0].getAttribute('url'), "AAAAA");
-                    var item = popup.richlistbox.childNodes[0],
-                        value = item.getAttribute('url');
-
-                    if(item.getAttribute('type') === 'cliqz-suggestions'){
-                        value = Services.search.defaultEngine.getSubmission(value).uri.spec;
-                    }
-                    else if(value.indexOf('http') !== 0) value = 'http://' + value;
-
-                    gBrowser.selectedBrowser.contentDocument.location = value;
-                    popup.closePopup();
-                }
-                */
-                // ENDTEMP
-
             }
             CLIQZ.Utils.track(action);
         }

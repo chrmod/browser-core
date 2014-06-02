@@ -19,15 +19,9 @@ var Extension = Extension || {
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
         'popupHeight': 290, // popup/dropdown height in pixels
-        'betaGroup': false, // if set to true the extension gets all the updates. Else only the major ones
         'dnt': false, // if set to true the extension will not send any tracking signals
-        'enterLoadsFirst': false, // on enter the first result is loaded if none is selected
         'hideQuickSearch': true, // hides quick search
-        'pagePreload': true, // hides quick search
         'inPrivateWindows': true, // enables extension in private mode
-        'bwFonts': false, // uses only black and white fonts for titles
-        'scale': 3, // 1-xsmall, 2-small, 3-normal, 4-large, 5-xlarge
-        'logoPosition': 1, // -1-left, 0-none, 1-right
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
