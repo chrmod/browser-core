@@ -7,6 +7,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 //XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
 //  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+    'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
@@ -147,12 +150,11 @@ var Extension = Extension || {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
         button.setAttribute('type', 'menu-button');
-        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
+        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional cliqz-menu-btn');
+        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
         var menupopup = Extension.createMenu(win.document)
         button.appendChild(menupopup);
-
 
         button.addEventListener('click', function(ev) {
             ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
@@ -199,26 +201,49 @@ var Extension = Extension || {
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
-            menupopup = doc.createElement('menupopup');
+            menupopup = doc.createElement('menupopup'),
+            engines = ResultProviders.getSearchEngines(),
+            def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', 'Standard-Suchmaschine');
 
-        for(var engine of CLIQZ.Utils.getSearchEngines()){
-            var item = doc.createElement('menuitem');
-            item.setAttribute('label', '[' + engine.prefix + '] ' + engine.name);
-            item.addEventListener('command', function(event) {
+        for(var i in engines){
 
+            var engine = engines[i],
+                item = doc.createElement('menuitem');
+            item.setAttribute('label', '[' + engine.prefix + '] ' + engine.name);
+            item.setAttribute('class', 'menuitem-iconic');
+            item.engineName = engine.name;
+            if(engine.name == def){
+                item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
+            }
+            item.addEventListener('command', function(event) {
+                ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CLIQZ.Utils.setTimeout(Extension.refreshButtons, 0);
             }, false);
+
+            menupopup.appendChild(item);
         }
 
-//        $searchEngines.val(Services.search.currentEngine.name);
-
-        menupopup.appendChild(menuitem1);
         menu.appendChild(menupopup);
 
         return menu;
     },
+    refreshButtons: function(){
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext(),
+                doc = win.document;
 
+            try{
+                var btn = win.document.getElementById('cliqz-button')
+                if(btn && btn.children && btn.children.menupopup){
+                    btn.children.menupopup.lastChild.remove();
+                    btn.children.menupopup.appendChild(Extension.createSearchOptions(doc));
+                }
+            } catch(e){}
+        }
+    },
     openTab: function(doc, url){
         var tBrowser = doc.getElementById('content');
         var tab = tBrowser.addTab(url);
