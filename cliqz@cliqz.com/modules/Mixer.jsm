@@ -58,7 +58,7 @@ var Mixer = {
             } else {
                 let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
 
-                if(!Result.isValid(label, urlparts)) {
+                if(Result.isValid(label, urlparts)) {
                     // Assign to different buckets if the search string occurs in hostname
                     if(urlparts.host.toLowerCase().indexOf(q) !=-1)
                         bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, q));

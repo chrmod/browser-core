@@ -62,14 +62,38 @@ var Result = {
     },
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
-        // Ignore result if is this a google search result from history
-        if(urlparts.name.toLowerCase() == "google" && urlparts.subdomains.length > 0 &&
-           urlparts.subdomains[0].toLowerCase() == "www" &&
+        // Google Filters
+        // Filter all like:
+        //    www.google.*/search?
+        //    www.google.*/url? - for redirects
+        if(urlparts.name.toLowerCase() == "google" && 
+           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-            CLIQZ.Utils.log("Discarding google result page from history: " + url)
-            return true;
+            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            return false;
         }
-        return false;
+        // Bing Filters
+        // Filter all like: 
+        //    www.bing.com/search?
+        if(urlparts.name.toLowerCase() == "bing" && 
+           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
+            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            return false;
+        }
+        // Yahoo filters
+        // Filter all like: 
+        //   search.yahoo.com/search
+        //   *.search.yahooo.com/search - for international 'de.search.yahoo.com'
+        //   r.search.yahoo.com - for redirects 'r.search.yahoo.com'
+        if(urlparts.name.toLowerCase() == "yahoo" && 
+           ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
+            (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
+            (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {
+            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            return false;
+        }
+
+        return true;
     },
     // rich data and image
     getData: function(snip){
