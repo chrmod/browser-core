@@ -17,6 +17,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
+  'chrome://cliqzmodules/content/CliqzABTests.jsm');
+
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -310,6 +313,7 @@ CLIQZ.Core = CLIQZ.Core || {
         setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
 
         CLIQZ.Core.handleTimings();
+        CliqzABTests.check();
 
         var start = (new Date()).getTime();
         HistoryManager.getStats(function(history){
