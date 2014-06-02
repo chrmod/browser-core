@@ -399,15 +399,18 @@
 
 .cliqz-ac-logo-icon {
   height: 36px;
-  width: 40px;
+  width: 42px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 36px 36px;
+  margin: 0px;
+  padding: 0px;
 }
 
 .cliqz-logo-container {
-  width: 40px;
+  width: 42px;
   height: 48px;
+  padding: 0px;
   margin: 0 24px 0 18px;
 }
 
