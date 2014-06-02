@@ -131,13 +131,14 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     // extract only hostname
     var host = url.split('/')[0].toLowerCase();
+    // extract only path
+    var path = url.replace(host,'');
 
     try {
       var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
                                   .getService(Components.interfaces.nsIEffectiveTLDService);
 
       var tld = eTLDService.getPublicSuffixFromHost(host);
-      var path = url.replace(host,'');
 
       // Get the domain name w/o subdomains and w/o TLD
       var tld_with_prefix_dot = "." + tld;
