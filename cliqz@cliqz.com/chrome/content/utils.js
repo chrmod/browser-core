@@ -282,8 +282,17 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   pushTrack: function() {
     CLIQZ.Utils.log('push tracking data: ' + CLIQZ.Utils.trk.length + ' elements');
-    CLIQZ.Utils.httpPost(CLIQZ.Utils.LOG, null, JSON.stringify(CLIQZ.Utils.trk));
+    CLIQZ.Utils.httpPost(CLIQZ.Utils.LOG, CLIQZ.Utils.pushTrackCallback, JSON.stringify(CLIQZ.Utils.trk));
     CLIQZ.Utils.trk = [];
+  },
+  pushTrackCallback: function(req){
+    try {
+      var response = JSON.parse(req.response);
+
+      if(response.new_session){
+        CLIQZ.Utils.setPref('session', response.new_session);
+      }
+    } catch(e){}
   },
   timers: [],
   setTimer: function(func, timeout, type, param) {
