@@ -187,8 +187,8 @@
             <xul:spacer class="ac-type-icon"/>
           </xul:hbox>
           <xul:hbox>
-            <xul:vbox anonid="cliqz-description-box">
-              <xul:description class="cliqz-ac-description" anonid="cliqz-description" />
+            <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding">
+              <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-description" />
             </xul:vbox>
           </xul:hbox>
         </xul:vbox>
