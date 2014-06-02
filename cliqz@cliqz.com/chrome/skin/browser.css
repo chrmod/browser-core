@@ -36,16 +36,17 @@
   border-color: #cccccc;
 }
 
-.cliqz-menu-btn {
-  width: 16px;
-  height: 16px;
-}
 /*
-.autocomplete-richlistitem * {
+#PopupAutoCompleteRichResult  * {
   border: 1px solid red;
   background-color: green;
 }
 */
+
+.cliqz-no-margin-padding {
+  margin: 0px;
+  padding: 0px;
+}
 
 .button-cliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=3#button-cliqz");
@@ -180,11 +181,11 @@
 }
 
 .cliqz-one-space {
-  margin-left: 5px;
+  border-left: 5px solid transparent;
 }
 
 .cliqz-suggestion {
-  padding: 1px 5px 0px 5px;
+  padding: 1px 5px 2px 5px;
   margin: 5px 5px 1px 3px;
 }
 

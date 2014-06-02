@@ -34,7 +34,7 @@ var ResultProviders = {
     getSearchEngines: function(){
         var engines = {};
         for(var engine of Services.search.getEngines()){
-            if(engine.hidden != true){
+            if(engine.hidden != true && engine.iconURI){
                 engines[engine.name] = {
                     prefix: ResultProviders.getShortcut(engine.name),
                     name: engine.name,

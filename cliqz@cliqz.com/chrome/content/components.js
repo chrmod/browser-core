@@ -3,10 +3,10 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm');
+  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.12');
 
 
 var CLIQZ = CLIQZ || {};
@@ -129,8 +129,9 @@ CLIQZ.Components = CLIQZ.Components || {
 
         suggestionWrapper.className = 'cliqz-suggestion';
         extra.className = 'cliqz-suggestion-extra';
+        sugestionText.className = 'cliqz-no-margin-padding';
 
-        if(false && q && suggestion.indexOf(q) == 0){
+        if(q && suggestion.indexOf(q) == 0){
             sugestionText.textContent = q;
             var extraText = suggestion.slice(q.length);
             //FIXME : this is not nice

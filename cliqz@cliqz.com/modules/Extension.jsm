@@ -8,7 +8,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 //  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
 
 var Extension = Extension || {
     BASE_URI: 'chrome://cliqz/content/',
@@ -31,7 +31,7 @@ var Extension = Extension || {
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
-        Cu.import('chrome://cliqz/content/utils.js?r='+ Math.random());
+        Cu.import('chrome://cliqz/content/utils.js?v=0.4.12');
 
         Extension.setDefaultPrefs();
         CLIQZ.Utils.init();
@@ -43,6 +43,12 @@ var Extension = Extension || {
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext();
+
+            // check if there are any conflicting addons
+            // win.Application.getExtensions(function(extensions) {
+            //    for(var i in extensions.all)win.console.log(extensions.all[i].id)
+            // });
+
             Extension.loadIntoWindow(win);
         }
         // Load into all new windows
@@ -106,7 +112,7 @@ var Extension = Extension || {
         }
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?r='+Math.random(), win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.12', win);
     },
     loadIntoWindow: function(win) {
         if(CLIQZ.Utils.shouldLoad(win)){
@@ -150,7 +156,7 @@ var Extension = Extension || {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
         button.setAttribute('type', 'menu-button');
-        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional cliqz-menu-btn');
+        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
         var menupopup = Extension.createMenu(win)
