@@ -140,7 +140,7 @@
 }
 
 .autocomplete-richlistitem .ac-title-box {
-  color: #000000;
+  color: #333333;
 }
 
 .autocomplete-richlistitem[type="cliqz-suggestions"] .ac-title-box,
@@ -294,16 +294,15 @@
 }
 
 .cliqz-ac-description {
-  font-size: 10pt;
+  font-size: 9pt;
   padding-left: 13px;
-  padding-bottom: 1px;
   margin-bottom: 6px;
-  color: #888888;
+  line-height: 13pt;
+  color: #333333;
+  max-width: 700px;
 }
 
 .cliqz-ac-description-box {
-  height: 34px;
-  overflow: hidden;
   padding-right: 30px;
 }
 
@@ -453,13 +452,13 @@
 }
 
 .cliqz-ac-url-host {
-  font-size: 10pt;
+  font-size: 9pt;
   color: #007aff;
   font-weight: 400;
 }
 
 .cliqz-ac-url-path {
-  font-size: 10pt;
+  font-size: 9pt;
   color: #cccccc;
   font-weight: 400;
 }
