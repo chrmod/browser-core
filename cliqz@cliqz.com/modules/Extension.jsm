@@ -153,7 +153,7 @@ var Extension = Extension || {
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional cliqz-menu-btn');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
-        var menupopup = Extension.createMenu(win.document)
+        var menupopup = Extension.createMenu(win)
         button.appendChild(menupopup);
 
         button.addEventListener('click', function(ev) {
@@ -163,8 +163,9 @@ var Extension = Extension || {
         //ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
         navBar.appendChild(button);
     },
-    createMenu: function(doc){
-        var menupopup = doc.createElement('menupopup');
+    createMenu: function(win){
+        var doc = win.document,
+            menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'menupopup');
         menupopup.addEventListener('command', function(event) {
 
@@ -174,7 +175,10 @@ var Extension = Extension || {
         menuitem1.setAttribute('id', 'menuitem1');
         menuitem1.setAttribute('label', 'Feedback');
         menuitem1.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/feedback');
+            win.Application.getExtensions(function(extensions) {
+                var beVersion = extensions.get('cliqz@cliqz.com').version
+                Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+            });
         }, false);
 
         var menuitem2 = doc.createElement('menuitem');
@@ -215,7 +219,7 @@ var Extension = Extension || {
             item.setAttribute('class', 'menuitem-iconic');
             item.engineName = engine.name;
             if(engine.name == def){
-                item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.ico)';
+                item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
