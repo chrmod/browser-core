@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-richlistitem-cliqz");
   padding: 5px 0;
   border-width: 1px 1px 0px 0;
   border-style: solid;
@@ -49,7 +49,7 @@
 }
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=3#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#button-cliqz");
   cursor: pointer;
 }
 
@@ -255,7 +255,7 @@
 }
 
 .cliqz-engines-container:hover .cliqz-engines {
-  width: 400px;
+  width: 182px; /* 7 engines */
 }
 
 .cliqz-engines-container:hover .cliqz-engines-text {
@@ -300,6 +300,8 @@
   line-height: 13pt;
   color: #333333;
   max-width: 700px;
+  overflow: hidden;
+  max-height: 27px;
 }
 
 .cliqz-ac-description-box {
@@ -398,15 +400,18 @@
 
 .cliqz-ac-logo-icon {
   height: 36px;
-  width: 40px;
+  width: 42px;
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 36px 36px;
+  margin: 0px;
+  padding: 0px;
 }
 
 .cliqz-logo-container {
-  width: 40px;
+  width: 42px;
   height: 48px;
+  padding: 0px;
   margin: 0 24px 0 18px;
 }
 

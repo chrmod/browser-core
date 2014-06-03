@@ -47,9 +47,7 @@ something with a version it will only get shipped to beta users.
     "showQueryDebug": false, // show query debug information next to results
     "showDebugLogs": false, // show debug logs in console
     "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
-    "betaGroup": false, // if set to true the extension gets all the updates. Else only the major version
     "dnt": false, // if set to true the extension will not send any tracking signals
-    "bwFonts": false, // titles only in Black and white
 ```
 
 # Logging

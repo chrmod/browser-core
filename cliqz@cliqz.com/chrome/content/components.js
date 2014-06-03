@@ -279,26 +279,26 @@ CLIQZ.Components = CLIQZ.Components || {
             if (cliqzData && cliqzData.image) {
                 var IMAGE_HEIGHT = 54,
                     img = cliqzData.image;
-                item._cliqzImage.className = 'cliqz-ac-image';
-                item._cliqzImage.setAttribute('src', img.src);
-
-                if (img.duration) {
-                    item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
-                    item._cliqzImageDesc.className = 'cliqz-image-desc';
-                    item._cliqzImageDesc.parentNode.className = '';
-                }
+                var ratio = 0;
                 try {
-                    var ratio;
                     if(img.ratio){
                         ratio = parseInt(img.ratio);
                     } else if(img.width && img.height) {
                         ratio = parseInt(img.width) / parseInt(img.height);
                     }
-
-                    //default ratio is 16/9
-                    if(ratio) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
                 } catch(e){}
 
+                // only show the image if the ratio is between 0.4 and 2.5
+                if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
+                    item._cliqzImage.className = 'cliqz-ac-image';
+                    item._cliqzImage.setAttribute('src', img.src);
+                    if(ratio > 0) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
+                    if (img.duration) {
+                        item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
+                        item._cliqzImageDesc.className = 'cliqz-image-desc';
+                        item._cliqzImageDesc.parentNode.className = '';
+                    }
+                }
             }
             //}
 
