@@ -157,7 +157,7 @@
             <xul:hbox anonid="title-box" class="ac-title" flex="1"
                       onunderflow="_doUnderflow('_title');"
                       onoverflow="_doOverflow('_title');">
-              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+              <xul:description anonid="title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
             </xul:hbox>
             <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
                        class="ac-ellipsis-after ac-comment"/>

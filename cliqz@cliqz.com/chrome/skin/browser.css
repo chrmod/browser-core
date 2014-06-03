@@ -59,7 +59,7 @@
 }
 
 .cliqz-left-separator {
-  width: 13px;
+  width: 7px;
   height: 24px;
 }
 
@@ -69,7 +69,7 @@
 
 .cliqz-url-box {
   margin: 0px;
-  padding: 0px;
+  padding: 2px 0 0 6px;
 }
 
 .cliqz-image-box {
@@ -137,6 +137,9 @@
   padding-top: 6px;
   /* windows */
   margin: 0px;
+}
+
+.cliqz-max-width {
 }
 
 .autocomplete-richlistitem .ac-title-box {
@@ -304,6 +307,24 @@
   max-height: 27px;
 }
 
+@media (max-width: 500px) {
+  .cliqz-ac-description {
+    display: none;
+  }
+}
+
+@media (min-width: 501px) and (max-width: 650px) {
+  .cliqz-ac-description {
+    max-width: 100px;
+  }
+}
+
+@media (min-width: 651px) and (max-width: 1200px) {
+  .cliqz-ac-description {
+    max-width: 400px;
+  }
+}
+
 .cliqz-ac-description-box {
   padding-right: 30px;
 }
@@ -311,7 +332,7 @@
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   height: 9px;
   width: 9px;
-  background-color: #0099FF;
+  background-color: #3399ff;
   border-radius: 50%;
 }
 
@@ -323,14 +344,21 @@
 /* history */
 .autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon,
 .autocomplete-richlistitem[type="action favicon"] .cliqz-ac-source-icon {
-
+  height: 9px;
+  width: 9px;
+  background-color: #cccccc;
+  border-radius: 50%;
+  opacity: 0.5;
 }
 
 .autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon,
 .autocomplete-richlistitem[type="action bookmark"] .cliqz-ac-source-icon,
 .autocomplete-richlistitem[type="tag"] .cliqz-ac-source-icon,
 .autocomplete-richlistitem[type="action tag"] .cliqz-ac-source-icon {
-
+  height: 9px;
+  width: 9px;
+  background-color: #FFCC00;
+  border-radius: 50%;
 }
 
 .autocomplete-richlistitem[type="cliqz-results"][selected="true"] {
@@ -351,7 +379,7 @@
 .autocomplete-richlistitem[type="tag"][selected="true"] {
 
 }
-
+/*
 .autocomplete-richlistitem[selected="true"] {
   border-color: black;
   border-width: 1px 1px 1px 0;
@@ -368,10 +396,10 @@
 .autocomplete-richlistitem[selected="true"] + .autocomplete-richlistitem:last-of-type {
   border-bottom-width: 1px;
 }
-
+*/
 
 .autocomplete-richlistitem[selected="true"] {
-  background-color: white;
+  background-color: #eeeeee;
   background-image: none;
   /* override windows aero styles*/
   border-radius: 0px;
@@ -383,7 +411,7 @@
 
 }
 .autocomplete-richlistitem:hover {
-  background-color: rgba(204, 204, 204, 0.2);
+  background-color: #eeeeee;
 }
 
 .autocomplete-richlistitem:hover .cliqz-logo-container {
@@ -395,7 +423,7 @@
 }
 
 .autocomplete-richlistitem[selected="true"]:hover {
-  background-color: white;
+  background-color: #eeeeee;
 }
 
 .cliqz-ac-logo-icon {
@@ -458,7 +486,7 @@
 
 .cliqz-ac-url-host {
   font-size: 9pt;
-  color: #007aff;
+  color: #006666;
   font-weight: 400;
 }
 
@@ -473,10 +501,12 @@
 }
 
 .cliqz-urlbar-Last-search {
+  background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;
+  background-size: 14px 10px;
   color: white;
   background-color: grey;
   margin: 0px;
-  padding: 1px 6px 2px 6px;
+  padding: 2px 6px 2px 24px;
   border-radius: 1px;
   max-width: 200px;
   text-overflow: ellipsis;

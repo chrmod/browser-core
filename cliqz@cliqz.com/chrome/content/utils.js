@@ -61,7 +61,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     req.onload = function(){ callback && callback(req); }
     req.onerror = function(){ onerror && onerror(); }
 
-    if(callback)req.timeout = 1000;
+    if(callback)req.timeout = 1500;
     req.send(data);
     return req;
   },
