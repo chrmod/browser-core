@@ -5,15 +5,15 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['Autocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js?v=0.4.12');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.12');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.12');
+Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.13');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.13');
 
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
