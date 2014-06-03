@@ -58,8 +58,21 @@ CLIQZ.Utils = CLIQZ.Utils || {
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
-    req.onload = function(){ callback && callback(req); }
-    req.onerror = function(){ onerror && onerror(); }
+    req.onload = function(){ 
+      if(req.status != 200){
+        CLIQZ.Utils.log( "loaded " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler"); 
+        onerror && onerror();
+      } else {
+        callback && callback(req);
+      }
+    }
+    req.onerror = function(){ 
+      CLIQZ.Utils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler"); 
+      onerror && onerror();
+    }
+    req.ontimeout = function(){
+      CLIQZ.Utils.log( "timeout for " + url, "CLIQZ.Core.httpHandler"); 
+    }
 
     if(callback)req.timeout = 1000;
     req.send(data);
