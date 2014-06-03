@@ -131,15 +131,17 @@ var Result = {
 
             for(var rule_i in rules) {
                 var rule = rules[rule_i];
-                //CLIQZ.Utils.log("RULE domain="+rule.domain + " vertical="+rule.vertical, "getData");
                 if(rule.domain && urlparts.host.indexOf(rule.domain) != -1)
                     for(var ogtype in (rule.ogtypes || []))
                         if(result.snippet && result.snippet.og &&
                            result.snippet.og.type == rule.ogtypes[ogtype])
                                 resp.type = type;
 
-                if(result.source == rule.vertical)
-                    resp.type = type;
+                var verticals = result.source.split(',');
+                for(var v in verticals){
+                    if(verticals[v].trim() == rule.vertical)
+                        resp.type = type;                    
+                }
             }
 
 
