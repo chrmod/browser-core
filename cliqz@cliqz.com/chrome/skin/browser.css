@@ -79,6 +79,7 @@
   width: 96px; /* 16 */
   height: 54px; /* 9 */
   margin-left: 12px;
+  background-position: center;
 }
 
 .cliqz-image {

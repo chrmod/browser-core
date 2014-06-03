@@ -17,7 +17,25 @@ var Result = {
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
-    TYPE_VIDEO: ['video', 'tv_show', 'youtube'],
+    RULES: { 
+        'video': [
+            { 'domain': 'youtube.com', 'ogtypes': ['video', 'youtube'] },
+            { 'domain': 'vimeo.com', 'ogtypes': ['video'] },
+            { 'domain': 'myvideo.de', 'ogtypes': ['video.tv_show', 'video.episode', 'video.other'] },
+            { 'domain': 'dailymotion.com', 'ogtypes': ['video'] },
+            { 'vertical': 'video' }
+        ],
+        'poster': [ 
+            { 'domain': 'imdb.com', 'ogtypes': ['video.tv_show', 'tv_show', 'movie', 'video.movie', 'game', 'video.episode', 'actor', 'public_figure'] }
+        ],
+        'person': [
+            { 'domain': 'xing.com', 'ogtypes': [ 'profile'] },
+            { 'vertical': 'people' }
+        ],
+        'hq': [
+            { 'vertical': 'hq'}
+        ]
+    },
 	generic: function(style, value, image, comment, label, query, data){
         //try to show host if no comment(page title) is provided
         if(style !== Result.CLIQZS       // is not a suggestion
@@ -54,7 +72,7 @@ var Result = {
                 result.snippet.title,
                 null, //label
                 result.source + ' ' + result.q + ' ' + result.confidence, //query
-                Result.getData(result.snippet)
+                Result.getData(result)
             );
         } else {
             return Result.generic(Result.CLIQZR, result.url);
@@ -96,27 +114,53 @@ var Result = {
         return true;
     },
     // rich data and image
-    getData: function(snip){
-        return {
-            description: snip.desc || snip.snippet,
-            image: Result.getVerticalImage(snip.image, snip.rich_data) ||
-                   Result.getOgImage(snip.og)
-        };
+    getData: function(result){
+        if(!result.snippet)
+            return;
+
+        var urlparts = CLIQZ.Utils.getDetailsFromUrl(result.url);
+        var resp = {};
+
+        var ogt;
+        if(result.snippet && result.snippet.og)
+            ogt = result.snippet.og.type;
+
+        resp.type = "other";
+        for(var type in Result.RULES){
+            var rules = Result.RULES[type];
+
+            for(var rule_i in rules) {
+                var rule = rules[rule_i];
+                //CLIQZ.Utils.log("RULE domain="+rule.domain + " vertical="+rule.vertical, "getData");
+                if(rule.domain && urlparts.host.indexOf(rule.domain) != -1)
+                    for(var ogtype in (rule.ogtypes || []))
+                        if(result.snippet && result.snippet.og &&
+                           result.snippet.og.type == rule.ogtypes[ogtype])
+                                resp.type = type;
+
+                if(result.source == rule.vertical)
+                    resp.type = type;
+            }
+
+
+        resp.description = result.snippet.desc || result.snippet.snippet;
+        if(resp.type != 'other')
+            resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
+                         Result.getOgImage(result.snippet.og)
+        }
+
+        return resp;
     },
     getOgImage: function(og) {
-        if(og && og.image && og.type){
-            for(var type in Result.TYPE_VIDEO){
-                if(og.type.indexOf(Result.TYPE_VIDEO[type]) != -1){
-                    var image = { src: og.image };
+        if(og && og.image){
+            var image = { src: og.image };
 
-                    if(og.duration && parseInt(og.duration)){
-                        var parsedDuration = Result.tryGetImageDuration(og.duration)
-                        if(parsedDuration) image.duration = parsedDuration;
-                    }
-
-                    return image;
-                }
+            if(og.duration && parseInt(og.duration)){
+                var parsedDuration = Result.tryGetImageDuration(og.duration)
+                if(parsedDuration) image.duration = parsedDuration;
             }
+
+            return image;
         }
     },
     getVerticalImage: function(imageData, richData){
