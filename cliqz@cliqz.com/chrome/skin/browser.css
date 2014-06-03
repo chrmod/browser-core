@@ -30,7 +30,8 @@
 /* result item */
 .autocomplete-richlistitem {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.13#autocomplete-richlistitem-cliqz");
-  padding: 5px 0;
+  padding: 5px 0 5px 0;
+  margin: 0px;
   border-width: 1px 1px 0px 0;
   border-style: solid;
   border-color: #cccccc;
@@ -400,6 +401,10 @@
 
 .autocomplete-richlistitem[selected="true"] {
   background-color: #eeeeee;
+  padding: 0px;
+  border-color: #eeeeee;
+  border-width: 6px 0 5px 0;
+  border-style: solid;
   background-image: none;
   /* override windows aero styles*/
   border-radius: 0px;
