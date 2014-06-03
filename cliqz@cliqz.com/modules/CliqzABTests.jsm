@@ -7,7 +7,7 @@ Cu.import('chrome://cliqz/content/utils.js?r=' + Math.random());
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
-    URL: 'http://ux.fbt.co/ab_test/check?session=',
+    URL: 'https://logging.cliqz.com/abtests/check?session=',
     check: function() {
         CliqzABTests.retrieve(
             function(response){
