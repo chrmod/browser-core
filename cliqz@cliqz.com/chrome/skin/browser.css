@@ -139,6 +139,12 @@
   margin: 0px;
 }
 
+.cliqz-max-width {
+  max-width: 650px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .autocomplete-richlistitem .ac-title-box {
   color: #333333;
 }
@@ -311,7 +317,7 @@
 .autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
   height: 9px;
   width: 9px;
-  background-color: #0099FF;
+  background-color: #3399ff;
   border-radius: 50%;
 }
 
@@ -323,7 +329,11 @@
 /* history */
 .autocomplete-richlistitem[type="favicon"] .cliqz-ac-source-icon,
 .autocomplete-richlistitem[type="action favicon"] .cliqz-ac-source-icon {
-
+  height: 9px;
+  width: 9px;
+  background-color: #cccccc;
+  border-radius: 50%;
+  opacity: 0.5;
 }
 
 .autocomplete-richlistitem[type="bookmark"] .cliqz-ac-source-icon,

@@ -22,7 +22,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 
 var Autocomplete = Autocomplete || {
     LOG_KEY: 'cliqz results: ',
-    TIMEOUT: 500,
+    TIMEOUT: 1500,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
