@@ -260,7 +260,7 @@
 }
 
 .cliqz-engines-container:hover .cliqz-engines {
-  width: 182px; /* 7 engines */
+  width: 260px; /* max 10 engines */
 }
 
 .cliqz-engines-container:hover .cliqz-engines-text {
@@ -381,9 +381,9 @@
 .autocomplete-richlistitem[type="tag"][selected="true"] {
 
 }
-/*
+
 .autocomplete-richlistitem[selected="true"] {
-  border-color: black;
+  border-color: #006666;
   border-width: 1px 1px 1px 0;
 }
 
@@ -398,13 +398,10 @@
 .autocomplete-richlistitem[selected="true"] + .autocomplete-richlistitem:last-of-type {
   border-bottom-width: 1px;
 }
-*/
+
 
 .autocomplete-richlistitem[selected="true"] {
-  background-color: #eeeeee;
-  padding: 0px;
-  border-color: #eeeeee;
-  border-width: 6px 0 5px 0;
+  background-color: transparent;
   border-style: solid;
   background-image: none;
   /* override windows aero styles*/
