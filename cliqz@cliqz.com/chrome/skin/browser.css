@@ -140,9 +140,6 @@
 }
 
 .cliqz-max-width {
-  max-width: 650px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .autocomplete-richlistitem .ac-title-box {
@@ -308,6 +305,24 @@
   max-width: 700px;
   overflow: hidden;
   max-height: 27px;
+}
+
+@media (max-width: 500px) {
+  .cliqz-ac-description {
+    display: none;
+  }
+}
+
+@media (min-width: 501px) and (max-width: 650px) {
+  .cliqz-ac-description {
+    max-width: 100px;
+  }
+}
+
+@media (min-width: 651px) and (max-width: 1200px) {
+  .cliqz-ac-description {
+    max-width: 400px;
+  }
 }
 
 .cliqz-ac-description-box {
