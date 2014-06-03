@@ -271,7 +271,7 @@ CLIQZ.Core = CLIQZ.Core || {
     showLastQuery: function(q){
         var lastQContainer = CLIQZ.Core.urlbarCliqzLastSearchContainer;
         lastQContainer.className = 'cliqz-urlbar-Last-search';
-        lastQContainer.textContent = CLIQZ.Utils.getLocalizedString('urlBarLastSearch') + q;
+        lastQContainer.textContent = q;
         lastQContainer.tooltipText = q;
         lastQContainer.query = q;
     },
