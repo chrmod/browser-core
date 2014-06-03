@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/Language.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.13');
 
 
 var EXPORTED_SYMBOLS = ['CLIQZ'];
@@ -61,7 +61,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     req.onload = function(){ callback && callback(req); }
     req.onerror = function(){ onerror && onerror(); }
 
-    if(callback)req.timeout = 1500;
+    if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
     req.send(data);
     return req;
   },

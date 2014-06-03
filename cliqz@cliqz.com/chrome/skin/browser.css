@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.13#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,13 +24,14 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.13#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#autocomplete-richlistitem-cliqz");
-  padding: 5px 0;
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.13#autocomplete-richlistitem-cliqz");
+  padding: 5px 0 5px 0;
+  margin: 0px;
   border-width: 1px 1px 0px 0;
   border-style: solid;
   border-color: #cccccc;
@@ -49,7 +50,7 @@
 }
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.12#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.13#button-cliqz");
   cursor: pointer;
 }
 
@@ -401,6 +402,10 @@
 
 .autocomplete-richlistitem[selected="true"] {
   background-color: #eeeeee;
+  padding: 0px;
+  border-color: #eeeeee;
+  border-width: 6px 0 5px 0;
+  border-style: solid;
   background-image: none;
   /* override windows aero styles*/
   border-radius: 0px;
@@ -412,7 +417,6 @@
 
 }
 .autocomplete-richlistitem:hover {
-  background-color: #eeeeee;
 }
 
 .autocomplete-richlistitem:hover .cliqz-logo-container {
@@ -424,7 +428,6 @@
 }
 
 .autocomplete-richlistitem[selected="true"]:hover {
-  background-color: #eeeeee;
 }
 
 .cliqz-ac-logo-icon {

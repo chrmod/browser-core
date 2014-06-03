@@ -5,7 +5,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.12');
+  'chrome://cliqz/content/utils.js?v=0.4.13');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){

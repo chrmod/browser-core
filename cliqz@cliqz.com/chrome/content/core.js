@@ -3,19 +3,19 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
-  'chrome://cliqzmodules/content/HistoryManager.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/HistoryManager.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/Language.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -35,9 +35,9 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CLIQZ.Utils.init();
 
-        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css??v=0.4.12');
+        var css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css??v=0.4.13');
         CLIQZ.Core.elem.push(css);
-        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css??v=0.4.12');
+        css = CLIQZ.Utils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css??v=0.4.13');
         CLIQZ.Core.elem.push(css);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
@@ -115,7 +115,7 @@ CLIQZ.Core = CLIQZ.Core || {
     checkSession: function(){
         var prefs = CLIQZ.Utils.cliqzPrefs;
         if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
-            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json?v=0.4.12',
+            CLIQZ.Utils.httpGet('chrome://cliqz/content/source.json?v=0.4.13',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
                     prefs.setCharPref('session', CLIQZ.Core.generateSession(source));

@@ -3,7 +3,7 @@ var EXPORTED_SYMBOLS = ['CliqzTimings'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js?v=0.4.12');
+Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
 
 var CliqzTimings = CliqzTimings || {
     timings: {},
