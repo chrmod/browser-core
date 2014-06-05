@@ -195,8 +195,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
+    var locales = Language.state();
+    var local_param = "";
+    if(locales.length > 0)
+      local_param = "&hl=" + locales[0];
+
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q) + local_param,
                                     function(res){
                                       callback && callback(res, q);
                                     });
