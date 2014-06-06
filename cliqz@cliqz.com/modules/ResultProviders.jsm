@@ -32,7 +32,7 @@ var INIT_KEY = 'newProvidersAdded',
         '#values': {
             url: 'http://cliqz.com/company/values'
         },
-        '#jobs': {
+        '#join': {
             url: 'https://codility.com/honeypot/Cliqz-Jobs'
         }
     }
