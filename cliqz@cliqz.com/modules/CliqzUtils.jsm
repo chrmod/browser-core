@@ -451,7 +451,7 @@ var CliqzUtils = CliqzUtils || {
           }
 
           if(actionType == 'result_click'){ // do not navigate on keyboard navigation
-            CLIQZ.Core.locationChangeTO = setTimeout(function(){
+            CLIQZ.Core.locationChangeTO = CliqzUtils.setTimeout(function(){
                 if(newTab) gBrowser.addTab(CliqzUtils.cleanMozillaActions(value));
                 else {
                   if(item.getAttribute('type') != 'cliqz-suggestions' &&
@@ -476,7 +476,7 @@ var CliqzUtils = CliqzUtils || {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              setTimeout(function(t){
+              CliqzUtils.setTimeout(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -484,7 +484,7 @@ var CliqzUtils = CliqzUtils || {
               start += delay || (150 + (Math.random() * 100));
             }
           }
-          setTimeout(function(){
+          CliqzUtils.setTimeout(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
