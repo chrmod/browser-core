@@ -2,14 +2,14 @@
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'HistoryManager',
-  'chrome://cliqzmodules/content/HistoryManager.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm?v=0.4.13');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.13');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
@@ -60,9 +60,11 @@ CLIQZ.Core = CLIQZ.Core || {
 
 
         var searchContainer = document.getElementById('search-container');
-        CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
-        if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
-            searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
+        if(searchContainer){
+            CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
+            if (CLIQZ.Utils.cliqzPrefs.getBoolPref('hideQuickSearch')){
+                searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
+            }
         }
 
         for(var i in CLIQZ.Core.urlbarEvents){
@@ -97,7 +99,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Utils.getCliqzResults('');
         CLIQZ.Utils.getSuggestions('');
 
-        Autocomplete.init();
+        CliqzAutocomplete.init();
 
         CliqzTimings.init();
 
@@ -105,8 +107,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
-            Language.init(window);
-            window.gBrowser.addProgressListener(Language.listener);
+            CliqzLanguage.init(window);
+            window.gBrowser.addProgressListener(CliqzLanguage.listener);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
@@ -177,7 +179,9 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         var searchContainer = document.getElementById('search-container');
-        searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
+        if(CLIQZ.Core._searchContainer){
+            searchContainer.setAttribute('class', CLIQZ.Core._searchContainer);
+        }
 
         gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
@@ -185,11 +189,11 @@ CLIQZ.Core = CLIQZ.Core || {
         // restore preferences
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
-        Autocomplete.destroy();
+        CliqzAutocomplete.destroy();
 
         // remove listners
         if ('gBrowser' in window) {
-            window.gBrowser.removeProgressListener(Language.listener);
+            window.gBrowser.removeProgressListener(CliqzLanguage.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
     },
@@ -206,7 +210,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     tabChange: function(ev){
         //clean last search to avoid conflicts
-        Autocomplete.lastSearch = '';
+        CliqzAutocomplete.lastSearch = '';
 
         if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
@@ -254,7 +258,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     lastQuery: function(){
         var val = CLIQZ.Core.urlbar.value.trim(),
-            lastQ = Autocomplete.lastSearch.trim();
+            lastQ = CliqzAutocomplete.lastSearch.trim();
 
         if(lastQ && val && !CLIQZ.Utils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);
@@ -299,7 +303,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzABTests.check();
 
         var start = (new Date()).getTime();
-        HistoryManager.getStats(function(history){
+        CliqzHistoryManager.getStats(function(history){
             CLIQZ.Utils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;

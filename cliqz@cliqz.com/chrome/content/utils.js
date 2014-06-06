@@ -4,8 +4,8 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
@@ -15,10 +15,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 
 
 var EXPORTED_SYMBOLS = ['CLIQZ'];
-
-var PREF_STRING = 32,
-    PREF_INT = 64,
-    PREF_BOOL = 128;
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Utils = CLIQZ.Utils || {
@@ -35,6 +31,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   SEPARATOR:        ' %s ',
+  PREF_STRING:      32,
+  PREF_INT:         64,
+  PREF_BOOL:        128,
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -80,9 +79,9 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   getPref: function(pref, notFound){
     switch(CLIQZ.Utils.cliqzPrefs.getPrefType(pref)) {
-      case PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
-      case PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
-      case PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
+      case CLIQZ.Utils.PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
+      case CLIQZ.Utils.PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
+      case CLIQZ.Utils.PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
       default: return notFound;
     }
   },
@@ -204,7 +203,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + Language.stateToQueryString(),
+    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
                                 function(res){
                                   //CLIQZ.Utils.log(q, 'RESP');
                                   //CLIQZ.Utils.log(res.response, 'RESP');

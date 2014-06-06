@@ -5,8 +5,8 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.13');
 
 
 var CLIQZ = CLIQZ || {};
@@ -43,8 +43,8 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
 
-            for(var i in Autocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
+            for(var i in CliqzAutocomplete.lastSuggestions){
+                CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString);
             }
         }
         // CLIQZ END
@@ -90,9 +90,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('title', controller.getCommentAt(popup._currentIndex));
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
-            if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
+            if(CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex)){
                 // can we avoid JSON stringify here?
-                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                var data = JSON.stringify(CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex));
                 item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');

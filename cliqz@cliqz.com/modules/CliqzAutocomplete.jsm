@@ -2,7 +2,7 @@
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var EXPORTED_SYMBOLS = ['Autocomplete'];
+var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
@@ -20,7 +20,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
                     .getBranch('browser.urlbar.');
 
-var Autocomplete = Autocomplete || {
+var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 1000,
     lastSearch: '',
@@ -28,29 +28,29 @@ var Autocomplete = Autocomplete || {
     lastSuggestions: null,
     init: function(){
         CLIQZ.Utils.init();
-        Autocomplete.initProvider();
-        Autocomplete.initResults();
+        CliqzAutocomplete.initProvider();
+        CliqzAutocomplete.initResults();
 
-        XPCOMUtils.defineLazyServiceGetter(Autocomplete.CliqzResults.prototype, 'historyAutoCompleteProvider',
+        XPCOMUtils.defineLazyServiceGetter(CliqzAutocomplete.CliqzResults.prototype, 'historyAutoCompleteProvider',
                   '@mozilla.org/autocomplete/search;1?name=history', 'nsIAutoCompleteSearch');
 
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-        var CONTRACT_ID = Autocomplete.CliqzResults.prototype.contractID;
+        var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
             reg.unregisterFactory(
                 reg.contractIDToCID(CONTRACT_ID),
                 reg.getClassObjectByContractID(CONTRACT_ID, Ci.nsISupports)
             )
         }catch(e){}
-        var cp = Autocomplete.CliqzResults.prototype;
-        var factory = XPCOMUtils.generateNSGetFactory([Autocomplete.CliqzResults])(cp.classID);
+        var cp = CliqzAutocomplete.CliqzResults.prototype;
+        var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
         reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
 
         CLIQZ.Utils.log('initialized', 'RESULTS');
     },
     destroy: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-        var CONTRACT_ID = Autocomplete.CliqzResults.prototype.contractID;
+        var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
           reg.unregisterFactory(
             reg.contractIDToCID(CONTRACT_ID),
@@ -75,7 +75,7 @@ var Autocomplete = Autocomplete || {
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
     CliqzResults: function(){},
     initProvider: function(){
-        Autocomplete.ProviderAutoCompleteResultCliqz.prototype = {
+        CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
             _searchString: '',
             _searchResult: 0,
             _defaultIndex: 0,
@@ -100,7 +100,7 @@ var Autocomplete = Autocomplete || {
         };
     },
     initResults: function(){
-        Autocomplete.CliqzResults.prototype = {
+        CliqzAutocomplete.CliqzResults.prototype = {
             classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
             classDescription : 'Cliqz',
             contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
@@ -172,12 +172,12 @@ var Autocomplete = Autocomplete || {
                     CLIQZ.Utils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
 
-                    if((now > this.startTime + Autocomplete.TIMEOUT) ||
+                    if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions ){
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
-                        Autocomplete.lastResult = this.mixedResults;
-                        Autocomplete.lastSuggestions = this.cliqzSuggestions;
+                        CliqzAutocomplete.lastResult = this.mixedResults;
+                        CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
 
                         this.listener.onSearchResult(this, this.mixedResults);
                         if(this.startTime)
@@ -190,7 +190,7 @@ var Autocomplete = Autocomplete || {
                         this.historyResults = null;
                         return;
                     } else {
-                        let timeout = this.startTime + Autocomplete.TIMEOUT - now + 1;
+                        let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
                         this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout, this.searchString);
 
                         // force update as offen as possible if new results are ready
@@ -297,7 +297,7 @@ var Autocomplete = Autocomplete || {
                     );
 
 
-                tempLog.result_order = Autocomplete.getResultsOrder(this.mixedResults._results) + Autocomplete.getResultsOrder(results);
+                tempLog.result_order = CliqzAutocomplete.getResultsOrder(this.mixedResults._results) + CliqzAutocomplete.getResultsOrder(results);
                 CLIQZ.Utils.track(tempLog);
 
 
@@ -327,9 +327,9 @@ var Autocomplete = Autocomplete || {
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CLIQZ.Utils.log('search: ' + searchString);
 
-                Autocomplete.lastSearch = searchString;
-                Autocomplete.lastResult = null;
-                Autocomplete.lastSuggestions = null;
+                CliqzAutocomplete.lastSearch = searchString;
+                CliqzAutocomplete.lastResult = null;
+                CliqzAutocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;
                 this.customResults = null;
 
@@ -353,7 +353,7 @@ var Autocomplete = Autocomplete || {
                 this.searchString = searchString;
                 this.searchStringSuggest = null;
 
-                this.mixedResults = new Autocomplete.ProviderAutoCompleteResultCliqz(
+                this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
                         this.searchString,
                         Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
                         -2, // blocks autocomplete
