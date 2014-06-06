@@ -60,7 +60,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     req.overrideMimeType('application/json');
     req.onload = function(){ 
       if(req.status != 200){
-        CLIQZ.Utils.log( "loaded " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler"); 
+        CLIQZ.Utils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler"); 
         onerror && onerror();
       } else {
         callback && callback(req);
