@@ -15,9 +15,26 @@ var INIT_KEY = 'newProvidersAdded',
 	KEY ='#',
 	// default shortcut is first 2 lowercased letters
 	// the folowing are non default
-    MAPPING   = {
+    MAPPING = {
         '#gi': 'Google Images',
         '#gm': 'Google Maps'
+    },
+    CUSTOM = {
+        '#fee': {
+            url: 'http://beta.cliqz.com/feedback'
+        },
+        '#team': {
+            url: 'http://cliqz.com/company/team'
+        },
+        '#cliqz': {
+            url: 'http://beta.cliqz.com/'
+        },
+        '#values': {
+            url: 'http://cliqz.com/company/values'
+        },
+        '#join': {
+            url: 'https://codility.com/honeypot/Cliqz-Jobs'
+        }
     }
 	;
 
@@ -56,7 +73,13 @@ var ResultProviders = {
     },
     // called for each query
     isCustomQuery: function(q){
-        var components = q.split(' ');
+        if(CUSTOM[q.trim()]){
+            return {
+                updatedQ  : CUSTOM[q.trim()].url,
+                engineName: 'CLIQZ',
+                queryURI  : CUSTOM[q.trim()].url
+            }
+        }
 
         // a prefix has min 4 chars
         if(q.length < 5) return false;
