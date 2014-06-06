@@ -4,8 +4,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzLanguage'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js??v=0.4.13');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var CliqzLanguage = CliqzLanguage || {
     DOMAIN_THRESHOLD: 3,
@@ -36,7 +37,7 @@ var CliqzLanguage = CliqzLanguage || {
                     if (''+currURLAtTime == ''+currURL) {
                         // the person has stayed at least READING_THRESHOLD at the URL, now let's try
                         // to fetch the locale
-                        CLIQZ.Utils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
+                        CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
                         var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
                             .getElementsByTagName('html').item(0).getAttribute('lang');
                         if (locale) CliqzLanguage.addLocale(''+currURL,locale);
@@ -45,7 +46,7 @@ var CliqzLanguage = CliqzLanguage || {
                }
                catch(ee) {
                 // silent fail
-                CLIQZ.Utils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
+                CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
 
                }
 
@@ -86,7 +87,7 @@ var CliqzLanguage = CliqzLanguage || {
         }
 
         CliqzLanguage.cleanCurrentState();
-        CLIQZ.Utils.log(CliqzLanguage.stateToQueryString(), CliqzLanguage.LOG_KEY);
+        CliqzUtils.log(CliqzLanguage.stateToQueryString(), CliqzLanguage.LOG_KEY);
 
     },
     // add locale, this is the function hook that will be called for every page load that
@@ -104,7 +105,7 @@ var CliqzLanguage = CliqzLanguage || {
             // extract domain from url, hash it and update the value
             var url_hash = CliqzLanguage.hashCode(url.replace('http://','').replace('https://','').replace('://','').split('/')[0]) % 256;
 
-            CLIQZ.Utils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY);
+            CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY);
 
             if (CliqzLanguage.currentState[locale]==null || CliqzLanguage.currentState[locale].indexOf(url_hash)==-1) {
                 if (CliqzLanguage.currentState[locale]==null) CliqzLanguage.currentState[locale] = [];
@@ -181,7 +182,7 @@ var CliqzLanguage = CliqzLanguage || {
     },
     // Save the current state to preferences,
     saveCurrentState: function() {
-        CLIQZ.Utils.log("Going to save languages: " + JSON.stringify(CliqzLanguage.currentState), CliqzLanguage.LOG_KEY);
+        CliqzUtils.log("Going to save languages: " + JSON.stringify(CliqzLanguage.currentState), CliqzLanguage.LOG_KEY);
         CliqzLanguage.cliqzLangPrefs.setCharPref('data', JSON.stringify(CliqzLanguage.currentState || {}));
     },
 };

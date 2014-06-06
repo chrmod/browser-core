@@ -14,10 +14,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.13');
 
 
-var EXPORTED_SYMBOLS = ['CLIQZ'];
+var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
-var CLIQZ = CLIQZ || {};
-CLIQZ.Utils = CLIQZ.Utils || {
+var CliqzUtils = CliqzUtils || {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
@@ -42,15 +41,15 @@ CLIQZ.Utils = CLIQZ.Utils || {
       .getService(Components.interfaces.nsIConsoleService),
   init: function(){
     //use a different suggestion API
-    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
-      //CLIQZ.Utils.SUGGESTIONS = CLIQZ.Utils.getPref('suggestionAPI');
+    if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
+      //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
     }
     //use a different results API
-    if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('resultsAPI')){
-      //CLIQZ.Utils.RESULTS_PROVIDER = CLIQZ.Utils.getPref('resultsAPI');
+    if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
+      //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    CLIQZ.Utils.loadLocale();
-    CLIQZ.Utils.log('Initialized', 'UTILS');
+    CliqzUtils.loadLocale();
+    CliqzUtils.log('Initialized', 'UTILS');
 
   },
   httpHandler: function(method, url, callback, onerror, data){
@@ -65,42 +64,42 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return req;
   },
   httpGet: function(url, callback, onerror){
-    return CLIQZ.Utils.httpHandler('GET', url, callback, onerror);
+    return CliqzUtils.httpHandler('GET', url, callback, onerror);
   },
   httpPost: function(url, callback, data, onerror) {
-    CLIQZ.Utils.httpHandler('POST', url, callback, onerror, data);
+    CliqzUtils.httpHandler('POST', url, callback, onerror, data);
   },
   getPrefs: function(){
     var prefs = {};
-    for(var pref of CLIQZ.Utils.cliqzPrefs.getChildList('')){
-      prefs[pref] = CLIQZ.Utils.getPref(pref);
+    for(var pref of CliqzUtils.cliqzPrefs.getChildList('')){
+      prefs[pref] = CliqzUtils.getPref(pref);
     }
     return prefs;
   },
   getPref: function(pref, notFound){
-    switch(CLIQZ.Utils.cliqzPrefs.getPrefType(pref)) {
-      case CLIQZ.Utils.PREF_BOOL: return CLIQZ.Utils.cliqzPrefs.getBoolPref(pref);
-      case CLIQZ.Utils.PREF_STRING: return CLIQZ.Utils.cliqzPrefs.getCharPref(pref);
-      case CLIQZ.Utils.PREF_INT: return CLIQZ.Utils.cliqzPrefs.getIntPref(pref);
+    switch(CliqzUtils.cliqzPrefs.getPrefType(pref)) {
+      case CliqzUtils.PREF_BOOL: return CliqzUtils.cliqzPrefs.getBoolPref(pref);
+      case CliqzUtils.PREF_STRING: return CliqzUtils.cliqzPrefs.getCharPref(pref);
+      case CliqzUtils.PREF_INT: return CliqzUtils.cliqzPrefs.getIntPref(pref);
       default: return notFound;
     }
   },
   setPref: function(pref, val){
     switch (typeof val) {
       case 'boolean':
-        CLIQZ.Utils.cliqzPrefs.setBoolPref(pref, val);
+        CliqzUtils.cliqzPrefs.setBoolPref(pref, val);
         break;
       case 'number':
-        CLIQZ.Utils.cliqzPrefs.setIntPref(pref, val);
+        CliqzUtils.cliqzPrefs.setIntPref(pref, val);
         break;
       case 'string':
-        CLIQZ.Utils.cliqzPrefs.setCharPref(pref, val);
+        CliqzUtils.cliqzPrefs.setCharPref(pref, val);
         break;
       }
   },
   log: function(msg, key){
-    if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showDebugLogs')){
-      CLIQZ.Utils._log.logStringMessage(key + ' : ' + msg);
+    if(CliqzUtils.cliqzPrefs.getBoolPref('showDebugLogs')){
+      CliqzUtils._log.logStringMessage(key + ' : ' + msg);
     }
   },
   getDay: function() {
@@ -114,7 +113,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return url;
   },
   getDetailsFromUrl: function(originalUrl){
-    originalUrl = CLIQZ.Utils.cleanMozillaActions(originalUrl);
+    originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
         name = originalUrl,
@@ -148,7 +147,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CLIQZ.Utils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'WARNING');
+      CliqzUtils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'WARNING');
     }
 
     var urlDetails = {
@@ -178,8 +177,8 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
-    if(CLIQZ.Utils.isUrl(value)){
-       return CLIQZ.Utils.getDetailsFromUrl(value).host.indexOf('google') === 0 ? true: false;
+    if(CliqzUtils.isUrl(value)){
+       return CliqzUtils.getDetailsFromUrl(value).host.indexOf('google') === 0 ? true: false;
     }
     return false;
   },
@@ -194,19 +193,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
-    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
+    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
+    CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q),
                                     function(res){
                                       callback && callback(res, q);
                                     });
   },
   _resultsReq: null,
   getCliqzResults: function(q, callback){
-    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._resultsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
+    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
                                 function(res){
-                                  //CLIQZ.Utils.log(q, 'RESP');
-                                  //CLIQZ.Utils.log(res.response, 'RESP');
+                                  //CliqzUtils.log(q, 'RESP');
+                                  //CliqzUtils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },
@@ -222,17 +221,17 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return type; //fallback to style - it should never happen
   },
   getLatestVersion: function(callback, error){
-    CLIQZ.Utils.httpGet(CLIQZ.Utils.VERSION_URL + '?' + Math.random(), function(res) {
+    CliqzUtils.httpGet(CliqzUtils.VERSION_URL + '?' + Math.random(), function(res) {
       if(res.status == 200) callback(res.response);
       else error();
     });
   },
   stopSearch: function(){
-    CLIQZ.Utils._resultsReq && CLIQZ.Utils._resultsReq.abort();
-    CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
+    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
+    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
   },
   shouldLoad: function(window){
-    return true; //CLIQZ.Utils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CLIQZ.Utils.isPrivate(window);
+    return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
   },
   isPrivate: function(window) {
     try {
@@ -266,37 +265,37 @@ CLIQZ.Utils = CLIQZ.Utils || {
   trk: [],
   trkTimer: null,
   track: function(msg, instantPush) {
-    CLIQZ.Utils.log(JSON.stringify(msg), 'Utils.track');
-    if(CLIQZ.Utils.cliqzPrefs.getBoolPref('dnt'))return;
-    msg.session = CLIQZ.Utils.cliqzPrefs.getCharPref('session');
+    CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
+    if(CliqzUtils.cliqzPrefs.getBoolPref('dnt'))return;
+    msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = (new Date()).getTime();
 
-    CLIQZ.Utils.trk.push(msg);
-    CLIQZ.Utils.clearTimeout(CLIQZ.Utils.trkTimer);
-    if(instantPush || CLIQZ.Utils.trk.length > 100){
-      CLIQZ.Utils.pushTrack();
+    CliqzUtils.trk.push(msg);
+    CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
+    if(instantPush || CliqzUtils.trk.length > 100){
+      CliqzUtils.pushTrack();
     } else {
-      CLIQZ.Utils.trkTimer = CLIQZ.Utils.setTimeout(CLIQZ.Utils.pushTrack, 60000);
+      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
   pushTrack: function() {
-    CLIQZ.Utils.log('push tracking data: ' + CLIQZ.Utils.trk.length + ' elements');
-    CLIQZ.Utils.httpPost(CLIQZ.Utils.LOG, CLIQZ.Utils.pushTrackCallback, JSON.stringify(CLIQZ.Utils.trk));
-    CLIQZ.Utils.trk = [];
+    CliqzUtils.log('push tracking data: ' + CliqzUtils.trk.length + ' elements');
+    CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils.trk));
+    CliqzUtils.trk = [];
   },
   pushTrackCallback: function(req){
     try {
       var response = JSON.parse(req.response);
 
       if(response.new_session){
-        CLIQZ.Utils.setPref('session', response.new_session);
+        CliqzUtils.setPref('session', response.new_session);
       }
     } catch(e){}
   },
   timers: [],
   setTimer: function(func, timeout, type, param) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
-    CLIQZ.Utils.timers.push(timer);
+    CliqzUtils.timers.push(timer);
     var event = {
       notify: function (timer) {
         func(param);
@@ -306,19 +305,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return timer;
   },
   setTimeout: function(func, timeout, param) {
-    return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
   setInterval: function(func, timeout) {
-    return CLIQZ.Utils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
   },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
     }
     timer.cancel();
-    var i = CLIQZ.Utils.timers.indexOf(timer);
+    var i = CliqzUtils.timers.indexOf(timer);
     if (i >= 0) {
-      CLIQZ.Utils.timers.splice(CLIQZ.Utils.timers.indexOf(timer), 1);
+      CliqzUtils.timers.splice(CliqzUtils.timers.indexOf(timer), 1);
     }
   },
   clearInterval: this.clearTimeout,
@@ -333,13 +332,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   locale: {},
   loadLocale : function(){
-    CLIQZ.Utils.httpGet('chrome://cliqzres/content/locale/de-DE/cliqz.json',
+    CliqzUtils.httpGet('chrome://cliqzres/content/locale/de-DE/cliqz.json',
         function(req){
-            CLIQZ.Utils.locale = JSON.parse(req.response);
+            CliqzUtils.locale = JSON.parse(req.response);
         });
   },
   getLocalizedString: function(key){
-    return (CLIQZ.Utils.locale[key] && CLIQZ.Utils.locale[key].message) || key;
+    return (CliqzUtils.locale[key] && CliqzUtils.locale[key].message) || key;
   },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
@@ -414,7 +413,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
   createSuggestionTitle: function(q, engine, originalQ) {
     var elements = [];
 
-    elements.push([CLIQZ.Utils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([CliqzUtils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
     if(originalQ){
       if(q.indexOf(originalQ) == 0){
         elements.push([originalQ, 'cliqz-ac-title-suggestion']);
@@ -425,7 +424,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     } else {
       elements.push([q, 'cliqz-ac-title-suggestion']);
     }
-    elements.push([CLIQZ.Utils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
+    elements.push([CliqzUtils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
     elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
 
     return JSON.stringify(elements);
@@ -446,14 +445,14 @@ CLIQZ.Utils = CLIQZ.Utils || {
               source = 'tab_result';
           }
           action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
-          action.search = CLIQZ.Utils.isSearch(value);
+          action.search = CliqzUtils.isSearch(value);
           if(item.getAttribute('type') === 'cliqz-suggestions'){
               value = Services.search.defaultEngine.getSubmission(value).uri.spec;
           }
 
           if(actionType == 'result_click'){ // do not navigate on keyboard navigation
             CLIQZ.Core.locationChangeTO = setTimeout(function(){
-                if(newTab) gBrowser.addTab(CLIQZ.Utils.cleanMozillaActions(value));
+                if(newTab) gBrowser.addTab(CliqzUtils.cleanMozillaActions(value));
                 else {
                   if(item.getAttribute('type') != 'cliqz-suggestions' &&
                     value.indexOf('http') !== 0) value = 'http://' + value;
@@ -463,7 +462,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
             }, 0);
           }
       }
-      CLIQZ.Utils.track(action);
+      CliqzUtils.track(action);
   },
   performance: {
     backend: function(delay){
@@ -476,10 +475,10 @@ CLIQZ.Utils = CLIQZ.Utils || {
             var t = ''
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
-              CLIQZ.Utils.log(t, 'PERFORMANCE');
+              CliqzUtils.log(t, 'PERFORMANCE');
               setTimeout(function(t){
                 reqtimes[t] = new Date();
-                CLIQZ.Utils.getCliqzResults(t, receive_test)
+                CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
 
               start += delay || (150 + (Math.random() * 100));
@@ -491,12 +490,12 @@ CLIQZ.Utils = CLIQZ.Utils || {
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
             }
             for(var j=0; j<4; j++) stats[j] = (stats[j] / statistics.length).toFixed(2);
-            CLIQZ.Utils.log(' ', 'PERFORMANCE');
-            CLIQZ.Utils.log('RESULT', 'PERFORMANCE');
-            CLIQZ.Utils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
-            CLIQZ.Utils.log(stats.join(' \t \t '), 'PERFORMANCE');
+            CliqzUtils.log(' ', 'PERFORMANCE');
+            CliqzUtils.log('RESULT', 'PERFORMANCE');
+            CliqzUtils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
+            CliqzUtils.log(stats.join(' \t \t '), 'PERFORMANCE');
           }, start);
-          CLIQZ.Utils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
+          CliqzUtils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
         }
 
         function receive_test(ev){
@@ -516,7 +515,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
             ]
           statistics.push(point);
 
-          CLIQZ.Utils.log(point.join(' \t\t '), 'PERFORMANCE');
+          CliqzUtils.log(point.join(' \t\t '), 'PERFORMANCE');
         }
 
         send_test()

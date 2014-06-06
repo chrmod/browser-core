@@ -4,8 +4,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
@@ -17,7 +17,7 @@ var Result = {
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
-    RULES: { 
+    RULES: {
         'video': [
             { 'domain': 'youtube.com', 'ogtypes': ['video', 'youtube'] },
             { 'domain': 'vimeo.com', 'ogtypes': ['video'] },
@@ -25,7 +25,7 @@ var Result = {
             { 'domain': 'dailymotion.com', 'ogtypes': ['video'] },
             { 'vertical': 'video' }
         ],
-        'poster': [ 
+        'poster': [
             { 'domain': 'imdb.com', 'ogtypes': ['video.tv_show', 'tv_show', 'movie', 'video.movie', 'game', 'video.episode', 'actor', 'public_figure'] }
         ],
         'person': [
@@ -41,8 +41,8 @@ var Result = {
         if(style !== Result.CLIQZS       // is not a suggestion
            && style !== Result.CLIQZC       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
-           && CLIQZ.Utils.isCompleteUrl(value)){       // looks like an url
-            let host = CLIQZ.Utils.getDetailsFromUrl(value).host
+           && CliqzUtils.isCompleteUrl(value)){       // looks like an url
+            let host = CliqzUtils.getDetailsFromUrl(value).host
             if(host){
                 comment = host;
             }
@@ -87,7 +87,7 @@ var Result = {
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url)
             return false;
         }
         // Bing Filters
@@ -95,7 +95,7 @@ var Result = {
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
-            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url)
             return false;
         }
         // Yahoo filters
@@ -107,7 +107,7 @@ var Result = {
            ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {
-            CLIQZ.Utils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url)
             return false;
         }
 
@@ -118,7 +118,7 @@ var Result = {
         if(!result.snippet)
             return;
 
-        var urlparts = CLIQZ.Utils.getDetailsFromUrl(result.url);
+        var urlparts = CliqzUtils.getDetailsFromUrl(result.url);
         var resp = {};
 
         var ogt;
@@ -140,7 +140,7 @@ var Result = {
                 var verticals = result.source.split(',');
                 for(var v in verticals){
                     if(verticals[v].trim() == rule.vertical)
-                        resp.type = type;                    
+                        resp.type = type;
                 }
             }
 

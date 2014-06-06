@@ -10,15 +10,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm?v=0.4.13');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
         _log.logStringMessage('Mixer.jsm: ' + str);
     };
 
-CLIQZ.Utils.init();
+CliqzUtils.init();
 
 var Mixer = {
 	mix: function(q, history, cliqz, mixed, maxResults){
@@ -56,7 +56,7 @@ var Mixer = {
                 // if also found in cache, remove so it is not added to cache-only bucket
                 cliqz.splice(cacheIndex, 1);
             } else {
-                let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+                let urlparts = CliqzUtils.getDetailsFromUrl(label);
 
                 if(Result.isValid(label, urlparts)) {
                     // Assign to different buckets if the search string occurs in hostname
@@ -74,7 +74,7 @@ var Mixer = {
 
         /// 2) Prepare final result list from buckets
 
-        var showQueryDebug = CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug')
+        var showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug')
 
         // the top history with matching domain will be show already via instant-serve
 

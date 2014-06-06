@@ -9,8 +9,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');
 
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var CliqzHistoryManager = {
 	_db: null,
@@ -19,7 +19,7 @@ var CliqzHistoryManager = {
         let daysVisited = {};
         let visitedDomainOn = {};
         let visitedSubDomain = {};
-        let today = CLIQZ.Utils.getDay();
+        let today = CliqzUtils.getDay();
         let history = today;
 
         this.PlacesInterestsStorage
@@ -79,7 +79,7 @@ var CliqzHistoryManager = {
                     //daysVisited: daysVisited,
                     //visitedDomainOn: visitedDomainOn,
                     //visitedSubDomain: visitedSubDomain,
-                    days: CLIQZ.Utils.getDay() - history
+                    days: CliqzUtils.getDay() - history
                 });
             });
     },

@@ -2,6 +2,9 @@
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
@@ -209,7 +212,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
-            urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
+            urlDetails = CliqzUtils.getDetailsFromUrl(url),
             domainDefClass = '', cliqzData;
 
 
@@ -306,7 +309,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         break;
                 }
 
-                CLIQZ.Utils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
+                CliqzUtils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
 
                 // only show the image if the ratio is between 0.4 and 2.5
                 if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
@@ -318,7 +321,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         item._cliqzImage.style.height = height + 'px';
                     }
                     if (img.duration) {
-                        item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
+                        item._cliqzImageDesc.textContent = CliqzUtils.getLocalizedString('arrow') + img.duration;
                         item._cliqzImageDesc.className = 'cliqz-image-desc';
                         item._cliqzImageDesc.parentNode.className = '';
                     }

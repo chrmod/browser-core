@@ -7,6 +7,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 //XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
 //  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
@@ -25,12 +29,11 @@ var Extension = Extension || {
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
-        Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
 
         Extension.setDefaultPrefs();
-        CLIQZ.Utils.init();
+        CliqzUtils.init();
 
-        this.track = CLIQZ.Utils.track;
+        this.track = CliqzUtils.track;
     },
     load: function(upgrade){
         // Load into any existing windows
@@ -50,7 +53,7 @@ var Extension = Extension || {
 
         if(upgrade){
             // open changelog on update
-            CLIQZ.Utils.openOrReuseAnyTab(CLIQZ.Utils.CHANGELOG, CLIQZ.Utils.UPDATE_URL, false);
+            CliqzUtils.openOrReuseAnyTab(CliqzUtils.CHANGELOG, CliqzUtils.UPDATE_URL, false);
         }
     },
     unload: function(version, uninstall){
@@ -72,10 +75,10 @@ var Extension = Extension || {
         Services.ww.unregisterNotification(Extension.windowWatcher);
     },
     restart: function(){
-        CLIQZ.Utils.extensionRestart();
+        CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        var branch = CLIQZ.Utils.cliqzPrefs;
+        var branch = CliqzUtils.cliqzPrefs;
 
         //basic solution for having consistent preferences between updates
         this.cleanPrefs(branch);
@@ -109,8 +112,8 @@ var Extension = Extension || {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.13', win);
     },
     loadIntoWindow: function(win) {
-        if(CLIQZ.Utils.shouldLoad(win)){
-            for (let src of ['core', 'utils', 'components'])
+        if(CliqzUtils.shouldLoad(win)){
+            for (let src of ['core', 'components'])
                 Extension.addScript(src, win);
 
             Extension.addButtons(win);
@@ -120,7 +123,7 @@ var Extension = Extension || {
             } catch(e) {Cu.reportError(e); }
         }
         else {
-            CLIQZ.Utils.log('private window -> halt', 'CORE');
+            CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
     addButtonToMenu: function(doc, menu, label, cmd){
@@ -223,7 +226,7 @@ var Extension = Extension || {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CLIQZ.Utils.setTimeout(Extension.refreshButtons, 0);
+                CliqzUtils.setTimeout(Extension.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -262,7 +265,7 @@ var Extension = Extension || {
             navBar.removeChild(btn);
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
-            delete win.CLIQZ.Utils;
+            // ???? delete win.CliqzUtils;
             win.CLIQZ = null;
             win.CLIQZResults = null;
         }catch(e){Cu.reportError(e); }

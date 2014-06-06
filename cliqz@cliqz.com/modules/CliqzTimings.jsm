@@ -3,16 +3,18 @@ var EXPORTED_SYMBOLS = ['CliqzTimings'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var CliqzTimings = CliqzTimings || {
     timings: {},
     enabled: false,
     init: function() {
-        if(CLIQZ.Utils.cliqzPrefs.prefHasUserValue('logTimings') &&
-           CLIQZ.Utils.cliqzPrefs.getBoolPref('logTimings')) {
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue('logTimings') &&
+           CliqzUtils.cliqzPrefs.getBoolPref('logTimings')) {
             CliqzTimings.enabled = true;
-            CLIQZ.Utils.log("timings enabled", "CliqzTimings")
+            CliqzUtils.log("timings enabled", "CliqzTimings")
         }
     },
 	add: function(name, time_ms) {
@@ -55,8 +57,8 @@ var CliqzTimings = CliqzTimings || {
                 name: name,
                 histogram: CliqzTimings.get_counts(name, max)
             };
-            CLIQZ.Utils.log((CliqzTimings.timings[name]).join(","), "CliqzTimings " + name)
-            CLIQZ.Utils.track(log);
+            CliqzUtils.log((CliqzTimings.timings[name]).join(","), "CliqzTimings " + name)
+            CliqzUtils.track(log);
 
             CliqzTimings.reset(name);
         }

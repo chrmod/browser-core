@@ -5,9 +5,11 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
 Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.13');
 Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.13');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
@@ -27,7 +29,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastResult: null,
     lastSuggestions: null,
     init: function(){
-        CLIQZ.Utils.init();
+        CliqzUtils.init();
         CliqzAutocomplete.initProvider();
         CliqzAutocomplete.initResults();
 
@@ -46,7 +48,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
         reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
 
-        CLIQZ.Utils.log('initialized', 'RESULTS');
+        CliqzUtils.log('initialized', 'RESULTS');
     },
     destroy: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
@@ -61,7 +63,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     getResultsOrder: function(results){
         var order = '';
 
-        for (let r of results) order += CLIQZ.Utils.encodeResultType(r.style);
+        for (let r of results) order += CliqzUtils.encodeResultType(r.style);
 
         return order;
     },
@@ -125,22 +127,22 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
                         let label = this.historyResults.getLabelAt(i);
-                        let urlparts = CLIQZ.Utils.getDetailsFromUrl(label);
+                        let urlparts = CliqzUtils.getDetailsFromUrl(label);
 
                         // check if it should not be filtered, and matches only the domain
                         if(Result.isValid(label, urlparts) &&
                            urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
 
-                            CLIQZ.Utils.log(label)
+                            CliqzUtils.log(label)
 
                             if(candidate_idx == -1) {
                                 // first entry
-                                CLIQZ.Utils.log("first candidate: " + label)
+                                CliqzUtils.log("first candidate: " + label)
                                 candidate_idx = i;
                                 candidate_url = label;
                             } else if(candidate_url.indexOf(label) != -1) {
                                 // this url is a substring of the previously candidate
-                                CLIQZ.Utils.log("found shorter candidate: " + label)
+                                CliqzUtils.log("found shorter candidate: " + label)
                                 candidate_idx = i;
                                 candidate_url = label;
                             }
@@ -154,9 +156,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             comment = this.historyResults.getCommentAt(candidate_idx),
                             label = this.historyResults.getLabelAt(candidate_idx);
 
-                        CLIQZ.Utils.log("instant:" + label)
+                        CliqzUtils.log("instant:" + label)
                         var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        if(CLIQZ.Utils.cliqzPrefs.getBoolPref('showQueryDebug'))
+                        if(CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug'))
                             instant.comment += " (instant History Domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
@@ -169,7 +171,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
-                    CLIQZ.Utils.clearTimeout(this.resultsTimer);
+                    CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
@@ -191,7 +193,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return;
                     } else {
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
-                        this.resultsTimer = CLIQZ.Utils.setTimeout(this.pushResults, timeout, this.searchString);
+                        this.resultsTimer = CliqzUtils.setTimeout(this.pushResults, timeout, this.searchString);
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
@@ -298,10 +300,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
 
                 tempLog.result_order = CliqzAutocomplete.getResultsOrder(this.mixedResults._results) + CliqzAutocomplete.getResultsOrder(results);
-                CLIQZ.Utils.track(tempLog);
+                CliqzUtils.track(tempLog);
 
 
-                CLIQZ.Utils.log('Results for ' + this.searchString + ' : ' + results.length
+                CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
                   + ', suggestions: ' + (this.cliqzSuggestions || []).length
                   + ')' );
@@ -316,7 +318,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             Result.CLIQZC,
                             customQuery.updatedQ,
                             null,
-                            CLIQZ.Utils.createSuggestionTitle(q, customQuery.engineName),
+                            CliqzUtils.createSuggestionTitle(q, customQuery.engineName),
                             customQuery.queryURI
                         )
                     ];
@@ -325,7 +327,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return q
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
-                CLIQZ.Utils.log('search: ' + searchString);
+                CliqzUtils.log('search: ' + searchString);
 
                 CliqzAutocomplete.lastSearch = searchString;
                 CliqzAutocomplete.lastResult = null;
@@ -338,7 +340,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     action: 'key_stroke',
                     current_length: searchString.length
                 };
-                CLIQZ.Utils.track(action);
+                CliqzUtils.track(action);
 
                 // custom results
                 searchString = this.analyzeQuery(searchString);
@@ -371,8 +373,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-                    CLIQZ.Utils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+                    CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzSuggestions = [];
@@ -387,7 +389,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             * Stops an asynchronous search that is in progress
             */
             stopSearch: function() {
-                CLIQZ.Utils.clearTimeout(this.resultsTimer);
+                CliqzUtils.clearTimeout(this.resultsTimer);
             }
         }
     }

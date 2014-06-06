@@ -7,8 +7,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.13');
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -150,8 +150,8 @@ var NonDefaultProviders = [
 	}
 ];
 
-if (!CLIQZ.Utils.getPref(INIT_KEY, false)) {
-    CLIQZ.Utils.setPref(INIT_KEY, true);
+if (!CliqzUtils.getPref(INIT_KEY, false)) {
+    CliqzUtils.setPref(INIT_KEY, true);
 
     var PROPS = ["name", "iconURL", "name" /*alias*/, "name" /*description*/, "method", "url"];
 
@@ -159,20 +159,20 @@ if (!CLIQZ.Utils.getPref(INIT_KEY, false)) {
     	var extern = NonDefaultProviders[idx];
 
     	try {
-    	CLIQZ.Utils.log('Analysing ' + extern.name, LOG_KEY);
+    	CliqzUtils.log('Analysing ' + extern.name, LOG_KEY);
 	    if (!Services.search.getEngineByName(extern.name)) {
-	    	CLIQZ.Utils.log('Added ' + extern.name, LOG_KEY);
+	    	CliqzUtils.log('Added ' + extern.name, LOG_KEY);
         	Services.search.addEngineWithDetails.apply(
         		Services.search,
             	PROPS.map(function (k) { return extern[k]; })
             );
    		} }
    		catch(e){
-   			CLIQZ.Utils.log(e, 'err' + LOG_KEY);
+   			CliqzUtils.log(e, 'err' + LOG_KEY);
    		}
     }
 
-    CLIQZ.Utils.log('Default Engines updated', LOG_KEY);
+    CliqzUtils.log('Default Engines updated', LOG_KEY);
 }
 
 ResultProviders.init();
