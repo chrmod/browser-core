@@ -324,6 +324,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.send_log("search_history", 200);
         CliqzTimings.send_log("search_cliqz", 1000);
         CliqzTimings.send_log("search_suggest", 500);
+        CliqzTimings.send_log("send_log", 2000);
     },
     showUpdateMessage: function(){
         if(CLIQZ.Core._messageOFF){

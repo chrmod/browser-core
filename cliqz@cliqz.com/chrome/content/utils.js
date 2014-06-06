@@ -72,6 +72,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     }
     req.ontimeout = function(){
       CLIQZ.Utils.log( "timeout for " + url, "CLIQZ.Core.httpHandler"); 
+      onerror && onerror();
     }
 
     if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
@@ -82,7 +83,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
     return CLIQZ.Utils.httpHandler('GET', url, callback, onerror);
   },
   httpPost: function(url, callback, data, onerror) {
-    CLIQZ.Utils.httpHandler('POST', url, callback, onerror, data);
+    return CLIQZ.Utils.httpHandler('POST', url, callback, onerror, data);
   },
   getPrefs: function(){
     var prefs = {};
@@ -298,12 +299,26 @@ CLIQZ.Utils = CLIQZ.Utils || {
       CLIQZ.Utils.trkTimer = CLIQZ.Utils.setTimeout(CLIQZ.Utils.pushTrack, 60000);
     }
   },
+  _track_req: null,
+  _track_sending: [],
+  _track_start: undefined,
   pushTrack: function() {
-    CLIQZ.Utils.log('push tracking data: ' + CLIQZ.Utils.trk.length + ' elements');
-    CLIQZ.Utils.httpPost(CLIQZ.Utils.LOG, CLIQZ.Utils.pushTrackCallback, JSON.stringify(CLIQZ.Utils.trk));
+    if(CLIQZ.Utils._track_req) {
+        CLIQZ.Utils._track_req.abort();
+        CLIQZ.Utils.pushTrackError(CLIQZ.Utils._track_req);
+    }
+
+    // put current data aside in case of failure
+    CLIQZ.Utils._track_sending = CLIQZ.Utils.trk.slice(0);
     CLIQZ.Utils.trk = [];
+
+    CLIQZ.Utils._track_start = (new Date()).getTime();
+
+    CLIQZ.Utils.log('push tracking data: ' + CLIQZ.Utils._track_sending.length + ' elements');
+    CLIQZ.Utils._track_req = CLIQZ.Utils.httpPost(CLIQZ.Utils.LOG, CLIQZ.Utils.pushTrackCallback, JSON.stringify(CLIQZ.Utils._track_sending), CLIQZ.Utils.pushTrackError);
   },
   pushTrackCallback: function(req){
+    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -311,6 +326,16 @@ CLIQZ.Utils = CLIQZ.Utils || {
         CLIQZ.Utils.setPref('session', response.new_session);
       }
     } catch(e){}
+    CLIQZ.Utils._track_sending = [];
+    CLIQZ.Utils._track_req = null;
+  },
+  pushTrackError: function(req){
+    // pushTrack failed, put data back in queue to be sent again later
+    CLIQZ.Utils.log('push tracking failed: ' + CLIQZ.Utils._track_sending.length + ' elements');
+    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
+    CLIQZ.Utils.trk = CLIQZ.Utils._track_sending.concat(CLIQZ.Utils.trk);
+    CLIQZ.Utils._track_sending = [];    
+    CLIQZ.Utils._track_req = null;
   },
   timers: [],
   setTimer: function(func, timeout, type, param) {
