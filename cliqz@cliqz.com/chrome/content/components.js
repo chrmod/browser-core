@@ -3,10 +3,10 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
 
 
 var CLIQZ = CLIQZ || {};
@@ -277,22 +277,46 @@ CLIQZ.Components = CLIQZ.Components || {
 
             // add video thumbnail
             if (cliqzData && cliqzData.image) {
-                var IMAGE_HEIGHT = 54,
+                var height = 54,
                     img = cliqzData.image;
                 var ratio = 0;
-                try {
-                    if(img.ratio){
-                        ratio = parseInt(img.ratio);
-                    } else if(img.width && img.height) {
-                        ratio = parseInt(img.width) / parseInt(img.height);
-                    }
-                } catch(e){}
+
+                switch(cliqzData.type){
+                    case 'hq':
+                        try {
+                            if(img.ratio){
+                                ratio = parseInt(img.ratio);
+                            } else if(img.width && img.height) {
+                                ratio = parseInt(img.width) / parseInt(img.height);
+                            }
+                        } catch(e){}
+                        break;
+                    case 'video':
+                        ratio = 16/9;
+                        break;
+                    case 'poster':
+                        height = 67;
+                        ratio = 214/317;
+                        break;
+                    case 'person':
+                        ratio = 1;
+                        break;
+                    default:
+                        ratio = 0;
+                        break;
+                }
+
+                CLIQZ.Utils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
 
                 // only show the image if the ratio is between 0.4 and 2.5
                 if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
                     item._cliqzImage.className = 'cliqz-ac-image';
-                    item._cliqzImage.setAttribute('src', img.src);
-                    if(ratio > 0) item._cliqzImage.style.width = IMAGE_HEIGHT * ratio + 'px';
+                    item._cliqzImage.style.backgroundImage = "url(" + img.src + ")";
+                    if(ratio > 0) {
+                        item._cliqzImage.style.backgroundSize = height * ratio + 'px';
+                        item._cliqzImage.style.width = height * ratio + 'px';
+                        item._cliqzImage.style.height = height + 'px';
+                    }
                     if (img.duration) {
                         item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
                         item._cliqzImageDesc.className = 'cliqz-image-desc';

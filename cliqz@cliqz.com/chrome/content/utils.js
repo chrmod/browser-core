@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Language',
-  'chrome://cliqzmodules/content/Language.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/Language.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.12');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.13');
 
 
 var EXPORTED_SYMBOLS = ['CLIQZ'];
@@ -74,7 +74,7 @@ CLIQZ.Utils = CLIQZ.Utils || {
       CLIQZ.Utils.log( "timeout for " + url, "CLIQZ.Core.httpHandler"); 
     }
 
-    if(callback)req.timeout = 1000;
+    if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
     req.send(data);
     return req;
   },
@@ -208,8 +208,13 @@ CLIQZ.Utils = CLIQZ.Utils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
+    var locales = Language.state();
+    var local_param = "";
+    if(locales.length > 0)
+      local_param = "&hl=" + locales[0];
+
     CLIQZ.Utils._suggestionsReq && CLIQZ.Utils._suggestionsReq.abort();
-    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q),
+    CLIQZ.Utils._suggestionsReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.SUGGESTIONS + encodeURIComponent(q) + local_param,
                                     function(res){
                                       callback && callback(res, q);
                                     });

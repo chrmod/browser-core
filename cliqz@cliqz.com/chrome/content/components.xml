@@ -100,6 +100,9 @@
         </xul:vbox>
       </xul:scrollbox>
     </content>
+    <implementation>
+      <field name="mLastMoveTime">Date.now()</field>
+    </implementation>
     <handlers>
       <handler event="mouseup">
         <![CDATA[
@@ -127,6 +130,24 @@
           CLIQZ.Core.popupClick(item);
         }
         // CLIQZ END
+      ]]>
+      </handler>
+      <handler event="mousemove">
+        <![CDATA[
+        if (Date.now() - this.mLastMoveTime > 30) {
+         var item = event.target;
+         while (item && item.localName != "richlistitem")
+           item = item.parentNode;
+
+         if (!item)
+           return;
+
+         var rc = this.getIndexOfItem(item);
+         if (rc != this.selectedIndex)
+            this.selectedIndex = rc;
+
+         this.mLastMoveTime = Date.now();
+        }
       ]]>
       </handler>
     </handlers>
@@ -157,7 +178,7 @@
             <xul:hbox anonid="title-box" class="ac-title" flex="1"
                       onunderflow="_doUnderflow('_title');"
                       onoverflow="_doOverflow('_title');">
-              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+              <xul:description anonid="title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
             </xul:hbox>
             <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
                        class="ac-ellipsis-after ac-comment"/>

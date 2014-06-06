@@ -10,7 +10,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
 
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.12');
+  'chrome://cliqz/content/utils.js?v=0.4.13');
 
 var HistoryManager = {
 	_db: null,
