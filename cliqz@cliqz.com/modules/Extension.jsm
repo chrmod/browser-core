@@ -4,8 +4,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-//  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
+  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
@@ -133,7 +133,7 @@ var Extension = Extension || {
         menu.appendChild(menuItem);
     },
     addButtons: function(win){
-        /*
+
         var BTN_ID = 'cliqz-button',
             DEFAULT_TOOLBOX = 'navigator-toolbox',
             firstRunPref = 'extensions.cliqz.firstRunDone',
@@ -144,11 +144,11 @@ var Extension = Extension || {
             win.Application.prefs.setValue(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
-        }*/
-
+        }
+        /*
         let doc = win.document,
             navBar = doc.getElementById('nav-bar');
-
+        */
 
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', 'cliqz-button');
@@ -163,8 +163,8 @@ var Extension = Extension || {
             ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
-        //ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
-        navBar.appendChild(button);
+        ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+        //navBar.appendChild(button);
     },
     createMenu: function(win){
         var doc = win.document,

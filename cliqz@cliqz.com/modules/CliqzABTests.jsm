@@ -13,32 +13,36 @@ var CliqzABTests = CliqzABTests || {
     check: function() {
         CliqzABTests.retrieve(
             function(response){
-                var prevABtests = [];
-                if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
-                    prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
+                try{
+                    var prevABtests = [];
+                    if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
+                        prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
-                var respABtests = JSON.parse(response.responseText);
+                    var respABtests = JSON.parse(response.responseText);
 
-                var changes = false; // any changes?
-                // find new AB tests to enter
-                for(let n in respABtests) {
-                    if(!(prevABtests[n])) {
-                        changes = true;
-                        CliqzABTests.enter(n, respABtests[n]);
+                    var changes = false; // any changes?
+                    // find new AB tests to enter
+                    for(let n in respABtests) {
+                        if(!(prevABtests[n])) {
+                            changes = true;
+                            CliqzABTests.enter(n, respABtests[n]);
+                        }
                     }
-                }
 
-                // find old AB tests to leave
-                for(let o in prevABtests) {
-                    if(!respABtests[o]) {
-                        changes = true;
-                        CliqzABTests.leave(o);
+                    // find old AB tests to leave
+                    for(let o in prevABtests) {
+                        if(!respABtests[o]) {
+                            changes = true;
+                            CliqzABTests.leave(o);
+                        }
                     }
-                }
-                CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(respABtests))
+                    CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(respABtests))
 
-                if(changes)
-                    CliqzUtils.extensionRestart();
+                    if(changes)
+                        CliqzUtils.extensionRestart();
+                } catch(e){
+                    CliqzUtils.log(e, "CliqzABTests.check Error");
+                }
             });
     },
     retrieve: function(callback) {
