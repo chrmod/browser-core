@@ -188,6 +188,7 @@ var Autocomplete = Autocomplete || {
                         this.cliqzCache = null;
                         this.cliqzSuggestions = null;
                         this.historyResults = null;
+                        this.cliqzWeather= null;
                         return;
                     } else {
                         let timeout = this.startTime + Autocomplete.TIMEOUT - now + 1;
@@ -227,6 +228,26 @@ var Autocomplete = Autocomplete || {
                         response = JSON.parse(req.response);
                     }
                     this.cliqzSuggestions = response[1];
+                }
+                this.pushResults(q);
+            },
+            // handles weather queries
+            cliqzWeatherFetcher: function(req, q) {
+                var old_q= this.searchString.replace(/^(weather|wetter|meteo) /gi, "");
+
+                if(q == old_q){ // be sure this is not a delayed result
+                    var response = [];
+
+                    if(this.startTime)
+                        CliqzTimings.add("search_weather", ((new Date()).getTime() - this.startTime));
+
+                    if(req.status == 200){
+                        response = JSON.parse(req.response);
+                    }
+
+                    CLIQZ.Utils.log("***DKLING*** constructing the result. Response is: "+response);
+
+                    this.cliqzWeather = response;
                 }
                 this.pushResults(q);
             },
@@ -293,6 +314,8 @@ var Autocomplete = Autocomplete || {
                             this.cliqzResults,
                             this.mixedResults,
                             //this.cliqzSuggestions,
+                            //TODO: ask Lucian, do we need to go through Mixer?!
+                            this.cliqzWeather,
                             maxResults
                     );
 
@@ -347,6 +370,7 @@ var Autocomplete = Autocomplete || {
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
+                this.cliqzWeather = null;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
@@ -368,15 +392,23 @@ var Autocomplete = Autocomplete || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
+                this.cliqzWeatherFetcher = this.cliqzWeatherFetcher.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CLIQZ.Utils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 || 
+                        searchString.trim().toLowerCase().indexOf("weather ") == 0 || 
+                        searchString.trim().toLowerCase().indexOf("meteo ") == 0){
+                        
+                        CLIQZ.Utils.getWeather(searchString, this.cliqzWeatherFetcher);
+                    }
                 } else {
                     this.cliqzResults = [];
                     this.cliqzSuggestions = [];
                     this.customResults = [];
+                    this.cliqzWeather = [];
                 }
 
                 // trigger history search

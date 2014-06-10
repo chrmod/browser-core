@@ -21,7 +21,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 CLIQZ.Utils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, maxResults){
+	mix: function(q, history, cliqz, mixed, weatherResults, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -119,6 +119,9 @@ var Mixer = {
                 bucketHistoryOther[i].comment += " (History Other)!";
             results.push(bucketHistoryOther[i]);
         }
+
+        // add external weather API results
+        results.push(weatherResults);
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
