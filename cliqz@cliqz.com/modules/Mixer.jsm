@@ -121,7 +121,8 @@ var Mixer = {
         }
 
         // add external weather API results
-        results= results.concat(weatherResults);
+        if(weatherResults && weatherResults.length > 0)
+            results = weatherResults.concat(results);
 
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
