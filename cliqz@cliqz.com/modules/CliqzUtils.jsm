@@ -56,8 +56,22 @@ var CliqzUtils = CliqzUtils || {
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
-    req.onload = function(){ callback && callback(req); }
-    req.onerror = function(){ onerror && onerror(); }
+    req.onload = function(){
+      if(req.status != 200){
+        CLIQZ.Utils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+        onerror && onerror();
+      } else {
+        callback && callback(req);
+      }
+    }
+    req.onerror = function(){
+      CLIQZ.Utils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+      onerror && onerror();
+    }
+    req.ontimeout = function(){
+      CLIQZ.Utils.log( "timeout for " + url, "CLIQZ.Core.httpHandler");
+      onerror && onerror();
+    }
 
     if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
     req.send(data);
@@ -67,7 +81,7 @@ var CliqzUtils = CliqzUtils || {
     return CliqzUtils.httpHandler('GET', url, callback, onerror);
   },
   httpPost: function(url, callback, data, onerror) {
-    CliqzUtils.httpHandler('POST', url, callback, onerror, data);
+    return CliqzUtils.httpHandler('POST', url, callback, onerror, data);
   },
   getPrefs: function(){
     var prefs = {};
@@ -193,11 +207,17 @@ var CliqzUtils = CliqzUtils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
+    var locales = Language.state();
+    var local_param = "";
+    if(locales.length > 0)
+      local_param = "&hl=" + locales[0];
+
     CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
-    CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q),
-                                    function(res){
-                                      callback && callback(res, q);
-                                    });
+    CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   _resultsReq: null,
   getCliqzResults: function(q, callback){
@@ -278,12 +298,26 @@ var CliqzUtils = CliqzUtils || {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
+  _track_req: null,
+  _track_sending: [],
+  _track_start: undefined,
   pushTrack: function() {
-    CliqzUtils.log('push tracking data: ' + CliqzUtils.trk.length + ' elements');
-    CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils.trk));
+    if(CliqzUtils._track_req) {
+        CliqzUtils._track_req.abort();
+        CliqzUtils.pushTrackError(CliqzUtils._track_req);
+    }
+
+    // put current data aside in case of failure
+    CliqzUtils._track_sending = CliqzUtils.trk.slice(0);
     CliqzUtils.trk = [];
+
+    CliqzUtils._track_start = (new Date()).getTime();
+
+    CliqzUtils.log('push tracking data: ' + CliqzUtils._track_sending.length + ' elements');
+    CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
+    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -291,6 +325,16 @@ var CliqzUtils = CliqzUtils || {
         CliqzUtils.setPref('session', response.new_session);
       }
     } catch(e){}
+    CLIQZ.Utils._track_sending = [];
+    CLIQZ.Utils._track_req = null;
+  },
+  pushTrackError: function(req){
+    // pushTrack failed, put data back in queue to be sent again later
+    CLIQZ.Utils.log('push tracking failed: ' + CLIQZ.Utils._track_sending.length + ' elements');
+    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
+    CLIQZ.Utils.trk = CLIQZ.Utils._track_sending.concat(CLIQZ.Utils.trk);
+    CLIQZ.Utils._track_sending = [];
+    CLIQZ.Utils._track_req = null;
   },
   timers: [],
   setTimer: function(func, timeout, type, param) {
@@ -481,7 +525,7 @@ var CliqzUtils = CliqzUtils || {
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
 
-              start += delay || (150 + (Math.random() * 100));
+              start += delay || (600 + (Math.random() * 100));
             }
           }
           CliqzUtils.setTimeout(function(){
