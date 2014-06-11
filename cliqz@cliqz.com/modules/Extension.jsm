@@ -135,7 +135,7 @@ var Extension = {
 
     addButtons: function(win){
         var BTN_ID = 'cliqz-button',
-            firstRunPref = 'extensions.cliqz.firstRunDone1',
+            firstRunPref = 'extensions.cliqz.firstStartDone',
             doc = win.document;
 
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
@@ -252,7 +252,9 @@ var Extension = {
     },
     unloadFromWindow: function(win){
         try {
-            win.document.getElementById('cliqz-button').remove();
+            if(win && win.document && win.document.getElementById('cliqz-button')){
+                win.document.getElementById('cliqz-button').remove();
+            }
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
             // ???? delete win.CliqzUtils;
