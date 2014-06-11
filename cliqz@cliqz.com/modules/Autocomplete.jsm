@@ -173,7 +173,7 @@ var Autocomplete = Autocomplete || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + Autocomplete.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults && this.cliqzSuggestions ){
+                        this.historyResults && this.cliqzResults && this.cliqzSuggestions && this.cliqzWeather){
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         Autocomplete.lastResult = this.mixedResults;
@@ -244,21 +244,32 @@ var Autocomplete = Autocomplete || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
-                    this.cliqzWeather= [];
-                    /*
+                    //this.cliqzWeather= [];
+
+                    var weather ='';
+                    for(var d in response.list){
+                        var day = response.list[d];
+
+                        // day
+                        weather += 'Today + ' + d +  ':';
+                        //weather
+                        weather += day.weather[0].main + '  |  ' + day.weather[0].description + '  |  ' + day.temp.day + ' --||-- ';
+                    }
+
+
                     this.cliqzWeather = [
                         Result.generic(
                             Result.CLIQZC,
                             q,
                             null,
-                            response.city.name,
+                            response.city.name + ', ' +  weather,
                             "http://www.wetter.de"
                         )
                     ];
 
                     CLIQZ.Utils.log("***DKLING4***");
                     CLIQZ.Utils.log(JSON.stringify(this.cliqzWeather));
-                    */
+
                 }
                 this.pushResults(q);
             },
@@ -409,10 +420,10 @@ var Autocomplete = Autocomplete || {
                     // start fetching results and suggestions
                     CLIQZ.Utils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-                    if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 || 
-                        searchString.trim().toLowerCase().indexOf("weather ") == 0 || 
+                    if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 ||
+                        searchString.trim().toLowerCase().indexOf("weather ") == 0 ||
                         searchString.trim().toLowerCase().indexOf("meteo ") == 0){
-                        
+
                         CLIQZ.Utils.getWeather(searchString, this.cliqzWeatherFetcher);
                     }
                 } else {
