@@ -244,10 +244,21 @@ var Autocomplete = Autocomplete || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
+                    this.cliqzWeather= [];
+                    /*
+                    this.cliqzWeather = [
+                        Result.generic(
+                            Result.CLIQZC,
+                            q,
+                            null,
+                            response.city.name,
+                            "http://www.wetter.de"
+                        )
+                    ];
 
-                    CLIQZ.Utils.log("***DKLING*** constructing the result. Response is: "+response);
-
-                    this.cliqzWeather = response;
+                    CLIQZ.Utils.log("***DKLING4***");
+                    CLIQZ.Utils.log(JSON.stringify(this.cliqzWeather));
+                    */
                 }
                 this.pushResults(q);
             },
