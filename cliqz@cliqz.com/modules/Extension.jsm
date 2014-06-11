@@ -132,7 +132,59 @@ var Extension = Extension || {
         menuItem.addEventListener('command', cmd, false);
         menu.appendChild(menuItem);
     },
+
     addButtons: function(win){
+        let button = win.document.createElement('toolbarbutton');
+        button.setAttribute('id', 'cliqz-button');
+        button.setAttribute('type', 'menu-button');
+        button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
+        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
+
+        var menupopup = Extension.createMenu(win)
+        button.appendChild(menupopup);
+
+        button.addEventListener('click', function(ev) {
+            ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
+        }, false);
+
+        var BTN_ID = 'cliqz-button',
+            DEFAULT_TOOLBAR = 'nav-bar',
+            firstRunPref = 'extensions.cliqz.firstRunDone',
+            doc = win.document,
+            navBar = doc.getElementById(DEFAULT_TOOLBAR),
+            curSet = navBar.currentSet.split(',');
+
+
+        try {
+            if (!win.Application.prefs.getValue(firstRunPref, false)) {
+                win.Application.prefs.setValue(firstRunPref, true);
+                curSet.push(BTN_ID);;
+                curSet = curSet.join(',')
+
+                navBar.setAttribute('currentset', curSet);
+                navBar.currentSet = curSet;
+                doc.persist(navBar.id, 'currentset');
+            }
+
+            var selector = "[currentset^='"+BTN_ID+",'],[currentset*=',"+BTN_ID+",'],[currentset$=',"+BTN_ID+"']",
+                toolbar = doc.querySelector(selector)
+
+            if(toolbar){
+                var currentset = toolbar.getAttribute("currentset").split(",");
+                var i = currentset.indexOf(BTN_ID) + 1;
+
+                var len = currentset.length, beforeEl;
+                while (i < len && !(beforeEl = doc.getElementById(currentset[i])))
+                    i++
+
+                toolbar.insertItem(BTN_ID, beforeEl);
+            }
+        } catch(e) {
+           CliqzUtils.log(e, '  :( ');
+        }
+
+
+        return;
 
         var BTN_ID = 'cliqz-button',
             DEFAULT_TOOLBOX = 'navigator-toolbox',
@@ -144,6 +196,9 @@ var Extension = Extension || {
             win.Application.prefs.setValue(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
+
+            navBar = doc.getElementById('nav-bar');
+            navBar.appendChild(button);
         }
         /*
         let doc = win.document,
@@ -163,8 +218,16 @@ var Extension = Extension || {
             ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
-        ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+        try {
+            ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
+        }
+        catch(e){
+            navBar = doc.getElementById('nav-bar');
+            navBar.appendChild(button);
+        }
         //navBar.appendChild(button);
+
+
     },
     createMenu: function(win){
         var doc = win.document,
@@ -258,11 +321,7 @@ var Extension = Extension || {
     },
     unloadFromWindow: function(win){
         try {
-            let doc = win.document,
-                navBar = doc.getElementById('nav-bar'),
-                btn = doc.getElementById('cliqz-button');
-
-            navBar.removeChild(btn);
+            win.document.getElementById('cliqz-button').remove();
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
             // ???? delete win.CliqzUtils;

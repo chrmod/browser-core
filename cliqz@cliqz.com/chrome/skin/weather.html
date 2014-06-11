@@ -1,0 +1,130 @@
+<html>
+<head>
+<script type="text/javascript">
+	function weatherCheck(q){
+		if(q.indexOf('we') > -1){
+			weatherRequest(q.replace('we', ''));
+		}
+	}
+
+	function weatherRequest(q){
+		if(q.trim().length > 0){
+			debugger;
+			console.log('weather call for: ' + q);
+
+			// ?lat=48.77778465&lon=13.0003795706898, instead of ?q=
+			document.getElementById('result').innerHTML = 'No weather';
+			geocodeRequest(q, function(res){
+				var coordiantes = geocodeCallback(res);
+				var API = 'http://api.openweathermap.org/data/2.5/forecast/daily?'
+					  + 'lat=' + coordiantes.lat
+					  + '&lon=' + coordiantes.lon
+					  + '&lang=de&units=metric&type=accurate&mode=json&cnt=3';
+
+
+				// API call
+				httpHandler('GET', API, weatherCallback);
+			});
+		}
+	}
+
+	function weatherCallback(res){
+
+		if(res.status == 200){
+			var data = JSON.parse(res.response),
+				el = document.getElementById('result');
+
+			if(data.cod == 200){
+				createUI(el, data);
+
+
+			//title.
+			}
+		}
+	}
+
+	  function geocodeCallback(res){
+	        if(res.status == 200){
+	            var data = JSON.parse(res.response);
+
+	        if (data &&
+	            data.interpretations &&
+	            data.interpretations.length &&
+	            data.interpretations[0].feature.geometry &&
+	            data.interpretations[0].feature.geometry.center) {
+
+	            return {
+	                lat: data.interpretations[0].feature.geometry.center.lat,
+	                lon: data.interpretations[0].feature.geometry.center.lng
+	            };
+	        }
+
+	        return null;
+	    }
+	}
+
+    function geocodeUrl(loc) {
+        return 'http://weather-search.fbt.co:8081/?autocomplete=true&query='
+              + encodeURIComponent(loc)
+              + '&lang=de&maxInterpretations=1';
+    }
+
+    function geocodeRequest(loc, callback){
+        console.log('Geocoding call for: ' + loc);
+
+        httpHandler('GET', geocodeUrl(loc), callback);
+    }
+
+
+
+	function createUI(el, json){
+		var ui = '';
+		ui += '<b>City: ' + json.city.name + '(' + json.city.country + ')</b><br>';
+
+		for(var d in json.list){
+ 	 		var day = json.list[d];
+
+ 	 		// day
+ 	 		ui += '<br><b> Today + ' + d +  '</b>    ';
+ 	 		//weather
+ 	 		ui += day.weather[0].main + '  |  ' + day.weather[0].description + '  |  ' + day.temp.day;
+		}
+
+		el.innerHTML = ui;
+	}
+
+</script>
+</head>
+<body>
+	Enter Query: <input type="text" id="in" />
+	<br>
+	<br>
+	<div id='result'>
+	</div>
+
+<script type="text/javascript">
+	document.getElementById('in').onkeyup =
+		function(el)
+		{
+			var val = el.target.value
+			console.log('Query: ' + val);
+
+			weatherCheck(val);
+		};
+
+
+	// UTILS from the extension
+	function httpHandler(method, url, callback, onerror, data){
+	    var req = new XMLHttpRequest();
+	    req.open(method, url, true);
+	    req.overrideMimeType('application/json');
+	    req.onload = function(){ callback && callback(req); }
+	    req.onerror = function(){ onerror && onerror(); }
+
+	    if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
+	    req.send(data);
+	    return req;
+	 }
+</script>
+</body>
+</html>

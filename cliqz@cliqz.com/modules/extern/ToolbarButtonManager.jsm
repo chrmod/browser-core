@@ -53,6 +53,7 @@ ToolbarButtonManager.restorePosition = function(doc, button, toolbox) {
     doc[all ? "querySelectorAll" : "getElementById"](sel);
   ($(toolbox) || $("header-view-toolbox") || $("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(button);
 
+  debugger;
   let toolbar, currentset, idx,
       toolbars = $("toolbar", true);
   for (let i = 0; i < toolbars.length; ++i) {
@@ -73,6 +74,7 @@ ToolbarButtonManager.restorePosition = function(doc, button, toolbox) {
   }
 
   if (toolbar) {
+    debugger;
     if (idx != -1) {
       // inserting the button before the first item in `currentset`
       // after `idx` that is present in the document
