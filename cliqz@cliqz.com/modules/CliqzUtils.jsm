@@ -57,19 +57,19 @@ var CliqzUtils = CliqzUtils || {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(req.status != 200){
-        CLIQZ.Utils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+      if(req.status != 200 && req.status != 0 /* local files */){
+        CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
         onerror && onerror();
       } else {
         callback && callback(req);
       }
     }
     req.onerror = function(){
-      CLIQZ.Utils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+      CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
       onerror && onerror();
     }
     req.ontimeout = function(){
-      CLIQZ.Utils.log( "timeout for " + url, "CLIQZ.Core.httpHandler");
+      CliqzUtils.log( "timeout for " + url, "CLIQZ.Core.httpHandler");
       onerror && onerror();
     }
 
@@ -207,7 +207,7 @@ var CliqzUtils = CliqzUtils || {
   },
   _suggestionsReq: null,
   getSuggestions: function(q, callback){
-    var locales = Language.state();
+    var locales = CliqzLanguage.state();
     var local_param = "";
     if(locales.length > 0)
       local_param = "&hl=" + locales[0];
@@ -317,7 +317,7 @@ var CliqzUtils = CliqzUtils || {
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
-    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
+    CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -325,16 +325,16 @@ var CliqzUtils = CliqzUtils || {
         CliqzUtils.setPref('session', response.new_session);
       }
     } catch(e){}
-    CLIQZ.Utils._track_sending = [];
-    CLIQZ.Utils._track_req = null;
+    CliqzUtils._track_sending = [];
+    CliqzUtils._track_req = null;
   },
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
-    CLIQZ.Utils.log('push tracking failed: ' + CLIQZ.Utils._track_sending.length + ' elements');
-    CliqzTimings.add("send_log", (new Date()).getTime() - CLIQZ.Utils._track_start)
-    CLIQZ.Utils.trk = CLIQZ.Utils._track_sending.concat(CLIQZ.Utils.trk);
-    CLIQZ.Utils._track_sending = [];
-    CLIQZ.Utils._track_req = null;
+    CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements');
+    CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
+    CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
+    CliqzUtils._track_sending = [];
+    CliqzUtils._track_req = null;
   },
   timers: [],
   setTimer: function(func, timeout, type, param) {
