@@ -88,9 +88,9 @@ Sent with the 'environment' signal if the preference `extensions.cliqz.logTiming
 
 Glossary
 
-"<ENCODED_RESULT_TYPE>"
-
 ``` bash
+  <ENCODED_RESULT_TYPE>
+ 
  - T-tab result, B-bookmark, H-history,  C-custom results
  - any combination of one or more:
     p - people
