@@ -117,7 +117,7 @@
 
         // CLIQZ START
         if(event.metaKey || event.ctrlKey){
-          CLIQZ.Utils.navigateToItem(
+          CliqzUtils.navigateToItem(
                     gBrowser,
                     0,
                     item,
@@ -226,7 +226,7 @@
     <handlers>
       <handler event="mouseup">
         <![CDATA[
-          CLIQZ.Utils.navigateToItem(
+          CliqzUtils.navigateToItem(
                     gBrowser,
                     0,
                     event.originalTarget.parentNode.parentNode,

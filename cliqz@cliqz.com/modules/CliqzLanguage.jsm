@@ -1,13 +1,14 @@
 'use strict';
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var EXPORTED_SYMBOLS = ['Language'];
+var EXPORTED_SYMBOLS = ['CliqzLanguage'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqz/content/utils.js??v=0.4.13');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
-var Language = Language || {
+var CliqzLanguage = CliqzLanguage || {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
     LOG_KEY: 'cliqz language: ',
@@ -29,27 +30,27 @@ var Language = Language || {
             if (aURI.spec == this.currentURL) return;
             this.currentURL = aURI.spec;
 
-            Language.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
+            CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
 
                 try {
-                    var currURL = Language.window.gBrowser.selectedBrowser.contentDocument.location;
+                    var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
                     if (''+currURLAtTime == ''+currURL) {
                         // the person has stayed at least READING_THRESHOLD at the URL, now let's try
                         // to fetch the locale
-                        CLIQZ.Utils.log("Person has been long enough at: " + currURLAtTime, Language.LOG_KEY);
-                        var locale = Language.window.gBrowser.selectedBrowser.contentDocument
+                        CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
+                        var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
                             .getElementsByTagName('html').item(0).getAttribute('lang');
-                        if (locale) Language.addLocale(''+currURL,locale);
+                        if (locale) CliqzLanguage.addLocale(''+currURL,locale);
                     }
 
                }
                catch(ee) {
                 // silent fail
-                CLIQZ.Utils.log('Exception: ' + ee, Language.LOG_KEY);
+                CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
 
                }
 
-            };})(this.currentURL), Language.READING_THRESHOLD);
+            };})(this.currentURL), CliqzLanguage.READING_THRESHOLD);
 
         },
 
@@ -60,57 +61,57 @@ var Language = Language || {
     // load from the about:config settings
     init: function(window) {
 
-        Language.window = window;
+        CliqzLanguage.window = window;
 
-        if(Language.cliqzLangPrefs.prefHasUserValue('data')) {
-            Language.currentState = JSON.parse(Language.cliqzLangPrefs.getCharPref('data'));
+        if(CliqzLanguage.cliqzLangPrefs.prefHasUserValue('data')) {
+            CliqzLanguage.currentState = JSON.parse(CliqzLanguage.cliqzLangPrefs.getCharPref('data'));
 
             // for the case that the user changes his userAgent.locale
-            var ll = Language.normalizeLocale(Language.useragentPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
             if (ll) {
-                if (Language.currentState[ll]!='locale') {
-                    Language.currentState[ll] = 'locale';
-                    Language.saveCurrentState();
+                if (CliqzLanguage.currentState[ll]!='locale') {
+                    CliqzLanguage.currentState[ll] = 'locale';
+                    CliqzLanguage.saveCurrentState();
                 }
             }
         }
         else {
             // it has nothing, new or removed,
 
-            var ll = Language.normalizeLocale(Language.useragentPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
             if (ll) {
-                Language.currentState = {};
-                Language.currentState[ll] = 'locale';
-                Language.saveCurrentState();
+                CliqzLanguage.currentState = {};
+                CliqzLanguage.currentState[ll] = 'locale';
+                CliqzLanguage.saveCurrentState();
             }
         }
 
-        Language.cleanCurrentState();
-        CLIQZ.Utils.log(Language.stateToQueryString(), Language.LOG_KEY);
+        CliqzLanguage.cleanCurrentState();
+        CliqzUtils.log(CliqzLanguage.stateToQueryString(), CliqzLanguage.LOG_KEY);
 
     },
     // add locale, this is the function hook that will be called for every page load that
     // stays more than 5 seconds active
     addLocale: function(url, localeStr) {
 
-        var locale = Language.normalizeLocale(localeStr);
+        var locale = CliqzLanguage.normalizeLocale(localeStr);
 
         if (locale=='' || locale==undefined || locale==null) return;
         if (url=='' || url==undefined || url==null) return;
 
-        if (Language.currentState[locale] != 'locale') {
+        if (CliqzLanguage.currentState[locale] != 'locale') {
             // if it's the locale there is not need to do anything, we already have it
 
             // extract domain from url, hash it and update the value
-            var url_hash = Language.hashCode(url.replace('http://','').replace('https://','').replace('://','').split('/')[0]) % 256;
+            var url_hash = CliqzLanguage.hashCode(url.replace('http://','').replace('https://','').replace('://','').split('/')[0]) % 256;
 
-            CLIQZ.Utils.log('Saving: ' + locale + ' ' + url_hash, Language.LOG_KEY);
+            CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY);
 
-            if (Language.currentState[locale]==null || Language.currentState[locale].indexOf(url_hash)==-1) {
-                if (Language.currentState[locale]==null) Language.currentState[locale] = [];
+            if (CliqzLanguage.currentState[locale]==null || CliqzLanguage.currentState[locale].indexOf(url_hash)==-1) {
+                if (CliqzLanguage.currentState[locale]==null) CliqzLanguage.currentState[locale] = [];
                 // does not exist
-                Language.currentState[locale].push(url_hash);
-                Language.saveCurrentState();
+                CliqzLanguage.currentState[locale].push(url_hash);
+                CliqzLanguage.saveCurrentState();
             }
         }
 
@@ -127,13 +128,13 @@ var Language = Language || {
     state: function() {
 
         var lang_vec = [];
-        for (var lang in Language.currentState) {
-            if (Language.currentState[lang]=='locale') {
+        for (var lang in CliqzLanguage.currentState) {
+            if (CliqzLanguage.currentState[lang]=='locale') {
                 lang_vec.push([lang, 0.0]);
             }
             else {
-                var val = Object.keys(Language.currentState[lang]).length;
-                if (val > Language.DOMAIN_THRESHOLD) {
+                var val = Object.keys(CliqzLanguage.currentState[lang]).length;
+                if (val > CliqzLanguage.DOMAIN_THRESHOLD) {
                     lang_vec.push([lang, 1.0/val]);
                 }
             }
@@ -151,37 +152,37 @@ var Language = Language || {
         return lang_vec_clean;
     },
     cleanCurrentState: function() {
-        var keys = Object.keys(Language.currentState);
+        var keys = Object.keys(CliqzLanguage.currentState);
         var count = 0;
-        for(let i=0;i<keys.length;i++) if (keys[i]!=Language.normalizeLocale(keys[i])) count+=1;
+        for(let i=0;i<keys.length;i++) if (keys[i]!=CliqzLanguage.normalizeLocale(keys[i])) count+=1;
 
         if (count>0) {
             var cleanState = {};
             for(let i=0;i<keys.length;i++) {
-                var nkey = Language.normalizeLocale(keys[i]);
-                if (Language.currentState[keys[i]]!='locale') {
+                var nkey = CliqzLanguage.normalizeLocale(keys[i]);
+                if (CliqzLanguage.currentState[keys[i]]!='locale') {
                     cleanState[nkey] = (cleanState[nkey] || []);
 
-                    for(let j=0;j<Language.currentState[keys[i]].length;j++) {
-                        var value = Language.currentState[keys[i]][j];
+                    for(let j=0;j<CliqzLanguage.currentState[keys[i]].length;j++) {
+                        var value = CliqzLanguage.currentState[keys[i]][j];
                         if (cleanState[nkey].indexOf(value)==-1) cleanState[nkey].push(value);
                     }
                 }
             }
 
-            Language.currentState = cleanState;
-            var ll = Language.normalizeLocale(Language.cliqzPrefs.getCharPref('locale'));
-            if (ll && Language.currentState[ll]!='locale') Language.currentState[ll] = 'locale';
+            CliqzLanguage.currentState = cleanState;
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.cliqzPrefs.getCharPref('locale'));
+            if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
-            Language.saveCurrentState();
+            CliqzLanguage.saveCurrentState();
         }
     },
     stateToQueryString: function() {
-        return '&lang=' + Language.state().join(',');
+        return '&lang=' + CliqzLanguage.state().join(',');
     },
     // Save the current state to preferences,
     saveCurrentState: function() {
-        CLIQZ.Utils.log("Going to save languages: " + JSON.stringify(Language.currentState), Language.LOG_KEY);
-        Language.cliqzLangPrefs.setCharPref('data', JSON.stringify(Language.currentState || {}));
+        CliqzUtils.log("Going to save languages: " + JSON.stringify(CliqzLanguage.currentState), CliqzLanguage.LOG_KEY);
+        CliqzLanguage.cliqzLangPrefs.setCharPref('data', JSON.stringify(CliqzLanguage.currentState || {}));
     },
 };

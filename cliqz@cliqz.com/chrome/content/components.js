@@ -2,11 +2,14 @@
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.14');
 
 
 var CLIQZ = CLIQZ || {};
@@ -43,8 +46,8 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
 
-            for(var i in Autocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
+            for(var i in CliqzAutocomplete.lastSuggestions){
+                CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString);
             }
         }
         // CLIQZ END
@@ -90,9 +93,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('title', controller.getCommentAt(popup._currentIndex));
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
-            if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
+            if(CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex)){
                 // can we avoid JSON stringify here?
-                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                var data = JSON.stringify(CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex));
                 item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');
@@ -209,7 +212,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
-            urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
+            urlDetails = CliqzUtils.getDetailsFromUrl(url),
             domainDefClass = '', cliqzData;
 
 
@@ -306,7 +309,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         break;
                 }
 
-                CLIQZ.Utils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
+                CliqzUtils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
 
                 // only show the image if the ratio is between 0.4 and 2.5
                 if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
@@ -318,7 +321,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         item._cliqzImage.style.height = height + 'px';
                     }
                     if (img.duration) {
-                        item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
+                        item._cliqzImageDesc.textContent = CliqzUtils.getLocalizedString('arrow') + img.duration;
                         item._cliqzImageDesc.className = 'cliqz-image-desc';
                         item._cliqzImageDesc.parentNode.className = '';
                     }

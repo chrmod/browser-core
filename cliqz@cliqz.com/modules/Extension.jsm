@@ -4,13 +4,17 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-//  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
+  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
 
-var Extension = Extension || {
+var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'session': '',
@@ -25,12 +29,9 @@ var Extension = Extension || {
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
-        Cu.import('chrome://cliqz/content/utils.js?v=0.4.13');
-
         Extension.setDefaultPrefs();
-        CLIQZ.Utils.init();
-
-        this.track = CLIQZ.Utils.track;
+        CliqzUtils.init();
+        this.track = CliqzUtils.track;
     },
     load: function(upgrade){
         // Load into any existing windows
@@ -50,7 +51,7 @@ var Extension = Extension || {
 
         if(upgrade){
             // open changelog on update
-            CLIQZ.Utils.openOrReuseAnyTab(CLIQZ.Utils.CHANGELOG, CLIQZ.Utils.UPDATE_URL, false);
+            CliqzUtils.openOrReuseAnyTab(CliqzUtils.CHANGELOG, CliqzUtils.UPDATE_URL, false);
         }
     },
     unload: function(version, uninstall){
@@ -72,10 +73,10 @@ var Extension = Extension || {
         Services.ww.unregisterNotification(Extension.windowWatcher);
     },
     restart: function(){
-        CLIQZ.Utils.extensionRestart();
+        CliqzUtils.extensionRestart();
     },
     setDefaultPrefs: function() {
-        var branch = CLIQZ.Utils.cliqzPrefs;
+        var branch = CliqzUtils.cliqzPrefs;
 
         //basic solution for having consistent preferences between updates
         this.cleanPrefs(branch);
@@ -106,11 +107,13 @@ var Extension = Extension || {
         }
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.13', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.14', win);
     },
     loadIntoWindow: function(win) {
-        if(CLIQZ.Utils.shouldLoad(win)){
-            for (let src of ['core', 'utils', 'components'])
+        if (!win) return;
+
+        if(CliqzUtils.shouldLoad(win)){
+            for (let src of ['core', 'components'])
                 Extension.addScript(src, win);
 
             Extension.addButtons(win);
@@ -120,7 +123,7 @@ var Extension = Extension || {
             } catch(e) {Cu.reportError(e); }
         }
         else {
-            CLIQZ.Utils.log('private window -> halt', 'CORE');
+            CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
     addButtonToMenu: function(doc, menu, label, cmd){
@@ -129,22 +132,17 @@ var Extension = Extension || {
         menuItem.addEventListener('command', cmd, false);
         menu.appendChild(menuItem);
     },
+
     addButtons: function(win){
-        /*
         var BTN_ID = 'cliqz-button',
-            DEFAULT_TOOLBOX = 'navigator-toolbox',
-            firstRunPref = 'extensions.cliqz.firstRunDone',
-            doc = win.document,
-            toolbox = doc.getElementById(DEFAULT_TOOLBOX);
+            firstRunPref = 'extensions.cliqz.firstStartDone',
+            doc = win.document;
 
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
-            ToolbarButtonManager.setDefaultPosition(BTN_ID, DEFAULT_TOOLBOX, null);
-        }*/
-
-        let doc = win.document,
-            navBar = doc.getElementById('nav-bar');
+            ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
+        }
 
 
         let button = win.document.createElement('toolbarbutton');
@@ -160,8 +158,7 @@ var Extension = Extension || {
             ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
-        //ToolbarButtonManager.restorePosition(doc, button, DEFAULT_TOOLBOX);
-        navBar.appendChild(button);
+        ToolbarButtonManager.restorePosition(doc, button);
     },
     createMenu: function(win){
         var doc = win.document,
@@ -223,7 +220,7 @@ var Extension = Extension || {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CLIQZ.Utils.setTimeout(Extension.refreshButtons, 0);
+                CliqzUtils.setTimeout(Extension.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -255,14 +252,12 @@ var Extension = Extension || {
     },
     unloadFromWindow: function(win){
         try {
-            let doc = win.document,
-                navBar = doc.getElementById('nav-bar'),
-                btn = doc.getElementById('cliqz-button');
-
-            navBar.removeChild(btn);
+            if(win && win.document && win.document.getElementById('cliqz-button')){
+                win.document.getElementById('cliqz-button').remove();
+            }
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
-            delete win.CLIQZ.Utils;
+            // ???? delete win.CliqzUtils;
             win.CLIQZ = null;
             win.CLIQZResults = null;
         }catch(e){Cu.reportError(e); }
