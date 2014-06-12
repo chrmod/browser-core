@@ -48,7 +48,7 @@ var CliqzABTests = CliqzABTests || {
     retrieve: function(callback) {
         // Utils.httpGet has a short timeout which is undesired here, so I build the connection myself
         var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-        var url = CliqzABTests.URL + CliqzUtils.cliqzPrefs.getCharPref('session');
+        var url = CliqzABTests.URL + encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
 
         req.overrideMimeType('application/json');
         req.timeout = 5000;
@@ -71,8 +71,17 @@ var CliqzABTests = CliqzABTests || {
         // It is safe to remove them as soon as the test is over.
         switch(abtest) {
             case "1000_A":
-                CliqzUtils.setPref("logTiming", true);
+                CliqzUtils.setPref("logTimings", true);
                 break;
+            case "1001_A":
+                CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001A');
+                CliqzUtils.setPref("showChangelog", true);
+                break;
+            case "1001_B":
+                CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001B');
+                CliqzUtils.setPref("showChangelog", true);
+                break;
+
         }
     },
     leave: function(abtest) {
@@ -85,7 +94,15 @@ var CliqzABTests = CliqzABTests || {
         // get stuck in a test if we remove cases too early.
         switch(abtest) {
             case "1000_A":
-                CliqzUtils.setPref("logTiming", false);
+                CliqzUtils.setPref("logTimings", false);
+                break;
+            case "1001_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("changelogURL");
+                CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
+                break;
+            case "1001_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("changelogURL");
+                CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
                 break;
         }
     },
