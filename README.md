@@ -88,7 +88,8 @@ Sent with the 'environment' signal if the preference `extensions.cliqz.logTiming
 
 Glossary
 
-<ENCODED_RESULT_TYPE>
+"<ENCODED_RESULT_TYPE>"
+
 ``` bash
  - T-tab result, B-bookmark, H-history,  C-custom results
  - any combination of one or more:
@@ -101,7 +102,7 @@ Glossary
     f - french
     v - video
     h - hq
-``` bash
+```
 
 
 Keystoke - any key stroke which triggers a search
@@ -226,6 +227,7 @@ Visual hash tag
        // 'amazon'         = 7
        // 'ebay'           = 8
        // 'leo'            = 9
+       // 'other'          = 0
 }
 ```
 
