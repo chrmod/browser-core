@@ -35,7 +35,8 @@ var INIT_KEY = 'newProvidersAdded',
         '#join': {
             url: 'https://codility.com/honeypot/Cliqz-Jobs'
         }
-    }
+    },
+    ENGINE_CODES = ['google images', 'google maps', 'google', 'yahoo', 'bing', 'wikipedia', 'amazon', 'ebay', 'leo']
 	;
 
 // REFS:
@@ -55,7 +56,16 @@ var ResultProviders = {
                 engines[engine.name] = {
                     prefix: ResultProviders.getShortcut(engine.name),
                     name: engine.name,
-                    icon: engine.iconURI.spec
+                    icon: engine.iconURI.spec,
+                    // can be an un unknown engine
+                    code: 0
+                }
+
+                for(var c in ENGINE_CODES){
+                    if(engine.name.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
+                        engines[engine.name].code = +c + 1;
+                        break;
+                    }
                 }
             }
         }

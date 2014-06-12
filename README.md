@@ -206,6 +206,29 @@ Last search button pressed
 }
 ```
 
+Visual hash tag
+``` bash
+{
+    "action": "visual_hash_tag",
+    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>,
+    "new_tab": true/false, // is the result open in new tab
+    "engine": X,
+       // ENGINE CODES
+       //
+       // 'google images'  = 1
+       // 'google maps'    = 2
+       // 'google'         = 3
+       // 'yahoo'          = 4
+       // 'bing'           = 5
+       // 'wikipedia'      = 6
+       // 'amazon'         = 7
+       // 'ebay'           = 8
+       // 'leo'            = 9
+}
+```
+
 Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
 ``` bash
 {

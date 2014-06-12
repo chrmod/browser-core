@@ -179,6 +179,7 @@ CLIQZ.Components = CLIQZ.Components || {
             imageEl.setAttribute('src', engine.icon);
             imageEl.tooltipText = engine.name + '  ' + engine.prefix;
             imageEl.engine = engine.name;
+            imageEl.engineCode = engine.code;
 
             engineContainer.appendChild(imageEl);
         }
@@ -197,14 +198,23 @@ CLIQZ.Components = CLIQZ.Components || {
                     userInput = userInput.slice(0, urlbar.selectionStart);
                 }
 
-                var url = engine.getSubmission(userInput).uri.spec;
+                var url = engine.getSubmission(userInput).uri.spec,
+                    action = {
+                        type: 'activity',
+                        action: 'visual_hash_tag',
+                        engine: ev.target.engineCode || -1
+                    };
 
                 if(ev.metaKey || ev.ctrlKey){
                     gBrowser.addTab(url);
+                    action.new_tab = true;
                 } else {
                     gBrowser.selectedBrowser.contentDocument.location = url;
                     CLIQZ.Core.popup.closePopup();
+                    action.new_tab = false;
                 }
+
+                CliqzUtils.track(action);
             }
         }
     },
