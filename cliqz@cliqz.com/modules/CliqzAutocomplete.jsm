@@ -167,7 +167,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
             },
-
+            sendResultsSignal: function(results) {
+                var action = {
+                    type: 'activity',
+                    action: 'results',
+                    result_order:  CliqzAutocomplete.getResultsOrder(results)
+                };
+                CliqzUtils.track(action);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
@@ -182,6 +189,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
 
                         this.listener.onSearchResult(this, this.mixedResults);
+                        this.sendResultsSignal(this.mixedResults._results);
+
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
@@ -236,57 +245,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
-            // TODO - do this in the mix results after it gets stable
-            logResults: function() {
-                var bookmarkResults = 0,
-                    histResults = 0,
-                    tabResults = 0,
-                    cliqzResult = 0,
-                    cliqzResultSnippet = 0,
-                    cliqzResultTitle = 0;
-
-                for (let i = 0;
-                     this.historyResults && i < this.historyResults.matchCount && i < 2;
-                     i++) {
-                    let style = this.historyResults.getStyleAt(i);
-
-                    if(style === 'bookmark' || style === 'tag')bookmarkResults++;
-                    if(style.indexOf('action') !== -1)tabResults++;
-                    else histResults++;
-                }
-
-                for(let i in this.cliqzResults || []) {
-                    let r = this.cliqzResults[i];
-                    if(r.snippet){
-                        if(r.snippet.title){
-                            cliqzResultTitle++; //result with snippet and title
-                        }
-                        else {
-                            cliqzResultSnippet++; //result with snippet but no title
-                        }
-                    } else {
-                        cliqzResult++; //result with no snippet
-                    }
-                }
-
-                var action = {
-                    type: 'activity',
-                    action: 'results',
-                    cliqz_results: cliqzResult,
-                    cliqz_results_snippet: cliqzResultSnippet,
-                    cliqz_results_title: cliqzResultTitle,
-                    history_results: histResults,
-                    bookmark_results: bookmarkResults,
-                    tab_results: tabResults,
-                    custom_results: (this.custom_results || []).length
-                };
-
-                return action;
-            },
             // mixes history, results and suggestions
             mixResults: function() {
-                var maxResults = prefs.getIntPref('maxRichResults'),
-                    tempLog = this.logResults();
+                var maxResults = prefs.getIntPref('maxRichResults');
 
 
                 var results = Mixer.mix(
@@ -294,13 +255,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.mixedResults,
-                            //this.cliqzSuggestions,
                             maxResults
                     );
-
-
-                tempLog.result_order = CliqzAutocomplete.getResultsOrder(this.mixedResults._results) + CliqzAutocomplete.getResultsOrder(results);
-                CliqzUtils.track(tempLog);
 
 
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length

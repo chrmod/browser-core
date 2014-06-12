@@ -162,14 +162,7 @@ Results - results shown in the dropdown
 {
     "type": "activity",
     "action": "results",
-	"cliqz_results": 0,           // cliqz results with no snippet
-	"cliqz_results_snippet": 5,   // cliqz results with snippet but no title
-	"cliqz_results_title": 0,     // cliqz results with snippet and title
-	"history_results": 2,         // history results
-	"bookmark_results": 0,        // bookmark results
-    "custom_results": 0,          // results from the custom set search engine (instantfox like)
-	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
-    "result_order": "CTBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
+	"result_order": "CTBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, C-custom results
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }
