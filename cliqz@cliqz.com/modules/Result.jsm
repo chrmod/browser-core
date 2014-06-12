@@ -62,11 +62,11 @@ var Result = {
 
         return item;
     },
-    // TODO - exclude cache
     cliqz: function(result){
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
         if(result.snippet){
             return Result.generic(
-                Result.CLIQZR, //style
+                resStyle, //style
                 result.url, //value
                 null, //image -> favico
                 result.snippet.title,
@@ -75,7 +75,7 @@ var Result = {
                 Result.getData(result)
             );
         } else {
-            return Result.generic(Result.CLIQZR, result.url);
+            return Result.generic(resStyle, result.url);
         }
     },
     // check if a result should be kept in final result list

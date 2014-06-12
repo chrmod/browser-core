@@ -16,6 +16,18 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
+var VERTICAL_ENCODINGS = {
+    'people':'p',
+    'census':'c',
+    'news':'n',
+    'weather':'w',
+    'cache':'d',
+    'english':'e',
+    'french':'f',
+    'video':'v',
+    'hq':'h'
+};
+
 var CliqzUtils = CliqzUtils || {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
@@ -33,7 +45,6 @@ var CliqzUtils = CliqzUtils || {
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
-
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
 
@@ -58,18 +69,18 @@ var CliqzUtils = CliqzUtils || {
     req.overrideMimeType('application/json');
     req.onload = function(){
       if(req.status != 200 && req.status != 0 /* local files */){
-        CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+        CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
         onerror && onerror();
       } else {
         callback && callback(req);
       }
     }
     req.onerror = function(){
-      CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZ.Core.httpHandler");
+      CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
       onerror && onerror();
     }
     req.ontimeout = function(){
-      CliqzUtils.log( "timeout for " + url, "CLIQZ.Core.httpHandler");
+      CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
       onerror && onerror();
     }
 
@@ -231,14 +242,24 @@ var CliqzUtils = CliqzUtils || {
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
+    else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'bookmark') return 'B';
     else if(type === 'tag') return 'B'; // bookmarks with tags
-    else if(type === 'favicon') return 'H';
-    else if(type === 'cliqz-results') return 'R';
+    else if(type === 'favicon' || type === 'history') return 'H';
     else if(type === 'cliqz-suggestions') return 'S';
     else if(type === 'cliqz-custom') return 'C';
 
     return type; //fallback to style - it should never happen
+  },
+  // cliqz type = "cliqz-results sources-XXXXX"
+  encodeCliqzResultType: function(type){
+    return CliqzUtils.encodeSources(type.substr(22));
+  },
+  encodeSources: function(sources){
+    return sources.split(', ').map(
+      function(s){
+        return VERTICAL_ENCODINGS[s] || s;
+      }).join('');
   },
   getLatestVersion: function(callback, error){
     CliqzUtils.httpGet(CliqzUtils.VERSION_URL + '?' + Math.random(), function(res) {
@@ -484,18 +505,14 @@ var CliqzUtils = CliqzUtils || {
       if(index != -1){
           var value = item.getAttribute('url');
 
-          var source = item.getAttribute('source');
-          if(source.indexOf('action') > -1){
-              source = 'tab_result';
-          }
-          action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
+          action.position_type = CliqzUtils.encodeResultType(item.getAttribute('source'))
           action.search = CliqzUtils.isSearch(value);
           if(item.getAttribute('type') === 'cliqz-suggestions'){
               value = Services.search.defaultEngine.getSubmission(value).uri.spec;
           }
 
           if(actionType == 'result_click'){ // do not navigate on keyboard navigation
-            CLIQZ.Core.locationChangeTO = CliqzUtils.setTimeout(function(){
+            CliqzUtils.setTimeout(function(){
                 if(newTab) gBrowser.addTab(CliqzUtils.cleanMozillaActions(value));
                 else {
                   if(item.getAttribute('type') != 'cliqz-suggestions' &&

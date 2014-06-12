@@ -86,6 +86,24 @@ Sent with the 'environment' signal if the preference `extensions.cliqz.logTiming
 
 ### Actions
 
+Glossary
+
+<ENCODED_RESULT_TYPE>
+``` bash
+ - T-tab result, B-bookmark, H-history,  C-custom results
+ - any combination of one or more:
+    p - people
+    c - census
+    n - news
+    w - weather
+    d - cache
+    e - english
+    f - french
+    v - video
+    h - hq
+``` bash
+
+
 Keystoke - any key stroke which triggers a search
 ``` bash
 {
@@ -106,7 +124,7 @@ Arrow key (up/down) - navigation through the results with keyboard
     "type": "activity",
     "action": "arrow_key",
     "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "<ENCODED_RESULT_TYPE>",
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ```
@@ -121,7 +139,7 @@ Result click (mouse)
     "action": "result_click",
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "<ENCODED_RESULT_TYPE>",
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ```
@@ -152,7 +170,7 @@ Result enter (keyboard)
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
-    "source": "R", //results type of the result which autocompleted: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
+    "source": "<ENCODED_RESULT_TYPE>", // encoded results type of the result which autocompleted
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```
@@ -162,7 +180,7 @@ Results - results shown in the dropdown
 {
     "type": "activity",
     "action": "results",
-	"result_order": "CTBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, C-custom results
+	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
     "ts": <UNIX_TIMESTAMP>
 }

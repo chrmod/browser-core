@@ -122,7 +122,7 @@
   background-color: green;
 }
 
-.autocomplete-richlistitem[type="cliqz-results"] {
+.autocomplete-richlistitem[type^="cliqz-results sources-"] {
   /* background-color: green; */
 }
 
@@ -331,7 +331,7 @@
   padding-right: 30px;
 }
 
-.autocomplete-richlistitem[type="cliqz-results"] .cliqz-ac-source-icon {
+.autocomplete-richlistitem[type^="cliqz-results sources-"] .cliqz-ac-source-icon {
   height: 9px;
   width: 9px;
   background-color: #3399ff;
@@ -363,7 +363,7 @@
   border-radius: 50%;
 }
 
-.autocomplete-richlistitem[type="cliqz-results"][selected="true"] {
+.autocomplete-richlistitem[type^="cliqz-results sources-"][selected="true"] {
 
 }
 
