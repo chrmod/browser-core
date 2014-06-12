@@ -336,10 +336,10 @@ var CliqzUtils = CliqzUtils || {
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
     
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.util.length - CliqzUtils.TRACK_MAX_SIZE;
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
     if(slice_pos > 0){
       CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
-      CliqzUtils.trk.slice(slice_pos);
+      CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
     }
 
     CliqzUtils._track_sending = [];
