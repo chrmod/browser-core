@@ -52,39 +52,6 @@ something with a version it will only get shipped to beta users.
 
 # Logging
 
-The extension sends the following list of data points
-
-### Environment
-Sent at startup and every 1 hour afterwards
-
-``` bash
-{
-    "UDID": "<RANDOM_ID>",
-    "startup": false,  // if this signal is sent at browser startup or during a regular interval
-    "ts": <UNIX_TIMESTAMP>, // UNIX timestamp + ms (last 3 digits) eg: 1395151314278
-    "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
-    "history_urls": 1518, // number of history points from the browser
-    "version": "0.3.0.preview", // exact version of the browser extension
-    "history_days": 37, // days since the first history data point
-    "type": "environment", // signal type
-    "prefs": {...} // a snapshot of the current preferences described in Settings
-}
-```
-
-### Timings
-Sent with the 'environment' signal if the preference `extensions.cliqz.logTimings` is set to true (defaults to unset).
-
-``` bash
-{
-    "type": "timing",
-    "name": "<NAME OF TIMER>",
-    "histogram": // a list of buckets with counts (i.e., how many times the timing fits in the bucket)
-        // for example: bucket "100" contains a count of the timings that were >= 100 and < 200
-        {"0":0, "100":2, "200":2, "300":4 ,"400":1, "500":0, "600":0, "700":0, "800":0, "900":0, "1000":0}}
-}
-```
-
-### Actions
 
 Glossary
 
@@ -130,8 +97,46 @@ Glossary
 
 
      eg: 10378300660576423|16148|OO"
+
+
+  <UNIX_TIMESTAMP>
+    UNIX timestamp + ms (last 3 digits)
+    eg: 1395151314278
 ```
 
+The extension sends the following list of data points
+
+### Environment
+Sent at startup and every 1 hour afterwards
+
+``` bash
+{
+    "UDID": "<RANDOM_ID>",
+    "startup": false,  // if this signal is sent at browser startup or during a regular interval
+    "ts": <UNIX_TIMESTAMP>,
+    "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
+    "history_urls": 1518, // number of history points from the browser
+    "version": "0.3.0.preview", // exact version of the browser extension
+    "history_days": 37, // days since the first history data point
+    "type": "environment", // signal type
+    "prefs": {...} // a snapshot of the current preferences described in Settings
+}
+```
+
+### Timings
+Sent with the 'environment' signal if the preference `extensions.cliqz.logTimings` is set to true (defaults to unset).
+
+``` bash
+{
+    "type": "timing",
+    "name": "<NAME OF TIMER>",
+    "histogram": // a list of buckets with counts (i.e., how many times the timing fits in the bucket)
+        // for example: bucket "100" contains a count of the timings that were >= 100 and < 200
+        {"0":0, "100":2, "200":2, "300":4 ,"400":1, "500":0, "600":0, "700":0, "800":0, "900":0, "1000":0}}
+}
+```
+
+### Actions
 
 Keystoke - any key stroke which triggers a search
 ``` bash
