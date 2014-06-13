@@ -39,7 +39,7 @@ var Result = {
 	generic: function(style, value, image, comment, label, query, data){
         //try to show host if no comment(page title) is provided
         if(style !== Result.CLIQZS       // is not a suggestion
-           && style !== Result.CLIQZC       // is not a custom search
+           && style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
            && CliqzUtils.isCompleteUrl(value)){       // looks like an url
             let host = CliqzUtils.getDetailsFromUrl(value).host
@@ -62,11 +62,11 @@ var Result = {
 
         return item;
     },
-    // TODO - exclude cache
     cliqz: function(result){
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
         if(result.snippet){
             return Result.generic(
-                Result.CLIQZR, //style
+                resStyle, //style
                 result.url, //value
                 null, //image -> favico
                 result.snippet.title,
@@ -75,7 +75,7 @@ var Result = {
                 Result.getData(result)
             );
         } else {
-            return Result.generic(Result.CLIQZR, result.url);
+            return Result.generic(resStyle, result.url);
         }
     },
     // check if a result should be kept in final result list

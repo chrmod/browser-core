@@ -98,9 +98,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CliqzUtils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
-        //check APIs
-        CliqzUtils.getCliqzResults('');
-        CliqzUtils.getSuggestions('');
+        // check APIs
+        // CliqzUtils.getCliqzResults('');
+        // CliqzUtils.getSuggestions('');
 
         CliqzAutocomplete.init();
 
@@ -236,16 +236,12 @@ CLIQZ.Core = CLIQZ.Core || {
             if(siblings[i] == item)
                 pos = i;
         }
-        var source = item.getAttribute('source');
-        if(source.indexOf('action') > -1){
-            source = 'tab_result';
-        }
         var action = {
             type: 'activity',
             action: 'result_click',
             new_tab: false,
             current_position: pos,
-            position_type: source.replace('-', '_').replace('tag', 'bookmark'),
+            position_type: CliqzUtils.encodeResultType(item.getAttribute('source')),
             search: CliqzUtils.isSearch(item.getAttribute('url'))
         };
 
@@ -376,7 +372,6 @@ CLIQZ.Core = CLIQZ.Core || {
           CLIQZ.Core._progressTimeout = setTimeout(function(){ CLIQZ.Core.updateProgress(el); }, 30);
         }
     },
-    locationChangeTO: null,
     urlbarkeydown: function(ev){
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
@@ -394,11 +389,7 @@ CLIQZ.Core = CLIQZ.Core || {
             if(index != -1){
                 let item = popup.richlistbox._currentItem;
 
-                var source = item.getAttribute('source');
-                if(source.indexOf('action') > -1){
-                    source = 'tab_result';
-                }
-                action.position_type = source.replace('-', '_').replace('tag', 'bookmark');
+                action.position_type = CliqzUtils.encodeResultType(item.getAttribute('source'))
                 action.search = CliqzUtils.isSearch(item.getAttribute('url'));
             } else { //enter while on urlbar and no result selected
 
@@ -444,7 +435,6 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         if(code == 38 || code == 40){
-            clearTimeout(CLIQZ.Core.locationChangeTO);
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
                 CliqzUtils.navigateToItem(
@@ -466,10 +456,17 @@ CLIQZ.Core = CLIQZ.Core || {
             ev.preventDefault();
 
             var suggestions = popup._suggestions.childNodes,
-                SEL = ' cliqz-suggestion-default';
+                SEL = ' cliqz-suggestion-default',
+                found = false,
+                action = {
+                    type: 'activity',
+                    action: 'tab_key',
+                    current_position : -1
+                };
 
-            for(var i =0; i < suggestions.length; i++){
+            for(var i =0; i < suggestions.length && !found; i++){
                 var s = suggestions[i];
+
                 if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                     s.className = s.className.replace(SEL, '');
 
@@ -478,6 +475,7 @@ CLIQZ.Core = CLIQZ.Core || {
                             for(var j=i+1; j < suggestions.length; j++){
                                 if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
                                     suggestions[j].className += SEL;
+                                    action.current_position = j;
                                     break;
                                 }
                             }
@@ -485,17 +483,24 @@ CLIQZ.Core = CLIQZ.Core || {
                             for(var j=i-1; j >=0 ; j--){
                                 if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
                                     suggestions[j].className += SEL;
+                                    action.current_position = j;
                                     break;
                                 }
                             }
                         }
-                    }
 
-                    return;
+                        found = true;
+                    }
                 }
             }
-
-            suggestions[ev.shiftKey ? suggestions.length-1 : 0].className += ' cliqz-suggestion-default';
+            if(!found){ // none selected
+                var position = ev.shiftKey ? suggestions.length-1 : 0;
+                suggestions[position].className += ' cliqz-suggestion-default';
+                action.current_position = position;
+            }
+            action.direction = ev.shiftKey? 'left' : 'right';
+            CliqzUtils.track(action);
+            return;
         }
     },
     // autocomplete query inline

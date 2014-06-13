@@ -46,8 +46,27 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
 
+            var successfullyAdded = 0;
             for(var i in CliqzAutocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString);
+                var suggessfullyAdded = CLIQZ.Components.addSuggestion(
+                                            popup,
+                                            CliqzAutocomplete.lastSuggestions[i],
+                                            trimmedSearchString,
+                                            successfullyAdded //real position
+                                        );
+                if(suggessfullyAdded){
+                    successfullyAdded++
+                }
+            }
+
+            if(successfullyAdded > 0){
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count: successfullyAdded
+                };
+
+                CliqzUtils.track(action);
             }
         }
         // CLIQZ END
@@ -124,7 +143,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion, q){
+    addSuggestion: function(popup, suggestion, q, position){
         var container = popup._suggestions,
             suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
             sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
@@ -148,14 +167,19 @@ CLIQZ.Components = CLIQZ.Components || {
         suggestionWrapper.appendChild(extra);
 
         suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+        suggestionWrapper.position = position;
 
         container.appendChild(suggestionWrapper);
 
         container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
-        if(container.pixels > popup.mInput.clientWidth)
+        if(container.pixels > popup.mInput.clientWidth){
             container.removeChild(container.lastChild);
+            return false;
+        }
+
+        return true;
     },
     suggestionClick: function(ev){
         if(ev && ev.target){
@@ -163,6 +187,14 @@ CLIQZ.Components = CLIQZ.Components || {
             if(suggestionVal){
                 CLIQZ.Core.urlbar.mInputField.focus();
                 CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+
+                var action = {
+                    type: 'activity',
+                    action: 'suggestion_click',
+                    current_position: ev.target.position || ev.target.parentNode.position || -1,
+                };
+
+                CliqzUtils.track(action);
             }
         }
     },
@@ -179,6 +211,7 @@ CLIQZ.Components = CLIQZ.Components || {
             imageEl.setAttribute('src', engine.icon);
             imageEl.tooltipText = engine.name + '  ' + engine.prefix;
             imageEl.engine = engine.name;
+            imageEl.engineCode = engine.code;
 
             engineContainer.appendChild(imageEl);
         }
@@ -197,14 +230,23 @@ CLIQZ.Components = CLIQZ.Components || {
                     userInput = userInput.slice(0, urlbar.selectionStart);
                 }
 
-                var url = engine.getSubmission(userInput).uri.spec;
+                var url = engine.getSubmission(userInput).uri.spec,
+                    action = {
+                        type: 'activity',
+                        action: 'visual_hash_tag',
+                        engine: ev.target.engineCode || -1
+                    };
 
                 if(ev.metaKey || ev.ctrlKey){
                     gBrowser.addTab(url);
+                    action.new_tab = true;
                 } else {
                     gBrowser.selectedBrowser.contentDocument.location = url;
                     CLIQZ.Core.popup.closePopup();
+                    action.new_tab = false;
                 }
+
+                CliqzUtils.track(action);
             }
         }
     },
@@ -259,7 +301,7 @@ CLIQZ.Components = CLIQZ.Components || {
             item._cliqzTitleDetails.removeChild(item._cliqzTitleDetails.firstChild);
         }
 
-        if (urlDetails && source !== 'cliqz-suggestions' && source !== 'cliqz-custom') {
+        if (urlDetails && source !== 'cliqz-suggestions' && source.indexOf('cliqz-custom') === -1) {
             // add logo
             item._logo.className = 'cliqz-ac-logo-icon ';
             // lowest priority: base domain, no tld
