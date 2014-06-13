@@ -56,7 +56,7 @@ something with a version it will only get shipped to beta users.
 Glossary
 
 ``` bash
-  <ENCODED_RESULT_TYPE>
+  "<ENCODED_RESULT_TYPE>"
 
  - T-tab result, B-bookmark, H-history
  - any combination of one or more for vertical results:
@@ -80,9 +80,10 @@ Glossary
     8 - ebay
     9 - leo
     0 - other
+```
 
-
-  <RANDOM_ID>
+``` bash
+  "<RANDOM_ID>"
      Random sequence - aprox 16 digits
      | - separator
      number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits eg:  16474
@@ -93,13 +94,11 @@ Glossary
          - 02 - CHIP store
          - 03 - Softonic
          - 04 - AMO (Mozilla Firefox Store)
-
-
-
      eg: 10378300660576423|16148|OO"
+```
 
-
-  <UNIX_TIMESTAMP>
+``` bash
+  "<UNIX_TIMESTAMP>"
     UNIX timestamp + ms (last 3 digits)
     eg: 1395151314278
 ```
