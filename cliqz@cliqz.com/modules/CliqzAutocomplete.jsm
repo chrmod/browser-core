@@ -286,7 +286,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     
                     // today
                     var dayWeather = response.list[0];
-                    var now = new Date();
+                    var now = new Date(dayWeather.dt * 1000);
+
                     var dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
                     var currTemp= getTempByDayhour(dayWeather.temp, now.getHours());
                     var weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
