@@ -46,8 +46,21 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
 
+            var successfullyAdded = 0;
             for(var i in CliqzAutocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString);
+                if(CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString)){
+                    successfullyAdded++
+                }
+            }
+
+            if(successfullyAdded > 0){
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count: successfullyAdded
+                };
+
+                CliqzUtils.track(action);
             }
         }
         // CLIQZ END
@@ -154,8 +167,12 @@ CLIQZ.Components = CLIQZ.Components || {
         container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
-        if(container.pixels > popup.mInput.clientWidth)
+        if(container.pixels > popup.mInput.clientWidth){
             container.removeChild(container.lastChild);
+            return false;
+        }
+
+        return true;
     },
     suggestionClick: function(ev){
         if(ev && ev.target){
