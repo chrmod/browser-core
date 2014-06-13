@@ -232,9 +232,36 @@ var Autocomplete = Autocomplete || {
                 this.pushResults(q);
             },
             // handles weather queries
-            cliqzWeatherFetcher: function(req, q) {
-                var old_q= this.searchString.replace(/^(weather|wetter|meteo) /gi, "");
+            cliqzWeatherFetcher: function(req, q, locName) {
+                var weekday= ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+                var monthNames= ["Januar", "Februar", "März", "April", "Mai", "Juni", "July", "August", "September", "Oktober", "November", "Dezember"];
+                var WEATHER_ICON_BASE_URL= "http://openweathermap.org/img/w/";
 
+                // helper for determing current tempperature by current hour
+                function getTempByDayhour(temp, hour){
+                    var currTemp= null;
+                    switch (true) {
+                        case (hour >= 0 && hour <= 5):
+                            currTemp= temp.night;
+                            break;
+                        case (hour >= 6 && hour <= 11):
+                            currTemp= temp.morn;
+                            break;
+                        case (hour >= 12 && hour <= 17):
+                            currTemp= temp.day;
+                            break;
+                        case (hour >= 18 && hour <= 23):
+                            currTemp= temp.eve;
+                            break;
+                        default:
+                            currTemp= "";
+                            break;
+                    }
+
+                    return currTemp;
+                }
+
+                var old_q= this.searchString.replace(/^(wetter|weather|meteo|temps) /gi, "");
                 if(q == old_q){ // be sure this is not a delayed result
                     var response = [];
 
@@ -244,31 +271,43 @@ var Autocomplete = Autocomplete || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
-                    //this.cliqzWeather= [];
-
+                    
+                    // create rich weather snippet
                     var weather ='';
-                    for(var d in response.list){
-                        var day = response.list[d];
+                    
+                    // today
+                    var dayWeather = response.list[0];
+                    var now = new Date();
+                    var dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
+                    var currTemp= getTempByDayhour(dayWeather.temp, now.getHours());
+                    var weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
+                    weather += Math.round(currTemp) + "\u00B0, " + dateDisp + ', max: ' + Math.round(dayWeather.temp.max) + '\u00B0C,  min: ' + Math.round(dayWeather.temp.min) + '\u00B0C' + ", " + weatherIcon;
+                    
+                    // tomorrow
+                    now.setTime(now.getTime() + 24*60*60*1000);
+                    dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
+                    dayWeather= response.list[1];
+                    weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
+                    weather += ' \u2600 ' +  dateDisp + ", max: " + Math.round(dayWeather.temp.max) + '\u00B0C, min: ' + Math.round(dayWeather.temp.min) + '\u00B0C, ' + dayWeather.weather[0].description + ", " + weatherIcon;
 
-                        // day
-                        weather += 'Today + ' + d +  ':';
-                        //weather
-                        weather += day.weather[0].main + '  |  ' + day.weather[0].description + '  |  ' + day.temp.day + ' --||-- ';
-                    }
-
+                    // day after tomorrow
+                    now.setTime(now.getTime() + 24*60*60*1000);
+                    dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
+                    dayWeather= response.list[2];
+                    weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
+                    weather += ' \u2600 ' +  dateDisp + ", max: " + Math.round(dayWeather.temp.max) + '\u00B0C, min: ' + Math.round(dayWeather.temp.min) + '\u00B0C, ' + dayWeather.weather[0].description + ", " + weatherIcon;
 
                     this.cliqzWeather = [
                         Result.generic(
                             Result.CLIQZC,
                             q,
                             null,
-                            response.city.name + ', ' +  weather,
-                            "http://www.wetter.de"
+                            locName + ' aktuell: ' +  weather,
+                            "http://www.wetter.com"
                         )
                     ];
 
-                    CLIQZ.Utils.log("***DKLING4***");
-                    CLIQZ.Utils.log(JSON.stringify(this.cliqzWeather));
+                    CLIQZ.Utils.log("WEATHER: "+JSON.stringify(this.cliqzWeather));
 
                 }
                 this.pushResults(q);
@@ -336,7 +375,6 @@ var Autocomplete = Autocomplete || {
                             this.cliqzResults,
                             this.mixedResults,
                             //this.cliqzSuggestions,
-                            //TODO: ask Lucian, do we need to go through Mixer?!
                             this.cliqzWeather,
                             maxResults
                     );
