@@ -42,7 +42,7 @@ something with a version it will only get shipped to beta users.
 2. Filter for `extensions.cliqz.`
 3. Preferences:
 ``` bash
-    "UDID": "1234567890|12345", //unique identifier
+    "session": "1234567890|12345", //unique identifier
     "messageInterval": 3600000 , // interval between update messages - 1H
     "showQueryDebug": false, // show query debug information next to results
     "showDebugLogs": false, // show debug logs in console
@@ -52,6 +52,57 @@ something with a version it will only get shipped to beta users.
 
 # Logging
 
+
+Glossary
+
+``` bash
+  "<ENCODED_RESULT_TYPE>"
+
+ - T-tab result, B-bookmark, H-history
+ - any combination of one or more for vertical results:
+    p - people
+    c - census
+    n - news
+    w - weather
+    d - cache
+    e - english
+    f - french
+    v - video
+    h - hq
+- any of the folowing for custom search engine search
+    1 - google images
+    2 - google maps
+    3 - google
+    4 - yahoo
+    5 - bing
+    6 - wikipedia
+    7 - amazon
+    8 - ebay
+    9 - leo
+    0 - other
+```
+
+``` bash
+  "<RANDOM_ID>"
+     Random sequence - aprox 16 digits
+     | - separator
+     number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits eg:  16474
+     | - separator
+     CHANNEL-ID
+         - 00 - cliqz
+         - 01 - CHIP installer
+         - 02 - CHIP store
+         - 03 - Softonic
+         - 04 - AMO (Mozilla Firefox Store)
+     eg: 10378300660576423|16148|OO
+```
+
+``` bash
+  "<UNIX_TIMESTAMP>"
+    UNIX timestamp + ms (last 3 digits)
+    eg: 1395151314278
+```
+
 The extension sends the following list of data points
 
 ### Environment
@@ -59,9 +110,9 @@ Sent at startup and every 1 hour afterwards
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",    //random ID + separator  + number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits eg:     10378300660576423|16148"
+    "session": "<RANDOM_ID>",
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
-    "ts": <UNIX_TIMESTAMP>, // UNIX timestamp + ms (last 3 digits) eg: 1395151314278
+    "ts": <UNIX_TIMESTAMP>,
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
@@ -92,7 +143,7 @@ Keystoke - any key stroke which triggers a search
     "action": "key_stroke",
     "type": "activity",
     "current_length": 2, //current length on the query/url from the urlbar
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>
 }
 ```
@@ -101,13 +152,26 @@ Arrow key (up/down) - navigation through the results with keyboard
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "arrow_key",
     "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "<ENCODED_RESULT_TYPE>",
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+}
+```
+
+Arrow key (tab) - navigation through the suggestions with keyboard
+
+``` bash
+{
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "tab_key",
+    "current_position": 1, // -1 = none, 0 = the first result, 1 = the second result ...
+    "direction":"left"/"right"
 }
 ```
 
@@ -115,14 +179,26 @@ Result click (mouse)
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results", // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
+    "position_type": "<ENCODED_RESULT_TYPE>",
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+}
+```
+
+Suggestion click (mouse)
+
+``` bash
+{
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "suggestion_click",
+    "current_position": 0
 }
 ```
 
@@ -131,7 +207,7 @@ Result enter (keyboard)
 1. With a focused result
 ``` bash
 {
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
 	"type": "activity",
     "action": "result_enter",
@@ -140,10 +216,11 @@ Result enter (keyboard)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ```
-2. With no focused result - in the urlbar
+2.
+ With no focused result - in the urlbar
 ``` bash
 {
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_enter",
@@ -152,7 +229,7 @@ Result enter (keyboard)
     // inbar_url = the typed value looks like an url and it should load on enter
     // inbar_query = the typed value looks like a quer and it should load in the default search engine
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
-    "source": "R", //results type of the result which autocompleted: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
+    "source": "<ENCODED_RESULT_TYPE>", // encoded results type of the result which autocompleted
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```
@@ -162,15 +239,19 @@ Results - results shown in the dropdown
 {
     "type": "activity",
     "action": "results",
-	"cliqz_results": 0,           // cliqz results with no snippet
-	"cliqz_results_snippet": 5,   // cliqz results with snippet but no title
-	"cliqz_results_title": 0,     // cliqz results with snippet and title
-	"history_results": 2,         // history results
-	"bookmark_results": 0,        // bookmark results
-    "custom_results": 0,          // results from the custom set search engine (instantfox like)
-	"tab_results": 0              // tab results (page already open in one of the browser's tabs)
-    "result_order": "CTBBHRRRS"    // order of results after intermingle process: T-tab result, B-bookmark, H-history, R-cliqz result, S-suggestion, C-custom results
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Suggestions - suggestions shown in the dropdown
+``` bash
+{
+    "type": "activity",
+    "action": "suggestions",
+    "count": 2 // number of suggestions shown
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>
 }
 ```
@@ -179,7 +260,7 @@ Urlbar focus - user clicks in the url bar
 ``` bash
 {
     "action": "urlbar_focus",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -189,9 +270,33 @@ Last search button pressed
 ``` bash
 {
     "action": "last_search",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Visual hash tag
+``` bash
+{
+    "action": "visual_hash_tag",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>,
+    "new_tab": true/false, // is the result open in new tab
+    "engine": X,
+       // ENGINE CODES
+       //
+       // 'google images'  = 1
+       // 'google maps'    = 2
+       // 'google'         = 3
+       // 'yahoo'          = 4
+       // 'bing'           = 5
+       // 'wikipedia'      = 6
+       // 'amazon'         = 7
+       // 'ebay'           = 8
+       // 'leo'            = 9
+       // 'other'          = 0
 }
 ```
 
@@ -199,7 +304,7 @@ Urlbar blur - url bar loses focus - user selects a result, click outside or brow
 ``` bash
 {
     "action": "urlbar_blur",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -209,7 +314,7 @@ Dropdown open
 ``` bash
 {
     "action": "dropdown_open",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -219,7 +324,7 @@ Dropdown close
 ``` bash
 {
     "action": "dropdown_close",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -229,7 +334,7 @@ Browser shutdown
 ``` bash
 {
     "action": "browser_shutdown",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -239,7 +344,7 @@ Addon disable
 ``` bash
 {
     "action": "addon_disable",
-    "UDID": "<RANDOM_ID>|<5_DIGIT_DAYS_IDENTIFIER>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }

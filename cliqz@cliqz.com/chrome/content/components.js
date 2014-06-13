@@ -2,11 +2,14 @@
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'Autocomplete',
-  'chrome://cliqzmodules/content/Autocomplete.jsm?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.14');
 
 
 var CLIQZ = CLIQZ || {};
@@ -43,8 +46,27 @@ CLIQZ.Components = CLIQZ.Components || {
             popup._suggestions.textContent = "";
             popup._suggestions.pixels = 20 /* container padding */;
 
-            for(var i in Autocomplete.lastSuggestions){
-                CLIQZ.Components.addSuggestion(popup, Autocomplete.lastSuggestions[i], trimmedSearchString);
+            var successfullyAdded = 0;
+            for(var i in CliqzAutocomplete.lastSuggestions){
+                var suggessfullyAdded = CLIQZ.Components.addSuggestion(
+                                            popup,
+                                            CliqzAutocomplete.lastSuggestions[i],
+                                            trimmedSearchString,
+                                            successfullyAdded //real position
+                                        );
+                if(suggessfullyAdded){
+                    successfullyAdded++
+                }
+            }
+
+            if(successfullyAdded > 0){
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count: successfullyAdded
+                };
+
+                CliqzUtils.track(action);
             }
         }
         // CLIQZ END
@@ -90,9 +112,9 @@ CLIQZ.Components = CLIQZ.Components || {
             item.setAttribute('title', controller.getCommentAt(popup._currentIndex));
             item.setAttribute('type', controller.getStyleAt(popup._currentIndex));
             item.setAttribute('text', trimmedSearchString);
-            if(Autocomplete.lastResult && Autocomplete.lastResult.getDataAt(popup._currentIndex)){
+            if(CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex)){
                 // can we avoid JSON stringify here?
-                var data = JSON.stringify(Autocomplete.lastResult.getDataAt(popup._currentIndex));
+                var data = JSON.stringify(CliqzAutocomplete.lastResult.getDataAt(popup._currentIndex));
                 item.setAttribute('cliqzData', data);
             } else {
                 item.setAttribute('cliqzData','');
@@ -121,7 +143,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion, q){
+    addSuggestion: function(popup, suggestion, q, position){
         var container = popup._suggestions,
             suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
             sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
@@ -145,14 +167,19 @@ CLIQZ.Components = CLIQZ.Components || {
         suggestionWrapper.appendChild(extra);
 
         suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+        suggestionWrapper.position = position;
 
         container.appendChild(suggestionWrapper);
 
         container.pixels += suggestionWrapper.clientWidth + 10 /*padding*/ ;
 
         //remove last child if it doesn't fit on one row
-        if(container.pixels > popup.mInput.clientWidth)
+        if(container.pixels > popup.mInput.clientWidth){
             container.removeChild(container.lastChild);
+            return false;
+        }
+
+        return true;
     },
     suggestionClick: function(ev){
         if(ev && ev.target){
@@ -160,6 +187,14 @@ CLIQZ.Components = CLIQZ.Components || {
             if(suggestionVal){
                 CLIQZ.Core.urlbar.mInputField.focus();
                 CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+
+                var action = {
+                    type: 'activity',
+                    action: 'suggestion_click',
+                    current_position: ev.target.position || ev.target.parentNode.position || -1,
+                };
+
+                CliqzUtils.track(action);
             }
         }
     },
@@ -176,6 +211,7 @@ CLIQZ.Components = CLIQZ.Components || {
             imageEl.setAttribute('src', engine.icon);
             imageEl.tooltipText = engine.name + '  ' + engine.prefix;
             imageEl.engine = engine.name;
+            imageEl.engineCode = engine.code;
 
             engineContainer.appendChild(imageEl);
         }
@@ -194,14 +230,23 @@ CLIQZ.Components = CLIQZ.Components || {
                     userInput = userInput.slice(0, urlbar.selectionStart);
                 }
 
-                var url = engine.getSubmission(userInput).uri.spec;
+                var url = engine.getSubmission(userInput).uri.spec,
+                    action = {
+                        type: 'activity',
+                        action: 'visual_hash_tag',
+                        engine: ev.target.engineCode || -1
+                    };
 
                 if(ev.metaKey || ev.ctrlKey){
                     gBrowser.addTab(url);
+                    action.new_tab = true;
                 } else {
                     gBrowser.selectedBrowser.contentDocument.location = url;
                     CLIQZ.Core.popup.closePopup();
+                    action.new_tab = false;
                 }
+
+                CliqzUtils.track(action);
             }
         }
     },
@@ -209,7 +254,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
-            urlDetails = CLIQZ.Utils.getDetailsFromUrl(url),
+            urlDetails = CliqzUtils.getDetailsFromUrl(url),
             domainDefClass = '', cliqzData;
 
 
@@ -256,7 +301,7 @@ CLIQZ.Components = CLIQZ.Components || {
             item._cliqzTitleDetails.removeChild(item._cliqzTitleDetails.firstChild);
         }
 
-        if (urlDetails && source !== 'cliqz-suggestions' && source !== 'cliqz-custom') {
+        if (urlDetails && source !== 'cliqz-suggestions' && source.indexOf('cliqz-custom') === -1) {
             // add logo
             item._logo.className = 'cliqz-ac-logo-icon ';
             // lowest priority: base domain, no tld
@@ -306,7 +351,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         break;
                 }
 
-                CLIQZ.Utils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
+                CliqzUtils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
 
                 // only show the image if the ratio is between 0.4 and 2.5
                 if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
@@ -318,7 +363,7 @@ CLIQZ.Components = CLIQZ.Components || {
                         item._cliqzImage.style.height = height + 'px';
                     }
                     if (img.duration) {
-                        item._cliqzImageDesc.textContent = CLIQZ.Utils.getLocalizedString('arrow') + img.duration;
+                        item._cliqzImageDesc.textContent = CliqzUtils.getLocalizedString('arrow') + img.duration;
                         item._cliqzImageDesc.className = 'cliqz-image-desc';
                         item._cliqzImageDesc.parentNode.className = '';
                     }

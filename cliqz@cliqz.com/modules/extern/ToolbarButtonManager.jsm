@@ -1,3 +1,6 @@
+'use strict';
+var EXPORTED_SYMBOLS = ['ToolbarButtonManager'];
+
 /* ***** BEGIN LICENSE BLOCK *****
 * Version: MIT/X11 License
 *
@@ -25,9 +28,6 @@
 *
 * ***** END LICENSE BLOCK ***** */
 
-'use strict';
-var EXPORTED_SYMBOLS = ['ToolbarButtonManager'];
-
 
 let ToolbarButtonManager = {},
     positions = {};
@@ -48,16 +48,17 @@ ToolbarButtonManager.setDefaultPosition = function(buttonID, toolbarID, beforeID
  * @param {XULDocument} doc XUL window document.
  * @param {XULElement} button button element.
  */
-ToolbarButtonManager.restorePosition = function(doc, button, toolbox) {
+ToolbarButtonManager.restorePosition = function(doc, button) {
   function $(sel, all)
     doc[all ? "querySelectorAll" : "getElementById"](sel);
-  ($(toolbox) || $("header-view-toolbox") || $("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(button);
+
+  ($("navigator-toolbox") || $("mail-toolbox")).palette.appendChild(button);
 
   let toolbar, currentset, idx,
       toolbars = $("toolbar", true);
   for (let i = 0; i < toolbars.length; ++i) {
     let tb = toolbars[i];
-    currentset = tb.getAttribute("currentset").split(","),
+    currentset = getCurrentset(tb),
     idx = currentset.indexOf(button.id);
     if (idx != -1) {
       toolbar = tb;
@@ -89,7 +90,7 @@ ToolbarButtonManager.restorePosition = function(doc, button, toolbox) {
 };
 
 function persist(document, toolbar, buttonID, beforeID) {
-  let currentset = toolbar.getAttribute("currentset").split(","),
+  let currentset = getCurrentset(toolbar),
       idx = (beforeID && currentset.indexOf(beforeID)) || -1;
   if (idx != -1) {
     currentset.splice(idx, 0, buttonID);
@@ -100,3 +101,9 @@ function persist(document, toolbar, buttonID, beforeID) {
   document.persist(toolbar.id, "currentset");
   return [currentset, idx];
 }
+
+function getCurrentset(toolbar) {
+  return (toolbar.getAttribute("currentset") ||
+          toolbar.getAttribute("defaultset")).split(",");
+}
+

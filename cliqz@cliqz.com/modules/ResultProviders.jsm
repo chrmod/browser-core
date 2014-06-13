@@ -7,8 +7,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -35,7 +35,8 @@ var INIT_KEY = 'newProvidersAdded',
         '#join': {
             url: 'https://codility.com/honeypot/Cliqz-Jobs'
         }
-    }
+    },
+    ENGINE_CODES = ['google images', 'google maps', 'google', 'yahoo', 'bing', 'wikipedia', 'amazon', 'ebay', 'leo']
 	;
 
 // REFS:
@@ -55,11 +56,23 @@ var ResultProviders = {
                 engines[engine.name] = {
                     prefix: ResultProviders.getShortcut(engine.name),
                     name: engine.name,
-                    icon: engine.iconURI.spec
+                    icon: engine.iconURI.spec,
+                    code: ResultProviders.getEngineCode(engine.name)
                 }
+
+
             }
         }
         return engines;
+    },
+    getEngineCode: function(engineName){
+        for(var c in ENGINE_CODES){
+            if(engineName.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
+                return +c + 1;
+            }
+        }
+        // unknown engine
+        return 0;
     },
     getEngineSubmission: function(engine, q){
         return Services.search.getEngineByName(engine).getSubmission(q);
@@ -96,15 +109,17 @@ var ResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
-                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec
-            }
+                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
+                engineCode: ResultProviders.getEngineCode(MAPPING[start])
+            };
         } else if(MAPPING[end]) {
             var uq = q.substring(0, q.length - end.length - 1);
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
-                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec
-            }
+                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec,
+                engineCode: ResultProviders.getEngineCode(MAPPING[end])
+            };
         }
 
         return null;
@@ -150,8 +165,8 @@ var NonDefaultProviders = [
 	}
 ];
 
-if (!CLIQZ.Utils.getPref(INIT_KEY, false)) {
-    CLIQZ.Utils.setPref(INIT_KEY, true);
+if (!CliqzUtils.getPref(INIT_KEY, false)) {
+    CliqzUtils.setPref(INIT_KEY, true);
 
     var PROPS = ["name", "iconURL", "name" /*alias*/, "name" /*description*/, "method", "url"];
 
@@ -159,20 +174,20 @@ if (!CLIQZ.Utils.getPref(INIT_KEY, false)) {
     	var extern = NonDefaultProviders[idx];
 
     	try {
-    	CLIQZ.Utils.log('Analysing ' + extern.name, LOG_KEY);
+    	CliqzUtils.log('Analysing ' + extern.name, LOG_KEY);
 	    if (!Services.search.getEngineByName(extern.name)) {
-	    	CLIQZ.Utils.log('Added ' + extern.name, LOG_KEY);
+	    	CliqzUtils.log('Added ' + extern.name, LOG_KEY);
         	Services.search.addEngineWithDetails.apply(
         		Services.search,
             	PROPS.map(function (k) { return extern[k]; })
             );
    		} }
    		catch(e){
-   			CLIQZ.Utils.log(e, 'err' + LOG_KEY);
+   			CliqzUtils.log(e, 'err' + LOG_KEY);
    		}
     }
 
-    CLIQZ.Utils.log('Default Engines updated', LOG_KEY);
+    CliqzUtils.log('Default Engines updated', LOG_KEY);
 }
 
 ResultProviders.init();

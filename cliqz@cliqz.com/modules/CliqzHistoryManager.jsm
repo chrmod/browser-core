@@ -1,6 +1,6 @@
 'use strict';
 
-var EXPORTED_SYMBOLS = ['HistoryManager'];
+var EXPORTED_SYMBOLS = ['CliqzHistoryManager'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import("resource://gre/modules/PlacesUtils.jsm")
@@ -9,17 +9,17 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');
 
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZ',
-  'chrome://cliqz/content/utils.js?v=0.4.13');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
-var HistoryManager = {
+var CliqzHistoryManager = {
 	_db: null,
     getStats: function(callback){
         let historysize = 0;
         let daysVisited = {};
         let visitedDomainOn = {};
         let visitedSubDomain = {};
-        let today = CLIQZ.Utils.getDay();
+        let today = CliqzUtils.getDay();
         let history = today;
 
         this.PlacesInterestsStorage
@@ -79,7 +79,7 @@ var HistoryManager = {
                     //daysVisited: daysVisited,
                     //visitedDomainOn: visitedDomainOn,
                     //visitedSubDomain: visitedSubDomain,
-                    days: CLIQZ.Utils.getDay() - history
+                    days: CliqzUtils.getDay() - history
                 });
             });
     },
