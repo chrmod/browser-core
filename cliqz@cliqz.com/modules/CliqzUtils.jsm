@@ -245,29 +245,22 @@ var CliqzUtils = CliqzUtils || {
     var locales = Language.state();
     var local_param = "";
     if(locales.length > 0)
-      //TODO: change lange, do we have a 2 letter code in locales[0]???
-      CLIQZ.Utils.log("***DKLING***:")
-      CLIQZ.Utils.log(locales)
       local_param = '&lang=de&units=metric&type=accurate&mode=json&cnt=3';
 
       var  geocodeCallback= function(res){
           if(res.status == 200){
               var data = JSON.parse(res.response);
 
-          CLIQZ.Utils.log("***DKLING***2:")
-          CLIQZ.Utils.log(data);
-
-          var coordinates= null;
+          var geoID= null;
+          var locName= null;
           if (data &&
               data.interpretations &&
               data.interpretations.length &&
-              data.interpretations[0].feature.geometry &&
-              data.interpretations[0].feature.geometry.center) {
-
-              coordinates= {
-                  lat: data.interpretations[0].feature.geometry.center.lat,
-                  lon: data.interpretations[0].feature.geometry.center.lng
-              };
+              data.interpretations[0].feature.ids &&
+              data.interpretations[0].feature.ids[0].id &&
+              data.interpretations[0].feature.name) {
+              geoID= data.interpretations[0].feature.ids[0].id
+              locName= data.interpretations[0].feature.name
           }
 
           CLIQZ.Utils._weatherReq && CLIQZ.Utils._weatherReq.abort();
@@ -277,29 +270,18 @@ var CliqzUtils = CliqzUtils || {
           CLIQZ.Utils._weatherReq = CLIQZ.Utils.httpGet(CLIQZ.Utils.WEATHER_URL + 'lat=' + coordinates.lat
             + '&lon=' + coordinates.lon + local_param,
             function(res){
-              callback && callback(res, q);
+              callback && callback(res, q, locName);
             });
       }
     }
 
-    q= q.replace(/^(weather|wetter|meteo) /gi, "")
-
-    CLIQZ.Utils.log('***DKLING*** Geocoding call for: ' + q);
+    q= q.replace(/^(wetter|weather|meteo|temps) /gi, "")
 
     var GEOLOC_API= 'http://weather-search.fbt.co:8081/?autocomplete=true&query='
           + encodeURIComponent(q)
           + '&lang=de&maxInterpretations=1';
 
     CLIQZ.Utils.httpHandler('GET', GEOLOC_API, geocodeCallback);
-
-    //TODO: produce snippet like this:
-
-
-    //TODO: use APPID - 8e07de8e75fb0d907292d842456770d8
-    // &APPID=8e07de8e75fb0d907292d842456770d8
-    // http://openweathermap.org/appid
-
-    // TODO: use "api.openweathermap.org" as host name
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
