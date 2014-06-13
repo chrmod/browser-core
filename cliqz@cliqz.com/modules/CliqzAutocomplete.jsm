@@ -179,7 +179,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
 
-                    if((now > this.startTime + Autocomplete.TIMEOUT) ||
+                    if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions && this.cliqzWeather){
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
@@ -280,10 +280,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(req.status == 200){
                         response = JSON.parse(req.response);
                     }
-                    
+
                     // create rich weather snippet
                     var weather ='';
-                    
+
                     // today
                     var dayWeather = response.list[0];
                     var now = new Date(dayWeather.dt * 1000);
@@ -292,7 +292,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var currTemp= getTempByDayhour(dayWeather.temp, now.getHours());
                     var weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
                     weather += Math.round(currTemp) + "\u00B0, " + dateDisp + ', max: ' + Math.round(dayWeather.temp.max) + '\u00B0C,  min: ' + Math.round(dayWeather.temp.min) + '\u00B0C' + ", " + weatherIcon;
-                    
+
                     // tomorrow
                     now.setTime(now.getTime() + 24*60*60*1000);
                     dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
@@ -317,7 +317,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         )
                     ];
 
-                    CLIQZ.Utils.log("WEATHER: "+JSON.stringify(this.cliqzWeather));
+                    CliqzUtils.log("WEATHER: "+JSON.stringify(this.cliqzWeather));
 
                 }
                 this.pushResults(q);
@@ -414,13 +414,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-                    CLIQZ.Utils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    CLIQZ.Utils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+                    CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 ||
                         searchString.trim().toLowerCase().indexOf("weather ") == 0 ||
                         searchString.trim().toLowerCase().indexOf("meteo ") == 0){
 
-                        CLIQZ.Utils.getWeather(searchString, this.cliqzWeatherFetcher);
+                        CliqzUtils.getWeather(searchString, this.cliqzWeatherFetcher);
                     }
                 } else {
                     this.cliqzResults = [];
