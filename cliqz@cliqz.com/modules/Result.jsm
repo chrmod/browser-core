@@ -39,7 +39,7 @@ var Result = {
 	generic: function(style, value, image, comment, label, query, data){
         //try to show host if no comment(page title) is provided
         if(style !== Result.CLIQZS       // is not a suggestion
-           && style !== Result.CLIQZC       // is not a custom search
+           && style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
            && CliqzUtils.isCompleteUrl(value)){       // looks like an url
             let host = CliqzUtils.getDetailsFromUrl(value).host

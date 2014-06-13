@@ -269,11 +269,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(customQuery){
                     this.customResults = [
                         Result.generic(
-                            Result.CLIQZC,
-                            customQuery.updatedQ,
+                            Result.CLIQZC + ' sources-' + customQuery.engineCode,
+                            customQuery.queryURI,
                             null,
                             CliqzUtils.createSuggestionTitle(q, customQuery.engineName),
-                            customQuery.queryURI
+                            customQuery.updatedQ
                         )
                     ];
                 }

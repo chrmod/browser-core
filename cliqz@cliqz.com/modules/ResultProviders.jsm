@@ -57,19 +57,22 @@ var ResultProviders = {
                     prefix: ResultProviders.getShortcut(engine.name),
                     name: engine.name,
                     icon: engine.iconURI.spec,
-                    // can be an un unknown engine
-                    code: 0
+                    code: ResultProviders.getEngineCode(engine.name)
                 }
 
-                for(var c in ENGINE_CODES){
-                    if(engine.name.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
-                        engines[engine.name].code = +c + 1;
-                        break;
-                    }
-                }
+
             }
         }
         return engines;
+    },
+    getEngineCode: function(engineName){
+        for(var c in ENGINE_CODES){
+            if(engineName.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
+                return +c + 1;
+            }
+        }
+        // unknown engine
+        return 0;
     },
     getEngineSubmission: function(engine, q){
         return Services.search.getEngineByName(engine).getSubmission(q);
@@ -106,15 +109,17 @@ var ResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
-                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec
-            }
+                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
+                engineCode: ResultProviders.getEngineCode(MAPPING[start])
+            };
         } else if(MAPPING[end]) {
             var uq = q.substring(0, q.length - end.length - 1);
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
-                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec
-            }
+                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec,
+                engineCode: ResultProviders.getEngineCode(MAPPING[end])
+            };
         }
 
         return null;

@@ -269,7 +269,7 @@ CLIQZ.Components = CLIQZ.Components || {
             item._cliqzTitleDetails.removeChild(item._cliqzTitleDetails.firstChild);
         }
 
-        if (urlDetails && source !== 'cliqz-suggestions' && source !== 'cliqz-custom') {
+        if (urlDetails && source !== 'cliqz-suggestions' && source.indexOf('cliqz-custom') === -1) {
             // add logo
             item._logo.className = 'cliqz-ac-logo-icon ';
             // lowest priority: base domain, no tld
