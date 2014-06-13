@@ -251,6 +251,56 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzEnhancements: function (item) {
+        if(item.getAttribute('source') == 'cliqz-weather'){
+            CLIQZ.Components.cliqzEnhancementsWeather(item);
+        } else {
+            CLIQZ.Components.cliqzEnhancementsGeneric(item);
+        }
+    },
+    cliqzEnhancementsWeather: function(item){
+        var cliqzData = JSON.parse(item.getAttribute('cliqzData'));
+
+        var desriptionElements = [
+                                  "city",
+                                  "todayTemp",
+                                  "todayMin",
+                                  "todayMax",
+                                  "todayDate",
+                                  "tomorrowDay",
+                                  "tomorrowDate",
+                                  "tomorrowMin",
+                                  "tomorrowMax",
+                                  "tomorrowDesc",
+                                  "aTomorrowDay",
+                                  "aTomorrowDate",
+                                  "aTomorrowMin",
+                                  "aTomorrowMax",
+                                  "aTomorrowDesc",
+                                ],
+            imageElements = [
+                             "todayIcon",
+                             "tomorrowIcon",
+                             "aTomorrowIcon"
+
+                            ];
+
+        for(var p in desriptionElements){
+            var identifier = '_cliqzWeather_'+desriptionElements[p];
+            item[identifier] = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather-' + desriptionElements[p]);
+            item[identifier].textContent = cliqzData[desriptionElements[p]];
+        }
+
+        for(var p in imageElements){
+            var identifier = '_cliqzWeather_'+imageElements[p];
+            item[identifier] = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather-' + imageElements[p]);
+            item[identifier].setAttribute('src', cliqzData[imageElements[p]]);
+        }
+
+
+
+
+    },
+    cliqzEnhancementsGeneric: function (item) {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),
@@ -262,24 +312,24 @@ CLIQZ.Components = CLIQZ.Components || {
             cliqzData = JSON.parse(item.getAttribute('cliqzData'));
         }
 
-        item._cliqzUrlType = item._cliqzUrlType || document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
+        item._cliqzUrlType =  document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
         item._cliqzUrlType.className = 'cliqz-left-separator';
 
-        item._cliqzImage = item._cliqzImage || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
+        item._cliqzImage = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
         item._cliqzImage.setAttribute('src', '');
         item._cliqzImage.className = '';
         item._cliqzImage.style.width = '';
 
-        item._cliqzImageDesc = item._cliqzImageDesc || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
+        item._cliqzImageDesc =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
         item._cliqzImageDesc.textContent = '';
         item._cliqzImageDesc.className = '';
         item._cliqzImageDesc.parentNode.className = 'hidden';
 
-        item._logo = item._logo || document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
+        item._logo =  document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
         item._logo.className = '';
 
-        item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
-        item._cliqzDescriptionBox = item._cliqzDescriptionBox || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
+        item._cliqzDescription = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
+        item._cliqzDescriptionBox = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
 
         if(cliqzData && cliqzData.description){
             item._cliqzDescriptionBox.className = 'cliqz-ac-description-box';
@@ -290,8 +340,8 @@ CLIQZ.Components = CLIQZ.Components || {
         }
         //item._source.textContent = source;
 
-        item._cliqzUrlDetails = item._cliqzUrlDetails || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-url-details');
-        item._cliqzTitleDetails = item._cliqzTitleDetails || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-title-details');
+        item._cliqzUrlDetails = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-url-details');
+        item._cliqzTitleDetails = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-title-details');
 
         while (item._cliqzUrlDetails.hasChildNodes()) {
             item._cliqzUrlDetails.removeChild(item._cliqzUrlDetails.firstChild);

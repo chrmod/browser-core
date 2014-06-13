@@ -272,52 +272,56 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 var old_q= this.searchString.replace(/^(wetter|weather|meteo|temps) /gi, "");
                 if(q == old_q){ // be sure this is not a delayed result
-                    var response = [];
+                    var response = [],
+                        DEGREE = "\u00B0";
 
                     if(this.startTime)
                         CliqzTimings.add("search_weather", ((new Date()).getTime() - this.startTime));
 
                     if(req.status == 200){
                         response = JSON.parse(req.response);
+
+
+                        var days = response.list,
+                            today = new Date(days[0].dt * 1000),
+                            tomorrow = new Date(today.getTime() + 24*60*60*1000),
+                            aTomorrow = new Date(tomorrow.getTime() + 24*60*60*1000);
+
+                        this.cliqzWeather = [
+                            Result.generic(
+                                Result.CLIQZW,
+                                q,
+                                null,
+                                locName,
+                                "http://www.wetter.com",
+                                null,
+                                {
+                                    city: locName,
+                                    todayTemp: Math.round(getTempByDayhour(days[0].temp, today.getHours())) + DEGREE,
+                                    todayMin: Math.round(days[0].temp.min) + DEGREE,
+                                    todayMax: Math.round(days[0].temp.max) + DEGREE,
+                                    todayDate: weekday[today.getDay()] + " " + today.getDate() + ". " + monthNames[today.getMonth()],
+                                    todayIcon: WEATHER_ICON_BASE_URL + days[0].weather[0].icon + ".png",
+                                    tomorrowDay: weekday[tomorrow.getDay()],
+                                    tomorrowDate: tomorrow.getDate()+ '. ' + monthNames[tomorrow.getMonth()],
+                                    tomorrowMin: Math.round(days[1].temp.min) + DEGREE,
+                                    tomorrowMax: Math.round(days[1].temp.max) + DEGREE,
+                                    tomorrowDesc: days[1].weather[0].description,
+                                    tomorrowIcon: WEATHER_ICON_BASE_URL + days[1].weather[0].icon + ".png",
+                                    aTomorrowDay: weekday[aTomorrow.getDay()],
+                                    aTomorrowDate: aTomorrow.getDate()+ '. ' + monthNames[aTomorrow.getMonth()],
+                                    aTomorrowMin: Math.round(days[2].temp.min) + DEGREE,
+                                    aTomorrowMax: Math.round(days[2].temp.max) + DEGREE,
+                                    aTomorrowDesc: days[2].weather[0].description,
+                                    aTomorrowIcon: WEATHER_ICON_BASE_URL + days[2].weather[0].icon + ".png",
+                                }
+                            )
+                        ];
+
+                        CliqzUtils.log(JSON.stringify(this.cliqzWeather), 'WEATHER');
+                    } else {
+                        this.cliqzWeather = [];
                     }
-
-                    // create rich weather snippet
-                    var weather ='';
-
-                    // today
-                    var dayWeather = response.list[0];
-                    var now = new Date(dayWeather.dt * 1000);
-
-                    var dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
-                    var currTemp= getTempByDayhour(dayWeather.temp, now.getHours());
-                    var weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
-                    weather += Math.round(currTemp) + "\u00B0, " + dateDisp + ', max: ' + Math.round(dayWeather.temp.max) + '\u00B0C,  min: ' + Math.round(dayWeather.temp.min) + '\u00B0C' + ", " + weatherIcon;
-
-                    // tomorrow
-                    now.setTime(now.getTime() + 24*60*60*1000);
-                    dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
-                    dayWeather= response.list[1];
-                    weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
-                    weather += ' \u2600 ' +  dateDisp + ", max: " + Math.round(dayWeather.temp.max) + '\u00B0C, min: ' + Math.round(dayWeather.temp.min) + '\u00B0C, ' + dayWeather.weather[0].description + ", " + weatherIcon;
-
-                    // day after tomorrow
-                    now.setTime(now.getTime() + 24*60*60*1000);
-                    dateDisp= weekday[now.getDay()] + " " + now.getDate() + ". " + monthNames[now.getMonth()];
-                    dayWeather= response.list[2];
-                    weatherIcon= WEATHER_ICON_BASE_URL + dayWeather.weather[0].icon + ".png";
-                    weather += ' \u2600 ' +  dateDisp + ", max: " + Math.round(dayWeather.temp.max) + '\u00B0C, min: ' + Math.round(dayWeather.temp.min) + '\u00B0C, ' + dayWeather.weather[0].description + ", " + weatherIcon;
-
-                    this.cliqzWeather = [
-                        Result.generic(
-                            Result.CLIQZC,
-                            q,
-                            null,
-                            locName + ' aktuell: ' +  weather,
-                            "http://www.wetter.com"
-                        )
-                    ];
-
-                    CliqzUtils.log("WEATHER: "+JSON.stringify(this.cliqzWeather));
 
                 }
                 this.pushResults(q);

@@ -221,6 +221,150 @@
     </content>
   </binding>
 
+
+
+
+
+  <binding id="autocomplete-richlistitem-cliqz-weather" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
+    <content>
+      <xul:hbox hidden="true">
+        <xul:vbox pack="center">
+          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox pack="center">
+          <xul:stack>
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-image"/>
+            </xul:hbox>
+            <xul:hbox right="0" bottom="0" class="hidden">
+              <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+            </xul:hbox>
+          </xul:stack>
+        </xul:vbox>
+        <xul:vbox pack="center" flex="1">
+          <xul:hbox class="ac-title-box" >
+            <xul:spacer class="cliqz-left-separator"/>
+            <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+            <xul:hbox anonid="title-box" class="ac-title" flex="1"
+                      onunderflow="_doUnderflow('_title');"
+                      onoverflow="_doOverflow('_title');">
+              <xul:description anonid="title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-comment"/>
+            <xul:hbox anonid="extra-box" class="ac-extra" hidden="true">
+              <xul:image class="ac-result-type-tag"/>
+              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
+              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:image anonid="type-image" class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox class="ac-url-box">
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+            <xul:hbox anonid="url-box" class="ac-url" flex="1"
+                      onunderflow="_doUnderflow('_url');"
+                      onoverflow="_doOverflow('_url');">
+              <xul:description anonid="url" class="ac-normal-text ac-url-text"
+                               xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
+                             class='cliqz-url-box'/>
+              <xul:spacer class="cliqz-separator-10"/>
+              <xul:description anonid="action" class="ac-normal-text ac-action-text"
+                               xbl:inherits="selected type"/>
+            </xul:hbox>
+            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-url-text"/>
+            <xul:spacer class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox>
+            <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding">
+              <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-description" />
+            </xul:vbox>
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+
+      <xul:hbox>
+        <xul:vbox class="cliqz-weather-city-container">
+          <xul:description anonid="cliqz-weather-city" class="cliqz-weather-city" />
+          <xul:description class="cliqz-weather-status">aktuell</xul:description>
+        </xul:vbox>
+        <xul:vbox class="cliqz-weather-today-container" >
+          <xul:hbox pack="end">
+            <xul:image anonid="cliqz-weather-todayIcon" class="cliqz-weather-today-icon"/>
+            <xul:description anonid="cliqz-weather-todayTemp" class="cliqz-weather-today-temp" />
+          </xul:hbox>
+          <xul:hbox>
+            <xul:description anonid="cliqz-weather-todayDate" class="cliqz-weather-today-date" />
+            <xul:description anonid="cliqz-weather-todayMax" class="cliqz-weather-today-max" />
+            <xul:description anonid="cliqz-weather-todayMin" class="cliqz-weather-today-min" />
+          </xul:hbox>
+        </xul:vbox>
+
+        <xul:vbox flex="1" />
+
+        <xul:vbox class="cliqz-weather-skew-container">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-tomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-tomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-tomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-tomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox class="cliqz-weather-skew-container">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-aTomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-aTomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-aTomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-aTomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox pack="end" style="margin-right: 3px;">
+          <xul:description class="cliqz-weather-credits">
+            zur Verfügung gestellt von
+          </xul:description>
+          <xul:description class="cliqz-weather-credits">
+            openweathermap.org
+          </xul:description>
+        </xul:vbox>
+
+      </xul:hbox>
+    </content>
+  </binding>
+
   <binding id="button-cliqz"
            extends="chrome://global/content/bindings/button.xml#button">
     <handlers>
