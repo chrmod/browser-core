@@ -42,7 +42,7 @@ something with a version it will only get shipped to beta users.
 2. Filter for `extensions.cliqz.`
 3. Preferences:
 ``` bash
-    "UDID": "1234567890|12345", //unique identifier
+    "session": "1234567890|12345", //unique identifier
     "messageInterval": 3600000 , // interval between update messages - 1H
     "showQueryDebug": false, // show query debug information next to results
     "showDebugLogs": false, // show debug logs in console
@@ -110,7 +110,7 @@ Sent at startup and every 1 hour afterwards
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
     "ts": <UNIX_TIMESTAMP>,
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
@@ -143,7 +143,7 @@ Keystoke - any key stroke which triggers a search
     "action": "key_stroke",
     "type": "activity",
     "current_length": 2, //current length on the query/url from the urlbar
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>
 }
 ```
@@ -152,7 +152,7 @@ Arrow key (up/down) - navigation through the results with keyboard
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "arrow_key",
@@ -166,7 +166,7 @@ Arrow key (tab) - navigation through the suggestions with keyboard
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "tab_key",
@@ -179,7 +179,7 @@ Result click (mouse)
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
@@ -194,7 +194,7 @@ Suggestion click (mouse)
 
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "suggestion_click",
@@ -207,7 +207,7 @@ Result enter (keyboard)
 1. With a focused result
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
 	"type": "activity",
     "action": "result_enter",
@@ -220,7 +220,7 @@ Result enter (keyboard)
  With no focused result - in the urlbar
 ``` bash
 {
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_enter",
@@ -240,7 +240,7 @@ Results - results shown in the dropdown
     "type": "activity",
     "action": "results",
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>
 }
 ```
@@ -251,7 +251,7 @@ Suggestions - suggestions shown in the dropdown
     "type": "activity",
     "action": "suggestions",
     "count": 2 // number of suggestions shown
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>
 }
 ```
@@ -260,7 +260,7 @@ Urlbar focus - user clicks in the url bar
 ``` bash
 {
     "action": "urlbar_focus",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -270,7 +270,7 @@ Last search button pressed
 ``` bash
 {
     "action": "last_search",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -280,7 +280,7 @@ Visual hash tag
 ``` bash
 {
     "action": "visual_hash_tag",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>,
     "new_tab": true/false, // is the result open in new tab
@@ -304,7 +304,7 @@ Urlbar blur - url bar loses focus - user selects a result, click outside or brow
 ``` bash
 {
     "action": "urlbar_blur",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -314,7 +314,7 @@ Dropdown open
 ``` bash
 {
     "action": "dropdown_open",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -324,7 +324,7 @@ Dropdown close
 ``` bash
 {
     "action": "dropdown_close",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -334,7 +334,7 @@ Browser shutdown
 ``` bash
 {
     "action": "browser_shutdown",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
@@ -344,7 +344,7 @@ Addon disable
 ``` bash
 {
     "action": "addon_disable",
-    "UDID": "<RANDOM_ID>",
+    "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
 }
