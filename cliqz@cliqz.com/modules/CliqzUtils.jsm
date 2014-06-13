@@ -242,7 +242,7 @@ var CliqzUtils = CliqzUtils || {
                                 });
   },
   getWeather: function(q, callback){
-    var locales = Language.state();
+    var locales = CliqzLanguage.state();
     var local_param = "";
     if(locales.length > 0)
       local_param = '&lang=de&units=metric&type=accurate&mode=json&cnt=3';
@@ -262,10 +262,10 @@ var CliqzUtils = CliqzUtils || {
               locName= data.interpretations[0].feature.name
           }
 
-          CLIQZ.Utils._weatherReq && CLIQZ.Utils._weatherReq.abort();
-          var URL= CLIQZ.Utils.WEATHER_URL + 'lat=' + coord.lat + '&lon=' + coord.lon + local_param;
+          CliqzUtils._weatherReq && CliqzUtils._weatherReq.abort();
+          var URL= CliqzUtils.WEATHER_URL + 'lat=' + coord.lat + '&lon=' + coord.lon + local_param;
 
-          CLIQZ.Utils._weatherReq = CLIQZ.Utils.httpGet(URL,
+          CliqzUtils._weatherReq = CliqzUtils.httpGet(URL,
             function(res){
               callback && callback(res, q, locName);
             });
@@ -278,7 +278,7 @@ var CliqzUtils = CliqzUtils || {
           + encodeURIComponent(q)
           + '&lang=de&maxInterpretations=1';
 
-    CLIQZ.Utils.httpHandler('GET', GEOLOC_API, geocodeCallback);
+    CliqzUtils.httpHandler('GET', GEOLOC_API, geocodeCallback);
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';

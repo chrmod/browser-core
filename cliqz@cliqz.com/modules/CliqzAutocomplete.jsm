@@ -421,6 +421,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         searchString.trim().toLowerCase().indexOf("meteo ") == 0){
 
                         CliqzUtils.getWeather(searchString, this.cliqzWeatherFetcher);
+                    } else {
+                        this.cliqzWeather = [];
                     }
                 } else {
                     this.cliqzResults = [];
