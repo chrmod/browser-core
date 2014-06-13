@@ -90,9 +90,9 @@ Glossary
 
 ``` bash
   <ENCODED_RESULT_TYPE>
- 
- - T-tab result, B-bookmark, H-history,  C-custom results
- - any combination of one or more:
+
+ - T-tab result, B-bookmark, H-history
+ - any combination of one or more for vertical results:
     p - people
     c - census
     n - news
@@ -102,6 +102,17 @@ Glossary
     f - french
     v - video
     h - hq
+- any of the folowing for custom search engine search
+    1 - google images
+    2 - google maps
+    3 - google
+    4 - yahoo
+    5 - bing
+    6 - wikipedia
+    7 - amazon
+    8 - ebay
+    9 - leo
+    0 - other
 ```
 
 
