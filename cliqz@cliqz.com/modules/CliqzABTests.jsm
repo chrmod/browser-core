@@ -70,9 +70,12 @@ var CliqzABTests = CliqzABTests || {
         // Add new AB tests here.
         // It is safe to remove them as soon as the test is over.
         switch(abtest) {
+            /* 1000: enable timing log signal */
             case "1000_A":
                 CliqzUtils.setPref("logTimings", true);
                 break;
+
+            /* 1001: show one of three different changelogs on upgrade, or nothing (default) */
             case "1001_A":
                 CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001A');
                 CliqzUtils.setPref("showChangelog", true);
@@ -81,7 +84,10 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001B');
                 CliqzUtils.setPref("showChangelog", true);
                 break;
-
+            case "1001_C":
+                // use default changelog URL
+                CliqzUtils.setPref("showChangelog", true);
+                break;
         }
     },
     leave: function(abtest) {
@@ -94,13 +100,12 @@ var CliqzABTests = CliqzABTests || {
         // get stuck in a test if we remove cases too early.
         switch(abtest) {
             case "1000_A":
-                CliqzUtils.setPref("logTimings", false);
+                CliqzUtils.cliqzPrefs.clearUserPref("logTimings");
                 break;
+
             case "1001_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("changelogURL");
-                CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
-                break;
             case "1001_B":
+            case "1001_C":
                 CliqzUtils.cliqzPrefs.clearUserPref("changelogURL");
                 CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
                 break;
