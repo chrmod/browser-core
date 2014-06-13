@@ -241,20 +241,19 @@ CLIQZ.Utils = CLIQZ.Utils || {
           if(res.status == 200){
               var data = JSON.parse(res.response);
 
-          var geoID= null;
           var locName= null;
+          var coord= null;
           if (data &&
               data.interpretations &&
               data.interpretations.length &&
-              data.interpretations[0].feature.ids &&
-              data.interpretations[0].feature.ids[0].id &&
-              data.interpretations[0].feature.name) {
-              geoID= data.interpretations[0].feature.ids[0].id
+              data.interpretations[0].feature.geometry &&
+              data.interpretations[0].feature.geometry.center) {
+              coord= {"lat": data.interpretations[0].feature.geometry.center.lat, "lon": data.interpretations[0].feature.geometry.center.lng}
               locName= data.interpretations[0].feature.name
           }
 
           CLIQZ.Utils._weatherReq && CLIQZ.Utils._weatherReq.abort();
-          var URL= CLIQZ.Utils.WEATHER_URL + 'id=' + geoID + local_param;
+          var URL= CLIQZ.Utils.WEATHER_URL + 'lat=' + coord.lat + '&lon=' + coord.lon + local_param;
 
           CLIQZ.Utils._weatherReq = CLIQZ.Utils.httpGet(URL,
             function(res){
