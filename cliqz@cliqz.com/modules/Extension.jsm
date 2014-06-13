@@ -49,9 +49,12 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
-        if(upgrade){
-            // open changelog on update
-            CliqzUtils.openOrReuseAnyTab(CliqzUtils.CHANGELOG, CliqzUtils.UPDATE_URL, false);
+        // open changelog on update
+        if(upgrade && CliqzUtils.getPref('showChangelog')){
+            var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
+                            CliqzUtils.getPref('changelogURL') : 
+                            CliqzUtils.CHANGELOG;
+            CliqzUtils.openOrReuseAnyTab(clURL, CliqzUtils.UPDATE_URL, false);
         }
     },
     unload: function(version, uninstall){
