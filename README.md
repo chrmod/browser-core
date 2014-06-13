@@ -94,7 +94,7 @@ Glossary
          - 02 - CHIP store
          - 03 - Softonic
          - 04 - AMO (Mozilla Firefox Store)
-     eg: 10378300660576423|16148|OO"
+     eg: 10378300660576423|16148|OO
 ```
 
 ``` bash
@@ -162,6 +162,19 @@ Arrow key (up/down) - navigation through the results with keyboard
 }
 ```
 
+Arrow key (tab) - navigation through the suggestions with keyboard
+
+``` bash
+{
+    "UDID": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "tab_key",
+    "current_position": 1, // -1 = none, 0 = the first result, 1 = the second result ...
+    "direction":"left"/"right"
+}
+```
+
 Result click (mouse)
 
 ``` bash
@@ -174,6 +187,18 @@ Result click (mouse)
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+}
+```
+
+Suggestion click (mouse)
+
+``` bash
+{
+    "UDID": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "suggestion_click",
+    "current_position": 0
 }
 ```
 
@@ -191,7 +216,8 @@ Result enter (keyboard)
     "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
 }
 ```
-2. With no focused result - in the urlbar
+2.
+ With no focused result - in the urlbar
 ``` bash
 {
     "UDID": "<RANDOM_ID>",

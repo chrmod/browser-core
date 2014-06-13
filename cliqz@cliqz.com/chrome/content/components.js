@@ -48,7 +48,13 @@ CLIQZ.Components = CLIQZ.Components || {
 
             var successfullyAdded = 0;
             for(var i in CliqzAutocomplete.lastSuggestions){
-                if(CLIQZ.Components.addSuggestion(popup, CliqzAutocomplete.lastSuggestions[i], trimmedSearchString)){
+                var suggessfullyAdded = CLIQZ.Components.addSuggestion(
+                                            popup,
+                                            CliqzAutocomplete.lastSuggestions[i],
+                                            trimmedSearchString,
+                                            successfullyAdded //real position
+                                        );
+                if(suggessfullyAdded){
                     successfullyAdded++
                 }
             }
@@ -137,7 +143,7 @@ CLIQZ.Components = CLIQZ.Components || {
         // yield after each batch of items so that typing the url bar is responsive
         setTimeout(function (popup) { CLIQZ.Components._appendCurrentResult(popup); }, 0, popup);
     },
-    addSuggestion: function(popup, suggestion, q){
+    addSuggestion: function(popup, suggestion, q, position){
         var container = popup._suggestions,
             suggestionWrapper = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
             sugestionText = document.createElementNS(CLIQZ.Components.XULNS, 'description'),
@@ -161,6 +167,7 @@ CLIQZ.Components = CLIQZ.Components || {
         suggestionWrapper.appendChild(extra);
 
         suggestionWrapper.suggestion = suggestion; // original suggestion used at selection
+        suggestionWrapper.position = position;
 
         container.appendChild(suggestionWrapper);
 
@@ -180,6 +187,14 @@ CLIQZ.Components = CLIQZ.Components || {
             if(suggestionVal){
                 CLIQZ.Core.urlbar.mInputField.focus();
                 CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+
+                var action = {
+                    type: 'activity',
+                    action: 'suggestion_click',
+                    current_position: ev.target.position || ev.target.parentNode.position || -1,
+                };
+
+                CliqzUtils.track(action);
             }
         }
     },

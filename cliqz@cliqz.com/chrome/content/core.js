@@ -456,10 +456,17 @@ CLIQZ.Core = CLIQZ.Core || {
             ev.preventDefault();
 
             var suggestions = popup._suggestions.childNodes,
-                SEL = ' cliqz-suggestion-default';
+                SEL = ' cliqz-suggestion-default',
+                found = false,
+                action = {
+                    type: 'activity',
+                    action: 'tab_key',
+                    current_position : -1
+                };
 
-            for(var i =0; i < suggestions.length; i++){
+            for(var i =0; i < suggestions.length && !found; i++){
                 var s = suggestions[i];
+
                 if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                     s.className = s.className.replace(SEL, '');
 
@@ -468,6 +475,7 @@ CLIQZ.Core = CLIQZ.Core || {
                             for(var j=i+1; j < suggestions.length; j++){
                                 if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
                                     suggestions[j].className += SEL;
+                                    action.current_position = j;
                                     break;
                                 }
                             }
@@ -475,17 +483,24 @@ CLIQZ.Core = CLIQZ.Core || {
                             for(var j=i-1; j >=0 ; j--){
                                 if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
                                     suggestions[j].className += SEL;
+                                    action.current_position = j;
                                     break;
                                 }
                             }
                         }
-                    }
 
-                    return;
+                        found = true;
+                    }
                 }
             }
-
-            suggestions[ev.shiftKey ? suggestions.length-1 : 0].className += ' cliqz-suggestion-default';
+            if(!found){ // none selected
+                var position = ev.shiftKey ? suggestions.length-1 : 0;
+                suggestions[position].className += ' cliqz-suggestion-default';
+                action.current_position = position;
+            }
+            action.direction = ev.shiftKey? 'left' : 'right';
+            CliqzUtils.track(action);
+            return;
         }
     },
     // autocomplete query inline
