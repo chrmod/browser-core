@@ -302,15 +302,15 @@ CLIQZ.Components = CLIQZ.Components || {
             cliqzData = JSON.parse(item.getAttribute('cliqzData'));
         }
 
-        item._cliqzUrlType =  document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
+        item._cliqzUrlType = item._cliqzUrlType || document.getAnonymousElementByAttribute(item, 'anonid', 'url-type');
         item._cliqzUrlType.className = 'cliqz-left-separator';
 
-        item._cliqzImage = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
+        item._cliqzImage = item._cliqzImage || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image');
         item._cliqzImage.setAttribute('src', '');
         item._cliqzImage.className = '';
         item._cliqzImage.style.width = '';
 
-        item._cliqzImageDesc =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
+        item._cliqzImageDesc = item._cliqzImageDesc || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-image-desc');
         item._cliqzImageDesc.textContent = '';
         item._cliqzImageDesc.className = '';
         item._cliqzImageDesc.parentNode.className = 'hidden';
@@ -318,8 +318,8 @@ CLIQZ.Components = CLIQZ.Components || {
         item._logo =  document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
         item._logo.className = '';
 
-        item._cliqzDescription = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
-        item._cliqzDescriptionBox = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
+        item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
+        item._cliqzDescriptionBox = item._cliqzDescriptionBox || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description-box');
 
         if(cliqzData && cliqzData.description){
             item._cliqzDescriptionBox.className = 'cliqz-ac-description-box';
@@ -330,8 +330,8 @@ CLIQZ.Components = CLIQZ.Components || {
         }
         //item._source.textContent = source;
 
-        item._cliqzUrlDetails = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-url-details');
-        item._cliqzTitleDetails = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-title-details');
+        item._cliqzUrlDetails = item._cliqzUrlDetails || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-url-details');
+        item._cliqzTitleDetails = item._cliqzTitleDetails || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-title-details');
 
         while (item._cliqzUrlDetails.hasChildNodes()) {
             item._cliqzUrlDetails.removeChild(item._cliqzUrlDetails.firstChild);
