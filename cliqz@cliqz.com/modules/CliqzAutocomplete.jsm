@@ -245,6 +245,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var weekday= ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
                 var monthNames= ["Januar", "Februar", "März", "April", "Mai", "Juni", "July", "August", "September", "Oktober", "November", "Dezember"];
                 var WEATHER_ICON_BASE_URL= "http://openweathermap.org/img/w/";
+                //var WEATHER_ICON_BASE_URL= "chrome://cliqzres/content/skin/weather/";
 
                 // helper for determing current tempperature by current hour
                 function getTempByDayhour(temp, hour){
