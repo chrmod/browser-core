@@ -291,10 +291,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzWeather = [
                             Result.generic(
                                 Result.CLIQZW,
-                                q,
+                                "",
                                 null,
                                 locName,
-                                "http://www.wetter.com",
+                                "",
                                 null,
                                 {
                                     city: locName,

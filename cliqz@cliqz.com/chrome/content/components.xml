@@ -116,6 +116,10 @@
           return;
 
         // CLIQZ START
+
+        // Weather results should not be clickable
+        if(item.getAttribute('source') == 'cliqz-weather') return;
+
         if(event.metaKey || event.ctrlKey){
           CliqzUtils.navigateToItem(
                     gBrowser,
