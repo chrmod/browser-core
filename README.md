@@ -5,10 +5,15 @@ Firefox Navigation Browser extension
 
 # Packaging and publishing
 
-To generate a stable version from source run `fab package`. For the beta version
-run `fab package:beta=True`. These tasks will generate a .xpi addon files. The
-difference between them is that the stable version is generated from the latest
-git tag and the beta version from the latest commit (HEAD).
+To generate a stable version from source run `fab package:beta=False`. The default
+version (`fab package`) will always be a beta version. These tasks will generate
+a .xpi addon files. The difference between them is that the stable version is
+generated from the latest git tag (on the current branch) and the beta version
+from the latest commit.
+
+Another difference between stable and beta is that the stable version gets updates
+from stable channel and beta from beta channel. So we need to be careful to not
+package a beta version if we send it to normal users.
 
 The version is calculated from GIT tags. If we want to declare a commit stable
 we give it a tag with a higher version number than the previous one (e.g. if
@@ -22,19 +27,24 @@ The beta version will append .1bN to the end (N is the commit count from last
 stable version). If we made 5 commits from last stable tag (0.4.09) it will be
 0.4.09.1b5.
 ```
+If we want to set explicitly the version we can use the version argument. E.g. we
+want to package a stable version on the branch we are on with the tag 0.5.25:
+`fab package:beta=False,version=0.5.25`
+
 NOTE: We should keep this format of specifying versions d.d.dd. This will allow
 us not to worry about automatic updates. Even if we land on AMO we are following
 all the versioning rules to have 2 channels (beta and stable) and we don't need
 to change anything.
 ```
-To publish a stable version to CDN run `fab publish`. For the beta version
-run `fab publish:beta=True`. This will package the extension. Generate a update
-manifest file that is used by installed extensions to check for newer versions.
-Upload the newer version to S3 and replace the old manifest file with the new one.
+To publish a stable version to CDN run `fab publish:beta=False`. For the beta
+version run `fab publish:beta=True` or just `fab publish`. This will package the
+extension. Generate a update manifest file that is used by installed extensions
+to check for newer versions. Upload the newer version to S3 and replace the old
+manifest file with the new one.
 
-This automatic versioning allows us to publish by mistake and not change anything
-because the stable version is always taken from a tag. If we don't explicitly tag
-something with a version it will only get shipped to beta users.
+This automatic versioning should allow us to recover from mistakes faster because
+we have always all published versions tagged and we can easily revert to old ones.
+And we always know what commit is deployed in production.
 
 # Settings
 
