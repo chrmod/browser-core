@@ -131,12 +131,6 @@
   /* background-color: lightgreen; */
 }
 
-.autocomplete-richlistitem[type="cliqz-weather"] {
-    -moz-binding: url("chrome://cliqz/content/components.xml?v=2#autocomplete-richlistitem-cliqz-weather");
-    background-color: #f9f9f9;
-}
-
-
 /* general autocomplete item styles */
 .ac-title-box {
   height: 20px;
@@ -562,6 +556,24 @@
 }
 
 /* weather */
+
+.richlistitem-cliqz-weather {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-weather {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-weather");
+  display: inherit;
+}
+
+.cliqz-weather-container {
+
+}
+
 .cliqz-weather-city-container {
   padding-top: 10px;
   margin-right: 20px;

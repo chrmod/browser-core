@@ -155,7 +155,8 @@
 
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
-      <xul:hbox>
+      <xul:hbox class="richlistitem-cliqz-weather" flex="1" anonid='cliqz-weather' />
+      <xul:hbox class='richlistitem-cliqz-generic'>
         <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
@@ -221,77 +222,9 @@
     </content>
   </binding>
 
-
-
-
-
-  <binding id="autocomplete-richlistitem-cliqz-weather" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
+  <binding id="autocomplete-richlistitem-cliqz-weather">
     <content>
-      <xul:hbox hidden="true">
-        <xul:vbox pack="center">
-          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
-          </xul:hbox>
-        </xul:vbox>
-        <xul:vbox pack="center">
-          <xul:stack>
-            <xul:hbox class="cliqz-image-box">
-              <xul:image anonid="cliqz-image"/>
-            </xul:hbox>
-            <xul:hbox right="0" bottom="0" class="hidden">
-              <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
-            </xul:hbox>
-          </xul:stack>
-        </xul:vbox>
-        <xul:vbox pack="center" flex="1">
-          <xul:hbox class="ac-title-box" >
-            <xul:spacer class="cliqz-left-separator"/>
-            <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
-                             class='cliqz-url-box'/>
-            <xul:hbox anonid="title-box" class="ac-title" flex="1"
-                      onunderflow="_doUnderflow('_title');"
-                      onoverflow="_doOverflow('_title');">
-              <xul:description anonid="title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
-            </xul:hbox>
-            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
-                       class="ac-ellipsis-after ac-comment"/>
-            <xul:hbox anonid="extra-box" class="ac-extra" hidden="true">
-              <xul:image class="ac-result-type-tag"/>
-              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
-              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
-            </xul:hbox>
-            <xul:image anonid="type-image" class="ac-type-icon"/>
-          </xul:hbox>
-          <xul:hbox class="ac-url-box">
-            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
-
-            <xul:hbox anonid="url-box" class="ac-url" flex="1"
-                      onunderflow="_doUnderflow('_url');"
-                      onoverflow="_doOverflow('_url');">
-              <xul:description anonid="url" class="ac-normal-text ac-url-text"
-                               xbl:inherits="selected type"/>
-              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
-                             class='cliqz-url-box'/>
-              <xul:spacer class="cliqz-separator-10"/>
-              <xul:description anonid="action" class="ac-normal-text ac-action-text"
-                               xbl:inherits="selected type"/>
-            </xul:hbox>
-            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
-                       class="ac-ellipsis-after ac-url-text"/>
-            <xul:spacer class="ac-type-icon"/>
-          </xul:hbox>
-          <xul:hbox>
-            <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding">
-              <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-description" />
-            </xul:vbox>
-          </xul:hbox>
-        </xul:vbox>
-        <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
-          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
-          </xul:hbox>
-        </xul:vbox>
-      </xul:hbox>
-
-      <xul:hbox>
+      <xul:hbox class="cliqz-weather-container" flex="1">
         <xul:vbox class="cliqz-weather-city-container">
           <xul:description anonid="cliqz-weather-city" class="cliqz-weather-city" />
           <xul:description class="cliqz-weather-status">aktuell</xul:description>
@@ -363,6 +296,40 @@
 
       </xul:hbox>
     </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var desriptionElements = [
+                                    "city",
+                                    "todayTemp",
+                                    "todayMin",
+                                    "todayMax",
+                                    "todayDate",
+                                    "tomorrowDay",
+                                    "tomorrowDate",
+                                    "tomorrowMin",
+                                    "tomorrowMax",
+                                    "tomorrowDesc",
+                                    "aTomorrowDay",
+                                    "aTomorrowDate",
+                                    "aTomorrowMin",
+                                    "aTomorrowMax",
+                                    "aTomorrowDesc",
+                                  ],
+              imageElements = [
+                               "todayIcon",
+                               "tomorrowIcon",
+                               "aTomorrowIcon"
+
+                              ],
+              all = desriptionElements.concat(imageElements);
+
+          for(var p in all){
+              this[all[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-weather-' + all[p]);
+          }
+          ]]>
+      </constructor>
+    </implementation>
   </binding>
 
   <binding id="button-cliqz"

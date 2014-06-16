@@ -252,14 +252,13 @@ CLIQZ.Components = CLIQZ.Components || {
     },
     cliqzEnhancements: function (item) {
         if(item.getAttribute('source') == 'cliqz-weather'){
-            CLIQZ.Components.cliqzEnhancementsWeather(item);
+            var weatherItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather')
+            CLIQZ.Components.cliqzEnhancementsWeather(weatherItem, JSON.parse(item.getAttribute('cliqzData')));
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
     },
-    cliqzEnhancementsWeather: function(item){
-        var cliqzData = JSON.parse(item.getAttribute('cliqzData'));
-
+    cliqzEnhancementsWeather: function(item, cliqzData){
         var desriptionElements = [
                                   "city",
                                   "todayTemp",
@@ -281,24 +280,15 @@ CLIQZ.Components = CLIQZ.Components || {
                              "todayIcon",
                              "tomorrowIcon",
                              "aTomorrowIcon"
-
                             ];
 
         for(var p in desriptionElements){
-            var identifier = '_cliqzWeather_'+desriptionElements[p];
-            item[identifier] = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather-' + desriptionElements[p]);
-            item[identifier].textContent = cliqzData[desriptionElements[p]];
+            item[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
         }
 
         for(var p in imageElements){
-            var identifier = '_cliqzWeather_'+imageElements[p];
-            item[identifier] = document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather-' + imageElements[p]);
-            item[identifier].setAttribute('src', cliqzData[imageElements[p]]);
+            item[desriptionElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
         }
-
-
-
-
     },
     cliqzEnhancementsGeneric: function (item) {
         // add here all the custom UI elements for an item
