@@ -40,9 +40,18 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True'):
+def package(beta='True', version=None):
     """Package the extension as a .xpi file."""
-    version = get_version(beta)
+    checkout = True # Checkout the tag if we are not doing a beta package
+    if not (beta == 'True') and version is not None:
+        print 'WARNING: This will not take the %s tag from git. It packages the '\
+              'commit that HEAD is pointing to.\n'\
+              'If you want to package a specific tag check it out first with:\n'\
+              'git checkout <tag>\n'\
+              'or for latest tag just omit the version argument.' % version
+        checkout = False
+    if version is None:
+        version = get_version(beta)
 
     # If we are not doing a beta release we need to checkout the latest stable tag
     if not (beta == 'True'):
@@ -56,7 +65,8 @@ def package(beta='True'):
             branch_dirty = local("git diff --shortstat", capture=True)
             if branch_dirty:
                 local("git stash")
-            local("git checkout %s" % (version))
+            if checkout:
+                local("git checkout %s" % (version))
 
     # Generate temporary manifest
     install_manifest_path = "cliqz@cliqz.com/install.rdf"
@@ -79,7 +89,8 @@ def package(beta='True'):
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not (beta == 'True'):
         with hide('output'):
-            local("git checkout %s" % branch)
+            if checkout:
+                local("git checkout %s" % branch)
             if branch_dirty:
                 local("git stash pop")
 
@@ -87,13 +98,13 @@ def package(beta='True'):
 
 
 @task
-def install_in_browser(beta='True'):
+def install_in_browser(beta='True', version=None):
     """Install the extension in firefox.
 
     Firefox needs the Extension Auto-Installer add-on.
     https://addons.mozilla.org/en-US/firefox/addon/autoinstaller/"""
 
-    output_file_name = package(beta)
+    output_file_name = package(beta, version)
     data = open(output_file_name).read()
     try:
         response = urllib2.urlopen(AUTO_INSTALLER_URL, data)
@@ -105,8 +116,12 @@ def install_in_browser(beta='True'):
 
 
 @task
-def publish(beta='True'):
+def publish(beta='True', version=None):
     """Upload extension to s3 (credentials in ~/.s3cfg need to be set to primary)"""
+    if not (beta == 'True') and version is not None:
+        abort("You should never publish a non-beta package with a fixed version.\n"\
+              "Always use git tags (and push them to upstream) so we can keep "\
+              "track of all live versions.")
 
     if beta == 'True':
         if not console.confirm('You are going to update the extension '\
@@ -119,13 +134,14 @@ def publish(beta='True'):
 
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
-    output_file_name = package(beta)
+    output_file_name = package(beta, version)
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
     local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
 
     env = Environment(loader=FileSystemLoader('templates'))
     manifest_template = env.get_template(update_manifest_file_name)
-    version = get_version()
+    if version is None:
+        version = get_version()
     if beta == 'True':
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
     else:
