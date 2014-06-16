@@ -50,8 +50,12 @@ def package(beta='True'):
             # Because the file install.rdf changes after generating from template
             # we need to untrack it before we can do a stash-pop.
             local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
+            # Get the name of the current branch so we can get back on it
             branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
-            local("git stash")
+            # If we have changes stash them before checkout
+            branch_dirty = local("git diff --shortstat", capture=True)
+            if branch_dirty:
+                local("git stash")
             local("git checkout %s" % (version))
 
     # Generate temporary manifest
@@ -76,7 +80,8 @@ def package(beta='True'):
     if not (beta == 'True'):
         with hide('output'):
             local("git checkout %s" % branch)
-            local("git stash pop")
+            if branch_dirty:
+                local("git stash pop")
 
     return output_file_name
 
@@ -142,7 +147,6 @@ def publish(beta='True'):
         local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
                                                 path_to_s3))
         local("rm  %s" % latest_html_file_name)
-
 
 
 @task
