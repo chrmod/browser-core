@@ -168,7 +168,7 @@ Arrow key (up/down) - navigation through the results with keyboard
     "action": "arrow_key",
     "current_position": 1, // -1 = landed in the urlbar, 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
-    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+    "search": true/false, //if the url is a search page
 }
 ```
 
@@ -196,7 +196,7 @@ Result click (mouse)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
-    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+    "search": true/false, //if the url is a search page
 }
 ```
 
@@ -222,8 +222,8 @@ Result enter (keyboard)
 	"type": "activity",
     "action": "result_enter",
     "current_position": 1, // 0 = the first result, 1 = the second result ...
-    "position_type": "cliqz_results" // type of result on which the user landed (cliqz_results/cliqz_suggestions/history/bookmark/tab_result)
-    "search": true/false, //only if position_type = cliqz_results/history/bookmark/tab_result and the url is a search page
+    "position_type": "<ENCODED_RESULT_TYPE>"
+    "search": true/false, //if the url is a search page
 }
 ```
 2.
