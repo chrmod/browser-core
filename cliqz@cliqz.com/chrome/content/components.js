@@ -315,7 +315,7 @@ CLIQZ.Components = CLIQZ.Components || {
         item._cliqzImageDesc.className = '';
         item._cliqzImageDesc.parentNode.className = 'hidden';
 
-        item._logo =  document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
+        item._logo = item._logo || document.getAnonymousElementByAttribute(item, 'anonid', 'logo');
         item._logo.className = '';
 
         item._cliqzDescription = item._cliqzDescription || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-description');
