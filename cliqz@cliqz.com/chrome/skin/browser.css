@@ -677,19 +677,19 @@
   color: #777;
 }
 
-@media (max-width: 1140px) {
+@media (max-width: 1050px) {
   .cliqz-weather-aTomorrow {
     display: none;
   }
 }
 
-@media (max-width: 880px) {
+@media (max-width: 850px) {
   .cliqz-weather-tomorrow {
     display: none;
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 600px) {
   .cliqz-weather-credits {
     display: none;
   }
