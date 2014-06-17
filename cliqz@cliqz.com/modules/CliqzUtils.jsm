@@ -364,6 +364,7 @@ var CliqzUtils = CliqzUtils || {
   _track_req: null,
   _track_sending: [],
   _track_start: undefined,
+  TRACK_MAX_SIZE: 500,
   pushTrack: function() {
     if(CliqzUtils._track_req) {
         CliqzUtils._track_req.abort();
@@ -376,7 +377,7 @@ var CliqzUtils = CliqzUtils || {
 
     CliqzUtils._track_start = (new Date()).getTime();
 
-    CliqzUtils.log('push tracking data: ' + CliqzUtils._track_sending.length + ' elements');
+    CliqzUtils.log('push tracking data: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
@@ -393,9 +394,17 @@ var CliqzUtils = CliqzUtils || {
   },
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
-    CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements');
+    CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
     CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
+    
+    // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
+    if(slice_pos > 0){
+      CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
+      CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
+    }
+
     CliqzUtils._track_sending = [];
     CliqzUtils._track_req = null;
   },
