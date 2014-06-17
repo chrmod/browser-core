@@ -585,7 +585,6 @@
   font-weight: bold;
   color: white;
   padding: 5px;
-  width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -630,13 +629,13 @@
 
 .cliqz-weather-today-min {
   font-size: 11px;
-  color: blue;
+  color: #4785ec;
   padding: 2px;
 }
 
 .cliqz-weather-today-max {
   font-size: 11px;
-  color: red;
+  color: #fd5b5b;
   padding: 2px;
 }
 
@@ -646,7 +645,7 @@
 
 .cliqz-weather-next-icon {
   height: 50px;
-  margin: 0px 10px;
+  margin: 0px 20px 0 15px;
 }
 
 .cliqz-weather-next-container {
@@ -666,12 +665,12 @@
 
 .cliqz-weather-next-max {
   font-size: 12px;
-  color: red;
+  color: #fd5b5b;
 }
 
 .cliqz-weather-next-min {
   font-size: 12px;
-  color: blue;
+  color: #4785ec;
 }
 
 .cliqz-weather-next-desc {
