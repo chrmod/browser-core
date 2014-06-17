@@ -247,7 +247,7 @@
 
         <xul:vbox flex="1" />
 
-        <xul:vbox class="cliqz-weather-skew-container">
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-tomorrow">
           <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
             <xul:hbox pack="end">
               <xul:vbox pack="center">
@@ -268,7 +268,7 @@
           </xul:vbox>
         </xul:vbox>
 
-        <xul:vbox class="cliqz-weather-skew-container">
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-aTomorrow">
           <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
             <xul:hbox pack="end">
               <xul:vbox pack="center">

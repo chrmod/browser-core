@@ -597,12 +597,12 @@
 }
 
 .cliqz-weather-today-container {
-
+  margin-top: 10px;
 }
 
 .cliqz-weather-skew-container {
   transform: skew(-30deg);
-  background-color:azure;
+  background-color:#efefef;
   margin-right:10px;
   padding: 0px 20px;
 }
@@ -623,6 +623,7 @@
 .cliqz-weather-today-temp {
   font-size: 32px;
   padding-top: 5px;
+  margin-left: 10px;
   width: 10px;
   color: black;
 }
@@ -659,7 +660,7 @@
 }
 
 .cliqz-weather-next-date {
-  color: grey;
+  color: gray;
   font-size: 13px;
 }
 
@@ -674,7 +675,25 @@
 }
 
 .cliqz-weather-next-desc {
-  color: lightgrey;
+  color: #777;
+}
+
+@media (max-width: 1170px) {
+  .cliqz-weather-aTomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 920px) {
+  .cliqz-weather-tomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .cliqz-weather-credits {
+    display: none;
+  }
 }
 
 /* misc */
