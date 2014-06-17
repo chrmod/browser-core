@@ -287,7 +287,7 @@ CLIQZ.Components = CLIQZ.Components || {
         }
 
         for(var p in imageElements){
-            item[desriptionElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
+            item[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
         }
     },
     cliqzEnhancementsGeneric: function (item) {
