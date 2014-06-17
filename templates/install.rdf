@@ -11,7 +11,7 @@
 		<em:bootstrap>true</em:bootstrap>
 
 		<!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
-		{% if beta %}
+		{% if beta == 'True' %}
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
 		{% else %}
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
