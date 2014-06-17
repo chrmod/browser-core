@@ -251,6 +251,46 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzEnhancements: function (item) {
+        if(item.getAttribute('source') == 'cliqz-weather'){
+            var weatherItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather')
+            CLIQZ.Components.cliqzEnhancementsWeather(weatherItem, JSON.parse(item.getAttribute('cliqzData')));
+        } else {
+            CLIQZ.Components.cliqzEnhancementsGeneric(item);
+        }
+    },
+    cliqzEnhancementsWeather: function(item, cliqzData){
+        var desriptionElements = [
+                                  "city",
+                                  "todayTemp",
+                                  "todayMin",
+                                  "todayMax",
+                                  "todayDate",
+                                  "tomorrowDay",
+                                  "tomorrowDate",
+                                  "tomorrowMin",
+                                  "tomorrowMax",
+                                  "tomorrowDesc",
+                                  "aTomorrowDay",
+                                  "aTomorrowDate",
+                                  "aTomorrowMin",
+                                  "aTomorrowMax",
+                                  "aTomorrowDesc",
+                                ],
+            imageElements = [
+                             "todayIcon",
+                             "tomorrowIcon",
+                             "aTomorrowIcon"
+                            ];
+
+        for(var p in desriptionElements){
+            item[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
+        }
+
+        for(var p in imageElements){
+            item[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
+        }
+    },
+    cliqzEnhancementsGeneric: function (item) {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
             source = item.getAttribute('source'),

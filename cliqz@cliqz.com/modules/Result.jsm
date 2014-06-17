@@ -16,6 +16,7 @@ var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
+    CLIQZW: 'cliqz-weather',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     RULES: {
         'video': [

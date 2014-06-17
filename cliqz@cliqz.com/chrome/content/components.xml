@@ -116,6 +116,10 @@
           return;
 
         // CLIQZ START
+
+        // Weather results should not be clickable
+        if(item.getAttribute('source') == 'cliqz-weather') return;
+
         if(event.metaKey || event.ctrlKey){
           CliqzUtils.navigateToItem(
                     gBrowser,
@@ -155,7 +159,8 @@
 
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
-      <xul:hbox>
+      <xul:hbox class="richlistitem-cliqz-weather" flex="1" anonid='cliqz-weather' />
+      <xul:hbox class='richlistitem-cliqz-generic'>
         <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
@@ -219,6 +224,116 @@
         </xul:vbox>
       </xul:hbox>
     </content>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-weather">
+    <content>
+      <xul:hbox class="cliqz-weather-container" flex="1">
+        <xul:vbox class="cliqz-weather-city-container">
+          <xul:description anonid="cliqz-weather-city" class="cliqz-weather-city" />
+          <xul:description class="cliqz-weather-status">aktuell</xul:description>
+        </xul:vbox>
+        <xul:vbox class="cliqz-weather-today-container" >
+          <xul:hbox pack="end">
+            <xul:image anonid="cliqz-weather-todayIcon" class="cliqz-weather-today-icon"/>
+            <xul:description anonid="cliqz-weather-todayTemp" class="cliqz-weather-today-temp" />
+          </xul:hbox>
+          <xul:hbox>
+            <xul:description anonid="cliqz-weather-todayDate" class="cliqz-weather-today-date" />
+            <xul:description anonid="cliqz-weather-todayMax" class="cliqz-weather-today-max" />
+            <xul:description anonid="cliqz-weather-todayMin" class="cliqz-weather-today-min" />
+          </xul:hbox>
+        </xul:vbox>
+
+        <xul:vbox flex="1" />
+
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-tomorrow">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-tomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-tomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-tomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-tomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-aTomorrow">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-aTomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-aTomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-aTomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-aTomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox pack="end" style="margin-right: 3px;">
+          <xul:description class="cliqz-weather-credits">
+            zur Verfügung gestellt von
+          </xul:description>
+          <xul:description class="cliqz-weather-credits">
+            openweathermap.org
+          </xul:description>
+        </xul:vbox>
+
+      </xul:hbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var desriptionElements = [
+                                    "city",
+                                    "todayTemp",
+                                    "todayMin",
+                                    "todayMax",
+                                    "todayDate",
+                                    "tomorrowDay",
+                                    "tomorrowDate",
+                                    "tomorrowMin",
+                                    "tomorrowMax",
+                                    "tomorrowDesc",
+                                    "aTomorrowDay",
+                                    "aTomorrowDate",
+                                    "aTomorrowMin",
+                                    "aTomorrowMax",
+                                    "aTomorrowDesc",
+                                  ],
+              imageElements = [
+                               "todayIcon",
+                               "tomorrowIcon",
+                               "aTomorrowIcon"
+
+                              ],
+              all = desriptionElements.concat(imageElements);
+
+          for(var p in all){
+              this[all[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-weather-' + all[p]);
+          }
+          ]]>
+      </constructor>
+    </implementation>
   </binding>
 
   <binding id="button-cliqz"
