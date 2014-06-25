@@ -280,6 +280,12 @@ var CliqzUtils = CliqzUtils || {
 
     CliqzUtils.httpHandler('GET', GEOLOC_API, geocodeCallback);
   },
+  getWorldCup: function(q, callback){
+    var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
+    CliqzUtils.httpGet(WORLD_CUP_API, function(res){
+      callback && callback(res, q);
+    });
+  },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
@@ -397,7 +403,7 @@ var CliqzUtils = CliqzUtils || {
     CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
     CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
-    
+
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
     var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
     if(slice_pos > 0){

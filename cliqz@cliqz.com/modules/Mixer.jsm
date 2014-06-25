@@ -21,7 +21,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, weatherResults, maxResults){
+	mix: function(q, history, cliqz, mixed, weatherResults, worldCupResults ,maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -124,6 +124,9 @@ var Mixer = {
         if(weatherResults && weatherResults.length > 0)
             results = weatherResults.concat(results);
 
+        // add external world cup API results
+        if(worldCupResults && worldCupResults.length > 0)
+            results = worldCupResults.concat(results);
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
