@@ -463,7 +463,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         this.cliqzWeather = [];
                     }
-                    const worldCupRegex = /(wm|fußb|fussb|soccer|footb|weltme|fifa|worldcup)/i;
+                    const worldCupRegex = /(wm|fu[\u00DF]b|fussb|soccer|footb|weltme|fifa|worldcup)/i;
                     if(worldCupRegex.test(searchString)){
                         CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
                     } else {
