@@ -456,15 +456,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-                    if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 ||
-                        searchString.trim().toLowerCase().indexOf("weather ") == 0 ||
-                        searchString.trim().toLowerCase().indexOf("meteo ") == 0){
-
+                    // Fetch weather and worldcup only if search matches regex
+                    const weatherRegex = /^(wetter|weather|meteo|temps) /i;
+                    if(weatherRegex.test(searchString)){
                         CliqzUtils.getWeather(searchString, this.cliqzWeatherFetcher);
                     } else {
                         this.cliqzWeather = [];
                     }
-                    if(searchString.trim().toLowerCase().indexOf("wm") == 0){
+                    const worldCupRegex = /(^wm | wm|Deutschland)/i;
+                    if(worldCupRegex.test(searchString)){
                         CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
                     } else {
                         this.cliqzWorldCup = [];

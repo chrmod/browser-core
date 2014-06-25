@@ -290,6 +290,7 @@ var CliqzUtils = CliqzUtils || {
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
+    else if(type === 'cliqz-worldcup') return 'x';
     else if(type === 'bookmark') return 'B';
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';

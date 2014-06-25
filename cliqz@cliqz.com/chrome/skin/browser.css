@@ -383,7 +383,6 @@
 }
 
 .autocomplete-richlistitem[selected="true"] {
-  border-color: #006666;
   border-width: 1px 1px 1px 0;
 }
 
@@ -407,6 +406,8 @@
   /* override windows aero styles*/
   border-radius: 0px;
   outline: none;
+  background-color: #eefafe;
+  background-clip: border-box;
 }
 
 .autocomplete-richlistitem:hover .cliqz-ac-source-icon,
