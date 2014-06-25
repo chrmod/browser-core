@@ -8,7 +8,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',

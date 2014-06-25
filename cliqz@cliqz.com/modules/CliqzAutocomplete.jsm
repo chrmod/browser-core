@@ -5,17 +5,17 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.14');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.14');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.15');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
 
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -463,7 +463,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         this.cliqzWeather = [];
                     }
-                    const worldCupRegex = /(^wm | wm|Deutschland)/i;
+                    const worldCupRegex = /(wm|fußb|fussb|soccer|footb|weltme|fifa|worldcup)/i;
                     if(worldCupRegex.test(searchString)){
                         CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
                     } else {

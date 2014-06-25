@@ -3,13 +3,13 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.15');
 
 
 var CLIQZ = CLIQZ || {};
