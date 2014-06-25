@@ -243,8 +243,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults(q);
             },
             // handles weather queries
-            cliqzWeatherCallback: function(req, q, locName) {
-                this.cliqzWeather = CliqzWeather.parse(req, q, locName)
+            cliqzWeatherCallback: function(res) {
+                this.cliqzWeather = res;
                 this.pushResults(q);
             },
             createFavicoUrl: function(url){
@@ -342,7 +342,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     if(CliqzWeather.isWeatherSearch(searchString)){
-                        CliqzUtils.getWeather(searchString, this.cliqzWeatherCallback);
+                        CliqzWeather.get(searchString, this.cliqzWeatherCallback);
                     } else {
                         this.cliqzWeather = [];
                     }
