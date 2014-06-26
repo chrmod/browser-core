@@ -159,7 +159,7 @@
 
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
-      <xul:hbox class="richlistitem-cliqz-weather" flex="1" anonid='cliqz-weather' />
+      <xul:hbox class="richlistitem-cliqz-custom" flex="1" anonid='cliqz-custom' />
       <xul:hbox class='richlistitem-cliqz-generic'>
         <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">

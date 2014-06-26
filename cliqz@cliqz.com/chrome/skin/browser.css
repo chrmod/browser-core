@@ -555,17 +555,17 @@
   background-size: 20px 14px;
 }
 
-/* weather */
-
-.richlistitem-cliqz-weather {
+.richlistitem-cliqz-custom {
   display: none;
 }
+
+/* weather */
 
 .autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-generic {
   display: none;
 }
 
-.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-weather {
+.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-custom {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-weather");
   display: inherit;
 }

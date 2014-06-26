@@ -251,9 +251,15 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzEnhancements: function (item) {
-        if(item.getAttribute('source') == 'cliqz-weather'){
-            var weatherItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-weather')
-            CLIQZ.Components.cliqzEnhancementsWeather(weatherItem, JSON.parse(item.getAttribute('cliqzData')));
+        var type = item.getAttribute('source'),
+            PAIRS = {
+                'cliqz-weather': 'Weather',
+                'cliqz-cluster': 'Cluster',
+            };
+
+        if(PAIRS[type]){
+            var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom')
+            CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')));
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
