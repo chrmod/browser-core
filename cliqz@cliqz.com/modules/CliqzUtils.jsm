@@ -42,7 +42,6 @@ var CliqzUtils = CliqzUtils || {
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   SEPARATOR:        ' %s ',
-  WEATHER_URL:      'http://api.openweathermap.org/data/2.5/forecast/daily?',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
@@ -240,45 +239,6 @@ var CliqzUtils = CliqzUtils || {
                                   //CliqzUtils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
-  },
-  getWeather: function(q, callback){
-    var locales = CliqzLanguage.state();
-    var local_param = "";
-    if(locales.length > 0)
-      local_param = '&lang=de&units=metric&type=accurate&mode=json&cnt=3';
-
-      var  geocodeCallback= function(res){
-          if(res.status == 200){
-              var data = JSON.parse(res.response);
-
-          var locName= null;
-          var coord= null;
-          if (data &&
-              data.interpretations &&
-              data.interpretations.length &&
-              data.interpretations[0].feature.geometry &&
-              data.interpretations[0].feature.geometry.center) {
-              coord= {"lat": data.interpretations[0].feature.geometry.center.lat, "lon": data.interpretations[0].feature.geometry.center.lng}
-              locName= data.interpretations[0].feature.name
-          }
-
-          CliqzUtils._weatherReq && CliqzUtils._weatherReq.abort();
-          var URL= CliqzUtils.WEATHER_URL + 'lat=' + coord.lat + '&lon=' + coord.lon + local_param;
-
-          CliqzUtils._weatherReq = CliqzUtils.httpGet(URL,
-            function(res){
-              callback && callback(res, q, locName);
-            });
-      }
-    }
-
-    q= q.replace(/^(wetter|weather|meteo|temps) /gi, "")
-
-    var GEOLOC_API= 'http://weather-search.fbt.co:8081/?autocomplete=true&query='
-          + encodeURIComponent(q)
-          + '&lang=de&maxInterpretations=1';
-
-    CliqzUtils.httpHandler('GET', GEOLOC_API, geocodeCallback);
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
