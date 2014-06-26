@@ -556,17 +556,17 @@
   background-size: 20px 14px;
 }
 
-/* world cup */
 
-.richlistitem-cliqz-worldcup {
+.richlistitem-cliqz-custom {
   display: none;
 }
 
+/* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
   display: none;
 }
 
-.autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-worldcup {
+.autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-custom {
   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-worldcup");
   display: inherit;
 }
@@ -647,16 +647,12 @@
 
 /* weather */
 
-.richlistitem-cliqz-weather {
-  display: none;
-}
-
 .autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-generic {
   display: none;
 }
 
-.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-weather {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-weather");
+.autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-weather");
   display: inherit;
 }
 
