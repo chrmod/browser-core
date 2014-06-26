@@ -17,6 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.14');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
+  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.14');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -241,90 +243,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults(q);
             },
             // handles weather queries
-            cliqzWeatherFetcher: function(req, q, locName) {
-                var weekday= ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-                var monthNames= ["Januar", "Februar", "März", "April", "Mai", "Juni", "July", "August", "September", "Oktober", "November", "Dezember"];
-                //var WEATHER_ICON_BASE_URL= "http://openweathermap.org/img/w/";
-                var WEATHER_ICON_BASE_URL= "chrome://cliqzres/content/skin/weather/";
-
-                // helper for determing current tempperature by current hour
-                function getTempByDayhour(temp, hour){
-                    var currTemp= null;
-                    switch (true) {
-                        case (hour >= 0 && hour <= 5):
-                            currTemp= temp.night;
-                            break;
-                        case (hour >= 6 && hour <= 11):
-                            currTemp= temp.morn;
-                            break;
-                        case (hour >= 12 && hour <= 17):
-                            currTemp= temp.day;
-                            break;
-                        case (hour >= 18 && hour <= 23):
-                            currTemp= temp.eve;
-                            break;
-                        default:
-                            currTemp= "";
-                            break;
-                    }
-
-                    return currTemp;
-                }
-
-                var old_q= this.searchString.replace(/^(wetter|weather|meteo|temps) /gi, "");
-                if(q == old_q){ // be sure this is not a delayed result
-                    var response = [],
-                        DEGREE = "\u00B0";
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_weather", ((new Date()).getTime() - this.startTime));
-
-                    if(req.status == 200){
-                        response = JSON.parse(req.response);
-
-
-                        var days = response.list,
-                            today = new Date(days[0].dt * 1000),
-                            tomorrow = new Date(today.getTime() + 24*60*60*1000),
-                            aTomorrow = new Date(tomorrow.getTime() + 24*60*60*1000);
-
-                        this.cliqzWeather = [
-                            Result.generic(
-                                Result.CLIQZW,
-                                "",
-                                null,
-                                locName,
-                                "",
-                                null,
-                                {
-                                    city: locName,
-                                    todayTemp: Math.round(getTempByDayhour(days[0].temp, today.getHours())) + DEGREE,
-                                    todayMin: Math.round(days[0].temp.min) + DEGREE,
-                                    todayMax: Math.round(days[0].temp.max) + DEGREE,
-                                    todayDate: weekday[today.getDay()] + " " + today.getDate() + ". " + monthNames[today.getMonth()],
-                                    todayIcon: WEATHER_ICON_BASE_URL + days[0].weather[0].icon + ".png",
-                                    tomorrowDay: weekday[tomorrow.getDay()],
-                                    tomorrowDate: tomorrow.getDate()+ '. ' + monthNames[tomorrow.getMonth()],
-                                    tomorrowMin: Math.round(days[1].temp.min) + DEGREE,
-                                    tomorrowMax: Math.round(days[1].temp.max) + DEGREE,
-                                    tomorrowDesc: days[1].weather[0].description,
-                                    tomorrowIcon: WEATHER_ICON_BASE_URL + days[1].weather[0].icon + ".png",
-                                    aTomorrowDay: weekday[aTomorrow.getDay()],
-                                    aTomorrowDate: aTomorrow.getDate()+ '. ' + monthNames[aTomorrow.getMonth()],
-                                    aTomorrowMin: Math.round(days[2].temp.min) + DEGREE,
-                                    aTomorrowMax: Math.round(days[2].temp.max) + DEGREE,
-                                    aTomorrowDesc: days[2].weather[0].description,
-                                    aTomorrowIcon: WEATHER_ICON_BASE_URL + days[2].weather[0].icon + ".png",
-                                }
-                            )
-                        ];
-
-                        CliqzUtils.log(JSON.stringify(this.cliqzWeather), 'WEATHER');
-                    } else {
-                        this.cliqzWeather = [];
-                    }
-
-                }
+            cliqzWeatherCallback: function(res) {
+                this.cliqzWeather = res;
                 this.pushResults(q);
             },
             createFavicoUrl: function(url){
@@ -415,17 +335,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
-                this.cliqzWeatherFetcher = this.cliqzWeatherFetcher.bind(this);
+                this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-                    if(searchString.trim().toLowerCase().indexOf("wetter ") == 0 ||
-                        searchString.trim().toLowerCase().indexOf("weather ") == 0 ||
-                        searchString.trim().toLowerCase().indexOf("meteo ") == 0){
-
-                        CliqzUtils.getWeather(searchString, this.cliqzWeatherFetcher);
+                    if(CliqzWeather.isWeatherSearch(searchString)){
+                        CliqzWeather.get(searchString, this.cliqzWeatherCallback);
                     } else {
                         this.cliqzWeather = [];
                     }
