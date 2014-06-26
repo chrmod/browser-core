@@ -3,13 +3,13 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.15');
 
 
 var CLIQZ = CLIQZ || {};
@@ -255,6 +255,7 @@ CLIQZ.Components = CLIQZ.Components || {
             PAIRS = {
                 'cliqz-weather': 'Weather',
                 'cliqz-cluster': 'Cluster',
+                'cliqz-worldcup': 'WorldCup'
             };
 
         if(PAIRS[type]){
@@ -263,6 +264,72 @@ CLIQZ.Components = CLIQZ.Components || {
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
+    },
+    cliqzEnhancementsWorldCup: function(item, cliqzData){
+        var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/";
+
+        const matchTemplateNode = item['match-template'];
+        const todayMatches = item['today-matches'];
+        // Clear all matches from last display
+        while (todayMatches.firstChild)
+            todayMatches.removeChild(todayMatches.firstChild);
+
+        // Creates a new match from template
+        function createNewMatch (matchData) {
+            const newMatch = matchTemplateNode.cloneNode(true);
+            // Populate template
+            const homeTeam = newMatch.getElementsByAttribute('anonid', 'home-team')[0];
+            homeTeam.textContent = matchData['home_team']['code'];
+            const homeFlag = newMatch.getElementsByAttribute('anonid', 'home-flag')[0];
+            homeFlag.setAttribute('src', WORLD_CUP_ICON_BASE_URL + matchData['home_team']['code'] + '.png');
+            const homeGoals = newMatch.getElementsByAttribute('anonid', 'home-goals')[0];
+            homeGoals.textContent = matchData['home_team']['goals'];
+
+            const awayTeam = newMatch.getElementsByAttribute('anonid', 'away-team')[0];
+            awayTeam.textContent = matchData['away_team']['code'];
+            const awayFlag = newMatch.getElementsByAttribute('anonid', 'away-flag')[0];
+            awayFlag.setAttribute('src', WORLD_CUP_ICON_BASE_URL + matchData['away_team']['code'] + '.png');
+            const awayGoals = newMatch.getElementsByAttribute('anonid', 'away-goals')[0];
+            awayGoals.textContent = matchData['away_team']['goals'];
+
+            // Display time for future games, green dot for live games and grey dot for completed
+            const matchStatus = matchData['status'];
+            if (matchStatus == 'future') {
+                const matchTime = newMatch.getElementsByAttribute('anonid', 'match-time')[0];
+                const time = new Date(matchData['datetime']);
+                matchTime.textContent = time.getHours() + ':00';
+                matchTime.hidden = false;
+            } else {
+                const matchLive = newMatch.getElementsByAttribute('anonid', 'match-live')[0];
+                if (matchStatus == 'in progress') {
+                    matchLive.setAttribute('class', 'cliqz-worldcup-match-live cliqz-worldcup-green-dot');
+                } else {
+                    matchLive.setAttribute('class', 'cliqz-worldcup-match-live cliqz-worldcup-grey-dot');
+                }
+                matchLive.hidden = false;
+            }
+
+            newMatch.hidden = false;
+            return newMatch;
+        }
+
+        const urlbar = document.getElementById('urlbar');
+        const urlbarWidth = urlbar.getBoundingClientRect().width;
+
+        let resultsWidth = 150;
+        for (let matchData of cliqzData['matches']) {
+            // If the list of matches gets bigger than the urlbar hide the rest
+            resultsWidth = resultsWidth + 155;
+            CliqzUtils.log(resultsWidth,"RESULTS: ")
+            CliqzUtils.log(urlbarWidth,"URLBAR: ")
+            if (resultsWidth > urlbarWidth) {
+                break;
+            }
+
+            const match = createNewMatch(matchData);
+            todayMatches.appendChild(match);
+        }
+
     },
     cliqzEnhancementsWeather: function(item, cliqzData){
         var desriptionElements = [

@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
 
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
@@ -240,10 +240,17 @@ var CliqzUtils = CliqzUtils || {
                                   callback && callback(res, q);
                                 });
   },
+  getWorldCup: function(q, callback){
+    var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
+    CliqzUtils.httpGet(WORLD_CUP_API, function(res){
+      callback && callback(res, q);
+    });
+  },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
+    else if(type === 'cliqz-worldcup') return 'x';
     else if(type === 'bookmark') return 'B';
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';

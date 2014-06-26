@@ -5,7 +5,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     log = function(str){
@@ -17,6 +17,7 @@ var Result = {
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZW: 'cliqz-weather',
+    CLIQZWC:'cliqz-worldcup',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     RULES: {
         'video': [

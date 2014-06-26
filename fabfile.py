@@ -141,7 +141,7 @@ def publish(beta='True', version=None):
     env = Environment(loader=FileSystemLoader('templates'))
     manifest_template = env.get_template(update_manifest_file_name)
     if version is None:
-        version = get_version()
+        version = get_version(beta)
     if beta == 'True':
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
     else:
