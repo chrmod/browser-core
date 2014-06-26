@@ -5,17 +5,17 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.14');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.14');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.15');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
   'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.14');
@@ -182,7 +182,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults && this.cliqzSuggestions && this.cliqzWeather){
+                        this.historyResults && this.cliqzResults && this.cliqzSuggestions &&
+                        this.cliqzWeather && this.cliqzWorldCup) {
+
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastResult = this.mixedResults;
@@ -200,6 +202,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzSuggestions = null;
                         this.historyResults = null;
                         this.cliqzWeather= null;
+                        this.cliqzWorldCup = null;
                         return;
                     } else {
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
@@ -247,6 +250,35 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzWeather = res;
                 this.pushResults(q);
             },
+            // handles world cup queries
+            cliqzWorldCupFetcher: function(req, q) {
+                if(q == this.searchString){ // be sure this is not a delayed result
+                    var response = [];
+
+                    if(this.startTime)
+                        CliqzTimings.add("search_worldcup", ((new Date()).getTime() - this.startTime));
+
+                    if(req.status == 200){
+                        response = JSON.parse(req.response);
+                        this.cliqzWorldCup = [
+                            Result.generic(
+                                Result.CLIQZWC,
+                                "",
+                                null,
+                                null,
+                                "",
+                                null,
+                                {
+                                    matches: response
+                                }
+                            )
+                        ];
+                    } else {
+                        this.cliqzWorldCup = [];
+                    }
+                }
+                this.pushResults(q);
+            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -263,6 +295,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.mixedResults,
                             //this.cliqzSuggestions,
                             this.cliqzWeather,
+                            this.cliqzWorldCup,
                             maxResults
                     );
 
@@ -314,6 +347,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzWeather = null;
+                this.cliqzWorldCup = null;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
@@ -335,22 +369,33 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
+
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
+                this.cliqzWorldCupFetcher = this.cliqzWorldCupFetcher.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+
+                    // Fetch weather and worldcup only if search contains trigger
                     if(CliqzWeather.isWeatherSearch(searchString)){
                         CliqzWeather.get(searchString, this.cliqzWeatherCallback);
                     } else {
                         this.cliqzWeather = [];
+                    }
+                    const worldCupRegex = /(wm|fu[\u00DF]b|fussb|soccer|footb|weltme|fifa|worldcup)/i;
+                    if(worldCupRegex.test(searchString)){
+                        CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
+                    } else {
+                        this.cliqzWorldCup = [];
                     }
                 } else {
                     this.cliqzResults = [];
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzWeather = [];
+                    this.cliqzWorldCup = [];
                 }
 
                 // trigger history search

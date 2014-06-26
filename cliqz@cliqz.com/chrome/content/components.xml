@@ -117,8 +117,9 @@
 
         // CLIQZ START
 
-        // Weather results should not be clickable
+        // Weather and worldcup results should not be clickable
         if(item.getAttribute('source') == 'cliqz-weather') return;
+        if(item.getAttribute('source') == 'cliqz-worldcup') return;
 
         if(event.metaKey || event.ctrlKey){
           CliqzUtils.navigateToItem(
@@ -160,6 +161,7 @@
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
       <xul:hbox class="richlistitem-cliqz-weather" flex="1" anonid='cliqz-weather' />
+      <xul:hbox class="richlistitem-cliqz-worldcup" flex="1" anonid='cliqz-worldcup' />
       <xul:hbox class='richlistitem-cliqz-generic'>
         <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
@@ -224,6 +226,61 @@
         </xul:vbox>
       </xul:hbox>
     </content>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-worldcup">
+    <content>
+      <xul:hbox class="" flex="1">
+        <xul:vbox class="cliqz-weather-title-container">
+          <xul:description class="cliqz-worldcup-title">
+            Fußball WM
+          </xul:description>
+          <xul:description class="cliqz-worldcup-status">
+            heute
+          </xul:description>
+        </xul:vbox>
+        <xul:hbox anonid="today-matches" class="cliqz-worldcup-today-matches">
+          <!-- Generated matches from the template are inserted here -->
+        </xul:hbox>
+        <!-- Template to generate matches -->
+        <xul:hbox anonid="match-template" class="cliqz-worldcup-match" hidden="true">
+          <xul:vbox>
+            <xul:hbox class="cliqz-worldcup-team-container">
+              <xul:image anonid="home-flag" class="cliqz-worldcup-flag"/>
+              <xul:description anonid="home-team" class="cliqz-worldcup-team" />
+            </xul:hbox>
+            <xul:hbox class="cliqz-worldcup-team-container">
+              <xul:image anonid="away-flag" class="cliqz-worldcup-flag"/>
+              <xul:description anonid="away-team" class="cliqz-worldcup-team" />
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox>
+            <xul:hbox class="cliqz-worldcup-goals-container">
+              <xul:description anonid="home-goals" class="cliqz-worldcup-goals" />
+            </xul:hbox>
+            <xul:hbox class="cliqz-worldcup-goals-container">
+              <xul:description anonid="away-goals" class="cliqz-worldcup-goals" />
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox>
+              <xul:description anonid="match-time" class="cliqz-worldcup-match-time" hidden="true" />
+          </xul:vbox>
+          <xul:vbox>
+              <xul:description anonid="match-live" class="" hidden="true">
+                ●
+              </xul:description>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:hbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            this['match-template'] = document.getAnonymousElementByAttribute(this, 'anonid', 'match-template');
+            this['today-matches'] = document.getAnonymousElementByAttribute(this, 'anonid', 'today-matches');
+          ]]>
+      </constructor>
+    </implementation>
   </binding>
 
   <binding id="autocomplete-richlistitem-cliqz-weather">
