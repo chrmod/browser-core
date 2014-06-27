@@ -25,7 +25,8 @@ var VERTICAL_ENCODINGS = {
     'english':'e',
     'french':'f',
     'video':'v',
-    'hq':'h'
+    'hq':'h',
+    'shopping':'s'
 };
 
 var CliqzUtils = CliqzUtils || {

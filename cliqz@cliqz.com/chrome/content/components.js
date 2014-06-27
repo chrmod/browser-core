@@ -324,7 +324,8 @@ CLIQZ.Components = CLIQZ.Components || {
                 'cliqz-weather'          : 'Weather',
                 'cliqz-cluster'          : 'Cluster',
                 'cliqz-worldcup'         : 'WorldCup',
-                'cliqz-results sources-n': 'News'
+                'cliqz-results sources-n': 'News',
+                'cliqz-results sources-s': 'Shopping'
             };
         if(PAIRS[type]){
             var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
@@ -332,6 +333,25 @@ CLIQZ.Components = CLIQZ.Components || {
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
+    },
+    cliqzEnhancementsShopping: function(customItem, cliqzData, item, width){
+        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
+        var url = item.getAttribute('url');
+
+        var elements = ["image", "title", "ago-line", "description", "logo"];
+
+        customItem['title'].textContent = item.getAttribute('title');
+        customItem['source'].textContent = 'Amazon.de';
+        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+
+        constructImageElement(cliqzData, customItem.image, undefined);
+
+        const price = cliqzData.richData.price || '';
+        const priceCurrency = cliqzData.richData.price_currency || '';
+        customItem['price'].textContent = priceCurrency + ' ' + price;
+        customItem['stars'].textContent = cliqzData.richData.rating || '';
+        customItem['reviews'].textContent = cliqzData.richData.reviews || '';
     },
     cliqzEnhancementsWorldCup: function(item, cliqzData){
         var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/";

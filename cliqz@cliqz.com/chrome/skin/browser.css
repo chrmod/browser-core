@@ -618,6 +618,16 @@
 
 /* end news */
 
+/* shopping */
+.autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-shopping");
+  display: inherit;
+}
+
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
   display: none;
