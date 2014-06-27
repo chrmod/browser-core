@@ -549,6 +549,13 @@ var CliqzUtils = CliqzUtils || {
     if(newTab) gBrowser.addTab(url);
     else gBrowser.selectedBrowser.contentDocument.location = url;
   },
+  computeAgoLine: function(ts, lang){
+    if(!ts) return '';
+    let now = (new Date().getTime() / 1000),
+        ageHours = parseInt((now - ts) / 3600);
+
+    return ageHours > 24? 'gestern': ageHours <= 1 ? 'vor einer Stunde' : 'vor ' + ageHours + ' Stunden';
+  },
   performance: {
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),

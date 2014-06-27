@@ -28,8 +28,11 @@ function generateLogoClass(urlDetails){
 }
 
 function constructImageElement(data, imageEl, imageDesc){
-  if (data && data.image) {
-     var height = 54,
+    imageEl.setAttribute('src', '');
+    imageEl.className = '';
+    imageEl.style.width = '';
+    if (data && data.image) {
+        var height = 54,
             img = data.image;
         var ratio = 0;
 
@@ -318,15 +321,27 @@ CLIQZ.Components = CLIQZ.Components || {
             }
         }
     },
+
     cliqzEnhancements: function (item, width) {
-        var type = item.getAttribute('source'),
+        var VERTICAL_TYPE = 'cliqz-results sources-',
+            type = item.getAttribute('source'),
             PAIRS = {
                 'cliqz-weather'          : 'Weather',
                 'cliqz-cluster'          : 'Cluster',
-                'cliqz-worldcup'         : 'WorldCup',
-                'cliqz-results sources-n': 'News'
+                'cliqz-worldcup'         : 'WorldCup'
+            },
+            VERTICALS = {
+                'n': 'News'
             };
-        if(PAIRS[type]){
+
+        var mainVertical = '';
+
+        if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
+            mainVertical
+        }
+
+            customUI = PAIRS[type] ||
+        if(customUI){
             var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
             CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
         } else {
@@ -440,8 +455,8 @@ CLIQZ.Components = CLIQZ.Components || {
 
         customItem['title'].textContent = item.getAttribute('title');
         customItem['source'].textContent = cliqzData.richData.source_name || '';
-        customItem['ago-line'].textContent = cliqzData.richData.discovery_timestamp || '';
-        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['ago-line'].textContent = CliqzUtils.computeAgoLine(cliqzData.richData.discovery_timestamp);
+        customItem['description'].textContent = cliqzData.description || '';
         customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
 
         constructImageElement(cliqzData, customItem.image, undefined);
