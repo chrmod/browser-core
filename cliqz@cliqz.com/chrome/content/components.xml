@@ -296,8 +296,6 @@
     </implementation>
   </binding>
 
-  </binding>
-
   <binding id="autocomplete-richlistitem-cliqz-worldcup">
     <content>
       <xul:hbox class="" flex="1">

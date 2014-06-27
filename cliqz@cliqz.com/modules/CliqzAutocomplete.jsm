@@ -246,7 +246,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults(q);
             },
             // handles weather queries
-            cliqzWeatherCallback: function(res) {
+            cliqzWeatherCallback: function(res, q) {
                 this.cliqzWeather = res;
                 this.pushResults(q);
             },
