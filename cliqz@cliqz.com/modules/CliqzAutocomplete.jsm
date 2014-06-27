@@ -260,6 +260,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if(req.status == 200){
                         response = JSON.parse(req.response);
+                        // If no matches are played today don't show result
+                        if (response.length == 0) return;
+
                         this.cliqzWorldCup = [
                             Result.generic(
                                 Result.CLIQZWC,

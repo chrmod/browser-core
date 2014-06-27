@@ -227,6 +227,77 @@
     </content>
   </binding>
 
+  <binding id="autocomplete-richlistitem-cliqz-shopping">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-shopping-image"/>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center" flex="1">
+            <xul:hbox class="ac-title-box" >
+              <xul:spacer class="cliqz-left-separator"/>
+              <xul:description xbl:inherits="selected type" class='cliqz-url-box'/>
+              <xul:hbox class="ac-title" flex="1">
+                <xul:description anonid="cliqz-shopping-title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox class="ac-url-box">
+              <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+              <xul:hbox anonid="url-box" class="ac-url" flex="1">
+                <xul:description anonid="cliqz-shopping-source" class="ac-normal-text cliqz-url-box cliqz-ac-url-host"
+                                 xbl:inherits="selected type"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding cliqz-shopping-description-box">
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-shopping-price" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding cliqz-shopping-description-box">
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-shopping-stars" />
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-shopping-reviews" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding cliqz-shopping-description-box">
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-shopping-description" />
+              </xul:vbox>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-shopping-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "title", "source", "price", "stars", "reviews", "description", "logo"];
+
+            for(var i=0; i < 6; i++){
+              elements.push('source-' + i);
+            }
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-shopping-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  </binding>
+
   <binding id="autocomplete-richlistitem-cliqz-worldcup">
     <content>
       <xul:hbox class="" flex="1">
