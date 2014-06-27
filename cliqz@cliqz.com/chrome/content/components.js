@@ -82,7 +82,7 @@ function constructImageElement(data, imageEl, imageDesc){
     }
 }
 
-const NEWS_SOURCE_WIDTH = 300;
+var NEWS_SOURCE_WIDTH = 300;
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
