@@ -294,23 +294,6 @@
           ]]>
       </constructor>
     </implementation>
-    <handlers>
-      <handler event="mouseup">
-        <![CDATA[
-          var newTab = event.metaKey || event.ctrlKey;
-
-          CliqzUtils.navigateToSource(
-            gBrowser,
-            event.originalTarget.sourceUrl,
-            newTab
-          );
-          if(newTab){
-            event.preventDefault();
-            event.stopPropagation();
-          }
-        ]]>
-      </handler>
-    </handlers>
   </binding>
 
   </binding>
@@ -346,7 +329,7 @@
               <xul:description anonid="home-goals" class="cliqz-worldcup-goals" />
             </xul:hbox>
             <xul:hbox class="cliqz-worldcup-goals-container">
-              <xul:description anonid="away-goals" class="cliqz-worldcup-goals" />s
+              <xul:description anonid="away-goals" class="cliqz-worldcup-goals" />
             </xul:hbox>
           </xul:vbox>
           <xul:vbox>
