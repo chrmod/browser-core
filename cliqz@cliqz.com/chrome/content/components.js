@@ -335,15 +335,13 @@ CLIQZ.Components = CLIQZ.Components || {
             };
 
         var mainVertical = '';
-
         if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
-            mainVertical
+            mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
         }
-
-            customUI = PAIRS[type] ||
+        var customUI = (mainVertical && VERTICALS[mainVertical]) || PAIRS[type];
         if(customUI){
             var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
-            CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
+            CLIQZ.Components['cliqzEnhancements' + customUI](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
