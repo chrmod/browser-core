@@ -566,7 +566,7 @@
 }
 
 /* news */
-/*
+
 .autocomplete-richlistitem[type^="cliqz-results sources-n"] .richlistitem-cliqz-generic {
   display: none;
 }
@@ -615,11 +615,11 @@
    overflow: hidden;
    margin: 2px 2px 2px 0px;
 }
-*/
+
 /* end news */
 
 /* shopping */
-/*
+
 .autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-generic {
   display: none;
 }
@@ -628,7 +628,9 @@
   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-shopping");
   display: inherit;
 }
-*/
+
+/* end shopping */
+
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
   display: none;

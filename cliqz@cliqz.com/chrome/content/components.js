@@ -337,7 +337,7 @@ CLIQZ.Components = CLIQZ.Components || {
 
         var mainVertical = '';
         if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
-            //mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
+            mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
         }
         var customUI = (mainVertical && VERTICALS[mainVertical]) || PAIRS[type];
         if(customUI){
