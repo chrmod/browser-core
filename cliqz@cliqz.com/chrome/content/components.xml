@@ -282,6 +282,116 @@
     </implementation>
   </binding>
 
+  <binding id="autocomplete-richlistitem-cliqz-news">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-news-image"/>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center" flex="1">
+            <xul:hbox class="ac-title-box" >
+              <xul:spacer class="cliqz-left-separator"/>
+              <xul:description xbl:inherits="selected type" class='cliqz-url-box'/>
+              <xul:hbox class="ac-title" flex="1">
+                <xul:description anonid="cliqz-news-title" class="ac-normal-text ac-comment cliqz-max-width" xbl:inherits="selected"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox class="ac-url-box">
+              <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+              <xul:hbox anonid="url-box" class="ac-url" flex="1">
+                <xul:description anonid="cliqz-news-source" class="ac-normal-text cliqz-url-box cliqz-ac-url-host"
+                                 xbl:inherits="selected type"/>
+                <xul:description anonid="cliqz-news-ago-line" class="ac-normal-text cliqz-url-box cliqz-news-ago-line"
+                                 xbl:inherits="selected type"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding cliqz-news-description-box">
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-news-description" />
+              </xul:vbox>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-news-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+        <xul:grid flex="1" class="cliqz-news-sources">
+          <xul:columns>
+            <xul:column/>
+            <xul:column/>
+            <xul:column/>
+          </xul:columns>
+          <xul:rows>
+            <xul:row>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-0"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-1"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-2"/>
+            </xul:row>
+            <xul:row>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-3"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-4"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-5"/>
+            </xul:row>
+          </xul:rows>
+        </xul:grid>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "title", "source", "ago-line", "description", "logo"];
+
+            for(var i=0; i < 6; i++){
+              elements.push('source-' + i);
+            }
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-news-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+    <handlers>
+      <handler event="mouseup">
+        <![CDATA[
+          var newTab = event.metaKey || event.ctrlKey;
+
+          CliqzUtils.navigateToSource(
+            gBrowser,
+            event.originalTarget.sourceUrl,
+            newTab
+          );
+          if(newTab){
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+  <binding id="cliqz-source">
+    <content>
+      <xul:description anonid="cliqz-news-source-title-with-logo" />
+    </content>
+    <implementation>
+      <constructor>
+        <![CDATA[
+          this._title_logo = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-news-source-title-with-logo');
+        ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
   <binding id="autocomplete-richlistitem-cliqz-weather">
     <content>
       <xul:hbox class="cliqz-weather-container" flex="1">
@@ -405,7 +515,7 @@
                     true
                 );
           event.preventDefault();
-          event.stopPropagation()
+          event.stopPropagation();
         ]]>
       </handler>
     </handlers>

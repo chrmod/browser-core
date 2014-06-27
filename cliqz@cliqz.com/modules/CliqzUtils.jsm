@@ -543,6 +543,12 @@ var CliqzUtils = CliqzUtils || {
       }
       CliqzUtils.track(action);
   },
+  navigateToSource: function(gBrowser, url, newTab){
+    // TODO - add a logging signal?
+
+    if(newTab) gBrowser.addTab(url);
+    else gBrowser.selectedBrowser.contentDocument.location = url;
+  },
   performance: {
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),

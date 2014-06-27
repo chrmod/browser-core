@@ -36,6 +36,9 @@ var Result = {
         ],
         'hq': [
             { 'vertical': 'hq'}
+        ],
+        'news': [
+            { 'vertical': 'news'}
         ]
     },
 	generic: function(style, value, image, comment, label, query, data){
@@ -120,8 +123,10 @@ var Result = {
         if(!result.snippet)
             return;
 
-        var urlparts = CliqzUtils.getDetailsFromUrl(result.url);
-        var resp = {};
+        var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
+            resp = {
+                richData: result.snippet.rich_data
+            };
 
         var ogt;
         if(result.snippet && result.snippet.og)
