@@ -11,6 +11,75 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.15');
 
+function generateLogoClass(urlDetails){
+    var cls = '';
+    // lowest priority: base domain, no tld
+    cls += ' logo-' + urlDetails.name;
+    // domain.tld
+    cls += ' logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+    if (urlDetails.subdomains.length > 0) {
+        // subdomain.domain - to match domains like maps.google.co.uk and maps.google.de with maps-google
+        cls += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length - 1] + '-' + urlDetails.name;
+        // subdomain.domain.tld
+        cls += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length - 1] + '-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
+    }
+
+    return cls;
+}
+
+function constructImageElement(data, imageEl, imageDesc){
+  if (data && data.image) {
+     var height = 54,
+            img = data.image;
+        var ratio = 0;
+
+        switch(data.type){
+            case 'news': //fallthrough
+            case 'hq':
+                try {
+                    if(img.ratio){
+                        ratio = parseInt(img.ratio);
+                    } else if(img.width && img.height) {
+                        ratio = parseInt(img.width) / parseInt(img.height);
+                    }
+                } catch(e){}
+                break;
+            case 'video':
+                ratio = 16/9;
+                break;
+            case 'poster':
+                height = 67;
+                ratio = 214/317;
+                break;
+            case 'person':
+                ratio = 1;
+                break;
+            default:
+                ratio = 0;
+                break;
+        }
+
+        CliqzUtils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
+
+        // only show the image if the ratio is between 0.4 and 2.5
+        if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
+            imageEl.className = 'cliqz-ac-image';
+            imageEl.style.backgroundImage = "url(" + img.src + ")";
+            if(ratio > 0) {
+                imageEl.style.backgroundSize = height * ratio + 'px';
+                imageEl.style.width = height * ratio + 'px';
+                imageEl.style.height = height + 'px';
+            }
+            if (imageDesc && img.duration) {
+                imageDesc.textContent = CliqzUtils.getLocalizedString('arrow') + img.duration;
+                imageDesc.className = 'cliqz-image-desc';
+                imageDesc.parentNode.className = '';
+            }
+        }
+    }
+}
+
+const NEWS_SOURCE_WIDTH = 300;
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
@@ -133,8 +202,7 @@ CLIQZ.Components = CLIQZ.Components || {
 
             // CLIQZ START
             item.setAttribute('source', controller.getStyleAt(popup._currentIndex).replace('favicon', 'history'));
-            setTimeout(CLIQZ.Components.cliqzEnhancements, 0, item);
-
+            setTimeout(CLIQZ.Components.cliqzEnhancements, 0, item, CLIQZ.Core.popup.width);
             // CLIQZ END
 
             popup._currentIndex++;
@@ -250,17 +318,17 @@ CLIQZ.Components = CLIQZ.Components || {
             }
         }
     },
-    cliqzEnhancements: function (item) {
+    cliqzEnhancements: function (item, width) {
         var type = item.getAttribute('source'),
             PAIRS = {
-                'cliqz-weather': 'Weather',
-                'cliqz-cluster': 'Cluster',
-                'cliqz-worldcup': 'WorldCup'
+                'cliqz-weather'          : 'Weather',
+                'cliqz-cluster'          : 'Cluster',
+                'cliqz-worldcup'         : 'WorldCup',
+                'cliqz-results sources-n': 'News'
             };
-
         if(PAIRS[type]){
-            var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom')
-            CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')));
+            var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
+            CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
@@ -363,6 +431,39 @@ CLIQZ.Components = CLIQZ.Components || {
             item[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
         }
     },
+    cliqzEnhancementsNews: function(customItem, cliqzData, item, width){
+        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
+        var url = item.getAttribute('url'),
+            sources = cliqzData.richData.additional_sources;
+
+        var elements = ["image", "title", "source", "ago-line", "description", "logo"];
+
+        customItem['title'].textContent = item.getAttribute('title');
+        customItem['source'].textContent = cliqzData.richData.source_name || '';
+        customItem['ago-line'].textContent = cliqzData.richData.discovery_timestamp || '';
+        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+
+        constructImageElement(cliqzData, customItem.image, undefined);
+
+        var maxColumns = Math.min(3, parseInt((width - 50) / NEWS_SOURCE_WIDTH));
+        for(let i=0; i < 6; i++){
+            let sourceBox = customItem['source-' + i];
+            if(sources[i] && (i%3 < maxColumns)){
+                let sourceEl = sourceBox._title_logo,
+                    url = sources[i].url;
+
+                sourceBox.hidden = false;
+
+                sourceEl.textContent = (sources[i] && sources[i].title) || '';
+                let urlDetails = CliqzUtils.getDetailsFromUrl(url);
+                sourceEl.className = 'cliqz-news-source-title-with-logo ' + generateLogoClass(urlDetails);
+                sourceEl.sourceUrl = url;
+            } else {
+                sourceBox.hidden = true;
+            }
+        }
+    },
     cliqzEnhancementsGeneric: function (item) {
         // add here all the custom UI elements for an item
         var url = item.getAttribute('url'),
@@ -416,17 +517,7 @@ CLIQZ.Components = CLIQZ.Components || {
 
         if (urlDetails && source !== 'cliqz-suggestions' && source.indexOf('cliqz-custom') === -1) {
             // add logo
-            item._logo.className = 'cliqz-ac-logo-icon ';
-            // lowest priority: base domain, no tld
-            item._logo.className += ' logo-' + urlDetails.name;
-            // domain.tld
-            item._logo.className += ' logo-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
-            if (urlDetails.subdomains.length > 0) {
-                // subdomain.domain - to match domains like maps.google.co.uk and maps.google.de with maps-google
-                item._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length - 1] + '-' + urlDetails.name;
-                // subdomain.domain.tld
-                item._logo.className += ' logo-' + urlDetails.subdomains[urlDetails.subdomains.length - 1] + '-' + urlDetails.name + '-' + urlDetails.tld.replace('.', '-');
-            }
+            item._logo.className = 'cliqz-ac-logo-icon ' + generateLogoClass(urlDetails);
 
             // add lock
             if (urlDetails.ssl) {
@@ -434,55 +525,7 @@ CLIQZ.Components = CLIQZ.Components || {
             }
 
             // add video thumbnail
-            if (cliqzData && cliqzData.image) {
-                var height = 54,
-                    img = cliqzData.image;
-                var ratio = 0;
-
-                switch(cliqzData.type){
-                    case 'hq':
-                        try {
-                            if(img.ratio){
-                                ratio = parseInt(img.ratio);
-                            } else if(img.width && img.height) {
-                                ratio = parseInt(img.width) / parseInt(img.height);
-                            }
-                        } catch(e){}
-                        break;
-                    case 'video':
-                        ratio = 16/9;
-                        break;
-                    case 'poster':
-                        height = 67;
-                        ratio = 214/317;
-                        break;
-                    case 'person':
-                        ratio = 1;
-                        break;
-                    default:
-                        ratio = 0;
-                        break;
-                }
-
-                CliqzUtils.log('ratio=' + ratio + " src=" + img.src, "cliqzEnhancements");
-
-                // only show the image if the ratio is between 0.4 and 2.5
-                if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
-                    item._cliqzImage.className = 'cliqz-ac-image';
-                    item._cliqzImage.style.backgroundImage = "url(" + img.src + ")";
-                    if(ratio > 0) {
-                        item._cliqzImage.style.backgroundSize = height * ratio + 'px';
-                        item._cliqzImage.style.width = height * ratio + 'px';
-                        item._cliqzImage.style.height = height + 'px';
-                    }
-                    if (img.duration) {
-                        item._cliqzImageDesc.textContent = CliqzUtils.getLocalizedString('arrow') + img.duration;
-                        item._cliqzImageDesc.className = 'cliqz-image-desc';
-                        item._cliqzImageDesc.parentNode.className = '';
-                    }
-                }
-            }
-            //}
+            constructImageElement(cliqzData, item._cliqzImage, item._cliqzImageDesc);
 
             // remove default
             item._url.textContent = '';

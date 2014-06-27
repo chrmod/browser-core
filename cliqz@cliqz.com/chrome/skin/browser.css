@@ -81,6 +81,8 @@
   height: 54px; /* 9 */
   margin-left: 12px;
   background-position: center;
+
+  border-bottom-left-radius: 5px;
 }
 
 .cliqz-image {
@@ -133,7 +135,7 @@
 
 /* general autocomplete item styles */
 .ac-title-box {
-  height: 20px;
+  height: 26px;
   font-size: 12pt;
   font-weight: 500;
   padding-top: 6px;
@@ -151,7 +153,7 @@
 .autocomplete-richlistitem[type="cliqz-suggestions"] .ac-title-box,
 .autocomplete-richlistitem[type^="cliqz-custom sources-"] .ac-title-box  {
   color: #003366;
-  height: 12px;
+  /* height: 12px; */
   padding: 6px 0 2px 0;
 }
 
@@ -296,6 +298,9 @@
   width: 10px;
   height: 1px;
   margin-left: 13px;
+}
+
+.cliqz-description-box {
 }
 
 .cliqz-ac-description {
@@ -560,6 +565,58 @@
 .richlistitem-cliqz-custom {
   display: none;
 }
+
+/* news */
+.autocomplete-richlistitem[type="cliqz-results sources-n"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-results sources-n"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-news");
+  display: inherit;
+}
+
+.autocomplete-richlistitem[type="cliqz-results sources-n"] {
+  padding-bottom: 0px;
+}
+
+.cliqz-news-ago-line {
+  color: red;
+  font-weight: bold;
+}
+
+.cliqz-news-description-box {
+  height: 35px;
+  overflow: hidden;
+}
+
+.cliqz-news-sources {
+  background: #fddddd;
+  padding-left: 35px;
+  margin-top: 4px;
+}
+
+.cliqz-news-source-title-with-logo {
+  font-size: 8pt;
+  color: #333333;
+  width: 300px;
+  overflow: hidden;
+  height: 26px;
+  font-weight: bold;
+  background-repeat: no-repeat;
+  background-position: left 2px;
+  padding-left: 30px;
+  background-size: 24px 24px;
+  cursor: pointer;
+}
+
+.cliqz-news-source {
+   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#cliqz-source");
+   overflow: hidden;
+   margin: 2px 2px 2px 0px;
+}
+
+/* end news */
 
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
