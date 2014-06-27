@@ -5,20 +5,20 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.15');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.15');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.16');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.16');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)

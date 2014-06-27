@@ -3,13 +3,13 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.16');
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -337,7 +337,7 @@ CLIQZ.Components = CLIQZ.Components || {
 
         var mainVertical = '';
         if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
-            mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
+            //mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
         }
         var customUI = (mainVertical && VERTICALS[mainVertical]) || PAIRS[type];
         if(customUI){

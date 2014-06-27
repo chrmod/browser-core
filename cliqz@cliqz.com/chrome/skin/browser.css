@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz");
   padding: 5px 0 5px 0;
   margin: 0px;
   border-width: 1px 1px 0px 0;
@@ -50,7 +50,7 @@
 }
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#button-cliqz");
   cursor: pointer;
 }
 
@@ -566,12 +566,13 @@
 }
 
 /* news */
+/*
 .autocomplete-richlistitem[type^="cliqz-results sources-n"] .richlistitem-cliqz-generic {
   display: none;
 }
 
 .autocomplete-richlistitem[type^="cliqz-results sources-n"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-news");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-news");
   display: inherit;
 }
 
@@ -610,30 +611,31 @@
 }
 
 .cliqz-news-source {
-   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#cliqz-source");
+   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#cliqz-source");
    overflow: hidden;
    margin: 2px 2px 2px 0px;
 }
-
+*/
 /* end news */
 
 /* shopping */
+/*
 .autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-generic {
   display: none;
 }
 
 .autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-shopping");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-shopping");
   display: inherit;
 }
-
+*/
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
   display: none;
 }
 
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-worldcup");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-worldcup");
   display: inherit;
 }
 
@@ -718,7 +720,7 @@
 }
 
 .autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-weather");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-weather");
   display: inherit;
 }
 
