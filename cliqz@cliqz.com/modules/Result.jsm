@@ -39,6 +39,9 @@ var Result = {
         ],
         'news': [
             { 'vertical': 'news'}
+        ],
+        'shopping': [
+            { 'vertical': 'shopping'}
         ]
     },
 	generic: function(style, value, image, comment, label, query, data){

@@ -11,6 +11,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.16');
 
+var IMAGE_HEIGHT = 54;
+
 function generateLogoClass(urlDetails){
     var cls = '';
     // lowest priority: base domain, no tld
@@ -32,12 +34,13 @@ function constructImageElement(data, imageEl, imageDesc){
     imageEl.className = '';
     imageEl.style.width = '';
     if (data && data.image) {
-        var height = 54,
+        var height = IMAGE_HEIGHT,
             img = data.image;
         var ratio = 0;
 
-        switch(data.type){
+        switch(data.richData.type || data.type){
             case 'news': //fallthrough
+            case 'shopping': //fallthrough
             case 'hq':
                 try {
                     if(img.ratio){
@@ -348,23 +351,25 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzEnhancementsShopping: function(customItem, cliqzData, item, width){
-        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
-        var url = item.getAttribute('url');
-
-        var elements = ["image", "title", "ago-line", "description", "logo"];
+        var url = item.getAttribute('url'),
+            rd = cliqzData.richData || {},
+            img = cliqzData.image || {},
+            imageEl = customItem.image;
 
         customItem['title'].textContent = item.getAttribute('title');
-        customItem['source'].textContent = 'Amazon.de';
-        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['source'].textContent = rd.source || CliqzUtils.getDetailsFromUrl(url).host;
+        //customItem['description'].textContent = cliqzData.description || '';
         customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
 
-        constructImageElement(cliqzData, customItem.image, undefined);
+        if(img && img.src){
+            imageEl.style.backgroundImage = "url(" + img.src + ")";
+            imageEl.className = 'cliqz-shopping-image';
+        } else {
+            imageEl.className = '';
+        }
 
-        const price = cliqzData.richData.price || '';
-        const priceCurrency = cliqzData.richData.price_currency || '';
-        customItem['price'].textContent = priceCurrency + ' ' + price;
-        customItem['stars'].textContent = cliqzData.richData.rating || '';
-        customItem['reviews'].textContent = cliqzData.richData.reviews || '';
+        customItem['price'].textContent = (rd.price_currency || '') + ' ' + (+rd.price || '').toLocaleString();
+        customItem['stars'].setValue(rd.rating, rd.reviews);
     },
     cliqzEnhancementsWorldCup: function(item, cliqzData){
         var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/";
