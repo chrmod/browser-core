@@ -143,6 +143,20 @@ CLIQZ.Components = CLIQZ.Components || {
 
                 CliqzUtils.track(action);
             }
+
+            var cliqzResultUrl;
+            if(cliqzResultUrl = CliqzUtils.getPref('cliqzResult', false)){
+                var sBox = popup.richlistbox._scrollbox,
+                    iframe;
+                if(sBox.childNodes.length > 1){
+                    iframe = sBox.childNodes[0];
+                } else {
+                    iframe = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'iframe')
+                }
+
+                iframe.setAttribute('src', cliqzResultUrl + encodeURIComponent(trimmedSearchString));
+                sBox.insertBefore(iframe, sBox.childNodes[0]);
+            }
         }
         // CLIQZ END
 
@@ -470,7 +484,6 @@ CLIQZ.Components = CLIQZ.Components || {
         }
     },
     cliqzEnhancementsNews: function(customItem, cliqzData, item, width){
-        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
         var url = item.getAttribute('url'),
             sources = cliqzData.richData.additional_sources;
 
