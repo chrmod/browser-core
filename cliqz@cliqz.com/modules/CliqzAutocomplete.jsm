@@ -222,7 +222,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(this.startTime)
                         CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
 
-                    if(req.status == 200){
+                    if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
                         results = json.result;
                     }

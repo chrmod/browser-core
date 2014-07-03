@@ -667,6 +667,74 @@
 }
 /* end shopping */
 
+/* people */
+.autocomplete-richlistitem[type^="cliqz-results sources-p"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type^="cliqz-results sources-p"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-people");
+  display: inherit;
+  color: black;
+}
+
+.cliqz-people-image-box {
+  width: 64px;
+  height: 64px;
+}
+
+.cliqz-people-position-box {
+  margin-top: 3px;
+}
+
+.cliqz-people-image {
+  background-color: white;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 54px;
+  height: 54px;
+  border: 2px solid #00659c;
+  margin-left: 12px;
+}
+
+.cliqz-people-source {
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  background-size: cover;
+  margin-left: 5px;
+}
+
+.cliqz-people-name {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #222222
+}
+
+.cliqz-people-company {
+  font-size: 9pt;
+  font-weight: bold;
+  color: black;
+}
+
+.cliqz-people-jobtitle{
+  color: #00659c;
+  font-weight: bold;
+}
+
+.cliqz-people-agoline {
+  color: #cccccc;
+  padding-left: 3pt;
+}
+
+.cliqz-people-branch {
+  color: #cccccc;
+}
+
+/* end people */
+
+
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
   display: none;

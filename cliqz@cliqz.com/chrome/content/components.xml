@@ -161,7 +161,7 @@
    <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
     <content>
       <xul:hbox class="richlistitem-cliqz-custom" flex="1" anonid='cliqz-custom' />
-      <xul:hbox class='richlistitem-cliqz-generic'>
+      <xul:hbox class='richlistitem-cliqz-generic' anonid='cliqz-generic'>
         <xul:vbox pack="center">
           <xul:hbox class="cliqz-ac-source-icon" anonid="source">
           </xul:hbox>
@@ -243,8 +243,7 @@
               <xul:description anonid="cliqz-shopping-title" class="ac-normal-text ac-comment cliqz-generic-box cliqz-shopping-title" xbl:inherits="selected"/>
             </xul:hbox>
             <xul:hbox>
-              <xul:description anonid="cliqz-shopping-source" class="ac-normal-text cliqz-generic-box cliqz-ac-url-host"
-                               xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-shopping-source" class="cliqz-generic-box cliqz-ac-url-host"/>
             </xul:hbox>
             <xul:hbox >
               <xul:description class="cliqz-generic-box cliqz-shopping-price"
@@ -272,6 +271,55 @@
 
             for(var p in elements){
                 this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-shopping-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-people">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:stack>
+            <xul:hbox pack="center" align="center" >
+              <xul:image anonid="cliqz-people-image" />
+            </xul:hbox>
+            <xul:hbox left="0" bottom="0" anonid="cliqz-people-source"/>
+          </xul:stack>
+
+          <xul:vbox pack="center" flex="1" class="cliqz-left-spacer">
+            <xul:hbox class="cliqz-people-title-box" >
+              <xul:description anonid="cliqz-people-name" class="cliqz-generic-box cliqz-people-name"/>
+            </xul:hbox>
+            <xul:hbox class="cliqz-people-position-box" >
+              <xul:description anonid="cliqz-people-jobtitle" class="cliqz-generic-box cliqz-people-jobtitle"/>
+              <xul:description anonid="cliqz-people-titlecompany" style="padding:0px 5px;" />
+              <xul:description anonid="cliqz-people-company" class="cliqz-people-company"/>
+              <xul:description anonid="cliqz-people-agoline" class="cliqz-people-agoline"/>
+            </xul:hbox>
+            <xul:hbox class="cliqz-people-branch-box" >
+              <xul:description anonid="cliqz-people-branch" class="cliqz-generic-box cliqz-people-branch"/>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-people-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "jobtitle", "titlecompany", "logo", "source", "name", "company", "branch", "agoline"];
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-people-' + elements[p]);
             }
           ]]>
       </constructor>

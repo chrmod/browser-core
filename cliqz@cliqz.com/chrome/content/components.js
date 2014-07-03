@@ -38,7 +38,7 @@ function constructImageElement(data, imageEl, imageDesc){
             img = data.image;
         var ratio = 0;
 
-        switch(data.richData.type || data.type){
+        switch((data.richData && data.richData.type) || data.type){
             case 'news': //fallthrough
             case 'shopping': //fallthrough
             case 'hq':
@@ -349,25 +349,31 @@ CLIQZ.Components = CLIQZ.Components || {
             },
             VERTICALS = {
                 'n': 'News',
-                's': 'Shopping'
-            };
+                's': 'Shopping',
+                'p': 'People'
+            },
+            mainVertical = '';
 
-        var mainVertical = '';
+        item._customUI = item._customUI || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
+        item._genericUI = item._genericUI || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-generic');
+
+
         if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
             mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
         }
+
         var customUI = (mainVertical && VERTICALS[mainVertical]) || PAIRS[type];
         if(customUI){
-            var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
-            CLIQZ.Components['cliqzEnhancements' + customUI](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
+            CLIQZ.Components['cliqzEnhancements' + customUI](item, JSON.parse(item.getAttribute('cliqzData')), width);
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
     },
-    cliqzEnhancementsShopping: function(customItem, cliqzData, item, width){
+    cliqzEnhancementsShopping: function(item, cliqzData, width){
         var url = item.getAttribute('url'),
             rd = cliqzData.richData || {},
             img = cliqzData.image || {},
+            customItem = item._customUI,
             imageEl = customItem.image;
 
         customItem['title'].textContent = item.getAttribute('title');
@@ -382,14 +388,47 @@ CLIQZ.Components = CLIQZ.Components || {
             imageEl.className = '';
         }
 
-        customItem['price'].textContent = (rd.price_currency || '') + ' ' + (+rd.price || '').toLocaleString();
+        customItem['price'].textContent = (rd.price_currency || '') + ' ' + (rd.price?+rd.price.toFixed(2):'');
         customItem['stars'].setValue(rd.rating, rd.reviews);
     },
-    cliqzEnhancementsWorldCup: function(item, cliqzData){
-        var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/";
+    cliqzEnhancementsPeople: function(item, cliqzData, width){
+        var url = item.getAttribute('url'),
+            rd = cliqzData.richData || {},
+            img = cliqzData.image || {},
+            customItem = item._customUI,
+            imageEl = customItem.image,
+            genericItem = item._genericUI;
 
-        const matchTemplateNode = item['match-template'];
-        const todayMatches = item['today-matches'];
+        if(rd.full_name){ // custom snippet
+            customItem.name.textContent = rd.full_name;
+            customItem.jobtitle.textContent = rd.current_job_title || '-';
+            customItem.company.textContent = rd.current_company || '-';
+            customItem.titlecompany.textContent = 'bei';
+            customItem.agoline.textContent = rd.since ? ' seit ' + rd.since : '';
+            customItem.branch.textContent = rd.current_branch || '';
+
+            //customItem.source.textContent = rd.source || CliqzUtils.getDetailsFromUrl(url).host;
+            //customItem.description.textContent = cliqzData.description || '';
+            customItem.logo.className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+
+            if(img && img.src){
+                imageEl.style.backgroundImage = "url(" + img.src + ")";
+                imageEl.className = 'cliqz-people-image';
+                customItem.source.className = 'cliqz-people-source' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url))
+            } else {
+                imageEl.className = '';
+            }
+        } else {
+            customItem.name.textContent = item.getAttribute('title');
+            customItem.jobtitle.textContent = CliqzUtils.getDetailsFromUrl(url).host;
+        }
+    },
+    cliqzEnhancementsWorldCup: function(item, cliqzData){
+        var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/",
+            customItem = item._customUI;
+
+        const matchTemplateNode = customItem['match-template'];
+        const todayMatches = customItem['today-matches'];
         // Clear all matches from last display
         while (todayMatches.firstChild)
             todayMatches.removeChild(todayMatches.firstChild);
@@ -476,16 +515,17 @@ CLIQZ.Components = CLIQZ.Components || {
                             ];
 
         for(var p in desriptionElements){
-            item[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
+            item._customUI[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
         }
 
         for(var p in imageElements){
-            item[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
+            item._customUI[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
         }
     },
-    cliqzEnhancementsNews: function(customItem, cliqzData, item, width){
+    cliqzEnhancementsNews: function(item, cliqzData, width){
         var url = item.getAttribute('url'),
-            sources = cliqzData.richData.additional_sources;
+            sources = cliqzData.richData.additional_sources,
+            customItem = item._customUI;
 
         var elements = ["image", "title", "source", "ago-line", "description", "logo"];
 
@@ -521,7 +561,6 @@ CLIQZ.Components = CLIQZ.Components || {
             source = item.getAttribute('source'),
             urlDetails = CliqzUtils.getDetailsFromUrl(url),
             domainDefClass = '', cliqzData;
-
 
         if(item.getAttribute('cliqzData')){
             cliqzData = JSON.parse(item.getAttribute('cliqzData'));
