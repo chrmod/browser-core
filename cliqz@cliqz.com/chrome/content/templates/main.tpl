@@ -1,30 +1,30 @@
-<div class='cliqz-result-box'>
+<html:div class='cliqz-result-box'>
 {{#each results}}
-	<div class='cliqz-result-item-box' type='{{ type }}'>
-		<div class='cliqz-result-left-box'>
-			<div class='cliqz-result-type' ></div>
-		</div>
-		<div class='cliqz-result-mid-box'>
-			<div class='cliqz-result-title-box overflow'>
+	<html:div class='cliqz-result-item-box' type='{{ type }}'>
+		<html:div class='cliqz-result-left-box'>
+			<html:div class='cliqz-result-type' ></html:div>
+		</html:div>
+		<html:div class='cliqz-result-mid-box' style="width:{{ width }}">
+			<html:div class='cliqz-result-title-box overflow'>
 				{{ title }}
-			</div>
-			<div class='cliqz-result-url-box overflow'>
+			</html:div>
+			<html:div class='cliqz-result-url-box overflow'>
 
-				<span class='cliqz-result-url-host
+				<html:span class='cliqz-result-url-host
 					{{#if urlDetails.ssl }}
 					  cliqz-result-url-ssl
 					{{/if}}
 					'
 				>
 					{{ urlDetails.host }}
-				</span>
-				<span class='cliqz-result-url-path'>
+				</html:span>
+				<html:span class='cliqz-result-url-path'>
 					{{ urlDetails.path }}
-				</span>
-			</div>
-		</div>
-		<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
-		</div>
-	</div>
+				</html:span>
+			</html:div>
+		</html:div>
+		<html:div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+		</html:div>
+	</html:div>
 {{/each}}
-</div>
+</html:div>

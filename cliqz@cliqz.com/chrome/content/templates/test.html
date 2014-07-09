@@ -40,9 +40,12 @@ var SAMPLE = {"results":[{"title":"TechCrunch - The latest technology news and i
     cont = document.getElementById('container');
 
 $(function(){
-    cont.innerHTML = CLIQZ.UI.create(SAMPLE);
+    setTimeout(function(SAMPLE){
+        cont.innerHTML = CLIQZ.UI.create(SAMPLE);
+    }, 1000, SAMPLE);
 });
 
+console.log('aasdsd');
 
 </script>
 </body>

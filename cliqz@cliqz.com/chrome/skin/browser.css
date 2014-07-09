@@ -8,14 +8,13 @@
 }
 
 .overflow {
-    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .cliqz-result-box {
-    width: 100%;
+    overflow: scroll;
 }
 
 .cliqz-result-box>div>div {
@@ -33,7 +32,8 @@
 }
 
 .cliqz-result-mid-box {
-    width: calc(100% - 75px);
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 .cliqz-result-right-box {

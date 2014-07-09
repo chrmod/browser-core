@@ -7,7 +7,6 @@
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
     <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="420" maxheight="420">
-      <xml:iframe src="chrome://cliqz/content/templates/test.html" />
     </content>
 
     <implementation >
@@ -71,16 +70,12 @@
           <![CDATA[
 
 
-          function unEscapeUrl(url){
-            return Components.classes['@mozilla.org/intl/texttosuburi;1'].
-                      getService(Components.interfaces.nsITextToSubURI).
-                      unEscapeURIForUI('UTF-8', url)
-          }
+            function unEscapeUrl(url){
+              return Components.classes['@mozilla.org/intl/texttosuburi;1'].
+                        getService(Components.interfaces.nsITextToSubURI).
+                        unEscapeURIForUI('UTF-8', url)
+            }
 
-
-
-            while (this.firstChild)
-              this.removeChild(this.firstChild);
 
             var data = [],
                 ctrl = this.mInput.controller,
@@ -91,13 +86,15 @@
                   title: ctrl.getCommentAt(i),
                   url: unEscapeUrl(ctrl.getValueAt(i)),
                   type: ctrl.getStyleAt(i),
-                  text: q,
-                  data: CliqzAutocomplete.lastResult.getDataAt(i),
+                  text: q
+                  //data: CliqzAutocomplete.lastResult.getDataAt(i),
                 });
             }
-            console.log(JSON.stringify({results: data}));
-            //this.innerHTML = CLIQZ.UI.create({results: data});
-
+            this.innerHTML = CLIQZ.UI.create({
+              results: data,
+              width: (CLIQZ.Core.popup.width - 85) + 'px'
+            });
+            console.log(this.innerHTML);
             //CLIQZ.Components._appendCurrentResult(this);
           ]]>
         </body>

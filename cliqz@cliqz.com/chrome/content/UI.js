@@ -29,9 +29,9 @@ function enhanceResults(res){
 
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = generateLogoClass(r.urlDetails);
+        r.width = res.width;
     }
 
-    console.log(res);
     return res;
 }
 
