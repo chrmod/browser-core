@@ -1,0 +1,652 @@
+<?xml version="1.0"?>
+<!--
+	IMPORTANT !!!
+
+	Change version in browser.css of all -moz-binding if this file
+	is changed to force its refresh between updates
+
+-->
+<bindings id="cliqzBindings"
+          xmlns="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+          xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="0" maxheight="420">
+        <xul:vbox flex="1">
+          <xul:hbox class="cliqz-suggestions-container" style="overflow: hidden;">
+            <xul:hbox class="cliqz-suggestions-source">
+            </xul:hbox>
+            <xul:description flex="1" onclick="CLIQZ.Components.suggestionClick(event);" >
+              <xul:description anonid="cliqz-suggestions" style="margin: 0px;"/>
+            </xul:description>
+          </xul:hbox>
+          <xul:richlistbox anonid="richlistbox" class="autocomplete-richlistbox" flex="1"/>
+          <xul:hbox class="cliqz-engine-container">
+            <xul:hbox flex="1" onclick="CLIQZ.Components.engineClick(event);" class="cliqz-footer">
+              <xul:hbox anonid="cliqz-navigation-message" class="cliqz-navigation-message" />
+              <xul:hbox height="1px" style="" flex="1">
+                <xul:resizer dir="bottom" height="1px" style="cursor: s-resize; opacity: 0.0" flex="1"
+                  oncommand="CLIQZ.Core.updatePopupHeight();"/>
+              </xul:hbox>
+              <xul:stack class="cliqz-engines-container">
+                <xul:hbox anonid="cliqz-engines-test" class="cliqz-engines-text" pack="end" />
+                <xul:hbox pack="end">
+                  <xul:hbox anonid="other-engines" class="cliqz-engines" pack="end" />
+                </xul:hbox>
+              </xul:stack>
+            </xul:hbox>
+          </xul:hbox>
+        </xul:vbox>
+    </content>
+
+    <implementation >
+       <constructor>
+        <![CDATA[
+          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines"),
+              text = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-engines-test");;
+          CLIQZ.Components.cliqzCreateSearchOptionsItem(engines, text);
+        ]]>
+      </constructor>
+      <method name="_openAutocompletePopup">
+        <parameter name="aInput"/>
+        <parameter name="aElement"/>
+        <body>
+          <![CDATA[
+          if (!this.mPopupOpen) {
+            this.mInput = aInput;
+            // clear any previous selection, see bugs 400671 and 488357
+            this.selectedIndex = -1;
+
+            var width = aElement.getBoundingClientRect().width;
+            this.setAttribute("width", width > 100 ? width : 100);
+            // invalidate() depends on the width attribute
+            this._invalidate();
+
+            // CLIQZ START
+
+            CLIQZ.Core.popupEvent(true);
+
+            this.openPopup(aElement, "after_start", 0, 0, false, true);
+            //this.moveTo(window.screenX + 35, window.screenY + 88);
+
+            // THIS IS NOT WORKING :(
+            //this.sizeTo(window.outerWidth,500)
+
+            // CLIQZ END
+          }
+        ]]>
+        </body>
+      </method>
+
+      <method name="_appendCurrentResult">
+        <body>
+          <![CDATA[
+            CLIQZ.Components._appendCurrentResult(this);
+          ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistbox-cliqz" extends="chrome://global/content/bindings/richlistbox.xml#richlistbox">
+    <content>
+      <children includes="listheader"/>
+      <xul:scrollbox allowevents="true" orient="vertical" anonid="main-box"
+                     flex="1" style="overflow: auto;" xbl:inherits="dir,pack">
+        <xul:vbox flex="1">
+          <children/>
+        </xul:vbox>
+      </xul:scrollbox>
+    </content>
+    <implementation>
+      <field name="mLastMoveTime">Date.now()</field>
+    </implementation>
+    <handlers>
+      <handler event="mouseup">
+        <![CDATA[
+        // don't call onPopupClick for the scrollbar buttons, thumb, slider, etc.
+        var item = event.originalTarget;
+
+        while (item && item.localName != "richlistitem")
+          item = item.parentNode;
+
+        if (!item)
+          return;
+
+        // CLIQZ START
+
+        // Weather and worldcup results should not be clickable
+        if(item.getAttribute('source') == 'cliqz-weather') return;
+        if(item.getAttribute('source') == 'cliqz-worldcup') return;
+
+        if(event.metaKey || event.ctrlKey){
+          CliqzUtils.navigateToItem(
+                    gBrowser,
+                    0,
+                    item,
+                    'result_click',
+                    true
+                );
+        }
+        else {
+          this.parentNode.parentNode.onPopupClick(event);
+          CLIQZ.Core.popupClick(item);
+        }
+        // CLIQZ END
+      ]]>
+      </handler>
+      <handler event="mousemove">
+        <![CDATA[
+        if (Date.now() - this.mLastMoveTime > 30) {
+         var item = event.target;
+         while (item && item.localName != "richlistitem")
+           item = item.parentNode;
+
+         if (!item)
+           return;
+
+         var rc = this.getIndexOfItem(item);
+         if (rc != this.selectedIndex)
+            this.selectedIndex = rc;
+
+         this.mLastMoveTime = Date.now();
+        }
+      ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+   <binding id="autocomplete-richlistitem-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-richlistitem">
+    <content>
+      <xul:hbox class="richlistitem-cliqz-custom" flex="1" anonid='cliqz-custom' />
+      <xul:hbox class='richlistitem-cliqz-generic' anonid='cliqz-generic'>
+        <xul:vbox pack="center">
+          <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox pack="center">
+          <xul:stack>
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-image"/>
+            </xul:hbox>
+            <xul:hbox right="0" bottom="0" class="hidden">
+              <xul:description anonid="cliqz-image-desc" class="cliqz-image-desc" />
+            </xul:hbox>
+          </xul:stack>
+        </xul:vbox>
+        <xul:vbox pack="center" flex="1">
+          <xul:hbox class="ac-title-box" >
+            <xul:spacer class="cliqz-left-separator"/>
+            <xul:description anonid="cliqz-title-details" xbl:inherits="selected type"
+                             class='cliqz-generic-box'/>
+            <xul:hbox anonid="title-box" class="ac-title" flex="1"
+                      onunderflow="_doUnderflow('_title');"
+                      onoverflow="_doOverflow('_title');">
+              <xul:description anonid="title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:label anonid="title-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-comment"/>
+            <xul:hbox anonid="extra-box" class="ac-extra" hidden="true">
+              <xul:image class="ac-result-type-tag"/>
+              <xul:label class="ac-normal-text ac-comment" xbl:inherits="selected" value=":"/>
+              <xul:description anonid="extra" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:image anonid="type-image" class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox class="ac-url-box">
+            <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+            <xul:hbox anonid="url-box" class="ac-url" flex="1"
+                      onunderflow="_doUnderflow('_url');"
+                      onoverflow="_doOverflow('_url');">
+              <xul:description anonid="url" class="ac-normal-text ac-url-text"
+                               xbl:inherits="selected type"/>
+              <xul:description anonid="cliqz-url-details" xbl:inherits="selected type"
+                             class='cliqz-generic-box'/>
+              <xul:spacer class="cliqz-separator-10"/>
+              <xul:description anonid="action" class="ac-normal-text ac-action-text"
+                               xbl:inherits="selected type"/>
+            </xul:hbox>
+            <xul:label anonid="url-overflow-ellipsis" xbl:inherits="selected"
+                       class="ac-ellipsis-after ac-url-text"/>
+            <xul:spacer class="ac-type-icon"/>
+          </xul:hbox>
+          <xul:hbox>
+            <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding">
+              <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-description" />
+            </xul:vbox>
+          </xul:hbox>
+        </xul:vbox>
+        <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+          <xul:hbox class="cliqz-ac-logo-icon" anonid="logo">
+          </xul:hbox>
+        </xul:vbox>
+      </xul:hbox>
+    </content>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-shopping">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:hbox pack="center" align="center">
+            <xul:image anonid="cliqz-shopping-image" class="cliqz-shopping-image" />
+          </xul:hbox>
+          <xul:vbox pack="center" flex="1" class="cliqz-left-spacer">
+            <xul:hbox class="cliqz-shopping-title-box" >
+              <xul:description anonid="cliqz-shopping-title" class="ac-normal-text ac-comment cliqz-generic-box cliqz-shopping-title" xbl:inherits="selected"/>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-shopping-source" class="cliqz-generic-box cliqz-ac-url-host"/>
+            </xul:hbox>
+            <xul:hbox >
+              <xul:description class="cliqz-generic-box cliqz-shopping-price"
+                               style="padding-top: 1px;"
+                               anonid="cliqz-shopping-price" />
+            </xul:hbox>
+            <xul:hbox class="cliqz-shopping-reviews">
+              <xul:description class="cliqz-generic-box cliqz-stars-element" anonid="cliqz-shopping-stars" />
+            </xul:hbox>
+            <xul:hbox>
+                <xul:description class="cliqz-generic-box cliqz-shopping-description" anonid="cliqz-shopping-description" />
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-shopping-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "title", "source", "price", "stars", "reviews", "description", "logo"];
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-shopping-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-people">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:stack>
+            <xul:hbox pack="center" align="center" >
+              <xul:image anonid="cliqz-people-image" />
+            </xul:hbox>
+            <xul:hbox left="0" bottom="0" anonid="cliqz-people-source"/>
+          </xul:stack>
+
+          <xul:vbox pack="center" flex="1" class="cliqz-left-spacer">
+            <xul:hbox class="cliqz-people-title-box" >
+              <xul:description anonid="cliqz-people-name" class="cliqz-generic-box cliqz-people-name"/>
+            </xul:hbox>
+            <xul:hbox class="cliqz-people-position-box" >
+              <xul:description anonid="cliqz-people-jobtitle" class="cliqz-generic-box cliqz-people-jobtitle"/>
+              <xul:description anonid="cliqz-people-titlecompany" style="padding:0px 5px;" />
+              <xul:description anonid="cliqz-people-company" class="cliqz-people-company"/>
+              <xul:description anonid="cliqz-people-agoline" class="cliqz-people-agoline"/>
+            </xul:hbox>
+            <xul:hbox class="cliqz-people-branch-box" >
+              <xul:description anonid="cliqz-people-branch" class="cliqz-generic-box cliqz-people-branch"/>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-people-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "jobtitle", "titlecompany", "logo", "source", "name", "company", "branch", "agoline"];
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-people-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-worldcup">
+    <content>
+      <xul:hbox class="" flex="1">
+        <xul:vbox class="cliqz-weather-title-container">
+          <xul:description class="cliqz-worldcup-title">
+            Fußball WM
+          </xul:description>
+          <xul:description class="cliqz-worldcup-status">
+            heute
+          </xul:description>
+        </xul:vbox>
+        <xul:hbox anonid="today-matches" class="cliqz-worldcup-today-matches">
+          <!-- Generated matches from the template are inserted here -->
+        </xul:hbox>
+        <!-- Template to generate matches -->
+        <xul:hbox anonid="match-template" class="cliqz-worldcup-match" hidden="true">
+          <xul:vbox>
+            <xul:hbox class="cliqz-worldcup-team-container">
+              <xul:image anonid="home-flag" class="cliqz-worldcup-flag"/>
+              <xul:description anonid="home-team" class="cliqz-worldcup-team" />
+            </xul:hbox>
+            <xul:hbox class="cliqz-worldcup-team-container">
+              <xul:image anonid="away-flag" class="cliqz-worldcup-flag"/>
+              <xul:description anonid="away-team" class="cliqz-worldcup-team" />
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox>
+            <xul:hbox class="cliqz-worldcup-goals-container">
+              <xul:description anonid="home-goals" class="cliqz-worldcup-goals" />
+            </xul:hbox>
+            <xul:hbox class="cliqz-worldcup-goals-container">
+              <xul:description anonid="away-goals" class="cliqz-worldcup-goals" />
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox>
+              <xul:description anonid="match-time" class="cliqz-worldcup-match-time" hidden="true" />
+          </xul:vbox>
+          <xul:vbox>
+              <xul:description anonid="match-live" class="" hidden="true">
+                ●
+              </xul:description>
+          </xul:vbox>
+        </xul:hbox>
+      </xul:hbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            this['match-template'] = document.getAnonymousElementByAttribute(this, 'anonid', 'match-template');
+            this['today-matches'] = document.getAnonymousElementByAttribute(this, 'anonid', 'today-matches');
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-news">
+    <content>
+      <xul:vbox flex="1">
+        <xul:hbox flex="1">
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-ac-source-icon" anonid="source">
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center">
+            <xul:hbox class="cliqz-image-box">
+              <xul:image anonid="cliqz-news-image"/>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox pack="center" flex="1">
+            <xul:hbox class="ac-title-box" >
+              <xul:spacer class="cliqz-left-separator"/>
+              <xul:description xbl:inherits="selected type" class='cliqz-generic-box'/>
+              <xul:hbox class="ac-title" flex="1">
+                <xul:description anonid="cliqz-news-title" class="ac-normal-text ac-comment" xbl:inherits="selected"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox class="ac-url-box">
+              <xul:spacer class="cliqz-left-separator" anonid="url-type"/>
+
+              <xul:hbox anonid="url-box" class="ac-url" flex="1">
+                <xul:description anonid="cliqz-news-source" class="ac-normal-text cliqz-generic-box cliqz-ac-url-host"
+                                 xbl:inherits="selected type"/>
+                <xul:description anonid="cliqz-news-ago-line" class="ac-normal-text cliqz-generic-box cliqz-news-ago-line"
+                                 xbl:inherits="selected type"/>
+              </xul:hbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:vbox anonid="cliqz-description-box" class="cliqz-no-margin-padding cliqz-news-description-box">
+                <xul:description class="cliqz-ac-description cliqz-no-margin-padding" anonid="cliqz-news-description" />
+              </xul:vbox>
+            </xul:hbox>
+          </xul:vbox>
+          <xul:vbox class="cliqz-logo-container button-cliqz" pack="center">
+            <xul:hbox class="cliqz-ac-logo-icon" anonid="cliqz-news-logo">
+            </xul:hbox>
+          </xul:vbox>
+        </xul:hbox>
+        <xul:grid flex="1" class="cliqz-news-sources">
+          <xul:columns>
+            <xul:column/>
+            <xul:column/>
+            <xul:column/>
+          </xul:columns>
+          <xul:rows>
+            <xul:row>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-0"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-1"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-2"/>
+            </xul:row>
+            <xul:row>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-3"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-4"/>
+              <xul:hbox class="cliqz-news-source" anonid="cliqz-news-source-5"/>
+            </xul:row>
+          </xul:rows>
+        </xul:grid>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var elements = ["image", "title", "source", "ago-line", "description", "logo"];
+
+            for(var i=0; i < 6; i++){
+              elements.push('source-' + i);
+            }
+
+            for(var p in elements){
+                this[elements[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-news-' + elements[p]);
+            }
+          ]]>
+      </constructor>
+    </implementation>
+    <handlers>
+      <handler event="mouseup">
+        <![CDATA[
+          var newTab = event.metaKey || event.ctrlKey;
+
+          CliqzUtils.navigateToSource(
+            gBrowser,
+            event.originalTarget.sourceUrl,
+            newTab
+          );
+          if(newTab){
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+  <binding id="cliqz-source">
+    <content>
+      <xul:description anonid="cliqz-news-source-title-with-logo" />
+    </content>
+    <implementation>
+      <constructor>
+        <![CDATA[
+          this._title_logo = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-news-source-title-with-logo');
+        ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="autocomplete-richlistitem-cliqz-weather">
+    <content>
+      <xul:hbox class="cliqz-weather-container" flex="1">
+        <xul:vbox class="cliqz-weather-city-container">
+          <xul:description anonid="cliqz-weather-city" class="cliqz-weather-city" />
+          <xul:description class="cliqz-weather-status">aktuell</xul:description>
+        </xul:vbox>
+        <xul:vbox class="cliqz-weather-today-container" >
+          <xul:hbox pack="end">
+            <xul:image anonid="cliqz-weather-todayIcon" class="cliqz-weather-today-icon"/>
+            <xul:description anonid="cliqz-weather-todayTemp" class="cliqz-weather-today-temp" />
+          </xul:hbox>
+          <xul:hbox>
+            <xul:description anonid="cliqz-weather-todayDate" class="cliqz-weather-today-date" />
+            <xul:description anonid="cliqz-weather-todayMax" class="cliqz-weather-today-max" />
+            <xul:description anonid="cliqz-weather-todayMin" class="cliqz-weather-today-min" />
+          </xul:hbox>
+        </xul:vbox>
+
+        <xul:vbox flex="1" />
+
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-tomorrow">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-tomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-tomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-tomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-tomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-tomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox class="cliqz-weather-skew-container cliqz-weather-aTomorrow">
+          <xul:vbox class="cliqz-weather-next-container" style="transform: skew(30deg);">
+            <xul:hbox pack="end">
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowDay" class="cliqz-weather-next-day" />
+                <xul:description anonid="cliqz-weather-aTomorrowDate" class="cliqz-weather-next-date" />
+              </xul:vbox>
+              <xul:vbox pack="center">
+                 <xul:image anonid="cliqz-weather-aTomorrowIcon" class="cliqz-weather-next-icon"/>
+              </xul:vbox>
+              <xul:vbox pack="center">
+                <xul:description anonid="cliqz-weather-aTomorrowMax" class="cliqz-weather-next-max" />
+                <xul:description anonid="cliqz-weather-aTomorrowMin" class="cliqz-weather-next-min" />
+              </xul:vbox>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:description anonid="cliqz-weather-aTomorrowDesc" class="cliqz-weather-next-desc" />
+            </xul:hbox>
+          </xul:vbox>
+        </xul:vbox>
+
+        <xul:vbox pack="end" style="margin-right: 3px;">
+          <xul:description class="cliqz-weather-credits">
+            zur Verfügung gestellt von
+          </xul:description>
+          <xul:description class="cliqz-weather-credits">
+            openweathermap.org
+          </xul:description>
+        </xul:vbox>
+
+      </xul:hbox>
+    </content>
+    <implementation>
+      <constructor>
+          <![CDATA[
+            var desriptionElements = [
+                                    "city",
+                                    "todayTemp",
+                                    "todayMin",
+                                    "todayMax",
+                                    "todayDate",
+                                    "tomorrowDay",
+                                    "tomorrowDate",
+                                    "tomorrowMin",
+                                    "tomorrowMax",
+                                    "tomorrowDesc",
+                                    "aTomorrowDay",
+                                    "aTomorrowDate",
+                                    "aTomorrowMin",
+                                    "aTomorrowMax",
+                                    "aTomorrowDesc",
+                                  ],
+              imageElements = [
+                               "todayIcon",
+                               "tomorrowIcon",
+                               "aTomorrowIcon"
+
+                              ],
+              all = desriptionElements.concat(imageElements);
+
+          for(var p in all){
+              this[all[p]] = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-weather-' + all[p]);
+          }
+          ]]>
+      </constructor>
+    </implementation>
+  </binding>
+
+  <binding id="button-cliqz"
+           extends="chrome://global/content/bindings/button.xml#button">
+    <handlers>
+      <handler event="mouseup">
+        <![CDATA[
+          CliqzUtils.navigateToItem(
+                    gBrowser,
+                    0,
+                    event.originalTarget.parentNode.parentNode,
+                    'result_click',
+                    true
+                );
+          event.preventDefault();
+          event.stopPropagation();
+        ]]>
+      </handler>
+    </handlers>
+  </binding>
+
+  <binding id="cliqz-stars" >
+    <content hidden="true">
+      <xul:hbox>
+        <xul:hbox class="cliqz-stars-box">
+          <xul:hbox class="cliqz-stars" anonid="cliqz-stars" />
+        </xul:hbox>
+        <xul:description anonid="cliqz-reviews" style="padding:1px 0 0 5px;" />
+      </xul:hbox>
+    </content>
+    <implementation >
+      <method name="setValue">
+        <parameter name="val"/>
+        <parameter name="reviews"/>
+        <body>
+          <![CDATA[
+            var starsElement = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-stars'),
+                reviewsElement = document.getAnonymousElementByAttribute(this, 'anonid', 'cliqz-reviews');
+            starsElement.style.width = (val * 14) + 'px';
+            reviewsElement.textContent = '(' + (+reviews || 0) + ')';
+            starsElement
+              .parentElement
+              .parentElement
+              .parentElement
+              .hidden = val ? false : true;
+          ]]>
+        </body>
+      </method>
+    </implementation>
+  </binding>
+</bindings>

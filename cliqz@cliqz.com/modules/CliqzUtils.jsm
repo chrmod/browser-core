@@ -552,7 +552,7 @@ var CliqzUtils = CliqzUtils || {
   },
   computeAgoLine: function(ts, lang){
     if(!ts) return '';
-    let now = (new Date().getTime() / 1000),
+    var now = (new Date().getTime() / 1000),
         ageHours = parseInt((now - ts) / 3600);
 
     return ageHours > 24? 'gestern': ageHours <= 1 ? 'vor einer Stunde' : 'vor ' + ageHours + ' Stunden';

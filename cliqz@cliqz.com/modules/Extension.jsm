@@ -116,7 +116,7 @@ var Extension = {
         if (!win) return;
 
         if(CliqzUtils.shouldLoad(win)){
-            for (let src of ['core', 'components'])
+            for (let src of ['core', 'components', 'UI', 'libs/handlebars-v1.3.0'])
                 Extension.addScript(src, win);
 
             Extension.addButtons(win);

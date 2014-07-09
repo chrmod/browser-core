@@ -37,6 +37,7 @@ CLIQZ.Core = CLIQZ.Core || {
     lastQueryInTab:{},
     init: function(){
         CliqzUtils.init();
+        CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?v=0.4.16');
         CLIQZ.Core.elem.push(css);
