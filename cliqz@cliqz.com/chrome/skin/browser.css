@@ -34,12 +34,28 @@
 
 /* end suggestions */
 
+/* footer */
 #cliqz-footer {
-    height: 20px;
+    padding: 5px 10px;
     background: url(chrome://cliqzres/content/skin/drag_icon.png) no-repeat 50% 50%;
     background-color: #eeeeee;
     background-size: 20px 14px;
 }
+
+#cliqz-navigation-message {
+    font-style: italic;
+    color: #999999;
+}
+
+#cliqz-engines-box {
+    float:right;
+}
+
+.cliqz-engine {
+    cursor: pointer;
+}
+
+/* footer */
 
 /* results */
 

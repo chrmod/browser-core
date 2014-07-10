@@ -216,6 +216,42 @@ function onEnter(ev, item){
     return true;
 }
 
+function enginesClick(ev){
+    var engineName;
+    if(engineName = ev && ev.target && ev.target.getAttribute('engine')){
+        var engine;
+        if(engine = Services.search.getEngineByName(engineName)){
+            var urlbar = CLIQZ.Core.urlbar,
+                userInput = urlbar.value;
+
+            // avoid autocompleted urls
+            if(urlbar.selectionStart &&
+               urlbar.selectionEnd &&
+               urlbar.selectionStart != urlbar.selectionEnd){
+                userInput = userInput.slice(0, urlbar.selectionStart);
+            }
+
+            var url = engine.getSubmission(userInput).uri.spec,
+                action = {
+                    type: 'activity',
+                    action: 'visual_hash_tag',
+                    engine: ev.target.getAttribute('engineCode') || -1
+                };
+
+            if(ev.metaKey || ev.ctrlKey){
+                gBrowser.addTab(url);
+                action.new_tab = true;
+            } else {
+                gBrowser.selectedBrowser.contentDocument.location = url;
+                CLIQZ.Core.popup.closePopup();
+                action.new_tab = false;
+            }
+
+            CliqzUtils.track(action);
+        }
+    }
+}
+
 var UI = {
     tpl: {},
     init: function(){
@@ -227,21 +263,26 @@ var UI = {
     },
     main: function(box){
         gCliqzBox = box;
-        box.innerHTML = UI.tpl.main();
+        box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
 
         var resultsBox = document.getElementById('cliqz-results',box);
         resultsBox.addEventListener('click', resultClick);
         box.addEventListener('mousemove', resultMove);
-
         gCliqzBox.resultsBox = resultsBox;
 
-        var suggestionBox = document.getElementById('cliqz-suggestion-box',box);
+        var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
         suggestionBox.addEventListener('click', suggestionClick);
         gCliqzBox.suggestionBox = suggestionBox;
 
+        var enginesBox = document.getElementById('cliqz-engines-box', box);
+        enginesBox.addEventListener('click', enginesClick);
+        gCliqzBox.enginesBox = enginesBox;
+
+        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
     },
     results: function(res){
         var enhanced = enhanceResults(res);
+        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
     suggestions: function(suggestions){
@@ -264,7 +305,7 @@ var UI = {
                 return true;
             break;
             case ENTER:
-                onEnter(ev, sel);
+                return onEnter(ev, sel);
             break;
             case TAB:
                 suggestionNavigation(ev);

@@ -269,59 +269,6 @@ CLIQZ.Components = CLIQZ.Components || {
 
         return true;
     },
-    cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
-        var engines = ResultProviders.getSearchEngines();
-
-        textContainer.textContent = 'noch mehr ...';
-
-        for(var idx in engines){
-            var engine = engines[idx],
-                imageEl = document.createElementNS(CLIQZ.Components.XULNS, 'image');
-
-            imageEl.className = 'cliqz-engine';
-            imageEl.setAttribute('src', engine.icon);
-            imageEl.tooltipText = engine.name + '  ' + engine.prefix;
-            imageEl.engine = engine.name;
-            imageEl.engineCode = engine.code;
-
-            engineContainer.appendChild(imageEl);
-        }
-    },
-    engineClick: function(ev){
-        if(ev && ev.target && ev.target.engine){
-            var engine;
-            if(engine = Services.search.getEngineByName(ev.target.engine)){
-                var urlbar = CLIQZ.Core.urlbar,
-                    userInput = urlbar.value;
-
-                // avoid autocompleted urls
-                if(urlbar.selectionStart &&
-                   urlbar.selectionEnd &&
-                   urlbar.selectionStart != urlbar.selectionEnd){
-                    userInput = userInput.slice(0, urlbar.selectionStart);
-                }
-
-                var url = engine.getSubmission(userInput).uri.spec,
-                    action = {
-                        type: 'activity',
-                        action: 'visual_hash_tag',
-                        engine: ev.target.engineCode || -1
-                    };
-
-                if(ev.metaKey || ev.ctrlKey){
-                    gBrowser.addTab(url);
-                    action.new_tab = true;
-                } else {
-                    gBrowser.selectedBrowser.contentDocument.location = url;
-                    CLIQZ.Core.popup.closePopup();
-                    action.new_tab = false;
-                }
-
-                CliqzUtils.track(action);
-            }
-        }
-    },
-
     cliqzEnhancements: function (item, width) {
         var VERTICAL_TYPE = 'cliqz-results sources-',
             type = item.getAttribute('source'),
