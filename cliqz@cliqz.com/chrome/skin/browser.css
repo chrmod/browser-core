@@ -163,6 +163,10 @@
   display: none;
 }
 
+.autocomplete-richlistitem[type="cliqz-empty"] {
+    display: none;
+}
+
 .cliqz-ac-title-suggestion-desc {
   color: #999999;
   font-weight: 500;
