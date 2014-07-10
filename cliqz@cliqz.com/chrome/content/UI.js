@@ -66,7 +66,15 @@ function setResultSelection(el, scroll, scrollTop){
     if(el){
         clearResultSelection();
         el.setAttribute('selected', 'true');
-        scroll && el.scrollIntoView(scrollTop);
+        if(scroll){
+            var rBox = gCliqzBox.resultsBox;
+            if(scrollTop && rBox.scrollTop > el.offsetTop)
+                el.scrollIntoView(true);
+            else if(!scrollTop &&
+                (rBox.scrollTop + rBox.offsetHeight <
+                    el.offsetTop + el.offsetHeight))
+                el.scrollIntoView(false);
+        }
     }
 }
 
@@ -121,8 +129,9 @@ var UI = {
                 setResultSelection(nextEl, true, true);
             break;
             case DOWN:
-                var nextEl = sel && sel.nextElementSibling;
-                if(nextEl != gCliqzBox.resultsBox.lastElementChild){
+
+                if(sel != gCliqzBox.resultsBox.lastElementChild){
+                    var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
                     setResultSelection(nextEl, true, false);
                 }
