@@ -35,17 +35,36 @@ $("<link/>", {
 }).appendTo("head");
 
 
-CLIQZ.UI.init();
-var SAMPLE = {"results":[{"title":"TechCrunch - The latest technology news and information on startups (instant History Domain)!","url":"http://techcrunch.com/","type":"favicon","text":"tec"},{"title":"LALALA LALALA (top History Domain)!","url":"http://techcrunch.com/2014/02/09/flappy-bird-remove-from-app-store/","type":"bookmark","text":"tec"},{"title":"Fleep, The Team Messaging App Built & Funded By ‘Skype Mafia’, Adds Mac, Windows And Android Apps | TechCrunch (top History Domain)!","url":"http://techcrunch.com/2014/03/18/fleep-desktop/","type":"favicon","text":"tec"},{"title":"techcrunch.com.com (History Domain)!","url":"http://techcrunch.com.com/","type":"favicon","text":"tec"},{"title":"Technic Platform (History Domain)!","url":"http://www.technicpack.net/","type":"cliqz-results sources-d","text":"tec"},{"title":"mozsocial.cliqz.com (History Other)!","url":"http://mozsocial.cliqz.com/redir?url=http://techcrunch.com/2014/02/09/flappy-bird-remove-from-app-store/","type":"favicon","text":"tec"},{"title":"ARCHITECTURAL DIGEST | DAS BESTE AUS INTERIOR, STIL, DESIGN, KUNST & ARCHITEKTUR (History Other)!","url":"http://www.ad-magazin.de/","type":"favicon","text":"tec"},{"title":"hbox - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/hbox","type":"favicon","text":"tec"},{"title":"Google (History Other)!","url":"https://www.google.de/#q=tech+crunc+bitcoin","type":"favicon","text":"tec"},{"title":"description - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/description","type":"favicon","text":"tec"},{"title":"bbox - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/bbox","type":"favicon","text":"tec"},{"title":"box - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/box","type":"favicon","text":"tec"},{"title":"XUL - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL","type":"favicon","text":"tec"},{"title":"Splitters - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Tutorial/Splitters","type":"favicon","text":"tec"},{"title":"splitter - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/splitter","type":"favicon","text":"tec"},{"title":"Arbeitsmedizinischer und Sicherheitstechnischer Dienst — Berufsgenossenschaft für Transport und Verkehrswirtschaft (History Other)!","url":"http://www.bg-verkehr.de/arbeitsmedizinischer-und-sicherheitstechnischer-dienst","type":"favicon","text":"tec"}]},
+var RESULTS = {"results":[{"title":"TechCrunch - The latest technology news and information on startups (instant History Domain)!","url":"http://techcrunch.com/","type":"favicon","text":"tec"},{"title":"LALALA LALALA (top History Domain)!","url":"http://techcrunch.com/2014/02/09/flappy-bird-remove-from-app-store/","type":"bookmark","text":"tec"},{"title":"Fleep, The Team Messaging App Built & Funded By ‘Skype Mafia’, Adds Mac, Windows And Android Apps | TechCrunch (top History Domain)!","url":"http://techcrunch.com/2014/03/18/fleep-desktop/","type":"favicon","text":"tec"},{"title":"techcrunch.com.com (History Domain)!","url":"http://techcrunch.com.com/","type":"favicon","text":"tec"},{"title":"Technic Platform (History Domain)!","url":"http://www.technicpack.net/","type":"cliqz-results sources-d","text":"tec"},{"title":"mozsocial.cliqz.com (History Other)!","url":"http://mozsocial.cliqz.com/redir?url=http://techcrunch.com/2014/02/09/flappy-bird-remove-from-app-store/","type":"favicon","text":"tec"},{"title":"ARCHITECTURAL DIGEST | DAS BESTE AUS INTERIOR, STIL, DESIGN, KUNST & ARCHITEKTUR (History Other)!","url":"http://www.ad-magazin.de/","type":"favicon","text":"tec"},{"title":"hbox - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/hbox","type":"favicon","text":"tec"},{"title":"Google (History Other)!","url":"https://www.google.de/#q=tech+crunc+bitcoin","type":"favicon","text":"tec"},{"title":"description - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/description","type":"favicon","text":"tec"},{"title":"bbox - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/bbox","type":"favicon","text":"tec"},{"title":"box - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/box","type":"favicon","text":"tec"},{"title":"XUL - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL","type":"favicon","text":"tec"},{"title":"Splitters - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Tutorial/Splitters","type":"favicon","text":"tec"},{"title":"splitter - Mozilla | MDN (History Other)!","url":"https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/splitter","type":"favicon","text":"tec"},{"title":"Arbeitsmedizinischer und Sicherheitstechnischer Dienst — Berufsgenossenschaft für Transport und Verkehrswirtschaft (History Other)!","url":"http://www.bg-verkehr.de/arbeitsmedizinischer-und-sicherheitstechnischer-dienst","type":"favicon","text":"tec"}]},
+    SUGGESTIONS = ["amazon","argos","autotrader","amazon uk","aol","american airlines","asda","apple","american express","aol mail"],
     cont = document.getElementById('container');
 
-$(function(){
-    setTimeout(function(SAMPLE){
-        cont.innerHTML = CLIQZ.UI.create(SAMPLE);
-    }, 1000, SAMPLE);
+CLIQZ.UI.init();
+CliqzUtils.httpGet('chrome://cliqz/content/templates/main.tpl', function(res){
+    CLIQZ.UI.tpl.main = Handlebars.compile(res.response.replace(/html:/g,''));
+    CLIQZ.UI.main(cont);
 });
 
-console.log('aasdsd');
+CliqzUtils.httpGet('chrome://cliqz/content/templates/results.tpl', function(res){
+    CLIQZ.UI.tpl.results = Handlebars.compile(res.response.replace(/html:/g,''));
+});
+
+CliqzUtils.httpGet('chrome://cliqz/content/templates/suggestions.tpl', function(res){
+    CLIQZ.UI.tpl.suggestions = Handlebars.compile(res.response.replace(/html:/g,''));
+});
+
+function openUILink(url){
+    location.href = url;
+}
+
+$(function(){
+    setTimeout(function(r, s){
+        r.width=(document.body.offsetWidth - 85) + 'px'
+        CLIQZ.UI.results(r);
+        CLIQZ.UI.suggestions(s);
+    }, 1000, RESULTS, SUGGESTIONS);
+});
+
 
 </script>
 </body>

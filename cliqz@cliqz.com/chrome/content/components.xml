@@ -6,16 +6,13 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="420" maxheight="420">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="100" maxheight="420">
     </content>
 
     <implementation >
        <constructor>
         <![CDATA[
-          var engines = document.getAnonymousElementByAttribute(this, "anonid", "other-engines"),
-              text = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-engines-test");;
-
-          this._lala = document.getAnonymousElementByAttribute(this, "anonid", "lala");
+          CLIQZ.UI.main(this);
           //CLIQZ.Components.cliqzCreateSearchOptionsItem(engines, text);
         ]]>
       </constructor>
@@ -90,10 +87,11 @@
                   //data: CliqzAutocomplete.lastResult.getDataAt(i),
                 });
             }
-            this.innerHTML = CLIQZ.UI.create({
+            CLIQZ.UI.results({
               results: data,
               width: (CLIQZ.Core.popup.width - 85) + 'px'
             });
+            CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
             console.log(this.innerHTML);
             //CLIQZ.Components._appendCurrentResult(this);
           ]]>

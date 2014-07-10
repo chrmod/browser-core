@@ -348,31 +348,6 @@ CLIQZ.Core = CLIQZ.Core || {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
-    _lastProgress: Date.now(),
-    updateProgress: function(el, itemCount){
-        if (Date.now() - CLIQZ.Core._lastProgress > 30) {
-          var height = el.clientHeight, scrollHeight,
-              top = el.scrollTop;
-          if(itemCount){
-            scrollHeight = Math.max(
-                CLIQZ.Core.ITEM_HEIGHT * Math.min(itemCount, CLIQZ.Core.urlbarPrefs.getIntPref('maxRichResults')),
-                CLIQZ.Core.POPUP_HEIGHT
-            );
-          } else {
-            scrollHeight = el.scrollHeight;
-          }
-
-          if(CLIQZ.Core._prog == null){
-            CLIQZ.Core._prog = document.getElementById('cliqz-progress');
-          }
-          CLIQZ.Core._prog.width = Math.min(1, (top + height) / scrollHeight) * CLIQZ.Core.urlbar.clientWidth;
-          CLIQZ.Core._lastProgress = Date.now();
-        }
-        else {
-          clearTimeout(CLIQZ.Core._progressTimeout);
-          CLIQZ.Core._progressTimeout = setTimeout(function(){ CLIQZ.Core.updateProgress(el); }, 30);
-        }
-    },
     urlbarkeydown: function(ev){
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;

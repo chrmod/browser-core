@@ -2,27 +2,56 @@
   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-rich-result-popup-cliqz");
 }
 
-.hidden {
-    visibility: hidden;
-    display: none !important;
+/* suggestions */
+
+#cliqz-suggestion-box {
+    background-color: #dddddd;
+    height: 26px;
+    padding: 5px;
 }
 
-.overflow {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.cliqz-suggestion {
+    padding: 1px 5px 2px 5px;
 }
 
-.cliqz-result-box {
+.cliqz-suggestion:hover, .cliqz-suggestion-default {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
+
+.cliqz-suggestion-text {
+    margin: 0px;
+    padding: 0px;
+}
+
+.cliqz-suggestion-extra {
+    margin: 0px;
+    padding: 0px;
+    font-weight: 600;
+}
+
+/* end suggestions */
+
+#cliqz-footer {
+    height: 20px;
+    background: url(chrome://cliqzres/content/skin/drag_icon.png) no-repeat 50% 50%;
+    background-color: #eeeeee;
+    background-size: 20px 14px;
+}
+
+/* results */
+
+#cliqz-results {
+    height: 300px;
     overflow: scroll;
 }
 
-.cliqz-result-box>div>div {
+#cliqz-results>div>div {
     display: inline-block;
     vertical-align: middle;
 }
 /*
-.cliqz-result-box * {
+#cliqz-results * {
     border:1px solid black;
 }
 */
@@ -91,10 +120,29 @@
     background-color: #FFCC00;
 }
 
+.cliqz-result-item-box[selected="true"] {
+    background-color: #eefafe;
+}
+
 .cliqz-logo {
     height: 36px;
     width: 36px;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 36px 36px;
+}
+
+/* end results */
+
+/* misc */
+
+.hidden {
+    visibility: hidden;
+    display: none !important;
+}
+
+.overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

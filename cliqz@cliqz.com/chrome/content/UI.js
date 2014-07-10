@@ -2,9 +2,12 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main'],
+var TEMPLATES = ['main', 'results', 'suggestions'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
-    tpl = {};
+    tpl = {},
+    IC = 'cliqz-result-item-box', // result item class
+    gCliqzBox = null
+    ;
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -35,21 +38,66 @@ function enhanceResults(res){
     return res;
 }
 
+function resultClick(ev){
+    var el = ev.target;
 
-ctx.CLIQZ = ctx.CLIQZ || {};
-ctx.CLIQZ.UI = ctx.CLIQZ.UI || {
-    init: function(){
-        for(var i in TEMPLATES){
-            var name = TEMPLATES[i];
-            CliqzUtils.httpGet(TEMPLATES_PATH + name + '.tpl', function(res){
-                tpl[name] = Handlebars.compile(res.response);
-            });
+    while (el && el.className != IC) el = el.parentElement;
+
+    el && openUILink(el.getAttribute('url'));
+}
+
+var lastMoveTime = Date.now();
+function resultMove(ev){
+    if (Date.now() - lastMoveTime > 50) {
+        var el = ev.target;
+
+        while (el && el.className != IC) {
+            el = el.parentElement;
         }
-    },
-    create: function(res){
-        var enhanced = enhanceResults(res);
-        return tpl.main(enhanced);
+
+        var results = gCliqzBox.querySelectorAll('[selected="true"]');
+        for(var i=0; i<results.length; i++)
+            results[i].removeAttribute('selected');
+
+        el && el.setAttribute('selected', 'true');
+
+        lastMoveTime = Date.now();
     }
 }
+
+var UI = {
+    tpl: {},
+    init: function(){
+        TEMPLATES.forEach(function(tpl){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
+                UI.tpl[tpl] = Handlebars.compile(res.response);
+            });
+        });
+    },
+    main: function(box){
+        gCliqzBox = box;
+        box.innerHTML = UI.tpl.main();
+
+        var resultsBox = document.getElementById('cliqz-results',box);
+        resultsBox.addEventListener('click', resultClick);
+        box.addEventListener('mousemove', resultMove);
+
+        gCliqzBox.resultsBox = resultsBox;
+
+        var suggestionBox = document.getElementById('cliqz-suggestion-box',box);
+        gCliqzBox.suggestionBox = suggestionBox;
+
+    },
+    results: function(res){
+        var enhanced = enhanceResults(res);
+        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+    },
+    suggestions: function(suggestions){
+        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions(suggestions);
+    }
+}
+
+ctx.CLIQZ = ctx.CLIQZ || {};
+ctx.CLIQZ.UI = UI;
 
 })(this);
