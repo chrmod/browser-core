@@ -93,6 +93,126 @@ function resultMove(ev){
     }
 }
 
+function suggestionNavigation(ev){
+    var suggestions = gCliqzBox.suggestionBox.children,
+        SEL = ' cliqz-suggestion-default',
+            found = false,
+            action = {
+                type: 'activity',
+                action: 'tab_key',
+                current_position : -1
+            };
+
+        for(var i =0; i < suggestions.length && !found; i++){
+            var s = suggestions[i];
+
+            if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
+                s.className = s.className.replace(SEL, '');
+
+                if(i <= suggestions.length - 1){ //not last one
+                    if(!ev.shiftKey){ // loop right
+                        for(var j=i+1; j < suggestions.length; j++){
+                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
+                                suggestions[j].className += SEL;
+                                action.current_position = j;
+                                break;
+                            }
+                        }
+                    } else { // loop left
+                        for(var j=i-1; j >=0 ; j--){
+                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
+                                suggestions[j].className += SEL;
+                                action.current_position = j;
+                                break;
+                            }
+                        }
+                    }
+
+                    found = true;
+                }
+            }
+        }
+        if(!found){ // none selected
+            var position = ev.shiftKey ? suggestions.length-1 : 0;
+            suggestions[position].className += ' cliqz-suggestion-default';
+            action.current_position = position;
+        }
+        action.direction = ev.shiftKey? 'left' : 'right';
+        CliqzUtils.track(action);
+}
+
+function suggestionClick(ev){
+    if(ev && ev.target){
+        var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
+        if(suggestionVal){
+            CLIQZ.Core.urlbar.mInputField.focus();
+            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+
+            var action = {
+                type: 'activity',
+                action: 'suggestion_click',
+                current_position: ev.target.position || ev.target.parentNode.position || -1,
+            };
+
+            CliqzUtils.track(action);
+        }
+    }
+}
+
+function onEnter(ev, item){
+    //sel && openUILink(sel.getAttribute('url'));
+    var index = item ? item.getAttribute('idx'): -1,
+        inputValue = CLIQZ.Core.urlbar.value,
+        action = {
+            type: 'activity',
+            action: 'result_enter',
+            current_position: index,
+            search: false
+        };
+
+    if(index != -1){
+        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
+        action.search = CliqzUtils.isSearch(item.getAttribute('url'));
+    } else { //enter while on urlbar and no result selected
+        // update the urlbar if a suggestion is selected
+        var suggestions = gCliqzBox.suggestionBox.children,
+            SEL = ' cliqz-suggestion-default';
+
+        for(var i=0; i < suggestions.length; i++){
+            var s = suggestions[i];
+
+            if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
+                CLIQZ.Core.urlbar.mInputField.setUserInput(s.getAttribute('val'));
+                return true;
+            }
+        }
+
+
+        if(CliqzUtils.isUrl(inputValue)){
+            action.position_type = 'inbar_url';
+            action.search = CliqzUtils.isSearch(inputValue);
+        }
+        else action.position_type = 'inbar_query';
+        action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
+        if(action.autocompleted){
+            var first = popup.richlistbox.childNodes[0],
+                firstUrl = first.getAttribute('url');
+
+            action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
+
+            if(firstUrl.indexOf(inputValue) != -1){
+                CLIQZ.Core.urlbar.value = firstUrl;
+            }
+        } else {
+            var customQuery = ResultProviders.isCustomQuery(inputValue);
+            if(customQuery){
+                CLIQZ.Core.urlbar.value = customQuery.queryURI;
+            }
+        }
+    }
+    CliqzUtils.track(action);
+}
+
 var UI = {
     tpl: {},
     init: function(){
@@ -113,6 +233,7 @@ var UI = {
         gCliqzBox.resultsBox = resultsBox;
 
         var suggestionBox = document.getElementById('cliqz-suggestion-box',box);
+        suggestionBox.addEventListener('click', suggestionClick);
         gCliqzBox.suggestionBox = suggestionBox;
 
     },
@@ -129,18 +250,23 @@ var UI = {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
                 setResultSelection(nextEl, true, true);
+                return true;
             break;
             case DOWN:
-
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
                     setResultSelection(nextEl, true, false);
                 }
+                return true;
             break;
-            case UP:
+            case ENTER:
+                onEnter(ev, sel);
+                return true;
             break;
-            case UP:
+            case TAB:
+                suggestionNavigation(ev);
+                return true;
             break;
         }
 

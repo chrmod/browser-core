@@ -349,7 +349,8 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarkeydown: function(ev){
-        CLIQZ.UI.keyDown(ev);
+        var cancel = CLIQZ.UI.keyDown(ev);
+        cancel && ev.preventDefault();
         return;
 
         var code = ev.keyCode,
@@ -434,7 +435,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 ev.preventDefault();
             }
         }
-
+        /*
         if(code == 9) { //tab - navigate through suggestions
             ev.preventDefault();
 
@@ -485,6 +486,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.track(action);
             return;
         }
+        */
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){

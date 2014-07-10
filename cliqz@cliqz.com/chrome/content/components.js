@@ -269,23 +269,6 @@ CLIQZ.Components = CLIQZ.Components || {
 
         return true;
     },
-    suggestionClick: function(ev){
-        if(ev && ev.target){
-            var suggestionVal = ev.target.suggestion || ev.target.parentNode.suggestion;
-            if(suggestionVal){
-                CLIQZ.Core.urlbar.mInputField.focus();
-                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
-
-                var action = {
-                    type: 'activity',
-                    action: 'suggestion_click',
-                    current_position: ev.target.position || ev.target.parentNode.position || -1,
-                };
-
-                CliqzUtils.track(action);
-            }
-        }
-    },
     cliqzCreateSearchOptionsItem: function(engineContainer ,textContainer){
         var engines = ResultProviders.getSearchEngines();
 

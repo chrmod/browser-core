@@ -8,6 +8,8 @@
     background-color: #dddddd;
     height: 20px;
     padding: 5px;
+    overflow: hidden;
+    line-height: 20px;
 }
 
 .cliqz-suggestion {

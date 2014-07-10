@@ -2,6 +2,7 @@
 	<div class='cliqz-result-item-box'
 		type='{{ type }}'
 		url='{{ url }}'
+		idx='{{ @index }}'
 		>
 		<div class='cliqz-result-left-box'>
 			<div class='cliqz-result-type' ></div>
