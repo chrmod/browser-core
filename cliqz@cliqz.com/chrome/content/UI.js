@@ -173,6 +173,7 @@ function onEnter(ev, item){
     if(index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
+        openUILink(item.getAttribute('url'));
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestions = gCliqzBox.suggestionBox.children,
@@ -183,7 +184,6 @@ function onEnter(ev, item){
 
             if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                 CLIQZ.Core.urlbar.mInputField.setUserInput(s.getAttribute('val'));
-                return true;
             }
         }
 
@@ -195,7 +195,7 @@ function onEnter(ev, item){
         else action.position_type = 'inbar_query';
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted){
-            var first = popup.richlistbox.childNodes[0],
+            var first = popup.richlistbox.children[0],
                 firstUrl = first.getAttribute('url');
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
@@ -209,8 +209,11 @@ function onEnter(ev, item){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
         }
+
+        return false
     }
     CliqzUtils.track(action);
+    return true;
 }
 
 var UI = {
@@ -262,7 +265,6 @@ var UI = {
             break;
             case ENTER:
                 onEnter(ev, sel);
-                return true;
             break;
             case TAB:
                 suggestionNavigation(ev);
