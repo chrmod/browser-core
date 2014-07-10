@@ -67,12 +67,14 @@ function setResultSelection(el, scroll, scrollTop){
         clearResultSelection();
         el.setAttribute('selected', 'true');
         if(scroll){
-            var rBox = gCliqzBox.resultsBox;
-            if(scrollTop && rBox.scrollTop > el.offsetTop)
+            var rBox = gCliqzBox.resultsBox,
+                firstOffset = rBox.children[0].offsetTop;
+
+            if(scrollTop && rBox.scrollTop > (el.offsetTop - firstOffset))
                 el.scrollIntoView(true);
             else if(!scrollTop &&
                 (rBox.scrollTop + rBox.offsetHeight <
-                    el.offsetTop + el.offsetHeight))
+                    (el.offsetTop - firstOffset) + el.offsetHeight))
                 el.scrollIntoView(false);
         }
     }
