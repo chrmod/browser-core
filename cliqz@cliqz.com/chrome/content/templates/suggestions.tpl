@@ -1,5 +1,5 @@
 {{#each this}}
-	<html:span class='cliqz-suggestion'>
+	<span class='cliqz-suggestion'>
 		{{this}}
-	</html:span>
+	</span>
 {{/each}}

@@ -43,7 +43,8 @@
 
 #cliqz-results {
     height: 300px;
-    overflow: scroll;
+    overflow-y: scroll;
+
 }
 
 #cliqz-results>div>div {
@@ -61,8 +62,7 @@
 }
 
 .cliqz-result-mid-box {
-    overflow-x: hidden;
-    overflow-y: scroll;
+    overflow: hidden;
 }
 
 .cliqz-result-right-box {

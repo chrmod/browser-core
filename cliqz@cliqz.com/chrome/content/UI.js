@@ -77,7 +77,7 @@ var UI = {
     main: function(box){
         gCliqzBox = box;
         box.innerHTML = UI.tpl.main();
-
+        debugger;
         var resultsBox = document.getElementById('cliqz-results',box);
         resultsBox.addEventListener('click', resultClick);
         box.addEventListener('mousemove', resultMove);

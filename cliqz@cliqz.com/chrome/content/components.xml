@@ -5,14 +5,15 @@
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
-  <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup">
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="100" maxheight="420">
+  <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup" >
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="100" maxheight="420" >
+      <div xmlns="http://www.w3.org/1999/xhtml" anonid="aa"></div>
     </content>
 
     <implementation >
        <constructor>
         <![CDATA[
-          CLIQZ.UI.main(this);
+          CLIQZ.UI.main(document.getAnonymousElementByAttribute(this, "anonid", "aa"));
           //CLIQZ.Components.cliqzCreateSearchOptionsItem(engines, text);
         ]]>
       </constructor>
@@ -89,7 +90,7 @@
             }
             CLIQZ.UI.results({
               results: data,
-              width: (CLIQZ.Core.popup.width - 85) + 'px'
+              width: (CLIQZ.Core.popup.width - 95) + 'px'
             });
             CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
             console.log(this.innerHTML);

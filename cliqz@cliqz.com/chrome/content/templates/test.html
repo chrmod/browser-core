@@ -41,16 +41,16 @@ var RESULTS = {"results":[{"title":"TechCrunch - The latest technology news and 
 
 CLIQZ.UI.init();
 CliqzUtils.httpGet('chrome://cliqz/content/templates/main.tpl', function(res){
-    CLIQZ.UI.tpl.main = Handlebars.compile(res.response.replace(/html:/g,''));
+    CLIQZ.UI.tpl.main = Handlebars.compile(res.response);
     CLIQZ.UI.main(cont);
 });
 
 CliqzUtils.httpGet('chrome://cliqz/content/templates/results.tpl', function(res){
-    CLIQZ.UI.tpl.results = Handlebars.compile(res.response.replace(/html:/g,''));
+    CLIQZ.UI.tpl.results = Handlebars.compile(res.response);
 });
 
 CliqzUtils.httpGet('chrome://cliqz/content/templates/suggestions.tpl', function(res){
-    CLIQZ.UI.tpl.suggestions = Handlebars.compile(res.response.replace(/html:/g,''));
+    CLIQZ.UI.tpl.suggestions = Handlebars.compile(res.response);
 });
 
 function openUILink(url){
@@ -59,7 +59,7 @@ function openUILink(url){
 
 $(function(){
     setTimeout(function(r, s){
-        r.width=(document.body.offsetWidth - 85) + 'px'
+        r.width=(document.body.offsetWidth - 95) + 'px'
         CLIQZ.UI.results(r);
         CLIQZ.UI.suggestions(s);
     }, 1000, RESULTS, SUGGESTIONS);
