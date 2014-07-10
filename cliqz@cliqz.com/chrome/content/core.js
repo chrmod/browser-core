@@ -349,6 +349,9 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarkeydown: function(ev){
+        CLIQZ.UI.keyDown(ev);
+        return;
+
         var code = ev.keyCode,
             popup = CLIQZ.Core.popup;
 
@@ -411,6 +414,10 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         if(code == 38 || code == 40){
+
+
+
+
             // postpone navigation to allow richlistbox update
             setTimeout(function(){
                 CliqzUtils.navigateToItem(

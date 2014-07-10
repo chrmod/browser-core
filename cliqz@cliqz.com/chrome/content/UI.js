@@ -6,8 +6,15 @@ var TEMPLATES = ['main', 'results', 'suggestions'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
-    gCliqzBox = null
+    gCliqzBox = null,
+    TAB = 9,
+    ENTER = 13,
+    UP = 38,
+    DOWN = 40,
+    KEYS = [TAB, ENTER, UP, DOWN]
     ;
+
+function $(e, ctx){return (ctx || document).querySelector(e); }
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -46,21 +53,32 @@ function resultClick(ev){
     el && openUILink(el.getAttribute('url'));
 }
 
+function getResultSelection(){
+    return $('[selected="true"]', gCliqzBox);
+}
+
+function clearResultSelection(){
+    var el = getResultSelection();
+    el && el.removeAttribute('selected');
+}
+
+function setResultSelection(el, scroll, scrollTop){
+    if(el){
+        clearResultSelection();
+        el.setAttribute('selected', 'true');
+        scroll && el.scrollIntoView(scrollTop);
+    }
+}
+
 var lastMoveTime = Date.now();
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-
         while (el && el.className != IC) {
             el = el.parentElement;
         }
-
-        var results = gCliqzBox.querySelectorAll('[selected="true"]');
-        for(var i=0; i<results.length; i++)
-            results[i].removeAttribute('selected');
-
-        el && el.setAttribute('selected', 'true');
-
+        clearResultSelection();
+        setResultSelection(el, false);
         lastMoveTime = Date.now();
     }
 }
@@ -77,7 +95,7 @@ var UI = {
     main: function(box){
         gCliqzBox = box;
         box.innerHTML = UI.tpl.main();
-        debugger;
+
         var resultsBox = document.getElementById('cliqz-results',box);
         resultsBox.addEventListener('click', resultClick);
         box.addEventListener('mousemove', resultMove);
@@ -94,6 +112,28 @@ var UI = {
     },
     suggestions: function(suggestions){
         gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions(suggestions);
+    },
+    keyDown: function(ev){
+        var sel = getResultSelection();
+        switch(ev.keyCode) {
+            case UP:
+                var nextEl = sel && sel.previousElementSibling;
+                setResultSelection(nextEl, true, true);
+            break;
+            case DOWN:
+                var nextEl = sel && sel.nextElementSibling;
+                if(nextEl != gCliqzBox.resultsBox.lastElementChild){
+                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    setResultSelection(nextEl, true, false);
+                }
+            break;
+            case UP:
+            break;
+            case UP:
+            break;
+        }
+
+
     }
 }
 

@@ -57,6 +57,8 @@ function openUILink(url){
     location.href = url;
 }
 
+document.addEventListener('keydown', CLIQZ.UI.keyDown);
+
 $(function(){
     setTimeout(function(r, s){
         r.width=(document.body.offsetWidth - 95) + 'px'
