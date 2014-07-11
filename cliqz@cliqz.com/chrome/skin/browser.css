@@ -40,6 +40,8 @@
     background: url(chrome://cliqzres/content/skin/drag_icon.png) no-repeat 50% 50%;
     background-color: #eeeeee;
     background-size: 20px 14px;
+    position: relative;
+    line-height: 16px;
 }
 
 #cliqz-navigation-message {
