@@ -4,13 +4,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.14');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');
@@ -69,13 +69,8 @@ function geocodeCallback(res, callback){
         if(next)DATA[1] = next;
 
         if(DATA[0] && DATA[1]){
-            CliqzUtils.log('we ahave WEATEHR');
             callback(DATA[0], DATA[1], locName);
         }
-        else {
-            CliqzUtils.log('w8')
-        }
-
     }
     if(res.status == 200){
         var data = JSON.parse(res.response);
@@ -134,6 +129,7 @@ var WEATHER_URL_3DAYS_FORECAST = 'http://api.openweathermap.org/data/2.5/forecas
 
 var CliqzWeather = {
     get: function(q, callback){
+        var originalQ = q;
         q = q.replace(/^(wetter|weather|meteo|temps) /gi, "")
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
@@ -142,7 +138,7 @@ var CliqzWeather = {
 
         CliqzUtils.httpHandler('GET', GEOLOC_API, function(res){
             geocodeCallback(res, function(today, next, locName){
-                callback(CliqzWeather.parse(today, next, q, locName))
+                callback(CliqzWeather.parse(today, next, q, locName), originalQ)
             });
 
         });

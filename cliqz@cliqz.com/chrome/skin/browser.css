@@ -9,7 +9,7 @@
 */
 
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-rich-result-popup-cliqz");
 }
 
 /* bookmark icon ovveride */
@@ -24,12 +24,12 @@
 }
 
 .autocomplete-richlistbox {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistbox-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistbox-cliqz");
 }
 
 /* result item */
 .autocomplete-richlistitem {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz");
   padding: 5px 0 5px 0;
   margin: 0px;
   border-width: 1px 1px 0px 0;
@@ -43,14 +43,13 @@
   background-color: green;
 }
 */
-
 .cliqz-no-margin-padding {
   margin: 0px;
   padding: 0px;
 }
 
 .button-cliqz {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#button-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#button-cliqz");
   cursor: pointer;
 }
 
@@ -64,13 +63,17 @@
   height: 24px;
 }
 
+.cliqz-left-spacer {
+  margin-left: 7px;
+}
+
 .cliqz-separator-10 {
   width: 10px;
 }
 
-.cliqz-url-box {
+.cliqz-generic-box {
   margin: 0px;
-  padding: 2px 0 0 6px;
+  padding: 0 0 0 6px;
 }
 
 .cliqz-image-box {
@@ -81,8 +84,6 @@
   height: 54px; /* 9 */
   margin-left: 12px;
   background-position: center;
-
-  border-bottom-left-radius: 5px;
 }
 
 .cliqz-image {
@@ -160,6 +161,10 @@
 .autocomplete-richlistitem[type="cliqz-suggestions"] .ac-url-box,
 .autocomplete-richlistitem[type^="cliqz-custom sources-"] .ac-url-box  {
   display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-empty"] {
+    display: none;
 }
 
 .cliqz-ac-title-suggestion-desc {
@@ -567,16 +572,17 @@
 }
 
 /* news */
-.autocomplete-richlistitem[type="cliqz-results sources-n"] .richlistitem-cliqz-generic {
+
+.autocomplete-richlistitem[type^="cliqz-results sources-n"] .richlistitem-cliqz-generic {
   display: none;
 }
 
-.autocomplete-richlistitem[type="cliqz-results sources-n"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-news");
+.autocomplete-richlistitem[type^="cliqz-results sources-n"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-news");
   display: inherit;
 }
 
-.autocomplete-richlistitem[type="cliqz-results sources-n"] {
+.autocomplete-richlistitem[type^="cliqz-results sources-n"] {
   padding-bottom: 0px;
 }
 
@@ -591,7 +597,7 @@
 }
 
 .cliqz-news-sources {
-  background: #fddddd;
+  background: #f3f3f3;
   padding-left: 35px;
   margin-top: 4px;
 }
@@ -611,7 +617,7 @@
 }
 
 .cliqz-news-source {
-   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#cliqz-source");
+   -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#cliqz-source");
    overflow: hidden;
    margin: 2px 2px 2px 0px;
 }
@@ -619,14 +625,119 @@
 /* end news */
 
 /* shopping */
-.autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-generic {
+
+.autocomplete-richlistitem[type^="cliqz-results sources-s"] .richlistitem-cliqz-generic {
   display: none;
 }
 
-.autocomplete-richlistitem[type="cliqz-results sources-s"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-shopping");
+.autocomplete-richlistitem[type^="cliqz-results sources-s"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-shopping");
   display: inherit;
 }
+
+.cliqz-shopping-price {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #990033;
+}
+
+.cliqz-shopping-reviews {
+  color: #cccccc;
+}
+
+.cliqz-shopping-image {
+  background-color: white;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #e6e6e6;
+  margin-left: 12px;
+}
+
+.cliqz-shopping-title-box {
+  padding-top: 6px;
+  color: black;
+}
+
+.cliqz-shopping-title {
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.cliqz-shopping-description {
+  color: #333333;
+}
+/* end shopping */
+
+/* people */
+.autocomplete-richlistitem[type^="cliqz-results sources-p"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type^="cliqz-results sources-p"] .richlistitem-cliqz-custom {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-people");
+  display: inherit;
+  color: black;
+}
+
+.cliqz-people-image-box {
+  width: 64px;
+  height: 64px;
+}
+
+.cliqz-people-position-box {
+  margin-top: 3px;
+}
+
+.cliqz-people-image {
+  background-color: white;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 54px;
+  height: 54px;
+  border: 2px solid #00659c;
+  margin-left: 12px;
+}
+
+.cliqz-people-source {
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  background-size: cover;
+  margin-left: 5px;
+}
+
+.cliqz-people-name {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #222222
+}
+
+.cliqz-people-company {
+  font-size: 9pt;
+  font-weight: bold;
+  color: black;
+}
+
+.cliqz-people-jobtitle{
+  color: #00659c;
+  font-weight: bold;
+}
+
+.cliqz-people-agoline {
+  color: #cccccc;
+  padding-left: 3pt;
+}
+
+.cliqz-people-branch {
+  color: #cccccc;
+}
+
+/* end people */
+
 
 /* world cup */
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-generic {
@@ -634,7 +745,7 @@
 }
 
 .autocomplete-richlistitem[type="cliqz-worldcup"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.15#autocomplete-richlistitem-cliqz-worldcup");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-worldcup");
   display: inherit;
 }
 
@@ -719,7 +830,7 @@
 }
 
 .autocomplete-richlistitem[type="cliqz-weather"] .richlistitem-cliqz-custom {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-weather");
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#autocomplete-richlistitem-cliqz-weather");
   display: inherit;
 }
 
@@ -854,3 +965,22 @@
   visibility: hidden;
   display: none !important;
 }
+
+.cliqz-stars-element {
+  padding-top: 3px;
+  font-size: 8pt;
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.16#cliqz-stars");
+}
+
+.cliqz-stars-box, .cliqz-stars {
+  display: block;
+  background: url(chrome://cliqzres/content/skin/stars.png) 0 -14px repeat-x;
+  width: 70px;
+  height: 14px;
+}
+
+.cliqz-stars-box .cliqz-stars {
+  background-position: 0 0;
+}
+
+

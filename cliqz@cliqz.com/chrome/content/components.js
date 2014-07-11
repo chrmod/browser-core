@@ -3,13 +3,15 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.16');
+
+var IMAGE_HEIGHT = 54;
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -28,13 +30,17 @@ function generateLogoClass(urlDetails){
 }
 
 function constructImageElement(data, imageEl, imageDesc){
-  if (data && data.image) {
-     var height = 54,
+    imageEl.setAttribute('src', '');
+    imageEl.className = '';
+    imageEl.style.width = '';
+    if (data && data.image) {
+        var height = IMAGE_HEIGHT,
             img = data.image;
         var ratio = 0;
 
-        switch(data.type){
+        switch((data.richData && data.richData.type) || data.type){
             case 'news': //fallthrough
+            case 'shopping': //fallthrough
             case 'hq':
                 try {
                     if(img.ratio){
@@ -79,7 +85,7 @@ function constructImageElement(data, imageEl, imageDesc){
     }
 }
 
-const NEWS_SOURCE_WIDTH = 300;
+var NEWS_SOURCE_WIDTH = 300;
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Components = CLIQZ.Components || {
@@ -136,6 +142,20 @@ CLIQZ.Components = CLIQZ.Components || {
                 };
 
                 CliqzUtils.track(action);
+            }
+
+            var cliqzResultUrl;
+            if(cliqzResultUrl = CliqzUtils.getPref('cliqzResult', false)){
+                var sBox = popup.richlistbox._scrollbox,
+                    iframe;
+                if(sBox.childNodes.length > 1){
+                    iframe = sBox.childNodes[0];
+                } else {
+                    iframe = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'iframe')
+                }
+
+                iframe.setAttribute('src', cliqzResultUrl + encodeURIComponent(trimmedSearchString));
+                sBox.insertBefore(iframe, sBox.childNodes[0]);
             }
         }
         // CLIQZ END
@@ -318,46 +338,97 @@ CLIQZ.Components = CLIQZ.Components || {
             }
         }
     },
+
     cliqzEnhancements: function (item, width) {
-        var type = item.getAttribute('source'),
+        var VERTICAL_TYPE = 'cliqz-results sources-',
+            type = item.getAttribute('source'),
             PAIRS = {
                 'cliqz-weather'          : 'Weather',
                 'cliqz-cluster'          : 'Cluster',
-                'cliqz-worldcup'         : 'WorldCup',
-                'cliqz-results sources-n': 'News',
-                'cliqz-results sources-s': 'Shopping'
-            };
-        if(PAIRS[type]){
-            var customItem =  document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
-            CLIQZ.Components['cliqzEnhancements' + PAIRS[type]](customItem, JSON.parse(item.getAttribute('cliqzData')), item, width);
+                'cliqz-worldcup'         : 'WorldCup'
+            },
+            VERTICALS = {
+                'n': 'News',
+                's': 'Shopping',
+                'p': 'People'
+            },
+            mainVertical = '';
+
+        item._customUI = item._customUI || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-custom');
+        item._genericUI = item._genericUI || document.getAnonymousElementByAttribute(item, 'anonid', 'cliqz-generic');
+
+
+        if(type.indexOf(VERTICAL_TYPE) == 0){ // is a custom vertical result
+            mainVertical = type[VERTICAL_TYPE.length]; // get the first vertical
+        }
+
+        var customUI = (mainVertical && VERTICALS[mainVertical]) || PAIRS[type];
+        if(customUI){
+            CLIQZ.Components['cliqzEnhancements' + customUI](item, JSON.parse(item.getAttribute('cliqzData')), width);
         } else {
             CLIQZ.Components.cliqzEnhancementsGeneric(item);
         }
     },
-    cliqzEnhancementsShopping: function(customItem, cliqzData, item, width){
-        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
-        var url = item.getAttribute('url');
-
-        var elements = ["image", "title", "ago-line", "description", "logo"];
+    cliqzEnhancementsShopping: function(item, cliqzData, width){
+        var url = item.getAttribute('url'),
+            rd = cliqzData.richData || {},
+            img = cliqzData.image || {},
+            customItem = item._customUI,
+            imageEl = customItem.image;
 
         customItem['title'].textContent = item.getAttribute('title');
-        customItem['source'].textContent = 'Amazon.de';
-        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['source'].textContent = rd.source || CliqzUtils.getDetailsFromUrl(url).host;
+        //customItem['description'].textContent = cliqzData.description || '';
         customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
 
-        constructImageElement(cliqzData, customItem.image, undefined);
+        if(img && img.src){
+            imageEl.style.backgroundImage = "url(" + img.src + ")";
+            imageEl.className = 'cliqz-shopping-image';
+        } else {
+            imageEl.className = '';
+        }
 
-        const price = cliqzData.richData.price || '';
-        const priceCurrency = cliqzData.richData.price_currency || '';
-        customItem['price'].textContent = priceCurrency + ' ' + price;
-        customItem['stars'].textContent = cliqzData.richData.rating || '';
-        customItem['reviews'].textContent = cliqzData.richData.reviews || '';
+        customItem['price'].textContent = (rd.price_currency || '') + ' ' + (rd.price?+rd.price.toFixed(2):'');
+        customItem['stars'].setValue(rd.rating, rd.reviews);
+    },
+    cliqzEnhancementsPeople: function(item, cliqzData, width){
+        var url = item.getAttribute('url'),
+            rd = cliqzData.richData || {},
+            img = cliqzData.image || {},
+            customItem = item._customUI,
+            imageEl = customItem.image,
+            genericItem = item._genericUI;
+
+        if(rd.full_name){ // custom snippet
+            customItem.name.textContent = rd.full_name;
+            customItem.jobtitle.textContent = rd.current_job_title || '-';
+            customItem.company.textContent = rd.current_company || '-';
+            customItem.titlecompany.textContent = 'bei';
+            customItem.agoline.textContent = rd.since ? ' seit ' + rd.since : '';
+            customItem.branch.textContent = rd.current_branch || '';
+
+            //customItem.source.textContent = rd.source || CliqzUtils.getDetailsFromUrl(url).host;
+            //customItem.description.textContent = cliqzData.description || '';
+            customItem.logo.className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+
+            if(img && img.src){
+                imageEl.style.backgroundImage = "url(" + img.src + ")";
+                imageEl.className = 'cliqz-people-image';
+                customItem.source.className = 'cliqz-people-source' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url))
+            } else {
+                imageEl.className = '';
+            }
+        } else {
+            customItem.name.textContent = item.getAttribute('title');
+            customItem.jobtitle.textContent = CliqzUtils.getDetailsFromUrl(url).host;
+        }
     },
     cliqzEnhancementsWorldCup: function(item, cliqzData){
-        var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/";
+        var WORLD_CUP_ICON_BASE_URL= "chrome://cliqzres/content/skin/worldcup/",
+            customItem = item._customUI;
 
-        const matchTemplateNode = item['match-template'];
-        const todayMatches = item['today-matches'];
+        const matchTemplateNode = customItem['match-template'];
+        const todayMatches = customItem['today-matches'];
         // Clear all matches from last display
         while (todayMatches.firstChild)
             todayMatches.removeChild(todayMatches.firstChild);
@@ -444,24 +515,24 @@ CLIQZ.Components = CLIQZ.Components || {
                             ];
 
         for(var p in desriptionElements){
-            item[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
+            item._customUI[desriptionElements[p]].textContent = cliqzData[desriptionElements[p]];
         }
 
         for(var p in imageElements){
-            item[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
+            item._customUI[imageElements[p]].setAttribute('src', cliqzData[imageElements[p]]);
         }
     },
-    cliqzEnhancementsNews: function(customItem, cliqzData, item, width){
-        CliqzUtils.log(JSON.stringify(cliqzData), 'AALALALA');
+    cliqzEnhancementsNews: function(item, cliqzData, width){
         var url = item.getAttribute('url'),
-            sources = cliqzData.richData.additional_sources;
+            sources = cliqzData.richData.additional_sources,
+            customItem = item._customUI;
 
         var elements = ["image", "title", "source", "ago-line", "description", "logo"];
 
         customItem['title'].textContent = item.getAttribute('title');
         customItem['source'].textContent = cliqzData.richData.source_name || '';
-        customItem['ago-line'].textContent = cliqzData.richData.discovery_timestamp || '';
-        customItem['description'].textContent = cliqzData.description || 'desc';
+        customItem['ago-line'].textContent = CliqzUtils.computeAgoLine(cliqzData.richData.discovery_timestamp);
+        customItem['description'].textContent = cliqzData.description || '';
         customItem['logo'].className = 'cliqz-ac-logo-icon ' + generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
 
         constructImageElement(cliqzData, customItem.image, undefined);
@@ -490,7 +561,6 @@ CLIQZ.Components = CLIQZ.Components || {
             source = item.getAttribute('source'),
             urlDetails = CliqzUtils.getDetailsFromUrl(url),
             domainDefClass = '', cliqzData;
-
 
         if(item.getAttribute('cliqzData')){
             cliqzData = JSON.parse(item.getAttribute('cliqzData'));

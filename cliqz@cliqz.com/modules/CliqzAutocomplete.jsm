@@ -5,20 +5,20 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.15');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.15');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.16');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.16');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -222,7 +222,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(this.startTime)
                         CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
 
-                    if(req.status == 200){
+                    if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
                         results = json.result;
                     }
@@ -246,7 +246,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults(q);
             },
             // handles weather queries
-            cliqzWeatherCallback: function(res) {
+            cliqzWeatherCallback: function(res, q) {
                 this.cliqzWeather = res;
                 this.pushResults(q);
             },
@@ -302,6 +302,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults
                     );
 
+                //if there is a custom cliqzResults - force the opening of the dropdown
+                if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
+                    results = [Result.generic('cliqz-empty', '')];
+                }
 
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length

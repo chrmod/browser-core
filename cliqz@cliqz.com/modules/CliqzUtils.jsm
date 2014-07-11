@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.15');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
 
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
@@ -256,6 +256,8 @@ var CliqzUtils = CliqzUtils || {
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';
     else if(type === 'cliqz-suggestions') return 'S';
+    // empty hidden result sent only to force the dropdown to open
+    else if(type === 'cliqz-empty') return '';
     // cliqz type = "cliqz-custom sources-XXXXX"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
@@ -549,6 +551,13 @@ var CliqzUtils = CliqzUtils || {
 
     if(newTab) gBrowser.addTab(url);
     else gBrowser.selectedBrowser.contentDocument.location = url;
+  },
+  computeAgoLine: function(ts, lang){
+    if(!ts) return '';
+    let now = (new Date().getTime() / 1000),
+        ageHours = parseInt((now - ts) / 3600);
+
+    return ageHours > 24? 'gestern': ageHours <= 1 ? 'vor einer Stunde' : 'vor ' + ageHours + ' Stunden';
   },
   performance: {
     backend: function(delay){
