@@ -47,8 +47,33 @@
     color: #999999;
 }
 
+.cliqz-footer-engines:hover #cliqz-engines-box {
+    max-width: 260px;
+}
+
+.cliqz-footer-engines:hover .cliqz-engines-text,
+#cliqz-engines-box:hover .cliqz-engines-text {
+    opacity: 0;
+}
+
 #cliqz-engines-box {
+    background-color: #eeeeee;
     float:right;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 0px;
+    transition: all linear 0.8s ;
+    z-index: 1;
+    position: absolute;
+    right: 10px;
+}
+
+.cliqz-engines-text {
+    transition: all linear 0.5s;
+    color: #333333;
+    position: absolute;
+    z-index: 0;
+    right: 10px;
 }
 
 .cliqz-engine {
