@@ -11,7 +11,9 @@ var TEMPLATES = ['main', 'results', 'suggestions'],
     ENTER = 13,
     UP = 38,
     DOWN = 40,
-    KEYS = [TAB, ENTER, UP, DOWN]
+    KEYS = [TAB, ENTER, UP, DOWN],
+    IMAGE_HEIGHT = 54,
+    IMAGE_WIDTH = 96
     ;
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
@@ -32,6 +34,58 @@ function generateLogoClass(urlDetails){
     return cls;
 }
 
+function constructImage(data){
+    if (data && data.image) {
+        var height = IMAGE_HEIGHT,
+            img = data.image;
+        var ratio = 0;
+
+        switch((data.richData && data.richData.type) || data.type){
+            case 'news': //fallthrough
+            case 'shopping': //fallthrough
+            case 'hq':
+                try {
+                    if(img.ratio){
+                        ratio = parseInt(img.ratio);
+                    } else if(img.width && img.height) {
+                        ratio = parseInt(img.width) / parseInt(img.height);
+                    }
+                } catch(e){}
+                break;
+            case 'video':
+                ratio = 16/9;
+                break;
+            case 'poster':
+                height = 67;
+                ratio = 214/317;
+                break;
+            case 'person':
+                ratio = 1;
+                break;
+            default:
+                ratio = 0;
+                break;
+        }
+        // only show the image if the ratio is between 0.4 and 2.5
+        if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
+            var image = { src: img.src }
+            if(ratio > 0) {
+                image.backgroundSize = height * ratio;
+                image.width = height * ratio ;
+                image.height = height;
+            }
+            if (img && img.duration) {
+                image.text = CliqzUtils.getLocalizedString('arrow') + img.duration;
+            }
+
+            image.width = image.width || IMAGE_WIDTH;
+
+            return image
+        }
+    }
+    return null;
+}
+
 
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
@@ -39,9 +93,9 @@ function enhanceResults(res){
 
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = generateLogoClass(r.urlDetails);
-        r.width = res.width;
+        r.image = constructImage(r.data);
+        r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
     }
-
     return res;
 }
 

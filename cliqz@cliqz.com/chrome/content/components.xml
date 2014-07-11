@@ -16,7 +16,6 @@
           this.richlistbox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
 
           CLIQZ.UI.main(this.richlistbox);
-          //CLIQZ.Components.cliqzCreateSearchOptionsItem(engines, text);
         ]]>
       </constructor>
       <property name="selectedIndex"
@@ -30,7 +29,6 @@
       <method name="_invalidate">
         <body>
           <![CDATA[
-          this._currentIndex = 0;
           this._appendCurrentResult();
         ]]>
         </body>
@@ -42,24 +40,13 @@
           <![CDATA[
           if (!this.mPopupOpen) {
             this.mInput = aInput;
-            // clear any previous selection, see bugs 400671 and 488357
-
-            var width = aElement.getBoundingClientRect().width;
-            this.setAttribute("width", width > 100 ? width : 100);
-            // invalidate() depends on the width attribute
             this._invalidate();
-
-            // CLIQZ START
 
             CLIQZ.Core.popupEvent(true);
 
+            var width = aElement.getBoundingClientRect().width;
+            this.setAttribute("width", width > 100 ? width : 100);
             this.openPopup(aElement, "after_start", 0, 0, false, true);
-            //this.moveTo(window.screenX + 35, window.screenY + 88);
-
-            // THIS IS NOT WORKING :(
-            //this.sizeTo(window.outerWidth,500)
-
-            // CLIQZ END
           }
         ]]>
         </body>
@@ -76,21 +63,23 @@
 
             var data = [],
                 ctrl = this.mInput.controller,
-                q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, '')
+                q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
+                lastRes = CliqzAutocomplete.lastResult;
 
             for(var i=0; i<this._matchCount; i++) {
                 data.push({
                   title: ctrl.getCommentAt(i),
                   url: unEscapeUrl(ctrl.getValueAt(i)),
                   type: ctrl.getStyleAt(i),
-                  text: q
-                  //data: CliqzAutocomplete.lastResult.getDataAt(i),
+                  text: q,
+                  data: lastRes && lastRes.getDataAt(i),
                 });
             }
             CLIQZ.UI.results({
               results: data,
-              width: (CLIQZ.Core.popup.width - 95) + 'px'
+              width: CLIQZ.Core.popup.width - 95
             });
+            console.log(JSON.stringify(data));
             CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
           ]]>
         </body>

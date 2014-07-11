@@ -156,7 +156,7 @@ var Result = {
 
 
         resp.description = result.snippet.desc || result.snippet.snippet;
-        if(resp.type != 'other')
+        if(resp.type != 'other')debugger;
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
                          Result.getOgImage(result.snippet.og)
         }
@@ -188,15 +188,9 @@ var Result = {
         if(imageData.ratio) image.ratio = imageData.ratio;
 
         // add duration from rich data
-        if(richData && richData.attr){
-            for(var i in richData.attr){
-                if(richData.attr[i] && richData.attr[i].length == 2) { //tuples
-                    if(richData.attr[i][0] == 'duration'){
-                        var parsedDuration = Result.tryGetImageDuration(richData.attr[i][1])
-                        if(parsedDuration) image.duration = parsedDuration;
-                    }
-                }
-            }
+        if(richData && richData.duration){
+            var parsedDuration = Result.tryGetImageDuration(richData.duration)
+            if(parsedDuration) image.duration = parsedDuration;
         }
 
         return image
