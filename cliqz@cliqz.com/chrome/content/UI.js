@@ -3,6 +3,7 @@
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions'],
+    PARTIALS = ['generic', 'weather'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -86,6 +87,11 @@ function constructImage(data){
     return null;
 }
 
+function generateType(type){
+    if(type === 'cliqz-weather') return 'weather';
+    return 'generic';
+
+}
 
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
@@ -95,6 +101,8 @@ function enhanceResults(res){
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
         r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
+
+        r['partial-' +generateType(r.type)] = true;
     }
     return res;
 }
@@ -312,6 +320,11 @@ var UI = {
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
                 UI.tpl[tpl] = Handlebars.compile(res.response);
+            });
+        });
+        PARTIALS.forEach(function(tpl){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
+                Handlebars.registerPartial(tpl,res.response);
             });
         });
     },

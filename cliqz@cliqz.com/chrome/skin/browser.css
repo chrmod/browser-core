@@ -215,7 +215,140 @@
   overflow: hidden;
 }
 
+/* weather */
+.cliqz-weather-left-box {
+  padding-top: 10px;
+  margin-right: 20px;
+  max-width: 200px;
+}
+
+.cliqz-weather-city {
+  background-color: grey;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  padding: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cliqz-weather-status {
+  color: grey;
+  padding: 5px;
+}
+
+.cliqz-weather-today-container {
+  margin-top: 10px;
+  width: 200px;
+}
+
+.cliqz-weather-skew-container {
+  transform: skew(-30deg);
+  background-color:#efefef;
+  margin-right:10px;
+  padding: 0px 20px;
+}
+
+
+.cliqz-weather-credits {
+  font-size: 9px;
+  color: lightgrey;
+  text-align:right
+}
+
+.cliqz-weather-today-date {
+  font-size: 11px;
+  padding: 2px;
+  color: grey;
+}
+
+.cliqz-weather-today-temp {
+  font-size: 32px;
+  padding-top: 5px;
+  margin-left: 10px;
+  width: 10px;
+  color: black;
+}
+
+.cliqz-weather-today-min {
+  font-size: 11px;
+  color: #4785ec;
+  padding: 2px;
+}
+
+.cliqz-weather-today-max {
+  font-size: 11px;
+  color: #fd5b5b;
+  padding: 2px;
+}
+
+.cliqz-weather-today-icon {
+  height: 50px;
+}
+
+.cliqz-weather-next-icon {
+  height: 50px;
+  margin: 0px 20px 0 15px;
+}
+
+.cliqz-weather-next-container {
+  padding: 5px;
+  margin: 0px 10px;
+}
+
+
+.cliqz-weather-next-day {
+  color: black;
+  font-size: 14px;
+}
+
+.cliqz-weather-next-date {
+  color: gray;
+  font-size: 13px;
+  padding-top: 7px;
+}
+
+.cliqz-weather-next-max {
+  font-size: 12px;
+  color: #fd5b5b;
+}
+
+.cliqz-weather-next-min {
+  font-size: 12px;
+  color: #4785ec;
+  padding-top: 7px;
+}
+
+.cliqz-weather-next-desc {
+  color: #777;
+}
+
+@media (max-width: 1050px) {
+  .cliqz-weather-aTomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .cliqz-weather-tomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .cliqz-weather-credits {
+    display: none;
+  }
+}
+
+/* end weather */
+
 /* misc */
+.cliqz-inline-box-children>* {
+    display: inline-block;
+    vertical-align: middle;
+}
 
 .hidden {
     visibility: hidden;
