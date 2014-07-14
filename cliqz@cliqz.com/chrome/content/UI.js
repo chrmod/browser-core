@@ -2,8 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions'],
-    PARTIALS = ['generic', 'weather', 'shopping'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -101,8 +100,7 @@ function enhanceResults(res){
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
         r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
-
-        r['partial-' +generateType(r.type)] = true;
+        r.partial = generateType(r.type);
     }
     return res;
 }
@@ -322,10 +320,9 @@ var UI = {
                 UI.tpl[tpl] = Handlebars.compile(res.response);
             });
         });
-        PARTIALS.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                Handlebars.registerPartial(tpl,res.response);
-            });
+
+        Handlebars.registerHelper('vertical', function(name, options) {
+            return new Handlebars.SafeString(UI.tpl[name](this));
         });
     },
     main: function(box){

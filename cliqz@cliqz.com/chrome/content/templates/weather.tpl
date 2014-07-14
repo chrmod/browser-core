@@ -1,3 +1,4 @@
+{{#with data}}
 <div style='padding:5px 0'>
   <div class='cliqz-weather-left-box'>
       <div class='cliqz-weather-city'>{{ city }}</div>
@@ -87,3 +88,4 @@
   </div>
   <br style="clear:both"/>
 </div>
+{{/with}}

@@ -40,6 +40,9 @@ function openUILink(url){
     location.href = url;
 }
 
+var ALL = SHOPPING;
+ALL.results = ALL.results.concat(RESULTS.results).concat(VIDEO.results);
+
 document.addEventListener('keydown', CLIQZ.UI.keyDown);
 a= cont;
 $(function(){
@@ -47,5 +50,5 @@ $(function(){
         r.width=document.body.offsetWidth - 95;
         CLIQZ.UI.results(r);
         CLIQZ.UI.suggestions(s);
-    }, 1000, SHOPPING, SUGGESTIONS);
+    }, 1000, ALL, SUGGESTIONS);
 });

@@ -4,16 +4,6 @@
 		url='{{ url }}'
 		idx='{{ @index }}'
 		>
-		{{#if partial-weather}}
-			{{#with data}}
-				{{> weather }}
-			{{/with}}
-		{{ else }}
-			{{#if partial-shopping}}
-				{{> shopping}}
-			{{ else }}
-				{{> generic }}
-			{{/if}}
-		{{/if}}
+		{{vertical partial}}
 	</div>
 {{/each}}
