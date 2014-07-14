@@ -89,13 +89,8 @@
 #cliqz-results {
     height: 300px;
     overflow-y: scroll;
-
 }
 
-#cliqz-results>div>div {
-    display: inline-block;
-    vertical-align: middle;
-}
 /*
 #cliqz-results * {
     border:1px solid black;
@@ -163,7 +158,6 @@
 }
 
 .cliqz-result-item-box {
-    padding: 10px 0px;
     border-bottom: 1px solid #CCC;
 }
 
@@ -188,6 +182,10 @@
     background-color: #eefafe;
 }
 
+.cliqz-result-generic {
+   padding: 10px 0;
+}
+
 .cliqz-logo {
     height: 36px;
     width: 36px;
@@ -203,72 +201,79 @@
 /* end results */
 
 .cliqz-urlbar-Last-search {
-  background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;
-  background-size: 14px 10px;
-  color: white;
-  background-color: grey;
-  margin: 0px;
-  padding: 2px 6px 2px 24px;
-  border-radius: 1px;
-  max-width: 200px;
-  text-overflow: ellipsis;
-  overflow: hidden;
+    background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;
+    background-size: 14px 10px;
+    color: white;
+    background-color: grey;
+    margin: 0px;
+    padding: 2px 6px 2px 24px;
+    border-radius: 1px;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 /* weather */
 .cliqz-weather-left-box {
-  padding-top: 10px;
-  margin-right: 20px;
-  max-width: 200px;
+    padding-top: 10px;
+    margin-right: 20px;
+    max-width: 150px;
+    float: left;
 }
 
 .cliqz-weather-city {
-  background-color: grey;
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-  padding: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    background-color: grey;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    padding: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cliqz-weather-status {
-  color: grey;
-  padding: 5px;
+    color: grey;
+    padding: 5px;
 }
 
 .cliqz-weather-today-container {
-  margin-top: 10px;
-  width: 200px;
+    margin-top: 10px;
+    width: 200px;
+    float: left;
 }
 
 .cliqz-weather-skew-container {
-  transform: skew(-30deg);
-  background-color:#efefef;
-  margin-right:10px;
-  padding: 0px 20px;
+    transform: skew(-30deg);
+    background-color:#efefef;
+    margin-right:10px;
+    padding: 0px 20px;
+    float: right;
 }
 
 
 .cliqz-weather-credits {
-  font-size: 9px;
-  color: lightgrey;
-  text-align:right
+    font-size: 9px;
+    color: lightgrey;
+    text-align:right;
+    float: right;
+    margin: 66px 5px 0 0;
 }
 
 .cliqz-weather-today-date {
-  font-size: 11px;
-  padding: 2px;
-  color: grey;
+    font-size: 11px;
+    padding: 2px;
+    color: grey;
 }
 
 .cliqz-weather-today-temp {
-  font-size: 32px;
-  padding-top: 5px;
-  margin-left: 10px;
-  width: 10px;
-  color: black;
+    font-size: 32px;
+    color: black;
+    background-repeat: no-repeat;
+    background-position: 20px 0px;
+    padding-left: 87px;
+    height: 50px;
+    line-height: 52px;
 }
 
 .cliqz-weather-today-min {
@@ -278,65 +283,65 @@
 }
 
 .cliqz-weather-today-max {
-  font-size: 11px;
-  color: #fd5b5b;
-  padding: 2px;
+    font-size: 11px;
+    color: #fd5b5b;
+    padding: 2px;
 }
 
 .cliqz-weather-today-icon {
-  height: 50px;
+    height: 50px;
 }
 
 .cliqz-weather-next-icon {
-  height: 50px;
-  margin: 0px 20px 0 15px;
+    height: 50px;
+    margin: 0px 20px 0 15px;
 }
 
 .cliqz-weather-next-container {
-  padding: 5px;
-  margin: 0px 10px;
+    padding: 10px;
+    margin: 0px 10px;
 }
 
 
 .cliqz-weather-next-day {
-  color: black;
-  font-size: 14px;
+    color: black;
+    font-size: 14px;
 }
 
 .cliqz-weather-next-date {
-  color: gray;
-  font-size: 13px;
-  padding-top: 7px;
+    color: gray;
+    font-size: 13px;
+    padding-top: 7px;
 }
 
 .cliqz-weather-next-max {
-  font-size: 12px;
-  color: #fd5b5b;
+    font-size: 12px;
+    color: #fd5b5b;
 }
 
 .cliqz-weather-next-min {
-  font-size: 12px;
-  color: #4785ec;
-  padding-top: 7px;
+    font-size: 12px;
+    color: #4785ec;
+    padding-top: 7px;
 }
 
 .cliqz-weather-next-desc {
-  color: #777;
+    color: #777;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1200px) {
   .cliqz-weather-aTomorrow {
     display: none;
   }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 1000px) {
   .cliqz-weather-tomorrow {
     display: none;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .cliqz-weather-credits {
     display: none;
   }

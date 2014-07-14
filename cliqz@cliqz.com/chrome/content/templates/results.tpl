@@ -9,7 +9,11 @@
 				{{> weather }}
 			{{/with}}
 		{{ else }}
-			{{> generic }}
+			{{#if partial-shopping}}
+				{{> shopping}}
+			{{ else }}
+				{{> generic }}
+			{{/if}}
 		{{/if}}
 	</div>
 {{/each}}

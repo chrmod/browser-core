@@ -3,7 +3,7 @@
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions'],
-    PARTIALS = ['generic', 'weather'],
+    PARTIALS = ['generic', 'weather', 'shopping'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -89,8 +89,8 @@ function constructImage(data){
 
 function generateType(type){
     if(type === 'cliqz-weather') return 'weather';
+    if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
     return 'generic';
-
 }
 
 function enhanceResults(res){
@@ -112,7 +112,7 @@ function resultClick(ev){
 
     while (el && el.className != IC) el = el.parentElement;
 
-    el && openUILink(el.getAttribute('url'));
+    el && el.getAttribute('url') && openUILink(el.getAttribute('url'));
 }
 
 function getResultSelection(){
