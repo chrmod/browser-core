@@ -100,7 +100,7 @@ function enhanceResults(res){
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
         r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
-        r.partial = generateType(r.type);
+        r.vertical = generateType(r.type);
     }
     return res;
 }
@@ -321,7 +321,7 @@ var UI = {
             });
         });
 
-        Handlebars.registerHelper('vertical', function(name, options) {
+        Handlebars.registerHelper('partial', function(name, options) {
             return new Handlebars.SafeString(UI.tpl[name](this));
         });
     },

@@ -4,6 +4,6 @@
 		url='{{ url }}'
 		idx='{{ @index }}'
 		>
-		{{vertical partial}}
+		{{partial vertical}}
 	</div>
 {{/each}}
