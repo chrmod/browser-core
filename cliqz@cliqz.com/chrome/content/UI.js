@@ -118,12 +118,15 @@ function resultClick(ev){
         newTab = ev.metaKey || ev.ctrlKey,
         logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
 
-    while (el && el.className != IC) el = el.parentElement;
-
-    if(el && el.getAttribute('url')){
-        var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
-        if(newTab || logoClick) gBrowser.addTab(url);
-        else openUILink(url);
+    while (el){
+        if(el.getAttribute('url')){
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+            if(newTab || logoClick) gBrowser.addTab(url);
+            else openUILink(url);
+            break;
+        }
+        if(el.className == IC) break; //do not go higher than a result
+        el = el.parentElement;
     }
 }
 
