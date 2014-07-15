@@ -44,9 +44,9 @@
 	<div class='cliqz-news-sources'>
 	{{#each data.richData.additional_sources}}
 		<div url='{{url}}'
-			  class='cliqz-news-source-title-with-logo
-			  {{generate_logo url}}
-			  '>
+			 idx='{{ @index }}'
+			 type='{{ ../type }}'
+		     class='cliqz-news-source-title-with-logo {{generate_logo url}}'>
 			{{title}}
 		</div>
 	{{/each}}

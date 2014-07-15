@@ -231,23 +231,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzUtils.track(action);
     },
-    popupClick: function(item) {
-        var pos = -1, siblings = item.parentNode.children;
-        for(var i in siblings){
-            if(siblings[i] == item)
-                pos = i;
-        }
-        var action = {
-            type: 'activity',
-            action: 'result_click',
-            new_tab: false,
-            current_position: pos,
-            position_type: CliqzUtils.encodeResultType(item.getAttribute('source')),
-            search: CliqzUtils.isSearch(item.getAttribute('url'))
-        };
-
-        CliqzUtils.track(action);
-    },
     isAutocomplete: function(base, candidate){
         if(base.indexOf('://') !== -1){
            base = base.split('://')[1];
@@ -429,11 +412,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 );
             },0);
 
-            // avoid looping through results
-            if((code == 40 && popup.selectedIndex === CLIQZ.Core.urlbar.popup._currentIndex - 1) ||
-               (code == 38 && popup.selectedIndex === - 1)) {
-                ev.preventDefault();
-            }
         }
         /*
         if(code == 9) { //tab - navigate through suggestions

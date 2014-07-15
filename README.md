@@ -193,6 +193,7 @@ Result click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
+    "inner_link": true/false, the actual result was clicked or some inner link (eg. additional sources for news)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
@@ -243,7 +244,16 @@ Result enter (keyboard)
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```
-
+3. With a focused suggestion
+``` bash
+{
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "suggestion_enter",
+    "current_position": 1
+}
+```
 Results - results shown in the dropdown
 ``` bash
 {

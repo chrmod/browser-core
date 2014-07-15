@@ -121,6 +121,18 @@ function resultClick(ev){
     while (el){
         if(el.getAttribute('url')){
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+            var action = {
+                type: 'activity',
+                action: 'result_click',
+                new_tab: newTab || logoClick,
+                current_position: el.getAttribute('idx'),
+                inner_link: el.className != IC, //link inside the result or the actual result
+                position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                search: CliqzUtils.isSearch(url)
+            };
+
+            CliqzUtils.track(action);
+
             if(newTab || logoClick) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -228,7 +240,9 @@ function suggestionClick(ev){
             var action = {
                 type: 'activity',
                 action: 'suggestion_click',
-                current_position: ev.target.position || ev.target.parentNode.position || -1,
+                current_position: ev.target.getAttribute('idx') ||
+                                  ev.target.parentNode.getAttribute('idx') ||
+                                  -1,
             };
 
             CliqzUtils.track(action);
@@ -237,20 +251,23 @@ function suggestionClick(ev){
 }
 
 function onEnter(ev, item){
+    debugger;
     //sel && openUILink(sel.getAttribute('url'));
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
-        action = {
-            type: 'activity',
-            action: 'result_enter',
-            current_position: index,
-            search: false
-        };
+        action;
 
     if(index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
         openUILink(item.getAttribute('url'));
+
+        action = {
+            type: 'activity',
+            action: 'result_enter',
+            current_position: index,
+            search: false
+        }
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestions = gCliqzBox.suggestionBox.children,
@@ -261,6 +278,13 @@ function onEnter(ev, item){
 
             if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                 CLIQZ.Core.urlbar.mInputField.setUserInput(s.getAttribute('val'));
+                action = {
+                    type: 'activity',
+                    action: 'suggestion_enter',
+                    current_position: i
+                }
+                CliqzUtils.track(action);
+                return true;
             }
         }
 
@@ -329,6 +353,17 @@ function enginesClick(ev){
     }
 }
 
+function trackArrowNavigation(el){
+    var action = {
+        type: 'activity',
+        action: 'arrow_key',
+        current_position: el.getAttribute('idx'),
+        position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+        search: CliqzUtils.isSearch(el.getAttribute('url'))
+    };
+    CliqzUtils.track(action);
+}
+
 var UI = {
     tpl: {},
     init: function(){
@@ -387,6 +422,7 @@ var UI = {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
                 setResultSelection(nextEl, true, true);
+                trackArrowNavigation(nextEl);
                 return true;
             break;
             case DOWN:
@@ -394,6 +430,7 @@ var UI = {
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
                     setResultSelection(nextEl, true, false);
+                    trackArrowNavigation(nextEl);
                 }
                 return true;
             break;
