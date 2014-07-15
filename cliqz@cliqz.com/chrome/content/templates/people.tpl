@@ -43,7 +43,7 @@
 					{{title}}
 				</span>
 			</div>
-			<div class='overflow'>
+			<div class='overflow' style='padding-bottom: 5px;'>
 				<span class='cliqz-people-jobtitle'>
 					{{ urlDetails.host }}
 				</span>

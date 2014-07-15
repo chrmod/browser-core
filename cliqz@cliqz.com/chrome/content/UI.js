@@ -339,6 +339,7 @@ var UI = {
 
         Handlebars.registerHelper('generate_logo', function(url, options) {
             return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+        });
 
         Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
             return rating * 14;
