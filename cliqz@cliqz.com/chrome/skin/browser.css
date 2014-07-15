@@ -390,6 +390,62 @@
 }
 /* end news */
 
+/* people */
+.people-box {
+    font-size: 9pt;
+}
+
+.cliqz-people-image-box {
+    width: 64px;
+    height: 64px;
+}
+
+.cliqz-people-source {
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    background-size: cover;
+    margin-left: -12px;
+    position: relative;
+    top: -12px;
+    border: 2px solid white;
+}
+
+.cliqz-people-image {
+    background-color: white;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 54px;
+    height: 54px;
+    border: 2px solid #00659c;
+}
+
+.cliqz-people-name {
+  font-weight: bold;
+  color: #222222
+}
+
+.cliqz-people-company {
+  font-weight: bold;
+  color: black;
+}
+
+.cliqz-people-jobtitle{
+  color: #00659c;
+  font-weight: bold;
+}
+
+.cliqz-people-agoline {
+  color: #cccccc;
+  padding-left: 3pt;
+}
+
+.cliqz-people-branch {
+  color: #cccccc;
+}
+/* end people */
+
 /* misc */
 .cliqz-inline-box-children>* {
     display: inline-block;
