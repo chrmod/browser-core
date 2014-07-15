@@ -106,7 +106,9 @@
     margin-right: 10px;
     width: 96px; /* 16 */
     height: 54px; /* 9 */
-    background-size: cover;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 .cliqz-image>p {
@@ -192,6 +194,10 @@
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 36px 36px;
+}
+
+.cliqz-result-item-box:hover .cliqz-logo {
+  background: url(chrome://cliqzres/content/skin/popout_icon.png) no-repeat center center;
 }
 
 .cliqz-result-description {

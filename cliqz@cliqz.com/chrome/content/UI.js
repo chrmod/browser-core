@@ -114,11 +114,17 @@ function enhanceResults(res){
 }
 
 function resultClick(ev){
-    var el = ev.target;
+    var el = ev.target,
+        newTab = ev.metaKey || ev.ctrlKey,
+        logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
 
     while (el && el.className != IC) el = el.parentElement;
 
-    el && el.getAttribute('url') && openUILink(el.getAttribute('url'));
+    if(el && el.getAttribute('url')){
+        var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+        if(newTab || logoClick) gBrowser.addTab(url);
+        else openUILink(url);
+    }
 }
 
 function getResultSelection(){
