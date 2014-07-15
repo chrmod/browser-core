@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping', 'gaming'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -89,6 +89,7 @@ function constructImage(data){
 function generateType(type){
     if(type === 'cliqz-weather') return 'weather';
     if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
+    if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
     return 'generic';
 }
 
