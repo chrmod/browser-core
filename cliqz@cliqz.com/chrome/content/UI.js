@@ -42,7 +42,10 @@ function constructImage(data){
 
         switch((data.richData && data.richData.type) || data.type){
             case 'news': //fallthrough
-            case 'shopping': //fallthrough
+            case 'shopping':
+              height = 64;
+              ratio = 1;
+              break;
             case 'hq':
                 try {
                     if(img.ratio){
@@ -336,6 +339,9 @@ var UI = {
 
         Handlebars.registerHelper('generate_logo', function(url, options) {
             return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+
+        Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
+            return rating * 14;
         });
     },
     main: function(box){

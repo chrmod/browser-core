@@ -446,6 +446,33 @@
 }
 /* end people */
 
+/* shopping */
+
+.cliqz-shopping-result-price {
+  font-size: 9pt;
+  font-weight: 600;
+  color: #aa2222;
+}
+
+.cliqz-shopping-result-stars-box, .cliqz-shopping-result-stars {
+  float: left;
+  background: url(chrome://cliqzres/content/skin/stars.png) 0 -14px repeat-x;
+  width: 70px;
+  height: 14px;
+}
+
+.cliqz-shopping-result-stars-box .cliqz-shopping-result-stars {
+  background-position: 0 0;
+}
+
+.cliqz-shopping-result-reviews {
+  display: inline;
+  margin-left: 5px;
+  color: #444444;
+}
+
+/* end shopping */
+
 /* misc */
 .cliqz-inline-box-children>* {
     display: inline-block;
@@ -461,5 +488,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+<<<<<<< HEAD
     padding-right: 10px;
 }
+=======
+}
+>>>>>>> 8df68ff4eda98ecccccf84ecb64604ecfb406389
