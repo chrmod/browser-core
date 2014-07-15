@@ -100,9 +100,11 @@ function enhanceResults(res){
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
-        r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
+        r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
         r.vertical = generateType(r.type);
     }
+    console.log('---')
+    console.log(JSON.stringify(res))
     return res;
 }
 
