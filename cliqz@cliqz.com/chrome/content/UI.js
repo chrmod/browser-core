@@ -42,7 +42,10 @@ function constructImage(data){
 
         switch((data.richData && data.richData.type) || data.type){
             case 'news': //fallthrough
-            case 'shopping': //fallthrough
+            case 'shopping':
+              height = 64;
+              ratio = 1;
+              break;
             case 'hq':
                 try {
                     if(img.ratio){
@@ -324,6 +327,10 @@ var UI = {
 
         Handlebars.registerHelper('partial', function(name, options) {
             return new Handlebars.SafeString(UI.tpl[name](this));
+        });
+
+        Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
+            return rating * 14;
         });
     },
     main: function(box){
