@@ -77,9 +77,9 @@
             }
             CLIQZ.UI.results({
               results: data,
-              width: CLIQZ.Core.urlbar.clientWidth - 110
+              width: CLIQZ.Core.urlbar.clientWidth - 90
             });
-            //console.log(CLIQZ.Core.urlbar.clientWidth - 110);
+            //console.log(CLIQZ.Core.urlbar.clientWidth - 90);
             CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
           ]]>
         </body>

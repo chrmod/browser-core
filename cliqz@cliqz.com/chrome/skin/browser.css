@@ -106,7 +106,9 @@
     margin-right: 10px;
     width: 96px; /* 16 */
     height: 54px; /* 9 */
-    background-size: cover;
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
 
 .cliqz-image>p {
@@ -194,8 +196,13 @@
     background-size: 36px 36px;
 }
 
+.cliqz-result-item-box:hover .cliqz-logo {
+  background: url(chrome://cliqzres/content/skin/popout_icon.png) no-repeat center center;
+}
+
 .cliqz-result-description {
     max-height: 2.5em;
+    padding-right: 10px;
 }
 
 /* end results */
@@ -349,6 +356,102 @@
 
 /* end weather */
 
+/* news */
+.cliqz-news-ago-line {
+    color: red;
+    font-weight: bold;
+}
+
+.cliqz-news-description-box {
+    height: 35px;
+    overflow: hidden;
+}
+
+.cliqz-news-sources {
+    background: #f3f3f3;
+    padding: 5px 0 5px 35px;
+    max-height: 66px;
+    overflow: hidden;
+}
+
+.cliqz-news-source-title-with-logo {
+    font-size: 8pt;
+    color: #333333;
+    width: 300px;
+    overflow: hidden;
+    height: 26px;
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-position: left 2px;
+    padding-left: 30px;
+    background-size: 24px 24px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+.cliqz-news-source {
+    overflow: hidden;
+    margin: 2px 2px 2px 0px;
+}
+/* end news */
+
+/* people */
+.people-box {
+    font-size: 9pt;
+}
+
+.cliqz-people-image-box {
+    width: 64px;
+    height: 64px;
+}
+
+.cliqz-people-source {
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    background-size: cover;
+    margin-left: -12px;
+    position: relative;
+    top: -12px;
+    border: 2px solid white;
+}
+
+.cliqz-people-image {
+    background-color: white;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 54px;
+    height: 54px;
+    border: 2px solid #00659c;
+}
+
+.cliqz-people-name {
+  font-weight: bold;
+  color: #222222
+}
+
+.cliqz-people-company {
+  font-weight: bold;
+  color: black;
+}
+
+.cliqz-people-jobtitle{
+  color: #00659c;
+  font-weight: bold;
+}
+
+.cliqz-people-agoline {
+  color: #cccccc;
+  padding-left: 3pt;
+}
+
+.cliqz-people-branch {
+  color: #cccccc;
+}
+/* end people */
+
 /* shopping */
 
 .cliqz-shopping-result-price {
@@ -391,4 +494,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+<<<<<<< HEAD
+    padding-right: 10px;
 }
+=======
+}
+>>>>>>> 8df68ff4eda98ecccccf84ecb64604ecfb406389

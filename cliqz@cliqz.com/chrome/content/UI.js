@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping', 'gaming'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping', 'gaming', 'news', 'people'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -93,6 +93,8 @@ function generateType(type){
     if(type === 'cliqz-weather') return 'weather';
     if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
     if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
+    if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
+    if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
     return 'generic';
 }
 
@@ -103,18 +105,26 @@ function enhanceResults(res){
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
-        r.width = res.width - (r.image && r.image.src ? r.image.width + 10 : 0);
+        r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
         r.vertical = generateType(r.type);
     }
+    console.log('---')
+    console.log(JSON.stringify(res))
     return res;
 }
 
 function resultClick(ev){
-    var el = ev.target;
+    var el = ev.target,
+        newTab = ev.metaKey || ev.ctrlKey,
+        logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
 
     while (el && el.className != IC) el = el.parentElement;
 
-    el && el.getAttribute('url') && openUILink(el.getAttribute('url'));
+    if(el && el.getAttribute('url')){
+        var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+        if(newTab || logoClick) gBrowser.addTab(url);
+        else openUILink(url);
+    }
 }
 
 function getResultSelection(){
@@ -327,6 +337,14 @@ var UI = {
 
         Handlebars.registerHelper('partial', function(name, options) {
             return new Handlebars.SafeString(UI.tpl[name](this));
+        });
+
+        Handlebars.registerHelper('agoline', function(val, options) {
+            return CliqzUtils.computeAgoLine(val);
+        });
+
+        Handlebars.registerHelper('generate_logo', function(url, options) {
+            return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
         });
 
         Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
