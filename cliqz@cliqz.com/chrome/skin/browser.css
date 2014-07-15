@@ -196,6 +196,7 @@
 
 .cliqz-result-description {
     max-height: 2.5em;
+    padding-right: 10px;
 }
 
 /* end results */
@@ -348,6 +349,46 @@
 }
 
 /* end weather */
+
+/* news */
+.cliqz-news-ago-line {
+    color: red;
+    font-weight: bold;
+}
+
+.cliqz-news-description-box {
+    height: 35px;
+    overflow: hidden;
+}
+
+.cliqz-news-sources {
+    background: #f3f3f3;
+    padding: 5px 0 5px 35px;
+    max-height: 66px;
+    overflow: hidden;
+}
+
+.cliqz-news-source-title-with-logo {
+    font-size: 8pt;
+    color: #333333;
+    width: 300px;
+    overflow: hidden;
+    height: 26px;
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-position: left 2px;
+    padding-left: 30px;
+    background-size: 24px 24px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+.cliqz-news-source {
+    overflow: hidden;
+    margin: 2px 2px 2px 0px;
+}
+/* end news */
 
 /* misc */
 .cliqz-inline-box-children>* {
