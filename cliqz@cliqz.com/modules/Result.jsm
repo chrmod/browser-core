@@ -156,7 +156,7 @@ var Result = {
 
 
         resp.description = result.snippet.desc || result.snippet.snippet;
-        if(resp.type != 'other')debugger;
+        if(resp.type != 'other')
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
                          Result.getOgImage(result.snippet.og)
         }
