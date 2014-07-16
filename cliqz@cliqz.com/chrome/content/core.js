@@ -333,6 +333,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarkeydown: function(ev){
         var cancel = CLIQZ.UI.keyDown(ev);
+        CLIQZ.Core._lastKey = ev.keyCode;
         cancel && ev.preventDefault();
     },
     // autocomplete query inline
