@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather', 'shopping', 'gaming', 'news', 'people'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather', 'shopping', 'gaming', 'news', 'people'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -251,7 +251,6 @@ function suggestionClick(ev){
 }
 
 function onEnter(ev, item){
-    debugger;
     //sel && openUILink(sel.getAttribute('url'));
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
@@ -388,6 +387,72 @@ var UI = {
         Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
             return rating * 14;
         });
+        Handlebars.registerHelper('even', function(value, options) {
+            if (value%2) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+        });
+
+        Handlebars.registerHelper('emphasis', function(text, q, min) {
+            if(!text || q.length < (min || 2)) return text;
+
+            var map = Array(text.length),
+                tokens = q.toLowerCase().split(/\s+/),
+                lowerText = text.toLowerCase(),
+                out, high = false;
+
+            tokens.forEach(function(token){
+                var poz = lowerText.indexOf(token);
+                while(poz !== -1){
+                    for(var i=poz; i<poz+token.length; i++)
+                        map[i] = true;
+                    poz = lowerText.indexOf(token, poz+1);
+                }
+            });
+
+            /* one string version
+            out = '';
+            for(var i=0; i<text.length; i++){
+                if(map[i] && !high){
+                    out += '<em>'+text[i];
+                    high = true;
+                }
+                else if(!map[i] && high){
+                    out += '</em>'+text[i];
+                    high = false;
+                }
+                else out += text[i];
+            }
+            if(high)out += '</em>';
+            console.log(new Handlebars.SafeString(out));
+
+
+            return out.split(/<em>|<\/em>/);
+            */
+            out=[];
+            var current = ''
+            for(var i=0; i<text.length; i++){
+                if(map[i] && !high){
+                    out.push(current);
+                    current='';
+                    current += text[i];
+                    high = true;
+                }
+                else if(!map[i] && high){
+                    out.push(current);
+                    current='';
+                    current +=text[i];
+                    high = false;
+                }
+                else current += text[i];
+            }
+            out.push(current);
+
+            return new Handlebars.SafeString(UI.tpl.emphasis(out));
+
+        });
     },
     main: function(box){
         gCliqzBox = box;
@@ -413,8 +478,11 @@ var UI = {
         gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
-    suggestions: function(suggestions){
-        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions(suggestions);
+    suggestions: function(suggestions, q){
+        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+            suggestions: suggestions,
+            q:q
+        });
     },
     keyDown: function(ev){
         var sel = getResultSelection();

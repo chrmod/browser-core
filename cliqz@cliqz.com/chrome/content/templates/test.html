@@ -22,5 +22,28 @@
 <div id='container'></div>
 
 <script type="text/javascript" src="test.js"></script>
+<script type="text/javascript">
+    function a(text, q) {
+            if(q.length < 2) return text;
+
+            var map = Array(text.length),
+                tokens = q.toLowerCase().split(/\s+/),
+                lowerText = text.toLowerCase();
+
+            tokens.forEach(function(token){
+                debugger;
+                var poz = lowerText.indexOf(token);
+                while(poz !== -1){
+                    for(var i=poz; i<token.length; i++)
+                        map[i] = true;
+                    poz = lowerText.indexOf(token, poz+1);
+                }
+            });
+
+            return map
+    }
+
+    console.log(a("Munich is big BIG", "mu big"));
+</script>
 </body>
 </html>

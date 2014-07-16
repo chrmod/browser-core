@@ -80,7 +80,7 @@
               width: CLIQZ.Core.urlbar.clientWidth - 90
             });
             //console.log(CLIQZ.Core.urlbar.clientWidth - 90);
-            CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
+            CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
           ]]>
         </body>
       </method>

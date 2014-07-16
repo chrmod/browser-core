@@ -1,7 +1,7 @@
-{{#each this}}
+{{#each this.suggestions}}
 	<span class='cliqz-suggestion'
 		val="{{this}}"
 		idx="{{ @index }}">
-		{{this}}
+		{{emphasis this ../q 1}}
 	</span>
 {{/each}}

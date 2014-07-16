@@ -485,6 +485,11 @@
     vertical-align: middle;
 }
 
+em {
+    font-style:normal;
+    font-weight: bold;
+}
+
 .hidden {
     visibility: hidden;
     display: none !important;
@@ -494,9 +499,5 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-<<<<<<< HEAD
     padding-right: 10px;
 }
-=======
-}
->>>>>>> 8df68ff4eda98ecccccf84ecb64604ecfb406389
