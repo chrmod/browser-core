@@ -2,7 +2,8 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather', 'shopping', 'gaming', 'news', 'people'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
+                 'shopping', 'gaming', 'news', 'people', 'video'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -95,6 +96,7 @@ function generateType(type){
     if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
     if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
     if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
+    if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
     return 'generic';
 }
 
@@ -384,9 +386,10 @@ var UI = {
             return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
         });
 
-        Handlebars.registerHelper('shoppingStarsWidth', function(rating) {
+        Handlebars.registerHelper('shopping_stars_width', function(rating) {
             return rating * 14;
         });
+
         Handlebars.registerHelper('even', function(value, options) {
             if (value%2) {
                 return options.fn(this);
@@ -451,7 +454,31 @@ var UI = {
             out.push(current);
 
             return new Handlebars.SafeString(UI.tpl.emphasis(out));
+        });
 
+        Handlebars.registerHelper('video_provider', function(host) {
+            if(host.indexOf('youtube') === 0)
+              return "YouTube";
+        });
+
+        Handlebars.registerHelper('video_views', function(views) {
+            if(views > 1e8)
+              return "100mio";
+            if(views > 1e7)
+              return "10mio";
+            if(views > 1e6)
+              return "1mio";
+            return false;
+        });
+
+        Handlebars.registerHelper('date', function(date) {
+            var d = new Date(date);
+            var date = d.getDate();
+            var month = d.getMonth();
+            month++;
+            var year = d.getFullYear();
+            var formatedDate = date + '/' + month + '/' + year;
+            return formatedDate;
         });
     },
     main: function(box){

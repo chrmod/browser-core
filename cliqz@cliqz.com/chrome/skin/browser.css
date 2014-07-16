@@ -450,6 +450,7 @@
 .cliqz-people-branch {
   color: #cccccc;
 }
+
 /* end people */
 
 /* shopping */
@@ -478,6 +479,40 @@
 }
 
 /* end shopping */
+
+/* video */
+
+.cliqz-result-video-views {
+  height: 18px;
+  vertical-align: middle;
+}
+
+.cliqz-result-video-provider {
+  font-size: 14px;
+  color: #006666;
+}
+
+.cliqz-result-video-author {
+  font-size: 12px;
+  color: #999999;
+  padding: 2px 0;
+}
+
+.cliqz-result-video-duration {
+  background: #000000;
+  color: #ffffff;
+  width: 55px;
+  padding: 2px 0;
+  margin-top: 2px;
+}
+
+.cliqz-result-video-play-arrow {
+  font-size: 0.7em;
+  vertical-align: middle;
+  padding: 0 5px;
+}
+
+/* end video */
 
 /* misc */
 .cliqz-inline-box-children>* {
