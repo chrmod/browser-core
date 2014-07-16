@@ -35,7 +35,7 @@
     </div>
     <div class="cliqz-shopping-result-stars-box">
       <div class="cliqz-shopping-result-stars" style="
-        width: {{ shoppingStarsWidth data.richData.rating }}px;
+        width: {{ shopping_stars_width data.richData.rating }}px;
       ">
     </div>
     </div>
