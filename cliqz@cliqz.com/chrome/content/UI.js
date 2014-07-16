@@ -154,8 +154,8 @@ function clearResultSelection(){
 }
 
 function setResultSelection(el, scroll, scrollTop){
+    clearResultSelection();
     if(el){
-        clearResultSelection();
         el.setAttribute('selected', 'true');
         if(scroll){
             var rBox = gCliqzBox.resultsBox,
@@ -256,19 +256,19 @@ function onEnter(ev, item){
     //sel && openUILink(sel.getAttribute('url'));
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
-        action;
+        action = {
+            type: 'activity',
+            action: 'result_enter',
+            current_position: index,
+            query_length: inputValue.length,
+            search: false
+        };
 
     if(index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
         openUILink(item.getAttribute('url'));
 
-        action = {
-            type: 'activity',
-            action: 'result_enter',
-            current_position: index,
-            search: false
-        }
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestions = gCliqzBox.suggestionBox.children,
@@ -282,6 +282,7 @@ function onEnter(ev, item){
                 action = {
                     type: 'activity',
                     action: 'suggestion_enter',
+                    query_length: inputValue.length,
                     current_position: i
                 }
                 CliqzUtils.track(action);
@@ -311,7 +312,7 @@ function onEnter(ev, item){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
         }
-
+        CliqzUtils.track(action);
         return false
     }
     CliqzUtils.track(action);
@@ -358,10 +359,12 @@ function trackArrowNavigation(el){
     var action = {
         type: 'activity',
         action: 'arrow_key',
-        current_position: el.getAttribute('idx'),
-        position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
-        search: CliqzUtils.isSearch(el.getAttribute('url'))
+        current_position: el ? el.getAttribute('idx') : -1,
     };
+    if(el){
+        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
+        action.search = CliqzUtils.isSearch(el.getAttribute('url'));
+    }
     CliqzUtils.track(action);
 }
 
@@ -399,7 +402,7 @@ var UI = {
         });
 
         Handlebars.registerHelper('emphasis', function(text, q, min) {
-            if(!text || q.length < (min || 2)) return text;
+            if(!text || !q || q.length < (min || 2)) return text;
 
             var map = Array(text.length),
                 tokens = q.toLowerCase().split(/\s+/),

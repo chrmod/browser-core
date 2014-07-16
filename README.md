@@ -222,6 +222,7 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
 	"type": "activity",
     "action": "result_enter",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
@@ -235,6 +236,7 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_enter",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": -1,
     "position_type": "inbar_url"/"inbar_query",
     // inbar_url = the typed value looks like an url and it should load on enter
@@ -251,6 +253,7 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "suggestion_enter",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": 1
 }
 ```
