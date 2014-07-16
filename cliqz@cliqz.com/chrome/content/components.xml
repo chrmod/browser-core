@@ -76,6 +76,7 @@
                     data: lastRes && lastRes.getDataAt(i),
                   });
               }
+
               CLIQZ.UI.results({
                 results: data,
                 width: CLIQZ.Core.urlbar.clientWidth - 90

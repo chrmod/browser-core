@@ -3,7 +3,7 @@
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
-                 'shopping', 'gaming', 'news', 'people', 'video'],
+                 'shopping', 'gaming', 'news', 'people', 'video', 'hq'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -97,6 +97,7 @@ function generateType(type){
     if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
     if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
     if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
+    if(type.indexOf('cliqz-results sources-h') === 0) return 'hq';
     return 'generic';
 }
 
@@ -401,6 +402,10 @@ var UI = {
             } else {
                 return options.inverse(this);
             }
+        });
+
+        Handlebars.registerHelper('json', function(value, options) {
+            return JSON.stringify(value);
         });
 
         Handlebars.registerHelper('emphasis', function(text, q, min) {

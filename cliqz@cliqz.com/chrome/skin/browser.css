@@ -362,11 +362,6 @@
     font-weight: bold;
 }
 
-.cliqz-news-description-box {
-    height: 35px;
-    overflow: hidden;
-}
-
 .cliqz-news-sources {
     background: #f3f3f3;
     padding: 5px 0 5px 35px;
@@ -395,6 +390,29 @@
     margin: 2px 2px 2px 0px;
 }
 /* end news */
+
+/* hq */
+.cliqz-hq-language {
+    color: gray;
+    font-weight: bold;
+}
+
+
+.cliqz-hq-links {
+    max-height: 1.3em;
+    overflow: hidden;
+}
+
+.cliqz-hq-link {
+    font-size: 9pt;
+    color: #00F;
+    float: left;
+    font-weight: bold;
+    padding-right: 15px;
+    cursor: pointer;
+}
+
+/* end hq */
 
 /* people */
 .people-box {
