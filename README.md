@@ -193,6 +193,8 @@ Result click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
+    "query_length": 2, //length of the query in the moment of this action
+    "inner_link": true/false, the actual result was clicked or some inner link (eg. additional sources for news)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
@@ -208,6 +210,7 @@ Suggestion click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "suggestion_click",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": 0
 }
 ```
@@ -221,6 +224,7 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
 	"type": "activity",
     "action": "result_enter",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
@@ -234,6 +238,7 @@ Result enter (keyboard)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_enter",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": -1,
     "position_type": "inbar_url"/"inbar_query",
     // inbar_url = the typed value looks like an url and it should load on enter
@@ -243,7 +248,17 @@ Result enter (keyboard)
     "search": true/false, //only if position_type = inbar_url and the url is a search page
 }
 ```
-
+3. With a focused suggestion
+``` bash
+{
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "type": "activity",
+    "action": "suggestion_enter",
+    "query_length": 2, //length of the query in the moment of this action
+    "current_position": 1
+}
+```
 Results - results shown in the dropdown
 ``` bash
 {

@@ -2,8 +2,8 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'generic', 'weather',
-                 'shopping', 'gaming', 'news', 'people', 'video'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
+                 'shopping', 'gaming', 'news', 'people', 'video', 'hq', 'qaa'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -97,6 +97,8 @@ function generateType(type){
     if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
     if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
     if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
+    if(type.indexOf('cliqz-results sources-h') === 0) return 'hq';
+    if(type.indexOf('cliqz-results sources-q') === 0) return 'qaa';
     return 'generic';
 }
 
@@ -120,12 +122,28 @@ function resultClick(ev){
         newTab = ev.metaKey || ev.ctrlKey,
         logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
 
-    while (el && el.className != IC) el = el.parentElement;
+    while (el){
+        if(el.getAttribute('url')){
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+            var action = {
+                type: 'activity',
+                action: 'result_click',
+                new_tab: newTab || logoClick,
+                current_position: el.getAttribute('idx'),
+                query_length: CLIQZ.Core.urlbar.value.length,
+                inner_link: el.className != IC, //link inside the result or the actual result
+                position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                search: CliqzUtils.isSearch(url)
+            };
 
-    if(el && el.getAttribute('url')){
-        var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
-        if(newTab || logoClick) gBrowser.addTab(url);
-        else openUILink(url);
+            CliqzUtils.track(action);
+
+            if(newTab || logoClick) gBrowser.addTab(url);
+            else openUILink(url);
+            break;
+        }
+        if(el.className == IC) break; //do not go higher than a result
+        el = el.parentElement;
     }
 }
 
@@ -139,8 +157,8 @@ function clearResultSelection(){
 }
 
 function setResultSelection(el, scroll, scrollTop){
+    clearResultSelection();
     if(el){
-        clearResultSelection();
         el.setAttribute('selected', 'true');
         if(scroll){
             var rBox = gCliqzBox.resultsBox,
@@ -227,7 +245,10 @@ function suggestionClick(ev){
             var action = {
                 type: 'activity',
                 action: 'suggestion_click',
-                current_position: ev.target.position || ev.target.parentNode.position || -1,
+                query_length: CLIQZ.Core.urlbar.value.length,
+                current_position: ev.target.getAttribute('idx') ||
+                                  ev.target.parentNode.getAttribute('idx') ||
+                                  -1,
             };
 
             CliqzUtils.track(action);
@@ -243,6 +264,7 @@ function onEnter(ev, item){
             type: 'activity',
             action: 'result_enter',
             current_position: index,
+            query_length: inputValue.length,
             search: false
         };
 
@@ -250,6 +272,7 @@ function onEnter(ev, item){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
         openUILink(item.getAttribute('url'));
+
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestions = gCliqzBox.suggestionBox.children,
@@ -260,6 +283,14 @@ function onEnter(ev, item){
 
             if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
                 CLIQZ.Core.urlbar.mInputField.setUserInput(s.getAttribute('val'));
+                action = {
+                    type: 'activity',
+                    action: 'suggestion_enter',
+                    query_length: inputValue.length,
+                    current_position: i
+                }
+                CliqzUtils.track(action);
+                return true;
             }
         }
 
@@ -285,7 +316,7 @@ function onEnter(ev, item){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
         }
-
+        CliqzUtils.track(action);
         return false
     }
     CliqzUtils.track(action);
@@ -328,6 +359,19 @@ function enginesClick(ev){
     }
 }
 
+function trackArrowNavigation(el){
+    var action = {
+        type: 'activity',
+        action: 'arrow_key',
+        current_position: el ? el.getAttribute('idx') : -1,
+    };
+    if(el){
+        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
+        action.search = CliqzUtils.isSearch(el.getAttribute('url'));
+    }
+    CliqzUtils.track(action);
+}
+
 var UI = {
     tpl: {},
     init: function(){
@@ -351,6 +395,76 @@ var UI = {
 
         Handlebars.registerHelper('shopping_stars_width', function(rating) {
             return rating * 14;
+        });
+
+        Handlebars.registerHelper('even', function(value, options) {
+            if (value%2) {
+                return options.fn(this);
+            } else {
+                return options.inverse(this);
+            }
+        });
+
+        Handlebars.registerHelper('json', function(value, options) {
+            return JSON.stringify(value);
+        });
+
+        Handlebars.registerHelper('emphasis', function(text, q, min) {
+            if(!text || !q || q.length < (min || 2)) return text;
+
+            var map = Array(text.length),
+                tokens = q.toLowerCase().split(/\s+/),
+                lowerText = text.toLowerCase(),
+                out, high = false;
+
+            tokens.forEach(function(token){
+                var poz = lowerText.indexOf(token);
+                while(poz !== -1){
+                    for(var i=poz; i<poz+token.length; i++)
+                        map[i] = true;
+                    poz = lowerText.indexOf(token, poz+1);
+                }
+            });
+
+            /* one string version
+            out = '';
+            for(var i=0; i<text.length; i++){
+                if(map[i] && !high){
+                    out += '<em>'+text[i];
+                    high = true;
+                }
+                else if(!map[i] && high){
+                    out += '</em>'+text[i];
+                    high = false;
+                }
+                else out += text[i];
+            }
+            if(high)out += '</em>';
+            console.log(new Handlebars.SafeString(out));
+
+
+            return out.split(/<em>|<\/em>/);
+            */
+            out=[];
+            var current = ''
+            for(var i=0; i<text.length; i++){
+                if(map[i] && !high){
+                    out.push(current);
+                    current='';
+                    current += text[i];
+                    high = true;
+                }
+                else if(!map[i] && high){
+                    out.push(current);
+                    current='';
+                    current +=text[i];
+                    high = false;
+                }
+                else current += text[i];
+            }
+            out.push(current);
+
+            return new Handlebars.SafeString(UI.tpl.emphasis(out));
         });
 
         Handlebars.registerHelper('video_provider', function(host) {
@@ -402,8 +516,11 @@ var UI = {
         gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
-    suggestions: function(suggestions){
-        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions(suggestions);
+    suggestions: function(suggestions, q){
+        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+            suggestions: suggestions,
+            q:q
+        });
     },
     keyDown: function(ev){
         var sel = getResultSelection();
@@ -411,6 +528,7 @@ var UI = {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
                 setResultSelection(nextEl, true, true);
+                trackArrowNavigation(nextEl);
                 return true;
             break;
             case DOWN:
@@ -418,6 +536,7 @@ var UI = {
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
                     setResultSelection(nextEl, true, false);
+                    trackArrowNavigation(nextEl);
                 }
                 return true;
             break;

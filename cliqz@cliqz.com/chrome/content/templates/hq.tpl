@@ -28,27 +28,27 @@
 			>
 				{{ source_name }}
 			</span>
-			<span class='cliqz-news-ago-line'>
-				{{ agoline discovery_timestamp }}
+			<span class='cliqz-hq-language'>
+				{{ source_language }}
 			</span>
 			{{/with}}
 		</div>
 		<div class='cliqz-result-description'>
 			{{ data.description }}
 		</div>
+		{{#if data.richData.additional_sources}}
+			<div class='cliqz-hq-links'>
+			{{#each data.richData.additional_sources}}
+				<div url='{{url}}'
+					 idx='{{ @index }}'
+					 type='{{ ../type }}'
+				     class='cliqz-hq-link'>
+					{{title}}
+				</div>
+			{{/each}}
+			</div>
+		{{/if}}
 	</div>
 	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
 	</div>
 </div>
-{{#if data.richData.additional_sources}}
-	<div class='cliqz-news-sources'>
-	{{#each data.richData.additional_sources}}
-		<div url='{{url}}'
-			 idx='{{ @index }}'
-			 type='{{ ../type }}'
-		     class='cliqz-news-source-title-with-logo {{generate_logo url}}'>
-			{{title}}
-		</div>
-	{{/each}}
-	</div>
-{{/if}}

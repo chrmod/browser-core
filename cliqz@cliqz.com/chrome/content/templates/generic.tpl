@@ -19,24 +19,23 @@
 	{{/if}}
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
 		<div class='cliqz-result-title-box overflow'>
-			{{ title }}
+			{{ emphasis title text }}
 		</div>
 		<div class='cliqz-result-url-box overflow'>
-
 			<span class='cliqz-result-url-host
 				{{#if urlDetails.ssl }}
 				  cliqz-result-url-ssl
 				{{/if}}
 				'
 			>
-				{{ urlDetails.host }}
+				{{ emphasis urlDetails.host text }}
 			</span>
 			<span class='cliqz-result-url-path'>
-				{{ urlDetails.path }}
+				{{ emphasis urlDetails.path text }}
 			</span>
 		</div>
 		<div class='cliqz-result-description'>
-			{{ data.description }}
+			{{ emphasis data.description text }}
 		</div>
 	</div>
 	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>

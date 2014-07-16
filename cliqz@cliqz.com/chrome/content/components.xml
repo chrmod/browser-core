@@ -66,21 +66,24 @@
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
                 lastRes = CliqzAutocomplete.lastResult;
 
-            for(var i=0; i<this._matchCount; i++) {
-                data.push({
-                  title: ctrl.getCommentAt(i),
-                  url: unEscapeUrl(ctrl.getValueAt(i)),
-                  type: ctrl.getStyleAt(i),
-                  text: q,
-                  data: lastRes && lastRes.getDataAt(i),
-                });
+            if(this._matchCount>0){
+              for(var i=0; i<this._matchCount; i++) {
+                  data.push({
+                    title: ctrl.getCommentAt(i),
+                    url: unEscapeUrl(ctrl.getValueAt(i)),
+                    type: ctrl.getStyleAt(i),
+                    text: q,
+                    data: lastRes && lastRes.getDataAt(i),
+                  });
+              }
+
+              CLIQZ.UI.results({
+                results: data,
+                width: CLIQZ.Core.urlbar.clientWidth - 90
+              });
+              CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
+              CLIQZ.Core.autocompleteQuery(data[0].url);
             }
-            CLIQZ.UI.results({
-              results: data,
-              width: CLIQZ.Core.urlbar.clientWidth - 90
-            });
-            //console.log(CLIQZ.Core.urlbar.clientWidth - 90);
-            CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions);
           ]]>
         </body>
       </method>
