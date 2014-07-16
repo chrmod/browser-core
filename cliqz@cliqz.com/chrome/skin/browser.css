@@ -414,6 +414,74 @@
 
 /* end hq */
 
+/* qaa */
+.cliqz-qaa-sources-headline {
+    text-align: center;
+    color: red;
+    font-size: 11px;
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+.cliqz-qaa-sources {
+    background: #f3f3f3;
+    padding: 5px 0 5px 35px;
+}
+
+.cliqz-qaa-source-title-with-logo {
+    font-size: 8pt;
+    color: #333333;
+    width: 300px;
+    overflow: hidden;
+    height: 26px;
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-position: left 2px;
+    padding-left: 30px;
+    background-size: 24px 24px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 2px 0;
+}
+
+.cliqz-qaa-answer {
+    color: gray;
+}
+
+.cliqz-qaa-answer-value {
+    color: red;
+}
+
+.cliqz-qaa-accepted {
+    color: green;
+}
+.cliqz-qaa-accepted:before {
+    content: '\2713';
+    display: inline-block;
+    color: green;
+    padding: 0 6px 0 0;
+}
+
+.cliqz-qaa-declined {
+    color: red;
+}
+
+.cliqz-qaa-declined:before {
+    content: '\2716';
+    display: inline-block;
+    color: red;
+    padding: 0 6px 0 0;
+}
+
+.cliqz-qaa-posted {
+
+}
+
+.cliqz-qaa-posted-value {
+    color: gray;
+}
+
+/* end qaa */
+
 /* people */
 .people-box {
     font-size: 9pt;

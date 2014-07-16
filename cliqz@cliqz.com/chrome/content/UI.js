@@ -3,7 +3,7 @@
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
-                 'shopping', 'gaming', 'news', 'people', 'video', 'hq'],
+                 'shopping', 'gaming', 'news', 'people', 'video', 'hq', 'qaa'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -98,6 +98,7 @@ function generateType(type){
     if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
     if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
     if(type.indexOf('cliqz-results sources-h') === 0) return 'hq';
+    if(type.indexOf('cliqz-results sources-q') === 0) return 'qaa';
     return 'generic';
 }
 
