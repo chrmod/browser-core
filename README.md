@@ -193,6 +193,7 @@ Result click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "result_click",
+    "query_length": 2, //length of the query in the moment of this action
     "inner_link": true/false, the actual result was clicked or some inner link (eg. additional sources for news)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
@@ -209,6 +210,7 @@ Suggestion click (mouse)
     "ts": <UNIX_TIMESTAMP>,
     "type": "activity",
     "action": "suggestion_click",
+    "query_length": 2, //length of the query in the moment of this action
     "current_position": 0
 }
 ```

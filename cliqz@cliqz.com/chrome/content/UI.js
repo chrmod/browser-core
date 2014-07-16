@@ -128,6 +128,7 @@ function resultClick(ev){
                 action: 'result_click',
                 new_tab: newTab || logoClick,
                 current_position: el.getAttribute('idx'),
+                query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 search: CliqzUtils.isSearch(url)
@@ -242,6 +243,7 @@ function suggestionClick(ev){
             var action = {
                 type: 'activity',
                 action: 'suggestion_click',
+                query_length: CLIQZ.Core.urlbar.value.length,
                 current_position: ev.target.getAttribute('idx') ||
                                   ev.target.parentNode.getAttribute('idx') ||
                                   -1,
