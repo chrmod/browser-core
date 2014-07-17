@@ -17,6 +17,84 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weath
     IMAGE_WIDTH = 96
     ;
 
+
+var UI = {
+    tpl: {},
+    init: function(){
+        TEMPLATES.forEach(function(tpl){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
+                UI.tpl[tpl] = Handlebars.compile(res.response);
+            });
+        });
+
+        registerHelpers();
+    },
+    main: function(box){
+        gCliqzBox = box;
+        box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
+
+        var resultsBox = document.getElementById('cliqz-results',box);
+        resultsBox.addEventListener('click', resultClick);
+        box.addEventListener('mousemove', resultMove);
+        gCliqzBox.resultsBox = resultsBox;
+
+        var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
+        suggestionBox.addEventListener('click', suggestionClick);
+        gCliqzBox.suggestionBox = suggestionBox;
+
+        var enginesBox = document.getElementById('cliqz-engines-box', box);
+        enginesBox.addEventListener('click', enginesClick);
+        gCliqzBox.enginesBox = enginesBox;
+
+        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
+    },
+    results: function(res){
+        var enhanced = enhanceResults(res);
+        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
+        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+    },
+    suggestions: function(suggestions, q){
+        if(suggestions){
+            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                // do not show a suggestion is it is exactly the query
+                suggestions: suggestions.filter(function(s){ return s != q; }),
+                q:q
+            });
+        } else {
+            gCliqzBox.suggestionBox.innerHTML = '';
+        }
+    },
+    keyDown: function(ev){
+        var sel = getResultSelection();
+        switch(ev.keyCode) {
+            case UP:
+                var nextEl = sel && sel.previousElementSibling;
+                setResultSelection(nextEl, true, true);
+                trackArrowNavigation(nextEl);
+                return true;
+            break;
+            case DOWN:
+                if(sel != gCliqzBox.resultsBox.lastElementChild){
+                    var nextEl = sel && sel.nextElementSibling;
+                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    setResultSelection(nextEl, true, false);
+                    trackArrowNavigation(nextEl);
+                }
+                return true;
+            break;
+            case ENTER:
+                return onEnter(ev, sel);
+            break;
+            case TAB:
+                suggestionNavigation(ev);
+                return true;
+            break;
+        }
+
+
+    }
+};
+
 function $(e, ctx){return (ctx || document).querySelector(e); }
 
 function generateLogoClass(urlDetails){
@@ -90,7 +168,7 @@ function constructImage(data){
     return null;
 }
 
-function generateType(type){
+function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
     if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
     if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
@@ -111,10 +189,8 @@ function enhanceResults(res){
         r.logo = generateLogoClass(r.urlDetails);
         r.image = constructImage(r.data);
         r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
-        r.vertical = generateType(r.type);
+        r.vertical = getPartial(r.type);
     }
-    console.log('---')
-    console.log(JSON.stringify(res))
     return res;
 }
 
@@ -149,7 +225,7 @@ function resultClick(ev){
 }
 
 function getResultSelection(){
-    return $('.cliqz-result-item-box[selected="true"]', gCliqzBox);
+    return $('.' + IC + '[selected="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
@@ -247,7 +323,6 @@ function suggestionClick(ev){
 }
 
 function onEnter(ev, item){
-    //sel && openUILink(sel.getAttribute('url'));
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
         action = {
@@ -357,190 +432,117 @@ function trackArrowNavigation(el){
     CliqzUtils.track(action);
 }
 
-var UI = {
-    tpl: {},
-    init: function(){
-        TEMPLATES.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                UI.tpl[tpl] = Handlebars.compile(res.response);
-            });
-        });
+function registerHelpers(){
+    Handlebars.registerHelper('partial', function(name, options) {
+        return new Handlebars.SafeString(UI.tpl[name](this));
+    });
 
-        Handlebars.registerHelper('partial', function(name, options) {
-            return new Handlebars.SafeString(UI.tpl[name](this));
-        });
+    Handlebars.registerHelper('agoline', function(val, options) {
+        return CliqzUtils.computeAgoLine(val);
+    });
 
-        Handlebars.registerHelper('agoline', function(val, options) {
-            return CliqzUtils.computeAgoLine(val);
-        });
+    Handlebars.registerHelper('generate_logo', function(url, options) {
+        return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
+    });
 
-        Handlebars.registerHelper('generate_logo', function(url, options) {
-            return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
-        });
+    Handlebars.registerHelper('shopping_stars_width', function(rating) {
+        return rating * 14;
+    });
 
-        Handlebars.registerHelper('shopping_stars_width', function(rating) {
-            return rating * 14;
-        });
-
-        Handlebars.registerHelper('even', function(value, options) {
-            if (value%2) {
-                return options.fn(this);
-            } else {
-                return options.inverse(this);
-            }
-        });
-
-        Handlebars.registerHelper('json', function(value, options) {
-            return JSON.stringify(value);
-        });
-
-        Handlebars.registerHelper('emphasis', function(text, q, min) {
-            if(!text || !q || q.length < (min || 2)) return text;
-
-            var map = Array(text.length),
-                tokens = q.toLowerCase().split(/\s+/),
-                lowerText = text.toLowerCase(),
-                out, high = false;
-
-            tokens.forEach(function(token){
-                var poz = lowerText.indexOf(token);
-                while(poz !== -1){
-                    for(var i=poz; i<poz+token.length; i++)
-                        map[i] = true;
-                    poz = lowerText.indexOf(token, poz+1);
-                }
-            });
-
-            /* one string version
-            out = '';
-            for(var i=0; i<text.length; i++){
-                if(map[i] && !high){
-                    out += '<em>'+text[i];
-                    high = true;
-                }
-                else if(!map[i] && high){
-                    out += '</em>'+text[i];
-                    high = false;
-                }
-                else out += text[i];
-            }
-            if(high)out += '</em>';
-            console.log(new Handlebars.SafeString(out));
-
-
-            return out.split(/<em>|<\/em>/);
-            */
-            out=[];
-            var current = ''
-            for(var i=0; i<text.length; i++){
-                if(map[i] && !high){
-                    out.push(current);
-                    current='';
-                    current += text[i];
-                    high = true;
-                }
-                else if(!map[i] && high){
-                    out.push(current);
-                    current='';
-                    current +=text[i];
-                    high = false;
-                }
-                else current += text[i];
-            }
-            out.push(current);
-
-            return new Handlebars.SafeString(UI.tpl.emphasis(out));
-        });
-
-        Handlebars.registerHelper('video_provider', function(host) {
-            if(host.indexOf('youtube') === 0)
-              return "YouTube";
-        });
-
-        Handlebars.registerHelper('video_views', function(views) {
-            if(views > 1e8)
-              return "100mio";
-            if(views > 1e7)
-              return "10mio";
-            if(views > 1e6)
-              return "1mio";
-            return false;
-        });
-
-        Handlebars.registerHelper('date', function(date) {
-            var d = new Date(date);
-            var date = d.getDate();
-            var month = d.getMonth();
-            month++;
-            var year = d.getFullYear();
-            var formatedDate = date + '/' + month + '/' + year;
-            return formatedDate;
-        });
-    },
-    main: function(box){
-        gCliqzBox = box;
-        box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
-
-        var resultsBox = document.getElementById('cliqz-results',box);
-        resultsBox.addEventListener('click', resultClick);
-        box.addEventListener('mousemove', resultMove);
-        gCliqzBox.resultsBox = resultsBox;
-
-        var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
-        suggestionBox.addEventListener('click', suggestionClick);
-        gCliqzBox.suggestionBox = suggestionBox;
-
-        var enginesBox = document.getElementById('cliqz-engines-box', box);
-        enginesBox.addEventListener('click', enginesClick);
-        gCliqzBox.enginesBox = enginesBox;
-
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-    },
-    results: function(res){
-        var enhanced = enhanceResults(res);
-        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
-        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
-    },
-    suggestions: function(suggestions, q){
-        if(suggestions){
-            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                // do not show a suggestion is it is exactly the query
-                suggestions: suggestions.filter(function(s){ return s != q; }),
-                q:q
-            });
+    Handlebars.registerHelper('even', function(value, options) {
+        if (value%2) {
+            return options.fn(this);
         } else {
-            gCliqzBox.suggestionBox.innerHTML = '';
+            return options.inverse(this);
         }
-    },
-    keyDown: function(ev){
-        var sel = getResultSelection();
-        switch(ev.keyCode) {
-            case UP:
-                var nextEl = sel && sel.previousElementSibling;
-                setResultSelection(nextEl, true, true);
-                trackArrowNavigation(nextEl);
-                return true;
-            break;
-            case DOWN:
-                if(sel != gCliqzBox.resultsBox.lastElementChild){
-                    var nextEl = sel && sel.nextElementSibling;
-                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
-                    setResultSelection(nextEl, true, false);
-                    trackArrowNavigation(nextEl);
-                }
-                return true;
-            break;
-            case ENTER:
-                return onEnter(ev, sel);
-            break;
-            case TAB:
-                suggestionNavigation(ev);
-                return true;
-            break;
+    });
+
+    Handlebars.registerHelper('json', function(value, options) {
+        return JSON.stringify(value);
+    });
+
+    Handlebars.registerHelper('emphasis', function(text, q, min) {
+        if(!text || !q || q.length < (min || 2)) return text;
+
+        var map = Array(text.length),
+            tokens = q.toLowerCase().split(/\s+/),
+            lowerText = text.toLowerCase(),
+            out, high = false;
+
+        tokens.forEach(function(token){
+            var poz = lowerText.indexOf(token);
+            while(poz !== -1){
+                for(var i=poz; i<poz+token.length; i++)
+                    map[i] = true;
+                poz = lowerText.indexOf(token, poz+1);
+            }
+        });
+
+        /* one string version
+        out = '';
+        for(var i=0; i<text.length; i++){
+            if(map[i] && !high){
+                out += '<em>'+text[i];
+                high = true;
+            }
+            else if(!map[i] && high){
+                out += '</em>'+text[i];
+                high = false;
+            }
+            else out += text[i];
         }
+        if(high)out += '</em>';
+        console.log(new Handlebars.SafeString(out));
 
 
-    }
+        return out.split(/<em>|<\/em>/);
+        */
+        out=[];
+        var current = ''
+        for(var i=0; i<text.length; i++){
+            if(map[i] && !high){
+                out.push(current);
+                current='';
+                current += text[i];
+                high = true;
+            }
+            else if(!map[i] && high){
+                out.push(current);
+                current='';
+                current +=text[i];
+                high = false;
+            }
+            else current += text[i];
+        }
+        out.push(current);
+
+        return new Handlebars.SafeString(UI.tpl.emphasis(out));
+    });
+
+    Handlebars.registerHelper('video_provider', function(host) {
+        if(host.indexOf('youtube') === 0)
+          return "YouTube";
+    });
+
+    Handlebars.registerHelper('video_views', function(views) {
+        if(views > 1e8)
+          return "100mio";
+        if(views > 1e7)
+          return "10mio";
+        if(views > 1e6)
+          return "1mio";
+        return false;
+    });
+
+    Handlebars.registerHelper('date', function(date) {
+        var d = new Date(date);
+        var date = d.getDate();
+        var month = d.getMonth();
+        month++;
+        var year = d.getFullYear();
+        var formatedDate = date + '/' + month + '/' + year;
+        return formatedDate;
+    });
 }
 
 ctx.CLIQZ = ctx.CLIQZ || {};
