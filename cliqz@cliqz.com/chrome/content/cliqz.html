@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC"-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <script type="text/javascript" src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
+    <script type="text/javascript" src="chrome://cliqzmodules/content/CliqzUtils.jsm"></script>
+    <script type="text/javascript" src="chrome://cliqz/content/UI.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+        #container{
+            width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div id='buffer' class="hidden"></div>
+<div id='container'></div>
+
+<script type="text/javascript">
+    Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+    XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+      'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.4.16');
+
+    $("<link/>", {
+       rel: "stylesheet",
+       type: "text/css",
+       href: "chrome://cliqzres/content/skin/browser.css?v=0.4.16"
+    }).appendTo("head");
+
+    $("<link/>", {
+       rel: "stylesheet",
+       type: "text/css",
+       href: "chrome://cliqzres/content/skin/logo.css?v=0.4.16"
+    }).appendTo("head");
+
+    CLIQZ.UI.init();
+
+    function openUILink(url){
+        location.href = url;
+    }
+
+    document.addEventListener('keydown', CLIQZ.UI.keyDown);
+    document.addEventListener('keydown', CLIQZ.UI.keyDown);
+    $(function(){
+        setTimeout(function(){
+            var cont = document.getElementById('container');
+            CLIQZ.UI.main(cont);
+
+            var data = [];
+            for(var i=0; i< CliqzAutocomplete.lastResult.matchCount; i++) {
+                  data.push({
+                    title: CliqzAutocomplete.lastResult.getCommentAt(i),
+                    url: CliqzAutocomplete.lastResult.getValueAt(i),
+                    type: CliqzAutocomplete.lastResult.getStyleAt(i),
+                    text: CliqzAutocomplete.lastResult.searchString,
+                    data: CliqzAutocomplete.lastResult.getDataAt(i),
+                  });
+              }
+
+              CLIQZ.UI.results({
+                results: data,
+                width: cont.offsetWidth - 95
+              });
+              CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, CliqzAutocomplete.lastResult.searchString);
+
+        }, 1000);
+    });
+
+
+</script>
+</body>
+</html>

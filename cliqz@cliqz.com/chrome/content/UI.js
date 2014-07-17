@@ -362,7 +362,7 @@ function onEnter(ev, item){
         else action.position_type = 'inbar_query';
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted){
-            var first = popup.richlistbox.children[0],
+            var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
@@ -377,7 +377,11 @@ function onEnter(ev, item){
             }
         }
         CliqzUtils.track(action);
-        return false
+
+        //CLIQZ.Core.popup.closePopup();
+        //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
+        //return true;
+        return false;
     }
     CliqzUtils.track(action);
     return true;

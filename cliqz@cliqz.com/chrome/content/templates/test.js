@@ -80,18 +80,6 @@ NEWS.results[1].data = {richData:{
 }};
 
 CLIQZ.UI.init();
-CliqzUtils.httpGet('chrome://cliqz/content/templates/main.tpl', function(res){
-    CLIQZ.UI.tpl.main = Handlebars.compile(res.response);
-    CLIQZ.UI.main(cont);
-});
-
-CliqzUtils.httpGet('chrome://cliqz/content/templates/results.tpl', function(res){
-    CLIQZ.UI.tpl.results = Handlebars.compile(res.response);
-});
-
-CliqzUtils.httpGet('chrome://cliqz/content/templates/suggestions.tpl', function(res){
-    CLIQZ.UI.tpl.suggestions = Handlebars.compile(res.response);
-});
 
 function openUILink(url){
     location.href = url;
@@ -101,10 +89,10 @@ var ALL = NEWS;
 ALL.results = ALL.results.concat(SHOPPING.results).concat(RESULTS.results).concat(VIDEO.results);
 
 document.addEventListener('keydown', CLIQZ.UI.keyDown);
-a= cont;
 $(function(){
     setTimeout(function(r, s){
         r.width=document.body.offsetWidth - 95;
+        CLIQZ.UI.main(cont);
         CLIQZ.UI.results(r);
         CLIQZ.UI.suggestions(s);
     }, 1000, ALL, SUGGESTIONS);
