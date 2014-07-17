@@ -468,6 +468,11 @@ function registerHelpers(){
     Handlebars.registerHelper('emphasis', function(text, q, min) {
         if(!text || !q || q.length < (min || 2)) return text;
 
+        // lucian: questionable solution performance wise
+        // strip out all the control chars
+        // eg :text = "... \u001a"
+        text = text.replace(/[\u0000-\u001F]/g, ' ')
+
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+/),
             lowerText = text.toLowerCase(),
