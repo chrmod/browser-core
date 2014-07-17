@@ -3,6 +3,11 @@
     {{ data.summary}}
   </div>
   <div>
+    {{#each data.control}}
+    <span>{{ title }}</span>
+    {{/each}}
+  </div>
+  <div>
     {{#each data.topics}}
       <div>
         {{ label }}:
