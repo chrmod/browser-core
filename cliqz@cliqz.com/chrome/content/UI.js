@@ -468,10 +468,6 @@ function registerHelpers(){
     Handlebars.registerHelper('emphasis', function(text, q, min) {
         if(!text || !q || q.length < (min || 2)) return text;
 
-        // lucian: questionable solution performance wise
-        // strip out all the non alphanumeric chars
-        text = text.replace(/\W+/g, ' ');
-
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+/),
             lowerText = text.toLowerCase(),
