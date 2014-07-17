@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
 
-
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -31,20 +30,17 @@ var VERTICAL_ENCODINGS = {
     'qaa':'q'
 };
 
-var CliqzUtils = CliqzUtils || {
+var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
-  VERSION_URL:      'https://beta.cliqz.com/version',
-  //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
   TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
-  SEPARATOR:        ' %s ',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
@@ -238,8 +234,6 @@ var CliqzUtils = CliqzUtils || {
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
     CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
                                 function(res){
-                                  //CliqzUtils.log(q, 'RESP');
-                                  //CliqzUtils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },
@@ -253,7 +247,6 @@ var CliqzUtils = CliqzUtils || {
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
-    else if(type === 'cliqz-worldcup') return 'x';
     else if(type === 'bookmark') return 'B';
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';
@@ -272,12 +265,6 @@ var CliqzUtils = CliqzUtils || {
       function(s){
         return VERTICAL_ENCODINGS[s] || s;
       }).join('');
-  },
-  getLatestVersion: function(callback, error){
-    CliqzUtils.httpGet(CliqzUtils.VERSION_URL + '?' + Math.random(), function(res) {
-      if(res.status == 200) callback(res.response);
-      else error();
-    });
   },
   stopSearch: function(){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();

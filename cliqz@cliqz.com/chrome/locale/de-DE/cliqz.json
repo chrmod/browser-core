@@ -1,20 +1,5 @@
 {
 	"urlBarLastSearch":{
 		"message":"↵  "
-	},
-	"ok":{
-		"message":"OK"
-	},
-	"loadDefaults":{
-		"message":"Load Defaults"
-	},
-	"arrow": {
-		"message":"▶ "
-	},
-	"urlbarNavigate": {
-		"message": "mit cliqz direkt zum Ziel"
-	},
-	"urlbarSearch": {
-		"message": "mit Enter zu Google"
 	}
 }

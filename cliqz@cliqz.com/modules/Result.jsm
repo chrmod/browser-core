@@ -7,11 +7,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
-    log = function(str){
-    _log.logStringMessage('Result.jsm: ' + str);
-}
-
 var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',

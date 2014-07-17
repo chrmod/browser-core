@@ -13,11 +13,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
-    log = function(str){
-        _log.logStringMessage('Mixer.jsm: ' + str);
-    };
-
 CliqzUtils.init();
 
 var Mixer = {

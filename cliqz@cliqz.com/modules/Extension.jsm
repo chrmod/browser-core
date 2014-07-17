@@ -7,7 +7,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
   'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
@@ -260,7 +259,6 @@ var Extension = {
             }
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
-            // ???? delete win.CliqzUtils;
             win.CLIQZ = null;
             win.CLIQZResults = null;
         }catch(e){Cu.reportError(e); }
