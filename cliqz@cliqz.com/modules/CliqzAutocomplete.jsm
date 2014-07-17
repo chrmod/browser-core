@@ -98,6 +98,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             QueryInterface: XPCOMUtils.generateQI([  ]),
             addResults: function(results){
                 this._results = this._results.concat(results);
+                CliqzAutocomplete.lastResult = this;
             }
         };
     },
@@ -187,7 +188,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
-                        CliqzAutocomplete.lastResult = this.mixedResults;
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
 
                         this.listener.onSearchResult(this, this.mixedResults);
@@ -318,13 +318,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             Result.CLIQZC + ' sources-' + customQuery.engineCode,
                             customQuery.queryURI,
                             null,
-                            CliqzUtils.createSuggestionTitle(q, customQuery.engineName),
-                            customQuery.updatedQ
+                            null,
+                            null,
+                            null,
+                            {
+                                q: customQuery.updatedQ,
+                                engine: customQuery.engineName
+                            }
                         )
                     ];
                 }
 
-                return q
+                return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzUtils.log('search: ' + searchString);

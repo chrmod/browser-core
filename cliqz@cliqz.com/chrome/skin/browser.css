@@ -598,6 +598,20 @@
 
 /* end video */
 
+/* custom */
+.cliqz-custom-text {
+    color: #999999;
+    font-weight: 500;
+    font-size: 12pt;
+}
+
+.cliqz-custom-suggestion {
+  color: #333333;
+  font-style: italic;
+}
+
+/* end custom */
+
 /* misc */
 .cliqz-inline-box-children>* {
     display: inline-block;

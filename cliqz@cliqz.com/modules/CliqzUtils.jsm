@@ -495,63 +495,6 @@ var CliqzUtils = CliqzUtils || {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
-  // returns the suggestion title + target search engine
-  createSuggestionTitle: function(q, engine, originalQ) {
-    var elements = [];
-
-    elements.push([CliqzUtils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    if(originalQ){
-      if(q.indexOf(originalQ) == 0){
-        elements.push([originalQ, 'cliqz-ac-title-suggestion']);
-        elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
-      } else {
-        elements.push([q, 'cliqz-ac-title-suggestion-extra']);
-      }
-    } else {
-      elements.push([q, 'cliqz-ac-title-suggestion']);
-    }
-    elements.push([CliqzUtils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
-    elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
-
-    return JSON.stringify(elements);
-  },
-  navigateToItem: function(gBrowser, index, item, actionType, newTab){
-      var action = {
-              type: 'activity',
-              action: actionType,
-              current_position: index
-          };
-
-      if(actionType == 'result_click')action.new_tab = true;
-      if(index != -1){
-          var value = item.getAttribute('url');
-
-          action.position_type = CliqzUtils.encodeResultType(item.getAttribute('source'))
-          action.search = CliqzUtils.isSearch(value);
-          if(item.getAttribute('type') === 'cliqz-suggestions'){
-              value = Services.search.defaultEngine.getSubmission(value).uri.spec;
-          }
-
-          if(actionType == 'result_click'){ // do not navigate on keyboard navigation
-            CliqzUtils.setTimeout(function(){
-                if(newTab) gBrowser.addTab(CliqzUtils.cleanMozillaActions(value));
-                else {
-                  if(item.getAttribute('type') != 'cliqz-suggestions' &&
-                    value.indexOf('http') !== 0) value = 'http://' + value;
-                  gBrowser.selectedBrowser.contentDocument.location = value;
-                }
-
-            }, 0);
-          }
-      }
-      CliqzUtils.track(action);
-  },
-  navigateToSource: function(gBrowser, url, newTab){
-    // TODO - add a logging signal?
-
-    if(newTab) gBrowser.addTab(url);
-    else gBrowser.selectedBrowser.contentDocument.location = url;
-  },
   computeAgoLine: function(ts, lang){
     if(!ts) return '';
     var now = (new Date().getTime() / 1000),
