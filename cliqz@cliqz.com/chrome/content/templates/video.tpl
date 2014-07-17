@@ -27,17 +27,16 @@
     </div>
     <div class='cliqz-result-video-author'>
       {{#if data.richData.poster}}
-        by <strong>{{ data.richData.poster }}</strong>
+        by <strong style='margin-right:5px;'>{{ data.richData.poster }}</strong>
       {{/if}}
       {{#if data.richData.date}}
         {{ date data.richData.date }}
       {{/if}}
     </div>
     {{#if data.image.duration }}
-      <div class="cliqz-result-video-duration">
-        <span class="cliqz-result-video-play-arrow">▶</span>
+      <span class="cliqz-result-video-duration">
         {{ data.image.duration }}
-      </div>
+      </span>
     {{/if}}
   </div>
   <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>

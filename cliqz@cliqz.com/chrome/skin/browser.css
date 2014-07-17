@@ -203,6 +203,7 @@
 .cliqz-result-description {
     max-height: 2.5em;
     padding-right: 10px;
+    overflow: hidden;
 }
 
 /* end results */
@@ -587,15 +588,12 @@
 .cliqz-result-video-duration {
   background: #000000;
   color: #ffffff;
-  width: 55px;
-  padding: 2px 0;
-  margin-top: 2px;
+  padding: 1px 4px 4px 4px;
+  margin-top: 5px;
 }
 
-.cliqz-result-video-play-arrow {
-  font-size: 0.7em;
-  vertical-align: middle;
-  padding: 0 5px;
+.cliqz-result-video-duration:before {
+    content:'▶';
 }
 
 /* end video */
