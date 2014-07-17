@@ -13,10 +13,11 @@
 }
 
 .cliqz-suggestion {
-    padding: 1px 5px 2px 5px;
+    padding: 1px 5px 0px 5px;
+    display: inline-block;
 }
 
-.cliqz-suggestion:hover, .cliqz-suggestion-default {
+.cliqz-suggestion:hover, .cliqz-suggestion[selected="true"] {
     background-color: #eeeeee;
     cursor: pointer;
 }

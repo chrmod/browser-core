@@ -149,7 +149,7 @@ function resultClick(ev){
 }
 
 function getResultSelection(){
-    return $('[selected="true"]', gCliqzBox);
+    return $('.cliqz-result-item-box[selected="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
@@ -188,50 +188,39 @@ function resultMove(ev){
     }
 }
 
+function selectSuggestion(suggestions, right, pos){
+    function isValid(el){
+        return el.offsetTop == suggestions[0].offsetTop;
+    }
+
+    var el, next = right? 'nextElementSibling' : 'previousElementSibling';
+    if(pos)el = suggestions[pos][next];
+    else el = suggestions[right ? 0 : suggestions.length-1];
+
+    while(el && !isValid(el)) el = el[next];
+
+    if(el){
+        el.setAttribute('selected', 'true');
+        return el.getAttribute('idx');
+    } else {
+        return -1;
+    }
+}
+
 function suggestionNavigation(ev){
-    var suggestions = gCliqzBox.suggestionBox.children,
-        SEL = ' cliqz-suggestion-default',
-            found = false,
-            action = {
-                type: 'activity',
-                action: 'tab_key',
-                current_position : -1
-            };
+    var box = gCliqzBox.suggestionBox,
+        suggestions = box.children,
+        action = {
+            type: 'activity',
+            action: 'tab_key',
+            current_position : -1
+        },
+        selected = $('.cliqz-suggestion[selected="true"]', box);
 
-        for(var i =0; i < suggestions.length && !found; i++){
-            var s = suggestions[i];
+        if(selected) selected.removeAttribute('selected');
 
-            if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
-                s.className = s.className.replace(SEL, '');
+        action.current_position = selectSuggestion(suggestions, !ev.shiftKey, selected && selected.getAttribute('idx'))
 
-                if(i <= suggestions.length - 1){ //not last one
-                    if(!ev.shiftKey){ // loop right
-                        for(var j=i+1; j < suggestions.length; j++){
-                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
-                                suggestions[j].className += SEL;
-                                action.current_position = j;
-                                break;
-                            }
-                        }
-                    } else { // loop left
-                        for(var j=i-1; j >=0 ; j--){
-                            if(suggestions[j] && suggestions[j].className && suggestions[j].className.indexOf('cliqz-suggestion') != -1){
-                                suggestions[j].className += SEL;
-                                action.current_position = j;
-                                break;
-                            }
-                        }
-                    }
-
-                    found = true;
-                }
-            }
-        }
-        if(!found){ // none selected
-            var position = ev.shiftKey ? suggestions.length-1 : 0;
-            suggestions[position].className += ' cliqz-suggestion-default';
-            action.current_position = position;
-        }
         action.direction = ev.shiftKey? 'left' : 'right';
         CliqzUtils.track(action);
 }
@@ -276,23 +265,18 @@ function onEnter(ev, item){
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
-        var suggestions = gCliqzBox.suggestionBox.children,
-            SEL = ' cliqz-suggestion-default';
+        var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
-        for(var i=0; i < suggestions.length; i++){
-            var s = suggestions[i];
-
-            if(s.className && s.className.indexOf('cliqz-suggestion') != -1 && s.className.indexOf(SEL) != -1){
-                CLIQZ.Core.urlbar.mInputField.setUserInput(s.getAttribute('val'));
-                action = {
-                    type: 'activity',
-                    action: 'suggestion_enter',
-                    query_length: inputValue.length,
-                    current_position: i
-                }
-                CliqzUtils.track(action);
-                return true;
+        if(suggestion){
+            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestion.getAttribute('val'));
+            action = {
+                type: 'activity',
+                action: 'suggestion_enter',
+                query_length: inputValue.length,
+                current_position: suggestion.getAttribute('idx')
             }
+            CliqzUtils.track(action);
+            return true;
         }
 
 
@@ -519,7 +503,8 @@ var UI = {
     },
     suggestions: function(suggestions, q){
         gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-            suggestions: suggestions,
+            // do not show a suggestion is it is exactly the query
+            suggestions: suggestions.filter(function(s){ return s != q; }),
             q:q
         });
     },
