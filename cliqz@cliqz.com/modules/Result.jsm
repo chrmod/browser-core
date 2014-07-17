@@ -18,6 +18,7 @@ var Result = {
     CLIQZC: 'cliqz-custom',
     CLIQZW: 'cliqz-weather',
     CLIQZWC:'cliqz-worldcup',
+    CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     RULES: {
         'video': [

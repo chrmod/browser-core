@@ -8,7 +8,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
   'chrome://cliqzmodules/content/Filter.jsm?v=0.4.16');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.4.14');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
+  'chrome://cliqzmodules/content/CliqzClusterHistory.jsm?v=0.4.14');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
@@ -22,13 +25,32 @@ CliqzUtils.init();
 
 var Mixer = {
 	mix: function(q, history, cliqz, mixed, weatherResults, worldCupResults ,maxResults){
-		var results = [];
+		var results = [],
+            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history);
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],
-            bucketHistoryCache = [];
+            bucketHistoryCache = [],
+            bucketHistoryCluster = [];
+
+
+        if (is_clustered) {
+            let style = history_trans[0]['style'],
+                value = history_trans[0]['value'],
+                image = history_trans[0]['image'],
+                comment = history_trans[0]['data']['summary'],
+                label = history_trans[0]['label'],
+                // if is_cluster the object has additional data
+                data = history_trans[0]['data'];
+
+            bucketHistoryCluster.push(Result.generic(Result.CLIQZCLUSTER, '', null, '', '', '', data));
+
+            // we have to empty the history_trans so that only the new collapsed/clustered results is
+            // displayed
+            history_trans = [];
+        }
 
 
         for (let i = 0;
@@ -77,6 +99,14 @@ var Mixer = {
         var showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug')
 
         // the top history with matching domain will be show already via instant-serve
+
+
+        // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
+        if (bucketHistoryCluster.length > 0) {
+            if(showQueryDebug)
+                bucketHistoryCluster[0].comment += " (Clustering)";
+            results.push(bucketHistoryCluster[0]);
+        }
 
         // all bucketHistoryCache
         for(let i = 0; i < bucketHistoryCache.length; i++) {
