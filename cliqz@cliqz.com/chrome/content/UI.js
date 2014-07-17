@@ -502,11 +502,15 @@ var UI = {
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
     suggestions: function(suggestions, q){
-        gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-            // do not show a suggestion is it is exactly the query
-            suggestions: suggestions.filter(function(s){ return s != q; }),
-            q:q
-        });
+        if(suggestions){
+            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                // do not show a suggestion is it is exactly the query
+                suggestions: suggestions.filter(function(s){ return s != q; }),
+                q:q
+            });
+        } else {
+            gCliqzBox.suggestionBox.innerHTML = '';
+        }
     },
     keyDown: function(ev){
         var sel = getResultSelection();
