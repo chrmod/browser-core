@@ -10,7 +10,8 @@
           height: 64px;
           background-repeat: no-repeat;
           background-position: center center;
-          border: 1px solid #efefef;"
+          border: 1px solid #efefef;
+          background-color: white;"
     >
     </div>
   {{/if}}

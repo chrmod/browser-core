@@ -13,24 +13,23 @@
     <implementation >
        <constructor>
         <![CDATA[
-          this.richlistbox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
-
-          CLIQZ.UI.main(this.richlistbox);
+          this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
+          CLIQZ.UI.main(this.cliqzBox);
         ]]>
       </constructor>
       <property name="selectedIndex"
                 onget="return 0;">
         <setter>
           <![CDATA[
-
-        ]]>
+            //cliqz shadowing
+          ]]>
         </setter>
       </property>
       <method name="_invalidate">
         <body>
           <![CDATA[
-          this._appendCurrentResult();
-        ]]>
+            this._appendCurrentResult();
+          ]]>
         </body>
       </method>
       <method name="_openAutocompletePopup">
@@ -46,7 +45,11 @@
 
             var width = aElement.getBoundingClientRect().width;
             this.setAttribute("width", width > 100 ? width : 100);
-            this.openPopup(aElement, "after_start", 0, 0, false, true);
+            //this.openPopup(aElement, "after_start", 0, 0, false, true);
+
+            const left_offset = -aElement.getBoundingClientRect().left - 1;
+            this.openPopup(aElement, "after_start", left_offset, 0, false, true);
+            this.setAttribute("width", window.outerWidth);
           }
         ]]>
         </body>
@@ -66,7 +69,7 @@
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
                 lastRes = CliqzAutocomplete.lastResult;
 
-            if(this._matchCount>0){
+            if(this._matchCount > 0){
               for(var i=0; i<this._matchCount; i++) {
                   data.push({
                     title: ctrl.getCommentAt(i),
@@ -79,7 +82,8 @@
 
               CLIQZ.UI.results({
                 results: data,
-                width: CLIQZ.Core.urlbar.clientWidth - 90
+                //width: CLIQZ.Core.urlbar.clientWidth - 90
+                width: document.width - 90
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
               CLIQZ.Core.autocompleteQuery(data[0].url);

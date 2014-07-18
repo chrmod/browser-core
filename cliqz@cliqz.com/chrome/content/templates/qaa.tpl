@@ -6,19 +6,7 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ title }}
 		</div>
-		<div class='cliqz-result-url-box overflow'>
-			<span class='cliqz-result-url-host
-				{{#if urlDetails.ssl }}
-				  cliqz-result-url-ssl
-				{{/if}}
-				'
-			>
-				{{ emphasis urlDetails.host text }}
-			</span>
-			<span class='cliqz-result-url-path'>
-				{{ emphasis urlDetails.path text }}
-			</span>
-		</div>
+		{{> url urlDetails}}
 		{{#with data.richData}}
 		<div class='overflow' style="font-size: 10pt; color:#ccc">
 			<span class='cliqz-qaa-answer'>ANTWORTEN:</span>

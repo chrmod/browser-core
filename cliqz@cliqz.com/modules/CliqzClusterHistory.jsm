@@ -18,8 +18,11 @@ var templates = {
 
                 var keywords = {'Read':true,'Watch':true}
 
-                var ex1 = /\/s(\d+)e(\d+)[\/-_$]*/;
-                var ex2 = /\/season\/(\d+)\/episode\/(\d+)[\/-_$]*/;
+                // var ex1 = /\/s(\d+)e(\d+)[\/-_$]*/;
+                var ex1 = /\/page\/-saison-(\d+)-episode-(\d+)/;
+                // var ex2 = /\/season\/(\d+)\/episode\/(\d+)[\/-_$]*/;
+                var ex2 = /-saison-(\d+)-.*\/(\d+)/;
+                var ex3 = /\/season-(\d+)\/episode-(\d+)/;
 
                 var domains = {};
 
@@ -47,6 +50,15 @@ var templates = {
                         if (domains[domain]==null) domains[domain]=[];
                         domains[domain].push([title, url, 'type2', parseInt(d[1]), parseInt(d[2])]);
                     }
+
+                    CliqzUtils.log(path)
+                    d = path.match(ex3);
+                    if (d) {
+                        CliqzUtils.log(d[1] + ' ' + d[2])
+                        if (domains[domain]==null) domains[domain]=[];
+                        domains[domain].push([title, url, 'type3', parseInt(d[1]), parseInt(d[2])]);
+                    }
+
                 }
 
                 var maxDomain = null;
@@ -64,10 +76,32 @@ var templates = {
 
                     var last_title = domains[maxDomain][0][0];
                     var last_url = domains[maxDomain][0][1];
-                    var next_url = ''
+                    CliqzUtils.log(last_url)
+                    var last_s = 0;
+                    var last_ep = 0;
+                    for (let i = 0; i < domains[maxDomain].length; i++) {
+                        CliqzUtils.log(domains[maxDomain][3] + ' ' + domains[maxDomain][4])
+                        if (domains[maxDomain][i][3] >= last_s) {
+                            if (domains[maxDomain][i][3] > last_s) {
+                                last_s = domains[maxDomain][i][3];
+                            }
+                            if (domains[maxDomain][i][4] > last_ep) {
+                                last_ep = domains[maxDomain][i][4];
+                                last_url = domains[maxDomain][i][1];
+                                last_title = domains[maxDomain][i][0];
+                            }
+                        }
+                        CliqzUtils.log(last_s + ' ' + last_ep)
+                    }
+                    // var last_title = domains[maxDomain][0][0];
+                    // var last_url = domains[maxDomain][0][1];
+                    CliqzUtils.log('getting next episode');
+                    // last_url = 'http://www.libertyland.tv/v2/nashville/saison-1-episode-2/';
 
+                    var next_url = '';
                     var template = {
                         summary: 'Looks like you want to watch something...',
+                        url: 'http://cliqz.com',
                         control: [
                         ],
                         topics: [
@@ -83,6 +117,20 @@ var templates = {
                             {'label': 'Watch your next episode!', urls: [], 'labelUrl': next_url, color: COLORS[1], iconCls: 'cliqz-fa fa-play'},
                         ]
                     }
+
+                    var nexturl = CliqzUtils.httpGet('http://107.20.44.82/?url=' + encodeURIComponent(last_url),
+                                                     function(res) {
+                                                         var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                                                         .getService(Components.interfaces.nsIWindowMediator),
+                                                            win = wm.getMostRecentWindow("navigator:browser");
+
+                                                         template.topics[1].urls = JSON.parse(res.response)['next'];
+                                                         CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
+                                                         win.CLIQZ.UI.redrawCluster({
+                                                            data: template
+                                                        })
+                                                     });
+
 
                     return template;
 
@@ -476,7 +524,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
             }
             else {
-                CliqzUtils.log('No template for domain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+                CliqzUtils.log('No templates for domain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
                 return [false, historyTrans];
             }
         }
@@ -536,7 +584,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             else path = '/' + v.splice(1, v.length-1).join('/');
         }
 
-
+        // CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
         return [domain, path];
     }
 

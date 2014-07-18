@@ -99,10 +99,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CliqzUtils.cliqzPrefs.getIntPref('popupHeight') + 'px';
 
-        // check APIs
-        // CliqzUtils.getCliqzResults('');
-        // CliqzUtils.getSuggestions('');
-
         CliqzAutocomplete.init();
 
         CliqzTimings.init();
@@ -205,13 +201,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
     },
-    updatePopupHeight: function(){
-
-        var newHeight = Math.min(Math.max(CLIQZ.Core.popup.height, 160), 352);
-
-        CliqzUtils.cliqzPrefs.setIntPref('popupHeight', newHeight);
-        CLIQZ.Core.popup.style.maxHeight = newHeight;
-    },
     tabChange: function(ev){
         //clean last search to avoid conflicts
         CliqzAutocomplete.lastSearch = '';
@@ -287,7 +276,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         var start = (new Date()).getTime();
         CliqzHistoryManager.getStats(function(history){
-            CliqzUtils.log((new Date()).getTime() - start,"HISTORY CHECK TIME");
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
@@ -313,15 +301,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.send_log("search_suggest", 500);
         CliqzTimings.send_log("send_log", 2000);
     },
-    showUpdateMessage: function(){
-        if(CLIQZ.Core._messageOFF){
-            CLIQZ.Core._messageOFF = false;
-            if(confirm(CliqzUtils.getLocalizedString('updateMessage'))){
-                gBrowser.addTab(CliqzUtils.UPDATE_URL);
-            }
-            CLIQZ.Core._messageOFF = true;
-        }
-    },
     showUninstallMessage: function(currentVersion){
         var UNINSTALL_PREF = 'uninstallVersion',
             lastUninstallVersion = CliqzUtils.getPref(UNINSTALL_PREF, '');
@@ -332,13 +311,12 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarkeydown: function(ev){
-        var cancel = CLIQZ.UI.keyDown(ev);
         CLIQZ.Core._lastKey = ev.keyCode;
+        var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){
-
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){

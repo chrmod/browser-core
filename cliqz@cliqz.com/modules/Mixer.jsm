@@ -16,11 +16,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
-    log = function(str){
-        _log.logStringMessage('Mixer.jsm: ' + str);
-    };
-
 CliqzUtils.init();
 
 var Mixer = {
@@ -45,7 +40,7 @@ var Mixer = {
                 // if is_cluster the object has additional data
                 data = history_trans[0]['data'];
 
-            bucketHistoryCluster.push(Result.generic(Result.CLIQZCLUSTER, '', null, '', '', '', data));
+            if(data)bucketHistoryCluster.push(Result.generic(Result.CLIQZCLUSTER, data.url || '', null, '', '', '', data));
 
             // we have to empty the history_trans so that only the new collapsed/clustered results is
             // displayed
