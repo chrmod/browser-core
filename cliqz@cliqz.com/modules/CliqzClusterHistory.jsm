@@ -76,22 +76,23 @@ var templates = {
 
                     var last_title = domains[maxDomain][0][0];
                     var last_url = domains[maxDomain][0][1];
-                    CliqzUtils.log(last_url)
                     var last_s = 0;
                     var last_ep = 0;
                     for (let i = 0; i < domains[maxDomain].length; i++) {
-                        CliqzUtils.log(domains[maxDomain][3] + ' ' + domains[maxDomain][4])
-                        if (domains[maxDomain][i][3] >= last_s) {
-                            if (domains[maxDomain][i][3] > last_s) {
-                                last_s = domains[maxDomain][i][3];
-                            }
+                        if (domains[maxDomain][i][3] > last_s) {
+                            last_s = domains[maxDomain][i][3];
+                            last_ep = domains[maxDomain][i][4];
+                            last_url = domains[maxDomain][i][1];
+                            last_title = domains[maxDomain][i][0];
+                        }
+                        if (domains[maxDomain][i][3] == last_s) {
                             if (domains[maxDomain][i][4] > last_ep) {
                                 last_ep = domains[maxDomain][i][4];
                                 last_url = domains[maxDomain][i][1];
                                 last_title = domains[maxDomain][i][0];
                             }
                         }
-                        CliqzUtils.log(last_s + ' ' + last_ep)
+                        CliqzUtils.log(last_s + ' ' + last_ep, 'last_show')
                     }
                     // var last_title = domains[maxDomain][0][0];
                     // var last_url = domains[maxDomain][0][1];
@@ -123,8 +124,17 @@ var templates = {
                                                          var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                                                          .getService(Components.interfaces.nsIWindowMediator),
                                                             win = wm.getMostRecentWindow("navigator:browser");
-
-                                                         template.topics[1].urls = JSON.parse(res.response)['next'];
+                                                         res = JSON.parse(res.response)
+														 for (let i=0; i < res['next'].length; i++) {
+															 var cur_ep = res['next'][i]
+															 if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
+															 if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
+                                                             var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
+                                                             res['next'][i].title = title
+															 res['next'][i].href = res['next'][i].url
+                                                         }
+														 template.topics[0].urls[0].title = res['next'][0].title
+                                                         template.topics[1].urls = res['next'];
                                                          CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
                                                          win.CLIQZ.UI.redrawCluster({
                                                             data: template
