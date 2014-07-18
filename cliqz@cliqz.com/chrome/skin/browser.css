@@ -363,6 +363,76 @@
 
 /* end weather */
 
+/* cluster */
+
+.cliqz-cluster-container {
+  margin-left: 20px;
+}
+
+.cliqz-cluster-container th {
+  text-align: left;
+}
+
+.cliqz-cluster-title-box {
+  font-size: 14px;
+  font-weight: bold;
+  //color: #FF9900;
+  color: black;
+  margin-right: 5px;
+}
+
+.cliqz-cluster-result-url {
+  font-size: 14px;
+  font-weight: bold;
+  color: gray;
+  margin-right: 20px;
+}
+
+.cliqz-cluster-topic-label {
+  color: white;
+  border-radius: 1px;
+  padding: 2px 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.cliqz-cluster-result-topic {
+  display: block;
+}
+
+.cliqz-cluster-topic {
+  white-space: nowrap;
+  margin: 5px 5px 1px 3px;
+  padding: 1px 5px 2px 5px;
+}
+
+.cliqz-cluster-topic:hover {
+  background-color: #eeeeee;
+}
+
+.cliqz-cluster-prediction {
+  background-color: green;
+}
+
+.cliqz-cluster-result-topic a {
+  margin: 0 5px 0 5px;
+}
+
+.richlistitem-cliqz-cluster {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-cluster"] .richlistitem-cliqz-generic {
+  display: none;
+}
+
+.autocomplete-richlistitem[type="cliqz-cluster"] .richlistitem-cliqz-cluster {
+  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.4.14#autocomplete-richlistitem-cliqz-cluster");
+  display: inherit;
+}
+
+/* END cluster */
+
 /* news */
 .cliqz-news-ago-line {
     color: red;
