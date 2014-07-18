@@ -12,7 +12,11 @@
       <div>
         {{ label }}:
         {{#each urls}}
-          <span style="color: blue;"><a href="{{href}}">{{ title }}</a></span>
+          <span
+              style="color: blue; cursor: pointer"
+              url='{{url}}'
+              type='cluster-test'
+              >{{ title }}</span>
         {{/each}}
       </div>
     {{/each}}

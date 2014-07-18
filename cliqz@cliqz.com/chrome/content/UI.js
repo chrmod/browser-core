@@ -59,8 +59,11 @@ var UI = {
     },
     results: function(res){
         var enhanced = enhanceResults(res);
-        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
+        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse',
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+    },
+    redrawCluster: function(result){
+        $('.' + IC + '[type="cliqz-cluster"]', gCliqzBox).innerHTML = UI.tpl.clustering(result);
     },
     suggestions: function(suggestions, q){
         if(suggestions){

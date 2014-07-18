@@ -73,7 +73,7 @@ var templates = {
                 if (maxDomain!=null && maxDomainLen>4) {
                     // at least 5
                     CliqzUtils.log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]), CliqzClusterHistory.LOG_KEY);
-					
+
 					var last_title = domains[maxDomain][0][0];
 					var last_url = domains[maxDomain][0][1];
 					CliqzUtils.log(last_url)
@@ -97,15 +97,11 @@ var templates = {
                     // var last_url = domains[maxDomain][0][1];
 					CliqzUtils.log('getting next episode');
 					// last_url = 'http://www.libertyland.tv/v2/nashville/saison-1-episode-2/';
-					var nexturl = CliqzUtils.httpGet('http://107.20.44.82/?url=' + last_url, 
-													 function(res) {
-														 var n = JSON.parse(res.response)['next'][1]
-														 next_url = n['url']
-														 return next_url;
-													 });
-                    // var next_url = '';
+
+                    var next_url = '';
                     var template = {
                         summary: 'Looks like you want to watch something...',
+                        url: 'http://cliqz.com',
                         control: [
                         ],
                         topics: [
@@ -121,6 +117,20 @@ var templates = {
                             {'label': 'Watch your next episode!', urls: [], 'labelUrl': next_url, color: COLORS[1], iconCls: 'cliqz-fa fa-play'},
                         ]
                     }
+
+					var nexturl = CliqzUtils.httpGet('http://107.20.44.82/?url=' + encodeURIComponent(last_url),
+													 function(res) {
+                                                         var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                                                         .getService(Components.interfaces.nsIWindowMediator),
+                                                            win = wm.getMostRecentWindow("navigator:browser");
+
+                                                         template.topics[1].urls = JSON.parse(res.response)['next'];
+                                                         CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
+                                                         win.CLIQZ.UI.redrawCluster({
+                                                            data: template
+                                                        })
+													 });
+
 
                     return template;
 
