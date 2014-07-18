@@ -131,6 +131,7 @@ var templates = {
 															 if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
                                                              var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
                                                              res['next'][i].title = title
+															 res['next'][i].href = res['next'][i].url
                                                          }
 														 template.topics[0].urls[0].title = res['next'][0].title
                                                          template.topics[1].urls = res['next'];
