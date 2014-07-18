@@ -35,7 +35,7 @@
 			</span>
 		</div>
 		<div class='cliqz-result-description'>
-			{{ emphasis data.description text }}
+			{{ emphasis data.description text 2 true }}
 		</div>
 	</div>
 	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
