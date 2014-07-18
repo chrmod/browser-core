@@ -121,19 +121,22 @@ var templates = {
 
                     var nexturl = CliqzUtils.httpGet('http://107.20.44.82/?url=' + encodeURIComponent(last_url),
                                                      function(res) {
+                                                         CliqzUtils.log('Callback starts', 'CLUSTERING')
                                                          var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                                                          .getService(Components.interfaces.nsIWindowMediator),
                                                             win = wm.getMostRecentWindow("navigator:browser");
                                                          res = JSON.parse(res.response)
-														 for (let i=0; i < res['next'].length; i++) {
-															 var cur_ep = res['next'][i]
-															 if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
-															 if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
+                                                         CliqzUtils.log(JSON.stringify(res), 'ClUSTERING')
+                                                         for (let i=0; i < res['next'].length; i++) {
+                                                             var cur_ep = res['next'][i]
+                                                             if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
+                                                             if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
                                                              var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
                                                              res['next'][i].title = title
-															 res['next'][i].href = res['next'][i].url
+                                                             CliqzUtils.log('Change title to ' + title, 'ClUSTERING')
+                                                             res['next'][i].href = res['next'][i].url
                                                          }
-														 template.topics[0].urls[0].title = res['next'][0].title
+                                                         template.topics[0].urls[0].title = res['next'][0].title
                                                          template.topics[1].urls = res['next'];
                                                          CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
                                                          win.CLIQZ.UI.redrawCluster({
