@@ -4,6 +4,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
                  'shopping', 'gaming', 'news', 'people', 'video', 'hq', 'qaa', 'custom'],
+    PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cliqz-result-item-box', // result item class
@@ -26,6 +27,14 @@ var UI = {
                 UI.tpl[tpl] = Handlebars.compile(res.response);
             });
         });
+
+        PARTIALS.forEach(function(tpl){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
+                 Handlebars.registerPartial(tpl, res.response);
+            });
+        });
+
+
 
         registerHelpers();
     },

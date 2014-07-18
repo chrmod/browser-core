@@ -21,21 +21,9 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ emphasis title text }}
 		</div>
-		<div class='cliqz-result-url-box overflow'>
-			<span class='cliqz-result-url-host
-				{{#if urlDetails.ssl }}
-				  cliqz-result-url-ssl
-				{{/if}}
-				'
-			>
-				{{ emphasis urlDetails.host text }}
-			</span>
-			<span class='cliqz-result-url-path'>
-				{{ emphasis urlDetails.path text }}
-			</span>
-		</div>
+		{{> url urlDetails}}
 		<div class='cliqz-result-description'>
-			{{ emphasis data.description text 2 true }}
+			{{ emphasis data.description text 1 true }}
 		</div>
 	</div>
 	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
