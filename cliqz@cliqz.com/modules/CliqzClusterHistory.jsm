@@ -139,7 +139,7 @@ var templates = {
                                                          win.CLIQZ.UI.redrawCluster({
                                                             data: template
                                                         })
-													 });
+                                                     });
 
 
                     return template;
@@ -594,7 +594,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             else path = '/' + v.splice(1, v.length-1).join('/');
         }
 
-		// CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
+        // CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
         return [domain, path];
     }
 
