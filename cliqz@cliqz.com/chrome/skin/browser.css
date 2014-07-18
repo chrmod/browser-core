@@ -133,11 +133,14 @@
 .cliqz-result-title-box {
     font-size: 12pt;
     font-weight: 500;
+    padding-bottom: 3px;
+    width: 65%;
 }
 
 .cliqz-result-url-box {
     font-size: 9pt;
     font-weight: 400;
+    width: 40%;
 }
 
 .cliqz-result-url-host {
@@ -205,6 +208,8 @@
     max-height: 2.5em;
     padding-right: 10px;
     overflow: hidden;
+    padding-top: 3px;
+    width: 65%;
 }
 
 /* end results */
@@ -280,7 +285,7 @@
     color: black;
     background-repeat: no-repeat;
     background-position: 20px 0px;
-    padding-left: 87px;
+    padding-left: 101px;
     height: 50px;
     line-height: 52px;
 }
@@ -294,7 +299,7 @@
 .cliqz-weather-today-max {
     font-size: 11px;
     color: #fd5b5b;
-    padding: 2px;
+    padding: 2px 2px 2px 15px;
 }
 
 .cliqz-weather-today-icon {
@@ -303,7 +308,7 @@
 
 .cliqz-weather-next-icon {
     height: 50px;
-    margin: 0px 20px 0 15px;
+    margin: 0px 20px;
 }
 
 .cliqz-weather-next-container {
@@ -367,16 +372,16 @@
 .cliqz-news-sources {
     background: #f3f3f3;
     padding: 5px 0 5px 35px;
-    max-height: 62px;
+    max-height: 30px;
     overflow: hidden;
 }
 
 .cliqz-news-source-title-with-logo {
     font-size: 8pt;
     color: #333333;
-    width: 300px;
+    max-width: 300px;
     overflow: hidden;
-    height: 26px;
+    height: 28px;
     font-weight: bold;
     background-repeat: no-repeat;
     background-position: left 2px;
@@ -384,7 +389,7 @@
     background-size: 24px 24px;
     cursor: pointer;
     display: inline-block;
-    margin: 2px 0;
+    margin: 2px 5px 2px 0px;
 }
 
 .cliqz-news-source {
@@ -486,7 +491,7 @@
 
 /* people */
 .people-box {
-    font-size: 9pt;
+    font-size: 12pt;
 }
 
 .cliqz-people-image-box {
