@@ -20,7 +20,7 @@
         {{#each urls}}
           <span
               style="color: blue; cursor: pointer"
-              url='{{url}}'
+              url='{{href}}'
               type='cluster-test'
 	      class="cliqz-cluster-topic"
               >{{ title }}</span>
