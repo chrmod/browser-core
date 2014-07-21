@@ -127,6 +127,7 @@ var templates = {
                                                             win = wm.getMostRecentWindow("navigator:browser");
                                                          res = JSON.parse(res.response)
                                                          CliqzUtils.log(JSON.stringify(res), 'ClUSTERING')
+                                                         var res2 = {'next':[]}
                                                          for (let i=0; i < res['next'].length; i++) {
                                                              var cur_ep = res['next'][i]
                                                              if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
@@ -135,9 +136,12 @@ var templates = {
                                                              res['next'][i].title = title
                                                              CliqzUtils.log('Change title to ' + title, 'ClUSTERING')
                                                              res['next'][i].href = res['next'][i].url
+                                                             if (i > 0) {
+                                                                 res2['next'].push(res['next'][i])
+                                                             }
                                                          }
                                                          template.topics[0].urls[0].title = res['next'][0].title
-                                                         template.topics[1].urls = res['next'];
+                                                         template.topics[1].urls = res2['next'];
                                                          CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
                                                          win.CLIQZ.UI.redrawCluster({
                                                             data: template
