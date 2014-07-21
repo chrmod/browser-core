@@ -7,9 +7,16 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
+/** Pads an integer with zeros. Why isn't this part of the string API? */
+function zFill(num, width) {
+    var number = num.toString();
+    while (number.length < width) number = "0" + number;
+    return number;
+}
 
 //var COLORS = ['purple', 'blue', 'pink', 'green', 'gray'];
 var COLORS = [ '#993300', '#99CC99', '#003366']
+var DISABLED_COLOR = ['#D6D6D6']
 
 var templates = {
 
@@ -18,11 +25,9 @@ var templates = {
 
                 var keywords = {'Read':true,'Watch':true}
 
-                // var ex1 = /\/s(\d+)e(\d+)[\/-_$]*/;
-                var ex1 = /\/page\/-saison-(\d+)-episode-(\d+)/;
-                // var ex2 = /\/season\/(\d+)\/episode\/(\d+)[\/-_$]*/;
-                var ex2 = /-saison-(\d+)-.*\/(\d+)/;
-                var ex3 = /\/season-(\d+)\/episode-(\d+)/;
+                var regexs = [/(.*\/page\/-saison-)(\d+)(-episode-)(\d+)(.*)/,
+                              /(.*-saison-)(\d+)(-.*\/)(\d+)(.*)/,
+                              /(.*\/season-)(\d+)(\/episode-)(\d+)(.*)/];
 
                 var domains = {};
 
@@ -38,26 +43,17 @@ var templates = {
                     if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                     if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                    var d = null;
-
-                    d = path.match(ex1);
-                    if (d) {
-                        if (domains[domain]==null) domains[domain]=[];
-                        domains[domain].push([title, url, 'type1', parseInt(d[1]), parseInt(d[2])]);
+                    for (let r = 0; r < regexs.length; r++) {
+                        var d = path.match(regexs[r]);
+                        if (d) {
+                            for (let k = 0; k <= 5; k++) {
+                                CliqzUtils.log('MATCH[' + k + '] = ' + d[k], CliqzClusterHistory.LOG_KEY);
+                            }
+                            if (domains[domain]==null) domains[domain]=[];
+                            domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
+                            break;
+                        }
                     }
-
-                    d = path.match(ex2);
-                    if (d) {
-                        if (domains[domain]==null) domains[domain]=[];
-                        domains[domain].push([title, url, 'type2', parseInt(d[1]), parseInt(d[2])]);
-                    }
-
-                    d = path.match(ex3);
-                    if (d) {
-                        if (domains[domain]==null) domains[domain]=[];
-                        domains[domain].push([title, url, 'type3', parseInt(d[1]), parseInt(d[2])]);
-                    }
-
                 }
 
                 var maxDomain = null;
@@ -74,32 +70,41 @@ var templates = {
                     CliqzUtils.log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]), CliqzClusterHistory.LOG_KEY);
                     CliqzUtils.log(JSON.stringify(domains), 'DOMAINS', CliqzClusterHistory.LOG_KEY);
 
-                    var last_title = domains[maxDomain][0][0];
-                    var last_url = domains[maxDomain][0][1];
+                    /* Find the last URL in the series. */
+                    var last_item = domains[maxDomain][0];
                     var last_s = 0;
                     var last_ep = 0;
                     for (let i = 0; i < domains[maxDomain].length; i++) {
                         if (domains[maxDomain][i][3] > last_s) {
                             last_s = domains[maxDomain][i][3];
                             last_ep = domains[maxDomain][i][4];
-                            last_url = domains[maxDomain][i][1];
-                            last_title = domains[maxDomain][i][0];
-                        }
-                        if (domains[maxDomain][i][3] == last_s) {
+                            last_item = domains[maxDomain][i]
+                        } else if (domains[maxDomain][i][3] == last_s) {
                             if (domains[maxDomain][i][4] > last_ep) {
                                 last_ep = domains[maxDomain][i][4];
-                                last_url = domains[maxDomain][i][1];
-                                last_title = domains[maxDomain][i][0];
+                                last_item = domains[maxDomain][i]
                             }
                         }
                         CliqzUtils.log(last_s + ' ' + last_ep, 'last_show', CliqzClusterHistory.LOG_KEY)
                     }
-                    // var last_title = domains[maxDomain][0][0];
-                    // var last_url = domains[maxDomain][0][1];
                     CliqzUtils.log('getting next episode...', CliqzClusterHistory.LOG_KEY);
-                    // last_url = 'http://www.libertyland.tv/v2/nashville/saison-1-episode-2/';
 
-                    var next_url = '';
+                    var last_title = last_item[0];
+                    var last_url = last_item[1];
+
+                    /* Come up with candidates for the next episode. */
+                    var s_width = last_item[5][2].length
+                    var ep_width = last_item[5][4].length
+                    var url_base = last_url.substring(0, last_url.length - last_item[5][0].length)
+                    var next_urls = [
+                        url_base + last_item[5][1] + last_item[5][2] + last_item[5][3] +
+                        zFill(last_ep + 1, ep_width) + last_item[5][5]
+                        ,
+                        url_base + last_item[5][1] + zFill(last_s + 1, s_width) +
+                        last_item[5][3] + zFill(1, ep_width) + last_item[5][5]
+                    ];
+                    CliqzUtils.log('NEXT_URLS: ' + JSON.stringify(next_urls), CliqzClusterHistory.LOG_KEY);
+
                     var template = {
                         summary: 'Looks like you want to watch something...',
                         url: 'http://cliqz.com',
@@ -115,50 +120,41 @@ var templates = {
                                 color: COLORS[0],
                                 iconCls: 'cliqz-fa fa-video-camera'
                             },
-                            {'label': 'Watch your next episode!', urls: [], 'labelUrl': next_url, color: COLORS[1], iconCls: 'cliqz-fa fa-play'},
-                        ]
+                            {'label': 'Watch your next episode!', urls: [], 'labelUrl': '', color: DISABLED_COLOR, iconCls: 'cliqz-fa fa-play'},
+                        ],
                     }
 
-                    CliqzUtils.log('LAST URL: ' + last_url + ' => ' + encodeURIComponent(last_url), CliqzClusterHistory.LOG_KEY);
-                    var nexturl = CliqzUtils.httpGet(
-                            'http://107.20.44.82/?url=' + encodeURIComponent(last_url),
-                            function(res) {
+                    /*
+                     * Try each next URL candidate. If the page exists, we display that
+                     * as the next episode.
+                     */
+                    next_urls.forEach(function (next_url) {
+                        CliqzUtils.log('NEXT_URL TO GET: ' + next_url, CliqzClusterHistory.LOG_KEY);
+                        CliqzUtils.httpGet(next_url, function(res) {
+                            CliqzUtils.log('RES NEXT URL: ' + res, CliqzClusterHistory.LOG_KEY);
+                            CliqzUtils.log('RES status: ' + res.status, CliqzClusterHistory.LOG_KEY);
+                            if (res.status == 200 && template.topics[1].urls.length == 0) {
+                                CliqzUtils.log('200 and not updated: ' + template.topics[1].urls.length, CliqzClusterHistory.LOG_KEY);
+
+                                template.topics[1].color = COLORS[1];
+                                template.topics[1].labelUrl = next_url;
+                                var m = res.responseText.match(/<title>(.*?)<\/title>/);
+                                if (m) {
+                                    template.topics[1].urls = [{href: next_url, path: '', title: m[1]}];
+                                }
+
                                 var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                                 .getService(Components.interfaces.nsIWindowMediator),
-                                   win = wm.getMostRecentWindow("navigator:browser");
-                                res = JSON.parse(res.response)
-
-                                //CliqzUtils.log('RES: ' + JSON.stringify(res), CliqzClusterHistory.LOG_KEY);
-
-                                if ('next' in res) {
-                                    /* This should be a separate function. */
-                                    {
-                                        var cur_ep = res['latest']
-                                        if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
-                                        if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
-                                        var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
-                                        res['latest'].title = title
-                                    }
-                                    for (let i=0; i < res['next'].length; i++) {
-                                        var cur_ep = res['next'][i]
-                                        if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
-                                        if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
-                                        var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
-                                        res['next'][i].title = title
-                                        res['next'][i].href = res['next'][i].url
-                                    }
-                                    template.topics[0].urls[0].title = res['latest'].title
-                                    template.topics[1].urls = res['next'];
-                                    CliqzUtils.log(JSON.stringify(template), 'CLUSTERING', CliqzClusterHistory.LOG_KEY);
-                                    win.CLIQZ.UI.redrawCluster({
-                                       data: template
-                                    })
-                                }
-                            });
-
+                                win = wm.getMostRecentWindow("navigator:browser");
+                                win.CLIQZ.UI.redrawCluster({
+                                   data: template
+                                })
+                                CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
+                            }
+                        });
+                    });
 
                     return template;
-
                 }
                 else return null;
 
