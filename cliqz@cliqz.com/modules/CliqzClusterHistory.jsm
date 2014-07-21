@@ -25,9 +25,11 @@ var templates = {
 
                 var keywords = {'Read':true,'Watch':true}
 
-                var regexs = [/(.*\/page\/-saison-)(\d+)(-episode-)(\d+)(.*)/,
-                              /(.*-saison-)(\d+)(-.*\/)(\d+)(.*)/,
-                              /(.*\/season-)(\d+)(\/episode-)(\d+)(.*)/];
+                var regexs = [/(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2})([-\/_]episode[-\/_])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2})([-\/_])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2}).*\/(d{1,2})(.*)/,
+                              /(.*s)(\d{1,2})(_{0,1}ep{0,1})(\d{1,2})(.*)/,
+                              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
                 var domains = {};
 
