@@ -25,10 +25,10 @@ var templates = {
 
                 var keywords = {'Read':true,'Watch':true}
 
-                var regexs = [/(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2})([-\/_]episode[-\/_])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2})([-\/_])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]{0,1}[sz]on[-\/_])(\d{1,2}).*\/(d{1,2})(.*)/,
-                              /(.*s)(\d{1,2})(_{0,1}ep{0,1})(\d{1,2})(.*)/,
+                var regexs = [/(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2}).*\/(d{1,2})(.*)/,
+                              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
                               /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
                 var domains = {};
@@ -48,9 +48,6 @@ var templates = {
                     for (let r = 0; r < regexs.length; r++) {
                         var d = path.match(regexs[r]);
                         if (d) {
-                            for (let k = 0; k <= 5; k++) {
-                                CliqzUtils.log('MATCH[' + k + '] = ' + d[k], CliqzClusterHistory.LOG_KEY);
-                            }
                             if (domains[domain]==null) domains[domain]=[];
                             domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
                             break;
@@ -137,21 +134,48 @@ var templates = {
                             CliqzUtils.log('RES status: ' + res.status, CliqzClusterHistory.LOG_KEY);
                             if (res.status == 200 && template.topics[1].urls.length == 0) {
                                 CliqzUtils.log('200 and not updated: ' + template.topics[1].urls.length, CliqzClusterHistory.LOG_KEY);
-
-                                template.topics[1].color = COLORS[1];
-                                template.topics[1].labelUrl = next_url;
+                                /*
+                                 * A result can still be invalid, as when we do not guess the correct s/e,
+                                 * sites sometimes lie, so the URL and the title is not always in sync.
+                                 */
+                                var invalid_result = false;
                                 var m = res.responseText.match(/<title>(.*?)<\/title>/);
+                                var next_title = null;
                                 if (m) {
-                                    template.topics[1].urls = [{href: next_url, path: '', title: m[1]}];
+                                    next_title = m[1];
+                                    for (let r = 0; r < regexs.length; r++) {
+                                        var d = next_title.toLowerCase().match(regexs[r]);
+                                        if (d) {
+                                            var next_s = parseInt(d[2]);
+                                            var next_ep = parseInt(d[4]);
+                                            CliqzUtils.log('last_s=' + last_s + ', last_ep=' + last_ep +
+                                                           'next_s=' + next_s + ', next_ep=' + next_ep, CliqzClusterHistory.LOG_KEY);
+                                            if (!((next_s == last_s && next_ep == last_ep + 1) ||
+                                                  (next_s == last_s + 1 && next_ep == 1))) {
+                                                CliqzUtils.log('Site is lying: title >' + next_title +
+                                                               '< does not refer to a next episode.', CliqzClusterHistory.LOG_KEY);
+                                                invalid_result = true;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
+                                if (!invalid_result) {
+                                    CliqzUtils.log('Valid result.', CliqzClusterHistory.LOG_KEY);
+                                    template.topics[1].color = COLORS[1];
+                                    template.topics[1].labelUrl = next_url;
+                                    if (next_title) {
+                                        template.topics[1].urls = [{href: next_url, path: '', title: m[1]}];
+                                    }
 
-                                var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                                .getService(Components.interfaces.nsIWindowMediator),
-                                win = wm.getMostRecentWindow("navigator:browser");
-                                win.CLIQZ.UI.redrawCluster({
-                                   data: template
-                                })
-                                CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
+                                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                                    .getService(Components.interfaces.nsIWindowMediator),
+                                    win = wm.getMostRecentWindow("navigator:browser");
+                                    win.CLIQZ.UI.redrawCluster({
+                                       data: template
+                                    })
+                                    CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
+                                }
                             }
                         });
                     });
