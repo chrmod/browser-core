@@ -30,7 +30,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
                     // remove last element if '', that means that path ended with /
                     // also remove first element if '',
@@ -51,10 +52,8 @@ var templates = {
                         domains[domain].push([title, url, 'type2', parseInt(d[1]), parseInt(d[2])]);
                     }
 
-                    CliqzUtils.log(path)
                     d = path.match(ex3);
                     if (d) {
-                        CliqzUtils.log(d[1] + ' ' + d[2])
                         if (domains[domain]==null) domains[domain]=[];
                         domains[domain].push([title, url, 'type3', parseInt(d[1]), parseInt(d[2])]);
                     }
@@ -73,6 +72,7 @@ var templates = {
                 if (maxDomain!=null && maxDomainLen>4) {
                     // at least 5
                     CliqzUtils.log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]), CliqzClusterHistory.LOG_KEY);
+                    CliqzUtils.log(JSON.stringify(domains), 'DOMAINS', CliqzClusterHistory.LOG_KEY);
 
                     var last_title = domains[maxDomain][0][0];
                     var last_url = domains[maxDomain][0][1];
@@ -92,11 +92,11 @@ var templates = {
                                 last_title = domains[maxDomain][i][0];
                             }
                         }
-                        CliqzUtils.log(last_s + ' ' + last_ep, 'last_show')
+                        CliqzUtils.log(last_s + ' ' + last_ep, 'last_show', CliqzClusterHistory.LOG_KEY)
                     }
                     // var last_title = domains[maxDomain][0][0];
                     // var last_url = domains[maxDomain][0][1];
-                    CliqzUtils.log('getting next episode');
+                    CliqzUtils.log('getting next episode...', CliqzClusterHistory.LOG_KEY);
                     // last_url = 'http://www.libertyland.tv/v2/nashville/saison-1-episode-2/';
 
                     var next_url = '';
@@ -119,27 +119,42 @@ var templates = {
                         ]
                     }
 
-                    var nexturl = CliqzUtils.httpGet('http://107.20.44.82/?url=' + encodeURIComponent(last_url),
-                                                     function(res) {
-                                                         var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                                                         .getService(Components.interfaces.nsIWindowMediator),
-                                                            win = wm.getMostRecentWindow("navigator:browser");
-                                                         res = JSON.parse(res.response)
-														 for (let i=0; i < res['next'].length; i++) {
-															 var cur_ep = res['next'][i]
-															 if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
-															 if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
-                                                             var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
-                                                             res['next'][i].title = title
-															 res['next'][i].href = res['next'][i].url
-                                                         }
-														 template.topics[0].urls[0].title = res['next'][0].title
-                                                         template.topics[1].urls = res['next'];
-                                                         CliqzUtils.log(JSON.stringify(template), 'CLUSTERING');
-                                                         win.CLIQZ.UI.redrawCluster({
-                                                            data: template
-                                                        })
-                                                     });
+                    CliqzUtils.log('LAST URL: ' + last_url + ' => ' + encodeURIComponent(last_url), CliqzClusterHistory.LOG_KEY);
+                    var nexturl = CliqzUtils.httpGet(
+                            'http://107.20.44.82/?url=' + encodeURIComponent(last_url),
+                            function(res) {
+                                var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                                .getService(Components.interfaces.nsIWindowMediator),
+                                   win = wm.getMostRecentWindow("navigator:browser");
+                                res = JSON.parse(res.response)
+
+                                //CliqzUtils.log('RES: ' + JSON.stringify(res), CliqzClusterHistory.LOG_KEY);
+
+                                if ('next' in res) {
+                                    /* This should be a separate function. */
+                                    {
+                                        var cur_ep = res['latest']
+                                        if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
+                                        if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
+                                        var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
+                                        res['latest'].title = title
+                                    }
+                                    for (let i=0; i < res['next'].length; i++) {
+                                        var cur_ep = res['next'][i]
+                                        if (cur_ep.season < 10) {cur_ep.season = '0' + cur_ep.season}
+                                        if (cur_ep.episode < 10) {cur_ep.episode = '0' + cur_ep.episode}
+                                        var title = 'S' + cur_ep.season + 'E' + cur_ep.episode + ' ' + cur_ep.title
+                                        res['next'][i].title = title
+                                        res['next'][i].href = res['next'][i].url
+                                    }
+                                    template.topics[0].urls[0].title = res['latest'].title
+                                    template.topics[1].urls = res['next'];
+                                    CliqzUtils.log(JSON.stringify(template), 'CLUSTERING', CliqzClusterHistory.LOG_KEY);
+                                    win.CLIQZ.UI.redrawCluster({
+                                       data: template
+                                    })
+                                }
+                            });
 
 
                     return template;
@@ -171,7 +186,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -236,7 +252,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -339,7 +356,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -392,7 +410,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -440,7 +459,8 @@ var templates = {
                     var url = urls[i]['value'];
                     var title = urls[i]['comment'];
 
-                    var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                    url = CliqzClusterHistory.normalizeURL(url);
+                    var [domain, path] = CliqzClusterHistory.splitURL(url);
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -578,7 +598,9 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
             url = param;
         }
-
+        return url;
+    },
+    splitURL: function(url) {
         var clean_url = url.toLowerCase().replace(/^http[s]*:\/\//,'').replace(/^www\./,'');
         var v = clean_url.split('/');
         var domain = v[0];
@@ -597,7 +619,4 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
         return [domain, path];
     }
-
-
-
-};
+}
