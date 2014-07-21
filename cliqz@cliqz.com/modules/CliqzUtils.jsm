@@ -251,6 +251,8 @@ var CliqzUtils = {
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';
     else if(type === 'cliqz-suggestions') return 'S';
+    // empty hidden result sent only to force the dropdown to open
+    else if(type === 'cliqz-empty') return '';
     // cliqz type = "cliqz-custom sources-XXXXX"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
