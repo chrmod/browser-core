@@ -302,7 +302,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults
                     );
 
-
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
                   + ', suggestions: ' + (this.cliqzSuggestions || []).length
