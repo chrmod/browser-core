@@ -2,8 +2,17 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
-                 'shopping', 'gaming', 'news', 'people', 'video', 'hq', 'qaa', 'custom'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom'],
+    VERTICALS = {
+        'w': 'weather' ,
+        's': 'shopping',
+        'g': 'gaming'  ,
+        'n': 'news'    ,
+        'p': 'people'  ,
+        'v': 'video'   ,
+        'h': 'hq'      ,
+        'q': 'qaa'
+    },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
@@ -27,6 +36,13 @@ var UI = {
                 UI.tpl[tpl] = Handlebars.compile(res.response);
             });
         });
+        for(var v in VERTICALS){
+            (function(vName){
+                CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
+                    UI.tpl[vName] = Handlebars.compile(res.response);
+                });
+            })(VERTICALS[v]);
+        };
 
         PARTIALS.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -212,14 +228,15 @@ function constructImage(data){
 
 function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
-    if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
-    if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
-    if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
-    if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
-    if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
-    if(type.indexOf('cliqz-results sources-h') === 0) return 'hq';
-    if(type.indexOf('cliqz-results sources-q') === 0) return 'qaa';
-    if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
+    if(type.indexOf('cliqz-results sources-') == 0){
+        // type format: cliqz-results sources-XXXX
+        // XXXX -  are the verticals which provided the result
+        type = type.substr(22);
+
+        while(type && !VERTICALS[type[0]])type = type.substr(1);
+
+        return VERTICALS[type[0]] || 'generic';
+    }
     return 'generic';
 }
 

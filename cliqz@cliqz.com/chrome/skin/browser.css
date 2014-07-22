@@ -136,13 +136,13 @@
     font-size: 12pt;
     font-weight: 500;
     padding-bottom: 3px;
-    width: 65%;
+    width: 85%;
 }
 
 .cliqz-result-url-box {
     font-size: 9pt;
     font-weight: 400;
-    width: 40%;
+    width: 85%;
 }
 
 .cliqz-result-url-host {
@@ -212,7 +212,7 @@
     padding-right: 10px;
     overflow: hidden;
     padding-top: 3px;
-    width: 65%;
+    width: 85%;
 }
 
 /* end results */

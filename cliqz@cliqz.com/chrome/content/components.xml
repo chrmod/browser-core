@@ -45,11 +45,7 @@
 
             var width = aElement.getBoundingClientRect().width;
             this.setAttribute("width", width > 100 ? width : 100);
-            //this.openPopup(aElement, "after_start", 0, 0, false, true);
-
-            const left_offset = -aElement.getBoundingClientRect().left - 1;
-            this.openPopup(aElement, "after_start", left_offset, 0, false, true);
-            this.setAttribute("width", window.innerWidth);
+            this.openPopup(aElement, "after_start", 0, 0, false, true);
           }
         ]]>
         </body>
@@ -82,7 +78,7 @@
 
               CLIQZ.UI.results({
                 results: data,
-                width: document.width - 100
+                width: CLIQZ.Core.urlbar.clientWidth - 100
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
               CLIQZ.Core.autocompleteQuery(data[0].url);
