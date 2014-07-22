@@ -6,7 +6,7 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ title }}
 		</div>
-		{{> url urlDetails}}
+		{{> url this}}
 		{{#with data.richData}}
 		<div class='overflow' style="font-size: 10pt; color:#ccc">
 			<span class='cliqz-qaa-answer'>ANTWORTEN:</span>

@@ -502,14 +502,14 @@ function registerHelpers(){
         return JSON.stringify(value);
     });
 
-    Handlebars.registerHelper('emphasis', function(text, q, min, clean) {
-        if(!text || !q || q.length < (min || 2)) return text;
+    Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
+        if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
 
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
-        if(clean) text = text.replace(/[\u0000-\u001F]/g, ' ')
+        if(cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+/),
