@@ -102,7 +102,7 @@ var templates = {
                         url_base + last_item[5][1] + zFill(last_s + 1, s_width) +
                         last_item[5][3] + zFill(1, ep_width) + last_item[5][5]
                     ];
-                    CliqzUtils.log('NEXT_URLS: ' + JSON.stringify(next_urls), CliqzClusterHistory.LOG_KEY);
+                    CliqzUtils.log('Candidate URLs: ' + JSON.stringify(next_urls), CliqzClusterHistory.LOG_KEY);
 
                     var template = {
                         summary: 'Looks like you want to watch something...',
@@ -128,12 +128,11 @@ var templates = {
                      * as the next episode.
                      */
                     next_urls.forEach(function (next_url) {
-                        CliqzUtils.log('NEXT_URL TO GET: ' + next_url, CliqzClusterHistory.LOG_KEY);
+                        CliqzUtils.log('Next URL to get: ' + next_url, CliqzClusterHistory.LOG_KEY);
                         CliqzUtils.httpGet(next_url, function(res) {
-                            CliqzUtils.log('RES NEXT URL: ' + res, CliqzClusterHistory.LOG_KEY);
-                            CliqzUtils.log('RES status: ' + res.status, CliqzClusterHistory.LOG_KEY);
+                            CliqzUtils.log('Next url: ' + next_url + ', status: ' + res.status, CliqzClusterHistory.LOG_KEY);
                             if (res.status == 200 && template.topics[1].urls.length == 0) {
-                                CliqzUtils.log('200 and not updated: ' + template.topics[1].urls.length, CliqzClusterHistory.LOG_KEY);
+                                CliqzUtils.log('200 and not updated.', CliqzClusterHistory.LOG_KEY);
                                 /*
                                  * A result can still be invalid, as when we do not guess the correct s/e,
                                  * sites sometimes lie, so the URL and the title is not always in sync.
@@ -148,8 +147,6 @@ var templates = {
                                         if (d) {
                                             var next_s = parseInt(d[2]);
                                             var next_ep = parseInt(d[4]);
-                                            CliqzUtils.log('last_s=' + last_s + ', last_ep=' + last_ep +
-                                                           'next_s=' + next_s + ', next_ep=' + next_ep, CliqzClusterHistory.LOG_KEY);
                                             if (!((next_s == last_s && next_ep == last_ep + 1) ||
                                                   (next_s == last_s + 1 && next_ep == 1))) {
                                                 CliqzUtils.log('Site is lying: title >' + next_title +
