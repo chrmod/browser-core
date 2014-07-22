@@ -13,7 +13,7 @@
 				"
 		>
 		{{#if image.text }}
-			<p>{{ image.text }}</p>
+			<p class='cliqz-video-arrow'>{{ image.text }}</p>
 		{{/if}}
 		</div>
 	{{/if}}

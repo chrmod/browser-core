@@ -204,6 +204,7 @@
 
 .cliqz-result-item-box:hover .cliqz-logo {
   background: url(chrome://cliqzres/content/skin/popout_icon.png) no-repeat center center;
+  cursor: pointer;
 }
 
 .cliqz-result-description {
@@ -385,7 +386,7 @@
     color: #333333;
     max-width: 300px;
     overflow: hidden;
-    height: 28px;
+    height: 30px;
     font-weight: bold;
     background-repeat: no-repeat;
     background-position: left 2px;
@@ -602,7 +603,7 @@
   margin-top: 5px;
 }
 
-.cliqz-result-video-duration:before {
+.cliqz-video-arrow:before {
     content:'▶';
 }
 

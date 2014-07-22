@@ -105,12 +105,17 @@ var UI = {
 };
 
 function handlePopupHeight(box){
-    var height = CliqzUtils.getPref('popupHeight', 290),
+    var MAX=352, MIN =160,
+        height = CliqzUtils.getPref('popupHeight', 290),
         start, footer = document.getElementById('cliqz-footer', box);
 
     function setHeight(delta){
-        var t = Math.min(Math.max(height + delta, 160), 352);
+        var t = Math.min(Math.max(height + delta, MIN), MAX);
         box.resultsBox.style.maxHeight = (t - 36) + 'px';
+
+        footer.style.cursor = t == MIN? 's-resize':
+                              t == MAX? 'n-resize':
+                              'ns-resize';
     }
     setHeight(0);
     //handle resize
@@ -194,7 +199,7 @@ function constructImage(data){
                 image.height = height;
             }
             if (img && img.duration) {
-                image.text = CliqzUtils.getLocalizedString('arrow') + img.duration;
+                image.text = img.duration;
             }
 
             image.width = image.width || IMAGE_WIDTH;

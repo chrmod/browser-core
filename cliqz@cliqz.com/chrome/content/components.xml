@@ -49,7 +49,7 @@
 
             const left_offset = -aElement.getBoundingClientRect().left - 1;
             this.openPopup(aElement, "after_start", left_offset, 0, false, true);
-            this.setAttribute("width", window.outerWidth);
+            this.setAttribute("width", window.innerWidth);
           }
         ]]>
         </body>
@@ -82,8 +82,7 @@
 
               CLIQZ.UI.results({
                 results: data,
-                //width: CLIQZ.Core.urlbar.clientWidth - 90
-                width: document.width - 90
+                width: document.width - 100
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
               CLIQZ.Core.autocompleteQuery(data[0].url);

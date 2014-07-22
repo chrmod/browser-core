@@ -34,7 +34,7 @@
       {{/if}}
     </div>
     {{#if data.image.duration }}
-      <span class="cliqz-result-video-duration">
+      <span class="cliqz-result-video-duration cliqz-video-arrow">
         {{ data.image.duration }}
       </span>
     {{/if}}
