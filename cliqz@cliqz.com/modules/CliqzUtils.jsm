@@ -101,11 +101,16 @@ var CliqzUtils = {
     return prefs;
   },
   getPref: function(pref, notFound){
-    switch(CliqzUtils.cliqzPrefs.getPrefType(pref)) {
-      case CliqzUtils.PREF_BOOL: return CliqzUtils.cliqzPrefs.getBoolPref(pref);
-      case CliqzUtils.PREF_STRING: return CliqzUtils.cliqzPrefs.getCharPref(pref);
-      case CliqzUtils.PREF_INT: return CliqzUtils.cliqzPrefs.getIntPref(pref);
-      default: return notFound;
+    try{
+      var prefs = CliqzUtils.cliqzPrefs;
+      switch(prefs.getPrefType(pref)) {
+        case CliqzUtils.PREF_BOOL: return prefs.getBoolPref(pref);
+        case CliqzUtils.PREF_STRING: return prefs.getCharPref(pref);
+        case CliqzUtils.PREF_INT: return prefs.getIntPref(pref);
+        default: return notFound;
+      }
+    } catch(e){
+      return notFound;
     }
   },
   setPref: function(pref, val){

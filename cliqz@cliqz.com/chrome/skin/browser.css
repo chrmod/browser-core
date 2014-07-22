@@ -43,6 +43,7 @@
     background-size: 20px 14px;
     position: relative;
     line-height: 16px;
+    cursor: ns-resize;
 }
 
 #cliqz-navigation-message {
@@ -88,6 +89,7 @@
 /* results */
 
 #cliqz-results {
+    min-height: 61px;
     max-height: 300px;
     overflow-y: scroll;
 }
