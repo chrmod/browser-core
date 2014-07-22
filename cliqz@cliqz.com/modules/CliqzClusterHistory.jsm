@@ -25,9 +25,9 @@ var templates = {
 
                 var keywords = {'Read':true,'Watch':true}
 
-                var regexs = [/(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]{0,1}[sz]on[-\/_ ])(\d{1,2}).*\/(d{1,2})(.*)/,
+                var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
+                              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.*)(\d{1,2})(.*)/,
                               /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
                               /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
@@ -39,6 +39,8 @@ var templates = {
 
                     url = CliqzClusterHistory.normalizeURL(url);
                     var [domain, path] = CliqzClusterHistory.splitURL(url);
+                    var real_domain = url.substring(0, url.indexOf(domain) + domain.length)
+
                     var vpath = path.toLowerCase().split('/');
                     // remove last element if '', that means that path ended with /
                     // also remove first element if '',
@@ -106,7 +108,7 @@ var templates = {
 
                     var template = {
                         summary: 'Looks like you want to watch something...',
-                        url: 'http://cliqz.com',
+                        url: real_domain,
                         control: [
                         ],
                         topics: [
@@ -533,7 +535,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 label = history.getLabelAt(i);
 
                 historyTrans.push({style: style, value: value, image: image, comment: comment, label: label});
-                var [domain, path] = CliqzClusterHistory.normalizeURL(value);
+                var [domain, path] = CliqzClusterHistory.splitURL(CliqzClusterHistory.normalizeURL(value));
 
                 if (freqHash[domain]==null) freqHash[domain]=[];
                 freqHash[domain].push(i);
@@ -542,7 +544,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     maxDomain = domain;
                     maxCounter = freqHash[domain].length;
                 }
-
         }
 
         if (history.matchCount < 10) {
