@@ -8,9 +8,9 @@
 		</div>
 		{{> url this}}
 		{{#with data.richData}}
-		<div class='overflow' style="font-size: 10pt; color:#ccc">
-			<span class='cliqz-qaa-answer'>ANTWORTEN:</span>
-			<span class='cliqz-qaa-answer-value'>{{answers}}</span>
+		<div class='overflow' style="font-size: 10pt; color:#aaa; padding-top:4px">
+			<span class='cliqz-qaa-answer'></span>
+			<span class='cliqz-qaa-answer-value'>ANTWORTEN: {{answers}}</span>
 			|
 			{{#if accepted}}
 				<span class='cliqz-qaa-accepted'>Hilfreichste Antwort</span>
