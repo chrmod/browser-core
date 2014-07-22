@@ -255,7 +255,6 @@
 
 .cliqz-weather-today-container {
     margin-top: 10px;
-    width: 200px;
     float: left;
 }
 
@@ -278,30 +277,33 @@
 
 .cliqz-weather-today-date {
     font-size: 11px;
-    padding: 2px;
-    color: grey;
+    color: black;
+    padding-top: 55px;
+    background-repeat: no-repeat;
+    background-position: center 0px;
+    float:left;
+    margin-right: 15px;
 }
 
 .cliqz-weather-today-temp {
+    float:left;
+    margin-top: 5px;
+}
+
+.cliqz-weather-now {
     font-size: 32px;
-    color: black;
-    background-repeat: no-repeat;
-    background-position: 20px 0px;
-    padding-left: 101px;
-    height: 50px;
-    line-height: 52px;
+    line-height: 49px;
+    color: grey;
 }
 
 .cliqz-weather-today-min {
-  font-size: 11px;
-  color: #4785ec;
-  padding: 2px;
+    font-size: 11px;
+    color: #4785ec;
 }
 
 .cliqz-weather-today-max {
     font-size: 11px;
     color: #fd5b5b;
-    padding: 2px 2px 2px 15px;
 }
 
 .cliqz-weather-today-icon {
