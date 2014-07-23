@@ -20,7 +20,9 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
+    LEFT = 37,
     UP = 38,
+    RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
@@ -113,6 +115,11 @@ var UI = {
             case TAB:
                 suggestionNavigation(ev);
                 return true;
+            case LEFT:
+            case RIGHT:
+                // close drop down to avoid firefox autocompletion
+                CLIQZ.Core.popup.closePopup();
+                return false;
             break;
         }
 
