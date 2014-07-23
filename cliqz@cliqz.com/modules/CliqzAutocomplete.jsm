@@ -180,7 +180,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var action = {
                     type: 'activity',
                     action: 'suggestions',
-                    count:  suggestions.length
+                    count:  (suggestions || []).length
                 };
                 CliqzUtils.track(action);
             },
