@@ -1,6 +1,6 @@
 <div class='cliqz-result-url-box overflow'>
 	<span class='cliqz-result-url-host
-		{{#if ssl }}
+		{{#if urlDetails.ssl }}
 		  cliqz-result-url-ssl
 		{{/if}}
 		'

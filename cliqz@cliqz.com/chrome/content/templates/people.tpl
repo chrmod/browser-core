@@ -16,12 +16,13 @@
 	{{/if}}
 	<div class='cliqz-result-mid-box people-box' style="width:{{ width }}px;">
 		{{#with data.richData}}
-			<div class='overflow'>
+			<div class='overflow' style="padding-bottom: 3px;">
 				<span class='cliqz-people-name'>
 					{{full_name}}
 				</span>
 			</div>
-			<div class='cliqz-result-url-box overflow'>
+			<div class='cliqz-result-url-box overflow'
+				 style="padding-bottom: 3px;">
 				<span class='cliqz-people-jobtitle'>
 					{{current_job_title}}
 				</span>
@@ -29,9 +30,11 @@
 				<span class='cliqz-people-company'>
 					{{current_company}}
 				</span>
-				<span class='cliqz-people-agoline'>
-					seit {{since}}
-				</span>
+				{{#if since}}
+					<span class='cliqz-people-agoline'>
+						seit {{since}}
+					</span>
+				{{/if}}
 			</div>
 			<div class='cliqz-result-url-box cliqz-people-branch overflow'>
 				{{current_branch}}

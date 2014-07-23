@@ -2,6 +2,6 @@
 	<span class='cliqz-suggestion'
 		val="{{this}}"
 		idx="{{ @index }}">
-		{{emphasis this ../q 1 false}}
+		{{ suggestionEmphasis this ../q }}
 	</span>
 {{/each}}

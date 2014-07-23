@@ -588,6 +588,15 @@ function registerHelpers(){
         return new Handlebars.SafeString(UI.tpl.emphasis(out));
     });
 
+    Handlebars.registerHelper('suggestionEmphasis', function(text, q) {
+        if(!text || !q ) return text;
+
+        if(text.indexOf(q) == 0){
+            var out = [q, text.substr(q.length)]
+            return new Handlebars.SafeString(UI.tpl.emphasis(out));
+        } else return text
+    });
+
     Handlebars.registerHelper('video_provider', function(host) {
         if(host.indexOf('youtube') === 0)
           return "YouTube";
