@@ -98,6 +98,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             QueryInterface: XPCOMUtils.generateQI([  ]),
             addResults: function(results){
                 this._results = this._results.concat(results);
+                CliqzAutocomplete.lastResult = this;
             }
         };
     },
@@ -175,6 +176,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
             },
+            sendSuggestionsSignal: function(suggestions) {
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count:  suggestions.length
+                };
+                CliqzUtils.track(action);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
@@ -187,8 +196,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
-                        CliqzAutocomplete.lastResult = this.mixedResults;
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         this.listener.onSearchResult(this, this.mixedResults);
                         this.sendResultsSignal(this.mixedResults._results);
@@ -322,13 +331,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             Result.CLIQZC + ' sources-' + customQuery.engineCode,
                             customQuery.queryURI,
                             null,
-                            CliqzUtils.createSuggestionTitle(q, customQuery.engineName),
-                            customQuery.updatedQ
+                            null,
+                            null,
+                            null,
+                            {
+                                q: customQuery.updatedQ,
+                                engine: customQuery.engineName
+                            }
                         )
                     ];
                 }
 
-                return q
+                return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzUtils.log('search: ' + searchString);

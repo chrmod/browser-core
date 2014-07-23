@@ -7,11 +7,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
 
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
-    log = function(str){
-    _log.logStringMessage('Result.jsm: ' + str);
-}
-
 var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
@@ -188,15 +183,9 @@ var Result = {
         if(imageData.ratio) image.ratio = imageData.ratio;
 
         // add duration from rich data
-        if(richData && richData.attr){
-            for(var i in richData.attr){
-                if(richData.attr[i] && richData.attr[i].length == 2) { //tuples
-                    if(richData.attr[i][0] == 'duration'){
-                        var parsedDuration = Result.tryGetImageDuration(richData.attr[i][1])
-                        if(parsedDuration) image.duration = parsedDuration;
-                    }
-                }
-            }
+        if(richData && richData.duration){
+            var parsedDuration = Result.tryGetImageDuration(richData.duration)
+            if(parsedDuration) image.duration = parsedDuration;
         }
 
         return image

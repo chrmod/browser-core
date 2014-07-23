@@ -11,6 +11,7 @@ var WAIT_TIME_FOR_KEY_PRESS = 700,
 var setupModule = function (module) {
     module.controller = mozmill.getBrowserController();
     module.CLIQZ = controller.window.CLIQZ;
+    module.CliqzUtils = controller.window.CliqzUtils;
 }
 
 function clearLocationBar (locationBar) {
@@ -18,10 +19,14 @@ function clearLocationBar (locationBar) {
     locationBarNode.value = '';
 }
 
+function alert(txt){
+    controller.window.alert(txt);
+}
+
 var locationAction = function(){
     let locationBar = new findElement.ID(controller.window.document, 'urlbar')
         ,popup = new findElement.ID(controller.window.document, 'PopupAutoCompleteRichResult')
-        ,suggestionsbox = popup.getNode()
+        ,popupBox = popup.getNode()
         ;
 
 
@@ -52,31 +57,29 @@ var locationAction = function(){
         controller.open(url);
         wait && controller.waitForPageLoad();
     };
-    this.suggestions = function(){
-        return this.jsonifySuggestions(suggestionsbox.richlistbox.childNodes);
+    this.results = function(){
+        //wait for initialization
+        while(!popupBox.cliqzBox)controller.sleep(100);
+        return this.jsonify(popupBox.cliqzBox.resultsBox.children, ['url', 'type', 'idx']);
     };
-    this.jsonifySuggestions = function(results){
+    this.jsonify = function(results, fields){
         function json(item){
-            return item && {
-                url: item.getAttribute('url'),
-                source: item.getAttribute('source'),
-                type: item.getAttribute('type'),
-                title: item.getAttribute('title'),
-                text: item.getAttribute('text'),
-                collapsed: item.collapsed,
-                className: item.className
-            }
+            var ret = {}
+            for(var f of fields)ret[f] = item.getAttribute(f)
+
+            return ret;
         }
-        function visible(item){
-            return !item.collapsed;
-        }
-        return Array.prototype.map.call(results, json).filter(visible);
+        return Array.prototype.map.call(results, json);
     }
-
+    this.suggestions = function(){
+        //wait for initialization
+        while(!popupBox.cliqzBox)controller.sleep(100);
+        return this.jsonify(popupBox.cliqzBox.suggestionBox.children, ['val', 'idx']);
+    };
     // replace https to http to enable mocking
-    CLIQZ.Utils.setPref('suggestionAPI', CLIQZ.Utils.SUGGESTIONS.replace('https', 'http'));
-    CLIQZ.Core.restart();
-
+    CliqzUtils.LOG="http://0.0.0.0:80/";
+    CliqzUtils.RESULTS_PROVIDER = 'http://0.0.0.0:80/api/v1/results?q=';
+    CliqzUtils.SUGGESTIONS = 'http://0.0.0.0:80/complete/search?q=';
     this.clean();
 
     return this;
@@ -84,7 +87,7 @@ var locationAction = function(){
 
 
 function testResults() {
-    let input = 'facebook', expectedUrl ='https://www.facebook.com',
+    let input = 'facebook', expectedUrl ='https://www.facebook.com/',
         expectedTitle = 'Willkommen bei Facebook',
         action = new locationAction(),
         currentInput = '',
@@ -93,29 +96,24 @@ function testResults() {
     for(let key of input){
         action.kepPress(key);
         currentInput += key;
-        let suggestions = action.suggestions();
+        let results = action.results();
 
         // mocked results kick in from the 4th caracter for "face..."
         if(currentInput.length>3){
-            assert.equal(suggestions[0].url, expectedUrl, 'url should be facebook');
-            assert.equal(suggestions[0].source, 'cliqz-results', 'Is a cliqz result');
-            assert.equal(suggestions[0].title, expectedTitle, 'title is the expected facebook title');
+            assert.equal(results[0].url, expectedUrl, 'url should be facebook');
+            assert.equal(results[0].type, 'cliqz-results sources-d', 'Is a cliqz-deutsche-cache result');
 
-            //all the other results should be suggestions
-            for(let suggestion of suggestions.slice(1)){
-                assert.equal(suggestion.source, 'cliqz-suggestions', 'Is query suggestion');
-            }
+
         } else {
-            for(let suggestion of suggestions){
-                assert.notEqual(suggestion.source, 'cliqz-results', 'Is not a result');
+            for(let r of results){
+                assert.notMatch(r.type, '/cliqz-results/i', 'Is not a result');
             }
         }
     }
 }
 
-
 function testQuerySuggestions() {
-  let input = 'random string',
+  let input = 'facebook login',
       action = new locationAction(),
       currentInput = '';
 
@@ -124,19 +122,9 @@ function testQuerySuggestions() {
         currentInput += key;
         if(currentInput.length > 3){
             let suggestions = action.suggestions();
-            //controller.window.alert(JSON.stringify(suggestions));
-            for(let suggestion of suggestions){
-                assert.equal(suggestion.collapsed, false, 'Visible suggestion');
-                assert.equal(suggestion.source, 'cliqz-suggestions', 'Is query suggestion');
-            }
-
-            // first suggestion
-            assert.equal(suggestions[0].url, currentInput, 'url what the user typed');
-
-            // next 3 mocked suggestions
             var mocked = ['one', 'two', 'three'];
             for(let i in mocked){
-                assert.equal(suggestions[+i+1].url, mocked[+i], 'url is mocked suggestion');
+                assert.equal(suggestions[i].val, mocked[i], 'url is mocked suggestion');
             }
         }
     }
@@ -161,4 +149,3 @@ function testAutocomplete () {
         assert.equal(locNode.value, "facebook.com/", "For faceboo autocomplete facebook.com/");
       }
 }
-

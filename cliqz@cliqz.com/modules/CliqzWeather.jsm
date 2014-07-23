@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
 
 var EXPORTED_SYMBOLS = ['CliqzWeather'];
 
-
 Date.locale = {
     en: {
        month_names: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -53,7 +52,7 @@ function determineUserLang(){
         if(locales[i] in Date.locale){
           return locales[i];
         }
-                      }
+    }
     return "de";
 };
 
@@ -105,8 +104,6 @@ function geocodeCallback(res, callback){
           + '&lat=' + coord.lat
           + '&lon=' + coord.lon
           + '&lang=' + determineUserLang();
-
-
 
         CliqzUtils._weatherReq = CliqzUtils.httpGet(URL, function(res){ allDone(res, null, callback, locName); });
 

@@ -13,7 +13,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
 
-
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -26,23 +25,22 @@ var VERTICAL_ENCODINGS = {
     'french':'f',
     'video':'v',
     'hq':'h',
-    'shopping':'s'
+    'shopping':'s',
+    'gaming':'g',
+    'qaa':'q'
 };
 
-var CliqzUtils = CliqzUtils || {
+var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
-  VERSION_URL:      'https://beta.cliqz.com/version',
-  //UPDATE_URL:     'http://beta.cliqz.com/latest',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
   TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
-  SEPARATOR:        ' %s ',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
@@ -103,11 +101,16 @@ var CliqzUtils = CliqzUtils || {
     return prefs;
   },
   getPref: function(pref, notFound){
-    switch(CliqzUtils.cliqzPrefs.getPrefType(pref)) {
-      case CliqzUtils.PREF_BOOL: return CliqzUtils.cliqzPrefs.getBoolPref(pref);
-      case CliqzUtils.PREF_STRING: return CliqzUtils.cliqzPrefs.getCharPref(pref);
-      case CliqzUtils.PREF_INT: return CliqzUtils.cliqzPrefs.getIntPref(pref);
-      default: return notFound;
+    try{
+      var prefs = CliqzUtils.cliqzPrefs;
+      switch(prefs.getPrefType(pref)) {
+        case CliqzUtils.PREF_BOOL: return prefs.getBoolPref(pref);
+        case CliqzUtils.PREF_STRING: return prefs.getCharPref(pref);
+        case CliqzUtils.PREF_INT: return prefs.getIntPref(pref);
+        default: return notFound;
+      }
+    } catch(e){
+      return notFound;
     }
   },
   setPref: function(pref, val){
@@ -236,8 +239,6 @@ var CliqzUtils = CliqzUtils || {
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
     CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
                                 function(res){
-                                  //CliqzUtils.log(q, 'RESP');
-                                  //CliqzUtils.log(res.response, 'RESP');
                                   callback && callback(res, q);
                                 });
   },
@@ -251,7 +252,6 @@ var CliqzUtils = CliqzUtils || {
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
-    else if(type === 'cliqz-worldcup') return 'x';
     else if(type === 'bookmark') return 'B';
     else if(type === 'tag') return 'B'; // bookmarks with tags
     else if(type === 'favicon' || type === 'history') return 'H';
@@ -272,12 +272,6 @@ var CliqzUtils = CliqzUtils || {
       function(s){
         return VERTICAL_ENCODINGS[s] || s;
       }).join('');
-  },
-  getLatestVersion: function(callback, error){
-    CliqzUtils.httpGet(CliqzUtils.VERSION_URL + '?' + Math.random(), function(res) {
-      if(res.status == 200) callback(res.response);
-      else error();
-    });
   },
   stopSearch: function(){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
@@ -495,66 +489,9 @@ var CliqzUtils = CliqzUtils || {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
-  // returns the suggestion title + target search engine
-  createSuggestionTitle: function(q, engine, originalQ) {
-    var elements = [];
-
-    elements.push([CliqzUtils.getLocalizedString('searchForBegin'), 'cliqz-ac-title-suggestion-desc']);
-    if(originalQ){
-      if(q.indexOf(originalQ) == 0){
-        elements.push([originalQ, 'cliqz-ac-title-suggestion']);
-        elements.push([q.slice(originalQ.length), 'cliqz-ac-title-suggestion-extra']);
-      } else {
-        elements.push([q, 'cliqz-ac-title-suggestion-extra']);
-      }
-    } else {
-      elements.push([q, 'cliqz-ac-title-suggestion']);
-    }
-    elements.push([CliqzUtils.getLocalizedString('searchForEnd'), 'cliqz-ac-title-suggestion-desc']);
-    elements.push([engine || Services.search.defaultEngine.name, 'cliqz-ac-title-suggestion-desc']);
-
-    return JSON.stringify(elements);
-  },
-  navigateToItem: function(gBrowser, index, item, actionType, newTab){
-      var action = {
-              type: 'activity',
-              action: actionType,
-              current_position: index
-          };
-
-      if(actionType == 'result_click')action.new_tab = true;
-      if(index != -1){
-          var value = item.getAttribute('url');
-
-          action.position_type = CliqzUtils.encodeResultType(item.getAttribute('source'))
-          action.search = CliqzUtils.isSearch(value);
-          if(item.getAttribute('type') === 'cliqz-suggestions'){
-              value = Services.search.defaultEngine.getSubmission(value).uri.spec;
-          }
-
-          if(actionType == 'result_click'){ // do not navigate on keyboard navigation
-            CliqzUtils.setTimeout(function(){
-                if(newTab) gBrowser.addTab(CliqzUtils.cleanMozillaActions(value));
-                else {
-                  if(item.getAttribute('type') != 'cliqz-suggestions' &&
-                    value.indexOf('http') !== 0) value = 'http://' + value;
-                  gBrowser.selectedBrowser.contentDocument.location = value;
-                }
-
-            }, 0);
-          }
-      }
-      CliqzUtils.track(action);
-  },
-  navigateToSource: function(gBrowser, url, newTab){
-    // TODO - add a logging signal?
-
-    if(newTab) gBrowser.addTab(url);
-    else gBrowser.selectedBrowser.contentDocument.location = url;
-  },
   computeAgoLine: function(ts, lang){
     if(!ts) return '';
-    let now = (new Date().getTime() / 1000),
+    var now = (new Date().getTime() / 1000),
         ageHours = parseInt((now - ts) / 3600);
 
     return ageHours > 24? 'gestern': ageHours <= 1 ? 'vor einer Stunde' : 'vor ' + ageHours + ' Stunden';

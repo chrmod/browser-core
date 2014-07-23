@@ -88,7 +88,7 @@ var ResultProviders = {
     isCustomQuery: function(q){
         if(CUSTOM[q.trim()]){
             return {
-                updatedQ  : CUSTOM[q.trim()].url,
+                updatedQ  : q,
                 engineName: 'CLIQZ',
                 queryURI  : CUSTOM[q.trim()].url
             }
@@ -186,8 +186,6 @@ if (!CliqzUtils.getPref(INIT_KEY, false)) {
    			CliqzUtils.log(e, 'err' + LOG_KEY);
    		}
     }
-
-    CliqzUtils.log('Default Engines updated', LOG_KEY);
 }
 
 ResultProviders.init();

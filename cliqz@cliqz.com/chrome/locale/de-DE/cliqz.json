@@ -1,32 +1,5 @@
 {
-	"updateMessage":{
-		"message":"Eine neue - noch bessere - Version der cliqz-Navigation ist verfügbar.\nOk drücken zum Aktualisieren."
-	},
-	"noUpdateMessage":{
-		"message":"Kein Update verfügbar"
-	},
 	"urlBarLastSearch":{
 		"message":"↵  "
-	},
-	"searchForBegin":{
-		"message":"Suche "
-	},
-	"searchForEnd":{
-		"message":" auf "
-	},
-	"ok":{
-		"message":"OK"
-	},
-	"loadDefaults":{
-		"message":"Load Defaults"
-	},
-	"arrow": {
-		"message":"▶ "
-	},
-	"urlbarNavigate": {
-		"message": "mit cliqz direkt zum Ziel"
-	},
-	"urlbarSearch": {
-		"message": "mit Enter zu Google"
 	}
 }
