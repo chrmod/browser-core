@@ -176,6 +176,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
             },
+            sendSuggestionsSignal: function(suggestions) {
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count:  suggestions.length
+                };
+                CliqzUtils.track(action);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
@@ -189,6 +197,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         this.listener.onSearchResult(this, this.mixedResults);
                         this.sendResultsSignal(this.mixedResults._results);
