@@ -176,7 +176,7 @@ var templates = {
                                     CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
                                 }
                             }
-                        });
+                        }, null, 3000);
                     });
 
                     return template;
@@ -455,12 +455,12 @@ var templates = {
                 return template;
             }
         },
-        'wikipedia.com': {
+        'wikipedia.org': {
             fun: function(urls) {
                 var template = {
                     summary: 'Wikipedia personalized sitemap',
                     control: [
-                        {title: 'Home', url: 'http://wikipedia.com/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
+                        {title: 'Home', url: 'http://wikipedia.org/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
                     ],
                     topics: []
                 }
@@ -545,6 +545,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     maxCounter = freqHash[domain].length;
                 }
         }
+
+        CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
 
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
