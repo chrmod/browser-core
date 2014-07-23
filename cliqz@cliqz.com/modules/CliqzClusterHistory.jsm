@@ -39,6 +39,8 @@ var templates = {
 
                     url = CliqzClusterHistory.normalizeURL(url);
                     var [domain, path] = CliqzClusterHistory.splitURL(url);
+                    var real_domain = url.substring(0, url.indexOf(domain) + domain.length)
+
                     var vpath = path.toLowerCase().split('/');
                     // remove last element if '', that means that path ended with /
                     // also remove first element if '',
@@ -106,7 +108,7 @@ var templates = {
 
                     var template = {
                         summary: 'Looks like you want to watch something...',
-                        url: 'http://cliqz.com',
+                        url: real_domain,
                         control: [
                         ],
                         topics: [
@@ -174,7 +176,7 @@ var templates = {
                                     CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
                                 }
                             }
-                        });
+                        }, null, 3000);
                     });
 
                     return template;
@@ -453,12 +455,12 @@ var templates = {
                 return template;
             }
         },
-        'wikipedia.com': {
+        'wikipedia.org': {
             fun: function(urls) {
                 var template = {
                     summary: 'Wikipedia personalized sitemap',
                     control: [
-                        {title: 'Home', url: 'http://wikipedia.com/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
+                        {title: 'Home', url: 'http://wikipedia.org/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
                     ],
                     topics: []
                 }
@@ -533,7 +535,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 label = history.getLabelAt(i);
 
                 historyTrans.push({style: style, value: value, image: image, comment: comment, label: label});
-                var [domain, path] = CliqzClusterHistory.normalizeURL(value);
+                var [domain, path] = CliqzClusterHistory.splitURL(CliqzClusterHistory.normalizeURL(value));
 
                 if (freqHash[domain]==null) freqHash[domain]=[];
                 freqHash[domain].push(i);
@@ -542,8 +544,9 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     maxDomain = domain;
                     maxCounter = freqHash[domain].length;
                 }
-
         }
+
+        CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
 
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);

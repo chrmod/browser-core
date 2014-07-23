@@ -62,7 +62,7 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'UTILS');
 
   },
-  httpHandler: function(method, url, callback, onerror, data){
+  httpHandler: function(method, url, callback, onerror, data, timeout){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
@@ -83,15 +83,21 @@ var CliqzUtils = {
       onerror && onerror();
     }
 
-    if(callback)req.timeout = (method == 'POST'? 2000 : 1000);
+    if(callback){
+      if(timeout){
+        req.timeout = parseInt(timeout)
+      } else {
+        req.timeout = (method == 'POST'? 2000 : 1000);
+      }
+    }
     req.send(data);
     return req;
   },
-  httpGet: function(url, callback, onerror){
-    return CliqzUtils.httpHandler('GET', url, callback, onerror);
+  httpGet: function(url, callback, onerror, timeout){
+    return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
-  httpPost: function(url, callback, data, onerror) {
-    return CliqzUtils.httpHandler('POST', url, callback, onerror, data);
+  httpPost: function(url, callback, data, onerror, timeout) {
+    return CliqzUtils.httpHandler('POST', url, callback, onerror, data, timeout);
   },
   getPrefs: function(){
     var prefs = {};
