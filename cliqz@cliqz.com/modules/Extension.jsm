@@ -174,13 +174,13 @@ var Extension = {
         let shareButton = win.document.createElement('toolbarbutton');
         shareButton.setAttribute('id', SHARE_BTN_ID);
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
+        shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
         shareButton.addEventListener('click', function(ev) {
             if(ev.button == 0) {
                 try{
                     var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                    win.location.href = 'mailto:?subject=' + escape(doc.title) +
+                    win.location.href = 'mailto:?subject=Via cliqz: ' + escape(doc.title) +
                                         '&body=' + escape(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
                 } catch(e){}
             }

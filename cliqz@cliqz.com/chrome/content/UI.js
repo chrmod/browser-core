@@ -262,8 +262,9 @@ function enhanceResults(res){
 
 function resultClick(ev){
     var el = ev.target,
-        newTab = ev.metaKey || ev.ctrlKey,
-        logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
+        newTab = ev.metaKey ||
+                 ev.ctrlKey ||
+                 (ev.target.getAttribute('newtab') || false);
 
     while (el){
         if(el.getAttribute('url')){
@@ -271,7 +272,7 @@ function resultClick(ev){
             var action = {
                 type: 'activity',
                 action: 'result_click',
-                new_tab: newTab || logoClick,
+                new_tab: newTab,
                 current_position: el.getAttribute('idx'),
                 query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
@@ -281,7 +282,7 @@ function resultClick(ev){
 
             CliqzUtils.track(action);
 
-            if(newTab || logoClick) gBrowser.addTab(url);
+            if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
         }
