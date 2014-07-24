@@ -192,7 +192,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions &&
-                        this.cliqzWeather && this.cliqzWorldCup) {
+                        this.cliqzWeather) {
 
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
@@ -211,7 +211,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzSuggestions = null;
                         this.historyResults = null;
                         this.cliqzWeather= null;
-                        this.cliqzWorldCup = null;
                         return;
                     } else {
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
@@ -259,38 +258,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzWeather = res;
                 this.pushResults(q);
             },
-            // handles world cup queries
-            cliqzWorldCupFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = [];
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_worldcup", ((new Date()).getTime() - this.startTime));
-
-                    if(req.status == 200){
-                        response = JSON.parse(req.response);
-                        // If no matches are played today don't show result
-                        if (response.length == 0) return;
-
-                        this.cliqzWorldCup = [
-                            Result.generic(
-                                Result.CLIQZWC,
-                                "",
-                                null,
-                                null,
-                                "",
-                                null,
-                                {
-                                    matches: response
-                                }
-                            )
-                        ];
-                    } else {
-                        this.cliqzWorldCup = [];
-                    }
-                }
-                this.pushResults(q);
-            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -307,7 +274,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.mixedResults,
                             //this.cliqzSuggestions,
                             this.cliqzWeather,
-                            this.cliqzWorldCup,
                             maxResults
                     );
 
@@ -370,7 +336,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzWeather = null;
-                this.cliqzWorldCup = null;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
@@ -394,7 +359,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults = this.pushResults.bind(this);
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
-                this.cliqzWorldCupFetcher = this.cliqzWorldCupFetcher.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
@@ -407,18 +371,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         this.cliqzWeather = [];
                     }
-                    const worldCupRegex = /(wm|fu[\u00DF]b|fussb|soccer|footb|weltme|fifa|worldcup)/i;
-                    if(worldCupRegex.test(searchString)){
-                        CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
-                    } else {
-                        this.cliqzWorldCup = [];
-                    }
                 } else {
                     this.cliqzResults = [];
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzWeather = [];
-                    this.cliqzWorldCup = [];
                 }
 
                 // trigger history search
