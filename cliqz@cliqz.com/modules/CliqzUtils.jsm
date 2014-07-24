@@ -489,13 +489,6 @@ var CliqzUtils = {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
-  computeAgoLine: function(ts, lang){
-    if(!ts) return '';
-    var now = (new Date().getTime() / 1000),
-        ageHours = parseInt((now - ts) / 3600);
-
-    return ageHours > 24? 'gestern': ageHours <= 1 ? 'vor einer Stunde' : 'vor ' + ageHours + ' Stunden';
-  },
   performance: {
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),

@@ -502,14 +502,34 @@ function trackArrowNavigation(el){
     }
     CliqzUtils.track(action);
 }
-
+var AGO_CEILINGS=[
+    [0            , '',                , 1],
+    [120          , 'vor einer Minute' , 1],
+    [3600         , 'vor %d Minuten'   , 60],
+    [7200         , 'vor einer Stunde' , 1],
+    [86400        , 'vor %d Stunden'   , 3600],
+    [172800       , 'gestern'          , 1],
+    [604800       , 'vor %d Tagen'     , 86400],
+    [4838400      , 'vor einem Monat'  , 1],
+    [29030400     , 'vor %d Monaten'   , 2419200],
+    [58060800     , 'vor einem Jahr'   , 1],
+    [2903040000   , 'vor %d Jaren'     , 29030400],
+];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         return new Handlebars.SafeString(UI.tpl[name](this));
     });
 
-    Handlebars.registerHelper('agoline', function(val, options) {
-        return CliqzUtils.computeAgoLine(val);
+    Handlebars.registerHelper('agoline', function(ts, options) {
+        if(!ts) return '';
+        var now = (new Date().getTime() / 1000),
+            seconds = parseInt(now - ts),
+            i=0, slot;
+
+        while (slot = AGO_CEILINGS[i++])
+            if (seconds < slot[0])
+                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+        return '';
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
