@@ -39,9 +39,7 @@ var Mixer = {
             let cacheIndex = -1;
             for(let i in cliqz || []) {
                 if(cliqz[i].url.indexOf(label) != -1) {
-                    var tempResult = Result.cliqz(cliqz[i])
-                    bucketHistoryCache.push(Result.generic(style, value, image, comment, label,
-                        tempResult.query, tempResult.image));
+                    bucketHistoryCache.push(Result.cliqz(cliqz[i]));
                     cacheIndex = i;
                     break;
                 }
