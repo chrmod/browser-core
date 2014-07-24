@@ -235,6 +235,7 @@ function constructImage(data){
 
 function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
+    if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
         // type format: cliqz-results sources-XXXX
         // XXXX -  are the verticals which provided the result

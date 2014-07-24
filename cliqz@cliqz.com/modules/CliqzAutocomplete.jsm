@@ -306,6 +306,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             }
                         )
                     ];
+                    return customQuery.updatedQ;
                 }
 
                 return q;
