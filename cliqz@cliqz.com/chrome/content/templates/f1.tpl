@@ -12,7 +12,7 @@
 			<br style="clear:both" />
 		</div>
 		<div style="font-weight: bold; margin-top: 5px; font-size:15pt;">
-			FORMULA 1 PIRELLI MAGYAR NAGYDIJ 2014
+			FORMULA 1 PIRELLI MAGYAR NAGYDÍJ 2014
 		</div>
 		<div style="font-size: 10pt; margin-bottom: 25px;">
 			Gewinner von 2013:
