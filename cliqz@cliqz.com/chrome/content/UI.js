@@ -295,7 +295,7 @@ function enhanceResults(res){
                 seconds = parseInt(s[3] - now),
                 hours = parseInt(seconds/3600);
 
-            if(hours < 0 || hours > 72) return;
+            if(seconds < 0 || hours > 72) return;
 
             res.results.unshift({
                 vertical: s[1],
