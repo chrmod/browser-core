@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ['CliqzLanguage'];
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.01');
 
 var CliqzLanguage = CliqzLanguage || {
     DOMAIN_THRESHOLD: 3,
