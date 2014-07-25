@@ -180,8 +180,8 @@ var Extension = {
             if(ev.button == 0) {
                 try{
                     var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                    win.location.href = 'mailto:?subject=Via cliqz: ' + escape(doc.title) +
-                                        '&body=' + escape(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+                    win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURI(doc.title) +
+                                        '&body=' + encodeURI(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
                 } catch(e){}
             }
         }, false);
