@@ -5,18 +5,18 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
-  'chrome://cliqzmodules/content/Filter.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/Filter.jsm?v=0.5.00');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.00');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
 
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, weatherResults, worldCupResults ,maxResults){
+	mix: function(q, history, cliqz, mixed, weatherResults, maxResults){
 		var results = [];
 
 		/// 1) put each result into a bucket
@@ -39,9 +39,7 @@ var Mixer = {
             let cacheIndex = -1;
             for(let i in cliqz || []) {
                 if(cliqz[i].url.indexOf(label) != -1) {
-                    var tempResult = Result.cliqz(cliqz[i])
-                    bucketHistoryCache.push(Result.generic(style, value, image, comment, label,
-                        tempResult.query, tempResult.image));
+                    bucketHistoryCache.push(Result.cliqz(cliqz[i]));
                     cacheIndex = i;
                     break;
                 }
@@ -119,14 +117,8 @@ var Mixer = {
         if(weatherResults && weatherResults.length > 0)
             results = weatherResults.concat(results);
 
-        // add external world cup API results
-        if(worldCupResults && worldCupResults.length > 0)
-            results = worldCupResults.concat(results);
-
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
         results = results.slice(mixed._results.length);
-
-
 
         return results.slice(0, maxResults);
 	}

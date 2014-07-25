@@ -8,10 +8,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
   'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.00');
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
@@ -109,7 +109,7 @@ var Extension = {
         }
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.4.16', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.00', win);
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -137,7 +137,9 @@ var Extension = {
 
     addButtons: function(win){
         var BTN_ID = 'cliqz-button',
+            SHARE_BTN_ID = 'cliqz-share-button',
             firstRunPref = 'extensions.cliqz.firstStartDone',
+            firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
             doc = win.document;
 
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
@@ -146,9 +148,15 @@ var Extension = {
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
         }
 
+        if (!win.Application.prefs.getValue(firstRunSharePref, false)) {
+            win.Application.prefs.setValue(firstRunSharePref, true);
 
+            ToolbarButtonManager.setDefaultPosition(SHARE_BTN_ID, 'nav-bar', 'downloads-button');
+        }
+
+        // cliqz button
         let button = win.document.createElement('toolbarbutton');
-        button.setAttribute('id', 'cliqz-button');
+        button.setAttribute('id', BTN_ID);
         button.setAttribute('type', 'menu-button');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
@@ -161,6 +169,24 @@ var Extension = {
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
+
+        //share btn
+        let shareButton = win.document.createElement('toolbarbutton');
+        shareButton.setAttribute('id', SHARE_BTN_ID);
+        shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
+        shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
+
+        shareButton.addEventListener('click', function(ev) {
+            if(ev.button == 0) {
+                try{
+                    var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
+                    win.location.href = 'mailto:?subject=Via cliqz: ' + escape(doc.title) +
+                                        '&body=' + escape(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+                } catch(e){}
+            }
+        }, false);
+
+        ToolbarButtonManager.restorePosition(doc, shareButton);
     },
     createMenu: function(win){
         var doc = win.document,

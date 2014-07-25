@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'f1'],
     VERTICALS = {
         'w': 'weather' ,
         's': 'shopping',
@@ -20,13 +20,44 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
+    LEFT = 37,
     UP = 38,
+    RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96
+    IMAGE_WIDTH = 96,
+    STATIC_RESULTS = [
+        [/(^f1|^form)/i, 'f1', f1_counter, 1406458800]
+    ]
     ;
 
+var f1_counter_to;
+function f1_counter(end){
+    var countdownBox;
+    if(countdownBox = $('#cliqz-f1-countdown', gCliqzBox)){
+        var now = (new Date().getTime() / 1000),
+            seconds = parseInt(end - now);
+
+        if(seconds > 0){
+            var hours = parseInt(seconds/3600),
+                minutes = parseInt(seconds/60)%60,
+                seconds = seconds%60;
+
+            if(hours > 72) return;
+
+            $('#cliqz-f1-unit-h2', countdownBox).innerHTML = hours%10;
+            $('#cliqz-f1-unit-h1', countdownBox).innerHTML = parseInt(hours/10);
+            $('#cliqz-f1-unit-m2', countdownBox).innerHTML = minutes%10;
+            $('#cliqz-f1-unit-m1', countdownBox).innerHTML = parseInt(minutes/10);
+            $('#cliqz-f1-unit-s2', countdownBox).innerHTML = seconds%10;
+            $('#cliqz-f1-unit-s1', countdownBox).innerHTML = parseInt(seconds/10);
+
+            clearTimeout(f1_counter_to);
+            f1_counter_to = setTimeout(f1_counter, 1000, end);
+        }
+    }
+}
 
 var UI = {
     tpl: {},
@@ -113,6 +144,11 @@ var UI = {
             case TAB:
                 suggestionNavigation(ev);
                 return true;
+            case LEFT:
+            case RIGHT:
+                // close drop down to avoid firefox autocompletion
+                CLIQZ.Core.popup.closePopup();
+                return false;
             break;
         }
 
@@ -228,6 +264,7 @@ function constructImage(data){
 
 function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
+    if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
         // type format: cliqz-results sources-XXXX
         // XXXX -  are the verticals which provided the result
@@ -250,13 +287,33 @@ function enhanceResults(res){
         r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
         r.vertical = getPartial(r.type);
     }
+    STATIC_RESULTS.forEach(function(s){
+        if(res.width > 750 && s[0].test(res.q)){
+
+            //valid static result
+            var now = (new Date().getTime() / 1000),
+                seconds = parseInt(s[3] - now),
+                hours = parseInt(seconds/3600);
+
+            if(hours < 0 || hours > 72) return;
+
+            res.results.unshift({
+                vertical: s[1],
+                url:''
+            });
+
+            setTimeout(s[2], 500, s[3]);
+        }
+    });
     return res;
 }
 
+
 function resultClick(ev){
     var el = ev.target,
-        newTab = ev.metaKey || ev.ctrlKey,
-        logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
+        newTab = ev.metaKey ||
+                 ev.ctrlKey ||
+                 (ev.target.getAttribute('newtab') || false);
 
     while (el){
         if(el.getAttribute('url')){
@@ -264,7 +321,7 @@ function resultClick(ev){
             var action = {
                 type: 'activity',
                 action: 'result_click',
-                new_tab: newTab || logoClick,
+                new_tab: newTab,
                 current_position: el.getAttribute('idx'),
                 query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
@@ -274,7 +331,7 @@ function resultClick(ev){
 
             CliqzUtils.track(action);
 
-            if(newTab || logoClick) gBrowser.addTab(url);
+            if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
         }
@@ -384,6 +441,7 @@ function suggestionClick(ev){
 function onEnter(ev, item){
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
+        popupOpen = CLIQZ.Core.popup.popupOpen,
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -392,7 +450,7 @@ function onEnter(ev, item){
             search: false
         };
 
-    if(index != -1){
+    if(popupOpen && index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
         openUILink(item.getAttribute('url'));
@@ -401,7 +459,7 @@ function onEnter(ev, item){
         // update the urlbar if a suggestion is selected
         var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
-        if(suggestion){
+        if(popupOpen && suggestion){
             CLIQZ.Core.urlbar.mInputField.setUserInput(suggestion.getAttribute('val'));
             action = {
                 type: 'activity',
@@ -494,14 +552,34 @@ function trackArrowNavigation(el){
     }
     CliqzUtils.track(action);
 }
-
+var AGO_CEILINGS=[
+    [0            , '',                , 1],
+    [120          , 'vor einer Minute' , 1],
+    [3600         , 'vor %d Minuten'   , 60],
+    [7200         , 'vor einer Stunde' , 1],
+    [86400        , 'vor %d Stunden'   , 3600],
+    [172800       , 'gestern'          , 1],
+    [604800       , 'vor %d Tagen'     , 86400],
+    [4838400      , 'vor einem Monat'  , 1],
+    [29030400     , 'vor %d Monaten'   , 2419200],
+    [58060800     , 'vor einem Jahr'   , 1],
+    [2903040000   , 'vor %d Jaren'     , 29030400],
+];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         return new Handlebars.SafeString(UI.tpl[name](this));
     });
 
-    Handlebars.registerHelper('agoline', function(val, options) {
-        return CliqzUtils.computeAgoLine(val);
+    Handlebars.registerHelper('agoline', function(ts, options) {
+        if(!ts) return '';
+        var now = (new Date().getTime() / 1000),
+            seconds = parseInt(now - ts),
+            i=0, slot;
+
+        while (slot = AGO_CEILINGS[i++])
+            if (seconds < slot[0])
+                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+        return '';
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {

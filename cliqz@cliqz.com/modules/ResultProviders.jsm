@@ -8,7 +8,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.00');
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -48,6 +51,29 @@ var ResultProviders = {
     init: function(){
         // creates shortcuts for all the engines
         this.getSearchEngines();
+    },
+    getCustomResults: function(q){
+        var results = null;
+        var customQuery = ResultProviders.isCustomQuery(q);
+        if(customQuery){
+            results = [
+                Result.generic(
+                    Result.CLIQZC + ' sources-' + customQuery.engineCode,
+                    customQuery.queryURI,
+                    null,
+                    null,
+                    null,
+                    null,
+                    {
+                        q: customQuery.updatedQ,
+                        engine: customQuery.engineName
+                    }
+                )
+            ];
+            q = customQuery.updatedQ;
+        }
+
+        return [q, results];
     },
     getSearchEngines: function(){
         var engines = {};
@@ -93,7 +119,6 @@ var ResultProviders = {
                 queryURI  : CUSTOM[q.trim()].url
             }
         }
-
         // a prefix has min 4 chars
         if(q.length < 5) return false;
 

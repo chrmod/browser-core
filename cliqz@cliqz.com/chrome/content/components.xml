@@ -77,6 +77,7 @@
               }
 
               CLIQZ.UI.results({
+                q: q,
                 results: data,
                 width: CLIQZ.Core.urlbar.clientWidth - 100
               });

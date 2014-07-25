@@ -51,6 +51,7 @@
       {{ data.description }}
     </div>
   </div>
-  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+       newtab='true'>
   </div>
 </div>

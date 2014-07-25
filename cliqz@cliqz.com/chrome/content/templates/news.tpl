@@ -37,7 +37,8 @@
 			{{ data.description }}
 		</div>
 	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+		 newtab='true'>
 	</div>
 </div>
 {{#if data.richData.additional_sources}}
@@ -46,8 +47,13 @@
 		<div url='{{url}}'
 			 idx='{{ @index }}'
 			 type='{{ ../type }}'
-		     class='cliqz-news-source-title-with-logo {{generate_logo url}}'>
-			{{title}}
+			 class='cliqz-news-source'>
+		     <span class='cliqz-news-source-logo {{generate_logo url}}'
+		           newtab='true'>
+		     </span>
+		     <span class='cliqz-news-source-title'>
+				{{title}}
+			 </span>
 		</div>
 	{{/each}}
 	</div>

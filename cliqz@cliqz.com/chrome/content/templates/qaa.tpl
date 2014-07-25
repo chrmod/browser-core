@@ -23,12 +23,12 @@
 		</div>
 		{{/with}}
 	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+	     newtab='true'>
 	</div>
 </div>
 {{#if data.richData.additional_sources}}
 	<div class='cliqz-qaa-sources'>
-		<div class='cliqz-qaa-sources-headline'>ÄHNLICHE FRAGEN</div>
 	{{#each data.richData.additional_sources}}
 		<div url='{{url}}'
 			 idx='{{ @index }}'
