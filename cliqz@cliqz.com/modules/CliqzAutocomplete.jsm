@@ -6,10 +6,12 @@ var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.5.00');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.5.00');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.00');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.00');
@@ -290,25 +292,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return results;
             },
             analyzeQuery: function(q){
-                var customQuery = ResultProviders.isCustomQuery(q);
-                if(customQuery){
-                    this.customResults = [
-                        Result.generic(
-                            Result.CLIQZC + ' sources-' + customQuery.engineCode,
-                            customQuery.queryURI,
-                            null,
-                            null,
-                            null,
-                            null,
-                            {
-                                q: customQuery.updatedQ,
-                                engine: customQuery.engineName
-                            }
-                        )
-                    ];
-                    return customQuery.updatedQ;
-                }
-
+                [q, this.customResults] = ResultProviders.getCustomResults(q);
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
