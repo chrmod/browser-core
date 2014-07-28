@@ -86,7 +86,7 @@ var CliqzHistoryManager = {
     analyze: function(pattern){
         let today = CliqzUtils.getDay();
         let history = today;
-        let data=Array(20000), re;
+        let data={}, re;
         let cache = {};
         re = RegExp(pattern || '\.google\..*?\/(?:url|aclk)\?');
 
@@ -108,21 +108,27 @@ var CliqzHistoryManager = {
                 {
                     columns: ["rev_host", "day", "url"],
                     onRow: function({rev_host, day, url}) {
-                        if(re.test(url)){
-                            var dayy = parseInt(day / 86400000000);
-                            var bucket_5s = parseInt(day / 5000000);
-                            if(!cache[bucket_5s]){
-                                cache[bucket_5s] = true;
-                                data[dayy] = (data[dayy] || 0) + 1;
+                        try {
+                            if(re.test(url)){
+                                var dayy = parseInt(day / 86400000000);
+                                var bucket_5s = parseInt(day / 5000000);
+                                if(!cache[bucket_5s]){
+                                    cache[bucket_5s] = true;
+                                    data[dayy] = (data[dayy] || 0) + 1;
+                                }
                             }
-                        }
+                        } catch (e){}
                     }
                 }
             )
             .then(function() {
-                for(var key=10000; key<data.length; key++)
-                    if(data[key])
-                        CliqzUtils.log(data[key], dayToYMD(key));
+                var action = {
+                    type: 'environment',
+                    action: 'history_analysis',
+                    data: data
+                };
+
+                CliqzUtils.track(action);
             });
     },
 	PlacesInterestsStorage: {
