@@ -87,7 +87,7 @@ var CliqzHistoryManager = {
         let today = CliqzUtils.getDay();
         let history = today;
         let data=Array(20000), re;
-
+        let cache = {};
         re = RegExp(pattern || '\.google\..*?\/(?:url|aclk)\?');
 
         function dayToYMD(day) {
@@ -100,7 +100,7 @@ var CliqzHistoryManager = {
 
         this.PlacesInterestsStorage
             ._execute(
-                "SELECT rev_host, v.visit_date / 86400000000 day, url " +
+                "SELECT rev_host, v.visit_date / 1 day, url " +
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
@@ -108,12 +108,19 @@ var CliqzHistoryManager = {
                 {
                     columns: ["rev_host", "day", "url"],
                     onRow: function({rev_host, day, url}) {
-                    try {
+
                         if(re.test(url)){
-                            data[day] = (data[day] || 0) + 1;
+
+                            var dayy = parseInt(day / 86400000000);
+                            var bucket_5s = parseInt(day / 5000);
+                            CliqzUtils.log(bucket_5s);
+                            if(!cache[bucket_5s]){
+                                cache[bucket_5s] = true;
+                                data[dayy] = (data[dayy] || 0) + 1;
+                            }
                         }
-                      }
-                      catch(ex) {}
+
+
                     }
                 }
             )
