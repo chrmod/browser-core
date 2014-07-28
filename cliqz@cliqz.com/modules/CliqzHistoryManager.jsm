@@ -108,19 +108,14 @@ var CliqzHistoryManager = {
                 {
                     columns: ["rev_host", "day", "url"],
                     onRow: function({rev_host, day, url}) {
-
                         if(re.test(url)){
-
                             var dayy = parseInt(day / 86400000000);
-                            var bucket_5s = parseInt(day / 5000);
-                            CliqzUtils.log(bucket_5s);
+                            var bucket_5s = parseInt(day / 5000000);
                             if(!cache[bucket_5s]){
                                 cache[bucket_5s] = true;
                                 data[dayy] = (data[dayy] || 0) + 1;
                             }
                         }
-
-
                     }
                 }
             )
