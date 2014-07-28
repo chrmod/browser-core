@@ -5,13 +5,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
-  'chrome://cliqzmodules/content/Filter.jsm?v=0.5.01');
+  'chrome://cliqzmodules/content/Filter.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.01');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.01');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
 
 CliqzUtils.init();
 
