@@ -83,60 +83,6 @@ var CliqzHistoryManager = {
                 });
             });
     },
-    analyze: function(pattern){
-        let today = CliqzUtils.getDay();
-        let history = today;
-        let data={}, re;
-        let cache = {};
-        re = RegExp(pattern || '\.google\..*?\/(?:url|aclk)\?');
-
-        function dayToYMD(day) {
-            var date = new Date(day * 86400000);
-            var d = date.getDate();
-            var m = date.getMonth() + 1;
-            var y = date.getFullYear();
-            return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
-        }
-
-        this.PlacesInterestsStorage
-            ._execute(
-                "SELECT rev_host, v.visit_date / 1 day, url " +
-                "FROM moz_historyvisits v " +
-                "JOIN moz_places h " +
-                "ON h.id = v.place_id " +
-                "WHERE h.hidden = 0 AND h.visit_count > 0 ",
-                {
-                    columns: ["rev_host", "day", "url"],
-                    onRow: function({rev_host, day, url}) {
-                        try {
-                            if(re.test(url)){
-                                var dayy = parseInt(day / 86400000000);
-                                var bucket_5s = parseInt(day / 5000000);
-                                if(!cache[bucket_5s]){
-                                    cache[bucket_5s] = true;
-                                    data[dayy] = (data[dayy] || 0) + 1;
-                                }
-                            }
-                        } catch (e){}
-                    }
-                }
-            )
-            .then(function() {
-                var action = {
-                    type: 'environment',
-                    action: 'history_analysis',
-                    data: data
-                };
-
-
-                for(var key=10000; key<data.length; key++)
-                    if(data[key]){
-                        CliqzUtils.log(data[key], key);
-                    }
-
-                CliqzUtils.track(action);
-            });
-    },
 	PlacesInterestsStorage: {
         _execute: function PIS__execute(sql, optional={}) {
             let {columns, key, listParams, onRow, params} = optional;
