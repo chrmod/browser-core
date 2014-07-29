@@ -86,9 +86,22 @@ var CliqzHistoryManager = {
     analyze: function(pattern){
         let today = CliqzUtils.getDay();
         let history = today;
-        let data=Array(20000), re;
+        let re;
+        let data = {};
         let cache = {};
-        re = RegExp(pattern || '\.google\..*?\/(?:url|aclk)\?');
+        let cache_all = {};
+        let cache_allq = {};
+        let cache_ncq = {};
+        let count = 0;
+        let re = /\.google\..*?\/(?:url|aclk)\?/;
+        let allq = /\.google\..*?[#?&;]q=[^$&]+/;
+        let ncq1 = /\.google\..*?search\?q=[^$&]+.*channel=rcs/;
+        let ncq3 = /\.google\..*?search\?q=[^$&]+.*channel=nts/;
+        let ncq2 = /\.google\..*?#.*?[?&;]?q=[^$&]+/;
+
+
+
+        //re = RegExp(pattern || \.google\..*?\/(?:url|aclk));
 
         function dayToYMD(day) {
             var date = new Date(day * 86400000);
@@ -104,30 +117,57 @@ var CliqzHistoryManager = {
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
-                "WHERE h.hidden = 0 AND h.visit_count > 0 ",
+                "WHERE h.hidden = 0 AND h.visit_count > 0",
                 {
                     columns: ["rev_host", "day", "url"],
                     onRow: function({rev_host, day, url}) {
 
-                        if(re.test(url)){
+                    
+                        count+=1;
+                        var dayy = parseInt(day / 86400000000);
+                        var bucket_2s = parseInt(day / 2000000);
 
-                            var dayy = parseInt(day / 86400000000);
-                            var bucket_5s = parseInt(day / 5000);
-                            CliqzUtils.log(bucket_5s);
-                            if(!cache[bucket_5s]){
-                                cache[bucket_5s] = true;
-                                data[dayy] = (data[dayy] || 0) + 1;
+                        if(!data[dayy]) {
+                            data[dayy] = [0, 0, 0, 0];
+                        }
+
+                        if(re.test(url)){
+                            if(!cache[bucket_2s]){
+                                cache[bucket_2s] = true;
+                                data[dayy][0] += 1;
                             }
                         }
 
+                        if(!cache_all[bucket_2s]){
+                            cache_all[bucket_2s] = true;
+                            data[dayy][1] += 1;
+                        }
 
+                        if (allq.test(url)){
+                            if(!cache_allq[bucket_2s]) {
+                                cache_allq[bucket_2s] = true;
+                                data[dayy][2] +=1
+                            }
+                        }
+
+                        if (ncq1.test(url) || ncq2.test(url) || ncq3.test(url)) {
+                            if(!cache_ncq[bucket_2s]) {
+                                cache_ncq[bucket_2s] = true;
+                                data[dayy][3] +=1;
+                            }
+                        }
                     }
                 }
             )
             .then(function() {
-                for(var key=10000; key<data.length; key++)
-                    if(data[key])
+
+
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
                         CliqzUtils.log(data[key], dayToYMD(key));
+                    }
+                }
+
             });
     },
 	PlacesInterestsStorage: {
