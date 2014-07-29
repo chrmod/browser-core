@@ -640,13 +640,126 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         // CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
         return [domain, path];
+    },
+    test: function(){
+      var i=0;
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://hhhoo.com/hhh', 'Clustering');
+        guess_next_url('http://hhhoo.com/hhh', function(error, data) {
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://4zon.com/game-of-thrones-season-4-episode-8/', 'Clustering');
+        guess_next_url('http://4zon.com/game-of-thrones-season-4-episode-8/', function(error, data) {
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://www.veziserialeonline.info/game-of-thrones-/season/4/episode/1', 'Clustering');
+        guess_next_url('http://www.veziserialeonline.info/game-of-thrones-/season/4/episode/1', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://filmozderi.com/game-of-thrones-season-4/episode-3-breaker-of-chains-movie_0bdc00321.html#.U9EdU4CSxQY', 'Clustering');
+        guess_next_url('http://filmozderi.com/game-of-thrones-season-4/episode-3-breaker-of-chains-movie_0bdc00321.html#.U9EdU4CSxQY', function(error, data) {
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://www.tvids.me/watch104/game-of-thrones/season-02-episode-04-garden-of-bones', 'Clustering');
+        guess_next_url('http://www.tvids.me/watch104/game-of-thrones/season-02-episode-04-garden-of-bones', function(error, data) {
+         CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        })
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://www.zzstream.li/2012/04/game-of-thrones-season-2-episode-4-garden-of-bones.html', 'Clustering');
+        guess_next_url('http://www.zzstream.li/2012/04/game-of-thrones-season-2-episode-4-garden-of-bones.html', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s04e09', 'Clustering');
+        guess_next_url('http://serieall.fr/episode/game-of-thrones/s04e09', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s03e10', 'Clustering');
+        guess_next_url('http://serieall.fr/episode/game-of-thrones/s03e10', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s04e10', 'Clustering');
+        guess_next_url('http://serieall.fr/episode/game-of-thrones/s04e10', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://putlockertvshows.me/watch/game-of-thrones/s04e10.html', 'Clustering');
+        guess_next_url('http://putlockertvshows.me/watch/game-of-thrones/s04e10.html', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://www.movie1k.ag/watch-107997-game-of-thrones-season-4-episode-8/', 'Clustering');
+        guess_next_url('http://www.movie1k.ag/watch-107997-game-of-thrones-season-4-episode-8/', function(error, data){
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
+
+      CliqzUtils.setTimeout(function(){
+        CliqzUtils.log('http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', 'Clustering');
+        guess_next_url('http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', function(error, data) {
+          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
+        });
+      }, i+=5000);
     }
+}
+
+function get(url, callback, onerror){
+    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+    req.open('GET', url, true);
+    req.timeout = 30000;
+    req.onload = function(){
+      if(req.status < 200 || req.status >= 300){
+        onerror();
+      } else callback(req);
+    }
+    req.onerror = function(){ onerror() };
+    req.ontimeout = function(){ onerror() };
+    req.send();
+}
+
+var check_if_series = function(source_url) {
+
+  var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
+
+  for(var i=0;i<regexs.length;i++) {
+    var d = source_url.match(regexs[i]);
+    if (d) {
+      return [d[0], d[1], d[2]];
+    }
+  }
+  return false;
 }
 
 function guess_next_url(source_url, callback) {
   var result = {};
 
-  get_title = function(body) {
+  var get_title = function(body) {
     try {
       var start = body.indexOf("<title>")
       if (start>0) {
@@ -662,7 +775,7 @@ function guess_next_url(source_url, callback) {
     return null;
   }
 
-  guess_next_number = function(str) {
+  var guess_next_number = function(str) {
 
     var trailing_zeros = false
     if (str[0]=='0') trailing_zeros = true;
@@ -680,7 +793,7 @@ function guess_next_url(source_url, callback) {
     }
   }
 
-  guess_first_episode = function(str) {
+  var guess_first_episode = function(str) {
     if (str[0]=='0') {
       var padding = '';
       for(var i=0;i<episode_data[1].length-1;i++) padding=padding+'0';
@@ -694,7 +807,7 @@ function guess_next_url(source_url, callback) {
   }
 
 
-  guess_candidates = function(source_url, episode_data) {
+  var guess_candidates = function(source_url, episode_data) {
 
     var ipath = source_url.indexOf('/',10);
     if (ipath<0) return null;
@@ -704,8 +817,8 @@ function guess_next_url(source_url, callback) {
     var res = {};
 
     // the season (really, it's the first one, depends on the regex)
-    next_season = guess_next_number(episode_data[1]);
-    first_episode = guess_first_episode(episode_data[1]);
+    var next_season = guess_next_number(episode_data[1]);
+    var first_episode = guess_first_episode(episode_data[1]);
 
     var v = episode_data[0].split(episode_data[1]);
     if (v.length==2) {
@@ -717,7 +830,7 @@ function guess_next_url(source_url, callback) {
       res['min_season'] = v[0] + next_season + v[1] + first_episode + v[2];
     }
 
-    next_episode = guess_next_number(episode_data[2]);
+    var next_episode = guess_next_number(episode_data[2]);
     v = episode_data[0].split(episode_data[2]);
     if (v.length==2) {
       // old episode and season are not the same, easy case
@@ -737,16 +850,16 @@ function guess_next_url(source_url, callback) {
     res['path_episode'] = path.replace(episode_data[0], res['min_episode']);
     res['path_season'] = path.replace(episode_data[0], res['min_season']);
 
-    //console.log('path', path, res['partial_episode'], res['partial_season']);
+    //CliqzUtils.log('path', path, res['partial_episode'], res['partial_season']);
     return res;
   }
 
-  get_before_path = function(url) {
+  var get_before_path = function(url) {
     var end = url.indexOf('/',10);
     return url.substring(0,end);
   }
 
-  is_soft_404 = function(body) {
+  var is_soft_404 = function(body) {
     if (body.match(/not found/i) || (body.match(/not be found/i))) return true;
     var title = get_title(body);
     if (title && ((title.match(/404/i) || title.match(/error/i) || title.match(/invalid/i) || title.match(/redirect/i)))) return true;
@@ -755,7 +868,7 @@ function guess_next_url(source_url, callback) {
   }
 
 
-  is_soft_404_for_size = function(size_body1, size_body2) {
+  var is_soft_404_for_size = function(size_body1, size_body2) {
 
     var ratio = 0.0;
     if (size_body1 > size_body2) ratio = size_body2 / (size_body1 + 0.0);
@@ -794,34 +907,29 @@ function guess_next_url(source_url, callback) {
           }
         }
       }
-      //console.log(">>", i, results[i]['type'], results[i]['next']);
+      //CliqzUtils.log(">>", i, results[i]['type'], results[i]['next']);
     }
 
 
     // now, let's validate that the next episode actually exists
     if (next_url!=null) {
-    CliqzUtils.httpGet(next_url, callback, onerror, 30000)
-
-      request({
-        uri: next_url,
-        method: "GET",
-        timeout: 30000,
-        followRedirect: true,
-        maxRedirects: 3,
-      }, function(error, response, body) {
-        if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300)
-              || (is_soft_404(body))) {
+      get(next_url,
+        function(req){
+          if(!is_soft_404(req.response)){
+            var title = get_title(req.response);
+            var res = {'not-found': is_not_found, 'next': next_url, 'title': title};
+            end_first_stage_callback(res);
+          } else {
+            var res = {'not-found': is_not_found, 'next': null, 'title': null};
+            end_first_stage_callback(res);
+          }
+        },
+        function(){
           // the next_url seems to be a 404. We must give up at this point. Do not try anything else,
           // we could find the next_url but failed to fetch the content
-          res = {'not-found': is_not_found, 'next': null, 'title': null};
+          var res = {'not-found': is_not_found, 'next': null, 'title': null};
           end_first_stage_callback(res);
-        }
-        else {
-          var title = get_title(body);
-          res = {'not-found': is_not_found, 'next': next_url, 'title': title};
-          end_first_stage_callback(res);
-        }
-      });
+        });
     }
     else {
       // could not guess the next_url on the first methodology (from the source_page),
@@ -830,14 +938,14 @@ function guess_next_url(source_url, callback) {
     }
   }
 
-  try_guessing = function(source_url, candidates, source_title, source_body_size, end_first_stage_callback) {
+  var try_guessing = function(source_url, candidates, source_title, source_body_size, end_first_stage_callback) {
 
-    //console.log('>>>>>>>', source_url);
+    //CliqzUtils.log('>>>>>>>', source_url);
 
     var all_received = function(results, end_first_stage_callback) {
       var position_found = null;
 
-      //console.log('>>>>>>>', results);
+      //CliqzUtils.log('>>>>>>>', results);
 
       for(var i=0;i<cand_url.length;i++) {
         if (results[i]!=null) {
@@ -874,124 +982,118 @@ function guess_next_url(source_url, callback) {
     var results_received = cand_url.length;
 
     for(var i=0;i<cand_url.length;i++) {
-      request({
-        uri: cand_url[i],
-        method: "GET",
-        timeout: 30000,
-        followRedirect: true,
-        maxRedirects: 3,
-        user_data_i: i,
-      }, function(error, response, body) {
-        if (error==null) {
-          var title = get_title(body);
-          var found = true;
-          var position = parseInt(response.request.user_data_i);
+      (function(user_data_i, href){
+        get(href,
+          function(req){
+            var title = get_title(req.response);
+            var found = true;
+            var position = parseInt(user_data_i);
 
-          if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300)
-                || (is_soft_404(body)) || response.request.uri.path=='/') {
-            found = false;
-          }
-          else {
-            // must validate that the source_title and new_title have changed
-            if (title==source_title) found = false;
-
-            // must validate that the cand_url bit is part of the url, avoid jumpy redirects
-            // outside /
-            if (response.request.href.indexOf(cand_url[position])<0) {
+            if ((is_soft_404(req.response)) || req.channel.URI.path=='/') {
               found = false;
             }
+            else {
+              // must validate that the source_title and new_title have changed
+              if (title==source_title) found = false;
+
+              // must validate that the cand_url bit is part of the url, avoid jumpy redirects
+              // outside /
+              if (req.channel.URI.spec.indexOf(cand_url[position])<0) {
+                found = false;
+              }
+            }
+
+            if (found) results[position] = {'next': req.channel.URI.spec, 'title': title, 'source': cand_url[position]};
+            else result[position] = null;
+
+
+            results_received--;
+            if (results_received<=0) all_received(results, end_first_stage_callback);
+          },
+          function(){
+            results_received--;
+            if (results_received<=0) all_received(results, end_first_stage_callback);
           }
-
-          if (found) results[position] = {'next': response.request.href, 'title': title, 'source': cand_url[position]};
-          else result[position] = null;
-        }
-
-        results_received--;
-        if (results_received<=0) all_received(results, end_first_stage_callback);
-      });
-
+        );
+      })(i, cand_url[i]);
     }
   }
 
   // MAIN
-  try {
+  //try {
 
-  var episode_data = check_if_series(source_url);
-  if (!episode_data) callback('not-a-valid-pattern', {'title':null, 'next':null});
-  else {
-    var candidates = guess_candidates(source_url, episode_data);
-    var request = require("request");
-    var results = [];
-    var num_attemps = 5;
+    var episode_data = check_if_series(source_url);
+    if (!episode_data) callback('not-a-valid-pattern', {'title':null, 'next':null});
+    else {
+      var candidates = guess_candidates(source_url, episode_data);
+      var results = [];
+      var num_attemps = 5;
 
-    for(var i=0;i<num_attemps;i++) {
-      request({
-        uri: source_url,
-        method: "GET",
-        timeout: 30000,
-        followRedirect: true,
-        maxRedirects: 3,
-        //extra_data: "eps " + i,
-      }, function(error, response, body) {
-        // check if we could get the body of the page
-        if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300) || (is_soft_404(body))) {
-          results.push({'type': 'not-found', 'next': null, 'title': null, 'body_size': 0});
-        }
-        else {
-          // check if we can get the next url in the page
-          try {
+      for(var i=0;i<num_attemps;i++) {
+        get(source_url,
+            function(req){
+              if(is_soft_404(req.response)){
+                results.push({'type': 'not-found', 'next': null, 'title': null, 'body_size': 0});
+              } else {
+                //try {
+                  // FIXME:
+                  // this is somewhat of a hack, it's very slow and it can fail
+                  // reason: URL from file are downcased, and URL path is case sensitive on the RFC spec.
+                  // If we don't normalize all to lowercase we miss cases in which the internal links have upcases since
+                  // indexOf is not case-insensitive.
+                  candidates['partial_episode'] = candidates['partial_episode'].toLowerCase();
+                  candidates['path_episode'] = candidates['path_episode'].toLowerCase();
+                  var body = req.response.toLowerCase();
+                  // ----
 
-            // FIXME:
-            // this is somewhat of a hack, it's very slow and it can fail
-            // reason: URL from file are downcased, and URL path is case sensitive on the RFC spec.
-            // If we don't normalize all to lowercase we miss cases in which the internal links have upcases since
-            // indexOf is not case-insensitive.
-            candidates['partial_episode'] = candidates['partial_episode'].toLowerCase();
-            candidates['path_episode'] = candidates['path_episode'].toLowerCase();
-            body = body.toLowerCase();
-            // ----
-
-            //console.log('>>>', candidates['partial_episode'], candidates['path_episode']);
-            var ind = -1;
-            if ((ind = body.indexOf(candidates['partial_episode']))>0) {
-              var end1 = body.indexOf('"',ind);
-              var end2 = body.indexOf("'",ind);
-              var end = (end1<end2) ? end1 : end2;
-              var next_url = body.substring(ind,end);
-              next_url = get_before_path(source_url) + next_url;
-              results.push({'type': 'found', 'next': next_url, 'next_type': 'episode', 'title': get_title(body), 'body_size': body.length});
-            }
-            else {
-              if ((ind = body.indexOf(candidates['partial_season']))>0) {
-                var end1 = body.indexOf('"',ind);
-                var end2 = body.indexOf("'",ind);
-                var end = (end1<end2) ? end1 : end2;
-                var next_url = body.substring(ind,end);
-                next_url = get_before_path(source_url) + next_url;
-                results.push({'type': 'found', 'next': next_url, 'next_type': 'season', 'title': get_title(body), 'body_size': body.length});
+                  //CliqzUtils.log('>>>', candidates['partial_episode'], candidates['path_episode']);
+                  var ind = -1;
+                  if ((ind = body.indexOf(candidates['partial_episode']))>0) {
+                    var end1 = body.indexOf('"',ind);
+                    var end2 = body.indexOf("'",ind);
+                    var end = (end1<end2) ? end1 : end2;
+                    var next_url = body.substring(ind,end);
+                    next_url = get_before_path(source_url) + next_url;
+                    results.push({'type': 'found', 'next': next_url, 'next_type': 'episode', 'title': get_title(body), 'body_size': body.length});
+                  }
+                  else {
+                    if ((ind = body.indexOf(candidates['partial_season']))>0) {
+                      var end1 = body.indexOf('"',ind);
+                      var end2 = body.indexOf("'",ind);
+                      var end = (end1<end2) ? end1 : end2;
+                      var next_url = body.substring(ind,end);
+                      next_url = get_before_path(source_url) + next_url;
+                      results.push({'type': 'found', 'next': next_url, 'next_type': 'season', 'title': get_title(body), 'body_size': body.length});
+                    }
+                    else {
+                      // not found next on body
+                      results.push({'type': 'found', 'next': null, 'title': get_title(body), 'body_size': body.length});
+                    }
+                  }
+                //}
+                //catch(err) {
+                //  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+                //  results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
+                //}
               }
-              else {
-                // not found next on body
-                results.push({'type': 'found', 'next': null, 'title': get_title(body), 'body_size': body.length});
-              }
+
+              if (results.length==num_attemps) end_first_stage(function(res) {
+                if (res['not-found']) callback('source-does-not-exist', {'title':null, 'next':null, 'body_size': O});
+                else callback(null, {'next': res['next'], 'title': res['title']});
+              });
+            },
+            function(){
+              results.push({'type': 'not-found', 'next': null, 'title': null, 'body_size': 0});
+              if (results.length==num_attemps) end_first_stage(function(res) {
+                if (res['not-found']) callback('source-does-not-exist', {'title':null, 'next':null, 'body_size': O});
+                else callback(null, {'next': res['next'], 'title': res['title']});
+              });
             }
-          }
-          catch(err) {
-            console.log('ERROR:', err);
-            results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
-          }
-        }
-
-        if (results.length==num_attemps) end_first_stage(function(res) {
-          if (res['not-found']) callback('source-does-not-exist', {'title':null, 'next':null, 'body_size': O});
-          else callback(null, {'next': res['next'], 'title': res['title']});
-        });
-
-      });
+        );
+      }
     }
-  }
-  } catch(err) {
-    console.log(err);
-    callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
-  }
+  //} catch(err) {
+  //  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+  //  callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
+  //}
 }
