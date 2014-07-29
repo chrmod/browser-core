@@ -121,53 +121,61 @@ var CliqzHistoryManager = {
                 {
                     columns: ["rev_host", "day", "url"],
                     onRow: function({rev_host, day, url}) {
+                        try {
+                            count+=1;
+                            var dayy = parseInt(day / 86400000000);
+                            var bucket_2s = parseInt(day / 2000000);
 
-                    
-                        count+=1;
-                        var dayy = parseInt(day / 86400000000);
-                        var bucket_2s = parseInt(day / 2000000);
-
-                        if(!data[dayy]) {
-                            data[dayy] = [0, 0, 0, 0];
-                        }
-
-                        if(re.test(url)){
-                            if(!cache[bucket_2s]){
-                                cache[bucket_2s] = true;
-                                data[dayy][0] += 1;
+                            if(!data[dayy]) {
+                                data[dayy] = [0, 0, 0, 0];
                             }
-                        }
 
-                        if(!cache_all[bucket_2s]){
-                            cache_all[bucket_2s] = true;
-                            data[dayy][1] += 1;
-                        }
-
-                        if (allq.test(url)){
-                            if(!cache_allq[bucket_2s]) {
-                                cache_allq[bucket_2s] = true;
-                                data[dayy][2] +=1
+                            if(re.test(url)){
+                                if(!cache[bucket_2s]){
+                                    cache[bucket_2s] = true;
+                                    data[dayy][0] += 1;
+                                }
                             }
-                        }
 
-                        if (ncq1.test(url) || ncq2.test(url) || ncq3.test(url)) {
-                            if(!cache_ncq[bucket_2s]) {
-                                cache_ncq[bucket_2s] = true;
-                                data[dayy][3] +=1;
+                            if(!cache_all[bucket_2s]){
+                                cache_all[bucket_2s] = true;
+                                data[dayy][1] += 1;
                             }
-                        }
+
+                            if (allq.test(url)){
+                                if(!cache_allq[bucket_2s]) {
+                                    cache_allq[bucket_2s] = true;
+                                    data[dayy][2] +=1
+                                }
+                            }
+
+                            if (ncq1.test(url) || ncq2.test(url) || ncq3.test(url)) {
+                                if(!cache_ncq[bucket_2s]) {
+                                    cache_ncq[bucket_2s] = true;
+                                    data[dayy][3] +=1;
+                                }
+                            }
+                        } catch (e){}
                     }
                 }
             )
             .then(function() {
 
-
+                /*
                 for (var key in data) {
                     if (data.hasOwnProperty(key)) {
                         CliqzUtils.log(data[key], dayToYMD(key));
                     }
                 }
+                */
 
+                var action = {
+                    type: 'environment',
+                    action: 'history_analysis_01',
+                    data: data
+                };
+
+                CliqzUtils.track(action);
             });
     },
 	PlacesInterestsStorage: {
