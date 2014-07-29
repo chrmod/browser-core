@@ -62,7 +62,7 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'UTILS');
 
   },
-  httpHandler: function(method, url, callback, onerror, data, timeout){
+  httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
@@ -97,7 +97,7 @@ var CliqzUtils = {
     return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
   httpPost: function(url, callback, data, onerror, timeout) {
-    return CliqzUtils.httpHandler('POST', url, callback, onerror, data, timeout);
+    return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
   },
   getPrefs: function(){
     var prefs = {};

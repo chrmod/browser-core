@@ -642,3 +642,356 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         return [domain, path];
     }
 }
+
+function guess_next_url(source_url, callback) {
+  var result = {};
+
+  get_title = function(body) {
+    try {
+      var start = body.indexOf("<title>")
+      if (start>0) {
+        var end = body.indexOf("<\/title>",start);
+        if ((end>0) && (end>start)) {
+          var title = body.substring(start+7,end);
+          return title;
+        }
+      }
+    }
+    catch(err){}
+
+    return null;
+  }
+
+  guess_next_number = function(str) {
+
+    var trailing_zeros = false
+    if (str[0]=='0') trailing_zeros = true;
+
+    var new_str = '' + (parseInt(str)+1);
+
+    if (!trailing_zeros) return new_str;
+    else {
+      if (new_str.length>=str.length) return new_str;
+      else {
+        var padding = '';
+        for(var i=0;i<(str.length-new_str.length);i++) padding=padding+'0';
+        return padding + new_str;
+      }
+    }
+  }
+
+  guess_first_episode = function(str) {
+    if (str[0]=='0') {
+      var padding = '';
+      for(var i=0;i<episode_data[1].length-1;i++) padding=padding+'0';
+      var first_episode = padding + '1';
+    }
+    else {
+      var first_episode = '1';
+    }
+
+    return first_episode;
+  }
+
+
+  guess_candidates = function(source_url, episode_data) {
+
+    var ipath = source_url.indexOf('/',10);
+    if (ipath<0) return null;
+
+    var path = source_url.substring(ipath);
+
+    var res = {};
+
+    // the season (really, it's the first one, depends on the regex)
+    next_season = guess_next_number(episode_data[1]);
+    first_episode = guess_first_episode(episode_data[1]);
+
+    var v = episode_data[0].split(episode_data[1]);
+    if (v.length==2) {
+      // old episode and season are not the same, easy case
+      res['min_season'] = v[0] + next_season + v[1].replace(episode_data[2], first_episode);
+    }
+    else {
+      // old episode and seeason are the same, in this case maintain the episode since we increment the season
+      res['min_season'] = v[0] + next_season + v[1] + first_episode + v[2];
+    }
+
+    next_episode = guess_next_number(episode_data[2]);
+    v = episode_data[0].split(episode_data[2]);
+    if (v.length==2) {
+      // old episode and season are not the same, easy case
+      res['min_episode'] = v[0] + next_episode + v[1];
+    }
+    else {
+      // old episode and seeason are the same, in this case maintain the episode since we increment the season
+      res['min_episode'] = v[0] + episode_data[1] + v[1] + next_episode + v[2];
+    }
+
+    var until_min_pos = path.indexOf(episode_data[0]);
+    var until_min = path.substring(0,until_min_pos);
+
+    res['partial_episode'] = until_min + res['min_episode'];
+    res['partial_season'] = until_min + res['min_season'];
+
+    res['path_episode'] = path.replace(episode_data[0], res['min_episode']);
+    res['path_season'] = path.replace(episode_data[0], res['min_season']);
+
+    //console.log('path', path, res['partial_episode'], res['partial_season']);
+    return res;
+  }
+
+  get_before_path = function(url) {
+    var end = url.indexOf('/',10);
+    return url.substring(0,end);
+  }
+
+  is_soft_404 = function(body) {
+    if (body.match(/not found/i) || (body.match(/not be found/i))) return true;
+    var title = get_title(body);
+    if (title && ((title.match(/404/i) || title.match(/error/i) || title.match(/invalid/i) || title.match(/redirect/i)))) return true;
+
+    return false;
+  }
+
+
+  is_soft_404_for_size = function(size_body1, size_body2) {
+
+    var ratio = 0.0;
+    if (size_body1 > size_body2) ratio = size_body2 / (size_body1 + 0.0);
+    else ratio = size_body1 / (size_body2 + 0.0);
+
+    // if the difference is less than 66% assume that it has been redirected to some odd place
+    if (ratio > 0.666) return false;
+    else return true;
+
+  }
+
+  var end_first_stage = function(end_first_stage_callback) {
+
+    var is_not_found = true;
+    var next_url = null;
+    var next_url_type = null;
+    var old_title = null;
+    var old_body_size = null;
+
+    for(var i=0;i<num_attemps;i++) {
+      if (results[i]['type']=='found') {
+        is_not_found=false;
+        old_title = results[i]['title'];
+        old_body_size = results[i]['body_size'];
+
+        if (results[i]['next']!=null) {
+          if (next_url==null) {
+            next_url = results[i]['next'];
+            next_url_type = results[i]['next_type'];
+          }
+          else {
+            if (results[i]['next_type']=='episode' && next_url_type=='season') {
+              next_url = results[i]['next'];
+              next_url_type = results[i]['next_type'];
+            }
+          }
+        }
+      }
+      //console.log(">>", i, results[i]['type'], results[i]['next']);
+    }
+
+
+    // now, let's validate that the next episode actually exists
+    if (next_url!=null) {
+    CliqzUtils.httpGet(next_url, callback, onerror, 30000)
+
+      request({
+        uri: next_url,
+        method: "GET",
+        timeout: 30000,
+        followRedirect: true,
+        maxRedirects: 3,
+      }, function(error, response, body) {
+        if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300)
+              || (is_soft_404(body))) {
+          // the next_url seems to be a 404. We must give up at this point. Do not try anything else,
+          // we could find the next_url but failed to fetch the content
+          res = {'not-found': is_not_found, 'next': null, 'title': null};
+          end_first_stage_callback(res);
+        }
+        else {
+          var title = get_title(body);
+          res = {'not-found': is_not_found, 'next': next_url, 'title': title};
+          end_first_stage_callback(res);
+        }
+      });
+    }
+    else {
+      // could not guess the next_url on the first methodology (from the source_page),
+      // let's try guessing.
+      try_guessing(source_url, candidates, old_title, old_body_size, end_first_stage_callback);
+    }
+  }
+
+  try_guessing = function(source_url, candidates, source_title, source_body_size, end_first_stage_callback) {
+
+    //console.log('>>>>>>>', source_url);
+
+    var all_received = function(results, end_first_stage_callback) {
+      var position_found = null;
+
+      //console.log('>>>>>>>', results);
+
+      for(var i=0;i<cand_url.length;i++) {
+        if (results[i]!=null) {
+            position_found=i;
+            break;
+        }
+      }
+
+      if (position_found!=null) {
+        var res = {'not-found': false, 'next': results[position_found]['next'], 'title': results[position_found]['title']};
+        end_first_stage_callback(res);
+      }
+      else {
+        var res = {'not-found': false, 'next': null, 'title': null};
+        end_first_stage_callback(res);
+      }
+    }
+
+
+    // let's guess all combinations
+    var cand_url = [];
+    cand_url.push(get_before_path(source_url) + candidates['path_episode']);
+    if (candidates['path_episode']!=candidates['partial_episode']) {
+      cand_url.push(get_before_path(source_url) + candidates['partial_episode']);
+    }
+    cand_url.push(get_before_path(source_url) + candidates['path_season']);
+    if (candidates['path_season']!=candidates['partial_season']) {
+      cand_url.push(get_before_path(source_url) + candidates['partial_season']);
+    }
+
+    // order matters, the first to be true is the one that we will take
+
+    var results = []
+    var results_received = cand_url.length;
+
+    for(var i=0;i<cand_url.length;i++) {
+      request({
+        uri: cand_url[i],
+        method: "GET",
+        timeout: 30000,
+        followRedirect: true,
+        maxRedirects: 3,
+        user_data_i: i,
+      }, function(error, response, body) {
+        if (error==null) {
+          var title = get_title(body);
+          var found = true;
+          var position = parseInt(response.request.user_data_i);
+
+          if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300)
+                || (is_soft_404(body)) || response.request.uri.path=='/') {
+            found = false;
+          }
+          else {
+            // must validate that the source_title and new_title have changed
+            if (title==source_title) found = false;
+
+            // must validate that the cand_url bit is part of the url, avoid jumpy redirects
+            // outside /
+            if (response.request.href.indexOf(cand_url[position])<0) {
+              found = false;
+            }
+          }
+
+          if (found) results[position] = {'next': response.request.href, 'title': title, 'source': cand_url[position]};
+          else result[position] = null;
+        }
+
+        results_received--;
+        if (results_received<=0) all_received(results, end_first_stage_callback);
+      });
+
+    }
+  }
+
+  // MAIN
+  try {
+
+  var episode_data = check_if_series(source_url);
+  if (!episode_data) callback('not-a-valid-pattern', {'title':null, 'next':null});
+  else {
+    var candidates = guess_candidates(source_url, episode_data);
+    var request = require("request");
+    var results = [];
+    var num_attemps = 5;
+
+    for(var i=0;i<num_attemps;i++) {
+      request({
+        uri: source_url,
+        method: "GET",
+        timeout: 30000,
+        followRedirect: true,
+        maxRedirects: 3,
+        //extra_data: "eps " + i,
+      }, function(error, response, body) {
+        // check if we could get the body of the page
+        if ((error!=null) || (response.statusCode<200) || (response.statusCode>=300) || (is_soft_404(body))) {
+          results.push({'type': 'not-found', 'next': null, 'title': null, 'body_size': 0});
+        }
+        else {
+          // check if we can get the next url in the page
+          try {
+
+            // FIXME:
+            // this is somewhat of a hack, it's very slow and it can fail
+            // reason: URL from file are downcased, and URL path is case sensitive on the RFC spec.
+            // If we don't normalize all to lowercase we miss cases in which the internal links have upcases since
+            // indexOf is not case-insensitive.
+            candidates['partial_episode'] = candidates['partial_episode'].toLowerCase();
+            candidates['path_episode'] = candidates['path_episode'].toLowerCase();
+            body = body.toLowerCase();
+            // ----
+
+            //console.log('>>>', candidates['partial_episode'], candidates['path_episode']);
+            var ind = -1;
+            if ((ind = body.indexOf(candidates['partial_episode']))>0) {
+              var end1 = body.indexOf('"',ind);
+              var end2 = body.indexOf("'",ind);
+              var end = (end1<end2) ? end1 : end2;
+              var next_url = body.substring(ind,end);
+              next_url = get_before_path(source_url) + next_url;
+              results.push({'type': 'found', 'next': next_url, 'next_type': 'episode', 'title': get_title(body), 'body_size': body.length});
+            }
+            else {
+              if ((ind = body.indexOf(candidates['partial_season']))>0) {
+                var end1 = body.indexOf('"',ind);
+                var end2 = body.indexOf("'",ind);
+                var end = (end1<end2) ? end1 : end2;
+                var next_url = body.substring(ind,end);
+                next_url = get_before_path(source_url) + next_url;
+                results.push({'type': 'found', 'next': next_url, 'next_type': 'season', 'title': get_title(body), 'body_size': body.length});
+              }
+              else {
+                // not found next on body
+                results.push({'type': 'found', 'next': null, 'title': get_title(body), 'body_size': body.length});
+              }
+            }
+          }
+          catch(err) {
+            console.log('ERROR:', err);
+            results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
+          }
+        }
+
+        if (results.length==num_attemps) end_first_stage(function(res) {
+          if (res['not-found']) callback('source-does-not-exist', {'title':null, 'next':null, 'body_size': O});
+          else callback(null, {'next': res['next'], 'title': res['title']});
+        });
+
+      });
+    }
+  }
+  } catch(err) {
+    console.log(err);
+    callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
+  }
+}
