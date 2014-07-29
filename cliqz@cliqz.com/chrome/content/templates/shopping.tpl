@@ -15,8 +15,10 @@
     >
     </div>
   {{/if}}
-  <div class='cliqz-result-mid-box' style="width:{{ width }}px">
-    <div class='cliqz-result-title-box overflow'>
+  <div class='cliqz-result-mid-box'
+    style='width:{{ width }}px;'>
+    <div class='cliqz-result-title-box overflow'
+         style='padding-bottom: 0px;'>
       {{ title }}
     </div>
     <div class='cliqz-result-url-box overflow'>
@@ -34,19 +36,22 @@
         {{ data.richData.price_currency }} {{ data.richData.price }}
       </span>
     </div>
-    <div class="cliqz-shopping-result-stars-box">
-      <div class="cliqz-shopping-result-stars" style="
-        width: {{ shopping_stars_width data.richData.rating }}px;
-      ">
-    </div>
-    </div>
-    <div class="cliqz-shopping-result-reviews">
-      ({{ data.richData.reviews }})
+    <div style='padding-top: 2px;'>
+      <span class="cliqz-shopping-result-stars-box">
+        <span class="cliqz-shopping-result-stars" style="
+          width: {{ shopping_stars_width data.richData.rating }}px;
+        ">
+      </span>
+      </span>
+      <span class="cliqz-shopping-result-reviews">
+        ({{ data.richData.reviews }})
+      </span>
     </div>
     <div class='cliqz-result-description'>
       {{ data.description }}
     </div>
   </div>
-  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+       newtab='true'>
   </div>
 </div>

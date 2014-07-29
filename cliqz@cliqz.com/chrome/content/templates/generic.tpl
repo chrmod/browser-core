@@ -13,19 +13,20 @@
 				"
 		>
 		{{#if image.text }}
-			<p>{{ image.text }}</p>
+			<p class='cliqz-video-arrow'>{{ image.text }}</p>
 		{{/if}}
 		</div>
 	{{/if}}
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
 		<div class='cliqz-result-title-box overflow'>
-			{{ emphasis title text }}
+			{{ emphasis title text 2 false}}
 		</div>
-		{{> url urlDetails}}
+		{{> url this}}
 		<div class='cliqz-result-description'>
-			{{ emphasis data.description text 1 true }}
+			{{ emphasis data.description text 2 true }}
 		</div>
 	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+	     newtab='true'>
 	</div>
 </div>

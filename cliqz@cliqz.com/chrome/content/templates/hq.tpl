@@ -16,7 +16,7 @@
 	{{/if}}
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
 		<div class='cliqz-result-title-box overflow'>
-			{{ title }}
+			{{ emphasis title text 2 false }}
 		</div>
 		<div class='cliqz-result-url-box overflow'>
 			{{#with data.richData}}
@@ -26,7 +26,7 @@
 				{{/if}}
 				'
 			>
-				{{ source_name }}
+				{{ emphasis source_name ../text 2 false}}
 			</span>
 			<span class='cliqz-hq-language'>
 				{{ source_language }}
@@ -34,7 +34,7 @@
 			{{/with}}
 		</div>
 		<div class='cliqz-result-description'>
-			{{ data.description }}
+			{{ emphasis data.description text 2 true }}
 		</div>
 		{{#if data.richData.additional_sources}}
 			<div class='cliqz-hq-links'>
@@ -49,6 +49,7 @@
 			</div>
 		{{/if}}
 	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+	     newtab='true'>
 	</div>
 </div>

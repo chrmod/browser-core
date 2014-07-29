@@ -14,31 +14,41 @@
     >
     </div>
   {{/if}}
-  <div class='cliqz-result-mid-box' style="width:{{ width }}px">
-    <div class='cliqz-result-title-box overflow'>
+  <div class='cliqz-result-mid-box cliqz-result-video-mid-box'
+       style="width:{{ width }}px;">
+    <div class='cliqz-result-title-box overflow'
+         style="padding-bottom: 1px">
       {{ title }}
       {{#if (video_views data.richData.views)}}
       <img class="cliqz-result-video-views"
            src="chrome://cliqzres/content/skin/{{ video_views data.richData.views }}.png" />
       {{/if}}
     </div>
-    <div class='cliqz-result-video-provider'>
+    <div style="padding-bottom: 5px">
+      <span class='cliqz-result-video-provider'>
         {{ video_provider urlDetails.host }}
-    </div>
-    <div class='cliqz-result-video-author'>
+      </span>
+      <span class='cliqz-result-video-author'>
       {{#if data.richData.poster}}
-        by <strong style='margin-right:5px;'>{{ data.richData.poster }}</strong>
+        von
+        <strong style='margin-right:5px;'>
+          {{ data.richData.poster }}
+        </strong>
       {{/if}}
       {{#if data.richData.date}}
         {{ date data.richData.date }}
       {{/if}}
+      </span>
     </div>
     {{#if data.image.duration }}
-      <span class="cliqz-result-video-duration">
-        {{ data.image.duration }}
-      </span>
+      <div>
+        <span class="cliqz-result-video-duration cliqz-video-arrow">
+          {{ data.image.duration }}
+        </span>
+      </div>
     {{/if}}
   </div>
-  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+       newtab='true'>
   </div>
 </div>

@@ -6,15 +6,17 @@
   </div>
 
   <div class='cliqz-weather-today-container'>
-    <div class='cliqz-weather-today-temp'
+    <div class='cliqz-weather-today-date'
          style="background-image:url({{ todayIcon }})">
-          {{ todayTemp }}
+          {{ todayDate }}
     </div>
-    <div>
-      <span class="cliqz-weather-today-date">{{ todayDate }}</span>
+    <div class='cliqz-weather-today-temp'>
+      <span class="cliqz-weather-now">{{ todayTemp }}</span>
+      <br />
       <span class="cliqz-weather-today-max">{{ todayMax }}</span>
       <span class="cliqz-weather-today-min">{{ todayMin }}</span>
     </div>
+    <br style="clear:both"/>
   </div>
 
 

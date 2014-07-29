@@ -5,20 +5,22 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.4.16');
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.4.16');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.4.16');
+  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.5.02');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -176,6 +178,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
             },
+            sendSuggestionsSignal: function(suggestions) {
+                var action = {
+                    type: 'activity',
+                    action: 'suggestions',
+                    count:  (suggestions || []).length
+                };
+                CliqzUtils.track(action);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
@@ -184,11 +194,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && this.cliqzSuggestions &&
-                        this.cliqzWeather && this.cliqzWorldCup) {
+                        this.cliqzWeather) {
 
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         this.listener.onSearchResult(this, this.mixedResults);
                         this.sendResultsSignal(this.mixedResults._results);
@@ -202,7 +213,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzSuggestions = null;
                         this.historyResults = null;
                         this.cliqzWeather= null;
-                        this.cliqzWorldCup = null;
                         return;
                     } else {
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
@@ -250,38 +260,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzWeather = res;
                 this.pushResults(q);
             },
-            // handles world cup queries
-            cliqzWorldCupFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = [];
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_worldcup", ((new Date()).getTime() - this.startTime));
-
-                    if(req.status == 200){
-                        response = JSON.parse(req.response);
-                        // If no matches are played today don't show result
-                        if (response.length == 0) return;
-
-                        this.cliqzWorldCup = [
-                            Result.generic(
-                                Result.CLIQZWC,
-                                "",
-                                null,
-                                null,
-                                "",
-                                null,
-                                {
-                                    matches: response
-                                }
-                            )
-                        ];
-                    } else {
-                        this.cliqzWorldCup = [];
-                    }
-                }
-                this.pushResults(q);
-            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -298,7 +276,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.mixedResults,
                             //this.cliqzSuggestions,
                             this.cliqzWeather,
-                            this.cliqzWorldCup,
                             maxResults
                     );
 
@@ -310,24 +287,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return results;
             },
             analyzeQuery: function(q){
-                var customQuery = ResultProviders.isCustomQuery(q);
-                if(customQuery){
-                    this.customResults = [
-                        Result.generic(
-                            Result.CLIQZC + ' sources-' + customQuery.engineCode,
-                            customQuery.queryURI,
-                            null,
-                            null,
-                            null,
-                            null,
-                            {
-                                q: customQuery.updatedQ,
-                                engine: customQuery.engineName
-                            }
-                        )
-                    ];
-                }
-
+                [q, this.customResults] = ResultProviders.getCustomResults(q);
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
@@ -354,7 +314,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzWeather = null;
-                this.cliqzWorldCup = null;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
@@ -378,7 +337,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults = this.pushResults.bind(this);
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
-                this.cliqzWorldCupFetcher = this.cliqzWorldCupFetcher.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
@@ -391,18 +349,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         this.cliqzWeather = [];
                     }
-                    const worldCupRegex = /(wm|fu[\u00DF]b|fussb|soccer|footb|weltme|fifa|worldcup)/i;
-                    if(worldCupRegex.test(searchString)){
-                        CliqzUtils.getWorldCup(searchString, this.cliqzWorldCupFetcher);
-                    } else {
-                        this.cliqzWorldCup = [];
-                    }
                 } else {
                     this.cliqzResults = [];
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzWeather = [];
-                    this.cliqzWorldCup = [];
                 }
 
                 // trigger history search

@@ -6,11 +6,11 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ title }}
 		</div>
-		{{> url urlDetails}}
+		{{> url this}}
 		{{#with data.richData}}
-		<div class='overflow' style="font-size: 10pt; color:#ccc">
-			<span class='cliqz-qaa-answer'>ANTWORTEN:</span>
-			<span class='cliqz-qaa-answer-value'>{{answers}}</span>
+		<div class='overflow' style="font-size: 10pt; color:#aaa; padding-top:4px">
+			<span class='cliqz-qaa-answer'></span>
+			<span class='cliqz-qaa-answer-value'>ANTWORTEN: {{answers}}</span>
 			|
 			{{#if accepted}}
 				<span class='cliqz-qaa-accepted'>Hilfreichste Antwort</span>
@@ -23,12 +23,12 @@
 		</div>
 		{{/with}}
 	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+	     newtab='true'>
 	</div>
 </div>
 {{#if data.richData.additional_sources}}
 	<div class='cliqz-qaa-sources'>
-		<div class='cliqz-qaa-sources-headline'>ÄHNLICHE FRAGEN</div>
 	{{#each data.richData.additional_sources}}
 		<div url='{{url}}'
 			 idx='{{ @index }}'
