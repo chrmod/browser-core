@@ -307,7 +307,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
-                    current_length: searchString.length
+                    current_length: searchString.length,
+                    f1: searchString.indexOf('f1') == 0,
+                    form: searchString.indexOf('form') == 0,
                 };
                 CliqzUtils.track(action);
 
