@@ -5,22 +5,22 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.5.00');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.5.02');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -307,9 +307,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
-                    current_length: searchString.length,
-                    f1: searchString.indexOf('f1') == 0,
-                    form: searchString.indexOf('form') == 0,
+                    current_length: searchString.length
                 };
                 CliqzUtils.track(action);
 

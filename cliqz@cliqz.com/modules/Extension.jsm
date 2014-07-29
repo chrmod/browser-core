@@ -8,10 +8,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
   'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.00');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.00');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.02');
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
@@ -109,7 +109,7 @@ var Extension = {
         }
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.00', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.02', win);
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -180,8 +180,8 @@ var Extension = {
             if(ev.button == 0) {
                 try{
                     var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                    win.location.href = 'mailto:?subject=Via cliqz: ' + escape(doc.title) +
-                                        '&body=' + escape(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+                    win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURI(doc.title) +
+                                        '&body=' + encodeURI(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
                 } catch(e){}
             }
         }, false);
