@@ -2,8 +2,17 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weather',
-                 'shopping', 'gaming', 'news', 'people', 'video', 'hq', 'qaa', 'custom', 'clustering'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering'],
+    VERTICALS = {
+        'w': 'weather' ,
+        's': 'shopping',
+        'g': 'gaming'  ,
+        'n': 'news'    ,
+        'p': 'people'  ,
+        'v': 'video'   ,
+        'h': 'hq'      ,
+        'q': 'qaa'
+    },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
@@ -11,13 +20,14 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'weath
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
+    LEFT = 37,
     UP = 38,
+    RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
     IMAGE_WIDTH = 96
     ;
-
 
 var UI = {
     tpl: {},
@@ -27,14 +37,19 @@ var UI = {
                 UI.tpl[tpl] = Handlebars.compile(res.response);
             });
         });
+        for(var v in VERTICALS){
+            (function(vName){
+                CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
+                    UI.tpl[vName] = Handlebars.compile(res.response);
+                });
+            })(VERTICALS[v]);
+        };
 
         PARTIALS.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
                  Handlebars.registerPartial(tpl, res.response);
             });
         });
-
-
 
         registerHelpers();
     },
@@ -56,6 +71,8 @@ var UI = {
         gCliqzBox.enginesBox = enginesBox;
 
         gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
+
+        handlePopupHeight(box);
     },
     results: function(res){
         var enhanced = enhanceResults(res);
@@ -100,12 +117,50 @@ var UI = {
             case TAB:
                 suggestionNavigation(ev);
                 return true;
+            case LEFT:
+            case RIGHT:
+                // close drop down to avoid firefox autocompletion
+                CLIQZ.Core.popup.closePopup();
+                return false;
             break;
         }
 
 
     }
 };
+
+function handlePopupHeight(box){
+    var MAX=352, MIN =160,
+        height = CliqzUtils.getPref('popupHeight', 290),
+        start, footer = document.getElementById('cliqz-footer', box);
+
+    function setHeight(delta){
+        var t = Math.min(Math.max(height + delta, MIN), MAX);
+        box.resultsBox.style.maxHeight = (t - 36) + 'px';
+
+        footer.style.cursor = t == MIN? 's-resize':
+                              t == MAX? 'n-resize':
+                              'ns-resize';
+    }
+    setHeight(0);
+    //handle resize
+    function moveIT(e){
+        setHeight(e.pageY - start);
+    }
+
+    footer.addEventListener('mousedown', function(e){
+        if(e.target != footer)return;
+        start = e.pageY;
+        document.addEventListener('mousemove',moveIT)
+    });
+    document.addEventListener('mouseup', function(){
+        height = 36 + +box.resultsBox.style.maxHeight.replace('px','')
+        CliqzUtils.setPref('popupHeight', height);
+        document.removeEventListener('mousemove', moveIT);
+    });
+
+
+}
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
 
@@ -169,7 +224,7 @@ function constructImage(data){
                 image.height = height;
             }
             if (img && img.duration) {
-                image.text = CliqzUtils.getLocalizedString('arrow') + img.duration;
+                image.text = img.duration;
             }
 
             image.width = image.width || IMAGE_WIDTH;
@@ -183,14 +238,16 @@ function constructImage(data){
 function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
-    if(type.indexOf('cliqz-results sources-s') === 0) return 'shopping';
-    if(type.indexOf('cliqz-results sources-g') === 0) return 'gaming';
-    if(type.indexOf('cliqz-results sources-n') === 0) return 'news';
-    if(type.indexOf('cliqz-results sources-p') === 0) return 'people';
-    if(type.indexOf('cliqz-results sources-v') === 0) return 'video';
-    if(type.indexOf('cliqz-results sources-h') === 0) return 'hq';
-    if(type.indexOf('cliqz-results sources-q') === 0) return 'qaa';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
+    if(type.indexOf('cliqz-results sources-') == 0){
+        // type format: cliqz-results sources-XXXX
+        // XXXX -  are the verticals which provided the result
+        type = type.substr(22);
+
+        while(type && !VERTICALS[type[0]])type = type.substr(1);
+
+        return VERTICALS[type[0]] || 'generic';
+    }
     return 'generic';
 }
 
@@ -207,10 +264,12 @@ function enhanceResults(res){
     return res;
 }
 
+
 function resultClick(ev){
     var el = ev.target,
-        newTab = ev.metaKey || ev.ctrlKey,
-        logoClick = ev.target.className.indexOf('cliqz-logo') != -1;
+        newTab = ev.metaKey ||
+                 ev.ctrlKey ||
+                 (ev.target.getAttribute('newtab') || false);
 
     while (el){
         if(el.getAttribute('url')){
@@ -218,7 +277,7 @@ function resultClick(ev){
             var action = {
                 type: 'activity',
                 action: 'result_click',
-                new_tab: newTab || logoClick,
+                new_tab: newTab,
                 current_position: el.getAttribute('idx'),
                 query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
@@ -228,7 +287,7 @@ function resultClick(ev){
 
             CliqzUtils.track(action);
 
-            if(newTab || logoClick) gBrowser.addTab(url);
+            if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
         }
@@ -338,6 +397,7 @@ function suggestionClick(ev){
 function onEnter(ev, item){
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
+        popupOpen = CLIQZ.Core.popup.popupOpen,
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -346,7 +406,7 @@ function onEnter(ev, item){
             search: false
         };
 
-    if(index != -1){
+    if(popupOpen && index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
         openUILink(item.getAttribute('url'));
@@ -355,7 +415,7 @@ function onEnter(ev, item){
         // update the urlbar if a suggestion is selected
         var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
-        if(suggestion){
+        if(popupOpen && suggestion){
             CLIQZ.Core.urlbar.mInputField.setUserInput(suggestion.getAttribute('val'));
             action = {
                 type: 'activity',
@@ -448,14 +508,34 @@ function trackArrowNavigation(el){
     }
     CliqzUtils.track(action);
 }
-
+var AGO_CEILINGS=[
+    [0            , '',                , 1],
+    [120          , 'vor einer Minute' , 1],
+    [3600         , 'vor %d Minuten'   , 60],
+    [7200         , 'vor einer Stunde' , 1],
+    [86400        , 'vor %d Stunden'   , 3600],
+    [172800       , 'gestern'          , 1],
+    [604800       , 'vor %d Tagen'     , 86400],
+    [4838400      , 'vor einem Monat'  , 1],
+    [29030400     , 'vor %d Monaten'   , 2419200],
+    [58060800     , 'vor einem Jahr'   , 1],
+    [2903040000   , 'vor %d Jaren'     , 29030400],
+];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         return new Handlebars.SafeString(UI.tpl[name](this));
     });
 
-    Handlebars.registerHelper('agoline', function(val, options) {
-        return CliqzUtils.computeAgoLine(val);
+    Handlebars.registerHelper('agoline', function(ts, options) {
+        if(!ts) return '';
+        var now = (new Date().getTime() / 1000),
+            seconds = parseInt(now - ts),
+            i=0, slot;
+
+        while (slot = AGO_CEILINGS[i++])
+            if (seconds < slot[0])
+                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+        return '';
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
@@ -478,14 +558,14 @@ function registerHelpers(){
         return JSON.stringify(value);
     });
 
-    Handlebars.registerHelper('emphasis', function(text, q, min, clean) {
-        if(!text || !q || q.length < (min || 2)) return text;
+    Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
+        if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
 
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
-        if(clean) text = text.replace(/[\u0000-\u001F]/g, ' ')
+        if(cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+/),
@@ -540,6 +620,15 @@ function registerHelpers(){
         out.push(current);
 
         return new Handlebars.SafeString(UI.tpl.emphasis(out));
+    });
+
+    Handlebars.registerHelper('suggestionEmphasis', function(text, q) {
+        if(!text || !q ) return text;
+
+        if(text.indexOf(q) == 0){
+            var out = [q, text.substr(q.length)]
+            return new Handlebars.SafeString(UI.tpl.emphasis(out));
+        } else return text
     });
 
     Handlebars.registerHelper('video_provider', function(host) {

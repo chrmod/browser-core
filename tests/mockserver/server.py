@@ -14,7 +14,7 @@ def home():
         return jsonify(success=True)
 
 
-@app.route('/api/cliqz-results')
+@app.route('/api/v1/results')
 def cliqz_results():
     q = request.values.get('q', '')
 
@@ -28,7 +28,8 @@ def cliqz_results():
                         "title": "Willkommen bei Facebook",
                         "url": "https://www.facebook.com/"
                     },
-                    "url": "https://www.facebook.com/"
+                    "url": "https://www.facebook.com/",
+                    "source": "cache"
                 }
             ]
         }
