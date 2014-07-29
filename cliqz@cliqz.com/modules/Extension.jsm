@@ -280,8 +280,13 @@ var Extension = {
     },
     unloadFromWindow: function(win){
         try {
-            if(win && win.document && win.document.getElementById('cliqz-button')){
-                win.document.getElementById('cliqz-button').remove();
+            if(win && win.document){
+                if(win.document.getElementById('cliqz-button')){
+                    win.document.getElementById('cliqz-button').remove();
+                }
+                if(win.document.getElementById('cliqz-share-button')){
+                    win.document.getElementById('cliqz-share-button').remove();
+                }
             }
             win.CLIQZ.Core.destroy();
             delete win.CLIQZ.Core;
