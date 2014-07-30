@@ -275,7 +275,7 @@ function resultClick(ev){
                 action: 'result_click',
                 new_tab: newTab,
                 current_position: el.getAttribute('idx'),
-                query_length: CLIQZ.Core.urlbar.value.length,
+                query_length: CliqzAutocomplete.lastSearch.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 search: CliqzUtils.isSearch(url)
@@ -398,7 +398,7 @@ function onEnter(ev, item){
             type: 'activity',
             action: 'result_enter',
             current_position: index,
-            query_length: inputValue.length,
+            query_length: CliqzAutocomplete.lastSearch.length,
             search: false
         };
 
