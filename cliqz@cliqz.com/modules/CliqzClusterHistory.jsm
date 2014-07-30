@@ -86,8 +86,11 @@ var templates = {
                     }
                     CliqzUtils.log('getting next episode...', CliqzClusterHistory.LOG_KEY);
 
-                    //LUCIAN if(!isStreaming(last_url, last_title)) return;
+                    if(!isStreaming(last_url, last_title)) return;
 
+                    guess_next_url(last_url, function(error, data){
+
+                    })
 
                     var last_title = last_item[0];
                     var last_url = last_item[1];
@@ -700,6 +703,11 @@ function log(msg){
   CliqzUtils.log(msg, 'Clustering');
 }
 
+function isStreaming(url, title){
+  // should return false if it is not a streaming site
+  return true;
+}
+
 var check_if_series = function(source_url) {
 
   var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
@@ -977,7 +985,7 @@ function guess_next_url(source_url, callback) {
   }
 
   // MAIN
-  //try {
+  try {
 
     var episode_data = check_if_series(source_url);
     if (!episode_data) callback('not-a-valid-pattern', {'title':null, 'next':null});
@@ -992,7 +1000,7 @@ function guess_next_url(source_url, callback) {
               if(is_soft_404(req.response)){
                 results.push({'type': 'not-found', 'next': null, 'title': null, 'body_size': 0});
               } else {
-                //try {
+                try {
                   // FIXME:
                   // this is somewhat of a hack, it's very slow and it can fail
                   // reason: URL from file are downcased, and URL path is case sensitive on the RFC spec.
@@ -1027,11 +1035,11 @@ function guess_next_url(source_url, callback) {
                       results.push({'type': 'found', 'next': null, 'title': get_title(body), 'body_size': body.length});
                     }
                   }
-                //}
-                //catch(err) {
-                //  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
-                //  results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
-                //}
+                }
+                catch(err) {
+                  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+                  results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
+                }
               }
 
               if (results.length==num_attemps) end_first_stage(function(res) {
@@ -1049,8 +1057,8 @@ function guess_next_url(source_url, callback) {
         );
       }
     }
-  //} catch(err) {
-  //  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
-  //  callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
-  //}
+  } catch(err) {
+    CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+    callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
+  }
 }
