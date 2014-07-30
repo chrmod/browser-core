@@ -19,12 +19,8 @@ var COLORS = [ '#993300', '#99CC99', '#003366']
 var DISABLED_COLOR = ['#D6D6D6']
 
 var templates = {
-
         '_misc_1': {
             fun: function(urls) {
-
-                var keywords = {'Read':true,'Watch':true}
-
                 var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
                               /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
                               /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.?\/)(\d{1,2})(.*)/,
@@ -89,6 +85,9 @@ var templates = {
                         CliqzUtils.log(last_s + ' ' + last_ep, 'last_show', CliqzClusterHistory.LOG_KEY)
                     }
                     CliqzUtils.log('getting next episode...', CliqzClusterHistory.LOG_KEY);
+
+                    //LUCIAN if(!isStreaming(last_url, last_title)) return;
+
 
                     var last_title = last_item[0];
                     var last_url = last_item[1];
@@ -642,90 +641,44 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         return [domain, path];
     },
     test: function(){
-      var i=0;
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://hhhoo.com/hhh', 'Clustering');
-        guess_next_url('http://hhhoo.com/hhh', function(error, data) {
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
+      var testData = [
+        ['http://hhhoo.com/hhh', false],
+        ['https://www.ovguide.com/tv_episode/game-of-thrones-season-4-episode-9-the-watchers-on-the-wall-4801609', true],
+        ['http://4zon.com/game-of-thrones-season-4-episode-8/', true],
+        ['http://4zon.com/game-of-thrones-season-4-episode-8/', true],
+        ['http://www.veziserialeonline.info/game-of-thrones-/season/4/episode/1', true],
+        ['http://filmozderi.com/game-of-thrones-season-4/episode-3-breaker-of-chains-movie_0bdc00321.html#.U9EdU4CSxQY', true],
+        ['http://www.tvids.me/watch104/game-of-thrones/season-02-episode-04-garden-of-bones', true],
+        ['http://www.zzstream.li/2012/04/game-of-thrones-season-2-episode-4-garden-of-bones.html', true],
+        ['http://serieall.fr/episode/game-of-thrones/s04e09', true],
+        ['http://serieall.fr/episode/game-of-thrones/s03e10', true],
+        ['http://serieall.fr/episode/game-of-thrones/s04e10', false],
+        ['http://putlockertvshows.me/watch/game-of-thrones/s04e10.html', false],
+        ['http://www.movie1k.ag/watch-107997-game-of-thrones-season-4-episode-8/', false],
+        ['http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', false],
+        ['http://videobull.to/game-of-thrones-season-3-episode-9/', true],
+        ['http://www.sk-gaming.com/content/1600796-s4e8_watch_game_of_thrones_season_4_episode_8_online_free_yo', false],
+        ['http://www.ovguide.com/tv_episode/game-of-thrones-season-4-episode-9-the-watchers-on-the-wall-4801609', false]
+      ], i=0;
 
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://4zon.com/game-of-thrones-season-4-episode-8/', 'Clustering');
-        guess_next_url('http://4zon.com/game-of-thrones-season-4-episode-8/', function(error, data) {
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://www.veziserialeonline.info/game-of-thrones-/season/4/episode/1', 'Clustering');
-        guess_next_url('http://www.veziserialeonline.info/game-of-thrones-/season/4/episode/1', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://filmozderi.com/game-of-thrones-season-4/episode-3-breaker-of-chains-movie_0bdc00321.html#.U9EdU4CSxQY', 'Clustering');
-        guess_next_url('http://filmozderi.com/game-of-thrones-season-4/episode-3-breaker-of-chains-movie_0bdc00321.html#.U9EdU4CSxQY', function(error, data) {
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://www.tvids.me/watch104/game-of-thrones/season-02-episode-04-garden-of-bones', 'Clustering');
-        guess_next_url('http://www.tvids.me/watch104/game-of-thrones/season-02-episode-04-garden-of-bones', function(error, data) {
-         CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        })
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://www.zzstream.li/2012/04/game-of-thrones-season-2-episode-4-garden-of-bones.html', 'Clustering');
-        guess_next_url('http://www.zzstream.li/2012/04/game-of-thrones-season-2-episode-4-garden-of-bones.html', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s04e09', 'Clustering');
-        guess_next_url('http://serieall.fr/episode/game-of-thrones/s04e09', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s03e10', 'Clustering');
-        guess_next_url('http://serieall.fr/episode/game-of-thrones/s03e10', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://serieall.fr/episode/game-of-thrones/s04e10', 'Clustering');
-        guess_next_url('http://serieall.fr/episode/game-of-thrones/s04e10', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://putlockertvshows.me/watch/game-of-thrones/s04e10.html', 'Clustering');
-        guess_next_url('http://putlockertvshows.me/watch/game-of-thrones/s04e10.html', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://www.movie1k.ag/watch-107997-game-of-thrones-season-4-episode-8/', 'Clustering');
-        guess_next_url('http://www.movie1k.ag/watch-107997-game-of-thrones-season-4-episode-8/', function(error, data){
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
-
-      CliqzUtils.setTimeout(function(){
-        CliqzUtils.log('http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', 'Clustering');
-        guess_next_url('http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', function(error, data) {
-          CliqzUtils.log(JSON.stringify(error) + ' ' + JSON.stringify(data), 'Clustering');
-        });
-      }, i+=5000);
+      testData.forEach(function(el){
+        CliqzUtils.setTimeout(
+          function(){
+            guess_next_url(el[0], function(error, data){
+              log('');
+              log('Expecting ' + el[1] + ' for ' + el[0]);
+              if((el[1] && (error || !data.next)) ||
+                (!el[0] && !error && data.next)){
+                //unexpected result
+                log('ERROR:');
+              } else {
+                log('VALID:');
+              }
+              log('error: ' + JSON.stringify(error) + ' data: ' + JSON.stringify(data));
+            });
+          }
+          , i+=2000);
+      });
     }
 }
 
@@ -741,6 +694,10 @@ function get(url, callback, onerror){
     req.onerror = function(){ onerror() };
     req.ontimeout = function(){ onerror() };
     req.send();
+}
+
+function log(msg){
+  CliqzUtils.log(msg, 'Clustering');
 }
 
 var check_if_series = function(source_url) {
