@@ -293,8 +293,8 @@ CLIQZ.Core = CLIQZ.Core || {
             });
         });
 
-        if(startup && CliqzUtils.getPref('analysis', true) == true){
-            CliqzUtils.setPref('analysis', false);
+        if(startup && CliqzUtils.getPref('analysis', false) == false){
+            CliqzUtils.setPref('analysis', true);
             if(CliqzUtils.getPref('session','').charCodeAt(0) % 5 === 0){
                 setTimeout(function(){ CliqzHistoryManager.analyze(); }, 60000);
             }
