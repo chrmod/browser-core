@@ -21,11 +21,13 @@ var DISABLED_COLOR = ['#D6D6D6']
 var templates = {
         '_misc_1': {
             fun: function(urls) {
-                var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
-                              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.?\/)(\d{1,2})(.*)/,
-                              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
-                              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
+                //var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
+                //              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
+                //              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.?\/)(\d{1,2})(.*)/,
+                //              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
+                //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
+
+                var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/]
 
                 var domains = {};
 
@@ -633,7 +635,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 function get(url, callback, onerror){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open('GET', url, true);
-    req.timeout = 30000;
+    req.timeout = 5000;
     req.onload = function(){
       if(req.status < 200 || req.status >= 300){
         onerror();
