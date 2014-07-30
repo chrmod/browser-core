@@ -4,13 +4,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.5.03');
+Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');

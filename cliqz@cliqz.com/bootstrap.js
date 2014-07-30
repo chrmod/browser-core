@@ -3,7 +3,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
-  'chrome://cliqzmodules/content/Extension.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/Extension.jsm?v=0.5.04');
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
@@ -18,7 +18,7 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
-    Cu.unload('chrome://cliqzmodules/content/Extension.jsm?v=0.5.03');
+    Cu.unload('chrome://cliqzmodules/content/Extension.jsm?v=0.5.04');
 }
 
 function eventLog(ev){

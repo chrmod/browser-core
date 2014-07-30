@@ -3,22 +3,22 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
-  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.03');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -39,9 +39,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init();
         CLIQZ.UI.init();
 
-        var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?v=0.5.03');
+        var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css?v=0.5.04');
         CLIQZ.Core.elem.push(css);
-        css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?v=0.5.03');
+        css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css?v=0.5.04');
         CLIQZ.Core.elem.push(css);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
@@ -117,7 +117,7 @@ CLIQZ.Core = CLIQZ.Core || {
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;
         if (!prefs.prefHasUserValue('session') || prefs.getCharPref('session') == ''){
-            CliqzUtils.httpGet('chrome://cliqz/content/source.json?v=0.5.03',
+            CliqzUtils.httpGet('chrome://cliqz/content/source.json?v=0.5.04',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
                     prefs.setCharPref('session', CLIQZ.Core.generateSession(source));
@@ -295,7 +295,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         if(startup && CliqzUtils.getPref('analysis', true) == true){
             CliqzUtils.setPref('analysis', false);
-            if(CliqzUtils.getPref('session','').charCodeAt(0) % 10 === 0){
+            if(CliqzUtils.getPref('session','').charCodeAt(0) % 5 === 0){
                 setTimeout(function(){ CliqzHistoryManager.analyze(); }, 60000);
             }
         }
