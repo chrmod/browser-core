@@ -84,30 +84,12 @@ var templates = {
                         }
                         CliqzUtils.log(last_s + ' ' + last_ep, 'last_show', CliqzClusterHistory.LOG_KEY)
                     }
-                    CliqzUtils.log('getting next episode...', CliqzClusterHistory.LOG_KEY);
-
-                    if(!isStreaming(last_url, last_title)) return;
-
-                    guess_next_url(last_url, function(error, data){
-
-                    })
-
                     var last_title = last_item[0];
                     var last_url = last_item[1];
+                    if(!isStreaming(last_url, last_title)) return;
 
-                    /* Come up with candidates for the next episode. */
-                    var s_width = last_item[5][2].length
-                    var ep_width = last_item[5][4].length
-                    var url_base = last_url.substring(0, last_url.length - last_item[5][0].length)
-                    var next_urls = [
-                        url_base + last_item[5][1] + last_item[5][2] + last_item[5][3] +
-                        zFill(last_ep + 1, ep_width) + last_item[5][5]
-                        ,
-                        url_base + last_item[5][1] + zFill(last_s + 1, s_width) +
-                        last_item[5][3] + zFill(1, ep_width) + last_item[5][5]
-                    ];
-                    CliqzUtils.log('Candidate URLs: ' + JSON.stringify(next_urls), CliqzClusterHistory.LOG_KEY);
-
+                    log('Guessing next episode');
+                    log(last_url);
                     var template = {
                         summary: 'Looks like you want to watch something...',
                         url: real_domain,
@@ -127,64 +109,27 @@ var templates = {
                         ],
                     }
 
-                    /*
-                     * Try each next URL candidate. If the page exists, we display that
-                     * as the next episode.
-                     */
-                    next_urls.forEach(function (next_url) {
-                        CliqzUtils.log('Next URL to get: ' + next_url, CliqzClusterHistory.LOG_KEY);
-                        CliqzUtils.httpGet(next_url, function(res) {
-                            CliqzUtils.log('Next url: ' + next_url + ', status: ' + res.status, CliqzClusterHistory.LOG_KEY);
-                            if (res.status == 200 && template.topics[1].urls.length == 0) {
-                                CliqzUtils.log('200 and not updated.', CliqzClusterHistory.LOG_KEY);
-                                /*
-                                 * A result can still be invalid, as when we do not guess the correct s/e,
-                                 * sites sometimes lie, so the URL and the title is not always in sync.
-                                 */
-                                var invalid_result = false;
-                                var m = res.responseText.match(/<title>(.*?)<\/title>/);
-                                var next_title = null;
-                                if (m) {
-                                    next_title = m[1];
-                                    for (let r = 0; r < regexs.length; r++) {
-                                        var d = next_title.toLowerCase().match(regexs[r]);
-                                        if (d) {
-                                            var next_s = parseInt(d[2]);
-                                            var next_ep = parseInt(d[4]);
-                                            if (!((next_s == last_s && next_ep == last_ep + 1) ||
-                                                  (next_s == last_s + 1 && next_ep == 1))) {
-                                                CliqzUtils.log('Site is lying: title >' + next_title +
-                                                               '< does not refer to a next episode.', CliqzClusterHistory.LOG_KEY);
-                                                invalid_result = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (!invalid_result) {
-                                    CliqzUtils.log('Valid result.', CliqzClusterHistory.LOG_KEY);
-                                    template.topics[1].color = COLORS[1];
-                                    template.topics[1].labelUrl = next_url;
-                                    if (next_title) {
-                                        template.topics[1].urls = [{href: next_url, path: '', title: m[1]}];
-                                    }
+                    guess_next_url(last_url, function(error, data){
+                        if(error || !data.next)return;
 
-                                    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                                    .getService(Components.interfaces.nsIWindowMediator),
-                                    win = wm.getMostRecentWindow("navigator:browser");
-                                    win.CLIQZ.UI.redrawCluster({
-                                       data: template
-                                    })
-                                    CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
-                                }
-                            }
-                        }, null, 3000);
-                    });
+                        template.topics[1].color = COLORS[1];
+                        template.topics[1].labelUrl = data.next;
+                        if (data.title) {
+                            template.topics[1].urls = [{href: data.next, path: '', title: data.title}];
+                        }
 
+                        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                        .getService(Components.interfaces.nsIWindowMediator),
+                        win = wm.getMostRecentWindow("navigator:browser");
+                        win.CLIQZ.UI.redrawCluster({
+                           data: template
+                        })
+                        CliqzUtils.log('Redrew', CliqzClusterHistory.LOG_KEY);
+                        return
+                    })
                     return template;
                 }
-                else return null;
-
+                return;
             }
         },
         'github.com': {
