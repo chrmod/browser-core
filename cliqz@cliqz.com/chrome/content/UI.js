@@ -11,7 +11,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'q': 'qaa'
+        'q': 'qaa'     ,
+        'k': 'science' ,
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',

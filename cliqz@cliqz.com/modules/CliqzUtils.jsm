@@ -26,7 +26,9 @@ var VERTICAL_ENCODINGS = {
     'video':'v',
     'hq':'h',
     'shopping':'s',
+    'science':'k',
     'gaming':'g',
+    'dictionary':'l',
     'qaa':'q'
 };
 

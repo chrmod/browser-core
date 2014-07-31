@@ -79,6 +79,9 @@ Glossary
     f - french
     v - video
     h - hq
+    k - science
+    q - qaa
+    l - dictionary
 - any of the folowing for custom search engine search
     1 - google images
     2 - google maps
