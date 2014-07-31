@@ -18,7 +18,9 @@ var CliqzClusterSeries = {
     //              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
     //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
-    var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/]
+    // FIXME: this regex is duplicated in CliqzClusterSeries.jsm in check_if_series
+    var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
+
 
     var domains = {};
 
@@ -170,7 +172,8 @@ var CliqzClusterSeries = {
       ['http://screenrant.com/game-of-thrones-season-4-episode-8-the-mountain-and-the-viper-review/', false],
       ['http://videobull.to/game-of-thrones-season-3-episode-9/', true],
       ['http://www.sk-gaming.com/content/1600796-s4e8_watch_game_of_thrones_season_4_episode_8_online_free_yo', false],
-      ['http://www.ovguide.com/tv_episode/game-of-thrones-season-4-episode-9-the-watchers-on-the-wall-4801609', false]
+      ['http://www.ovguide.com/tv_episode/game-of-thrones-season-4-episode-9-the-watchers-on-the-wall-4801609', false],
+      ['http://watchseries.lt/episode/big_bang_theory_s7_e21.html', true],
     ], i=0;
 
     testData.forEach(function(el){
@@ -215,7 +218,9 @@ function get(url, callback, onerror){
 
 var check_if_series = function(source_url) {
 
-  var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
+  var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
+
+  log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
   for(var i=0;i<regexs.length;i++) {
     var d = source_url.match(regexs[i]);
@@ -434,12 +439,8 @@ function guess_next_url(source_url, origCallback) {
 
   var try_guessing = function(source_url, candidates, source_title, source_body_size, end_first_stage_callback) {
 
-    //log('>>>>>>>', source_url);
-
     var all_received = function(results, end_first_stage_callback) {
       var position_found = null;
-
-      //log('>>>>>>>', results);
 
       for(var i=0;i<cand_url.length;i++) {
         if (results[i]!=null) {
@@ -600,9 +601,13 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
   log(JSON.stringify(other_history_titles));
   log(JSON.stringify(other_cliqz_titles));
 
+  // those will work for the regexp that we have now, if we extend to other languages
+  // we should modify this too
+  var v_stop_words = ['season', 'episode', 'watch', 'online', 'stream', 'player'];
+
   var sanitize = function(str) {
     var s = str.toLowerCase();
-    return s.replace(/\W+/g, " ");
+    return s.replace(/\W+/g, ' ').replace(/\s{2,}/g, ' ').trim();
   }
 
   var tokenize = function(str) {
@@ -628,22 +633,51 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
   }
 
-  //console.log('--', source_title);
-  //console.log("--", combinations(source_title));
-
   var sanitize_other_history_titles = [];
   for(var i=0;i<other_history_titles.length;i++) {
     sanitize_other_history_titles.push(sanitize(other_history_titles[i]));
   }
 
+  var sanitize_q = sanitize(q);
+  var v_sanitize_q = sanitize_q.split(' ');
+
+
   var combs = combinations(source_title);
   var scores = [];
   for(var i=0;i<combs.length;i++) scores[i]=0;
 
+  // filter the stop words to remove those who are also part of the query, for the case where the name of the
+  // series were a stopword, e.g. "last watch",
+
+  var v_filtered_stop_words = [];
+  var allok = true;
+  for(var i=0;i<v_stop_words.length;i++) {
+    allok = true;
+    for(var j=0;j<v_sanitize_q.length;j++) {
+        if ((v_sanitize_q[j].length>0) && (v_stop_words[i].indexOf(v_sanitize_q[j])>=0)) allok=false;
+    }
+    if (allok) v_filtered_stop_words.push(v_stop_words[i]);
+  }
+
+  var query_count = 0.0;
+
   for(var i=0;i<combs.length;i++) {
-    for(var j=0;j<sanitize_other_history_titles.length;j++) {
-      if (sanitize_other_history_titles[j].indexOf(combs[i])>=0) {
-        scores[i]++;
+
+    query_count = 0.0;
+
+    for(var j=0;j<v_sanitize_q.length;j++) {
+        if ((v_sanitize_q[j].length>0) && (combs[i].indexOf(v_sanitize_q[j])>=0)) query_count+=1.0;
+    }
+
+    for(var j=0;j<v_filtered_stop_words.length;j++) {
+        if (combs[i].indexOf(v_filtered_stop_words[j])>=0) query_count=0.0;
+    }
+
+    if ((query_count/(v_sanitize_q.length+0.0)) > 0.5) {
+      for(var j=0;j<sanitize_other_history_titles.length;j++) {
+        if (sanitize_other_history_titles[j].indexOf(combs[i])>=0) {
+          scores[i]++;
+        }
       }
     }
   }
