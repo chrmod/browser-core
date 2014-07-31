@@ -601,7 +601,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
   // those will work for the regexp that we have now, if we extend to other languages
   // we should modify this too
-  var v_stop_words = ['season', 'episode', 'watch', 'online', 'stream', 'player'];
+  var v_stop_words = ['season', 'episode', 'free', 'online', 'stream', 'player'];
 
   var sanitize = function(str) {
     var s = str.toLowerCase();
