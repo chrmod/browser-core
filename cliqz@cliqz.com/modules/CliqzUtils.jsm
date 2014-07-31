@@ -187,6 +187,7 @@ var CliqzUtils = {
 
     var urlDetails = {
               name: name,
+              domain: name + tld,
               tld: tld,
               subdomains: subdomains,
               path: path,
@@ -195,26 +196,6 @@ var CliqzUtils = {
         };
 
     return urlDetails;
-  },
-  // do we need this at all? or getDetailsFromUrl is enough?
-  splitURL: function(url) {
-    var clean_url = url.toLowerCase().replace(/^http[s]*:\/\//,'').replace(/^www\./,'');
-    var v = clean_url.split('/');
-    var domain = v[0];
-    var path = '/';
-
-    if (v.length > 1) {
-        // remove the query string
-        v[v.length-1] = v[v.length-1].split('?')[0];
-
-        if (v[1]=='#') {
-            if (v.length > 2) path = '/' + v.splice(2, v.length-1).join('/');
-        }
-        else path = '/' + v.splice(1, v.length-1).join('/');
-    }
-
-    // CliqzUtils.log(path, CliqzClusterHistory.LOG_KEY)
-    return [domain, path];
   },
   // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
   isUrl: function(input){

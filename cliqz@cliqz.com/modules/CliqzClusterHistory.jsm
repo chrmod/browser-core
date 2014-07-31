@@ -11,7 +11,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
 
 var COLORS = [ '#993300', '#99CC99', '#003366']
-var DISABLED_COLOR = ['#D6D6D6']
 
 var templates = {
         'github.com': {
@@ -37,7 +36,10 @@ var templates = {
                     var title = urls[i]['comment'];
 
                     url = CliqzUtils.cleanMozillaActions(url);
-                    var [domain, path] = CliqzUtils.splitURL(url);
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                        domain = urlDetails.host,
+                        path = urlDetails.path;
+
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -103,7 +105,9 @@ var templates = {
                     var title = urls[i]['comment'];
 
                     url = CliqzUtils.cleanMozillaActions(url);
-                    var [domain, path] = CliqzUtils.splitURL(url);
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                        domain = urlDetails.host,
+                        path = urlDetails.path;
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -207,7 +211,9 @@ var templates = {
                     var title = urls[i]['comment'];
 
                     url = CliqzUtils.cleanMozillaActions(url);
-                    var [domain, path] = CliqzUtils.splitURL(url);
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                        domain = urlDetails.host,
+                        path = urlDetails.path;
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -261,7 +267,9 @@ var templates = {
                     var title = urls[i]['comment'];
 
                     url = CliqzUtils.cleanMozillaActions(url);
-                    var [domain, path] = CliqzUtils.splitURL(url);
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                        domain = urlDetails.host,
+                        path = urlDetails.path;
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -310,7 +318,9 @@ var templates = {
                     var title = urls[i]['comment'];
 
                     url = CliqzUtils.cleanMozillaActions(url);
-                    var [domain, path] = CliqzUtils.splitURL(url);
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                        domain = urlDetails.host,
+                        path = urlDetails.path;
                     var vpath = path.toLowerCase().split('/');
 
                     // remove last element if '', that means that path ended with /
@@ -360,7 +370,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 label = history.getLabelAt(i);
 
                 historyTrans.push({style: style, value: value, image: image, comment: comment, label: label});
-                var [domain, path] = CliqzUtils.splitURL(CliqzUtils.cleanMozillaActions(value));
+                var urlDetails = CliqzUtils.getDetailsFromUrl(value),
+                    domain = urlDetails.host;;
 
                 if (freqHash[domain]==null) freqHash[domain]=[];
                 freqHash[domain].push(i);

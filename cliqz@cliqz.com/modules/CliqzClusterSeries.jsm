@@ -26,8 +26,9 @@ var CliqzClusterSeries = {
         var url = urls[i]['value'];
         var title = urls[i]['comment'];
 
-        url = CliqzUtils.cleanMozillaActions(url);
-        var [domain, path] = CliqzUtils.splitURL(url);
+        var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+          domain = urlDetails.host,
+          path = urlDetails.path;
         var real_domain = url.substring(0, url.indexOf(domain) + domain.length)
 
         var vpath = path.toLowerCase().split('/');
@@ -101,7 +102,7 @@ var CliqzClusterSeries = {
                         {
                             href: last_url,
                             path: '',
-                            title: titleCleaner(last_title),
+                            title: titleCleaner(last_title, last_url),
                             color: '#ccc'
                         }
                     ],
@@ -119,7 +120,7 @@ var CliqzClusterSeries = {
                     {
                         href: data.next,
                         path: '',
-                        title: titleCleaner(data.title),
+                        title: titleCleaner(data.title, data.next),
                         color: '#39f',
                         cls: 'cliqz-cluster-topic-guessed'
                     }
@@ -194,7 +195,7 @@ var CliqzClusterSeries = {
 };
 
 
-function titleCleaner(title){
+function titleCleaner(title, url){
   return title.replace(/(watch|online|free|stream)/ig,'').trim();
 }
 
