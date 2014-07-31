@@ -10,350 +10,354 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
 
-var COLORS = [ '#993300', '#99CC99', '#003366']
+/******************************************************
+ * Warning: this file is auto-generated; do not edit. *
+ ******************************************************/
+
+
+var COLORS = ['#993300', '#99CC99', '#003366'];
 
 var templates = {
-        'github.com': {
-            fun: function(urls) {
 
-                var template = {
-                    summary: 'Github personalized sitemap',
-                    control: [
-                        {title: 'Home', url: 'http://github.com/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
-                        {title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars', cls: 'cliqz-cluster-result-url'},
-                    ],
-                    topics: []
+    'basecamp.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'BaseCamp personalized sitemap',
+                control: [],
+                topics: []
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'settings') {
+
+
                 }
+                else if ((/^\d+$/.test(vpath[0])) && (vpath.length == 1)) {
+                    var item = vpath[0];
+                    var label = 'null';
 
-                // note that I hardcoded the control, but no need for that, you can derive them too if you so wish
+                    var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
+                    template['control'].push(control);
 
-                var next_color = 0;
-                var forbidden_path_0 = {'settings': true};
-                var forbidden_path_1 = {};
+                }
+                else if ((vpath[1] == 'projects') && (vpath.length == 3)) {
+                    var item = vpath[0];
+                    var label = 'Projects';
 
-                for(let i=0; i<urls.length;i++) {
-                    var url = urls[i]['value'];
-                    var title = urls[i]['comment'];
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
 
-                    url = CliqzUtils.cleanMozillaActions(url);
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                        domain = urlDetails.host,
-                        path = urlDetails.path;
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], iconCls: 'cliqz-fa fa-folder'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
 
-                    var vpath = path.toLowerCase().split('/');
-
-                    // remove last element if '', that means that path ended with /
-                    // also remove first element if '',
-
-                    if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                    if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                    var donePath = vpath.join('/');
-                    CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                    if (vpath.length==2) {
-                        //if (forbidden_path_0[vpath[0]] || forbidden_path_1[vpath[1]]) next;
-
-                        var org_name = vpath[0];
-                        var repo_name = vpath[1];
-
-                        // find if the first level exists, the org_name
-                        var topic = null;
-                        for(let j=0; j<template['topics'].length; j++) {
-                            if (template['topics'][j]['label']==org_name) topic = template['topics'][j];
-                        }
-
-                        // if the topic did not exist, we must create it
-                        if ((topic==null) && (template['topics'].length<4)) {
-                            topic = {'label': org_name, urls: [], 'labelUrl': 'http://github.com/'+org_name+'/', color: COLORS[next_color], iconCls: 'cliqz-fa fa-database'};
-                            template['topics'].push(topic);
-                            next_color = (next_color+1)%COLORS.length;
-                        }
-
-                        if (topic!=null) {
-                            topic['urls'].push({href: url, path: path, title: repo_name})
-                        }
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: title})
                     }
                 }
+                else if ((vpath[1] == 'people') && (vpath.length == 3)) {
+                    var item = vpath[0];
+                    var label = 'People';
 
-                CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-                return template;
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0]+'/'+vpath[1], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                    }
+                }
             }
-        },
-        'basecamp.com': {
-            fun: function(urls) {
 
-                var template = {
-                    summary: 'Basecamp personalized sitemap',
-                    control: [
-                    ],
-                    topics: []
-                }
-
-                // note that I hardcoded the control, but no need for that, you can derive them too if you so wish
-
-                var next_color = 0;
-                var forbidden_path_0 = {'settings': true};
-                var forbidden_path_1 = {};
-
-                var isNumber = /^\d+$/;
-
-                var seen_orgs_id = {};
-
-                for(let i=0; i<urls.length;i++) {
-                    var url = urls[i]['value'];
-                    var title = urls[i]['comment'];
-
-                    url = CliqzUtils.cleanMozillaActions(url);
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                        domain = urlDetails.host,
-                        path = urlDetails.path;
-                    var vpath = path.toLowerCase().split('/');
-
-                    // remove last element if '', that means that path ended with /
-                    // also remove first element if '',
-
-                    if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                    if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                    var donePath = vpath.join('/');
-                    CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                    if (vpath.length==1) {
-                        var org_id = vpath[0];
-                        if (isNumber.test(org_id) && !seen_orgs_id[org_id]) {
-                            var control = {title: 'Space ' + org_id , url: 'http://basecamp.com/' + org_id, iconCls: 'cliqz-fa fa-database', cls: 'cliqz-cluster-result-url'};
-                            template['control'].push(control);
-                            seen_orgs_id[org_id] = true;
-                        }
-                    }
-
-                    if ((vpath.length==3) && (vpath[1]=='projects')) {
-                        var org_id = vpath[0];
-                        var project_id = vpath[2];
-                        var topic_name = 'Projects';
-
-                        // find if the first level exists, the org_name
-                        var topic = null;
-                        for(let j=0; j<template['topics'].length; j++) {
-                            if (template['topics'][j]['label']==topic_name) topic = template['topics'][j];
-                        }
-
-                        // if the topic did not exist, we must create it
-                        if ((topic==null) && (template['topics'].length<4)) {
-                            topic = {'label': topic_name, urls: [], 'labelUrl': 'http://basecamp.com/'+org_id+'/', color: COLORS[next_color], iconCls: 'cliqz-fa fa-folder'};
-                            template['topics'].push(topic);
-                            next_color = (next_color+1)%COLORS.length;
-                        }
-
-                        if (topic!=null) {
-                            topic['urls'].push({href: url, path: path, title: title})
-                        }
-
-                    }
-
-                    if ((vpath.length==3) && (vpath[1]=='people')) {
-                        var org_id = vpath[0];
-                        var project_id = vpath[2];
-                        var topic_name = 'People';
-
-                        // find if the first level exists, the org_name
-                        var topic = null;
-                        for(let j=0; j<template['topics'].length; j++) {
-                            if (template['topics'][j]['label']==topic_name) topic = template['topics'][j];
-                        }
-
-                        // if the topic did not exist, we must create it
-                        if ((topic==null) && (template['topics'].length<4)) {
-                            topic = {'label': topic_name, urls: [], 'labelUrl': 'http://basecamp.com/'+org_id+'/people', color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
-                            template['topics'].push(topic);
-                            next_color = (next_color+1)%COLORS.length;
-                        }
-
-                        if (topic!=null) {
-                            topic['urls'].push({href: url, path: path, title: title})
-                        }
-
-                    }
-                }
-
-                CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-                return template;
-            }
-        },
-        'twitter.com': {
-            fun: function(urls) {
-
-                var template = {
-                    summary: 'Twitter personalized sitemap',
-                    control: [
-                        {title: 'Home', url: 'http://twitter.com/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
-                        {title: 'Search', url: 'http://twitter.com/', iconCls: 'cliqz-fa fa-search', cls: 'cliqz-cluster-result-url'},
-                        {title: 'Discover', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o', cls: 'cliqz-cluster-result-url'},
-                    ],
-                    topics: []
-                }
-
-                // note that I hardcoded the control, but no need for that, you can derive them too if you so wish
-
-                var next_color = 0;
-                var forbidden_path_0 = {'settings': true, 'i': true, 'search': true};
-                var forbidden_path_1 = {};
-
-                // unlike github there is only one topic for twitter
-                var topic = {'label': 'People', urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
-                template['topics'].push(topic);
-                next_color = (next_color+1)%COLORS.length;
-
-
-                for(let i=0; i<urls.length;i++) {
-                    var url = urls[i]['value'];
-                    var title = urls[i]['comment'];
-
-                    url = CliqzUtils.cleanMozillaActions(url);
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                        domain = urlDetails.host,
-                        path = urlDetails.path;
-                    var vpath = path.toLowerCase().split('/');
-
-                    // remove last element if '', that means that path ended with /
-                    // also remove first element if '',
-
-                    if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                    if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                    var donePath = vpath.join('/');
-                    CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-
-                    if (vpath.length == 1) {
-                        //if (forbidden_path_0[vpath[0]] || forbidden_path_1[vpath[1]]) next;
-
-                        if (!forbidden_path_0[vpath[0]]) {
-                            topic['urls'].push({href: url, path: path, title: vpath[0]})
-                        }
-                    }
-                }
-
-                CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-                return template;
-            }
-        },
-        'klout.com': {
-            fun: function(urls) {
-
-                var template = {
-                    summary: 'Klout personalized sitemap',
-                    control: [
-                        {title: 'Home', url: 'http://klout.com/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
-                    ],
-                    topics: []
-                }
-
-                // note that I hardcoded the control, but no need for that, you can derive them too if you so wish
-
-                var next_color = 0;
-                var forbidden_path_0 = {'settings': true, 'i': true, 'search': true, 'register': true, 'dashboard': true};
-                var forbidden_path_1 = {};
-
-                // unlike github there is only one topic for twitter
-                var topic = {'label': 'People', urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
-                template['topics'].push(topic);
-                next_color = (next_color+1)%COLORS.length;
-
-
-                for(let i=0; i<urls.length;i++) {
-                    var url = urls[i]['value'];
-                    var title = urls[i]['comment'];
-
-                    url = CliqzUtils.cleanMozillaActions(url);
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                        domain = urlDetails.host,
-                        path = urlDetails.path;
-                    var vpath = path.toLowerCase().split('/');
-
-                    // remove last element if '', that means that path ended with /
-                    // also remove first element if '',
-
-                    if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                    if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                    var donePath = vpath.join('/');
-                    CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                    if (vpath.length == 1) {
-                        if (!forbidden_path_0[vpath[0]]) {
-                            topic['urls'].push({href: url, path: path, title: vpath[0]})
-                        }
-                    }
-                }
-
-                CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-                return template;
-            }
-        },
-        'wikipedia.org': {
-            fun: function(urls) {
-                var template = {
-                    summary: 'Wikipedia personalized sitemap',
-                    control: [
-                        {title: 'Home', url: 'http://wikipedia.org/', iconCls: 'cliqz-fa fa-globe', cls: 'cliqz-cluster-result-url'},
-                    ],
-                    topics: []
-                }
-
-                // note that I hardcoded the control, but no need for that, you can derive them too if you so wish
-
-                var next_color = 0;
-                var forbidden_path_0 = {'settings': true, 'i': true, 'search': true, 'register': true, 'dashboard': true};
-                var forbidden_path_1 = {};
-
-                // unlike github there is only one topic for twitter
-                var topic = {'label': 'People', urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
-                template['topics'].push(topic);
-                next_color = (next_color+1)%COLORS.length;
-
-                for(let i=0; i<urls.length;i++) {
-                    var url = urls[i]['value'];
-                    var title = urls[i]['comment'];
-
-                    url = CliqzUtils.cleanMozillaActions(url);
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                        domain = urlDetails.host,
-                        path = urlDetails.path;
-                    var vpath = path.toLowerCase().split('/');
-
-                    // remove last element if '', that means that path ended with /
-                    // also remove first element if '',
-
-                    if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                    if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                    var donePath = vpath.join('/');
-                    CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                    if (vpath.length == 1) {
-                        //if (forbidden_path_0[vpath[0]] || forbidden_path_1[vpath[1]]) next;
-
-                        if (!forbidden_path_0[vpath[0]]) {
-                            topic['urls'].push({href: url, path: path, title: vpath[0]})
-                        }
-                    }
-                }
-
-                CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-                return template;
-
-            }
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
         }
+    },
+    'twitter.com': {
+        fun: function(urls) {
 
-    };
+            var template = {
+                summary: 'Twitter personalized sitemap',
+                control: [{title: 'Home', url: 'http://twitter.com/', iconCls: 'cliqz-fa fa-globe'},
+                          {title: 'Search', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
+                          {title: 'Discover', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
+                topics: []
+            };
 
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (vpath[0] == 'search')) {
+
+
+                }
+                else if (vpath.length == 1) {
+                    var item = vpath[0];
+                    var label = 'People';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'github.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Github personalized sitemap',
+                control: [{title: 'Home', url: 'http://github.com/', iconCls: 'cliqz-fa fa-globe'},
+                          {title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                topics: []
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'settings') {
+
+
+                }
+                else if (vpath.length == 2) {
+                    var item = vpath[1];
+                    var label = vpath[0];
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], iconCls: 'cliqz-fa fa-database'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'wikipedia.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Wikipedia personalized sitemap',
+                control: [{title: 'Home', url: 'http://wikipedia.com/', iconCls: 'cliqz-fa fa-globe'}],
+                topics: []
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath.length == 1) {
+                    var item = vpath[0];
+                    var label = 'People';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'klout.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Klout personalized sitemap',
+                control: [{title: 'Home', url: 'http://klout.com/', iconCls: 'cliqz-fa fa-globe'}],
+                topics: []
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (vpath[0] == 'search') || (vpath[0] == 'register') || (vpath[0] == 'dashboard')) {
+
+
+                }
+                else if (vpath.length == 1) {
+                    var item = vpath[0];
+                    var label = 'People';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    }
+};
 
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
 
-    cluster: function(history, cliqzReults, q) {
+    cluster: function(history, cliqzResults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null) return [false, null];
 
@@ -401,7 +405,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // in principle there is not template, but we must check for the possibility that falls to a
             // misc category,
 
-            var seriesClusteredHistory = CliqzClusterSeries.collapse(historyTransFiltered, cliqzReults, q);
+            var seriesClusteredHistory = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
             if (seriesClusteredHistory) {
                 historyTransFiltered[0]['data'] = seriesClusteredHistory;
                 var v = [true, [historyTransFiltered[0]]];
@@ -449,3 +453,4 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         return template.fun(filteredHistory);
     },
 };
+
