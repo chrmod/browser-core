@@ -353,7 +353,7 @@ var templates = {
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
 
-    cluster: function(history, cliqzReults, q) {
+    cluster: function(history, cliqzResults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null) return [false, null];
 
