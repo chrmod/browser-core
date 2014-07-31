@@ -1,5 +1,5 @@
 <div class='cliqz-inline-box-children cliqz-result-generic'>
-  <div class='cliqz-result-mid-box' style="width:{{ width }}px;">
+  <div class='cliqz-result-mid-box' style="width:{{ width }}px; margin-right: 32px">
     <div>
       <span class="cliqz-cluster-title-box overflow">
         {{ data.summary}}

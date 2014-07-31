@@ -8,6 +8,136 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
 
 var CliqzClusterSeries = {
+  collapse: function(urls, cliqzResults, q) {
+    //var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
+    //              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
+    //              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.?\/)(\d{1,2})(.*)/,
+    //              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
+    //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
+
+    var regexs = [/\/s(\d+)e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/]
+
+    var domains = {};
+
+    for(let i=0; i<urls.length;i++) {
+        var url = urls[i]['value'];
+        var title = urls[i]['comment'];
+
+        url = CliqzUtils.cleanMozillaActions(url);
+        var [domain, path] = CliqzUtils.splitURL(url);
+        var real_domain = url.substring(0, url.indexOf(domain) + domain.length)
+
+        var vpath = path.toLowerCase().split('/');
+        // remove last element if '', that means that path ended with /
+        // also remove first element if '',
+        if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+        if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+        for (let r = 0; r < regexs.length; r++) {
+            var d = path.match(regexs[r]);
+            if (d) {
+                if (domains[domain]==null) domains[domain]=[];
+                domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
+                break;
+            }
+        }
+    }
+
+    var maxDomain = null;
+    var maxDomainLen = -1;
+    Object.keys(domains).forEach(function (key) {
+        if (domains[key].length > maxDomainLen) {
+            maxDomainLen=domains[key].length;
+            maxDomain=key;
+        }
+    });
+
+    if (maxDomain!=null && maxDomainLen>4) {
+        // at least 5
+        log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));
+        log(JSON.stringify(domains), 'DOMAINS');
+
+        /* Find the last URL in the series. */
+        var last_item = domains[maxDomain][0];
+        var last_s = 0;
+        var last_ep = 0;
+        for (let i = 0; i < domains[maxDomain].length; i++) {
+            if (domains[maxDomain][i][3] > last_s) {
+                last_s = domains[maxDomain][i][3];
+                last_ep = domains[maxDomain][i][4];
+                last_item = domains[maxDomain][i]
+            } else if (domains[maxDomain][i][3] == last_s) {
+                if (domains[maxDomain][i][4] > last_ep) {
+                    last_ep = domains[maxDomain][i][4];
+                    last_item = domains[maxDomain][i]
+                }
+            }
+            log(last_s + ' ' + last_ep, 'last_show')
+        }
+        var last_title = last_item[0];
+        var last_url = last_item[1];
+        if(!CliqzClusterSeries.isStreaming(last_url, last_title)) return;
+
+        log('Guessing next episode');
+        log(last_url);
+
+        var hisotryTitles = urls.map(function(r){ return r.comment; }),
+            cliqzTitles = cliqzResults.map(function(r){
+            if(r.snippet)return r.snippet.title;
+        });
+        var label = CliqzClusterSeries.guess_series_name(last_title, hisotryTitles, cliqzTitles, q);
+        var template = {
+            summary: 'Your ' + CliqzUtils.getDetailsFromUrl(real_domain).host,
+            url: real_domain,
+            control: [
+            ],
+            topics: [
+                {
+                    label: label,
+                    urls: [
+                        {
+                            href: last_url,
+                            path: '',
+                            title: last_title,
+                            color: 'gray'
+                        }
+                    ],
+                    color: 'darkgreen',
+                    iconCls: 'cliqz-fa fa-video-camera'
+                },
+            ],
+        }
+
+        CliqzClusterSeries.guess_next_url(last_url, function(error, data){
+            if(error || !data.next)return;
+
+            if (data.title) {
+                template.topics[0].urls.push(
+                    {
+                        href: data.next,
+                        path: '',
+                        title: data.title,
+                        color: 'blue',
+                        cls: 'cliqz-cluster-topic-guessed'
+                    }
+                );
+            }
+
+            var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                            .getService(Components.interfaces.nsIWindowMediator),
+            win = wm.getMostRecentWindow("navigator:browser");
+            log(JSON.stringify(template));
+            win.CLIQZ.UI.redrawCluster({
+               data: template,
+               width: win.CLIQZ.Core.urlbar.clientWidth - 100
+            })
+            log('Redrew');
+            return
+        })
+        return template;
+    }
+    return;
+  },
   isStreaming: function(url, title){
     // should return false if it is not a streaming site
     return true;
@@ -182,7 +312,7 @@ function guess_next_url(source_url, callback) {
     res['path_episode'] = path.replace(episode_data[0], res['min_episode']);
     res['path_season'] = path.replace(episode_data[0], res['min_season']);
 
-    //CliqzUtils.log('path', path, res['partial_episode'], res['partial_season']);
+    //log('path', path, res['partial_episode'], res['partial_season']);
     return res;
   }
 
@@ -239,7 +369,7 @@ function guess_next_url(source_url, callback) {
           }
         }
       }
-      //CliqzUtils.log(">>", i, results[i]['type'], results[i]['next']);
+      //log(">>", i, results[i]['type'], results[i]['next']);
     }
 
 
@@ -272,12 +402,12 @@ function guess_next_url(source_url, callback) {
 
   var try_guessing = function(source_url, candidates, source_title, source_body_size, end_first_stage_callback) {
 
-    //CliqzUtils.log('>>>>>>>', source_url);
+    //log('>>>>>>>', source_url);
 
     var all_received = function(results, end_first_stage_callback) {
       var position_found = null;
 
-      //CliqzUtils.log('>>>>>>>', results);
+      //log('>>>>>>>', results);
 
       for(var i=0;i<cand_url.length;i++) {
         if (results[i]!=null) {
@@ -379,7 +509,7 @@ function guess_next_url(source_url, callback) {
                   var body = req.response.toLowerCase();
                   // ----
 
-                  //CliqzUtils.log('>>>', candidates['partial_episode'], candidates['path_episode']);
+                  //log('>>>', candidates['partial_episode'], candidates['path_episode']);
                   var ind = -1;
                   if ((ind = body.indexOf(candidates['partial_episode']))>0) {
                     var end1 = body.indexOf('"',ind);
@@ -405,7 +535,7 @@ function guess_next_url(source_url, callback) {
                   }
                 }
                 catch(err) {
-                  CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+                  log(JSON.stringify(err), 'Clustering Error:');
                   results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
                 }
               }
@@ -426,7 +556,7 @@ function guess_next_url(source_url, callback) {
       }
     }
   } catch(err) {
-    CliqzUtils.log(JSON.stringify(err), 'Clustering Error:');
+    log(JSON.stringify(err), 'Clustering Error:');
     callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
   }
 }
