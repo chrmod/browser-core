@@ -25,7 +25,8 @@ var templates = {
             var template = {
                 summary: 'BaseCamp personalized sitemap',
                 control: [],
-                topics: []
+                topics: [],
+                url: 'basecamp.com'
             };
 
             var next_color = 0;
@@ -114,10 +115,10 @@ var templates = {
 
             var template = {
                 summary: 'Twitter personalized sitemap',
-                control: [{title: 'Home', url: 'http://twitter.com/', iconCls: 'cliqz-fa fa-globe'},
-                          {title: 'Search', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
+                control: [{title: 'Search', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
                           {title: 'Discover', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
-                topics: []
+                topics: [],
+                url: 'http://twitter.com/'
             };
 
             var next_color = 0;
@@ -177,9 +178,9 @@ var templates = {
 
             var template = {
                 summary: 'Github personalized sitemap',
-                control: [{title: 'Home', url: 'http://github.com/', iconCls: 'cliqz-fa fa-globe'},
-                          {title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
-                topics: []
+                control: [{title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                topics: [],
+                url: 'http://github.com/'
             };
 
             var next_color = 0;
@@ -234,13 +235,14 @@ var templates = {
             return template;
         }
     },
-    'wikipedia.com': {
+    'wikipedia.org': {
         fun: function(urls) {
 
             var template = {
                 summary: 'Wikipedia personalized sitemap',
-                control: [{title: 'Home', url: 'http://wikipedia.com/', iconCls: 'cliqz-fa fa-globe'}],
-                topics: []
+                control: [],
+                topics: [],
+                url: 'http://wikipedia.org/'
             };
 
             var next_color = 0;
@@ -296,8 +298,9 @@ var templates = {
 
             var template = {
                 summary: 'Klout personalized sitemap',
-                control: [{title: 'Home', url: 'http://klout.com/', iconCls: 'cliqz-fa fa-globe'}],
-                topics: []
+                control: [],
+                topics: [],
+                url: 'http://klout.com/'
             };
 
             var next_color = 0;

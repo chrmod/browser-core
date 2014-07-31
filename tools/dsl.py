@@ -365,7 +365,8 @@ $SWITCH
             var template = {
                 summary: '$summary',
                 control: [$FIX_CONTROLS],
-                topics: []
+                topics: [],
+                url: '$home'
             };
 
             var next_color = 0;
@@ -512,6 +513,8 @@ $RULE_BODY
         ret['FIX_CONTROLS'] = ",\n                          ".join(
                 Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
                 in program['fix_controls'])
+        if 'home' not in ret:
+            ret['home'] = ret['url']
 
         control_index = 0
         rules = []
