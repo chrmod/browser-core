@@ -83,11 +83,11 @@ var CliqzClusterSeries = {
         log('Guessing next episode');
         log(last_url);
 
-        var hisotryTitles = urls.map(function(r){ return r.comment; }),
+        var historyTitles = urls.map(function(r){ return r.comment; }),
             cliqzTitles = cliqzResults.map(function(r){
             if(r.snippet)return r.snippet.title;
         });
-        var label = CliqzClusterSeries.guess_series_name(last_title, hisotryTitles, cliqzTitles, q);
+        var label = CliqzClusterSeries.guess_series_name(last_url, last_title, historyTitles, cliqzTitles, q);
         var template = {
             summary: 'Your ' + CliqzUtils.getDetailsFromUrl(real_domain).host,
             url: real_domain,
@@ -228,6 +228,8 @@ var check_if_series = function(source_url) {
   }
   return false;
 }
+
+var cacheSeriesName = {};
 
 var guessCache = Array(10),
     guessCachePos = 0;
@@ -592,7 +594,21 @@ function guess_next_url(source_url, origCallback) {
   }
 }
 
-function guess_series_name(source_title, other_history_titles, other_cliqz_titles, q) {
+
+function guess_series_name(source_url, source_title, other_history_titles, other_cliqz_titles, q) {
+  if ((!source_url) || (!cacheSeriesName) || (!cacheSeriesName[source_url])) {
+    var name = guess_series_name_func(source_title, other_history_titles, other_cliqz_titles, q);
+
+    // if cache object does not exist or it has too many entries, create/flush
+    if ((!cacheSeriesName) || (Object.keys(cacheSeriesName).length>100)) cacheSeriesName = {};
+
+    cacheSeriesName[source_url] = name;
+  }
+  return cacheSeriesName[source_url];
+}
+
+
+function guess_series_name_func(source_title, other_history_titles, other_cliqz_titles, q) {
   log('Guessing Series name for');
   log(source_title);
   log(q);
