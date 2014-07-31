@@ -220,8 +220,6 @@ var check_if_series = function(source_url) {
 
   var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
 
-  log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
   for(var i=0;i<regexs.length;i++) {
     var d = source_url.match(regexs[i]);
     if (d) {
@@ -619,8 +617,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
     var res = [];
     var v = tokenize(sanitize(str));
 
-
-    for(var len=v.length;len>1;len--) {
+    for(var len=v.length;len>0;len--) {
       for(var i=0;i<=(v.length-len);i++) {
         res.push(v.slice(i,i+len).join(' '));
       }
@@ -644,7 +641,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
   var combs = combinations(source_title);
   var scores = [];
-  for(var i=0;i<combs.length;i++) scores[i]=0;
+  for(var i=0;i<combs.length;i++) scores[i]=0.0;
 
   // filter the stop words to remove those who are also part of the query, for the case where the name of the
   // series were a stopword, e.g. "last watch",
@@ -654,7 +651,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
   for(var i=0;i<v_stop_words.length;i++) {
     allok = true;
     for(var j=0;j<v_sanitize_q.length;j++) {
-        if ((v_sanitize_q[j].length>0) && (v_stop_words[i].indexOf(v_sanitize_q[j])>=0)) allok=false;
+        if ((v_sanitize_q[j].length>0) && (v_stop_words[i].indexOf(v_sanitize_q[j])==0)) allok=false;
     }
     if (allok) v_filtered_stop_words.push(v_stop_words[i]);
   }
@@ -665,18 +662,32 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
     query_count = 0.0;
 
+    var vcomb = combs[i].split(' ');
+
     for(var j=0;j<v_sanitize_q.length;j++) {
-        if ((v_sanitize_q[j].length>0) && (combs[i].indexOf(v_sanitize_q[j])>=0)) query_count+=1.0;
+      if (v_sanitize_q[j].length>0) {
+        for(var z=0;z<vcomb.length;z++) {
+          if (vcomb[z].indexOf(v_sanitize_q[j])==0) {
+            query_count+=1.0;
+            break;
+          }
+        }
+      }
     }
 
     for(var j=0;j<v_filtered_stop_words.length;j++) {
-        if (combs[i].indexOf(v_filtered_stop_words[j])>=0) query_count=0.0;
+      for(var z=0;z<vcomb.length;z++) {
+        if (vcomb[z]==v_filtered_stop_words[j]) {
+          query_count=0.0
+          break;
+        }
+      }
     }
 
-    if ((query_count/(v_sanitize_q.length+0.0)) > 0.5) {
+    if ((query_count/(v_sanitize_q.length+0.0)) > 0.0) {
       for(var j=0;j<sanitize_other_history_titles.length;j++) {
         if (sanitize_other_history_titles[j].indexOf(combs[i])>=0) {
-          scores[i]++;
+          scores[i] += (query_count/(v_sanitize_q.length+0.0));
         }
       }
     }
@@ -685,7 +696,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
   var max = -1;
   var maxi = -1;
   for(var i=0;i<combs.length;i++) {
-    scores[i] = scores[i] * combs[i].split(' ').length;
+    //scores[i] = scores[i] * combs[i].split(' ').length;
     if (scores[i]>max) {
       maxi = i;
       max = scores[i];
