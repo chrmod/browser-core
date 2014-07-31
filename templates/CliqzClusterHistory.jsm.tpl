@@ -10,6 +10,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
 
+/******************************************************
+ * Warning: this file is auto-generated; do not edit. *
+ ******************************************************/
+
 $DSL_OUTPUT
 
 var CliqzClusterHistory = CliqzClusterHistory || {
@@ -63,7 +67,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // in principle there is not template, but we must check for the possibility that falls to a
             // misc category,
 
-            var seriesClusteredHistory = CliqzClusterSeries.collapse(historyTransFiltered, cliqzReults, q);
+            var seriesClusteredHistory = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
             if (seriesClusteredHistory) {
                 historyTransFiltered[0]['data'] = seriesClusteredHistory;
                 var v = [true, [historyTransFiltered[0]]];
