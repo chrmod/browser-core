@@ -4,34 +4,27 @@
       <span class="cliqz-cluster-title-box overflow">
         {{ data.summary}}
       </span>
-      {{#each data.control}}
-        <span class="cliqz-cluster-result-url"
-              url='{{url}}'
-              type='cluster-test'
-              style="cursor: pointer">
-          {{ title }}
-        </span>
-      {{/each}}
     </div>
-    <div class="cliqz-cluster-result-topic">
+    <div class="cliqz-series-result-topic">
       {{#each data.topics}}
+        <div class="cliqz-series-topic-label"
+              url='{{labelUrl}}'
+              type='series-test'
+              style="cursor: pointer; color:{{color}};">{{label}}:
+        </div>
         <div>
-          <span class="cliqz-cluster-topic-label"
-                url='{{labelUrl}}'
-                type='cluster-test'
-                style="cursor: pointer; background-color:{{color}};">
-                {{label}}
-          </span>
+          <span class='cliqz-series-items overflow'>
           {{#each urls}}
             <span
                 style="color: {{color}}; cursor: pointer"
                 url='{{href}}'
-                type='cluster-test'
-                class="cliqz-cluster-topic"
+                type='series-test'
+                class="cliqz-series-topic {{cls}}"
                 >
                   {{ title }}
             </span>
           {{/each}}
+          </span>
         </div>
       {{/each}}
     </div>

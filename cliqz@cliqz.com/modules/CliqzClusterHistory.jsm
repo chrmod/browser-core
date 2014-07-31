@@ -411,6 +411,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             var seriesClusteredHistory = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
             if (seriesClusteredHistory) {
                 historyTransFiltered[0]['data'] = seriesClusteredHistory;
+                historyTransFiltered[0]['style'] = 'cliqz-series';
                 var v = [true, [historyTransFiltered[0]]];
 
                 CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
@@ -442,6 +443,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
         else {
             historyTransFiltered[0]['data'] = clusteredHistory;
+            historyTransFiltered[0]['style'] = 'cliqz-cluster';
+
             var v = [true, [historyTransFiltered[0]]];
 
             CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);

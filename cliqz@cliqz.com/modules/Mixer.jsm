@@ -40,7 +40,7 @@ var Mixer = {
                 // if is_cluster the object has additional data
                 data = history_trans[0]['data'];
 
-            if(data)bucketHistoryCluster.push(Result.generic(Result.CLIQZCLUSTER, data.url || '', null, '', '', '', data));
+            if(data)bucketHistoryCluster.push(Result.generic(style, data.url || '', null, '', '', '', data));
 
             // we have to empty the history_trans so that only the new collapsed/clustered results is
             // displayed
@@ -48,14 +48,13 @@ var Mixer = {
         }
 
 
-        for (let i = 0;
-             history && i < history.matchCount;
-             i++) {
-            let style = history.getStyleAt(i),
-                value = history.getValueAt(i),
-                image = history.getImageAt(i),
-                comment = history.getCommentAt(i),
-                label = history.getLabelAt(i);
+        for (let i = 0; history_trans && i < history_trans.length; i++) {
+            let style = history_trans[i]['style'],
+                value = history_trans[i]['value'],
+                image = history_trans[i]['image'],
+                comment = history_trans[i]['comment'],
+                label = history_trans[i]['label'];
+
 
             // Deduplicate: check if this result is also in the cache results
             let cacheIndex = -1;
@@ -92,15 +91,6 @@ var Mixer = {
         var showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug')
 
         // the top history with matching domain will be show already via instant-serve
-
-
-        // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
-        if (bucketHistoryCluster.length > 0) {
-            if(showQueryDebug)
-                bucketHistoryCluster[0].comment += " (Clustering)";
-            results.push(bucketHistoryCluster[0]);
-        }
-
         // all bucketHistoryCache
         for(let i = 0; i < bucketHistoryCache.length; i++) {
             if(showQueryDebug)
@@ -148,8 +138,16 @@ var Mixer = {
             results = weatherResults.concat(results);
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
+
+
         results = results.slice(mixed._results.length);
 
+        // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
+        if (bucketHistoryCluster.length > 0) {
+            if(showQueryDebug)
+                bucketHistoryCluster[0].comment += " (Clustering)";
+            results.unshift(bucketHistoryCluster[0]);
+        }
         return results.slice(0, maxResults);
 	}
 }
