@@ -201,7 +201,7 @@ function titleCleaner(title){
 function get(url, callback, onerror){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open('GET', url, true);
-    req.timeout = 5000;
+    req.timeout = 15000;
     req.onload = function(){
       if(req.status < 200 || req.status >= 300){
         onerror();
@@ -243,15 +243,18 @@ function guess_next_url(source_url, origCallback) {
       return
     }
   }
-  guessCache[(++guessCachePos)%10] = { url: source_url, status:'STARTED'};
-  var cachePos = guessCachePos;
-  var callback = function(error, data){
-    if(!error && data.title){
-      guessCache[cachePos].data = data;
-      guessCache[cachePos].status = 'DONE';
-    }
-    origCallback(error, data);
-  }
+  guessCachePos = (guessCachePos+1)%10;
+  guessCache[guessCachePos] = { url: source_url, status:'STARTED'};
+
+  var callback = (function(pos){
+      return function(error, data){
+                if(!error && data.title){
+                  guessCache[pos].data = data;
+                  guessCache[pos].status = 'DONE';
+                }
+                origCallback(error, data);
+              }
+  })(guessCachePos);
 
   var result = {};
 
