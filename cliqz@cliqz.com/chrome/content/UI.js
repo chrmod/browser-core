@@ -79,8 +79,12 @@ var UI = {
         gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse',
         gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
-    redrawCluster: function(result){
-        $('.' + IC + '[type="cliqz-cluster"]', gCliqzBox).innerHTML = UI.tpl.clustering(result);
+    // redraws a result
+    // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
+    redrawResult: function(filter, template, data){
+        var result;
+        if(result =$('.' + IC + filter, gCliqzBox))
+            result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
         if(suggestions){

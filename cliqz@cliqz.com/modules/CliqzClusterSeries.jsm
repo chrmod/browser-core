@@ -126,12 +126,16 @@ var CliqzClusterSeries = {
             var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                             .getService(Components.interfaces.nsIWindowMediator),
             win = wm.getMostRecentWindow("navigator:browser");
-            log(JSON.stringify(template));
-            win.CLIQZ.UI.redrawCluster({
-               data: template,
-               width: win.CLIQZ.Core.urlbar.clientWidth - 100
-            })
-            log('Redraw');
+            log('Redraw' + JSON.stringify(template));
+            win.CLIQZ.UI.redrawResult(
+              '[type="cliqz-cluster"]',
+              'clustering',
+              {
+                data: template,
+                // make a helper for computin the width
+                width: win.CLIQZ.Core.urlbar.clientWidth - 100
+              }
+            );
             return
         })
         return template;
@@ -222,7 +226,28 @@ var check_if_series = function(source_url) {
   return false;
 }
 
-function guess_next_url(source_url, callback) {
+var guessCache = Array(10),
+    guessCachePos = 0;
+
+function guess_next_url(source_url, origCallback) {
+  for(var i=0; i<guessCache.length; i++){
+    if(guessCache[i] && guessCache[i].url == source_url){
+      if(guessCache[i].status == 'DONE'){
+        origCallback(null, guessCache[i].data);
+      }
+      return
+    }
+  }
+  guessCache[(++guessCachePos)%10] = { url: source_url, status:'STARTED'};
+  var cachePos = guessCachePos;
+  var callback = function(error, data){
+    if(!error && data.title){
+      guessCache[cachePos].data = data;
+      guessCache[cachePos].status = 'DONE';
+    }
+    origCallback(error, data);
+  }
+
   var result = {};
 
   var get_title = function(body) {
