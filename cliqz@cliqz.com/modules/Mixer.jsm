@@ -48,14 +48,13 @@ var Mixer = {
         }
 
 
-        for (let i = 0;
-             history && i < history.matchCount;
-             i++) {
-            let style = history.getStyleAt(i),
-                value = history.getValueAt(i),
-                image = history.getImageAt(i),
-                comment = history.getCommentAt(i),
-                label = history.getLabelAt(i);
+        for (let i = 0; history_trans && i < history_trans.length; i++) {
+            let style = history_trans[i]['style'],
+                value = history_trans[i]['value'],
+                image = history_trans[i]['image'],
+                comment = history_trans[i]['comment'],
+                label = history_trans[i]['label'];
+
 
             // Deduplicate: check if this result is also in the cache results
             let cacheIndex = -1;
