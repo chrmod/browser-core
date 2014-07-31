@@ -21,7 +21,7 @@ CliqzUtils.init();
 var Mixer = {
 	mix: function(q, history, cliqz, mixed, weatherResults ,maxResults){
 		var results = [],
-            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history);
+            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
