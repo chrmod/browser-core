@@ -33,7 +33,7 @@ var VERTICAL_ENCODINGS = {
 var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER: 'http://ec2-54-196-119-204.compute-1.amazonaws.com/api/v1/results?q=',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -237,7 +237,7 @@ var CliqzUtils = {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() + CliqzLanguage.stateToQueryString(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
@@ -266,6 +266,9 @@ var CliqzUtils = {
   // cliqz type = "cliqz-results sources-XXXXX"
   encodeCliqzResultType: function(type){
     return CliqzUtils.encodeSources(type.substr(22));
+  },
+  encodeQuerySession: function(){
+        return CliqzUtils.cliqzPrefs.prefHasUserValue('query_session') ? '&s=' + CliqzUtils.cliqzPrefs.getCharPref('query_session') : '';
   },
   encodeSources: function(sources){
     return sources.split(', ').map(

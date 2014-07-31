@@ -253,10 +253,12 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarfocus: function() {
         CLIQZ.Core.hideLastQuery();
+        CliqzUtils.cliqzPrefs.setCharPref('query_session', CLIQZ.Core.generateSession());
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
         CLIQZ.Core.lastQuery();
+        CliqzUtils.cliqzPrefs.clearUserPref('query_session');
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
