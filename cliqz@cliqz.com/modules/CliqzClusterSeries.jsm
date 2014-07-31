@@ -98,7 +98,7 @@ var CliqzClusterSeries = {
                         {
                             href: last_url,
                             path: '',
-                            title: last_title,
+                            title: titleCleaner(last_title),
                             color: 'gray'
                         }
                     ],
@@ -116,7 +116,7 @@ var CliqzClusterSeries = {
                     {
                         href: data.next,
                         path: '',
-                        title: data.title,
+                        title: titleCleaner(data.title),
                         color: 'blue',
                         cls: 'cliqz-cluster-topic-guessed'
                     }
@@ -131,7 +131,7 @@ var CliqzClusterSeries = {
                data: template,
                width: win.CLIQZ.Core.urlbar.clientWidth - 100
             })
-            log('Redrew');
+            log('Redraw');
             return
         })
         return template;
@@ -186,6 +186,10 @@ var CliqzClusterSeries = {
   }
 };
 
+
+function titleCleaner(title){
+  return title.replace(/(watch|online|free|stream)/ig,'').trim();
+}
 
 function get(url, callback, onerror){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
