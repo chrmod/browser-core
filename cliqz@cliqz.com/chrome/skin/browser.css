@@ -380,6 +380,7 @@
     font-weight: bold;
     color: white;
     padding: 5px 5px 2px 5px;
+    margin-right: 20px;
 }
 
 .cliqz-cluster-result-url {
@@ -394,10 +395,11 @@
 }
 
 .cliqz-cluster-topic-label {
-  padding: 2px 6px;
+  padding: 2px 6px 5px;
   font-size: 14px;
-  margin: 5px 0px;
-  font-weight: bold;
+  color: white;
+  border-radius: 2px;
+  margin: 5px 10px;
 }
 
 .cliqz-cluster-items {
@@ -406,10 +408,56 @@
 
 .cliqz-cluster-topic {
     margin-right: 20px;
+}
+
+.cliqz-cluster-topic:hover {
+  background-color: #eeeeee;
+}
+
+.cliqz-cluster-prediction {
+  background-color: green;
+}
+/* END cluster */
+
+/* series */
+
+.cliqz-series-title-box {
+    background-color: grey;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    padding: 5px 5px 2px 5px;
+    margin-right: 20px;
+}
+
+.cliqz-series-result-url {
+  font-size: 14px;
+  font-weight: bold;
+  color: gray;
+  margin-right: 20px;
+}
+
+.cliqz-series-result-topic {
+    margin-top: 10px;
+}
+
+.cliqz-series-topic-label {
+  padding: 2px 6px;
+  font-size: 14px;
+  margin: 5px 0px;
+  font-weight: bold;
+}
+
+.cliqz-series-items {
+    margin-left: 75px;
+}
+
+.cliqz-series-topic {
+    margin-right: 20px;
     position: relative;
 }
 
-.cliqz-cluster-topic:before {
+.cliqz-series-topic:before {
     height: 9px;
     width: 9px;
     border-radius: 50%;
@@ -421,18 +469,18 @@
     top: 2px;
 }
 
-.cliqz-cluster-topic-guessed:before {
+.cliqz-series-topic-guessed:before {
     background-color: #3399ff;
 }
 
-.cliqz-cluster-topic:hover {
+.cliqz-series-topic:hover {
   background-color: #eeeeee;
 }
 
-.cliqz-cluster-prediction {
+.cliqz-series-prediction {
   background-color: green;
 }
-/* END cluster */
+/* END series */
 
 /* news */
 .cliqz-news-ago-line {

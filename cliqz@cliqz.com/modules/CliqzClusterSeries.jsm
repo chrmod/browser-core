@@ -124,7 +124,7 @@ var CliqzClusterSeries = {
                         path: '',
                         title: titleCleaner(data.title, data.next),
                         color: '#39f',
-                        cls: 'cliqz-cluster-topic-guessed'
+                        cls: 'cliqz-series-topic-guessed'
                     }
                 );
             }
@@ -134,8 +134,8 @@ var CliqzClusterSeries = {
             win = wm.getMostRecentWindow("navigator:browser");
             log('Redraw' + JSON.stringify(template));
             win.CLIQZ.UI.redrawResult(
-              '[type="cliqz-cluster"]',
-              'clustering',
+              '[type="cliqz-series"]',
+              'series',
               {
                 data: template,
                 // make a helper for computin the width
