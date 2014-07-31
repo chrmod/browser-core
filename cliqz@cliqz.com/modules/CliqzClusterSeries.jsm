@@ -1,11 +1,14 @@
 'use strict';
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+
+function log(msg){
+  CliqzUtils.log(msg, 'Series Guessing');
+}
 
 var CliqzClusterSeries = {
   collapse: function(urls, cliqzResults, q) {
@@ -99,7 +102,7 @@ var CliqzClusterSeries = {
                             href: last_url,
                             path: '',
                             title: titleCleaner(last_title),
-                            color: 'gray'
+                            color: '#ccc'
                         }
                     ],
                     color: 'darkgreen',
@@ -117,7 +120,7 @@ var CliqzClusterSeries = {
                         href: data.next,
                         path: '',
                         title: titleCleaner(data.title),
-                        color: 'blue',
+                        color: '#39f',
                         cls: 'cliqz-cluster-topic-guessed'
                     }
                 );
@@ -207,10 +210,6 @@ function get(url, callback, onerror){
     req.onerror = function(){ onerror() };
     req.ontimeout = function(){ onerror() };
     req.send();
-}
-
-function log(msg){
-  CliqzUtils.log(msg, 'Series Guessing');
 }
 
 var check_if_series = function(source_url) {

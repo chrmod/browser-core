@@ -10,14 +10,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
 
-/** Pads an integer with zeros. Why isn't this part of the string API? */
-function zFill(num, width) {
-    var number = num.toString();
-    while (number.length < width) number = "0" + number;
-    return number;
-}
-
-//var COLORS = ['purple', 'blue', 'pink', 'green', 'gray'];
 var COLORS = [ '#993300', '#99CC99', '#003366']
 var DISABLED_COLOR = ['#D6D6D6']
 
@@ -351,10 +343,6 @@ var templates = {
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
 
-    // we keep a different namespace than cliqz so that it does not get removed after a re-install
-    cliqzLangPrefs: Components.classes['@mozilla.org/preferences-service;1']
-        .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz-lang.'),
-
     cluster: function(history, cliqzReults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null) return [false, null];
@@ -448,14 +436,5 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         if (!template) return null;
 
         return template.fun(filteredHistory);
-    },
-    normalizeURL: function(url) {
-        // copy+pasted from Filter.jsm
-
-        if(url.startsWith("moz-action:")) {
-            var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
-            url = param;
-        }
-        return url;
     },
 };

@@ -416,13 +416,13 @@
     display: inline-block;
     position: absolute;
     content: "";
-    background-color: gray;
+    background-color: #ccc;
     left: -14px;
     top: 2px;
 }
 
 .cliqz-cluster-topic-guessed:before {
-    background-color: blue;
+    background-color: #3399ff;
 }
 
 .cliqz-cluster-topic:hover {
