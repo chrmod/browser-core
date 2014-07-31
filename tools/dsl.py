@@ -351,35 +351,19 @@ class FullUrlCond(AndConds):
 class Program(object):
     OUTER_TEMPLATE = Template(
 """
-var COLORS = [$COLORS]
-
-var loc = {
-$LOC
-};
-
-function locs(label) {
-    var lang = (navigator.language || navigator.userLanguage).toLowerCase();
-    return loc[label][lang] || loc[label][lang.split(/[_-]/)[0]] || Object.keys(loc)[0];
-}
+var COLORS = [$COLORS];
 
 var templates = {
 
-    /* the output documents must be:
-        {
-            summary: text,
-            control: [{label: , icon: , urls[{href:, path:, title}] //max 1 }] // max 2
-            topics: [{label: , icon: , urls[{href:, path:, title}] //max 6 }] // max2
-        }
-    */
-
-$SWITCH, """)
+$SWITCH
+};""")
 
     INNER_TEMPLATE = Template(
 """    '$url': {
         fun: function(urls) {
 
             var template = {
-                summary: '$summary'
+                summary: '$summary',
                 control: [$FIX_CONTROLS],
                 topics: []
             };
@@ -390,7 +374,9 @@ $SWITCH, """)
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
 
-                var [domain, path] = CliqzClusterHistory.normalizeURL(url);
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
                 var dpath = domain.toLowerCase().split('.');
                 dpath.reverse();
                 var vpath = path.toLowerCase().split('/');
@@ -406,7 +392,7 @@ $SWITCH, """)
 $RULES
             }
 
-            CLIQZ.Utils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
             return template;
         }
     }""")
