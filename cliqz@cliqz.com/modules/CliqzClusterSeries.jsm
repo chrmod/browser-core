@@ -87,11 +87,11 @@ var CliqzClusterSeries = {
         log('Guessing next episode');
         log(last_url);
 
-        var hisotryTitles = urls.map(function(r){ return r.comment; }),
+        var historyTitles = urls.map(function(r){ return r.comment; }),
             cliqzTitles = cliqzResults.map(function(r){
             if(r.snippet)return r.snippet.title;
         });
-        var label = CliqzClusterSeries.guess_series_name(last_title, hisotryTitles, cliqzTitles, q);
+        var label = CliqzClusterSeries.guess_series_name(last_url, last_title, historyTitles, cliqzTitles, q);
         var template = {
             summary: 'Your ' + CliqzUtils.getDetailsFromUrl(real_domain).host,
             url: real_domain,
@@ -220,8 +220,6 @@ var check_if_series = function(source_url) {
 
   var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
 
-  log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
   for(var i=0;i<regexs.length;i++) {
     var d = source_url.match(regexs[i]);
     if (d) {
@@ -230,6 +228,8 @@ var check_if_series = function(source_url) {
   }
   return false;
 }
+
+var cacheSeriesName = {};
 
 var guessCache = Array(10),
     guessCachePos = 0;
@@ -594,7 +594,21 @@ function guess_next_url(source_url, origCallback) {
   }
 }
 
-function guess_series_name(source_title, other_history_titles, other_cliqz_titles, q) {
+
+function guess_series_name(source_url, source_title, other_history_titles, other_cliqz_titles, q) {
+  if ((!source_url) || (!cacheSeriesName) || (!cacheSeriesName[source_url])) {
+    var name = guess_series_name_func(source_title, other_history_titles, other_cliqz_titles, q);
+
+    // if cache object does not exist or it has too many entries, create/flush
+    if ((!cacheSeriesName) || (Object.keys(cacheSeriesName).length>100)) cacheSeriesName = {};
+
+    cacheSeriesName[source_url] = name;
+  }
+  return cacheSeriesName[source_url];
+}
+
+
+function guess_series_name_func(source_title, other_history_titles, other_cliqz_titles, q) {
   log('Guessing Series name for');
   log(source_title);
   log(q);
@@ -603,7 +617,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
   // those will work for the regexp that we have now, if we extend to other languages
   // we should modify this too
-  var v_stop_words = ['season', 'episode', 'watch', 'online', 'stream', 'player'];
+  var v_stop_words = ['season', 'episode', 'free', 'online', 'stream', 'player'];
 
   var sanitize = function(str) {
     var s = str.toLowerCase();
@@ -619,8 +633,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
     var res = [];
     var v = tokenize(sanitize(str));
 
-
-    for(var len=v.length;len>1;len--) {
+    for(var len=v.length;len>0;len--) {
       for(var i=0;i<=(v.length-len);i++) {
         res.push(v.slice(i,i+len).join(' '));
       }
@@ -644,7 +657,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
   var combs = combinations(source_title);
   var scores = [];
-  for(var i=0;i<combs.length;i++) scores[i]=0;
+  for(var i=0;i<combs.length;i++) scores[i]=0.0;
 
   // filter the stop words to remove those who are also part of the query, for the case where the name of the
   // series were a stopword, e.g. "last watch",
@@ -654,7 +667,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
   for(var i=0;i<v_stop_words.length;i++) {
     allok = true;
     for(var j=0;j<v_sanitize_q.length;j++) {
-        if ((v_sanitize_q[j].length>0) && (v_stop_words[i].indexOf(v_sanitize_q[j])>=0)) allok=false;
+        if ((v_sanitize_q[j].length>0) && (v_stop_words[i].indexOf(v_sanitize_q[j])==0)) allok=false;
     }
     if (allok) v_filtered_stop_words.push(v_stop_words[i]);
   }
@@ -665,18 +678,32 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
 
     query_count = 0.0;
 
+    var vcomb = combs[i].split(' ');
+
     for(var j=0;j<v_sanitize_q.length;j++) {
-        if ((v_sanitize_q[j].length>0) && (combs[i].indexOf(v_sanitize_q[j])>=0)) query_count+=1.0;
+      if (v_sanitize_q[j].length>0) {
+        for(var z=0;z<vcomb.length;z++) {
+          if (vcomb[z].indexOf(v_sanitize_q[j])==0) {
+            query_count+=1.0;
+            break;
+          }
+        }
+      }
     }
 
     for(var j=0;j<v_filtered_stop_words.length;j++) {
-        if (combs[i].indexOf(v_filtered_stop_words[j])>=0) query_count=0.0;
+      for(var z=0;z<vcomb.length;z++) {
+        if (vcomb[z]==v_filtered_stop_words[j]) {
+          query_count=0.0
+          break;
+        }
+      }
     }
 
-    if ((query_count/(v_sanitize_q.length+0.0)) > 0.5) {
+    if ((query_count/(v_sanitize_q.length+0.0)) > 0.0) {
       for(var j=0;j<sanitize_other_history_titles.length;j++) {
         if (sanitize_other_history_titles[j].indexOf(combs[i])>=0) {
-          scores[i]++;
+          scores[i] += (query_count/(v_sanitize_q.length+0.0));
         }
       }
     }
@@ -685,7 +712,7 @@ function guess_series_name(source_title, other_history_titles, other_cliqz_title
   var max = -1;
   var maxi = -1;
   for(var i=0;i<combs.length;i++) {
-    scores[i] = scores[i] * combs[i].split(' ').length;
+    //scores[i] = scores[i] * combs[i].split(' ').length;
     if (scores[i]>max) {
       maxi = i;
       max = scores[i];
