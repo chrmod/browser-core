@@ -404,9 +404,10 @@ function onEnter(ev, item){
         };
 
     if(popupOpen && index != -1){
+        var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
-        action.search = CliqzUtils.isSearch(item.getAttribute('url'));
-        openUILink(item.getAttribute('url'));
+        action.search = CliqzUtils.isSearch(url);
+        openUILink(url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
