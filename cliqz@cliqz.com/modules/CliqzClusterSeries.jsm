@@ -50,7 +50,7 @@ var CliqzClusterSeries = {
             var d = path.match(series_regexs[r]);
             if (d) {
                 if (domains[domain]==null) domains[domain]=[];
-                domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
+                domains[domain].push([title, url, 'type' + r, parseInt(d[1]), parseInt(d[2]), d]);
                 break;
             }
         }
