@@ -10,6 +10,11 @@ function log(msg){
   CliqzUtils.log(msg, 'Series Guessing');
 }
 
+var series_regexs = [
+    /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
+    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
+];
+
 var CliqzClusterSeries = {
   collapse: function(urls, cliqzResults, q) {
     //var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
@@ -17,10 +22,6 @@ var CliqzClusterSeries = {
     //              /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(.?\/)(\d{1,2})(.*)/,
     //              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
     //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
-
-    // FIXME: this regex is duplicated in CliqzClusterSeries.jsm in check_if_series
-    var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
-
 
     var domains = {};
 
@@ -39,8 +40,8 @@ var CliqzClusterSeries = {
         if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
         if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-        for (let r = 0; r < regexs.length; r++) {
-            var d = path.match(regexs[r]);
+        for (let r = 0; r < series_regexs.length; r++) {
+            var d = path.match(series_regexs[r]);
             if (d) {
                 if (domains[domain]==null) domains[domain]=[];
                 domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
@@ -199,9 +200,8 @@ var CliqzClusterSeries = {
 
 
 function titleCleaner(title, url){
-  var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
-  for (var i = 0; i < regexs.length; i++) {
-    var d = url.match(regexs[i]);
+  for (var i = 0; i < series_regexs.length; i++) {
+    var d = url.match(series_regexs[i]);
     if (d) {
         return 'Episode '.concat(d[2]);
     }
@@ -224,11 +224,8 @@ function get(url, callback, onerror){
 }
 
 var check_if_series = function(source_url) {
-
-  var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
-
-  for(var i=0;i<regexs.length;i++) {
-    var d = source_url.match(regexs[i]);
+  for(var i=0;i<series_regexs.length;i++) {
+    var d = source_url.match(series_regexs[i]);
     if (d) {
       return [d[0], d[1], d[2]];
     }
