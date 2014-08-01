@@ -10,6 +10,12 @@ function log(msg){
   CliqzUtils.log(msg, 'Series Guessing');
 }
 
+function zfill(number, size) {
+    number = number.toString();
+    while (number.length < size) number = "0" + number;
+    return number;
+}
+
 var series_regexs = [
     /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
     /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
@@ -203,7 +209,7 @@ var CliqzClusterSeries = {
 function titleCleaner(title, url, itemType) {
     var d = url.match(series_regexs[itemType]);
     if (d) {
-        return 'Episode '.concat(d[2]);
+        return 'S' + zfill(d[1], 2) + ' Episode ' + d[2];
     }
     return title.replace(/(watch|online|free|stream)/ig,'').trim();
 }
