@@ -64,6 +64,7 @@ var CliqzClusterSeries = {
         log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));
         log(JSON.stringify(domains), 'DOMAINS');
 
+        var itemType = parseInt(domains[maxDomain][0][2].slice(4));
         /* Find the last URL in the series. */
         var last_item = domains[maxDomain][0];
         var last_s = 0;
@@ -105,7 +106,7 @@ var CliqzClusterSeries = {
                         {
                             href: last_url,
                             path: '',
-                            title: titleCleaner(last_title, last_url),
+                            title: titleCleaner(last_title, last_url, itemType),
                             color: '#ccc'
                         }
                     ],
@@ -123,7 +124,7 @@ var CliqzClusterSeries = {
                     {
                         href: data.next,
                         path: '',
-                        title: titleCleaner(data.title, data.next),
+                        title: titleCleaner(data.title, data.next, itemType),
                         color: '#39f',
                         cls: 'cliqz-series-topic-guessed'
                     }
@@ -199,14 +200,12 @@ var CliqzClusterSeries = {
 };
 
 
-function titleCleaner(title, url){
-  for (var i = 0; i < series_regexs.length; i++) {
-    var d = url.match(series_regexs[i]);
+function titleCleaner(title, url, itemType) {
+    var d = url.match(series_regexs[itemType]);
     if (d) {
         return 'Episode '.concat(d[2]);
     }
-  }
-  return title.replace(/(watch|online|free|stream)/ig,'').trim();
+    return title.replace(/(watch|online|free|stream)/ig,'').trim();
 }
 
 function get(url, callback, onerror){
