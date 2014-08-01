@@ -25,6 +25,7 @@ var templates = {
             var template = {
                 summary: 'BaseCamp personalized sitemap',
                 control: [],
+                control_set: {},
                 topics: [],
                 url: 'basecamp.com'
             };
@@ -58,8 +59,10 @@ var templates = {
                     var item = vpath[0];
                     var label = 'null';
 
-                    var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
-                    template['control'].push(control);
+                     if (!(item in template['control_set'])) {
+                        var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
+                        template['control'].push(control);
+                    }
 
                 }
                 else if ((vpath[1] == 'projects') && (vpath.length == 3)) {
@@ -74,12 +77,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], iconCls: 'cliqz-fa fa-folder'};
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-folder'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(title in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: title})
                     }
                 }
@@ -95,12 +98,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0]+'/'+vpath[1], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0]+'/'+vpath[1], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(title in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: title})
                     }
                 }
@@ -117,6 +120,7 @@ var templates = {
                 summary: 'Twitter personalized sitemap',
                 control: [{title: 'Search', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
                           {title: 'Discover', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
+                control_set: {},
                 topics: [],
                 url: 'http://twitter.com/'
             };
@@ -158,12 +162,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(item in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: item})
                     }
                 }
@@ -179,6 +183,7 @@ var templates = {
             var template = {
                 summary: 'Github personalized sitemap',
                 control: [{title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control_set: {},
                 topics: [],
                 url: 'http://github.com/'
             };
@@ -220,12 +225,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], iconCls: 'cliqz-fa fa-database'};
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-database'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(item in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: item})
                     }
                 }
@@ -241,6 +246,7 @@ var templates = {
             var template = {
                 summary: 'Wikipedia personalized sitemap',
                 control: [],
+                control_set: {},
                 topics: [],
                 url: 'http://wikipedia.org/'
             };
@@ -278,12 +284,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(item in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: item})
                     }
                 }
@@ -299,6 +305,7 @@ var templates = {
             var template = {
                 summary: 'Klout personalized sitemap',
                 control: [],
+                control_set: {},
                 topics: [],
                 url: 'http://klout.com/'
             };
@@ -340,12 +347,12 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], iconCls: 'cliqz-fa fa-user'};
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !(item in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: item})
                     }
                 }
@@ -444,7 +451,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
-
             var v = [true, [historyTransFiltered[0]]];
 
             CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
