@@ -292,13 +292,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 CliqzUtils.track(info);
             });
         });
-
-        if(startup && CliqzUtils.getPref('analysis', false) == false){
-            CliqzUtils.setPref('analysis', true);
-            if(CliqzUtils.getPref('session','').charCodeAt(0) % 5 === 0){
-                setTimeout(function(){ CliqzHistoryManager.analyze(); }, 60000);
-            }
-        }
     },
     // Reset collection of timing data at regular intervals, send log if pref set.
     handleTimings: function() {
