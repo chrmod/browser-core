@@ -575,7 +575,7 @@ function guess_next_url(source_url, origCallback) {
                   }
                 }
                 catch(err) {
-                  log(JSON.stringify(err), 'Clustering Error:');
+                  log('Clustering Error: ' + JSON.stringify(err));
                   results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
                 }
               }
@@ -596,7 +596,7 @@ function guess_next_url(source_url, origCallback) {
       }
     }
   } catch(err) {
-    log(JSON.stringify(err), 'Clustering Error:');
+    log('Clustering Error: ' + JSON.stringify(err));
     callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
   }
 }
