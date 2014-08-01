@@ -10,6 +10,12 @@ function log(msg){
   CliqzUtils.log(msg, 'Series Guessing');
 }
 
+function zfill(number, size) {
+    number = number.toString();
+    while (number.length < size) number = "0" + number;
+    return number;
+}
+
 var series_regexs = [
     /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
     /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
@@ -44,7 +50,7 @@ var CliqzClusterSeries = {
             var d = path.match(series_regexs[r]);
             if (d) {
                 if (domains[domain]==null) domains[domain]=[];
-                domains[domain].push([title, url, 'type' + r, parseInt(d[2]), parseInt(d[4]), d]);
+                domains[domain].push([title, url, 'type' + r, parseInt(d[1]), parseInt(d[2]), d]);
                 break;
             }
         }
@@ -62,28 +68,20 @@ var CliqzClusterSeries = {
     if (maxDomain!=null && maxDomainLen>4) {
         // at least 5
         log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));
-        log(JSON.stringify(domains), 'DOMAINS');
+        log('DOMAINS: ' + JSON.stringify(domains));
 
         var itemType = parseInt(domains[maxDomain][0][2].slice(4));
-        /* Find the last URL in the series. */
-        var last_item = domains[maxDomain][0];
-        var last_s = 0;
-        var last_ep = 0;
-        for (let i = 0; i < domains[maxDomain].length; i++) {
-            if (domains[maxDomain][i][3] > last_s) {
-                last_s = domains[maxDomain][i][3];
-                last_ep = domains[maxDomain][i][4];
-                last_item = domains[maxDomain][i]
-            } else if (domains[maxDomain][i][3] == last_s) {
-                if (domains[maxDomain][i][4] > last_ep) {
-                    last_ep = domains[maxDomain][i][4];
-                    last_item = domains[maxDomain][i]
-                }
-            }
-            log(last_s + ' ' + last_ep, 'last_show')
-        }
-        var last_title = last_item[0];
-        var last_url = last_item[1];
+
+        /* Sort the urls by season/episode, extract the last one. */
+        var previousEps = domains[maxDomain].sort(function(a, b) {
+            if (a[3] == b[3]) return b[4] - a[4];
+            else return b[3] - a[3];
+        }).slice(0, 3);
+        var last_title = previousEps[0][0];
+        var last_url = previousEps[0][1];
+        log('Last show: ' + previousEps[0][3] + ' ' + previousEps[0][4])
+        previousEps.reverse();
+
         if(!CliqzClusterSeries.isStreaming(last_url, last_title)) return;
 
         log('Guessing next episode');
@@ -102,18 +100,24 @@ var CliqzClusterSeries = {
             topics: [
                 {
                     label: label,
-                    urls: [
-                        {
-                            href: last_url,
-                            path: '',
-                            title: titleCleaner(last_title, last_url, itemType),
-                            color: '#ccc'
-                        }
-                    ],
+                    urls: [],
                     color: 'darkgreen',
                     iconCls: 'cliqz-fa fa-video-camera'
                 },
             ],
+        }
+
+        /* Add the previous episodes. */
+        for (var i = 0; i < previousEps.length; i++) {
+            var prev = previousEps[i];
+            template['topics'][0].urls.push(
+                {
+                    href: prev[1],
+                    path: '',
+                    title: titleCleaner(prev[0], prev[1], itemType),
+                    color: '#ccc'
+                }
+            );
         }
 
         CliqzClusterSeries.guess_next_url(last_url, function(error, data){
@@ -203,7 +207,7 @@ var CliqzClusterSeries = {
 function titleCleaner(title, url, itemType) {
     var d = url.match(series_regexs[itemType]);
     if (d) {
-        return 'Episode '.concat(d[2]);
+        return 'S' + zfill(d[1], 2) + ' Episode ' + d[2];
     }
     return title.replace(/(watch|online|free|stream)/ig,'').trim();
 }
@@ -571,7 +575,7 @@ function guess_next_url(source_url, origCallback) {
                   }
                 }
                 catch(err) {
-                  log(JSON.stringify(err), 'Clustering Error:');
+                  log('Clustering Error: ' + JSON.stringify(err));
                   results.push({'type': 'error', 'next': null, 'title': null, 'body_size': 0})
                 }
               }
@@ -592,7 +596,7 @@ function guess_next_url(source_url, origCallback) {
       }
     }
   } catch(err) {
-    log(JSON.stringify(err), 'Clustering Error:');
+    log('Clustering Error: ' + JSON.stringify(err));
     callback('unprocessable-error-on-guess-next-url', {'title':null, 'next':null});
   }
 }
