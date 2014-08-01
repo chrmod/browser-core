@@ -425,7 +425,7 @@ function onEnter(ev, item){
             return true;
         }
 
-
+        action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
             action.position_type = 'inbar_url';
             action.search = CliqzUtils.isSearch(inputValue);
