@@ -365,7 +365,9 @@ $SWITCH
             var template = {
                 summary: '$summary',
                 control: [$FIX_CONTROLS],
-                topics: []
+                control_set: {},
+                topics: [],
+                url: '$home'
             };
 
             var next_color = 0;
@@ -401,8 +403,10 @@ $RULES
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-"""                    var control = {title: $title, url: url, iconCls: '$icon'};
-                    template['control'].push(control);
+"""                     if (!($title in template['control_set'])) {
+                        var control = {title: $title, url: url, iconCls: '$icon'};
+                        template['control'].push(control);
+                    }
 """
     )
 
@@ -415,12 +419,12 @@ $RULES
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: []$LABEL_URL, color: COLORS[next_color], iconCls: '$icon'};
+                        topic = {'label': label, urls: []$LABEL_URL, color: COLORS[next_color], label_set: {}, iconCls: '$icon'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null) {
+                    if (topic!=null && !($title in topic['label_set'])) {
                         topic['urls'].push({href: url, path: path, title: $title})
                     }"""
     )
@@ -512,6 +516,8 @@ $RULE_BODY
         ret['FIX_CONTROLS'] = ",\n                          ".join(
                 Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
                 in program['fix_controls'])
+        if 'home' not in ret:
+            ret['home'] = ret['url']
 
         control_index = 0
         rules = []

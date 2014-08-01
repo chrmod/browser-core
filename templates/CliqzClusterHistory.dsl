@@ -9,12 +9,8 @@ program:
     GitHub:
         summary: Github personalized sitemap
         url: github.com
+        home: http://github.com/
         rules:
-        -
-            type: control
-            title: Home
-            url: http://github.com/
-            icon: cliqz-fa fa-globe
         -
             type: control
             title: Settings
@@ -56,12 +52,8 @@ program:
     Twitter:
         summary: Twitter personalized sitemap
         url: twitter.com
+        home: http://twitter.com/
         rules:
-        -
-            type: control
-            title: Home
-            url: http://twitter.com/
-            icon: cliqz-fa fa-globe
         -
             type: control
             title: Search
@@ -83,12 +75,8 @@ program:
     Klout:
         summary: Klout personalized sitemap
         url: klout.com
+        home: http://klout.com/
         rules:
-        -
-            type: control
-            title: Home
-            url: http://klout.com/
-            icon: cliqz-fa fa-globe
         -
             type: exclude
             cond: (/settings/) or (/i/) or (/search/) or (/register/) or (/dashboard/)
@@ -99,13 +87,9 @@ program:
             cond: /{item}//
     Wikipedia:
         summary: Wikipedia personalized sitemap
-        url: wikipedia.com
+        url: wikipedia.org
+        home: http://wikipedia.org/
         rules:
-        -
-            type: control
-            title: Home
-            url: http://wikipedia.com/
-            icon: cliqz-fa fa-globe
         -
             type: topic
             label: People
