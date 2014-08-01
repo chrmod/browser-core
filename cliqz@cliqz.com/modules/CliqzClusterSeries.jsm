@@ -199,6 +199,13 @@ var CliqzClusterSeries = {
 
 
 function titleCleaner(title, url){
+  var regexs = [/[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/, /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/];
+  for (var i = 0; i < regexs.length; i++) {
+    var d = url.match(regexs[i]);
+    if (d) {
+        return 'Episode '.concat(d[2]);
+    }
+  }
   return title.replace(/(watch|online|free|stream)/ig,'').trim();
 }
 
