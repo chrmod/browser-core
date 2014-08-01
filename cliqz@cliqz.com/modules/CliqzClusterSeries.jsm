@@ -126,7 +126,8 @@ var CliqzClusterSeries = {
                         path: '',
                         title: titleCleaner(data.title, data.next, itemType),
                         color: '#39f',
-                        cls: 'cliqz-series-topic-guessed'
+                        cls: 'cliqz-series-topic-guessed',
+                        guessed: true
                     }
                 );
             }

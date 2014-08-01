@@ -8,9 +8,7 @@
     <div class="cliqz-series-result-topic">
       {{#each data.topics}}
         <div class="cliqz-series-topic-label"
-              url='{{labelUrl}}'
-              type='series-test'
-              style="cursor: pointer; color:{{color}};">{{label}}:
+              style="color:{{color}};">{{label}}:
         </div>
         <div>
           <span class='cliqz-series-items overflow'>
@@ -18,7 +16,12 @@
             <span
                 style="color: {{color}}; cursor: pointer"
                 url='{{href}}'
-                type='series-test'
+                type='{{../../type}}'
+                {{#if guessed}}
+                  extra='guessed'
+                {{else}}
+                  extra='topic'
+                {{/if}}
                 class="cliqz-series-topic {{cls}}"
                 >
                   {{ title }}
