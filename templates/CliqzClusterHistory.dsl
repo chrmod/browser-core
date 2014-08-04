@@ -1,4 +1,4 @@
-colors: ["#993300", "#99CC99", "#003366"]
+colors: ["#CC3399", "#27B0CE", "#1777E2"]
 
 localization:
     settings:
@@ -66,7 +66,7 @@ program:
             icon: cliqz-fa fa-lightbulb-o
         -
             type: exclude
-            cond: (/settings/) or (/i/) or (/search/)
+            cond: (/settings/) or (/i/) or (/re:^search/) 
         -
             type: topic
             label: People
