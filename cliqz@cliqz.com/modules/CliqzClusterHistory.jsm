@@ -59,9 +59,10 @@ var templates = {
                     var item = vpath[0];
                     var label = 'null';
 
-                     if (!(item in template['control_set'])) {
+                     if (!template['control_set'].hasOwnProperty(item)) {
                         var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
                         template['control'].push(control);
+                        template['control_set'][item] = true;
                     }
 
                 }
@@ -82,8 +83,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(title in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
                         topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
                     }
                 }
                 else if ((vpath[1] == 'people') && (vpath.length == 3)) {
@@ -103,8 +105,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(title in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
                         topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
                     }
                 }
             }
@@ -167,8 +170,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(item in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
                         topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
                     }
                 }
             }
@@ -230,8 +234,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(item in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
                         topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
                     }
                 }
             }
@@ -289,8 +294,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(item in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
                         topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
                     }
                 }
             }
@@ -352,8 +358,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !(item in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
                         topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
                     }
                 }
             }
