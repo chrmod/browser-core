@@ -379,35 +379,49 @@
     font-size: 14px;
     font-weight: bold;
     color: white;
-    padding: 5px 5px 2px 5px;
+    padding: 4px 5px 5px 5px;
     margin-right: 20px;
+    float: left;
 }
 
-.cliqz-cluster-result-url {
+.cliqz-cluster-result-control {
   font-size: 14px;
   font-weight: bold;
   color: gray;
   margin-right: 20px;
+  float: left;
+  line-height: 28px
 }
 
 .cliqz-cluster-result-topic {
-    margin-top: 10px;
+    margin-bottom: 6px;
+    padding-bottom: 2px;
 }
 
 .cliqz-cluster-topic-label {
-  padding: 2px 6px 5px;
+  padding: 1px 2px 3px 6px;
   font-size: 14px;
   color: white;
-  border-radius: 2px;
-  margin: 5px 10px;
+  border-radius: 4px;
+  margin: 0px 10px;
+  cursor: pointer;
 }
-
+/*
+.cliqz-cluster-topic-label:before {
+    content: "▶";
+    font-size: 9px;
+    position: relative;
+    top: -1px;
+    left: 1px;
+}
+*/
 .cliqz-cluster-items {
     margin-left: 75px;
 }
 
 .cliqz-cluster-topic {
     margin-right: 20px;
+    padding: 3px;
 }
 
 .cliqz-cluster-topic:hover {
@@ -454,6 +468,7 @@
 
 .cliqz-series-topic {
     margin-right: 20px;
+    padding: 3px;
     position: relative;
 }
 
@@ -466,11 +481,11 @@
     content: "";
     background-color: #ccc;
     left: -14px;
-    top: 2px;
+    top: 5px;
 }
 
 .cliqz-series-topic-guessed:before {
-    background-color: #3399ff;
+    background-color: #4c48a3;
 }
 
 .cliqz-series-topic:hover {

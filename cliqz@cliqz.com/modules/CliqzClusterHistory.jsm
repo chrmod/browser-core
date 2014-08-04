@@ -411,7 +411,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // has templates? if not quit and do the normal history, if so, then convert the maxDomain
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
-        if (templates[maxDomain]==null) {
+        if (templates[maxDomain]==null && q.length > 6) {
             // in principle there is not template, but we must check for the possibility that falls to a
             // misc category,
 

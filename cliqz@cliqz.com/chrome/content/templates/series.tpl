@@ -2,15 +2,14 @@
   <div class='cliqz-result-mid-box' style="width:{{ width }}px; margin-right: 32px">
     <div>
       <span class="cliqz-cluster-title-box overflow">
-        {{ data.summary}}
+        {{ data.summary }}
       </span>
+      <br style="clear:both"/>
     </div>
     <div class="cliqz-series-result-topic">
       {{#each data.topics}}
         <div class="cliqz-series-topic-label"
-              url='{{labelUrl}}'
-              type='series-test'
-              style="cursor: pointer; color:{{color}};">{{label}}:
+              style="color:{{color}};">{{label}}:
         </div>
         <div>
           <span class='cliqz-series-items overflow'>
@@ -18,7 +17,12 @@
             <span
                 style="color: {{color}}; cursor: pointer"
                 url='{{href}}'
-                type='series-test'
+                type='{{../../type}}'
+                {{#if guessed}}
+                  extra='guessed'
+                {{else}}
+                  extra='topic'
+                {{/if}}
                 class="cliqz-series-topic {{cls}}"
                 >
                   {{ title }}

@@ -287,6 +287,7 @@ function resultClick(ev){
                 query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                extra: el.getAttribute('extra'), //extra data about the link
                 search: CliqzUtils.isSearch(url)
             };
 

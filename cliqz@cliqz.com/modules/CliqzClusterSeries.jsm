@@ -88,9 +88,9 @@ var CliqzClusterSeries = {
         log(last_url);
 
         var historyTitles = urls.map(function(r){ return r.comment; }),
-            cliqzTitles = cliqzResults.map(function(r){
-            if(r.snippet)return r.snippet.title;
-        });
+            cliqzTitles = (cliqzResults || []).map(function(r){
+              if(r.snippet)return r.snippet.title;
+            });
         var label = CliqzClusterSeries.guess_series_name(last_url, last_title, historyTitles, cliqzTitles, q);
         var template = {
             summary: 'Your ' + CliqzUtils.getDetailsFromUrl(real_domain).host,
@@ -129,8 +129,9 @@ var CliqzClusterSeries = {
                         href: data.next,
                         path: '',
                         title: titleCleaner(data.title, data.next, itemType),
-                        color: '#39f',
-                        cls: 'cliqz-series-topic-guessed'
+                        color: '#4c48a3',
+                        cls: 'cliqz-series-topic-guessed',
+                        guessed: true
                     }
                 );
             }
