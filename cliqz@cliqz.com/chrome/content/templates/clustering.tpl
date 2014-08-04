@@ -6,7 +6,7 @@
         {{ data.summary}}
       </span>
       {{#each data.control}}
-        <span class="cliqz-cluster-result-url"
+        <span class="cliqz-cluster-result-control"
               url='{{url}}'
               type='{{../type}}'
               extra='control'
@@ -14,6 +14,7 @@
           {{ title }}
         </span>
       {{/each}}
+      <br style="clear:both"/>
     </div>
     {{#each data.topics}}
       <div class='overflow cliqz-cluster-result-topic'>

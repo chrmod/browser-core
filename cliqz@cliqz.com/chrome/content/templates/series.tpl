@@ -4,6 +4,7 @@
       <span class="cliqz-cluster-title-box overflow">
         {{ data.summary }}
       </span>
+      <br style="clear:both"/>
     </div>
     <div class="cliqz-series-result-topic">
       {{#each data.topics}}

@@ -381,14 +381,16 @@
     color: white;
     padding: 4px 5px 5px 5px;
     margin-right: 20px;
-    display: inline-block;
+    float: left;
 }
 
-.cliqz-cluster-result-url {
+.cliqz-cluster-result-control {
   font-size: 14px;
   font-weight: bold;
   color: gray;
   margin-right: 20px;
+  float: left;
+  line-height: 28px
 }
 
 .cliqz-cluster-result-topic {
