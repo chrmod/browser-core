@@ -2,7 +2,7 @@
   <div class='cliqz-result-mid-box' style="width:{{ width }}px; margin-right: 32px">
     <div>
       <span class="cliqz-cluster-title-box overflow">
-        {{ data.summary}}
+        {{ data.summary }}
       </span>
     </div>
     <div class="cliqz-series-result-topic">
