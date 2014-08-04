@@ -112,7 +112,7 @@ var ResultProviders = {
     },
     // called for each query
     isCustomQuery: function(q){
-        if(CUSTOM[q.trim()]){
+        if(CUSTOM[q.trim()] && CUSTOM[q.trim()].url){
             return {
                 updatedQ  : q,
                 engineName: 'CLIQZ',

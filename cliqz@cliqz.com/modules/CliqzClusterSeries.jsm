@@ -129,7 +129,7 @@ var CliqzClusterSeries = {
                         href: data.next,
                         path: '',
                         title: titleCleaner(data.title, data.next, itemType),
-                        color: '#39f',
+                        color: '#4c48a3',
                         cls: 'cliqz-series-topic-guessed',
                         guessed: true
                     }
