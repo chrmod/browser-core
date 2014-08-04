@@ -146,7 +146,7 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (vpath[0] == 'search')) {
+                if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (/^search/.test(vpath[0]))) {
 
 
                 }

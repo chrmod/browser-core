@@ -66,7 +66,7 @@ program:
             icon: cliqz-fa fa-lightbulb-o
         -
             type: exclude
-            cond: (/settings/) or (/i/) or (/search/)
+            cond: (/settings/) or (/i/) or (/re:^search/) 
         -
             type: topic
             label: People
