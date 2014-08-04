@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.02');
+//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
+//  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.04');
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
@@ -26,7 +26,9 @@ var VERTICAL_ENCODINGS = {
     'video':'v',
     'hq':'h',
     'shopping':'s',
+    'science':'k',
     'gaming':'g',
+    'dictionary':'l',
     'qaa':'q'
 };
 
@@ -345,7 +347,7 @@ var CliqzUtils = {
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
-    CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
+    //CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -359,7 +361,7 @@ var CliqzUtils = {
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
     CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
+    //CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.

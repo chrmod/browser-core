@@ -8,10 +8,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/Result.jsm?v=0.5.04');
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -112,7 +112,7 @@ var ResultProviders = {
     },
     // called for each query
     isCustomQuery: function(q){
-        if(CUSTOM[q.trim()]){
+        if(CUSTOM[q.trim()] && CUSTOM[q.trim()].url){
             return {
                 updatedQ  : q,
                 engineName: 'CLIQZ',

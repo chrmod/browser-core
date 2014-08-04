@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'f1'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom'],
     VERTICALS = {
         'w': 'weather' ,
         's': 'shopping',
@@ -11,7 +11,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'q': 'qaa'
+        'q': 'qaa'     ,
+        'k': 'science' ,
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
@@ -26,38 +27,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96,
-    STATIC_RESULTS = [
-        [/(^f1|^form)/i, 'f1', f1_counter, 1406458800]
-    ]
+    IMAGE_WIDTH = 96
     ;
-
-var f1_counter_to;
-function f1_counter(end){
-    var countdownBox;
-    if(countdownBox = $('#cliqz-f1-countdown', gCliqzBox)){
-        var now = (new Date().getTime() / 1000),
-            seconds = parseInt(end - now);
-
-        if(seconds > 0){
-            var hours = parseInt(seconds/3600),
-                minutes = parseInt(seconds/60)%60,
-                seconds = seconds%60;
-
-            if(hours > 72) return;
-
-            $('#cliqz-f1-unit-h2', countdownBox).innerHTML = hours%10;
-            $('#cliqz-f1-unit-h1', countdownBox).innerHTML = parseInt(hours/10);
-            $('#cliqz-f1-unit-m2', countdownBox).innerHTML = minutes%10;
-            $('#cliqz-f1-unit-m1', countdownBox).innerHTML = parseInt(minutes/10);
-            $('#cliqz-f1-unit-s2', countdownBox).innerHTML = seconds%10;
-            $('#cliqz-f1-unit-s1', countdownBox).innerHTML = parseInt(seconds/10);
-
-            clearTimeout(f1_counter_to);
-            f1_counter_to = setTimeout(f1_counter, 1000, end);
-        }
-    }
-}
 
 var UI = {
     tpl: {},
@@ -287,24 +258,6 @@ function enhanceResults(res){
         r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
         r.vertical = getPartial(r.type);
     }
-    STATIC_RESULTS.forEach(function(s){
-        if(res.width > 750 && s[0].test(res.q)){
-
-            //valid static result
-            var now = (new Date().getTime() / 1000),
-                seconds = parseInt(s[3] - now),
-                hours = parseInt(seconds/3600);
-
-            if(seconds < 0 || hours > 72) return;
-
-            res.results.unshift({
-                vertical: s[1],
-                url:''
-            });
-
-            setTimeout(s[2], 500, s[3]);
-        }
-    });
     return res;
 }
 
@@ -323,7 +276,7 @@ function resultClick(ev){
                 action: 'result_click',
                 new_tab: newTab,
                 current_position: el.getAttribute('idx'),
-                query_length: CLIQZ.Core.urlbar.value.length,
+                query_length: CliqzAutocomplete.lastSearch.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 search: CliqzUtils.isSearch(url)
@@ -446,14 +399,15 @@ function onEnter(ev, item){
             type: 'activity',
             action: 'result_enter',
             current_position: index,
-            query_length: inputValue.length,
+            query_length: CliqzAutocomplete.lastSearch.length,
             search: false
         };
 
     if(popupOpen && index != -1){
+        var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
-        action.search = CliqzUtils.isSearch(item.getAttribute('url'));
-        openUILink(item.getAttribute('url'));
+        action.search = CliqzUtils.isSearch(url);
+        openUILink(url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -471,7 +425,7 @@ function onEnter(ev, item){
             return true;
         }
 
-
+        action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
             action.position_type = 'inbar_url';
             action.search = CliqzUtils.isSearch(inputValue);

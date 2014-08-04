@@ -10,7 +10,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
 
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 var CliqzHistoryManager = {
 	_db: null,
@@ -24,158 +24,27 @@ var CliqzHistoryManager = {
 
         this.PlacesInterestsStorage
             ._execute(
-                //"SELECT rev_host, v.visit_date / 86400000000 day, url " +
                 "SELECT count(*) cnt, MIN(v.visit_date) first " +
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
                 "WHERE h.hidden = 0 AND h.visit_count > 0 ",
                 {
-                    //columns: ["rev_host", "day", "url"],
-                    //onRow: function({rev_host, day, url}) {
                     columns: ["cnt", "first"],
                     onRow: function({cnt, first}) {
-                    try {
-                        history = Math.floor(first / 86400000000);
-                        historysize = cnt;
-                        /*
-                        let host = rev_host.slice(0, -1).split("").reverse().join("");
-                        let base = host;
-                        historysize = historysize + 1;
-                        if (day < history) {
-                            history= day;
+                        try {
+                            history = Math.floor(first / 86400000000);
+                            historysize = cnt;
                         }
-
-                        base = base.replace("www.", "");
-                        //let base = Services.eTLD.getBaseDomainFromHost(host);
-                        var m = url.split("/");
-                        let m2 = "";
-                        if (m.length > 4) {
-                          m2 = m[3];
-                        }
-                        visitedDomainOn[base] = visitedDomainOn[base] || {};
-                        visitedDomainOn[base][day] = true;
-                        if (m2 != "") {
-                            visitedSubDomain[base+"/"+m2+"/"] = visitedSubDomain[base+"/"+m2+"/"] || {};
-                            visitedSubDomain[base+"/"+m2+"/"][day] = true;
-                        }
-                        */
-                      }
-                      catch(ex) {}
+                        catch(ex) {}
                     }
                 }
             )
-            .then(function() {
-                Object.keys(visitedDomainOn).forEach(function(key){
-                    //daysVisited[key] = Object.keys(visitedDomainOn[key]).length;
-                });
-                Object.keys(visitedSubDomain).forEach(function(key) {
-                    //daysVisited[key] = Object.keys(visitedSubDomain[key]).length;
-                });
-            })
             .then(function() {
                 callback({
                     size: historysize,
-                    //daysVisited: daysVisited,
-                    //visitedDomainOn: visitedDomainOn,
-                    //visitedSubDomain: visitedSubDomain,
                     days: CliqzUtils.getDay() - history
                 });
-            });
-    },
-    analyze: function(pattern){
-        let today = CliqzUtils.getDay();
-        let history = today;
-        let re;
-        let data = {};
-        let cache = {};
-        let cache_all = {};
-        let cache_allq = {};
-        let cache_ncq = {};
-        let count = 0;
-        let re = /\.google\..*?\/(?:url|aclk)\?/;
-        let allq = /\.google\..*?[#?&;]q=[^$&]+/;
-        let ncq1 = /\.google\..*?search\?q=[^$&]+.*channel=rcs/;
-        let ncq3 = /\.google\..*?search\?q=[^$&]+.*channel=nts/;
-        let ncq2 = /\.google\..*?#.*?[?&;]?q=[^$&]+/;
-
-
-
-        //re = RegExp(pattern || \.google\..*?\/(?:url|aclk));
-
-        function dayToYMD(day) {
-            var date = new Date(day * 86400000);
-            var d = date.getDate();
-            var m = date.getMonth() + 1;
-            var y = date.getFullYear();
-            return '' + y + '-' + (m<=9 ? '0' + m : m) + '-' + (d <= 9 ? '0' + d : d);
-        }
-
-        this.PlacesInterestsStorage
-            ._execute(
-                "SELECT rev_host, v.visit_date / 1 day, url " +
-                "FROM moz_historyvisits v " +
-                "JOIN moz_places h " +
-                "ON h.id = v.place_id " +
-                "WHERE h.hidden = 0 AND h.visit_count > 0",
-                {
-                    columns: ["rev_host", "day", "url"],
-                    onRow: function({rev_host, day, url}) {
-                        try {
-                            count+=1;
-                            var dayy = parseInt(day / 86400000000);
-                            var bucket_2s = parseInt(day / 2000000);
-
-                            if(!data[dayy]) {
-                                data[dayy] = [0, 0, 0, 0];
-                            }
-
-                            if(re.test(url)){
-                                if(!cache[bucket_2s]){
-                                    cache[bucket_2s] = true;
-                                    data[dayy][0] += 1;
-                                }
-                            }
-
-                            if(!cache_all[bucket_2s]){
-                                cache_all[bucket_2s] = true;
-                                data[dayy][1] += 1;
-                            }
-
-                            if (allq.test(url)){
-                                if(!cache_allq[bucket_2s]) {
-                                    cache_allq[bucket_2s] = true;
-                                    data[dayy][2] +=1
-                                }
-                            }
-
-                            if (ncq1.test(url) || ncq2.test(url) || ncq3.test(url)) {
-                                if(!cache_ncq[bucket_2s]) {
-                                    cache_ncq[bucket_2s] = true;
-                                    data[dayy][3] +=1;
-                                }
-                            }
-                        } catch (e){}
-                    }
-                }
-            )
-            .then(function() {
-
-                /*
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        CliqzUtils.log(data[key], dayToYMD(key));
-                    }
-                }
-                */
-
-                var action = {
-                    type: 'environment',
-                    action: 'history_analysis_01',
-                    data: data
-                };
-
-                CliqzUtils.track(action);
             });
     },
 	PlacesInterestsStorage: {
