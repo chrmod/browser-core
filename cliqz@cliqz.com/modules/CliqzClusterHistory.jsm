@@ -15,7 +15,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
  ******************************************************/
 
 
-var COLORS = ['#993300', '#99CC99', '#003366'];
+var COLORS = ['#CC3399', '#27B0CE', '#1777E2'];
 
 var templates = {
 

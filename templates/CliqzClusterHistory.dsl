@@ -1,4 +1,4 @@
-colors: ["#993300", "#99CC99", "#003366"]
+colors: ["#CC3399", "#27B0CE", "#1777E2"]
 
 localization:
     settings:
