@@ -403,9 +403,10 @@ $RULES
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-"""                     if (!($title in template['control_set'])) {
+"""                     if (!template['control_set'].hasOwnProperty($title)) {
                         var control = {title: $title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
+                        template['control_set'][$title] = true;
                     }
 """
     )
@@ -424,8 +425,9 @@ $RULES
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !($title in topic['label_set'])) {
+                    if (topic!=null && !topic['label_set'].hasOwnProperty($title)) {
                         topic['urls'].push({href: url, path: path, title: $title})
+                        topic['label_set'][$title] = true;
                     }"""
     )
 
