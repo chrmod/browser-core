@@ -88,6 +88,10 @@ var CliqzABTests = CliqzABTests || {
                 // use default changelog URL
                 CliqzUtils.setPref("showChangelog", true);
                 break;
+            case "1002_A":
+                // enable clustering + series
+                CliqzUtils.setPref("abCluster", true);
+                break;
         }
     },
     leave: function(abtest) {
@@ -102,12 +106,15 @@ var CliqzABTests = CliqzABTests || {
             case "1000_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("logTimings");
                 break;
-
             case "1001_A":
             case "1001_B":
             case "1001_C":
                 CliqzUtils.cliqzPrefs.clearUserPref("changelogURL");
                 CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
+                break;
+            case "1002_A":
+                // disable clustering + series
+                CliqzUtils.cliqzPrefs.clearUserPref("abCluster");
                 break;
         }
     },
