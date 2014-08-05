@@ -269,6 +269,14 @@ function enhanceResults(res){
     return res;
 }
 
+function getResultPosition(el){
+    var idx;
+    while (el){
+        if(idx = el.getAttribute('idx')) return idx;
+        if(el.className == IC) return; //do not go higher than a result
+        el = el.parentElement;
+    }
+}
 
 function resultClick(ev){
     var el = ev.target,
@@ -283,7 +291,7 @@ function resultClick(ev){
                 type: 'activity',
                 action: 'result_click',
                 new_tab: newTab,
-                current_position: el.getAttribute('idx'),
+                current_position: getResultPosition(el),
                 query_length: CLIQZ.Core.urlbar.value.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
