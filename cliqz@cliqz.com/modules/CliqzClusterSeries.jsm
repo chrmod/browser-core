@@ -284,15 +284,22 @@ function getSeriesGrouping(titles_and_urls) {
             gr[cleanTitle(boilerParts[0]).join(" ")] = validTitlesAndUrls;
             return gr;
         } else {
-            return groupTitlesByPart(0, movingParts, validTitlesAndUrls);
+            gr = groupTitlesByPart(0, movingParts, validTitlesAndUrls);
         }
     } else {
         var minDiff = [different[0], 0];
         for (var i = 1; i < different.length; i++) {
             if (different[i] < minDiff[0]) minDiff = [different[i], i];
         }
-        return groupTitlesByPart(minDiff[1], movingParts, validTitlesAndUrls);
+        gr  = groupTitlesByPart(minDiff[1], movingParts, validTitlesAndUrls);
     }
+    
+    /** Check if the grouping is valid, and we didn't mess it up. */
+    var grKeys = Object.getOwnPropertyNames(gr);
+    for (var i = 0; i < grKeys.length; i++) {
+        if (grKeys[i].length <= 3) return null;
+    }
+    return gr;
 }
 
 /** Groups the titles by series. */
@@ -420,6 +427,7 @@ var CliqzClusterSeries = {
         var seriesUrls = null;
         var action = null;
         var gr = getSeriesGrouping(domains[maxDomain]);
+        log("Grouping: " + JSON.stringify(gr));
         if (gr != null && Object.getOwnPropertyNames(gr).length > 1) {
             var latestGr = getLatestSeries(gr, domains[maxDomain][0][1]);
             seriesName = Object.getOwnPropertyNames(latestGr)[0];
