@@ -50,6 +50,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
 
+        if(!CliqzUtils.getPref("abCluster", false)){
+            CliqzUtils.log('Disabled', CliqzClusterHistory.LOG_KEY);
+            return [false, historyTrans];
+        }
+
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
