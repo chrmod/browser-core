@@ -19,9 +19,9 @@
                 url='{{href}}'
                 type='{{../../type}}'
                 {{#if guessed}}
-                  extra='guessed'
+                  extra='guessed{{ @index }}'
                 {{else}}
-                  extra='topic'
+                  extra='topic{{ @index }}'
                 {{/if}}
                 class="cliqz-series-topic {{cls}}"
                 >
@@ -33,6 +33,6 @@
       {{/each}}
     </div>
   </div>
-  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}' newtab='true'>
   </div>
 </div>

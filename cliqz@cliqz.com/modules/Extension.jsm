@@ -8,10 +8,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
   'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.02');
+    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
@@ -100,16 +100,11 @@ var Extension = {
         }
     },
     cleanPrefs: function(prefs){
-        //0.4.07.003
-        prefs.clearUserPref('inPrivate');
-        //0.4.08.005
-        if(prefs.prefHasUserValue('UDID')){
-            prefs.setCharPref('session', prefs.getCharPref('UDID'));
-            prefs.clearUserPref('UDID');
-        }
+        //0.5.02 - 0.5.04
+        prefs.clearUserPref('analysis');
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.02', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.04', win);
     },
     loadIntoWindow: function(win) {
         if (!win) return;

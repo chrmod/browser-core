@@ -79,6 +79,9 @@ Glossary
     f - french
     v - video
     h - hq
+    k - science
+    q - qaa
+    l - dictionary
 - any of the folowing for custom search engine search
     1 - google images
     2 - google maps
@@ -198,7 +201,7 @@ Result click (mouse)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
-    "extra": 'topic', //extra information about the click - used for topic clustering, guessed series, ...
+    "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
 }
 ```

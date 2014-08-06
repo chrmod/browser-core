@@ -11,7 +11,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'q': 'qaa'
+        'q': 'qaa'     ,
+        'k': 'science' ,
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
@@ -269,6 +270,14 @@ function enhanceResults(res){
     return res;
 }
 
+function getResultPosition(el){
+    var idx;
+    while (el){
+        if(idx = el.getAttribute('idx')) return idx;
+        if(el.className == IC) return; //do not go higher than a result
+        el = el.parentElement;
+    }
+}
 
 function resultClick(ev){
     var el = ev.target,
@@ -283,8 +292,8 @@ function resultClick(ev){
                 type: 'activity',
                 action: 'result_click',
                 new_tab: newTab,
-                current_position: el.getAttribute('idx'),
-                query_length: CLIQZ.Core.urlbar.value.length,
+                current_position: getResultPosition(el),
+                query_length: CliqzAutocomplete.lastSearch.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 extra: el.getAttribute('extra'), //extra data about the link
@@ -408,14 +417,15 @@ function onEnter(ev, item){
             type: 'activity',
             action: 'result_enter',
             current_position: index,
-            query_length: inputValue.length,
+            query_length: CliqzAutocomplete.lastSearch.length,
             search: false
         };
 
     if(popupOpen && index != -1){
+        var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
-        action.search = CliqzUtils.isSearch(item.getAttribute('url'));
-        openUILink(item.getAttribute('url'));
+        action.search = CliqzUtils.isSearch(url);
+        openUILink(url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -433,7 +443,7 @@ function onEnter(ev, item){
             return true;
         }
 
-
+        action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
             action.position_type = 'inbar_url';
             action.search = CliqzUtils.isSearch(inputValue);
