@@ -9,7 +9,7 @@
         <span class="cliqz-cluster-result-control"
               url='{{url}}'
               type='{{../type}}'
-              extra='control'
+              extra='control{{ @index }}'
               style="cursor: pointer">
           {{ title }}
         </span>
@@ -21,7 +21,7 @@
         <span class="cliqz-cluster-topic-label"
               url='{{labelUrl}}'
               type='{{../type}}'
-              extra='topic-label'
+              extra='topic-label{{ @index }}'
               style="background-color:{{color}};">
               {{label}}
         </span>
@@ -30,7 +30,7 @@
               style="color: {{../color}}; cursor: pointer"
               url='{{href}}'
               type='{{../../type}}'
-              extra='topic'
+              extra='topic{{ @index }}'
               class="cliqz-cluster-topic"
               >
                 {{ title }}
@@ -39,6 +39,6 @@
       </div>
     {{/each}}
   </div>
-  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}' newtab='true'>
   </div>
 </div>
