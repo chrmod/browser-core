@@ -10,7 +10,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
 
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 var CliqzHistoryManager = {
 	_db: null,
@@ -24,61 +24,25 @@ var CliqzHistoryManager = {
 
         this.PlacesInterestsStorage
             ._execute(
-                //"SELECT rev_host, v.visit_date / 86400000000 day, url " +
                 "SELECT count(*) cnt, MIN(v.visit_date) first " +
                 "FROM moz_historyvisits v " +
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
                 "WHERE h.hidden = 0 AND h.visit_count > 0 ",
                 {
-                    //columns: ["rev_host", "day", "url"],
-                    //onRow: function({rev_host, day, url}) {
                     columns: ["cnt", "first"],
                     onRow: function({cnt, first}) {
-                    try {
-                        history = Math.floor(first / 86400000000);
-                        historysize = cnt;
-                        /*
-                        let host = rev_host.slice(0, -1).split("").reverse().join("");
-                        let base = host;
-                        historysize = historysize + 1;
-                        if (day < history) {
-                            history= day;
+                        try {
+                            history = Math.floor(first / 86400000000);
+                            historysize = cnt;
                         }
-
-                        base = base.replace("www.", "");
-                        //let base = Services.eTLD.getBaseDomainFromHost(host);
-                        var m = url.split("/");
-                        let m2 = "";
-                        if (m.length > 4) {
-                          m2 = m[3];
-                        }
-                        visitedDomainOn[base] = visitedDomainOn[base] || {};
-                        visitedDomainOn[base][day] = true;
-                        if (m2 != "") {
-                            visitedSubDomain[base+"/"+m2+"/"] = visitedSubDomain[base+"/"+m2+"/"] || {};
-                            visitedSubDomain[base+"/"+m2+"/"][day] = true;
-                        }
-                        */
-                      }
-                      catch(ex) {}
+                        catch(ex) {}
                     }
                 }
             )
             .then(function() {
-                Object.keys(visitedDomainOn).forEach(function(key){
-                    //daysVisited[key] = Object.keys(visitedDomainOn[key]).length;
-                });
-                Object.keys(visitedSubDomain).forEach(function(key) {
-                    //daysVisited[key] = Object.keys(visitedSubDomain[key]).length;
-                });
-            })
-            .then(function() {
                 callback({
                     size: historysize,
-                    //daysVisited: daysVisited,
-                    //visitedDomainOn: visitedDomainOn,
-                    //visitedSubDomain: visitedSubDomain,
                     days: CliqzUtils.getDay() - history
                 });
             });
