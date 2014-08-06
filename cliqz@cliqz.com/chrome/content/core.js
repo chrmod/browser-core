@@ -76,21 +76,29 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
+        // add cliqz last searches
         var urlbarIcons = document.getElementById('urlbar-icons');
-        // add cliqz last search
-        var cliqzLastSearch = document.createElement('hbox');
-        // FIXME: We should find another way to deal with events that take time
-        // to finish, like a disk read. A 250ms wait is not a good solution.
-        setTimeout(function () {
-            cliqzLastSearch.textContent = CliqzUtils.getLocalizedString('urlBarLastSearch');
-        }, 250);
+        CLIQZ.Core.lastSearchContainer = document.createElement('hbox');
 
-        cliqzLastSearch.className = 'hidden';  // Hide on start
+        var cliqzLastSearch = document.createElement('hbox');
+        cliqzLastSearch.className = 'cliqz-urlbar-Last-search';
         cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
 
-        urlbarIcons.parentNode.insertBefore(cliqzLastSearch, urlbarIcons);
-        CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
-        CLIQZ.Core.elem.push(cliqzLastSearch);
+        CLIQZ.Core.lastSearchContainer.className = 'hidden';
+        CLIQZ.Core.lastSearchContainer.appendChild(cliqzLastSearch)
+        CLIQZ.Core.lastSearchLast = cliqzLastSearch;
+        urlbarIcons.parentNode.insertBefore(CLIQZ.Core.lastSearchContainer, urlbarIcons);
+
+        // Add last search dropdown
+        var cliqzLastSearchDropdownArrow = document.createElement('button');
+        cliqzLastSearchDropdownArrow.className = 'cliqz-urlbar-Last-dropdown-arrow';
+
+        CLIQZ.Core.lastSearchContainer.appendChild(cliqzLastSearchDropdownArrow)
+        cliqzLastSearchDropdownArrow.setAttribute("type","panel");
+        CLIQZ.Core.cliqzLastSearchesPanel = document.createElement('panel');
+        cliqzLastSearchDropdownArrow.appendChild(CLIQZ.Core.cliqzLastSearchesPanel);
+
+        CLIQZ.Core.elem.push(CLIQZ.Core.lastSearchContainer);
 
         // browser handlers
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
@@ -228,6 +236,28 @@ CLIQZ.Core = CLIQZ.Core || {
 
         return base.indexOf(candidate) == 0;
     },
+    addToLastSearches: function(newSearch) {
+      // If the query already existis in the list skip it
+      for (var existing of CLIQZ.Core.cliqzLastSearchesPanel.children) {
+        if (newSearch == existing.innerHTML)
+          return;
+      }
+      // If the list gets longer than 7 drop first element
+      if (CLIQZ.Core.cliqzLastSearchesPanel.children.length > 7)
+        CLIQZ.Core.cliqzLastSearchesPanel.removeChild(
+          CLIQZ.Core.cliqzLastSearchesPanel.lastChild);
+
+      var cliqzLastSearch = document.createElement('hbox');
+      cliqzLastSearch.textContent = newSearch;
+      cliqzLastSearch.tooltipText = newSearch;
+      cliqzLastSearch.query = newSearch;
+      cliqzLastSearch.className = 'cliqz-urlbar-Last-search';
+      cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
+      CLIQZ.Core.cliqzLastSearchesPanel.insertBefore(
+        cliqzLastSearch,
+        CLIQZ.Core.cliqzLastSearchesPanel.firstChild
+      );
+    },
     lastQuery: function(){
         var val = CLIQZ.Core.urlbar.value.trim(),
             lastQ = CliqzAutocomplete.lastSearch.trim();
@@ -235,6 +265,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);
             CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+            CLIQZ.Core.addToLastSearches(lastQ);
         } else {
             // remove last query if the user ended his search session
             if(CliqzUtils.isUrl(lastQ))
@@ -242,11 +273,11 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     hideLastQuery: function(){
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
+        CLIQZ.Core.lastSearchContainer.className = 'hidden';
     },
     showLastQuery: function(q){
-        var lastQContainer = CLIQZ.Core.urlbarCliqzLastSearchContainer;
-        lastQContainer.className = 'cliqz-urlbar-Last-search';
+        CLIQZ.Core.lastSearchContainer.className = ''; // Remove hidden class
+        var lastQContainer = CLIQZ.Core.lastSearchLast;
         lastQContainer.textContent = q;
         lastQContainer.tooltipText = q;
         lastQContainer.query = q;

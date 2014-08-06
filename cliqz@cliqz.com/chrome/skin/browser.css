@@ -231,6 +231,19 @@
     overflow: hidden;
 }
 
+.cliqz-urlbar-Last-search:hover {
+    background-color: #909090;
+  }
+
+.cliqz-urlbar-Last-dropdown-arrow {
+    background: url(chrome://cliqzres/content/skin/arrow_down.png) no-repeat center;
+    -moz-appearance: none;
+    color: white;
+    background-color: #909090;
+    margin: 0;
+    min-width: 20px;
+}
+
 /* weather */
 .cliqz-weather-left-box {
     padding-top: 10px;
