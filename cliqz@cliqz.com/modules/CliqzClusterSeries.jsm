@@ -20,6 +20,7 @@ var series_regexs = [
     /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
     /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
 ];
+var title_regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
 
 /************************** Title / series guessing ***************************/
 
@@ -172,7 +173,6 @@ function getSeriesGrouping(titles_and_urls) {
     var tokenses = [];
     var validTitlesAndUrlsMap = {};
     var validTitlesAndUrls = [];
-    // TODO: also validurls
     for (var i = 0; i < titles_and_urls.length; i++) {
         d = titles_and_urls[i][0].match(regex);
         if (d && !validTitlesAndUrlsMap.hasOwnProperty(titles_and_urls[i][0])) {
@@ -374,7 +374,8 @@ var CliqzClusterSeries = {
 
         for (let r = 0; r < series_regexs.length; r++) {
             var d = path.match(series_regexs[r]);
-            if (d) {
+            // We also get rid of pages where the title !~ Sx Ey.
+            if (d && title_regex.test(path)) {
                 if (domains[domain]==null) domains[domain]=[];
                 domains[domain].push([title, url, 'type' + r, parseInt(d[1]), parseInt(d[2]), d]);
                 break;
