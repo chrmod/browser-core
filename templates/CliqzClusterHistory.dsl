@@ -6,6 +6,177 @@ localization:
         de: Einstellungen
 
 program:
+    Youtube:
+        summary: Meine Youtube Seiten
+        url: youtube.com
+        home: http://youtube.com
+        rules:
+        -
+            type: control
+            title: Now popular
+            url: http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ
+        -
+            type: control
+            title: My subscriptions
+            url: http://www.youtube.com/feed/subscriptions/
+            #cond: /feed/subscriptions/
+        -
+            type: control
+            title: History
+            url: http://www.youtube.com/feed/history/
+            #cond: /feed/history/
+        -
+            type: control
+            title: Watch later
+            url: http://www.youtube.com/playlist?list=WL/
+            #cond: /playlist?list=WL/
+        -
+            type: topic
+            label: Channels
+            cond: /user/{item}/
+        # TODO: playlists, videos
+    Facebook:
+        summary: Meine Facebook Seiten
+        url: facebook.com
+        home: http://www.facebook.com
+        rules:
+        -
+            type: control
+            title: News feed
+            url: https://www.facebook.com/?sk=nf
+        -
+            type: control
+            title: Nachrichten
+            url: https://www.facebook.com/messages
+        -
+            type: control
+            title: Events
+            url: https://www.facebook.com/events/upcoming
+        -
+            type: exclude
+            cond: /re:^login/
+        -
+            type: topic
+            label: Pages
+            cond: /{item::re:^[^?]+$}//
+            # TODO: groups!!!
+        -
+            type: topic
+            label: Groups
+            title: title
+            cond: /groups/
+        -
+            type: topic
+            label: Lists
+            title: title
+            cond: /lists/
+    Amazon:
+        summary: Meine Amazon Seiten
+        url: amazon.de
+        home: http://www.amazon.de
+        rules:
+        -
+            type: control
+            title: Mein Amazon
+            url: https://www.amazon.de/gp/yourstore/home
+        -
+            type: control
+            title: Mein Konto
+            url: https://www.amazon.de/gp/css/homepage.html
+        -
+            type: control
+            title: Wunschzettel
+            url: http://www.amazon.de/gp/registry/wishlist
+        -
+            type: topic
+            label: Categories
+            title: title
+            cond: /*/b/
+        -
+            type: topic
+            label: Shops
+            title: title
+            cond: /gp/aag/re:(seller|merchant)=/
+            # TODO: title cleaning with regex
+    Ebay:
+        summary: Meine Ebay Seiten
+        url: ebay.de
+        home: http://www.ebay.de
+        rules:
+        -
+            type: control
+            title: Mein Ebay
+            url: http://my.ebay.de
+        -
+            type: control
+            title: Angebote
+            url: http://www.ebay.de/rpp/deals
+        -
+            type: topic
+            label: Shops
+            cond: /usr/{item::re:^[^?]+$}/
+        # TODO: categories, but it's crazy
+    Chefkock:
+        summary: Meine Chefkoch Seiten
+        url: chefkoch.de
+        home: http://www.chefkoch.de
+        rules:
+        -
+            type: control
+            title: Magazin
+            url: http://www.chefkoch.de/magazin/
+        -
+            type: control
+            title: Rezepte
+            url: http://www.chefkoch.de/rezepte/
+        -
+            type: control
+            title: Community
+            url: http://www.chefkoch.de/forum/
+        -
+            type: control
+            title: Blog
+            url: http://www.chefkoch-blog.de/
+        -
+            type: topic
+            label: Rezepte
+            title: title
+            labelUrl: 1
+            cond: /rezepte/re:[\d]+/
+        -
+            type: topic
+            label: Artikel
+            title: title
+            labelUrl: 1
+            cond: /magazin/artikel/
+    Bild:
+        summary: Meine Bild Seiten
+        url: bild.de
+        home: http://www.bild.de
+        rules:
+        -
+            type: control
+            title: Bild shop
+            url: http://shop.bild.de
+        -
+            type: control
+            title: Community
+            url: http://www.bild.de/ka/p/community
+        -
+            type: control
+            title: Login
+            url: https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F
+        -
+            type: topic
+            label: Topics
+            cond: /{item}/startseite/
+            # TODO: same as (to handle /news/startseite/news/)
+        -
+            type: topic
+            label: Topics
+            title: '"Bundesliga"'
+            # TODO: get rid of the '""'
+            cond: /bundesliga/1-liga/
     GitHub:
         summary: Github personalized sitemap
         url: github.com

@@ -139,7 +139,7 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'[-\w]+', re.UNICODE).setParseAction(__create)
+        return Regex(ur'[-?&=\w]+', re.UNICODE).setParseAction(__create)
 
     def condition(self, index):
         return "vpath[{}] == '{}'".format(index, self.word)
