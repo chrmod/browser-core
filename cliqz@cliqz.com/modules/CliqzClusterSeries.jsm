@@ -418,14 +418,26 @@ var CliqzClusterSeries = {
         /* We try the first series guesser here. */
         var seriesName = null;
         var seriesUrls = null;
+        var action = null;
         var gr = getSeriesGrouping(domains[maxDomain]);
         if (gr != null && Object.getOwnPropertyNames(gr).length > 1) {
             var latestGr = getLatestSeries(gr, domains[maxDomain][0][1]);
             seriesName = Object.getOwnPropertyNames(latestGr)[0];
             seriesUrls = latestGr[seriesName];
+            action = {
+                type: 'performance',
+                action: 'clustering',
+                value: 'D'
+            };
         } else {
+            action = {
+                type: 'performance',
+                action: 'clustering',
+                value: 'J'
+            };
             seriesUrls = domains[maxDomain];
         }
+        CliqzUtils.track(action);
 
         /* Use seriesUrls from now on. */
         var itemType = parseInt(seriesUrls[0][2].slice(4));
