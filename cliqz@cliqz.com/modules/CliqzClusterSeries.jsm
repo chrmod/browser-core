@@ -142,7 +142,7 @@ function getViterbiInput(maxDf) {
         moving_emission[cls] = 1.0 / maxDf;
     }
 
-    data = {
+    var data = {
         states: [
             'Boilerplate',
             'Moving'
@@ -165,22 +165,21 @@ function getViterbiInput(maxDf) {
 
 /** Gets the name of the series, based on the titles of the per-episode pages. */
 function getSeriesGrouping(titles_and_urls) {
-    var regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
-    var regex2 = /(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+/;
-    print("TITLES:");
-    print(titles_and_urls);
+    var split_regex = /(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+/;
+    //log("TITLES:");
+    //log(titles_and_urls);
     
     var tokenses = [];
     var validTitlesAndUrlsMap = {};
     var validTitlesAndUrls = [];
     for (var i = 0; i < titles_and_urls.length; i++) {
-        d = titles_and_urls[i][0].match(regex);
-        if (d && !validTitlesAndUrlsMap.hasOwnProperty(titles_and_urls[i][0])) {
+        if (title_regex.test(titles_and_urls[i][0]) &&
+                !validTitlesAndUrlsMap.hasOwnProperty(titles_and_urls[i][0])) {
             validTitlesAndUrlsMap[titles_and_urls[i][0]] = true;
             validTitlesAndUrls.push(titles_and_urls[i]);
         }
     }
-    print("Valid titles: " + validTitlesAndUrls.length);
+    log("Valid titles: " + validTitlesAndUrls.length);
     if (validTitlesAndUrls.length == 0) {
         return null;
     } else if (validTitlesAndUrls.length == 1) {
@@ -189,21 +188,21 @@ function getSeriesGrouping(titles_and_urls) {
     }
 
     for (var i = 0; i < validTitlesAndUrls.length; i++) {
-        tokenses.push(validTitlesAndUrls[i][0].split(regex2).join(" __season_episode_removed__ ").split(/\s+/));
+        tokenses.push(validTitlesAndUrls[i][0].split(split_regex).join(" __season_episode_removed__ ").split(/\s+/));
     }
 
     var dfs = compute_dfs(tokenses);
     //print("DFS");
     //var words = Object.getOwnPropertyNames(dfs);
     //for (var i = 0; i < words.length; i++) print("Word: " + words[i] + ", DF: " + dfs[words[i]]);
-    tokens_dfs = get_dfs(dfs, tokenses);
+    var tokens_dfs = get_dfs(dfs, tokenses);
 
     var viterbiData = getViterbiInput(validTitlesAndUrls.length);
 
     var movingParts = [];
     var boilerParts = [];
     for (var i = 0; i < tokens_dfs.length; i++) {
-        token_dfs = [df.toString() for (df of tokens_dfs[i])];
+        var token_dfs = [df.toString() for (df of tokens_dfs[i])];
         viterbiData['observations'] = token_dfs;
         
         var result = Viterbi(viterbiData);
@@ -231,7 +230,8 @@ function getSeriesGrouping(titles_and_urls) {
             index = boilerPart.indexOf('__season_episode_removed__');
         }
         boilerParts.push(boilerPart);
-        print("moving parts: " + movingPart + ", " + movingPart.length + ", title: " + validTitlesAndUrls[i][0]);
+        //log("moving parts: " + movingPart + ", " + movingPart.length +
+        //    ", title: " + validTitlesAndUrls[i][0]);
     }
 
     /*
@@ -241,7 +241,7 @@ function getSeriesGrouping(titles_and_urls) {
     for (var i = 1; i < movingParts.length; i++) {
         if (movingParts[i].length < numParts) { numParts = movingParts[i].length};
     }
-    print("NUM PARTS: " + numParts);
+    //log("NUM PARTS: " + numParts);
 
     // And now we try to find out which of the moving groups are titles, and
     // which are the name of the series.
@@ -307,6 +307,24 @@ function groupTitlesByPart(part, movingParts, titles) {
         }
     }
     return grouping;
+}
+
+/**
+ * Returns the series name and the history items associated to it from
+ * @p grouping that contains @p latestUrl.
+ */
+function getLatestSeries(grouping, latestUrl) {
+    var series = Object.getOwnPropertyNames(grouping);
+    for (let i = 0; i < series.length; i++) {
+        for (let j = 0; j < grouping[series[i]].length; j++) {
+            if (grouping[series[i]][j][1] == latestUrl) {
+                var ret = {};                          // This is absurd.
+                ret[series[i]] = grouping[series[i]];
+                return ret;
+            }
+        }
+    }
+    // Call this function with the right arguments, dammit! :)
 }
 
 /**
@@ -392,15 +410,28 @@ var CliqzClusterSeries = {
         }
     });
 
+    log('DOMAINS: ' + JSON.stringify(domains));
     if (maxDomain!=null && maxDomainLen>4) {
         // at least 5
         log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));
-        log('DOMAINS: ' + JSON.stringify(domains));
 
-        var itemType = parseInt(domains[maxDomain][0][2].slice(4));
+        /* We try the first series guesser here. */
+        var seriesName = null;
+        var seriesUrls = null;
+        var gr = getSeriesGrouping(domains[maxDomain]);
+        if (gr != null && Object.getOwnPropertyNames(gr).length > 1) {
+            var latestGr = getLatestSeries(gr, domains[maxDomain][0][1]);
+            seriesName = Object.getOwnPropertyNames(latestGr)[0];
+            seriesUrls = latestGr[seriesName];
+        } else {
+            seriesUrls = domains[maxDomain];
+        }
+
+        /* Use seriesUrls from now on. */
+        var itemType = parseInt(seriesUrls[0][2].slice(4));
 
         /* Sort the urls by season/episode, extract the last one. */
-        var previousEps = domains[maxDomain].sort(function(a, b) {
+        var previousEps = seriesUrls.sort(function(a, b) {
             if (a[3] == b[3]) return b[4] - a[4];
             else return b[3] - a[3];
         }).slice(0, 3);
@@ -418,7 +449,8 @@ var CliqzClusterSeries = {
             cliqzTitles = (cliqzResults || []).map(function(r){
               if(r.snippet)return r.snippet.title;
             });
-        var label = CliqzClusterSeries.guess_series_name(last_url, last_title, historyTitles, cliqzTitles, q);
+        var label = (seriesName != null) ? seriesName
+                                         : CliqzClusterSeries.guess_series_name(last_url, last_title, historyTitles, cliqzTitles, q);
         var template = {
             summary: 'Your ' + CliqzUtils.getDetailsFromUrl(real_domain).host,
             url: real_domain,
