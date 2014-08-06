@@ -19,6 +19,90 @@ var COLORS = ['#CC3399', '#27B0CE', '#1777E2'];
 
 var templates = {
 
+    'bild.de': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Bild Seiten',
+                control: [{title: 'Bild shop', url: 'http://shop.bild.de', iconCls: 'null'},
+                          {title: 'Community', url: 'http://www.bild.de/ka/p/community', iconCls: 'null'},
+                          {title: 'Login', url: 'https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.bild.de'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[1] == 'startseite') {
+                    var item = vpath[0];
+                    var label = 'Topics';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
+                    }
+                }
+                else if (vpath[0] == 'bundesliga' && vpath[1] == '1-liga') {
+                    var item = 'null';
+                    var label = 'Topics';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty("Bundesliga")) {
+                        topic['urls'].push({href: url, path: path, title: "Bundesliga"})
+                        topic['label_set']["Bundesliga"] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
     'basecamp.com': {
         fun: function(urls) {
 
@@ -116,6 +200,69 @@ var templates = {
             return template;
         }
     },
+    'youtube.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Youtube Seiten',
+                control: [{title: 'Now popular', url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
+                          {title: 'My subscriptions', url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
+                          {title: 'History', url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
+                          {title: 'Watch later', url: 'http://www.youtube.com/playlist?list=WL/', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://youtube.com'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'user') {
+                    var item = vpath[1];
+                    var label = 'Channels';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
     'twitter.com': {
         fun: function(urls) {
 
@@ -166,70 +313,6 @@ var templates = {
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
                         topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
-                    }
-                }
-            }
-
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-            return template;
-        }
-    },
-    'github.com': {
-        fun: function(urls) {
-
-            var template = {
-                summary: 'Github personalized sitemap',
-                control: [{title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
-                control_set: {},
-                topics: [],
-                url: 'http://github.com/'
-            };
-
-            var next_color = 0;
-
-            for(let i=0; i<urls.length;i++) {
-                var url = urls[i]['value'];
-                var title = urls[i]['comment'];
-
-                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                    domain = urlDetails.host,
-                    path = urlDetails.path;
-                var dpath = domain.toLowerCase().split('.');
-                dpath.reverse();
-                var vpath = path.toLowerCase().split('/');
-
-                // remove last element if '', that means that path ended with /
-                // also remove first element if '',
-
-                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                if (vpath[0] == 'settings') {
-
-
-                }
-                else if (vpath.length == 2) {
-                    var item = vpath[1];
-                    var label = vpath[0];
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-database'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
@@ -305,6 +388,325 @@ var templates = {
             return template;
         }
     },
+    'ebay.de': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Ebay Seiten',
+                control: [{title: 'Mein Ebay', url: 'http://my.ebay.de', iconCls: 'null'},
+                          {title: 'Angebote', url: 'http://www.ebay.de/rpp/deals', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.ebay.de'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'usr' && /^[^?]+$/.test(vpath[1])) {
+                    var item = vpath[1];
+                    var label = 'Shops';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'amazon.de': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Amazon Seiten',
+                control: [{title: 'Mein Amazon', url: 'https://www.amazon.de/gp/yourstore/home', iconCls: 'null'},
+                          {title: 'Mein Konto', url: 'https://www.amazon.de/gp/css/homepage.html', iconCls: 'null'},
+                          {title: 'Wunschzettel', url: 'http://www.amazon.de/gp/registry/wishlist', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.amazon.de'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[1] == 'b') {
+                    var item = 'null';
+                    var label = 'Categories';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
+                    }
+                }
+                else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
+                    var item = 'null';
+                    var label = 'Shops';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'github.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Github personalized sitemap',
+                control: [{title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control_set: {},
+                topics: [],
+                url: 'http://github.com/'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'settings') {
+
+
+                }
+                else if (vpath.length == 2) {
+                    var item = vpath[1];
+                    var label = vpath[0];
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-database'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'facebook.com': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Facebook Seiten',
+                control: [{title: 'News feed', url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
+                          {title: 'Nachrichten', url: 'https://www.facebook.com/messages', iconCls: 'null'},
+                          {title: 'Events', url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.facebook.com'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (/^login/.test(vpath[0])) {
+
+
+                }
+                else if ((/^[^?]+$/.test(vpath[0])) && (vpath.length == 1)) {
+                    var item = vpath[0];
+                    var label = 'Pages';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
+                        topic['urls'].push({href: url, path: path, title: item})
+                        topic['label_set'][item] = true;
+                    }
+                }
+                else if (vpath[0] == 'groups') {
+                    var item = 'null';
+                    var label = 'Groups';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
+                    }
+                }
+                else if (vpath[0] == 'lists') {
+                    var item = 'null';
+                    var label = 'Lists';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
     'klout.com': {
         fun: function(urls) {
 
@@ -361,6 +763,91 @@ var templates = {
                     if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
                         topic['urls'].push({href: url, path: path, title: item})
                         topic['label_set'][item] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'chefkoch.de': {
+        fun: function(urls) {
+
+            var template = {
+                summary: 'Meine Chefkoch Seiten',
+                control: [{title: 'Magazin', url: 'http://www.chefkoch.de/magazin/', iconCls: 'null'},
+                          {title: 'Rezepte', url: 'http://www.chefkoch.de/rezepte/', iconCls: 'null'},
+                          {title: 'Community', url: 'http://www.chefkoch.de/forum/', iconCls: 'null'},
+                          {title: 'Blog', url: 'http://www.chefkoch-blog.de/', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.chefkoch.de'
+            };
+
+            var next_color = 0;
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'rezepte' && /[\d]+/.test(vpath[1])) {
+                    var item = 'null';
+                    var label = 'Rezepte';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
+                    }
+                }
+                else if (vpath[0] == 'magazin' && vpath[1] == 'artikel') {
+                    var item = 'null';
+                    var label = 'Artikel';
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
+                        topic['urls'].push({href: url, path: path, title: title})
+                        topic['label_set'][title] = true;
                     }
                 }
             }

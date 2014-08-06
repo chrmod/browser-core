@@ -21,6 +21,332 @@ var series_regexs = [
     /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
 ];
 
+/************************** Title / series guessing ***************************/
+
+/**
+ * Viterbi algorithm for finding hidden relationships.
+ *
+ * From https://gist.github.com/methodin/1576192. Fixed by david@cliqz.com.
+ */
+function Viterbi(data) {
+    var V = [{}];
+    var path = {};
+    // Initialize base cases (t == 0)
+    for(var i=0;i<data.states.length;i++) {
+        var state = data.states[i];
+        V[0][state] = data.start_probability[state]
+            * data.emission_probability[state][data.observations[0]];
+        path[state] = [state];
+    }
+
+    // Run Viterbi for t > 0
+    for(var t=1;t<data.observations.length;t++) {
+        //print("t = " + t);
+        V.push({});
+        var newpath = {};
+        for(var i=0;i<data.states.length;i++) {
+            var state = data.states[i];
+            //print("  state = " + state);
+            var max = [0, data.states[0]];
+            for(var j=0;j<data.states.length;j++) {
+                var state0 = data.states[j];
+                // Calculate the probablity
+                var calc = V[t-1][state0]
+                    * data.transition_probability[state0][state]
+                    * data.emission_probability[state][data.observations[t]];
+                //print("calc: " + calc);
+                if(calc > max[0]) max = [calc, state0];
+            }
+            V[t][state] = max[0];
+            newpath[state] = path[max[1]].concat(state);
+        }
+        path = newpath;
+    }
+
+    var max = [0,null];
+    for(var i=0;i<data.states.length;i++) {
+        var state = data.states[i];
+        var calc = V[data.observations.length-1][state];
+        if(calc > max[0]) max = [calc,state];
+    }
+    return [max[0], path[max[1]]];
+}
+
+/**
+ * Computes the DFs.
+ *
+ * @param tokenses A list of tokenized titles ([[token]]).
+ * @return the DF map.
+ */
+function compute_dfs(tokenses) {
+    var df = {};
+    for (var i = 0; i < tokenses.length; i++) {
+        var tokens = {};
+        for (var j = 0; j < tokenses[i].length; j++) {
+            tokens[tokenses[i][j]] = 1;
+        }
+        var wordsInTitle = Object.getOwnPropertyNames(tokens);
+        for (var j = 0; j < wordsInTitle.length; j++) {
+            var prop = wordsInTitle[j];
+            df[prop] = df.hasOwnProperty(prop) ? df[prop] + 1 : 1;
+        }
+    }
+    return df;
+}
+
+/** 
+ * Gets the dfs for the words in the titles.
+ * @param dfs the output of compute_dfs().
+ * @param tokenses the same as in compute_dfs().
+ * @return [[df[t] for t in tokens] for tokens in tokenses].
+ */
+function get_dfs(dfs, tokenses) {
+    var tokens_dfs = [];
+    for (var i = 0; i < tokenses.length; i++) {
+        tokens_dfs.push([]);
+        for (var j = 0; j < tokenses[i].length; j++) {
+            tokens_dfs[i].push(dfs[tokenses[i][j]]);
+        }
+    }
+    return tokens_dfs;
+}
+
+/** Returns all "runs" of a hidden state in the state sequence. */
+function get_runs(tokens, states) {
+    var runs = [];
+    var lastState = states[0];
+    var startedAt = 0;
+    for (var i = 1; i < tokens.length; i++) {
+        if (states[i] != lastState) {
+            runs.push([lastState, tokens.slice(startedAt, i)]);
+            lastState = states[i];
+            startedAt = i;
+        }
+    }
+    runs.push([lastState, tokens.slice(startedAt)]);
+    return runs;
+}
+
+/**
+ * Returns the input structure for the Viterbi algorithm without the observations.
+ * @param maxDf the maximum possible DF (== number of titles).
+ */
+function getViterbiInput(maxDf) {
+    // The emission probabilities
+    var boiler_emission = {};
+    var moving_emission = {};
+    for (var df = 1; df <= maxDf; df++) {
+        var cls = df.toString();
+        boiler_emission[cls] = df == maxDf ? 1.0 : 0.0;
+        moving_emission[cls] = 1.0 / maxDf;
+    }
+
+    data = {
+        states: [
+            'Boilerplate',
+            'Moving'
+        ],
+        start_probability: {
+            'Boilerplate': 0.6,
+            'Moving': 0.4
+        },
+        transition_probability: {
+            'Boilerplate': {'Boilerplate': 0.7, 'Moving': 0.3},
+            'Moving': {'Boilerplate': 0.3, 'Moving': 0.7},
+        },
+        emission_probability: {
+            'Boilerplate' : boiler_emission,
+            'Moving' : moving_emission
+        }
+    };
+    return data;
+}
+
+/** Gets the name of the series, based on the titles of the per-episode pages. */
+function getSeriesGrouping(titles_and_urls) {
+    var regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
+    var regex2 = /(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+/;
+    print("TITLES:");
+    print(titles_and_urls);
+    
+    var tokenses = [];
+    var validTitlesAndUrlsMap = {};
+    var validTitlesAndUrls = [];
+    // TODO: also validurls
+    for (var i = 0; i < titles_and_urls.length; i++) {
+        d = titles_and_urls[i][0].match(regex);
+        if (d && !validTitlesAndUrlsMap.hasOwnProperty(titles_and_urls[i][0])) {
+            validTitlesAndUrlsMap[titles_and_urls[i][0]] = true;
+            validTitlesAndUrls.push(titles_and_urls[i]);
+        }
+    }
+    print("Valid titles: " + validTitlesAndUrls.length);
+    if (validTitlesAndUrls.length == 0) {
+        return null;
+    } else if (validTitlesAndUrls.length == 1) {
+        var ret = {};                          // Is this for real?
+        ret[validTitlesAndUrls[0]] = validTitlesAndUrls;
+    }
+
+    for (var i = 0; i < validTitlesAndUrls.length; i++) {
+        tokenses.push(validTitlesAndUrls[i][0].split(regex2).join(" __season_episode_removed__ ").split(/\s+/));
+    }
+
+    var dfs = compute_dfs(tokenses);
+    //print("DFS");
+    //var words = Object.getOwnPropertyNames(dfs);
+    //for (var i = 0; i < words.length; i++) print("Word: " + words[i] + ", DF: " + dfs[words[i]]);
+    tokens_dfs = get_dfs(dfs, tokenses);
+
+    var viterbiData = getViterbiInput(validTitlesAndUrls.length);
+
+    var movingParts = [];
+    var boilerParts = [];
+    for (var i = 0; i < tokens_dfs.length; i++) {
+        token_dfs = [df.toString() for (df of tokens_dfs[i])];
+        viterbiData['observations'] = token_dfs;
+        
+        var result = Viterbi(viterbiData);
+        
+        var runs = get_runs(tokenses[i], result[1]);
+        var s = "Runs: ";
+        var movingPart = [];
+        var boilerPart = [];
+        for (var j = 0; j < runs.length; j++) {
+            s += runs[j][0] + ': ';
+            s += runs[j][1] + '; ';
+            if (runs[j][0] == 'Boilerplate') {
+                boilerPart.push.apply(boilerPart, runs[j][1]);
+            } else {
+                movingPart.push(runs[j][1].join(' '));
+            } 
+        }
+        //print(s);
+        movingParts.push(movingPart);
+        // We remove our season/episode separator from the boilerplate text
+        // we might need it as the series title...
+        var index = boilerPart.indexOf('__season_episode_removed__');
+        while (index > -1) {
+            boilerPart.splice(index, 1);
+            index = boilerPart.indexOf('__season_episode_removed__');
+        }
+        boilerParts.push(boilerPart);
+        print("moving parts: " + movingPart + ", " + movingPart.length + ", title: " + validTitlesAndUrls[i][0]);
+    }
+
+    /*
+     * We only take the moving parts common to all titles into consideration
+     */
+    var numParts = movingParts[0].length;
+    for (var i = 1; i < movingParts.length; i++) {
+        if (movingParts[i].length < numParts) { numParts = movingParts[i].length};
+    }
+    print("NUM PARTS: " + numParts);
+
+    // And now we try to find out which of the moving groups are titles, and
+    // which are the name of the series.
+//    var avgDfs = [];  // The average for the moving part group
+    var different = [];  // The number of different values in the moving part group
+    for (var j = 0; j < numParts; j++) {
+//        var avgDf = 0;
+//        var numWords = 0;
+        var counter = {};
+        for (var i = 0; i < movingParts.length; i++) {
+            if (counter.hasOwnProperty(movingParts[i][j])) {
+                counter[movingParts[i][j]] += 1;
+            } else {
+                counter[movingParts[i][j]] = 1;
+            }
+//            for (var k = 0; k < movingParts[i][j].length; k++) {
+//              avgDf += dfs[movingParts[i][j][k]];
+//              numWords++;
+//            }
+        }
+        different.push(Object.getOwnPropertyNames(counter).length);
+//        avgDfs.push(avgDf / numWords);
+    }
+
+    var gr = null;
+    if (numParts == 0) {
+        /* No moving parts: no title, only one series on the site. */
+        var gr = {};
+        gr[cleanTitle(boilerParts[0]).join(" ")] = validTitlesAndUrls;
+        return gr;
+    } else if (numParts == 1) {
+        /*
+         * Only one moving part: normally the series, but if the user only
+         * watched one series on the site, it would most likely be the series.
+         */
+        // TODO: remove ispunct tokens next to each other
+        if (different[0] > validTitlesAndUrls.length * 0.8) {
+            // It is the episode title: just return the boilerplate part.
+            var gr = {};
+            gr[cleanTitle(boilerParts[0]).join(" ")] = validTitlesAndUrls;
+            return gr;
+        } else {
+            return groupTitlesByPart(0, movingParts, validTitlesAndUrls);
+        }
+    } else {
+        var minDiff = [different[0], 0];
+        for (var i = 1; i < different.length; i++) {
+            if (different[i] < minDiff[0]) minDiff = [different[i], i];
+        }
+        return groupTitlesByPart(minDiff[1], movingParts, validTitlesAndUrls);
+    }
+}
+
+/** Groups the titles by series. */
+function groupTitlesByPart(part, movingParts, titles) {
+    var grouping = {};
+    for (var i = 0; i < titles.length; i++) {
+        var series = movingParts[i][part];
+        if (grouping.hasOwnProperty(series)) {
+            grouping[series].push(titles[i]);
+        } else {
+            grouping[series] = [titles[i]];
+        }
+    }
+    return grouping;
+}
+
+/**
+ * Cleans the title array: removes excess standalone punctuation characters.
+ *
+ * "Excess" in this context means: if the punctuation character is at the
+ * beginning or end of the title, or if there are two characters next to each
+ * other.
+ *
+ * Note: we do not remove quotation marks -- those usually should remain where
+ * they belong.
+ */
+function cleanTitle(titleArray) {
+    var puncts = /[–|\-,!?.]/;
+    var first = 0;
+    var last = titleArray.length;
+    while (first < titleArray.length) {
+        if (puncts.test(titleArray[first])) first++;
+        else break;
+    }
+    if (first == titleArray.length) return [];
+    while (first < last) {
+        if (puncts.test(titleArray[last - 1])) last--;
+        else break;
+    }
+
+    var ret = [titleArray[first]];
+    var lastPunct = false;
+    for (var i = first + 1; i < last; i++) {
+        var currPunct = puncts.test(titleArray[i]);
+        if (!lastPunct || !currPunct) {
+            ret.push(titleArray[i]);
+        }
+        lastPunct = currPunct;
+    }
+    return ret;
+}
+
+/*********************************** Module ***********************************/
+
 var CliqzClusterSeries = {
   collapse: function(urls, cliqzResults, q) {
     //var regexs = [/(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
