@@ -604,7 +604,8 @@ var templates = {
                 summary: 'Meine Facebook Seiten',
                 control: [{title: 'News feed', url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
                           {title: 'Nachrichten', url: 'https://www.facebook.com/messages', iconCls: 'null'},
-                          {title: 'Events', url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'}],
+                          {title: 'Events', url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'},
+                          {title: 'Hilfe', url: 'https://www.facebook.com/help', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.facebook.com'
@@ -631,7 +632,7 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (/^login/.test(vpath[0])) {
+                if ((/^login/.test(vpath[0])) || (vpath[0] == 'messages') || (vpath[0] == 'events') || (vpath[0] == 'help')) {
 
 
                 }
@@ -946,8 +947,12 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
             CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
-        }
-        else {
+        } else if (clusteredHistory['topics'].length == 0) {
+	    // no URLs related to the topics defined for the site found in
+	    // the history URLs
+            CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
+	    return [false, historyTrans];
+        } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
             var v = [true, [historyTransFiltered[0]]];

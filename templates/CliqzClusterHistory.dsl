@@ -53,8 +53,12 @@ program:
             title: Events
             url: https://www.facebook.com/events/upcoming
         -
+            type: control
+            title: Hilfe
+            url: https://www.facebook.com/help
+        -
             type: exclude
-            cond: /re:^login/
+            cond: (/re:^login/) or (/messages/) or (/events/) or (/help/)
         -
             type: topic
             label: Pages
