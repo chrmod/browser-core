@@ -350,7 +350,7 @@ class FullUrlCond(AndConds):
 
 class Program(object):
     OUTER_TEMPLATE = Template(
-u"""
+"""
 var COLORS = [$COLORS];
 
 var templates = {
@@ -359,7 +359,7 @@ $SWITCH
 };""")
 
     INNER_TEMPLATE = Template(
-u"""    '$url': {
+"""    '$url': {
         fun: function(urls) {
 
             var template = {
@@ -399,11 +399,11 @@ $RULES
         }
     }""")
 
-    FIX_CONTROL_TEMPLATE = Template(u"{title: CliqzUtils.getLocalizedString('$title'), url: '$url', "
+    FIX_CONTROL_TEMPLATE = Template("{title: CliqzUtils.getLocalizedString('$title'), url: '$url', "
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-u"""                     if (!template['control_set'].hasOwnProperty($title)) {
+"""                     if (!template['control_set'].hasOwnProperty($title)) {
                         var control = {title: $title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
                         template['control_set'][$title] = true;
@@ -412,7 +412,7 @@ u"""                     if (!template['control_set'].hasOwnProperty($title)) {
     )
 
     TOPIC_TEMPLATE = Template(
-u"""                    // Check if the first level (label) exists
+"""                    // Check if the first level (label) exists
                     var topic = null
                     for(let j=0; j<template['topics'].length; j++) {
                         if (template['topics'][j]['label']==label) topic = template['topics'][j];
@@ -432,7 +432,7 @@ u"""                    // Check if the first level (label) exists
     )
 
     RULE_TEMPLATE = Template(
-u"""                ${else}if ($cond) {
+"""                ${else}if ($cond) {
 $CAPTURE
 $RULE_BODY
                 }"""
@@ -484,15 +484,15 @@ $RULE_BODY
             self.programs.append(p)
 
     def _generate_colors(self):
-        return u"'" + u"', '".join(self.colors) + u"'"
+        return "'" + "', '".join(self.colors) + "'"
 
     def _generate_localization(self):
         trans_map = []
         for label, trans in self.translations.iteritems():
-            langs = u"\n".join(u"        '{}': '{}'".format(k, v)
+            langs = "\n".join("        '{}': '{}'".format(k, v)
                               for k, v in sorted(trans.iteritems()))
-            trans_map.append(u"    '%s': {\n%s\n    }" % (label, langs))
-        return u"\n".join(trans_map)
+            trans_map.append("    '%s': {\n%s\n    }" % (label, langs))
+        return "\n".join(trans_map)
 
     def _generate_capture(self, rule):
         """
@@ -504,16 +504,16 @@ $RULE_BODY
         for var in Program.CAPTURE_VARS:
             if var in rule['capture']:
                 assignments.append(
-                    u"                    var {} = vpath[{}];\n".format(
+                    "                    var {} = vpath[{}];\n".format(
                         var, rule['capture'][var]))
             elif var in rule:
                 assignments.append(
-                    u"                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
+                    "                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
                         var, rule[var]))
             else:
                 assignments.append(
-                    u"                    var {} = null;\n".format(var))
-        return u''.join(assignments)
+                    "                    var {} = null;\n".format(var))
+        return ''.join(assignments)
 
     def _get_title(self, rule, key, def_value):
         """
@@ -528,7 +528,7 @@ $RULE_BODY
             elif key == 'title':
                 return rule['title']
             else:
-                return u"CliqzUtils.getLocalizedString('{}')".format(rule[key])
+                return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
         else:
             return def_value
 
@@ -544,18 +544,18 @@ $RULE_BODY
         control_index = 0
         rules = []
         for rule in program['rules']:
-            if rule['type'] == u'control':
+            if rule['type'] == 'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
                 rule['title'] = self._get_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
-            elif rule['type'] == u'topic':
+            elif rule['type'] == 'topic':
                 rule['CAPTURE'] = self._generate_capture(rule)
                 if 'labelUrl' in rule:
-                    label_path = u", 'labelUrl': domain"
+                    label_path = ", 'labelUrl': domain"
                     for i in xrange(int(rule['labelUrl'])):
-                        label_path += u"+'/'+vpath[{}]".format(i)
+                        label_path += "+'/'+vpath[{}]".format(i)
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
@@ -566,7 +566,7 @@ $RULE_BODY
                 rule['CAPTURE'] = ''
             rules.append(Program.RULE_TEMPLATE.substitute(rule))
 
-        ret['RULES'] = u"\n".join(rules)
+        ret['RULES'] = "\n".join(rules)
         return ret
 
     def generate(self):
@@ -594,7 +594,7 @@ if __name__ == '__main__':
         template = Template(inf.read())
     p = Program()
     p.parse(args.program_file)
-    print template.substitute({'DSL_OUTPUT': p.generate()}).encode('ascii', 'xmlcharrefreplace')
+    print template.substitute({'DSL_OUTPUT': p.generate()})
 
 # TODO: overhaul variable capture. It does not work well with the or connective
 # TODO: rewrite with functions instead of objects and direct, immediate translation
