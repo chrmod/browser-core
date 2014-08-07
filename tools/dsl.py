@@ -399,7 +399,7 @@ $RULES
         }
     }""")
 
-    FIX_CONTROL_TEMPLATE = Template(u"{title: '$title', url: '$url', "
+    FIX_CONTROL_TEMPLATE = Template(u"{title: CliqzUtils.getLocalizedString('$title'), url: '$url', "
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
@@ -506,11 +506,31 @@ $RULE_BODY
                 assignments.append(
                     u"                    var {} = vpath[{}];\n".format(
                         var, rule['capture'][var]))
+            elif var in rule:
+                assignments.append(
+                    u"                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
+                        var, rule[var]))
             else:
                 assignments.append(
-                    u"                    var {} = '{}';\n".format(
-                        var, rule.get(var, 'null')))
+                    u"                    var {} = null;\n".format(var))
         return u''.join(assignments)
+
+    def _get_title(self, rule, key, def_value):
+        """
+        Returns
+        - if key is a captured variable (incl. url and title): its value,
+          otherwise the localized string assigned to key;
+        - if not, def_value.
+        """
+        if key in rule:
+            if key in rule['capture'] or key == 'url':
+                return key
+            elif key == 'title':
+                return rule['title']
+            else:
+                return u"CliqzUtils.getLocalizedString('{}')".format(rule[key])
+        else:
+            return def_value
 
     def _generate_program(self, program):
         """Generates the control for the program."""
@@ -527,8 +547,7 @@ $RULE_BODY
             if rule['type'] == u'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
-                if 'title' not in rule:
-                    rule['title'] = u'item'
+                rule['title'] = self._get_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
             elif rule['type'] == u'topic':
@@ -540,8 +559,7 @@ $RULE_BODY
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
-                if 'title' not in rule:
-                    rule['title'] = u'item'
+                rule['title'] = self._get_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.TOPIC_TEMPLATE.substitute(rule)
             else:
                 rule['RULE_BODY'] = ''
@@ -576,7 +594,7 @@ if __name__ == '__main__':
         template = Template(inf.read())
     p = Program()
     p.parse(args.program_file)
-    print template.substitute({'DSL_OUTPUT': p.generate()}).encode('utf-8')
+    print template.substitute({'DSL_OUTPUT': p.generate()}).encode('ascii', 'xmlcharrefreplace')
 
 # TODO: overhaul variable capture. It does not work well with the or connective
 # TODO: rewrite with functions instead of objects and direct, immediate translation

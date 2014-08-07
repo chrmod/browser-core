@@ -5,10 +5,10 @@ var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
-  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.04');
 
 /******************************************************
  * Warning: this file is auto-generated; do not edit. *
@@ -24,9 +24,9 @@ var templates = {
 
             var template = {
                 summary: 'Meine Bild Seiten',
-                control: [{title: 'Bild Shop', url: 'http://shop.bild.de', iconCls: 'null'},
-                          {title: 'Community', url: 'http://www.bild.de/ka/p/community', iconCls: 'null'},
-                          {title: 'Login', url: 'https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Bild_Shop'), url: 'http://shop.bild.de', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Bild_Community'), url: 'http://www.bild.de/ka/p/community', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Bild_Login'), url: 'https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.bild.de'
@@ -55,7 +55,7 @@ var templates = {
 
                 if (vpath[1] == 'startseite') {
                     var item = vpath[0];
-                    var label = 'Themen';
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Bild_Topics');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -76,8 +76,8 @@ var templates = {
                     }
                 }
                 else if (vpath[0] == 'bundesliga' && vpath[1] == '1-liga') {
-                    var item = 'null';
-                    var label = 'Topics';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Bild_Topics');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -107,7 +107,7 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'BaseCamp personalized sitemap',
+                summary: 'Meine BaseCamp Seiten',
                 control: [],
                 control_set: {},
                 topics: [],
@@ -141,7 +141,7 @@ var templates = {
                 }
                 else if ((/^\d+$/.test(vpath[0])) && (vpath.length == 1)) {
                     var item = vpath[0];
-                    var label = 'null';
+                    var label = null;
 
                      if (!template['control_set'].hasOwnProperty(item)) {
                         var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
@@ -152,7 +152,7 @@ var templates = {
                 }
                 else if ((vpath[1] == 'projects') && (vpath.length == 3)) {
                     var item = vpath[0];
-                    var label = 'Projects';
+                    var label = CliqzUtils.getLocalizedString('Projects');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -174,7 +174,7 @@ var templates = {
                 }
                 else if ((vpath[1] == 'people') && (vpath.length == 3)) {
                     var item = vpath[0];
-                    var label = 'People';
+                    var label = CliqzUtils.getLocalizedString('People');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -205,10 +205,10 @@ var templates = {
 
             var template = {
                 summary: 'Meine YouTube Seiten',
-                control: [{title: 'Beliebte auf YouTube', url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
-                          {title: 'Meine Abos', url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
-                          {title: 'Verlauf', url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
-                          {title: 'Später ansehen', url: 'http://www.youtube.com/playlist?list=WL/', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Youtube_Popular'), url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Youtube_Subscriptions'), url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Youtube_History'), url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Youtube_WatchLater'), url: 'http://www.youtube.com/playlist?list=WL', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://youtube.com'
@@ -237,7 +237,7 @@ var templates = {
 
                 if (vpath[0] == 'user') {
                     var item = vpath[1];
-                    var label = 'Channels';
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Youtube_Channels');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -267,9 +267,9 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'Twitter personalized sitemap',
-                control: [{title: 'Suchen', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
-                          {title: 'Entdecken', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
+                summary: 'Meine Twitter Seiten',
+                control: [{title: CliqzUtils.getLocalizedString('Suchen'), url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
+                          {title: CliqzUtils.getLocalizedString('Entdecken'), url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
                 control_set: {},
                 topics: [],
                 url: 'http://twitter.com/'
@@ -302,7 +302,7 @@ var templates = {
                 }
                 else if (vpath.length == 1) {
                     var item = vpath[0];
-                    var label = 'Leute';
+                    var label = CliqzUtils.getLocalizedString('Leute');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -332,7 +332,7 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'Wikipedia personalized sitemap',
+                summary: 'Meine Wikipedia Seiten',
                 control: [],
                 control_set: {},
                 topics: [],
@@ -362,7 +362,7 @@ var templates = {
 
                 if (vpath.length == 1) {
                     var item = vpath[0];
-                    var label = 'People';
+                    var label = CliqzUtils.getLocalizedString('People');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -393,8 +393,8 @@ var templates = {
 
             var template = {
                 summary: 'Meine Ebay Seiten',
-                control: [{title: 'Mein Ebay', url: 'http://my.ebay.de', iconCls: 'null'},
-                          {title: 'Angebote', url: 'http://www.ebay.de/rpp/deals', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Ebay_MyEbay'), url: 'http://my.ebay.de', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Ebay_Deals'), url: 'http://www.ebay.de/rpp/deals', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.ebay.de'
@@ -423,7 +423,7 @@ var templates = {
 
                 if (vpath[0] == 'usr' && /^[^?]+$/.test(vpath[1])) {
                     var item = vpath[1];
-                    var label = 'Shops';
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Ebay_Shops');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -454,9 +454,9 @@ var templates = {
 
             var template = {
                 summary: 'Meine Amazon Seiten',
-                control: [{title: 'Mein Amazon', url: 'https://www.amazon.de/gp/yourstore/home', iconCls: 'null'},
-                          {title: 'Mein Konto', url: 'https://www.amazon.de/gp/css/homepage.html', iconCls: 'null'},
-                          {title: 'Wunschzettel', url: 'http://www.amazon.de/gp/registry/wishlist', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAmazon'), url: 'https://www.amazon.de/gp/yourstore/home', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAccount'), url: 'https://www.amazon.de/gp/css/homepage.html', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_Wishlist'), url: 'http://www.amazon.de/gp/registry/wishlist', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.amazon.de'
@@ -484,8 +484,8 @@ var templates = {
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
                 if (vpath[1] == 'b') {
-                    var item = 'null';
-                    var label = 'Kategorien';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Categories');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -506,8 +506,8 @@ var templates = {
                     }
                 }
                 else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
-                    var item = 'null';
-                    var label = 'Verkäufer';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Shops');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -537,8 +537,8 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'Github personalized sitemap',
-                control: [{title: 'Settings', url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                summary: 'Meine Github Seiten',
+                control: [{title: CliqzUtils.getLocalizedString('Settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
                 control_set: {},
                 topics: [],
                 url: 'http://github.com/'
@@ -602,10 +602,10 @@ var templates = {
 
             var template = {
                 summary: 'Meine Facebook Seiten',
-                control: [{title: 'Newsfeed', url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
-                          {title: 'Nachrichten', url: 'https://www.facebook.com/messages', iconCls: 'null'},
-                          {title: 'Events', url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'},
-                          {title: 'Hilfe', url: 'https://www.facebook.com/help', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Newsfeed'), url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Messages'), url: 'https://www.facebook.com/messages', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Events'), url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Help'), url: 'https://www.facebook.com/help', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.facebook.com'
@@ -638,7 +638,7 @@ var templates = {
                 }
                 else if ((/^[^?]+$/.test(vpath[0])) && (vpath.length == 1)) {
                     var item = vpath[0];
-                    var label = 'Seiten';
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Pages');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -659,8 +659,8 @@ var templates = {
                     }
                 }
                 else if (vpath[0] == 'groups') {
-                    var item = 'null';
-                    var label = 'Gruppen';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Groups');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -681,8 +681,8 @@ var templates = {
                     }
                 }
                 else if (vpath[0] == 'lists') {
-                    var item = 'null';
-                    var label = 'Listen';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Lists');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -712,7 +712,7 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'Klout personalized sitemap',
+                summary: 'Meine Klout Seiten',
                 control: [],
                 control_set: {},
                 topics: [],
@@ -746,7 +746,7 @@ var templates = {
                 }
                 else if (vpath.length == 1) {
                     var item = vpath[0];
-                    var label = 'People';
+                    var label = CliqzUtils.getLocalizedString('People');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -777,10 +777,10 @@ var templates = {
 
             var template = {
                 summary: 'Meine Chefkoch Seiten',
-                control: [{title: 'Magazin', url: 'http://www.chefkoch.de/magazin/', iconCls: 'null'},
-                          {title: 'Rezepte', url: 'http://www.chefkoch.de/rezepte/', iconCls: 'null'},
-                          {title: 'Community', url: 'http://www.chefkoch.de/forum/', iconCls: 'null'},
-                          {title: 'Blog', url: 'http://www.chefkoch-blog.de/', iconCls: 'null'}],
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Magazin'), url: 'http://www.chefkoch.de/magazin/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Rezepte'), url: 'http://www.chefkoch.de/rezepte/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Community'), url: 'http://www.chefkoch.de/forum/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Blog'), url: 'http://www.chefkoch-blog.de/', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.chefkoch.de'
@@ -808,8 +808,8 @@ var templates = {
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
                 if (vpath[0] == 'rezepte' && /[\d]+/.test(vpath[1])) {
-                    var item = 'null';
-                    var label = 'Rezepte';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Rezepte');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -830,8 +830,8 @@ var templates = {
                     }
                 }
                 else if (vpath[0] == 'magazin' && vpath[1] == 'artikel') {
-                    var item = 'null';
-                    var label = 'Artikel';
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Articles');
 
                     // Check if the first level (label) exists
                     var topic = null
