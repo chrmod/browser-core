@@ -58,7 +58,7 @@ program:
             url: https://www.facebook.com/help
         -
             type: exclude
-            cond: (/re:^login/) or (/messages/) or (/events/) or (/help/)
+            cond: (/re:^login/) or (/messages/) or (/events/) or (/help/) or (/settings/) or (/re:^robots[.]txt/)
         -
             type: topic
             label: Sitemap_Facebook_Pages
