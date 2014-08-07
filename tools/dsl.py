@@ -350,7 +350,7 @@ class FullUrlCond(AndConds):
 
 class Program(object):
     OUTER_TEMPLATE = Template(
-"""
+u"""
 var COLORS = [$COLORS];
 
 var templates = {
@@ -359,7 +359,7 @@ $SWITCH
 };""")
 
     INNER_TEMPLATE = Template(
-"""    '$url': {
+u"""    '$url': {
         fun: function(urls) {
 
             var template = {
@@ -399,11 +399,11 @@ $RULES
         }
     }""")
 
-    FIX_CONTROL_TEMPLATE = Template("{title: '$title', url: '$url', "
+    FIX_CONTROL_TEMPLATE = Template(u"{title: '$title', url: '$url', "
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-"""                     if (!template['control_set'].hasOwnProperty($title)) {
+u"""                     if (!template['control_set'].hasOwnProperty($title)) {
                         var control = {title: $title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
                         template['control_set'][$title] = true;
@@ -412,7 +412,7 @@ $RULES
     )
 
     TOPIC_TEMPLATE = Template(
-"""                    // Check if the first level (label) exists
+u"""                    // Check if the first level (label) exists
                     var topic = null
                     for(let j=0; j<template['topics'].length; j++) {
                         if (template['topics'][j]['label']==label) topic = template['topics'][j];
@@ -432,7 +432,7 @@ $RULES
     )
 
     RULE_TEMPLATE = Template(
-"""                ${else}if ($cond) {
+u"""                ${else}if ($cond) {
 $CAPTURE
 $RULE_BODY
                 }"""
@@ -484,15 +484,15 @@ $RULE_BODY
             self.programs.append(p)
 
     def _generate_colors(self):
-        return "'" + "', '".join(self.colors) + "'"
+        return u"'" + u"', '".join(self.colors) + u"'"
 
     def _generate_localization(self):
         trans_map = []
         for label, trans in self.translations.iteritems():
-            langs = "\n".join("        '{}': '{}'".format(k, v)
+            langs = u"\n".join(u"        '{}': '{}'".format(k, v)
                               for k, v in sorted(trans.iteritems()))
-            trans_map.append("    '%s': {\n%s\n    }" % (label, langs))
-        return "\n".join(trans_map)
+            trans_map.append(u"    '%s': {\n%s\n    }" % (label, langs))
+        return u"\n".join(trans_map)
 
     def _generate_capture(self, rule):
         """
@@ -504,13 +504,13 @@ $RULE_BODY
         for var in Program.CAPTURE_VARS:
             if var in rule['capture']:
                 assignments.append(
-                    "                    var {} = vpath[{}];\n".format(
+                    u"                    var {} = vpath[{}];\n".format(
                         var, rule['capture'][var]))
             else:
                 assignments.append(
-                    "                    var {} = '{}';\n".format(
+                    u"                    var {} = '{}';\n".format(
                         var, rule.get(var, 'null')))
-        return ''.join(assignments)
+        return u''.join(assignments)
 
     def _generate_program(self, program):
         """Generates the control for the program."""
@@ -524,31 +524,31 @@ $RULE_BODY
         control_index = 0
         rules = []
         for rule in program['rules']:
-            if rule['type'] == 'control':
+            if rule['type'] == u'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
                 if 'title' not in rule:
-                    rule['title'] = 'item'
+                    rule['title'] = u'item'
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
-            elif rule['type'] == 'topic':
+            elif rule['type'] == u'topic':
                 rule['CAPTURE'] = self._generate_capture(rule)
                 if 'labelUrl' in rule:
-                    label_path = ", 'labelUrl': domain"
+                    label_path = u", 'labelUrl': domain"
                     for i in xrange(int(rule['labelUrl'])):
-                        label_path += "+'/'+vpath[{}]".format(i)
+                        label_path += u"+'/'+vpath[{}]".format(i)
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
                 if 'title' not in rule:
-                    rule['title'] = 'item'
+                    rule['title'] = u'item'
                 rule['RULE_BODY'] = Program.TOPIC_TEMPLATE.substitute(rule)
             else:
                 rule['RULE_BODY'] = ''
                 rule['CAPTURE'] = ''
             rules.append(Program.RULE_TEMPLATE.substitute(rule))
 
-        ret['RULES'] = "\n".join(rules)
+        ret['RULES'] = u"\n".join(rules)
         return ret
 
     def generate(self):
@@ -576,7 +576,7 @@ if __name__ == '__main__':
         template = Template(inf.read())
     p = Program()
     p.parse(args.program_file)
-    print template.substitute({'DSL_OUTPUT': p.generate()})
+    print template.substitute({'DSL_OUTPUT': p.generate()}).encode('utf-8')
 
 # TODO: overhaul variable capture. It does not work well with the or connective
 # TODO: rewrite with functions instead of objects and direct, immediate translation
