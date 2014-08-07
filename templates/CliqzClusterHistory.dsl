@@ -7,27 +7,27 @@ localization:
 
 program:
     Youtube:
-        summary: Meine Youtube Seiten
+        summary: Meine YouTube Seiten
         url: youtube.com
         home: http://youtube.com
         rules:
         -
             type: control
-            title: Now popular
+            title: Beliebte auf YouTube
             url: http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ
         -
             type: control
-            title: My subscriptions
+            title: Meine Abos
             url: http://www.youtube.com/feed/subscriptions/
             #cond: /feed/subscriptions/
         -
             type: control
-            title: History
+            title: Verlauf
             url: http://www.youtube.com/feed/history/
             #cond: /feed/history/
         -
             type: control
-            title: Watch later
+            title: Später ansehen
             url: http://www.youtube.com/playlist?list=WL/
             #cond: /playlist?list=WL/
         -
@@ -42,7 +42,7 @@ program:
         rules:
         -
             type: control
-            title: News feed
+            title: Newsfeed
             url: https://www.facebook.com/?sk=nf
         -
             type: control
@@ -61,17 +61,17 @@ program:
             cond: (/re:^login/) or (/messages/) or (/events/) or (/help/)
         -
             type: topic
-            label: Pages
+            label: Seiten
             cond: /{item::re:^[^?]+$}//
             # TODO: groups!!!
         -
             type: topic
-            label: Groups
+            label: Gruppen
             title: title
             cond: /groups/
         -
             type: topic
-            label: Lists
+            label: Listen
             title: title
             cond: /lists/
     Amazon:
@@ -93,12 +93,12 @@ program:
             url: http://www.amazon.de/gp/registry/wishlist
         -
             type: topic
-            label: Categories
+            label: Kategorien
             title: title
             cond: /*/b/
         -
             type: topic
-            label: Shops
+            label: Verkäufer
             title: title
             cond: /gp/aag/re:(seller|merchant)=/
             # TODO: title cleaning with regex
@@ -160,7 +160,7 @@ program:
         rules:
         -
             type: control
-            title: Bild shop
+            title: Bild Shop
             url: http://shop.bild.de
         -
             type: control
@@ -172,7 +172,7 @@ program:
             url: https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F
         -
             type: topic
-            label: Topics
+            label: Themen
             cond: /{item}/startseite/
             # TODO: same as (to handle /news/startseite/news/)
         -
@@ -231,20 +231,20 @@ program:
         rules:
         -
             type: control
-            title: Search
+            title: Suchen
             url: http://search.twitter.com/
             icon: cliqz-fa fa-search
         -
             type: control
-            title: Discover
+            title: Entdecken
             url: http://twitter.com/i/discover
             icon: cliqz-fa fa-lightbulb-o
         -
             type: exclude
-            cond: (/settings/) or (/i/) or (/re:^search/) 
+            cond: (/settings/) or (/i/) or (/re:^search/)
         -
             type: topic
-            label: People
+            label: Leute
             icon: cliqz-fa fa-user
             cond: /{item}//
     Klout:

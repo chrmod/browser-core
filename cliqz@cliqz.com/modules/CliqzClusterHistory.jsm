@@ -24,7 +24,7 @@ var templates = {
 
             var template = {
                 summary: 'Meine Bild Seiten',
-                control: [{title: 'Bild shop', url: 'http://shop.bild.de', iconCls: 'null'},
+                control: [{title: 'Bild Shop', url: 'http://shop.bild.de', iconCls: 'null'},
                           {title: 'Community', url: 'http://www.bild.de/ka/p/community', iconCls: 'null'},
                           {title: 'Login', url: 'https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F', iconCls: 'null'}],
                 control_set: {},
@@ -55,7 +55,7 @@ var templates = {
 
                 if (vpath[1] == 'startseite') {
                     var item = vpath[0];
-                    var label = 'Topics';
+                    var label = 'Themen';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -204,11 +204,11 @@ var templates = {
         fun: function(urls) {
 
             var template = {
-                summary: 'Meine Youtube Seiten',
-                control: [{title: 'Now popular', url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
-                          {title: 'My subscriptions', url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
-                          {title: 'History', url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
-                          {title: 'Watch later', url: 'http://www.youtube.com/playlist?list=WL/', iconCls: 'null'}],
+                summary: 'Meine YouTube Seiten',
+                control: [{title: 'Beliebte auf YouTube', url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
+                          {title: 'Meine Abos', url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
+                          {title: 'Verlauf', url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
+                          {title: 'Später ansehen', url: 'http://www.youtube.com/playlist?list=WL/', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://youtube.com'
@@ -268,8 +268,8 @@ var templates = {
 
             var template = {
                 summary: 'Twitter personalized sitemap',
-                control: [{title: 'Search', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
-                          {title: 'Discover', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
+                control: [{title: 'Suchen', url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
+                          {title: 'Entdecken', url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
                 control_set: {},
                 topics: [],
                 url: 'http://twitter.com/'
@@ -302,7 +302,7 @@ var templates = {
                 }
                 else if (vpath.length == 1) {
                     var item = vpath[0];
-                    var label = 'People';
+                    var label = 'Leute';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -485,7 +485,7 @@ var templates = {
 
                 if (vpath[1] == 'b') {
                     var item = 'null';
-                    var label = 'Categories';
+                    var label = 'Kategorien';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -507,7 +507,7 @@ var templates = {
                 }
                 else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
                     var item = 'null';
-                    var label = 'Shops';
+                    var label = 'Verkäufer';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -602,7 +602,7 @@ var templates = {
 
             var template = {
                 summary: 'Meine Facebook Seiten',
-                control: [{title: 'News feed', url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
+                control: [{title: 'Newsfeed', url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
                           {title: 'Nachrichten', url: 'https://www.facebook.com/messages', iconCls: 'null'},
                           {title: 'Events', url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'},
                           {title: 'Hilfe', url: 'https://www.facebook.com/help', iconCls: 'null'}],
@@ -638,7 +638,7 @@ var templates = {
                 }
                 else if ((/^[^?]+$/.test(vpath[0])) && (vpath.length == 1)) {
                     var item = vpath[0];
-                    var label = 'Pages';
+                    var label = 'Seiten';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -660,7 +660,7 @@ var templates = {
                 }
                 else if (vpath[0] == 'groups') {
                     var item = 'null';
-                    var label = 'Groups';
+                    var label = 'Gruppen';
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -682,7 +682,7 @@ var templates = {
                 }
                 else if (vpath[0] == 'lists') {
                     var item = 'null';
-                    var label = 'Lists';
+                    var label = 'Listen';
 
                     // Check if the first level (label) exists
                     var topic = null
