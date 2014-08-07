@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.06');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.06');
 
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-//  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.04');
+//  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.06');
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
