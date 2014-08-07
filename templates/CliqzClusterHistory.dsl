@@ -28,7 +28,7 @@ program:
         -
             type: control
             title: Später ansehen
-            url: http://www.youtube.com/playlist?list=WL/
+            url: http://www.youtube.com/playlist?list=WL
             #cond: /playlist?list=WL/
         -
             type: topic
