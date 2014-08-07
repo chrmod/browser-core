@@ -632,7 +632,7 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((/^login/.test(vpath[0])) || (vpath[0] == 'messages') || (vpath[0] == 'events') || (vpath[0] == 'help')) {
+                if ((/^login/.test(vpath[0])) || (vpath[0] == 'messages') || (vpath[0] == 'events') || (vpath[0] == 'help') || (vpath[0] == 'settings') || (/^robots[.]txt/.test(vpath[0]))) {
 
 
                 }
