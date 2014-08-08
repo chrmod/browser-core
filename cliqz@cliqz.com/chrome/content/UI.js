@@ -324,6 +324,7 @@ function resultClick(ev){
                 new_tab: newTab,
                 current_position: el.getAttribute('idx'),
                 query_length: CLIQZ.Core.urlbar.value.length,
+                query_hash : hashCode(CLIQZ.Core.urlbar.value),
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 search: CliqzUtils.isSearch(url)
@@ -338,6 +339,10 @@ function resultClick(ev){
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
+}
+
+function hashCode(s){
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
 }
 
 function getResultSelection(){
@@ -453,6 +458,7 @@ function onEnter(ev, item){
     if(popupOpen && index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
+        action.query_hash = hashCode(inputValue);
         openUILink(item.getAttribute('url'));
 
     } else { //enter while on urlbar and no result selected

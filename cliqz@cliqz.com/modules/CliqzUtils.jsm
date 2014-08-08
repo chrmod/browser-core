@@ -33,8 +33,8 @@ var VERTICAL_ENCODINGS = {
 var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'http://ec2-54-196-119-204.compute-1.amazonaws.com/api/v1/results?q=',
-  LOG:              'https://logging.cliqz.com',
+  RESULTS_PROVIDER: 'http://ec2-54-226-106-92.compute-1.amazonaws.com/api/v1/results?q=',
+  LOG:              'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
   TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
