@@ -491,6 +491,11 @@ var CliqzUtils = {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
+  getWindow: function(){
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+    return wm.getMostRecentWindow("navigator:browser");
+  },
   performance: {
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
