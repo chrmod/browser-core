@@ -23,6 +23,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
+  'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -34,7 +36,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
-    lastQueryInTab:{},
+
     init: function(){
         CliqzUtils.init();
         CLIQZ.UI.init();
@@ -76,25 +78,14 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
+        // Add search history dropdown
         var urlbarIcons = document.getElementById('urlbar-icons');
-        // add cliqz last search
-        var cliqzLastSearch = document.createElement('hbox');
-        // FIXME: We should find another way to deal with events that take time
-        // to finish, like a disk read. A 250ms wait is not a good solution.
-        setTimeout(function () {
-            cliqzLastSearch.textContent = CliqzUtils.getLocalizedString('urlBarLastSearch');
-        }, 250);
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
+        CLIQZ.Core.elem.push(searchHistoryContainer);
 
-        cliqzLastSearch.className = 'hidden';  // Hide on start
-        cliqzLastSearch.addEventListener('click', CLIQZ.Core.returnToLastSearch);
+        gBrowser.tabContainer.addEventListener("TabSelect", CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory), false);
+        gBrowser.tabContainer.addEventListener("TabClose", CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory), false);
 
-        urlbarIcons.parentNode.insertBefore(cliqzLastSearch, urlbarIcons);
-        CLIQZ.Core.urlbarCliqzLastSearchContainer = cliqzLastSearch;
-        CLIQZ.Core.elem.push(cliqzLastSearch);
-
-        // browser handlers
-        gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
-        gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
@@ -139,17 +130,6 @@ CLIQZ.Core = CLIQZ.Core || {
                CliqzUtils.getDay()
                + '|' +
                (source || 'NONE');
-    },
-    returnToLastSearch: function (ev) {
-        CLIQZ.Core.urlbar.mInputField.focus();
-        CLIQZ.Core.urlbar.mInputField.setUserInput(ev.target.query);
-
-        var action = {
-            type: 'activity',
-            action: 'last_search'
-        };
-
-        CliqzUtils.track(action);
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
@@ -201,17 +181,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
     },
-    tabChange: function(ev){
-        //clean last search to avoid conflicts
-        CliqzAutocomplete.lastSearch = '';
-
-        if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
-            CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
-        else CLIQZ.Core.hideLastQuery();
-    },
-    tabRemoved: function(ev){
-        delete CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel];
-    },
     popupEvent: function(open) {
         var action = {
             type: 'activity',
@@ -220,43 +189,12 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzUtils.track(action);
     },
-    isAutocomplete: function(base, candidate){
-        if(base.indexOf('://') !== -1){
-           base = base.split('://')[1];
-        }
-        base = base.replace('www.', '');
-
-        return base.indexOf(candidate) == 0;
-    },
-    lastQuery: function(){
-        var val = CLIQZ.Core.urlbar.value.trim(),
-            lastQ = CliqzAutocomplete.lastSearch.trim();
-
-        if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
-            CLIQZ.Core.showLastQuery(lastQ);
-            CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
-        } else {
-            // remove last query if the user ended his search session
-            if(CliqzUtils.isUrl(lastQ))
-                delete CLIQZ.Core.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
-        }
-    },
-    hideLastQuery: function(){
-        CLIQZ.Core.urlbarCliqzLastSearchContainer.className = 'hidden';
-    },
-    showLastQuery: function(q){
-        var lastQContainer = CLIQZ.Core.urlbarCliqzLastSearchContainer;
-        lastQContainer.className = 'cliqz-urlbar-Last-search';
-        lastQContainer.textContent = q;
-        lastQContainer.tooltipText = q;
-        lastQContainer.query = q;
-    },
     urlbarfocus: function() {
-        CLIQZ.Core.hideLastQuery();
+        CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
-        CLIQZ.Core.lastQuery();
+        CliqzSearchHistory.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
