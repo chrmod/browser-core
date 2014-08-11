@@ -254,9 +254,9 @@ var Extension = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                if(btn && btn.children && btn.children.menupopup){
-                    btn.children.menupopup.lastChild.remove();
-                    btn.children.menupopup.appendChild(Extension.createSearchOptions(doc));
+                if(btn && btn.children && btn.children.cliqz_menupopup){
+                    btn.children.cliqz_menupopup.lastChild.remove();
+                    btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
                 }
             } catch(e){}
         }

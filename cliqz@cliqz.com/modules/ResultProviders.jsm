@@ -104,11 +104,7 @@ var ResultProviders = {
         return Services.search.getEngineByName(engine).getSubmission(q);
     },
     setCurrentSearchEngine: function(engine){
-        var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
-
-        searchPrefs.setCharPref('defaultenginename', engine);
-        searchPrefs.setCharPref('selectedEngine', engine);
+        Services.search.currentEngine = Services.search.getEngineByName(engine);
     },
     // called for each query
     isCustomQuery: function(q){
