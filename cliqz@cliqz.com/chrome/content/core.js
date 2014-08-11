@@ -60,10 +60,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
 
-        CLIQZ.Core._onpopuphiding = CLIQZ.Core.popup.getAttribute('onpopuphiding');
-        CLIQZ.Core.popup.setAttribute('onpopuphiding',
-            'CLIQZ.Core.popupEvent(false) ' + CLIQZ.Core.popup.getAttribute('onpopuphiding'));
-
+        CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
+        CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
 
         var searchContainer = document.getElementById('search-container');
         if(searchContainer){
@@ -151,7 +149,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', CLIQZ.Core._autocompletesearch);
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', CLIQZ.Core._autocompletepopup);
-        CLIQZ.Core.popup.setAttribute('onpopuphiding', CLIQZ.Core._onpopuphiding);
+        CLIQZ.Core.popup.removeEventListener('popuphiding', CLIQZ.Core.popupClose);
+        CLIQZ.Core.popup.removeEventListener('popupshowing', CLIQZ.Core.popupOpen);
 
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
@@ -180,6 +179,12 @@ CLIQZ.Core = CLIQZ.Core || {
     restart: function(){
         CLIQZ.Core.destroy();
         CLIQZ.Core.init();
+    },
+    popupOpen: function(){
+        CLIQZ.Core.popupEvent(true);
+    },
+    popupClose: function(){
+        CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
         var action = {
