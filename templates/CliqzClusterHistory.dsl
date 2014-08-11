@@ -177,8 +177,7 @@ program:
         -
             type: topic
             label: Sitemap_Bild_Topics
-            title: '"Bundesliga"'
-            # TODO: get rid of the '""'
+            title: Sitemap_Bild_Bundesliga
             cond: /bundesliga/1-liga/
     GitHub:
         summary: Meine Github Seiten

@@ -93,9 +93,9 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty("Bundesliga")) {
-                        topic['urls'].push({href: url, path: path, title: "Bundesliga"})
-                        topic['label_set']["Bundesliga"] = true;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga'))) {
+                        topic['urls'].push({href: url, path: path, title: CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga')})
+                        topic['label_set'][CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga')] = true;
                     }
                 }
             }

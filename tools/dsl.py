@@ -457,6 +457,10 @@ $RULE_BODY
     # The variables that can be used in a capturing context
     CAPTURE_VARS = set(['label', 'item'])
 
+    # The variables that are defined in the JS code; CAPTURE_VARS are added to
+    # this
+    JS_VARS = set(['url', 'title'])
+
     def __init__(self):
         self.colors = ['#000000']
         self.programs = []
@@ -538,11 +542,20 @@ $RULE_BODY
           otherwise the localized string assigned to key;
         - if not, def_value.
         """
+        all_var_keys = Program.JS_VARS | set(rule['capture'].keys())
+        var_keys = all_var_keys - set([key])
         if key in rule:
-            if key in rule['capture'] or key == 'url':
-                return key
-            elif key == 'title':
-                return rule['title']
+            # Key points to a variable ...
+            if key in all_var_keys:
+                # ... other than itself (title -> item)
+                if key in var_keys:
+                    return key
+                # ... to itself (title -> title).
+                elif key == rule[key]:
+                    return rule[key]
+                # ... to something else (title -> blablabla)
+                else:
+                    return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
             else:
                 return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
         else:
