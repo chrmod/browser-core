@@ -109,7 +109,7 @@ var CliqzABTests = CliqzABTests || {
                 var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                                   .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
                 CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
-                urlbarPrefs.setIntPref("maxRichResults", 20)
+                urlbarPrefs.setIntPref("maxRichResults", 30)
 
                 CliqzUtils.setPref("abCluster", true);
                 CliqzUtils.setPref("logTimings", true);
