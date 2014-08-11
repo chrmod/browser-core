@@ -1,10 +1,5 @@
 colors: ["#CC3399", "#27B0CE", "#1777E2"]
 
-localization:
-    settings:
-        en: Settings
-        de: Einstellungen
-
 program:
     Youtube:
         summary: Meine YouTube Seiten

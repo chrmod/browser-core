@@ -26,12 +26,6 @@ summary: XYZ     # Default: Your sitemap for $site
 """
 
 test_data = """
-localization:
-    label: settings
-        en -> Settings
-        de -> Einstellungen
-
-
 program:
     site: GitHub
         url: github
@@ -464,7 +458,6 @@ $RULE_BODY
     def __init__(self):
         self.colors = ['#000000']
         self.programs = []
-        self.translations = {}
 
     def _condition_language(self):
         expr = FullUrlCond.parser()
@@ -479,7 +472,6 @@ $RULE_BODY
             script_dict = yaml.load(inf)
         if 'colors' in script_dict:
             self.colors = script_dict['colors']
-        self.translations = script_dict['localization']
         for site, p in script_dict['program'].iteritems():
             fix_controls = []
             regular_rules = []
@@ -505,14 +497,6 @@ $RULE_BODY
 
     def _generate_colors(self):
         return "'" + "', '".join(self.colors) + "'"
-
-    def _generate_localization(self):
-        trans_map = []
-        for label, trans in self.translations.iteritems():
-            langs = "\n".join("        '{}': '{}'".format(k, v)
-                              for k, v in sorted(trans.iteritems()))
-            trans_map.append("    '%s': {\n%s\n    }" % (label, langs))
-        return "\n".join(trans_map)
 
     def _generate_capture(self, rule):
         """
@@ -602,7 +586,6 @@ $RULE_BODY
         """Generates the program parsed in parse()."""
         return Program.OUTER_TEMPLATE.substitute({
             'COLORS': self._generate_colors(),
-            'LOC': self._generate_localization(),
             'SWITCH': ",\n".join(Program.INNER_TEMPLATE.substitute(
                 self._generate_program(program))
                                  for program in self.programs)
