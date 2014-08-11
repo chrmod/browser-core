@@ -154,8 +154,8 @@ var Extension = {
         var menupopup = Extension.createMenu(win)
         button.appendChild(menupopup);
 
-        button.addEventListener('click', function(ev) {
-            ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
+        button.addEventListener('command', function(ev) {
+            menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
@@ -168,14 +168,12 @@ var Extension = {
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
-        shareButton.addEventListener('click', function(ev) {
-            if(ev.button == 0) {
-                try{
-                    var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                    win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURI(doc.title) +
-                                        '&body=' + encodeURI(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
-                } catch(e){}
-            }
+        shareButton.addEventListener('command', function(ev) {
+            try{
+                var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
+                win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURI(doc.title) +
+                                    '&body=' + encodeURI(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+            } catch(e){}
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, shareButton);
