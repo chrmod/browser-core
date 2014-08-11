@@ -266,7 +266,7 @@ def run_all(test_ini='all-tests', node_filter=None, version_filter=None):
 @command('ping')
 def run_ping(node_filter=None):
     test_nodes = get_nodes()
-    test_nodes = filter_nodes(test_nodes)
+    test_nodes = filter_nodes(test_nodes, node_filter)
     for n in test_nodes:
         success, reason = n.ping()
         if success:

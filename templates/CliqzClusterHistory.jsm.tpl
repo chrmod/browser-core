@@ -5,10 +5,10 @@ var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
-  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.4.14');
+  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.04');
 
 /******************************************************
  * Warning: this file is auto-generated; do not edit. *
@@ -49,6 +49,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+
+        if(!CliqzUtils.getPref("abCluster", false)){
+            CliqzUtils.log('Disabled', CliqzClusterHistory.LOG_KEY);
+            return [false, historyTrans];
+        }
 
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
@@ -99,8 +104,12 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
             CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
-        }
-        else {
+        } else if (clusteredHistory['topics'].length == 0) {
+	    // no URLs related to the topics defined for the site found in
+	    // the history URLs
+            CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
+	    return [false, historyTrans];
+        } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
             var v = [true, [historyTransFiltered[0]]];

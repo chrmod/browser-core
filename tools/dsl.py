@@ -139,7 +139,7 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'[-\w]+', re.UNICODE).setParseAction(__create)
+        return Regex(ur'[-?&=\w]+', re.UNICODE).setParseAction(__create)
 
     def condition(self, index):
         return "vpath[{}] == '{}'".format(index, self.word)
@@ -399,7 +399,7 @@ $RULES
         }
     }""")
 
-    FIX_CONTROL_TEMPLATE = Template("{title: '$title', url: '$url', "
+    FIX_CONTROL_TEMPLATE = Template("{title: CliqzUtils.getLocalizedString('$title'), url: '$url', "
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
@@ -506,11 +506,31 @@ $RULE_BODY
                 assignments.append(
                     "                    var {} = vpath[{}];\n".format(
                         var, rule['capture'][var]))
+            elif var in rule:
+                assignments.append(
+                    "                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
+                        var, rule[var]))
             else:
                 assignments.append(
-                    "                    var {} = '{}';\n".format(
-                        var, rule.get(var, 'null')))
+                    "                    var {} = null;\n".format(var))
         return ''.join(assignments)
+
+    def _get_title(self, rule, key, def_value):
+        """
+        Returns
+        - if key is a captured variable (incl. url and title): its value,
+          otherwise the localized string assigned to key;
+        - if not, def_value.
+        """
+        if key in rule:
+            if key in rule['capture'] or key == 'url':
+                return key
+            elif key == 'title':
+                return rule['title']
+            else:
+                return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
+        else:
+            return def_value
 
     def _generate_program(self, program):
         """Generates the control for the program."""
@@ -527,8 +547,7 @@ $RULE_BODY
             if rule['type'] == 'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
-                if 'title' not in rule:
-                    rule['title'] = 'item'
+                rule['title'] = self._get_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
             elif rule['type'] == 'topic':
@@ -540,8 +559,7 @@ $RULE_BODY
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
-                if 'title' not in rule:
-                    rule['title'] = 'item'
+                rule['title'] = self._get_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.TOPIC_TEMPLATE.substitute(rule)
             else:
                 rule['RULE_BODY'] = ''
