@@ -88,12 +88,12 @@ program:
         -
             type: topic
             label: Sitemap_Amazon_Categories
-            title: title
+            title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /*/b/
         -
             type: topic
             label: Sitemap_Amazon_Shops
-            title: title
+            title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
             # TODO: title cleaning with regex
     Ebay:

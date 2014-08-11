@@ -413,10 +413,11 @@ $RULES
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-"""                     if (!template['control_set'].hasOwnProperty($title)) {
-                        var control = {title: $title, url: url, iconCls: '$icon'};
+"""$ITEM_TITLE
+                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                        var control = {title: item_title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
-                        template['control_set'][$title] = true;
+                        template['control_set'][item_title] = true;
                     }
 """
     )
@@ -435,9 +436,19 @@ $RULES
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty($title)) {
-                        topic['urls'].push({href: url, path: path, title: $title})
-                        topic['label_set'][$title] = true;
+$ITEM_TITLE
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }"""
+    )
+
+    ITEM_TITLE_TEMPLATE = Template(
+"""                    var title_match = $title.match(/$regex/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = $title;
                     }"""
     )
 
@@ -519,16 +530,19 @@ $RULE_BODY
                     "                    var {} = null;\n".format(var))
         return ''.join(assignments)
 
-    def _get_title(self, rule, key, def_value):
+    def _get_item_title(self, rule, key, def_value):
         """
         Returns
         - if key is a captured variable (incl. url and title): its value,
           otherwise the localized string assigned to key;
         - if not, def_value.
+
+        This method also handles regex-filtered titles.
         """
-        all_var_keys = Program.JS_VARS | set(rule['capture'].keys())
-        var_keys = all_var_keys - set([key])
-        if key in rule:
+        def handle_title_refs(rule, key, def_value):
+            all_var_keys = Program.JS_VARS | set(rule['capture'].keys())
+            var_keys = all_var_keys - set([key])
+
             # Key points to a variable ...
             if key in all_var_keys:
                 # ... other than itself (title -> item)
@@ -542,8 +556,27 @@ $RULE_BODY
                     return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
             else:
                 return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
+
+        if key in rule:
+            v_pattern = (Regex(r'[\w_]+') + Optional(Literal('::').suppress() +
+                Literal('re:').suppress() + Regex(r'.+')))
+            v_result = v_pattern.parseString(rule[key])
+            # A regex
+            if len(v_result) == 2:
+                rule_mod = dict(rule)
+                rule_mod.update({key: v_result[0]})
+                return Program.ITEM_TITLE_TEMPLATE.substitute({
+                    'title': handle_title_refs(rule_mod, v_result[0], def_value),
+                    'regex': v_result[1]
+                })
+            # Only a string
+            else:
+                return """                    var item_title = {};""".format(
+                    handle_title_refs(rule, key, def_value))
         else:
-            return def_value
+            return """                    var item_title = {};""".format(
+                def_value)
+
 
     def _generate_program(self, program):
         """Generates the control for the program."""
@@ -560,7 +593,7 @@ $RULE_BODY
             if rule['type'] == 'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
-                rule['title'] = self._get_title(rule, 'title', 'item')
+                rule['ITEM_TITLE'] = self._get_item_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
             elif rule['type'] == 'topic':
@@ -572,7 +605,7 @@ $RULE_BODY
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
-                rule['title'] = self._get_title(rule, 'title', 'item')
+                rule['ITEM_TITLE'] = self._get_item_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.TOPIC_TEMPLATE.substitute(rule)
             else:
                 rule['RULE_BODY'] = ''

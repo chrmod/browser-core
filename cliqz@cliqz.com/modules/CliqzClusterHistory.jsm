@@ -71,9 +71,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'bundesliga' && vpath[1] == '1-liga') {
@@ -93,9 +94,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga'))) {
-                        topic['urls'].push({href: url, path: path, title: CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga')})
-                        topic['label_set'][CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga')] = true;
+                    var item_title = CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga');
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -145,10 +147,11 @@ var templates = {
                     var item = (cond_match.length > 1) ? cond_match[1] : vpath[0];
                     var label = null;
 
-                     if (!template['control_set'].hasOwnProperty(item)) {
-                        var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
+                    var item_title = item;
+                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                        var control = {title: item_title, url: url, iconCls: 'cliqz-fa fa-database'};
                         template['control'].push(control);
-                        template['control_set'][item] = true;
+                        template['control_set'][item_title] = true;
                     }
 
                 }
@@ -169,9 +172,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if ((vpath[1] == 'people') && (vpath.length == 3)) {
@@ -191,9 +195,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -255,9 +260,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -321,9 +327,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -382,9 +389,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -444,9 +452,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -507,9 +516,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(?:^[Aa]mazon.de.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
@@ -529,9 +544,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(?:^[Aa]mazon.de.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -594,9 +615,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -662,9 +684,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'groups') {
@@ -684,9 +707,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'lists') {
@@ -706,9 +730,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -771,9 +796,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -835,9 +861,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'magazin' && vpath[1] == 'artikel') {
@@ -857,9 +884,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
