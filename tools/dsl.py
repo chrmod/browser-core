@@ -124,11 +124,13 @@ class CondPart(object):
         """Returns the object that parses this kind of condition."""
         raise NotImplementedError('Condition.parser()')
 
-    def condition(self, index):
+    def condition(self, index, capturing=False):
         """
         Returns the object that generates the JS condition code.
 
-        @param index the index of the CondPart object in the url list."""
+        @param index the index of the CondPart object in the url list.
+        @param capturing whether we are in a capturing context.
+        """
         return 'true'
 
 class Term(CondPart):
@@ -141,7 +143,7 @@ class Term(CondPart):
             return Term(toks[0])
         return Regex(ur'[-?&=\w]+', re.UNICODE).setParseAction(__create)
 
-    def condition(self, index):
+    def condition(self, index, capturing=False):
         return "vpath[{}] == '{}'".format(index, self.word)
 
 class RegexCP(CondPart):
@@ -158,8 +160,12 @@ class RegexCP(CondPart):
             return RegexCP(toks[0])
         return Regex(ur're:[^/}]+', re.UNICODE).setParseAction(__create)
 
-    def condition(self, index):
-        return "/{}/.test(vpath[{}])".format(self.regex[3:], index)
+    def condition(self, index, capturing=False):
+        """Returns a simpler test if not in a capturing context."""
+        if capturing:
+            return "vpath.length > {0} && (cond_match = vpath[{0}].match(/{1}/)) != null".format(index, self.regex[3:])
+        else:
+            return "/{}/.test(vpath[{}])".format(self.regex[3:], index)
 
 class Asterisk(CondPart):
     @classmethod
@@ -180,6 +186,11 @@ class Variable(CondPart):
                 + 'must be one of ({})'.format(', '.join(Program.CAPTURE_VARS)))
         self.name = name
         self.cond = cond
+        if isinstance(cond, RegexCP):
+            self.capt = Template(
+                "(cond_match.length > 1) ? cond_match[1] : vpath[$I]")
+        else:
+            self.capt = Template("vpath[$I]")
 
     @classmethod
     def parser(cls, *args):
@@ -193,8 +204,12 @@ class Variable(CondPart):
                 Optional(Literal('::').suppress() + part) +
                 Literal('}').suppress()).setParseAction(__create)
 
-    def condition(self, index):
-        return self.cond.condition(index)
+    def condition(self, index, capturing=False):
+        """A Variable cannot be in a capturing context."""
+        return self.cond.condition(index, True)
+
+    def capture(self, i):
+        return self.capt.substitute({'I': i})
 
 class UrlCond(Condition):
     def __init__(self, parts):
@@ -223,7 +238,7 @@ class UrlCond(Condition):
         ret = {}
         for i, part in enumerate(self.parts):
             if isinstance(part, Variable):
-                ret[part.name] = i
+                ret[part.name] = part.capture(i)
         return ret
 
 class DomainCond(UrlCond):
@@ -371,6 +386,7 @@ $SWITCH
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -504,7 +520,7 @@ $RULE_BODY
         for var in Program.CAPTURE_VARS:
             if var in rule['capture']:
                 assignments.append(
-                    "                    var {} = vpath[{}];\n".format(
+                    "                    var {} = {};\n".format(
                         var, rule['capture'][var]))
             elif var in rule:
                 assignments.append(

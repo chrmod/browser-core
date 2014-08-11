@@ -33,6 +33,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -115,6 +116,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -139,8 +141,8 @@ var templates = {
 
 
                 }
-                else if ((/^\d+$/.test(vpath[0])) && (vpath.length == 1)) {
-                    var item = vpath[0];
+                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^\d+$/)) != null) && (vpath.length == 1)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[0];
                     var label = null;
 
                      if (!template['control_set'].hasOwnProperty(item)) {
@@ -215,6 +217,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -276,6 +279,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -340,6 +344,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -401,6 +406,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -421,8 +427,8 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath[0] == 'usr' && /^[^?]+$/.test(vpath[1])) {
-                    var item = vpath[1];
+                if ((vpath[0] == 'usr' && vpath.length > 1 && (cond_match = vpath[1].match(/^([^?]+)/)) != null) && (vpath.length == 2)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[1];
                     var label = CliqzUtils.getLocalizedString('Sitemap_Ebay_Shops');
 
                     // Check if the first level (label) exists
@@ -463,6 +469,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -545,6 +552,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -612,6 +620,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -632,12 +641,12 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((/^login/.test(vpath[0])) || (vpath[0] == 'messages') || (vpath[0] == 'events') || (vpath[0] == 'help') || (vpath[0] == 'settings') || (/^robots[.]txt/.test(vpath[0]))) {
+                if ((/^login/.test(vpath[0])) || (/^messages/.test(vpath[0])) || (/^events/.test(vpath[0])) || (/^help/.test(vpath[0])) || (/^settings/.test(vpath[0])) || (/^robots[.]txt/.test(vpath[0]))) {
 
 
                 }
-                else if ((/^[^?]+$/.test(vpath[0])) && (vpath.length == 1)) {
-                    var item = vpath[0];
+                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^([^?]+)/)) != null) && (vpath.length == 1)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[0];
                     var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Pages');
 
                     // Check if the first level (label) exists
@@ -720,6 +729,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -787,6 +797,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
