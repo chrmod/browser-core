@@ -123,13 +123,6 @@ var Extension = {
             CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
-    addButtonToMenu: function(doc, menu, label, cmd){
-        var menuItem = doc.createElement('menuitem');
-        menuItem.setAttribute('label', label);
-        menuItem.addEventListener('command', cmd, false);
-        menu.appendChild(menuItem);
-    },
-
     addButtons: function(win){
         var BTN_ID = 'cliqz-button',
             SHARE_BTN_ID = 'cliqz-share-button',
@@ -186,13 +179,13 @@ var Extension = {
     createMenu: function(win){
         var doc = win.document,
             menupopup = doc.createElement('menupopup');
-        menupopup.setAttribute('id', 'menupopup');
+        menupopup.setAttribute('id', 'cliqz_menupopup');
         menupopup.addEventListener('command', function(event) {
 
         }, false);
 
         var menuitem1 = doc.createElement('menuitem');
-        menuitem1.setAttribute('id', 'menuitem1');
+        menuitem1.setAttribute('id', 'cliqz_menuitem1');
         menuitem1.setAttribute('label', 'Feedback');
         menuitem1.addEventListener('command', function(event) {
             win.Application.getExtensions(function(extensions) {
@@ -202,14 +195,14 @@ var Extension = {
         }, false);
 
         var menuitem2 = doc.createElement('menuitem');
-        menuitem2.setAttribute('id', 'menuitem2');
+        menuitem2.setAttribute('id', 'cliqz_menuitem2');
         menuitem2.setAttribute('label', 'FAQ');
         menuitem2.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/faq');
         }, false);
 
         var menuitem4 = doc.createElement('menuitem');
-        menuitem4.setAttribute('id', 'menuitem4');
+        menuitem4.setAttribute('id', 'cliqz_menuitem4');
         menuitem4.setAttribute('label', 'Datenschutz');
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
