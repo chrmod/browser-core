@@ -5,13 +5,22 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+
+var BTN_ID = 'cliqz-button',
+    SHARE_BTN_ID = 'cliqz-share-button',
+    SEARCH_BAR_ID = 'search-container',
+    firstRunPref = 'extensions.cliqz.firstStartDone',
+    firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
+    dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
+    searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition';
+
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
@@ -23,7 +32,6 @@ var Extension = {
         'showDebugLogs': false, // show debug logs in console
         'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send any tracking signals
-        'hideQuickSearch': true, // hides quick search
         'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
@@ -61,6 +69,19 @@ var Extension = {
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
             try{
+                var toolbarId;
+                win.Application.prefs.setValue(dontHideSearchBar, false);
+                if(toolbarId = win.Application.prefs.getValue(searchBarPosition, '')){
+                    var toolbar = win.document.getElementById(toolbarId);
+                    if(toolbar){
+                        if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
+                            toolbar.currentSet += ',' + SEARCH_BAR_ID;
+                        } else {
+                            //the user made it visible
+                            win.Application.prefs.setValue(dontHideSearchBar, true);
+                        }
+                    }
+                }
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -124,12 +145,7 @@ var Extension = {
         }
     },
     addButtons: function(win){
-        var BTN_ID = 'cliqz-button',
-            SHARE_BTN_ID = 'cliqz-share-button',
-            firstRunPref = 'extensions.cliqz.firstStartDone',
-            firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
-            doc = win.document;
-
+        var doc = win.document;
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
@@ -140,6 +156,16 @@ var Extension = {
             win.Application.prefs.setValue(firstRunSharePref, true);
 
             ToolbarButtonManager.setDefaultPosition(SHARE_BTN_ID, 'nav-bar', 'downloads-button');
+        }
+
+        if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
+            win.Application.prefs.setValue(dontHideSearchBar, true);
+
+            //try to hide quick search
+            var toolbarID = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+            if(toolbarID){
+                win.Application.prefs.setValue(searchBarPosition, toolbarID);
+            }
         }
 
         // cliqz button

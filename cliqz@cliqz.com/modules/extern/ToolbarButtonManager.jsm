@@ -102,8 +102,32 @@ function persist(document, toolbar, buttonID, beforeID) {
   return [currentset, idx];
 }
 
+ToolbarButtonManager.persist = persist;
+
 function getCurrentset(toolbar) {
   return (toolbar.getAttribute("currentset") ||
           toolbar.getAttribute("defaultset")).split(",");
+}
+
+// cliqz
+ToolbarButtonManager.hideToolbarElement = function(doc, id){
+  function $(sel, all)
+    doc[all ? "querySelectorAll" : "getElementById"](sel);
+
+  let toolbar, currentset, idx,
+      toolbars = $("toolbar", true);
+  for (let i = 0; i < toolbars.length; ++i) {
+    let tb = toolbars[i];
+    currentset = getCurrentset(tb);
+    idx = currentset.indexOf(id);
+    if (idx != -1) {
+      currentset.splice(idx, 1);
+      currentset = currentset.join(",");
+      tb.currentSet = currentset;
+      tb.setAttribute("currentset", currentset);
+      doc.persist(tb.id, "currentset");
+      return tb.id;
+    }
+  }
 }
 

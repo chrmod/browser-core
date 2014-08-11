@@ -63,14 +63,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
 
-        var searchContainer = document.getElementById('search-container');
-        if(searchContainer){
-            CLIQZ.Core._searchContainer = searchContainer.getAttribute('class');
-            if (CliqzUtils.cliqzPrefs.getBoolPref('hideQuickSearch')){
-                searchContainer.setAttribute('class', CLIQZ.Core._searchContainer + ' hidden');
-            }
-        }
-
         for(var i in CLIQZ.Core.urlbarEvents){
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);

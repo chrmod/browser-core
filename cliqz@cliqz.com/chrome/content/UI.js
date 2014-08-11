@@ -56,6 +56,10 @@ var UI = {
     },
     main: function(box){
         gCliqzBox = box;
+
+        //check if loading is done
+        if(!UI.tpl.main)return;
+
         box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
 
         var resultsBox = document.getElementById('cliqz-results',box);
