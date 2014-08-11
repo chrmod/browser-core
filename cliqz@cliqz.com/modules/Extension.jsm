@@ -146,6 +146,8 @@ var Extension = {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', BTN_ID);
         button.setAttribute('type', 'menu-button');
+        button.setAttribute('label', 'Cliqz');
+        button.setAttribute('tooltiptext', 'Cliqz');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
@@ -161,6 +163,8 @@ var Extension = {
         //share btn
         let shareButton = win.document.createElement('toolbarbutton');
         shareButton.setAttribute('id', SHARE_BTN_ID);
+        shareButton.setAttribute('label', 'Cliqz Share');
+        shareButton.setAttribute('tooltiptext', 'Cliqz Share');
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 

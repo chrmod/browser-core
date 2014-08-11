@@ -207,7 +207,9 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     whoAmI: function(startup){
         // schedule another signal
-        setTimeout(function(){ CLIQZ.Core.whoAmI(); }, CLIQZ.Core.INFO_INTERVAL);
+        setTimeout(function(){
+            if(CLIQZ) CLIQZ.Core.whoAmI();
+        }, CLIQZ.Core.INFO_INTERVAL);
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();

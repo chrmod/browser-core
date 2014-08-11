@@ -60,12 +60,12 @@
                         unEscapeURIForUI('UTF-8', url)
             }
 
-            var data = [],
+            if(this.mInput && this._matchCount > 0){
+              var data = [],
                 ctrl = this.mInput.controller,
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
                 lastRes = CliqzAutocomplete.lastResult;
 
-            if(this._matchCount > 0){
               for(var i=0; i<this._matchCount; i++) {
                   data.push({
                     title: ctrl.getCommentAt(i),
