@@ -19,7 +19,8 @@ var BTN_ID = 'cliqz-button',
     firstRunPref = 'extensions.cliqz.firstStartDone',
     firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
     dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
-    searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition';
+    searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
+    timerRef;
 
 
 var Extension = {
@@ -264,7 +265,8 @@ var Extension = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+                // keep reference to timer to avoid garbage collection
+                timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);

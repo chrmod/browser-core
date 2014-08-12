@@ -389,9 +389,6 @@ var CliqzUtils = {
   setTimeout: function(func, timeout, param) {
     return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
-  setInterval: function(func, timeout) {
-    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-  },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
@@ -497,9 +494,16 @@ var CliqzUtils = {
     return wm.getMostRecentWindow("navigator:browser");
   },
   performance: {
+    timers:null,
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
             reqtimes = {}, statistics = [];
+
+        CliqzUtils.performance.timers = [];
+        function setTO(){
+          // keep reference to all timers to avoid garbage collection
+          CliqzUtils.performance.timers.push(CliqzUtils.setTimeout.apply(this, arguments));
+        }
 
         function send_test(){
           var start = 1000;
@@ -508,7 +512,7 @@ var CliqzUtils = {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              CliqzUtils.setTimeout(function(t){
+              setTO(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -516,7 +520,7 @@ var CliqzUtils = {
               start += delay || (600 + (Math.random() * 100));
             }
           }
-          CliqzUtils.setTimeout(function(){
+          setTO(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
