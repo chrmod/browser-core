@@ -92,6 +92,27 @@ var CliqzABTests = CliqzABTests || {
                 // enable clustering + series
                 CliqzUtils.setPref("abCluster", true);
                 break;
+            case "1003_A":
+                // enable clustering + series
+                // History length: 12
+                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
+                urlbarPrefs.setIntPref("maxRichResults", 12)
+
+                CliqzUtils.setPref("abCluster", true);
+                break;
+            case "1003_B":
+                // enable clustering + series
+                // History length: 20
+                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
+                urlbarPrefs.setIntPref("maxRichResults", 30)
+
+                CliqzUtils.setPref("abCluster", true);
+                break;
+
         }
     },
     leave: function(abtest) {
@@ -113,7 +134,16 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("showChangelog");
                 break;
             case "1002_A":
+            case "1003_A":
+            case "1003_B":
                 // disable clustering + series
+                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
+                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+                if(CliqzUtils.cliqzPrefs.prefHasUserValue("old_maxRichResults")){
+                    urlbarPrefs.setIntPref("maxRichResults", CliqzUtils.getPref("old_maxRichResults"));
+                    CliqzUtils.cliqzPrefs.clearUserPref("old_maxRichResults");
+                }
+
                 CliqzUtils.cliqzPrefs.clearUserPref("abCluster");
                 break;
         }
