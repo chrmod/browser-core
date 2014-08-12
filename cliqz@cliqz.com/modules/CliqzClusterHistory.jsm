@@ -5,10 +5,10 @@ var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.06');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.07');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
-  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.06');
+  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.07');
 
 /******************************************************
  * Warning: this file is auto-generated; do not edit. *

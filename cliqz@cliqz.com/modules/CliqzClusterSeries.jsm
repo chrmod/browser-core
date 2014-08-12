@@ -4,7 +4,7 @@ var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.06');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.07');
 
 function log(msg){
   CliqzUtils.log(msg, 'Series Guessing');
