@@ -137,13 +137,13 @@ program:
         -
             type: topic
             label: Sitemap_Chefkoch_Rezepte
-            title: title
+            title: title::re:(.+?)(?:\s*von.*?)?(?:\s*\|\s*Chefkoch[.]de.*)
             labelUrl: 1
             cond: /rezepte/re:[\d]+/
         -
             type: topic
             label: Sitemap_Chefkoch_Articles
-            title: title
+            title: title::re:(.+?)(?:\s*\|\s*Chefkoch[.]de.*)
             labelUrl: 1
             cond: /magazin/artikel/
     Bild:
