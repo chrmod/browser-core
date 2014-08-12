@@ -227,7 +227,7 @@ var CliqzUtils = {
     var locales = CliqzLanguage.state();
     var local_param = "";
     if(locales.length > 0)
-      local_param = "&hl=" + locales[0];
+      local_param = "&hl=" + encodeURIComponent(locales[0]);
 
     CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,

@@ -198,7 +198,7 @@ var Extension = {
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURIComponent(doc.title) +
+                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via cliqz: ' + doc.title) +
                                     '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
             } catch(e){}
         }, false);

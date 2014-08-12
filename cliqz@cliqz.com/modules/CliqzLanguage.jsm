@@ -178,7 +178,7 @@ var CliqzLanguage = CliqzLanguage || {
         }
     },
     stateToQueryString: function() {
-        return '&lang=' + CliqzLanguage.state().join(',');
+        return '&lang=' + encodeURIComponent(CliqzLanguage.state().join(','));
     },
     // Save the current state to preferences,
     saveCurrentState: function() {
