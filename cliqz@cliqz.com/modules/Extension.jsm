@@ -146,6 +146,17 @@ var Extension = {
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
+    cleanPossibleOldVersions: function(win){
+        //temporary method
+        delete win.CliqzUtils;
+        delete win.CliqzHistoryManager;
+        delete win.CliqzAutocomplete;
+        delete win.CliqzLanguage;
+        delete win.ResultProviders;
+        delete win.CliqzTimings;
+        delete win.CliqzABTests;
+        delete win.CliqzSearchHistory;
+    },
     loadIntoWindow: function(win) {
         if (!win) return;
 
