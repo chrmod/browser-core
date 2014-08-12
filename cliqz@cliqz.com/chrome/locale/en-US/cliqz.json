@@ -3,70 +3,70 @@
         "message":"↵  "
     },
     "Sitemap_Youtube_Popular": {
-        "message":"Beliebte auf YouTube"
+        "message":"Popular on YouTube"
     },
     "Sitemap_Youtube_Subscriptions": {
-        "message":"Meine Abos"
+        "message":"My Subscriptions"
     },
     "Sitemap_Youtube_History": {
-        "message":"Verlauf"
+        "message":"History"
     },
     "Sitemap_Youtube_WatchLater": {
-        "message":"Später ansehen"
+        "message":"Watch Later"
     },
     "Sitemap_Youtube_Channels": {
         "message":"Channels"
     },
     "Sitemap_Facebook_Newsfeed": {
-        "message":"Newsfeed"
+        "message":"News Feed"
     },
     "Sitemap_Facebook_Messages": {
-        "message":"Nachrichten"
+        "message":"Messages"
     },
     "Sitemap_Facebook_Events": {
         "message":"Events"
     },
     "Sitemap_Facebook_Help": {
-        "message":"Hilfe"
+        "message":"Help"
     },
     "Sitemap_Facebook_Pages": {
-        "message":"Seiten"
+        "message":"Pages"
     },
     "Sitemap_Facebook_Groups": {
-        "message":"Gruppen"
+        "message":"Groups"
     },
     "Sitemap_Facebook_Lists": {
-        "message":"Listen"
+        "message":"Lists"
     },
     "Sitemap_Amazon_MyAmazon": {
-        "message":"Mein Amazon"
+        "message":"Your Amazon"
     },
     "Sitemap_Amazon_MyAccount": {
-        "message":"Mein Konto"
+        "message":"Your Account"
     },
     "Sitemap_Amazon_Wishlist": {
-        "message":"Wunschzettel"
+        "message":"Wish List"
     },
     "Sitemap_Amazon_Categories": {
-        "message":"Kategorien"
+        "message":"Categories"
     },
     "Sitemap_Amazon_Shops": {
-        "message":"Verkäufer"
+        "message":"Shops"
     },
     "Sitemap_Ebay_MyEbay": {
-        "message":"Mein Ebay"
+        "message":"My eBay"
     },
     "Sitemap_Ebay_Deals": {
-        "message":"Angebote"
+        "message":"Daily Deals"
     },
     "Sitemap_Ebay_Shops": {
         "message":"Shops"
     },
     "Sitemap_Chefkoch_Magazin": {
-        "message":"Magazin"
+        "message":"Magazine"
     },
     "Sitemap_Chefkoch_Rezepte": {
-        "message":"Rezepte"
+        "message":"Recipes"
     },
     "Sitemap_Chefkoch_Community": {
         "message":"Community"
@@ -75,7 +75,7 @@
         "message":"Blog"
     },
     "Sitemap_Chefkoch_Articles": {
-        "message":"Artikel"
+        "message":"Articles"
     },
     "Sitemap_Bild_Shop": {
         "message":"Bild Shop"
@@ -87,7 +87,7 @@
         "message":"Login"
     },
     "Sitemap_Bild_Topics": {
-        "message":"Themen"
+        "message":"Topics"
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
