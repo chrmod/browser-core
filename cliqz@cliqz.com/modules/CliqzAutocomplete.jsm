@@ -193,7 +193,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults && this.cliqzSuggestions &&
+                        this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
 
                         //this.listener.onSearchResult(this, this.mixResults());

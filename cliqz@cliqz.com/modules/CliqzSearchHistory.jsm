@@ -40,6 +40,7 @@ var CliqzSearchHistory = {
         this.searchHistoryContainer.appendChild(searcHistoryDropdown)
 
         // Add panel with search history results to dropdown button
+        this.searchHistoryPanel.className = 'cliqz-urlbar-Last-search-dropdown';
         searcHistoryDropdown.appendChild(this.searchHistoryPanel);
 
         return this.searchHistoryContainer;
