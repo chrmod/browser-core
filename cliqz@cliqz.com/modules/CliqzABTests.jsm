@@ -101,7 +101,6 @@ var CliqzABTests = CliqzABTests || {
                 urlbarPrefs.setIntPref("maxRichResults", 12)
 
                 CliqzUtils.setPref("abCluster", true);
-                CliqzUtils.setPref("logTimings", true);
                 break;
             case "1003_B":
                 // enable clustering + series
@@ -112,7 +111,6 @@ var CliqzABTests = CliqzABTests || {
                 urlbarPrefs.setIntPref("maxRichResults", 30)
 
                 CliqzUtils.setPref("abCluster", true);
-                CliqzUtils.setPref("logTimings", true);
                 break;
 
         }
@@ -146,7 +144,6 @@ var CliqzABTests = CliqzABTests || {
                     CliqzUtils.cliqzPrefs.clearUserPref("old_maxRichResults");
                 }
 
-                CliqzUtils.cliqzPrefs.clearUserPref("logTimings");
                 CliqzUtils.cliqzPrefs.clearUserPref("abCluster");
                 break;
         }
