@@ -1,10 +1,5 @@
 colors: ["#CC3399", "#27B0CE", "#1777E2"]
 
-localization:
-    settings:
-        en: Settings
-        de: Einstellungen
-
 program:
     Youtube:
         summary: Meine YouTube Seiten
@@ -58,12 +53,11 @@ program:
             url: https://www.facebook.com/help
         -
             type: exclude
-            cond: (/re:^login/) or (/messages/) or (/events/) or (/help/) or (/settings/) or (/re:^robots[.]txt/)
+            cond: (/re:^login/) or (/re:^messages/) or (/re:^events/) or (/re:^help/) or (/re:^settings/) or (/re:^robots[.]txt/)
         -
             type: topic
             label: Sitemap_Facebook_Pages
-            cond: /{item::re:^[^?]+$}//
-            # TODO: groups!!!
+            cond: /{item::re:^([^?]+)}//
         -
             type: topic
             label: Sitemap_Facebook_Groups
@@ -94,14 +88,13 @@ program:
         -
             type: topic
             label: Sitemap_Amazon_Categories
-            title: title
+            title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /*/b/
         -
             type: topic
             label: Sitemap_Amazon_Shops
-            title: title
+            title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
-            # TODO: title cleaning with regex
     Ebay:
         summary: Meine Ebay Seiten
         url: ebay.de
@@ -118,7 +111,7 @@ program:
         -
             type: topic
             label: Sitemap_Ebay_Shops
-            cond: /usr/{item::re:^[^?]+$}/
+            cond: /usr/{item::re:^([^?]+)}//
         # TODO: categories, but it's crazy
     Chefkoch:
         summary: Meine Chefkoch Seiten
@@ -144,13 +137,13 @@ program:
         -
             type: topic
             label: Sitemap_Chefkoch_Rezepte
-            title: title
+            title: title::re:(.+?)(?:\s*von.*?)?(?:\s*\|\s*Chefkoch[.]de.*)
             labelUrl: 1
             cond: /rezepte/re:[\d]+/
         -
             type: topic
             label: Sitemap_Chefkoch_Articles
-            title: title
+            title: title::re:(.+?)(?:\s*\|\s*Chefkoch[.]de.*)
             labelUrl: 1
             cond: /magazin/artikel/
     Bild:
@@ -173,13 +166,11 @@ program:
         -
             type: topic
             label: Sitemap_Bild_Topics
-            cond: /{item}/startseite/
-            # TODO: same as (to handle /news/startseite/news/)
+            cond: /{item}/startseite/=1/
         -
             type: topic
             label: Sitemap_Bild_Topics
-            title: '"Bundesliga"'
-            # TODO: get rid of the '""'
+            title: Sitemap_Bild_Bundesliga
             cond: /bundesliga/1-liga/
     GitHub:
         summary: Meine Github Seiten

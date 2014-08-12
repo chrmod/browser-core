@@ -26,12 +26,6 @@ summary: XYZ     # Default: Your sitemap for $site
 """
 
 test_data = """
-localization:
-    label: settings
-        en -> Settings
-        de -> Einstellungen
-
-
 program:
     site: GitHub
         url: github
@@ -124,11 +118,13 @@ class CondPart(object):
         """Returns the object that parses this kind of condition."""
         raise NotImplementedError('Condition.parser()')
 
-    def condition(self, index):
+    def condition(self, index, capturing=False):
         """
         Returns the object that generates the JS condition code.
 
-        @param index the index of the CondPart object in the url list."""
+        @param index the index of the CondPart object in the url list.
+        @param capturing whether we are in a capturing context.
+        """
         return 'true'
 
 class Term(CondPart):
@@ -139,9 +135,9 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'[-?&=\w]+', re.UNICODE).setParseAction(__create)
+        return Regex(ur'\w[-?&=\w]*', re.UNICODE).setParseAction(__create)
 
-    def condition(self, index):
+    def condition(self, index, capturing=False):
         return "vpath[{}] == '{}'".format(index, self.word)
 
 class RegexCP(CondPart):
@@ -158,8 +154,31 @@ class RegexCP(CondPart):
             return RegexCP(toks[0])
         return Regex(ur're:[^/}]+', re.UNICODE).setParseAction(__create)
 
-    def condition(self, index):
-        return "/{}/.test(vpath[{}])".format(self.regex[3:], index)
+    def condition(self, index, capturing=False):
+        """Returns a simpler test if not in a capturing context."""
+        if capturing:
+            return "vpath.length > {0} && (cond_match = vpath[{0}].match(/{1}/)) != null".format(index, self.regex[3:])
+        else:
+            return "/{}/.test(vpath[{}])".format(self.regex[3:], index)
+
+class SameAs(CondPart):
+    """
+    Same as other part of the path. Does not work between path and subdomain
+    parts.
+    """
+    def __init__(self, original_index):
+        """Original index starts from 1."""
+        self.original_index = original_index - 1
+
+    @classmethod
+    def parser(cls, *args):
+        def __create(toks):
+            return SameAs(int(toks[0]))
+        return (Literal('=').suppress() +
+                Regex(ur'\d+', re.UNICODE)).setParseAction(__create)
+
+    def condition(self, index, capturing=False):
+        return 'vpath[{}] == vpath[{}]'.format(index, self.original_index)
 
 class Asterisk(CondPart):
     @classmethod
@@ -180,6 +199,11 @@ class Variable(CondPart):
                 + 'must be one of ({})'.format(', '.join(Program.CAPTURE_VARS)))
         self.name = name
         self.cond = cond
+        if isinstance(cond, RegexCP):
+            self.capt = Template(
+                "(cond_match.length > 1) ? cond_match[1] : vpath[$I]")
+        else:
+            self.capt = Template("vpath[$I]")
 
     @classmethod
     def parser(cls, *args):
@@ -188,13 +212,17 @@ class Variable(CondPart):
                 return Variable(toks[0], toks[1])
             else:
                 return Variable(toks[0], Asterisk())
-        part = RegexCP.parser() | Term.parser() | Asterisk.parser()
+        part = RegexCP.parser() | Term.parser() | Asterisk.parser() | SameAs.parser()
         return (Literal('{').suppress() + Regex(ur'[\w]+', re.UNICODE) +
                 Optional(Literal('::').suppress() + part) +
                 Literal('}').suppress()).setParseAction(__create)
 
-    def condition(self, index):
-        return self.cond.condition(index)
+    def condition(self, index, capturing=False):
+        """A Variable cannot be in a capturing context."""
+        return self.cond.condition(index, True)
+
+    def capture(self, i):
+        return self.capt.substitute({'I': i})
 
 class UrlCond(Condition):
     def __init__(self, parts):
@@ -204,7 +232,8 @@ class UrlCond(Condition):
     def parser(cls, *args):
         def __create(toks):
             return UrlCond([tok for tok in toks])
-        part = Variable.parser() | RegexCP.parser() | Term.parser() | Asterisk.parser()
+        part = (Variable.parser() | RegexCP.parser() | Term.parser() |
+                Asterisk.parser() | SameAs.parser())
         expr = (Literal('/').suppress() + OneOrMore(part +
                 Literal('/').suppress())).setParseAction(__create)
         return expr
@@ -223,7 +252,7 @@ class UrlCond(Condition):
         ret = {}
         for i, part in enumerate(self.parts):
             if isinstance(part, Variable):
-                ret[part.name] = i
+                ret[part.name] = part.capture(i)
         return ret
 
 class DomainCond(UrlCond):
@@ -371,6 +400,7 @@ $SWITCH
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -403,10 +433,11 @@ $RULES
             + "iconCls: '$icon'}")
 
     CONTROL_TEMPLATE = Template(
-"""                     if (!template['control_set'].hasOwnProperty($title)) {
-                        var control = {title: $title, url: url, iconCls: '$icon'};
+"""$ITEM_TITLE
+                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                        var control = {title: item_title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
-                        template['control_set'][$title] = true;
+                        template['control_set'][item_title] = true;
                     }
 """
     )
@@ -425,9 +456,19 @@ $RULES
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty($title)) {
-                        topic['urls'].push({href: url, path: path, title: $title})
-                        topic['label_set'][$title] = true;
+$ITEM_TITLE
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }"""
+    )
+
+    ITEM_TITLE_TEMPLATE = Template(
+"""                    var title_match = $title.match(/$regex/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = $title;
                     }"""
     )
 
@@ -441,10 +482,13 @@ $RULE_BODY
     # The variables that can be used in a capturing context
     CAPTURE_VARS = set(['label', 'item'])
 
+    # The variables that are defined in the JS code; CAPTURE_VARS are added to
+    # this
+    JS_VARS = set(['url', 'title'])
+
     def __init__(self):
         self.colors = ['#000000']
         self.programs = []
-        self.translations = {}
 
     def _condition_language(self):
         expr = FullUrlCond.parser()
@@ -459,7 +503,6 @@ $RULE_BODY
             script_dict = yaml.load(inf)
         if 'colors' in script_dict:
             self.colors = script_dict['colors']
-        self.translations = script_dict['localization']
         for site, p in script_dict['program'].iteritems():
             fix_controls = []
             regular_rules = []
@@ -486,14 +529,6 @@ $RULE_BODY
     def _generate_colors(self):
         return "'" + "', '".join(self.colors) + "'"
 
-    def _generate_localization(self):
-        trans_map = []
-        for label, trans in self.translations.iteritems():
-            langs = "\n".join("        '{}': '{}'".format(k, v)
-                              for k, v in sorted(trans.iteritems()))
-            trans_map.append("    '%s': {\n%s\n    }" % (label, langs))
-        return "\n".join(trans_map)
-
     def _generate_capture(self, rule):
         """
         Generates the CAPTURE part of the rule. All variables that could be
@@ -504,7 +539,7 @@ $RULE_BODY
         for var in Program.CAPTURE_VARS:
             if var in rule['capture']:
                 assignments.append(
-                    "                    var {} = vpath[{}];\n".format(
+                    "                    var {} = {};\n".format(
                         var, rule['capture'][var]))
             elif var in rule:
                 assignments.append(
@@ -515,29 +550,61 @@ $RULE_BODY
                     "                    var {} = null;\n".format(var))
         return ''.join(assignments)
 
-    def _get_title(self, rule, key, def_value):
+    def _get_item_title(self, rule, key, def_value):
         """
         Returns
         - if key is a captured variable (incl. url and title): its value,
           otherwise the localized string assigned to key;
         - if not, def_value.
+
+        This method also handles regex-filtered titles.
         """
-        if key in rule:
-            if key in rule['capture'] or key == 'url':
-                return key
-            elif key == 'title':
-                return rule['title']
+        def handle_title_refs(rule, key, def_value):
+            all_var_keys = Program.JS_VARS | set(rule['capture'].keys())
+            var_keys = all_var_keys - set([key])
+
+            # Key points to a variable ...
+            if key in all_var_keys:
+                # ... other than itself (title -> item)
+                if key in var_keys:
+                    return key
+                # ... to itself (title -> title).
+                elif key == rule[key]:
+                    return rule[key]
+                # ... to something else (title -> blablabla)
+                else:
+                    return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
             else:
                 return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
+
+        if key in rule:
+            v_pattern = (
+                Regex(r'[\w_]+') + Optional(Literal('::').suppress() +
+                Literal('re:').suppress() + Regex(r'.+'))
+            )
+            v_result = v_pattern.parseString(rule[key])
+            # A regex
+            if len(v_result) == 2:
+                rule_mod = dict(rule)
+                rule_mod.update({key: v_result[0]})
+                return Program.ITEM_TITLE_TEMPLATE.substitute({
+                    'title': handle_title_refs(rule_mod, v_result[0], def_value),
+                    'regex': v_result[1]
+                })
+            # Only a string
+            else:
+                return """                    var item_title = {};""".format(
+                    handle_title_refs(rule, key, def_value))
         else:
-            return def_value
+            return """                    var item_title = {};""".format(
+                def_value)
 
     def _generate_program(self, program):
         """Generates the control for the program."""
         ret = dict(program)
         ret['FIX_CONTROLS'] = ",\n                          ".join(
-                Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
-                in program['fix_controls'])
+            Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
+            in program['fix_controls'])
         if 'home' not in ret:
             ret['home'] = ret['url']
 
@@ -547,7 +614,7 @@ $RULE_BODY
             if rule['type'] == 'control':
                 rule['index'] = control_index
                 rule['CAPTURE'] = self._generate_capture(rule)
-                rule['title'] = self._get_title(rule, 'title', 'item')
+                rule['ITEM_TITLE'] = self._get_item_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.CONTROL_TEMPLATE.substitute(rule)
                 control_index += 1
             elif rule['type'] == 'topic':
@@ -559,7 +626,7 @@ $RULE_BODY
                     rule['LABEL_URL'] = label_path
                 else:
                     rule['LABEL_URL'] = ''
-                rule['title'] = self._get_title(rule, 'title', 'item')
+                rule['ITEM_TITLE'] = self._get_item_title(rule, 'title', 'item')
                 rule['RULE_BODY'] = Program.TOPIC_TEMPLATE.substitute(rule)
             else:
                 rule['RULE_BODY'] = ''
@@ -573,7 +640,6 @@ $RULE_BODY
         """Generates the program parsed in parse()."""
         return Program.OUTER_TEMPLATE.substitute({
             'COLORS': self._generate_colors(),
-            'LOC': self._generate_localization(),
             'SWITCH': ",\n".join(Program.INNER_TEMPLATE.substitute(
                 self._generate_program(program))
                                  for program in self.programs)

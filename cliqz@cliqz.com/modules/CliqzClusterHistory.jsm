@@ -33,6 +33,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -53,7 +54,7 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath[1] == 'startseite') {
+                if (vpath[1] == 'startseite' && vpath[2] == vpath[0]) {
                     var item = vpath[0];
                     var label = CliqzUtils.getLocalizedString('Sitemap_Bild_Topics');
 
@@ -70,9 +71,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'bundesliga' && vpath[1] == '1-liga') {
@@ -92,9 +94,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty("Bundesliga")) {
-                        topic['urls'].push({href: url, path: path, title: "Bundesliga"})
-                        topic['label_set']["Bundesliga"] = true;
+                    var item_title = CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga');
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -115,6 +118,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -139,14 +143,15 @@ var templates = {
 
 
                 }
-                else if ((/^\d+$/.test(vpath[0])) && (vpath.length == 1)) {
-                    var item = vpath[0];
+                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^\d+$/)) != null) && (vpath.length == 1)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[0];
                     var label = null;
 
-                     if (!template['control_set'].hasOwnProperty(item)) {
-                        var control = {title: item, url: url, iconCls: 'cliqz-fa fa-database'};
+                    var item_title = item;
+                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                        var control = {title: item_title, url: url, iconCls: 'cliqz-fa fa-database'};
                         template['control'].push(control);
-                        template['control_set'][item] = true;
+                        template['control_set'][item_title] = true;
                     }
 
                 }
@@ -167,9 +172,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if ((vpath[1] == 'people') && (vpath.length == 3)) {
@@ -189,9 +195,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -215,6 +222,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -252,9 +260,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -276,6 +285,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -317,9 +327,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -340,6 +351,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -377,9 +389,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -401,6 +414,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -421,8 +435,8 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath[0] == 'usr' && /^[^?]+$/.test(vpath[1])) {
-                    var item = vpath[1];
+                if ((vpath[0] == 'usr' && vpath.length > 1 && (cond_match = vpath[1].match(/^([^?]+)/)) != null) && (vpath.length == 2)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[1];
                     var label = CliqzUtils.getLocalizedString('Sitemap_Ebay_Shops');
 
                     // Check if the first level (label) exists
@@ -438,9 +452,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -463,6 +478,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -500,9 +516,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(?:^[Aa]mazon.de.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
@@ -522,9 +544,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(?:^[Aa]mazon.de.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -545,6 +573,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -586,9 +615,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -612,6 +642,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -632,12 +663,12 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((/^login/.test(vpath[0])) || (vpath[0] == 'messages') || (vpath[0] == 'events') || (vpath[0] == 'help') || (vpath[0] == 'settings') || (/^robots[.]txt/.test(vpath[0]))) {
+                if ((/^login/.test(vpath[0])) || (/^messages/.test(vpath[0])) || (/^events/.test(vpath[0])) || (/^help/.test(vpath[0])) || (/^settings/.test(vpath[0])) || (/^robots[.]txt/.test(vpath[0]))) {
 
 
                 }
-                else if ((/^[^?]+$/.test(vpath[0])) && (vpath.length == 1)) {
-                    var item = vpath[0];
+                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^([^?]+)/)) != null) && (vpath.length == 1)) {
+                    var item = (cond_match.length > 1) ? cond_match[1] : vpath[0];
                     var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Pages');
 
                     // Check if the first level (label) exists
@@ -653,9 +684,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'groups') {
@@ -675,9 +707,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'lists') {
@@ -697,9 +730,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var item_title = title;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -720,6 +754,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -761,9 +796,10 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item)) {
-                        topic['urls'].push({href: url, path: path, title: item})
-                        topic['label_set'][item] = true;
+                    var item_title = item;
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
@@ -787,6 +823,7 @@ var templates = {
             };
 
             var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
 
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
@@ -824,9 +861,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(.+?)(?:\s*von.*?)?(?:\s*\|\s*Chefkoch[.]de.*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
                 else if (vpath[0] == 'magazin' && vpath[1] == 'artikel') {
@@ -846,9 +889,15 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(title)) {
-                        topic['urls'].push({href: url, path: path, title: title})
-                        topic['label_set'][title] = true;
+                    var title_match = title.match(/(.+?)(?:\s*\|\s*Chefkoch[.]de.*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
                     }
                 }
             }
