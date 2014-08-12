@@ -135,7 +135,7 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'[-?&=\w]+', re.UNICODE).setParseAction(__create)
+        return Regex(ur'\w[-?&=\w]*', re.UNICODE).setParseAction(__create)
 
     def condition(self, index, capturing=False):
         return "vpath[{}] == '{}'".format(index, self.word)
@@ -160,6 +160,25 @@ class RegexCP(CondPart):
             return "vpath.length > {0} && (cond_match = vpath[{0}].match(/{1}/)) != null".format(index, self.regex[3:])
         else:
             return "/{}/.test(vpath[{}])".format(self.regex[3:], index)
+
+class SameAs(CondPart):
+    """
+    Same as other part of the path. Does not work between path and subdomain
+    parts.
+    """
+    def __init__(self, original_index):
+        """Original index starts from 1."""
+        self.original_index = original_index - 1
+
+    @classmethod
+    def parser(cls, *args):
+        def __create(toks):
+            return SameAs(int(toks[0]))
+        return (Literal('=').suppress() +
+                Regex(ur'\d+', re.UNICODE)).setParseAction(__create)
+
+    def condition(self, index, capturing=False):
+        return 'vpath[{}] == vpath[{}]'.format(index, self.original_index)
 
 class Asterisk(CondPart):
     @classmethod
@@ -193,7 +212,7 @@ class Variable(CondPart):
                 return Variable(toks[0], toks[1])
             else:
                 return Variable(toks[0], Asterisk())
-        part = RegexCP.parser() | Term.parser() | Asterisk.parser()
+        part = RegexCP.parser() | Term.parser() | Asterisk.parser() | SameAs.parser()
         return (Literal('{').suppress() + Regex(ur'[\w]+', re.UNICODE) +
                 Optional(Literal('::').suppress() + part) +
                 Literal('}').suppress()).setParseAction(__create)
@@ -213,7 +232,8 @@ class UrlCond(Condition):
     def parser(cls, *args):
         def __create(toks):
             return UrlCond([tok for tok in toks])
-        part = Variable.parser() | RegexCP.parser() | Term.parser() | Asterisk.parser()
+        part = (Variable.parser() | RegexCP.parser() | Term.parser() |
+                Asterisk.parser() | SameAs.parser())
         expr = (Literal('/').suppress() + OneOrMore(part +
                 Literal('/').suppress())).setParseAction(__create)
         return expr
@@ -558,8 +578,10 @@ $RULE_BODY
                 return "CliqzUtils.getLocalizedString('{}')".format(rule[key])
 
         if key in rule:
-            v_pattern = (Regex(r'[\w_]+') + Optional(Literal('::').suppress() +
-                Literal('re:').suppress() + Regex(r'.+')))
+            v_pattern = (
+                Regex(r'[\w_]+') + Optional(Literal('::').suppress() +
+                Literal('re:').suppress() + Regex(r'.+'))
+            )
             v_result = v_pattern.parseString(rule[key])
             # A regex
             if len(v_result) == 2:
@@ -577,13 +599,12 @@ $RULE_BODY
             return """                    var item_title = {};""".format(
                 def_value)
 
-
     def _generate_program(self, program):
         """Generates the control for the program."""
         ret = dict(program)
         ret['FIX_CONTROLS'] = ",\n                          ".join(
-                Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
-                in program['fix_controls'])
+            Program.FIX_CONTROL_TEMPLATE.substitute(rule) for rule
+            in program['fix_controls'])
         if 'home' not in ret:
             ret['home'] = ret['url']
 

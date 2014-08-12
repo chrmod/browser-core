@@ -95,7 +95,6 @@ program:
             label: Sitemap_Amazon_Shops
             title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
-            # TODO: title cleaning with regex
     Ebay:
         summary: Meine Ebay Seiten
         url: ebay.de
@@ -167,8 +166,7 @@ program:
         -
             type: topic
             label: Sitemap_Bild_Topics
-            cond: /{item}/startseite/
-            # TODO: same as (to handle /news/startseite/news/)
+            cond: /{item}/startseite/=1/
         -
             type: topic
             label: Sitemap_Bild_Topics
