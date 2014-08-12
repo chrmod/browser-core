@@ -5,13 +5,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+    'chrome://cliqzmodules/content/ResultProviders.jsm');
 
 var BTN_ID = 'cliqz-button',
     SHARE_BTN_ID = 'cliqz-share-button',
@@ -93,8 +93,26 @@ var Extension = {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+        Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+    },
+    unloadModules: function(){
+        //unload all cliqz modules
+        Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Result.jsm');
+        Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -126,7 +144,7 @@ var Extension = {
         prefs.clearUserPref('analysis');
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.04', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
     loadIntoWindow: function(win) {
         if (!win) return;
