@@ -210,13 +210,15 @@ var Extension = {
             win.Application.prefs.setValue(dontHideSearchBar, true);
 
             //try to hide quick search
-            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
-            if(toolbarID){
-                win.Application.prefs.setValue(searchBarPosition, toolbarID);
-            }
-            if(nextEl){
-                win.Application.prefs.setValue(searchBarPositionNext, nextEl);
-            }
+            try{
+                var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+                if(toolbarID){
+                    win.Application.prefs.setValue(searchBarPosition, toolbarID);
+                }
+                if(nextEl){
+                    win.Application.prefs.setValue(searchBarPositionNext, nextEl);
+                }
+            } catch(e){}
         }
 
         // cliqz button
