@@ -41,7 +41,7 @@ var CliqzABTests = CliqzABTests || {
                     if(changes)
                         CliqzUtils.extensionRestart();
                 } catch(e){
-                    CliqzUtils.log(e, "CliqzABTests.check Error");
+                    //CliqzUtils.log(e, "CliqzABTests.check Error");
                 }
             });
     },

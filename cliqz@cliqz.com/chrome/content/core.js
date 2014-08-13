@@ -125,8 +125,9 @@ CLIQZ.Core = CLIQZ.Core || {
                (source || 'NONE');
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
+    _tutorialTimeout:null,
     showTutorial: function(onInstall){
-        setTimeout(function(){
+        CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
@@ -137,6 +138,8 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // restoring
     destroy: function(){
+        clearTimeout(CLIQZ.Core._tutorialTimeout);
+
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
             item && item.parentNode && item.parentNode.removeChild(item);

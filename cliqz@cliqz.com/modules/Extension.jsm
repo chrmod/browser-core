@@ -337,7 +337,8 @@ var Extension = {
             try{
                 var btn = win.document.getElementById('cliqz-button')
                 if(btn && btn.children && btn.children.cliqz_menupopup){
-                    btn.children.cliqz_menupopup.lastChild.remove();
+                    var searchOptions = btn.children.cliqz_menupopup.lastChild;
+                    searchOptions.parentNode.removeChild(searchOptions);
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
                 }
             } catch(e){}
@@ -351,11 +352,12 @@ var Extension = {
     unloadFromWindow: function(win){
         try {
             if(win && win.document){
-                if(win.document.getElementById('cliqz-button')){
-                    win.document.getElementById('cliqz-button').remove();
+                var btn;
+                if(btn = win.document.getElementById('cliqz-button')){
+                    btn.parentNode.removeChild(btn);
                 }
-                if(win.document.getElementById('cliqz-share-button')){
-                    win.document.getElementById('cliqz-share-button').remove();
+                if(btn = win.document.getElementById('cliqz-share-button')){
+                    btn.parentNode.removeChild(btn);
                 }
             }
             win.CLIQZ.Core.destroy();
