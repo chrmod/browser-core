@@ -51,7 +51,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(){
+  init: function(window){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -60,11 +60,13 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    CliqzUtils.loadLocale();
+    if (window && window.navigator != null)
+        CliqzUtils.loadLocale(window.navigator.language);
     CliqzUtils.log('Initialized', 'UTILS');
 
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
+    CliqzUtils.log("GETTING " + url);
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
@@ -420,14 +422,53 @@ var CliqzUtils = {
     });
   },
   locale: {},
-  loadLocale : function(){
-    CliqzUtils.httpGet('chrome://cliqzres/content/locale/de-DE/cliqz.json',
-        function(req){
-            CliqzUtils.locale = JSON.parse(req.response);
-        });
+  currLocale: null,
+  loadLocale : function(lang_locale){
+    //var ww = Components.classes['@mozilla.org/embedcomp/window-watcher;1']
+    //                 .getService(Components.interfaces.nsIWindowWatcher);
+    // The default language
+    if (!CliqzUtils.locale.hasOwnProperty('default')) {
+        CliqzUtils.log("LOADING DEFAULT LOCALE");
+        CliqzUtils.httpGet('chrome://cliqzres/content/locale/de/cliqz.json',
+            function(req){
+                CliqzUtils.log("LOADED DEFAULT LOCALE");
+                CliqzUtils.locale['default'] = JSON.parse(req.response);
+            });
+    }
+    if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
+        CliqzUtils.log("LOADING LOCALE " + lang_locale);
+        CliqzUtils.httpGet('chrome://cliqzres/content/locale/' + encodeURIComponent(lang_locale) + '/cliqz.json',
+            function(req) {
+                CliqzUtils.log("LOADED LOCALE " + lang_locale);
+                CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                CliqzUtils.currLocale = lang_locale;
+            },
+            function() {
+                // We did not find the full locale (e.g. en-GB): let's try just the
+                // language!
+                var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
+                CliqzUtils.log("LOADING BACKUP LOCALE");
+                CliqzUtils.httpGet(
+                    'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
+                    function(req) {
+                        CliqzUtils.log("LOADED BACKUP LOCALE");
+                        CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                        CliqzUtils.currLocale = lang_locale;
+                    }
+                );
+            }
+        );
+    }
   },
   getLocalizedString: function(key){
-    return (CliqzUtils.locale[key] && CliqzUtils.locale[key].message) || key;
+    if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
+            && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
+        return CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
+        return CliqzUtils.locale['default'][key].message;
+    } else {
+        return key;
+    }
   },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
