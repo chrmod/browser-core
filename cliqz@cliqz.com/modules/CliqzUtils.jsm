@@ -66,7 +66,6 @@ var CliqzUtils = {
 
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
-    CliqzUtils.log("GETTING " + url);
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
     req.open(method, url, true);
     req.overrideMimeType('application/json');
@@ -434,18 +433,14 @@ var CliqzUtils = {
     //                 .getService(Components.interfaces.nsIWindowWatcher);
     // The default language
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
-        CliqzUtils.log("LOADING DEFAULT LOCALE");
         CliqzUtils.httpGet('chrome://cliqzres/content/locale/de/cliqz.json',
             function(req){
-                CliqzUtils.log("LOADED DEFAULT LOCALE");
                 CliqzUtils.locale['default'] = JSON.parse(req.response);
             });
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-        CliqzUtils.log("LOADING LOCALE " + lang_locale);
         CliqzUtils.httpGet('chrome://cliqzres/content/locale/' + encodeURIComponent(lang_locale) + '/cliqz.json',
             function(req) {
-                CliqzUtils.log("LOADED LOCALE " + lang_locale);
                 CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                 CliqzUtils.currLocale = lang_locale;
             },
@@ -453,11 +448,9 @@ var CliqzUtils = {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
                 var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
-                CliqzUtils.log("LOADING BACKUP LOCALE");
                 CliqzUtils.httpGet(
                     'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
                     function(req) {
-                        CliqzUtils.log("LOADED BACKUP LOCALE");
                         CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                         CliqzUtils.currLocale = lang_locale;
                     }
