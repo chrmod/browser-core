@@ -39,6 +39,7 @@ var CliqzUtils = {
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
+  TUTORIAL_URL_OLD: 'https://beta.cliqz.com/erste-schritte',
   TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',

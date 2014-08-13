@@ -126,9 +126,19 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     showTutorial: function(onInstall){
+        // Only show new tutorial if version greater than 29
+        var tutorial_url = "";
+        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                        .getService(Components.interfaces.nsIXULAppInfo);
+        var versionComparator = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                                  .getService(Components.interfaces.nsIVersionComparator);
+        if (versionComparator.compare(appInfo.version, "29") == 1)
+            tutorial_url = CliqzUtils.TUTORIAL_URL;
+        else
+            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(tutorial_url, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // force component reload at install/uninstall
