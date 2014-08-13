@@ -2,6 +2,9 @@
     "urlBarLastSearch":{
         "message":"↵  "
     },
+    "Sitemap_Summary": {
+        "message":"Meine {} Seiten"
+    },
     "Sitemap_Youtube_Popular": {
         "message":"Beliebte auf YouTube"
     },
