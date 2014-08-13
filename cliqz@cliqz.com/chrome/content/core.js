@@ -105,14 +105,13 @@ CLIQZ.Core = CLIQZ.Core || {
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
                     prefs.setCharPref('session', CLIQZ.Core.generateSession(source));
+                    CLIQZ.Core.showTutorial(true);
                 },
                 function error(){
                     prefs.setCharPref('session', CLIQZ.Core.generateSession());
+                    CLIQZ.Core.showTutorial(true);
                 }
             );
-
-
-            CLIQZ.Core.showTutorial(true);
         } else {
             CLIQZ.Core.showTutorial(false);
         }
@@ -136,6 +135,11 @@ CLIQZ.Core = CLIQZ.Core || {
             tutorial_url = CliqzUtils.TUTORIAL_URL;
         else
             tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
+
+        // Show it only to users that have a session starting with 5 (10% users)
+        if (!(CliqzUtils.getPref('session','')[0] == '5'))
+            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
+
         setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(tutorial_url, CliqzUtils.INSTAL_URL, onlyReuse);
