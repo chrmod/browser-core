@@ -94,7 +94,13 @@ var CliqzUtils = {
         req.timeout = (method == 'POST'? 2000 : 1000);
       }
     }
-    req.send(data);
+    try {
+        req.send(data);
+    } catch(e) {
+      CliqzUtils.log( "exception caught while loading " + url
+              + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
+      onerror && onerror();
+    }
     return req;
   },
   httpGet: function(url, callback, onerror, timeout){
