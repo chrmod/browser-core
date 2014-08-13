@@ -19,7 +19,10 @@ var BTN_ID = 'cliqz-button',
     firstRunPref = 'extensions.cliqz.firstStartDone',
     firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
     dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
+    //toolbar
     searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
+    //next element in the toolbar
+    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext',
     timerRef;
 
 
@@ -70,19 +73,7 @@ var Extension = {
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
             try{
-                var toolbarId;
-                win.Application.prefs.setValue(dontHideSearchBar, false);
-                if(toolbarId = win.Application.prefs.getValue(searchBarPosition, '')){
-                    var toolbar = win.document.getElementById(toolbarId);
-                    if(toolbar){
-                        if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
-                            toolbar.currentSet += ',' + SEARCH_BAR_ID;
-                        } else {
-                            //the user made it visible
-                            win.Application.prefs.setValue(dontHideSearchBar, true);
-                        }
-                    }
-                }
+                Extension.restoreSearchBar(win);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -96,6 +87,34 @@ var Extension = {
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+    },
+    restoreSearchBar: function(win){
+        var toolbarId;
+        win.Application.prefs.setValue(dontHideSearchBar, false);
+        if(toolbarId = win.Application.prefs.getValue(searchBarPosition, '')){
+            var toolbar = win.document.getElementById(toolbarId);
+            if(toolbar){
+                if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
+                    debugger;
+                    var next = win.Application.prefs.getValue(searchBarPositionNext, '');
+                    if(next){
+                        var set = toolbar.currentSet.split(","),
+                            idx = set.indexOf(next);
+
+                        if (idx != -1)
+                            set.splice(idx, 0, SEARCH_BAR_ID);
+                        else set.push(SEARCH_BAR_ID);
+
+                        toolbar.currentSet = set.join(",");
+                    }
+                    // no next element, append it to the end
+                    else toolbar.currentSet += ',' + SEARCH_BAR_ID;
+                } else {
+                    //the user made it visible
+                    win.Application.prefs.setValue(dontHideSearchBar, true);
+                }
+            }
+        }
     },
     unloadModules: function(){
         //unload all cliqz modules
@@ -192,9 +211,13 @@ var Extension = {
             win.Application.prefs.setValue(dontHideSearchBar, true);
 
             //try to hide quick search
-            var toolbarID = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+            debugger;
+            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
             if(toolbarID){
                 win.Application.prefs.setValue(searchBarPosition, toolbarID);
+            }
+            if(nextEl){
+                win.Application.prefs.setValue(searchBarPositionNext, nextEl);
             }
         }
 
