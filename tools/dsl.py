@@ -391,8 +391,9 @@ $SWITCH
 """    '$url': {
         fun: function(urls) {
 
+            var site = '$site';
             var template = {
-                summary: '$summary',
+                summary: CliqzUtils.getLocalizedString('$summary').replace('{}', site),
                 control: [$FIX_CONTROLS],
                 control_set: {},
                 topics: [],
@@ -522,6 +523,7 @@ $RULE_BODY
                     rule['capture'] = cond.capture()
                     rule['else'] = 'else ' if len(regular_rules) > 0 else ''
                     regular_rules.append(rule)
+            p['site'] = site
             p['fix_controls'] = fix_controls
             p['rules'] = regular_rules
             self.programs.append(p)

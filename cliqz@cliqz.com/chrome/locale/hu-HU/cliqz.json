@@ -2,6 +2,9 @@
     "urlBarLastSearch":{
         "message":"↵  "
     },
+    "Sitemap_Summary": {
+        "message":"Korábban megtekintett oldalak itt: {}"
+    },
     "Sitemap_Youtube_Popular": {
         "message":"Népszerű a Youtebe-on"
     },
