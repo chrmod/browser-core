@@ -348,6 +348,16 @@ Dropdown open
 }
 ```
 
+Offboarding tour started
+``` bash
+{
+    "action": "offboarding_tour",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
 Dropdown close
 ``` bash
 {

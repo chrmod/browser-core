@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliqz</title>
+
+    <style type="text/css">
+        .back {
+            background-image: url('http://beta.cliqz.com/img/big_enough_m8.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .mid {
+            text-align: center;
+            color: white;
+            font-size:24px;
+            font-family: "Helvetica",Helvetica,Arial,sans-serif;
+        }
+        .header {
+            font-weight: 300;
+            letter-spacing: 0.05rem;
+            text-rendering: optimizelegibility;
+            color: #FFF;
+            font-family: "Helvetica",Helvetica,Arial,sans-serif;
+            font-size: 20px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 12px 0px;
+            margin: 50px 0;
+        }
+        .logo {
+            margin-bottom: -8px;
+            width: 60px;
+        }
+        .test {
+            padding: 44px 68px;
+            font-size: 24px;
+            line-height: 1.33;
+            border-radius: 6px;
+            background-color: white;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid transparent;
+            color: #2ab5ee;
+            font-weight: bold;
+        }
+        .test:hover {
+            background-color: #e6e6e6;
+            border-color: #adadad;
+        }
+        .screenshot {
+          padding-top: 100px;
+        }
+    </style>
+</head>
+<body class='back'>
+    <h1 class='header'>
+        Willkommen! <img class="logo" src="http://beta.cliqz.com/img/CliqzLogo.svg" > hilft Dir beim Finden im Internet.
+    </h1>
+    <div class='mid'>
+        Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten
+    </div>
+    <br /><br /><br /><br />
+    <div class='mid' id='test_btn'>
+        <span class='test'>
+            Jetzt ausprobieren
+        </span>
+    </div>
+    <div class="screenshot mid">
+      <img src="chrome://cliqzres/content/skin/offboarding.png" alt="" />
+    </div>
+    <script type="text/javascript">
+        Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm?v=0.5.00');
+        document.getElementById('test_btn').addEventListener('click', function(){
+            CliqzTour.start();
+        });
+    </script>
+</body>
+</html>
