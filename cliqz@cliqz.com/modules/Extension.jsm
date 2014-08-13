@@ -95,7 +95,6 @@ var Extension = {
             var toolbar = win.document.getElementById(toolbarId);
             if(toolbar){
                 if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
-                    debugger;
                     var next = win.Application.prefs.getValue(searchBarPositionNext, '');
                     if(next){
                         var set = toolbar.currentSet.split(","),
@@ -211,7 +210,6 @@ var Extension = {
             win.Application.prefs.setValue(dontHideSearchBar, true);
 
             //try to hide quick search
-            debugger;
             var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
             if(toolbarID){
                 win.Application.prefs.setValue(searchBarPosition, toolbarID);
