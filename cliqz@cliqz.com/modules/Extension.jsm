@@ -4,8 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+Cu.import('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm?v=1');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -207,8 +206,6 @@ var Extension = {
         }
 
         if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
-            win.Application.prefs.setValue(dontHideSearchBar, true);
-
             //try to hide quick search
             try{
                 var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
@@ -218,6 +215,7 @@ var Extension = {
                 if(nextEl){
                     win.Application.prefs.setValue(searchBarPositionNext, nextEl);
                 }
+                win.Application.prefs.setValue(dontHideSearchBar, true);
             } catch(e){}
         }
 
