@@ -47,6 +47,26 @@ var Mixer = {
             history_trans = [];
         }
 
+        // Was instant history result also available as a cliqz result
+        for(let i in cliqz || []) {
+            if(mixed.matchCount == 1 && cliqz[i].url == mixed.getLabelAt(0)) {
+                let st = mixed.getStyleAt(0),
+                    va = mixed.getValueAt(0),
+                    im = mixed.getImageAt(0),
+                    co = mixed.getCommentAt(0),
+                    la = mixed.getLabelAt(0),
+                    da = mixed.getDataAt(0);
+
+                // combine sources
+                var tempCliqzResult = Result.cliqz(cliqz[i])
+                st = tempCliqzResult.style + CliqzUtils.encodeResultType(st);
+
+                // create new instant entry to replace old one
+                var newInstant = Result.generic(st, va, im, co, la, da);
+                mixed._results.splice(0);
+                mixed.addResults([newInstant]);
+            }
+        }
 
         for (let i = 0; history_trans && i < history_trans.length; i++) {
             let style = history_trans[i]['style'],
@@ -55,12 +75,15 @@ var Mixer = {
                 comment = history_trans[i]['comment'],
                 label = history_trans[i]['label'];
 
-
             // Deduplicate: check if this result is also in the cache results
             let cacheIndex = -1;
             for(let i in cliqz || []) {
-                if(cliqz[i].url.indexOf(label) != -1) {
-                    bucketHistoryCache.push(Result.cliqz(cliqz[i]));
+                if(cliqz[i].url == label) {
+                    // combine sources
+                    var tempResult = Result.cliqz(cliqz[i]);
+                    tempResult.style += CliqzUtils.encodeResultType(style);
+                    
+                    bucketHistoryCache.push(tempResult);
                     cacheIndex = i;
                     break;
                 }
