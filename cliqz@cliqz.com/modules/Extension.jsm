@@ -8,10 +8,23 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
   'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+    'chrome://cliqzmodules/content/ResultProviders.jsm');
+
+var BTN_ID = 'cliqz-button',
+    SHARE_BTN_ID = 'cliqz-share-button',
+    SEARCH_BAR_ID = 'search-container',
+    firstRunPref = 'extensions.cliqz.firstStartDone',
+    firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
+    dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
+    //toolbar
+    searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
+    //next element in the toolbar
+    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext',
+    timerRef;
+
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
@@ -23,7 +36,6 @@ var Extension = {
         'showDebugLogs': false, // show debug logs in console
         'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send any tracking signals
-        'hideQuickSearch': true, // hides quick search
         'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
@@ -61,6 +73,7 @@ var Extension = {
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
             try{
+                Extension.restoreSearchBar(win);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -71,8 +84,53 @@ var Extension = {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+        Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
+    },
+    restoreSearchBar: function(win){
+        var toolbarId;
+        win.Application.prefs.setValue(dontHideSearchBar, false);
+        if(toolbarId = win.Application.prefs.getValue(searchBarPosition, '')){
+            var toolbar = win.document.getElementById(toolbarId);
+            if(toolbar){
+                if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
+                    var next = win.Application.prefs.getValue(searchBarPositionNext, '');
+                    if(next){
+                        var set = toolbar.currentSet.split(","),
+                            idx = set.indexOf(next);
+
+                        if (idx != -1)
+                            set.splice(idx, 0, SEARCH_BAR_ID);
+                        else set.push(SEARCH_BAR_ID);
+
+                        toolbar.currentSet = set.join(",");
+                    }
+                    // no next element, append it to the end
+                    else toolbar.currentSet += ',' + SEARCH_BAR_ID;
+                } else {
+                    //the user made it visible
+                    win.Application.prefs.setValue(dontHideSearchBar, true);
+                }
+            }
+        }
+    },
+    unloadModules: function(){
+        //unload all cliqz modules
+        Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
+        Cu.unload('chrome://cliqzmodules/content/Result.jsm');
+        Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -104,7 +162,18 @@ var Extension = {
         prefs.clearUserPref('analysis');
     },
     addScript: function(src, win) {
-        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js?v=0.5.04', win);
+        Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
+    },
+    cleanPossibleOldVersions: function(win){
+        //temporary method
+        delete win.CliqzUtils;
+        delete win.CliqzHistoryManager;
+        delete win.CliqzAutocomplete;
+        delete win.CliqzLanguage;
+        delete win.ResultProviders;
+        delete win.CliqzTimings;
+        delete win.CliqzABTests;
+        delete win.CliqzSearchHistory;
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -123,20 +192,8 @@ var Extension = {
             CliqzUtils.log('private window -> halt', 'CORE');
         }
     },
-    addButtonToMenu: function(doc, menu, label, cmd){
-        var menuItem = doc.createElement('menuitem');
-        menuItem.setAttribute('label', label);
-        menuItem.addEventListener('command', cmd, false);
-        menu.appendChild(menuItem);
-    },
-
     addButtons: function(win){
-        var BTN_ID = 'cliqz-button',
-            SHARE_BTN_ID = 'cliqz-share-button',
-            firstRunPref = 'extensions.cliqz.firstStartDone',
-            firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
-            doc = win.document;
-
+        var doc = win.document;
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
@@ -149,18 +206,33 @@ var Extension = {
             ToolbarButtonManager.setDefaultPosition(SHARE_BTN_ID, 'nav-bar', 'downloads-button');
         }
 
+        if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
+            win.Application.prefs.setValue(dontHideSearchBar, true);
+
+            //try to hide quick search
+            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+            if(toolbarID){
+                win.Application.prefs.setValue(searchBarPosition, toolbarID);
+            }
+            if(nextEl){
+                win.Application.prefs.setValue(searchBarPositionNext, nextEl);
+            }
+        }
+
         // cliqz button
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', BTN_ID);
         button.setAttribute('type', 'menu-button');
+        button.setAttribute('label', 'Cliqz');
+        button.setAttribute('tooltiptext', 'Cliqz');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
         var menupopup = Extension.createMenu(win)
         button.appendChild(menupopup);
 
-        button.addEventListener('click', function(ev) {
-            ev.button == 0 && menupopup.openPopup(button,"after_start", 0, 0, false, true);
+        button.addEventListener('command', function(ev) {
+            menupopup.openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
@@ -168,17 +240,17 @@ var Extension = {
         //share btn
         let shareButton = win.document.createElement('toolbarbutton');
         shareButton.setAttribute('id', SHARE_BTN_ID);
+        shareButton.setAttribute('label', 'Cliqz Share');
+        shareButton.setAttribute('tooltiptext', 'Cliqz Share');
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
-        shareButton.addEventListener('click', function(ev) {
-            if(ev.button == 0) {
-                try{
-                    var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                    win.location.href = 'mailto:?subject=Via cliqz: ' + encodeURI(doc.title) +
-                                        '&body=' + encodeURI(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
-                } catch(e){}
-            }
+        shareButton.addEventListener('command', function(ev) {
+            try{
+                var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
+                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via cliqz: ' + doc.title) +
+                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+            } catch(e){}
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, shareButton);
@@ -186,13 +258,13 @@ var Extension = {
     createMenu: function(win){
         var doc = win.document,
             menupopup = doc.createElement('menupopup');
-        menupopup.setAttribute('id', 'menupopup');
+        menupopup.setAttribute('id', 'cliqz_menupopup');
         menupopup.addEventListener('command', function(event) {
 
         }, false);
 
         var menuitem1 = doc.createElement('menuitem');
-        menuitem1.setAttribute('id', 'menuitem1');
+        menuitem1.setAttribute('id', 'cliqz_menuitem1');
         menuitem1.setAttribute('label', 'Feedback');
         menuitem1.addEventListener('command', function(event) {
             win.Application.getExtensions(function(extensions) {
@@ -202,14 +274,14 @@ var Extension = {
         }, false);
 
         var menuitem2 = doc.createElement('menuitem');
-        menuitem2.setAttribute('id', 'menuitem2');
+        menuitem2.setAttribute('id', 'cliqz_menuitem2');
         menuitem2.setAttribute('label', 'FAQ');
         menuitem2.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/faq');
         }, false);
 
         var menuitem4 = doc.createElement('menuitem');
-        menuitem4.setAttribute('id', 'menuitem4');
+        menuitem4.setAttribute('id', 'cliqz_menuitem4');
         menuitem4.setAttribute('label', 'Datenschutz');
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
@@ -243,7 +315,8 @@ var Extension = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+                // keep reference to timer to avoid garbage collection
+                timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -261,9 +334,9 @@ var Extension = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                if(btn && btn.children && btn.children.menupopup){
-                    btn.children.menupopup.lastChild.remove();
-                    btn.children.menupopup.appendChild(Extension.createSearchOptions(doc));
+                if(btn && btn.children && btn.children.cliqz_menupopup){
+                    btn.children.cliqz_menupopup.lastChild.remove();
+                    btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
                 }
             } catch(e){}
         }

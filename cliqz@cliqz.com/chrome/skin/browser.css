@@ -1,5 +1,5 @@
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.5.04#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
   color: black;
 }
 
@@ -257,6 +257,11 @@
     background-color: #909090;
     margin: 0;
     min-width: 20px;
+    border-width: 0px;
+}
+
+.cliqz-urlbar-Last-search-dropdown {
+    border-width: 0px;
 }
 
 /* End last search history */
@@ -409,8 +414,10 @@
     padding: 5px 0 5px 15px;
     max-height: 30px;
     white-space: nowrap;
+    overflow-x: hidden;
 }
 
+/* this one fails because of overflow*/
 .cliqz-news-sources:before{
     content: "";
     width: 0px;

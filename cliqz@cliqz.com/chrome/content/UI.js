@@ -56,6 +56,10 @@ var UI = {
     },
     main: function(box){
         gCliqzBox = box;
+
+        //check if loading is done
+        if(!UI.tpl.main)return;
+
         box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
 
         var resultsBox = document.getElementById('cliqz-results',box);
@@ -77,8 +81,23 @@ var UI = {
     },
     results: function(res){
         var enhanced = enhanceResults(res);
-        gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse'
-        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+
+        //try to update reference if it doesnt exist
+        if(!gCliqzBox.messageBox)
+            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
+
+        if(gCliqzBox.messageBox)
+            gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse';
+
+        //try to recreate main container if it doesnt exist
+        if(!gCliqzBox.resultsBox){
+            var cliqzBox = CLIQZ.Core.popup.cliqzBox;
+            if(cliqzBox){
+                UI.main(cliqzBox);
+            }
+        }
+        if(gCliqzBox.resultsBox)
+            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
     },
     suggestions: function(suggestions, q){
         if(suggestions){
@@ -146,18 +165,19 @@ function handlePopupHeight(box){
         setHeight(e.pageY - start);
     }
 
-    footer.addEventListener('mousedown', function(e){
-        if(e.target != footer)return;
-        start = e.pageY;
-        document.addEventListener('mousemove',moveIT)
-    });
-    document.addEventListener('mouseup', function(){
+    function mouseReleased(){
         height = 36 + +box.resultsBox.style.maxHeight.replace('px','')
         CliqzUtils.setPref('popupHeight', height);
         document.removeEventListener('mousemove', moveIT);
+        document.removeEventListener('mouseup', mouseReleased);
+    }
+
+    footer.addEventListener('mousedown', function(e){
+        if(e.target != footer)return;
+        start = e.pageY;
+        document.addEventListener('mousemove',moveIT);
+        document.addEventListener('mouseup', mouseReleased);
     });
-
-
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
@@ -578,26 +598,6 @@ function registerHelpers(){
                 poz = lowerText.indexOf(token, poz+1);
             }
         });
-
-        /* one string version
-        out = '';
-        for(var i=0; i<text.length; i++){
-            if(map[i] && !high){
-                out += '<em>'+text[i];
-                high = true;
-            }
-            else if(!map[i] && high){
-                out += '</em>'+text[i];
-                high = false;
-            }
-            else out += text[i];
-        }
-        if(high)out += '</em>';
-        console.log(new Handlebars.SafeString(out));
-
-
-        return out.split(/<em>|<\/em>/);
-        */
         out=[];
         var current = ''
         for(var i=0; i<text.length; i++){
