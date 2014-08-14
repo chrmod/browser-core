@@ -2,7 +2,7 @@ colors: ["#CC3399", "#27B0CE", "#1777E2"]
 
 program:
     Youtube:
-        summary: Meine YouTube Seiten
+        summary: Sitemap_Summary
         url: youtube.com
         home: http://youtube.com
         rules:
@@ -31,7 +31,7 @@ program:
             cond: /user/{item}/
         # TODO: playlists, videos
     Facebook:
-        summary: Meine Facebook Seiten
+        summary: Sitemap_Summary
         url: facebook.com
         home: http://www.facebook.com
         rules:
@@ -69,7 +69,7 @@ program:
             title: title
             cond: /lists/
     Amazon:
-        summary: Meine Amazon Seiten
+        summary: Sitemap_Summary
         url: amazon.de
         home: http://www.amazon.de
         rules:
@@ -96,7 +96,7 @@ program:
             title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
     Ebay:
-        summary: Meine Ebay Seiten
+        summary: Sitemap_Summary
         url: ebay.de
         home: http://www.ebay.de
         rules:
@@ -114,7 +114,7 @@ program:
             cond: /usr/{item::re:^([^?]+)}//
         # TODO: categories, but it's crazy
     Chefkoch:
-        summary: Meine Chefkoch Seiten
+        summary: Sitemap_Summary
         url: chefkoch.de
         home: http://www.chefkoch.de
         rules:
@@ -147,7 +147,7 @@ program:
             labelUrl: 1
             cond: /magazin/artikel/
     Bild:
-        summary: Meine Bild Seiten
+        summary: Sitemap_Summary
         url: bild.de
         home: http://www.bild.de
         rules:
@@ -173,7 +173,7 @@ program:
             title: Sitemap_Bild_Bundesliga
             cond: /bundesliga/1-liga/
     GitHub:
-        summary: Meine Github Seiten
+        summary: Sitemap_Summary
         url: github.com
         home: http://github.com/
         rules:
@@ -191,7 +191,7 @@ program:
             labelUrl: 1
             cond: /{label}/{item}//
     BaseCamp:
-        summary: Meine BaseCamp Seiten
+        summary: Sitemap_Summary
         url: basecamp.com
         rules:
         -
@@ -216,7 +216,7 @@ program:
             cond: /{item}/people/*//
             title: title
     Twitter:
-        summary: Meine Twitter Seiten
+        summary: Sitemap_Summary
         url: twitter.com
         home: http://twitter.com/
         rules:
@@ -239,7 +239,7 @@ program:
             icon: cliqz-fa fa-user
             cond: /{item}//
     Klout:
-        summary: Meine Klout Seiten
+        summary: Sitemap_Summary
         url: klout.com
         home: http://klout.com/
         rules:
@@ -252,7 +252,7 @@ program:
             icon: cliqz-fa fa-user
             cond: /{item}//
     Wikipedia:
-        summary: Meine Wikipedia Seiten
+        summary: Sitemap_Summary
         url: wikipedia.org
         home: http://wikipedia.org/
         rules:

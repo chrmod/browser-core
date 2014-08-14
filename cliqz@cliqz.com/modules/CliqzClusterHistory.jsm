@@ -22,8 +22,9 @@ var templates = {
     'bild.de': {
         fun: function(urls) {
 
+            var site = 'Bild';
             var template = {
-                summary: 'Meine Bild Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Bild_Shop'), url: 'http://shop.bild.de', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Bild_Community'), url: 'http://www.bild.de/ka/p/community', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Bild_Login'), url: 'https://secure.mypass.de/sso/web-bigp/login?service=https://don.bild.de/www/li/http%253A%252F%252Fwww.bild.de%252F', iconCls: 'null'}],
@@ -109,8 +110,9 @@ var templates = {
     'basecamp.com': {
         fun: function(urls) {
 
+            var site = 'BaseCamp';
             var template = {
-                summary: 'Meine BaseCamp Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [],
                 control_set: {},
                 topics: [],
@@ -210,8 +212,9 @@ var templates = {
     'youtube.com': {
         fun: function(urls) {
 
+            var site = 'Youtube';
             var template = {
-                summary: 'Meine YouTube Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Youtube_Popular'), url: 'http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Youtube_Subscriptions'), url: 'http://www.youtube.com/feed/subscriptions/', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Youtube_History'), url: 'http://www.youtube.com/feed/history/', iconCls: 'null'},
@@ -275,8 +278,9 @@ var templates = {
     'twitter.com': {
         fun: function(urls) {
 
+            var site = 'Twitter';
             var template = {
-                summary: 'Meine Twitter Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Suchen'), url: 'http://search.twitter.com/', iconCls: 'cliqz-fa fa-search'},
                           {title: CliqzUtils.getLocalizedString('Entdecken'), url: 'http://twitter.com/i/discover', iconCls: 'cliqz-fa fa-lightbulb-o'}],
                 control_set: {},
@@ -342,8 +346,9 @@ var templates = {
     'wikipedia.org': {
         fun: function(urls) {
 
+            var site = 'Wikipedia';
             var template = {
-                summary: 'Meine Wikipedia Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [],
                 control_set: {},
                 topics: [],
@@ -404,8 +409,9 @@ var templates = {
     'ebay.de': {
         fun: function(urls) {
 
+            var site = 'Ebay';
             var template = {
-                summary: 'Meine Ebay Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Ebay_MyEbay'), url: 'http://my.ebay.de', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Ebay_Deals'), url: 'http://www.ebay.de/rpp/deals', iconCls: 'null'}],
                 control_set: {},
@@ -467,8 +473,9 @@ var templates = {
     'amazon.de': {
         fun: function(urls) {
 
+            var site = 'Amazon';
             var template = {
-                summary: 'Meine Amazon Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAmazon'), url: 'https://www.amazon.de/gp/yourstore/home', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAccount'), url: 'https://www.amazon.de/gp/css/homepage.html', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_Wishlist'), url: 'http://www.amazon.de/gp/registry/wishlist', iconCls: 'null'}],
@@ -564,8 +571,9 @@ var templates = {
     'github.com': {
         fun: function(urls) {
 
+            var site = 'GitHub';
             var template = {
-                summary: 'Meine Github Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
                 control_set: {},
                 topics: [],
@@ -630,8 +638,9 @@ var templates = {
     'facebook.com': {
         fun: function(urls) {
 
+            var site = 'Facebook';
             var template = {
-                summary: 'Meine Facebook Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Newsfeed'), url: 'https://www.facebook.com/?sk=nf', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Messages'), url: 'https://www.facebook.com/messages', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Facebook_Events'), url: 'https://www.facebook.com/events/upcoming', iconCls: 'null'},
@@ -745,8 +754,9 @@ var templates = {
     'klout.com': {
         fun: function(urls) {
 
+            var site = 'Klout';
             var template = {
-                summary: 'Meine Klout Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [],
                 control_set: {},
                 topics: [],
@@ -811,8 +821,9 @@ var templates = {
     'chefkoch.de': {
         fun: function(urls) {
 
+            var site = 'Chefkoch';
             var template = {
-                summary: 'Meine Chefkoch Seiten',
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
                 control: [{title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Magazin'), url: 'http://www.chefkoch.de/magazin/', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Rezepte'), url: 'http://www.chefkoch.de/rezepte/', iconCls: 'null'},
                           {title: CliqzUtils.getLocalizedString('Sitemap_Chefkoch_Community'), url: 'http://www.chefkoch.de/forum/', iconCls: 'null'},
