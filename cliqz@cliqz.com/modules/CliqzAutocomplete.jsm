@@ -32,6 +32,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
+    afterQueryCount: 0,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -279,11 +280,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults
                     );
 
+                CliqzAutocomplete.afterQueryCount = 0;
+
                 //if there is a custom cliqzResults - force the opening of the dropdown
                 if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
                     results = [Result.generic('cliqz-empty', '')];
                 }
-
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
                   + ', suggestions: ' + (this.cliqzSuggestions || []).length
