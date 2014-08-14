@@ -268,8 +268,17 @@ var Extension = {
         menuitem1.setAttribute('label', 'Feedback');
         menuitem1.addEventListener('command', function(event) {
             win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version
-                Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+                var beVersion = extensions.get('cliqz@cliqz.com').version;
+                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+                    function success(req){
+                        var source = JSON.parse(req.response).shortName;
+                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion + '-' + source);
+                    },
+                    function error(){
+                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+                    }
+                );
+
             });
         }, false);
 
