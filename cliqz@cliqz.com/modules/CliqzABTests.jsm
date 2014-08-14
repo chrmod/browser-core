@@ -5,7 +5,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
@@ -49,24 +49,18 @@ var CliqzABTests = CliqzABTests || {
                         CliqzUtils.extensionRestart();
                     }
                 } catch(e){
-                    CliqzUtils.log(e, "CliqzABTests.check Error");
+                    //CliqzUtils.log(e, "CliqzABTests.check Error");
                 }
             });
     },
     retrieve: function(callback) {
-        // Utils.httpGet has a short timeout which is undesired here, so I build the connection myself
-        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-        var url = CliqzABTests.URL + encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
+        var url = CliqzABTests.URL + encodeURIComponent(
+                CliqzUtils.cliqzPrefs.getCharPref('session'));
+        //req.overrideMimeType('application/json');
+        var onerror = function(){ CliqzUtils.log("failed to get AB test data",
+                                                 "CliqzABTests.retrieve") }
 
-        req.overrideMimeType('application/json');
-        req.timeout = 5000;
-
-        req.onload = function(){ callback && callback(req); }
-        req.onerror = function(){ CliqzUtils.log("failed to get " + url, "CliqzABTests.retrieve") }
-        req.ontimeout = function(){ CliqzUtils.log("timeout for " + url, "CliqzABTests.retrieve")}
-
-        req.open("GET", url, true);
-        req.send(null);
+        CliqzUtils.httpGet(url, callback, onerror, 15000);
     },
     enter: function(abtest, payload) {
         var logname = "CliqzABTests.enter"

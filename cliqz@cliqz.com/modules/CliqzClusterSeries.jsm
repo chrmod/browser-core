@@ -4,7 +4,7 @@ var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 function log(msg){
   CliqzUtils.log(msg, 'Series Guessing');
@@ -95,7 +95,7 @@ function compute_dfs(tokenses) {
     return df;
 }
 
-/** 
+/**
  * Gets the dfs for the words in the titles.
  * @param dfs the output of compute_dfs().
  * @param tokenses the same as in compute_dfs().
@@ -168,7 +168,7 @@ function getSeriesGrouping(titles_and_urls) {
     var split_regex = /(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+/;
     //log("TITLES:");
     //log(titles_and_urls);
-    
+
     var tokenses = [];
     var validTitlesAndUrlsMap = {};
     var validTitlesAndUrls = [];
@@ -204,9 +204,9 @@ function getSeriesGrouping(titles_and_urls) {
     for (var i = 0; i < tokens_dfs.length; i++) {
         var token_dfs = [df.toString() for (df of tokens_dfs[i])];
         viterbiData['observations'] = token_dfs;
-        
+
         var result = Viterbi(viterbiData);
-        
+
         var runs = get_runs(tokenses[i], result[1]);
         var s = "Runs: ";
         var movingPart = [];
@@ -218,7 +218,7 @@ function getSeriesGrouping(titles_and_urls) {
                 boilerPart.push.apply(boilerPart, runs[j][1]);
             } else {
                 movingPart.push(runs[j][1].join(' '));
-            } 
+            }
         }
         //print(s);
         movingParts.push(movingPart);
@@ -293,7 +293,7 @@ function getSeriesGrouping(titles_and_urls) {
         }
         gr  = groupTitlesByPart(minDiff[1], movingParts, validTitlesAndUrls);
     }
-    
+
     /** Check if the grouping is valid, and we didn't mess it up. */
     var grKeys = Object.getOwnPropertyNames(gr);
     for (var i = 0; i < grKeys.length; i++) {

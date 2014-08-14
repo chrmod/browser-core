@@ -82,6 +82,7 @@ Glossary
     k - science
     q - qaa
     l - dictionary
+    s - shopping
 - any of the folowing for custom search engine search
     1 - google images
     2 - google maps
@@ -349,6 +350,16 @@ Dropdown open
 }
 ```
 
+Offboarding tour started
+``` bash
+{
+    "action": "offboarding_tour",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
 Dropdown close
 ``` bash
 {
@@ -376,5 +387,21 @@ Addon disable
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
+}
+```
+
+### Performance
+Result compare
+```
+{
+	"action": "result_compare",
+    "session": "<RANDOM_ID>",
+    "type": "performance",
+    "ts": <UNIX_TIMESTAMP>
+    "redirect": true/false, // if a google redirect was captured
+    "query_made": 1, number of google queries made after last cliqz result shown
+    "same_result": true, // found an ignored cliqz result,
+    "result_position": 0, // null if same_result == false
+    "result_type": "<ENCODED_RESULT_TYPE>" // null if same_result == false
 }
 ```

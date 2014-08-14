@@ -6,7 +6,10 @@ var EXPORTED_SYMBOLS = ['CliqzLanguage'];
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
 
 var CliqzLanguage = CliqzLanguage || {
     DOMAIN_THRESHOLD: 3,
@@ -30,8 +33,65 @@ var CliqzLanguage = CliqzLanguage || {
             if (aURI.spec == this.currentURL) return;
             this.currentURL = aURI.spec;
 
-            CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
+            // here we check if user ignored our results and went to google and landed on the same url
+            var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
+            var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
+            var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
+            var action = {
+                type: 'performance',
+                redirect: false,
+                action: 'result_compare',
+                query_made: CliqzAutocomplete.afterQueryCount,
+            };
 
+            if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
+                CliqzAutocomplete.afterQueryCount += 1;
+            }
+
+            if (reref.test(this.currentURL)) { // this is a google ref
+                action.redirect = true;
+                var m = this.currentURL.match(rerefurl);
+                if (m) {
+                    var dest_url = decodeURIComponent(m[1]);
+                    dest_url = dest_url.replace('http://', '').replace('https://', '').replace('www.', '');
+                    var found = false;
+                    for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
+                        var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '');
+                        if (dest_url == comp_url) {
+                            // now we have the same result
+                            action.same_result = true;
+                            action.result_position = i;
+                            action.result_type = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                            CliqzUtils.track(action);
+                            CliqzAutocomplete.afterQueryCount = 0;
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        // we don't have the same result
+                        action.same_result = false;
+                        action.result_position = null;
+                        action.result_type = null;
+                        CliqzUtils.track(action);
+                    }
+                }
+            } else if (CliqzAutocomplete.afterQueryCount == 1) {
+                // some times the redict was not captured so if only one query was make, we still compare to cliqz result
+                // but we don't send anything if we can't find a match
+                for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
+                    var dest_url = this.currentURL.replace('http://', '').replace('https://', '').replace('www.', '');
+                    var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '')
+                    if (dest_url == comp_url) {
+                        action.same_result = true;
+                        action.result_position = i;
+                        action.result_type = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                        CliqzUtils.track(action);
+                    }
+                }
+            }
+
+            // now the language detection
+            CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
                 try {
                     var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
                     if (''+currURLAtTime == ''+currURL) {
@@ -46,14 +106,11 @@ var CliqzLanguage = CliqzLanguage || {
                }
                catch(ee) {
                 // silent fail
-                CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
-
+                //CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
                }
 
             };})(this.currentURL), CliqzLanguage.READING_THRESHOLD);
-
         },
-
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
     },
@@ -178,7 +235,7 @@ var CliqzLanguage = CliqzLanguage || {
         }
     },
     stateToQueryString: function() {
-        return '&lang=' + CliqzLanguage.state().join(',');
+        return '&lang=' + encodeURIComponent(CliqzLanguage.state().join(','));
     },
     // Save the current state to preferences,
     saveCurrentState: function() {
