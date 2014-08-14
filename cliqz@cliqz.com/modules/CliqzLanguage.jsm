@@ -8,7 +8,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 
 var CliqzLanguage = CliqzLanguage || {
@@ -40,7 +40,7 @@ var CliqzLanguage = CliqzLanguage || {
             var action = {
                 type: 'performance',
                 redirect: false,
-                action: 'compare_result',
+                action: 'result_compare',
                 query_made: CliqzAutocomplete.afterQueryCount,
             };
 
