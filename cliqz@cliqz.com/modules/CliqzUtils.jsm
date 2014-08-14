@@ -93,13 +93,7 @@ var CliqzUtils = {
         req.timeout = (method == 'POST'? 2000 : 1000);
       }
     }
-    try {
-        req.send(data);
-    } catch(e) {
-      CliqzUtils.log( "exception caught while loading " + url
-              + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
-      onerror && onerror();
-    }
+    req.send(data);
     return req;
   },
   httpGet: function(url, callback, onerror, timeout){
@@ -107,6 +101,25 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
+  },
+  /**
+   * Loads a resource URL from the xpi.
+   *
+   * Wraps httpGet in a try-catch clause. We need to do this, because when
+   * trying to load a non-existing file from an xpi via xmlhttprequest, Firefox
+   * throws a NS_ERROR_FILE_NOT_FOUND exception instead of calling the onerror
+   * function.
+   *
+   * @see https://bugzilla.mozilla.org/show_bug.cgi?id=827243 (probably).
+   */
+  loadResource: function(url, callback, onerror) {
+    try {
+        return CliqzUtils.httpGet(url, callback, onerror, 3000);
+    } catch (e) {
+      CliqzUtils.log("Could not load resource " + url + " from the xpi",
+                     "CliqzUtils.httpHandler");
+      onerror && onerror();
+    }
   },
   getPrefs: function(){
     var prefs = {};
@@ -433,13 +446,14 @@ var CliqzUtils = {
     //                 .getService(Components.interfaces.nsIWindowWatcher);
     // The default language
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
-        CliqzUtils.httpGet('chrome://cliqzres/content/locale/de/cliqz.json',
+        CliqzUtils.loadResource('chrome://cliqzres/content/locale/de/cliqz.json',
             function(req){
                 CliqzUtils.locale['default'] = JSON.parse(req.response);
             });
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-        CliqzUtils.httpGet('chrome://cliqzres/content/locale/' + encodeURIComponent(lang_locale) + '/cliqz.json',
+        CliqzUtils.loadResource('chrome://cliqzres/content/locale/'
+                + encodeURIComponent(lang_locale) + '/cliqz.json',
             function(req) {
                 CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                 CliqzUtils.currLocale = lang_locale;
@@ -448,7 +462,7 @@ var CliqzUtils = {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
                 var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
-                CliqzUtils.httpGet(
+                CliqzUtils.loadResource(
                     'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
                     function(req) {
                         CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
