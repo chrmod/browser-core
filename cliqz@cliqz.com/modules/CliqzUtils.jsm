@@ -288,24 +288,34 @@ var CliqzUtils = {
     else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-cluster') return 'C';
     else if(type === 'cliqz-series') return 'S';
-    else if(type === 'bookmark') return 'B';
-    else if(type === 'tag') return 'B'; // bookmarks with tags
-    else if(type === 'favicon' || type === 'history') return 'H';
+    else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
+    else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
+    else if(type.indexOf('favicon') == 0 || 
+            type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-suggestions') return 'S';
     // cliqz type = "cliqz-custom sources-XXXXX"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
     return type; //fallback to style - it should never happen
   },
-  // cliqz type = "cliqz-results sources-XXXXX"
+  // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
-    return CliqzUtils.encodeSources(type.substr(22));
+    var pos = type.indexOf('sources-')
+    if(pos != -1)
+      return CliqzUtils.encodeSources(type.substr(pos+8));
+    else
+      return ""
   },
   encodeSources: function(sources){
     return sources.split(', ').map(
       function(s){
         return VERTICAL_ENCODINGS[s] || s;
       }).join('');
+  },
+  combineSources: function(internal, cliqz){
+    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+
+    return internal + " " + cliqz_sources
   },
   stopSearch: function(){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();

@@ -174,15 +174,15 @@
     background-color: #3399ff;
 }
 
-.cliqz-result-item-box[type="favicon"] .cliqz-result-type,
+.cliqz-result-item-box[type^="favicon"] .cliqz-result-type,
 .cliqz-result-item-box[type="action favicon"] .cliqz-result-type {
     background-color: #cccccc;
     opacity: 0.5;
 }
 
-.cliqz-result-item-box[type="bookmark"] .cliqz-result-type,
+.cliqz-result-item-box[type^="bookmark"] .cliqz-result-type,
 .cliqz-result-item-box[type="action bookmark"] .cliqz-result-type,
-.cliqz-result-item-box[type="tag"] .cliqz-result-type,
+.cliqz-result-item-box[type^="tag"] .cliqz-result-type,
 .cliqz-result-item-box[type="action tag"] .cliqz-result-type {
     background-color: #FFCC00;
 }

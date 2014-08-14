@@ -58,8 +58,9 @@ var Mixer = {
                     da = mixed.getDataAt(0);
 
                 // combine sources
-                var tempCliqzResult = Result.cliqz(cliqz[i])
-                st = tempCliqzResult.style + CliqzUtils.encodeResultType(st);
+                var tempCliqzResult = Result.cliqz(cliqz[i]);
+                st = CliqzUtils.combineSources(st, tempCliqzResult.style);
+                co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
 
                 // create new instant entry to replace old one
                 var newInstant = Result.generic(st, va, im, co, la, da);
@@ -81,7 +82,7 @@ var Mixer = {
                 if(cliqz[i].url == label) {
                     // combine sources
                     var tempResult = Result.cliqz(cliqz[i]);
-                    tempResult.style += CliqzUtils.encodeResultType(style);
+                    tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
                     
                     bucketHistoryCache.push(tempResult);
                     cacheIndex = i;
