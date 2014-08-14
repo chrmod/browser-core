@@ -544,7 +544,7 @@ var CliqzUtils = {
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
         var win = enumerator.getNext();
-        //win.CLIQZ.Core.restart();
+        //win.CLIQZ.Core.restart(true);
         if(win.CLIQZ && win.CLIQZ.Core){
           win.CLIQZ.Core.destroy(true);
           win.CLIQZ.Core.init();

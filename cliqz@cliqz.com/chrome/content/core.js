@@ -199,8 +199,8 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzSearchHistory;
         }
     },
-    restart: function(){
-        CLIQZ.Core.destroy();
+    restart: function(soft){
+        CLIQZ.Core.destroy(soft);
         CLIQZ.Core.init();
     },
     popupOpen: function(){
