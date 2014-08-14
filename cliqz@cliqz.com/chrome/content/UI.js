@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
         'w': 'weather' ,
         's': 'shopping',
@@ -81,7 +81,6 @@ var UI = {
     },
     results: function(res){
         var enhanced = enhanceResults(res);
-
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -98,6 +97,13 @@ var UI = {
         }
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+    },
+    // redraws a result
+    // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
+    redrawResult: function(filter, template, data){
+        var result;
+        if(result =$('.' + IC + filter, gCliqzBox))
+            result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
         if(suggestions){
@@ -255,6 +261,8 @@ function constructImage(data){
 
 function getPartial(type){
     if(type === 'cliqz-weather') return 'weather';
+    if(type === 'cliqz-cluster') return 'clustering';
+    if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
         // type format: cliqz-results sources-XXXX
@@ -281,6 +289,14 @@ function enhanceResults(res){
     return res;
 }
 
+function getResultPosition(el){
+    var idx;
+    while (el){
+        if(idx = el.getAttribute('idx')) return idx;
+        if(el.className == IC) return; //do not go higher than a result
+        el = el.parentElement;
+    }
+}
 
 function resultClick(ev){
     var el = ev.target,
@@ -295,10 +311,11 @@ function resultClick(ev){
                 type: 'activity',
                 action: 'result_click',
                 new_tab: newTab,
-                current_position: el.getAttribute('idx'),
+                current_position: getResultPosition(el),
                 query_length: CliqzAutocomplete.lastSearch.length,
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                extra: el.getAttribute('extra'), //extra data about the link
                 search: CliqzUtils.isSearch(url)
             };
 

@@ -13,7 +13,8 @@ var Result = {
     CLIQZC: 'cliqz-custom',
     CLIQZW: 'cliqz-weather',
     CLIQZWC:'cliqz-worldcup',
-    CLIQZF1:'cliqz-f1',
+    CLIQZCLUSTER: 'cliqz-cluster',
+    CLIQZSERIES: 'cliqz-series',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     RULES: {
         'video': [

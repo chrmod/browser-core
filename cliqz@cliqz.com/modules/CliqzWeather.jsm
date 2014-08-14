@@ -3,7 +3,6 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
 Cu.import('chrome://cliqzmodules/content/Result.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',

@@ -38,7 +38,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        CliqzUtils.init();
+        CliqzUtils.init(window);
         CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
