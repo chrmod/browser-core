@@ -5,10 +5,10 @@ var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
-  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
 
 /******************************************************
  * Warning: this file is auto-generated; do not edit. *
@@ -570,7 +570,7 @@ var templates = {
     },
     'github.com': {
         fun: function(urls) {
-
+            debugger;
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),

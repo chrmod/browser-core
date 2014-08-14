@@ -5,22 +5,22 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm?v=0.5.04');
+Cu.import('chrome://cliqzmodules/content/Mixer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/Result.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzWeather.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -32,6 +32,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
+    afterQueryCount: 0,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -208,7 +209,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults && this.cliqzSuggestions &&
+                        this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
 
                         this.mixedResults.addResults(this.mixResults());
@@ -293,6 +294,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults
                     );
 
+                CliqzAutocomplete.afterQueryCount = 0;
+
+                //if there is a custom cliqzResults - force the opening of the dropdown
+                if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
+                    results = [Result.generic('cliqz-empty', '')];
+                }
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
                   + ', suggestions: ' + (this.cliqzSuggestions || []).length

@@ -1,5 +1,5 @@
 #PopupAutoCompleteRichResult {
-  -moz-binding: url("chrome://cliqz/content/components.xml?v=0.5.04#autocomplete-rich-result-popup-cliqz");
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
   color: black;
 }
 
@@ -223,6 +223,13 @@
 
 /* end results */
 
+/* Last search history */
+
+.cliqz-urlbar-Last-search-container {
+    max-width: 220px;
+    overflow: hidden;
+}
+
 .cliqz-urlbar-Last-search {
     background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;
     background-size: 14px 10px;
@@ -235,6 +242,34 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.cliqz-urlbar-Last-search-list {
+    color: white;
+    background-color: grey;
+    margin: 0px;
+    padding: 4px 10px;
+}
+
+.cliqz-urlbar-Last-search-list:hover,
+.cliqz-urlbar-Last-search:hover {
+    background-color: #909090;
+  }
+
+.cliqz-urlbar-Last-search-dropdown-arrow {
+    background: url(chrome://cliqzres/content/skin/arrow_down.png) no-repeat center;
+    -moz-appearance: none;
+    color: white;
+    background-color: #909090;
+    margin: 0;
+    min-width: 20px;
+    border-width: 0px;
+}
+
+.cliqz-urlbar-Last-search-dropdown {
+    border-width: 0px;
+}
+
+/* End last search history */
 
 /* weather */
 .cliqz-weather-left-box {
@@ -509,8 +544,10 @@
     padding: 5px 0 5px 15px;
     max-height: 30px;
     white-space: nowrap;
+    overflow-x: hidden;
 }
 
+/* this one fails because of overflow*/
 .cliqz-news-sources:before{
     content: "";
     width: 0px;

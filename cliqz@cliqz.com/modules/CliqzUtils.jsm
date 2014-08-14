@@ -5,13 +5,13 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/ResultProviders.jsm');
 
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-//  'chrome://cliqzmodules/content/CliqzTimings.jsm?v=0.5.04');
+//  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
@@ -39,7 +39,8 @@ var CliqzUtils = {
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
+  TUTORIAL_URL_OLD: 'https://beta.cliqz.com/erste-schritte',
+  TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
   UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
@@ -51,7 +52,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(window){
+  init: function(win){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -68,7 +69,6 @@ var CliqzUtils = {
         CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
     }
     CliqzUtils.log('Initialized', 'UTILS');
-
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -160,7 +160,7 @@ var CliqzUtils = {
       }
   },
   log: function(msg, key){
-    if(CliqzUtils.cliqzPrefs.getBoolPref('showDebugLogs')){
+    if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
       CliqzUtils._log.logStringMessage(key + ' : ' + msg);
     }
   },
@@ -259,7 +259,7 @@ var CliqzUtils = {
     var locales = CliqzLanguage.state();
     var local_param = "";
     if(locales.length > 0)
-      local_param = "&hl=" + locales[0];
+      local_param = "&hl=" + encodeURIComponent(locales[0]);
 
     CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
@@ -421,9 +421,6 @@ var CliqzUtils = {
   setTimeout: function(func, timeout, param) {
     return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
-  setInterval: function(func, timeout) {
-    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
-  },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
@@ -557,10 +554,22 @@ var CliqzUtils = {
   isWindows: function(){
     return window.navigator.userAgent.indexOf('Win') != -1;
   },
+  getWindow: function(){
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator);
+    return wm.getMostRecentWindow("navigator:browser");
+  },
   performance: {
+    timers:null,
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
             reqtimes = {}, statistics = [];
+
+        CliqzUtils.performance.timers = [];
+        function setTO(){
+          // keep reference to all timers to avoid garbage collection
+          CliqzUtils.performance.timers.push(CliqzUtils.setTimeout.apply(this, arguments));
+        }
 
         function send_test(){
           var start = 1000;
@@ -569,7 +578,7 @@ var CliqzUtils = {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              CliqzUtils.setTimeout(function(t){
+              setTO(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -577,7 +586,7 @@ var CliqzUtils = {
               start += delay || (600 + (Math.random() * 100));
             }
           }
-          CliqzUtils.setTimeout(function(){
+          setTO(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
