@@ -546,7 +546,7 @@ var CliqzUtils = {
         var win = enumerator.getNext();
         //win.CLIQZ.Core.restart();
         if(win.CLIQZ && win.CLIQZ.Core){
-          win.CLIQZ.Core.destroy();
+          win.CLIQZ.Core.destroy(true);
           win.CLIQZ.Core.init();
         }
     }

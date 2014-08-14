@@ -151,7 +151,7 @@ CLIQZ.Core = CLIQZ.Core || {
         return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
-    destroy: function(){
+    destroy: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
 
         for(var i in CLIQZ.Core.elem){
@@ -188,14 +188,16 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
-        delete window.CliqzUtils;
-        delete window.CliqzHistoryManager;
-        delete window.CliqzAutocomplete;
-        delete window.CliqzLanguage;
-        delete window.ResultProviders;
-        delete window.CliqzTimings;
-        delete window.CliqzABTests;
-        delete window.CliqzSearchHistory;
+        if(!soft){
+            delete window.CliqzUtils;
+            delete window.CliqzHistoryManager;
+            delete window.CliqzAutocomplete;
+            delete window.CliqzLanguage;
+            delete window.ResultProviders;
+            delete window.CliqzTimings;
+            delete window.CliqzABTests;
+            delete window.CliqzSearchHistory;
+        }
     },
     restart: function(){
         CLIQZ.Core.destroy();

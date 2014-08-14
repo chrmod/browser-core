@@ -367,7 +367,7 @@ var Extension = {
                     btn.parentNode.removeChild(btn);
                 }
             }
-            win.CLIQZ.Core.destroy();
+            win.CLIQZ.Core.destroy(false);
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;
