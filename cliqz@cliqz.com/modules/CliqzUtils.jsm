@@ -494,6 +494,11 @@ var CliqzUtils = {
                         .getService(Components.interfaces.nsIWindowMediator);
     return wm.getMostRecentWindow("navigator:browser");
   },
+  getWindowID: function(){
+    var win = CliqzUtils.getWindow();
+    var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+    return util.outerWindowID;
+  },
   performance: {
     timers:null,
     backend: function(delay){

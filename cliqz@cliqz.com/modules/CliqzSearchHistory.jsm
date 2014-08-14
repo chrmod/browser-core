@@ -1,4 +1,8 @@
 
+// TODO: The "Letzte eingabe" button needs a better architecture
+// What we do now is a bit hacky. Because we need to track the state of many
+// different windows we get the current window object in every function.
+
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
@@ -9,47 +13,57 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 
 var EXPORTED_SYMBOLS = ['CliqzSearchHistory'];
 
-var window = CliqzUtils.getWindow();
-var document = window.document;
-var gBrowser = window.gBrowser;
 
 /* Responsible for managing the 'Letzte Eingabe' button/dropdown. */
 var CliqzSearchHistory = {
-    urlbar: document.getElementById('urlbar'),
-    searchHistoryContainer: document.createElement('hbox'),
-    lastSearchElement: document.createElement('hbox'),
-    searchHistoryPanel: document.createElement('panel'),
-    lastQueryInTab:{},
-
+    windows: {},
     /* Inserts the 'Letzte Eingabe' button/dropdown before given element. */
     insertBeforeElement: function (element) {
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+        this.windows[window_id] = {};
+
+        // Set urlbar for current window
+        this.windows[window_id].urlbar = document.getElementById('urlbar');
+        // Initialize per-tab history for window
+        this.windows[window_id].lastQueryInTab = {};
         // Create container element
-        this.searchHistoryContainer.className = 'hidden'; // Initially hide the container
-        element.parentNode.insertBefore(this.searchHistoryContainer, element);
+        this.windows[window_id].searchHistoryContainer = document.createElement('hbox');
+        this.windows[window_id].searchHistoryContainer.className = 'hidden'; // Initially hide the container
+        element.parentNode.insertBefore(this.windows[window_id].searchHistoryContainer, element);
 
         // Add last search button to container
-        this.lastSearchElement.className = 'cliqz-urlbar-Last-search';
-        this.lastSearchElement.addEventListener('click',
+        this.windows[window_id].lastSearchElement = document.createElement('hbox');
+        this.windows[window_id].lastSearchElement.className = 'cliqz-urlbar-Last-search';
+        this.windows[window_id].lastSearchElement.addEventListener('click',
                                                 this.returnToLastSearch.bind(this));
-        this.searchHistoryContainer.appendChild(this.lastSearchElement)
+        this.windows[window_id].searchHistoryContainer.appendChild(this.windows[window_id].lastSearchElement)
 
         // Add search history dropdown arrow button to container
         var searcHistoryDropdown = document.createElement('button');
         searcHistoryDropdown.setAttribute('type','panel');
         searcHistoryDropdown.className = 'cliqz-urlbar-Last-search-dropdown-arrow';
-        this.searchHistoryContainer.appendChild(searcHistoryDropdown)
+        this.windows[window_id].searchHistoryContainer.appendChild(searcHistoryDropdown)
 
         // Add panel with search history results to dropdown button
-        this.searchHistoryPanel.className = 'cliqz-urlbar-Last-search-dropdown';
-        searcHistoryDropdown.appendChild(this.searchHistoryPanel);
+        this.windows[window_id].searchHistoryPanel = document.createElement('panel');
+        this.windows[window_id].searchHistoryPanel.className = 'cliqz-urlbar-Last-search-dropdown';
+        searcHistoryDropdown.appendChild(this.windows[window_id].searchHistoryPanel);
 
-        return this.searchHistoryContainer;
+        return this.windows[window_id].searchHistoryContainer;
     },
 
     /* Puts the query in the dropdown and opens it. */
     returnToLastSearch: function (ev) {
-        this.urlbar.mInputField.focus();
-        this.urlbar.mInputField.setUserInput(ev.target.query);
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
+        this.windows[window_id].urlbar.mInputField.focus();
+        this.windows[window_id].urlbar.mInputField.setUserInput(ev.target.query);
 
         var action = {
             type: 'activity',
@@ -61,14 +75,19 @@ var CliqzSearchHistory = {
 
     /* Add query to the last searches list. */
     addToLastSearches: function(newSearch) {
+      var window = CliqzUtils.getWindow();
+      var window_id = CliqzUtils.getWindowID();
+      var document = window.document;
+      var gBrowser = window.gBrowser;
+
       // If the query already existis in the list skip it
-      for (var existing of this.searchHistoryPanel.children) {
+      for (var existing of this.windows[window_id].searchHistoryPanel.children) {
         if (newSearch == existing.innerHTML)
           return;
       }
       // If the list gets longer than 7 drop first element
-      if (this.searchHistoryPanel.children.length > 7)
-        this.searchHistoryPanel.removeChild(this.searchHistoryPanel.lastChild);
+      if (this.windows[window_id].searchHistoryPanel.children.length > 7)
+        this.windows[window_id].searchHistoryPanel.removeChild(this.windows[window_id].searchHistoryPanel.lastChild);
 
       var newSearchElement = document.createElement('hbox');
       newSearchElement.textContent = newSearch;
@@ -76,54 +95,84 @@ var CliqzSearchHistory = {
       newSearchElement.query = newSearch;
       newSearchElement.className = 'cliqz-urlbar-Last-search-list';
       newSearchElement.addEventListener('click', this.returnToLastSearch.bind(this));
-      this.searchHistoryPanel.insertBefore(
+      this.windows[window_id].searchHistoryPanel.insertBefore(
         newSearchElement,
-        this.searchHistoryPanel.firstChild
+        this.windows[window_id].searchHistoryPanel.firstChild
       );
     },
 
     /* */
     lastQuery: function(){
-        var val = this.urlbar.value.trim(),
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
+        var val = this.windows[window_id].urlbar.value.trim(),
             lastQ = CliqzAutocomplete.lastSearch.trim();
 
         if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
             this.showLastQuery(lastQ);
-            this.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+            this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
             this.addToLastSearches(lastQ);
         } else {
             // remove last query if the user ended his search session
             if(CliqzUtils.isUrl(lastQ))
-                delete this.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+                delete this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel];
         }
     },
 
     hideLastQuery: function(){
-        this.searchHistoryContainer.className = 'hidden';
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
+        this.windows[window_id].searchHistoryContainer.className = 'hidden';
     },
 
     showLastQuery: function(q){
-        this.searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
-        this.lastSearchElement.textContent = q;
-        this.lastSearchElement.tooltipText = q;
-        this.lastSearchElement.query = q;
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
+        this.windows[window_id].searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
+        this.windows[window_id].lastSearchElement.textContent = q;
+        this.windows[window_id].lastSearchElement.tooltipText = q;
+        this.windows[window_id].lastSearchElement.query = q;
     },
 
     tabChanged: function(ev){
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
         // Clean last search to avoid conflicts
         CliqzAutocomplete.lastSearch = '';
 
-        if(this.lastQueryInTab[ev.target.linkedPanel])
-            this.showLastQuery(this.lastQueryInTab[ev.target.linkedPanel]);
+        if(this.windows[window_id].lastQueryInTab[ev.target.linkedPanel])
+            this.showLastQuery(this.windows[window_id].lastQueryInTab[ev.target.linkedPanel]);
         else
             this.hideLastQuery();
     },
 
     tabRemoved: function(ev){
-        delete this.lastQueryInTab[ev.target.linkedPanel];
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
+        delete this.windows[window_id].lastQueryInTab[ev.target.linkedPanel];
     },
 
     isAutocomplete: function(base, candidate){
+        var window = CliqzUtils.getWindow();
+        var window_id = CliqzUtils.getWindowID();
+        var document = window.document;
+        var gBrowser = window.gBrowser;
+
         if(base.indexOf('://') !== -1){
            base = base.split('://')[1];
         }
