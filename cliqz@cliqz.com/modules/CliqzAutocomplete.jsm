@@ -32,6 +32,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
+    afterQueryCount: 0,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -99,8 +100,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             addResults: function(results){
-                this._results = this._results.concat(results);
+                this._results = this.resetInstantResults(this._results, results);
                 CliqzAutocomplete.lastResult = this;
+            },
+            resetInstantResults: function(oldResults, newResults){
+                var cleaned = oldResults;
+                if(newResults && newResults.length>0 &&
+                    newResults[0].style == "cliqz-cluster" && newResults[0].val){
+                    var clDomain = CliqzUtils.getDetailsFromUrl(newResults[0].val).host;
+                    cleaned = []
+                    for(var i=0; i < oldResults; i++){
+                        if(oldResults[i] &&
+                           CliqzUtils.getDetailsFromUrl(oldResults[i].val).host != clDomain){
+                            cleaned.push(oldResults[i]);
+                        }
+                    }
+                }
+                return cleaned.concat(newResults);
             }
         };
     },
@@ -196,7 +212,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
 
-                        //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
@@ -279,11 +294,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults
                     );
 
+                CliqzAutocomplete.afterQueryCount = 0;
+
                 //if there is a custom cliqzResults - force the opening of the dropdown
                 if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
                     results = [Result.generic('cliqz-empty', '')];
                 }
-
                 CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
                   + ' (results:' + (this.cliqzResults || []).length
                   + ', suggestions: ' + (this.cliqzSuggestions || []).length

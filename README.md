@@ -68,7 +68,7 @@ Glossary
 ``` bash
   "<ENCODED_RESULT_TYPE>"
 
- - T-tab result, B-bookmark, H-history
+ - T-tab result, B-bookmark, H-history, S-series, C-cluster
  - any combination of one or more for vertical results:
     p - people
     c - census
@@ -82,6 +82,7 @@ Glossary
     k - science
     q - qaa
     l - dictionary
+    s - shopping
 - any of the folowing for custom search engine search
     1 - google images
     2 - google maps
@@ -201,6 +202,7 @@ Result click (mouse)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
+    "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
 }
 ```
@@ -385,5 +387,21 @@ Addon disable
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
+}
+```
+
+### Performance
+Result compare
+```
+{
+	"action": "result_compare",
+    "session": "<RANDOM_ID>",
+    "type": "performance",
+    "ts": <UNIX_TIMESTAMP>
+    "redirect": true/false, // if a google redirect was captured
+    "query_made": 1, number of google queries made after last cliqz result shown
+    "same_result": true, // found an ignored cliqz result,
+    "result_position": 0, // null if same_result == false
+    "result_type": "<ENCODED_RESULT_TYPE>" // null if same_result == false
 }
 ```

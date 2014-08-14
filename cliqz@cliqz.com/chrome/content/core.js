@@ -38,7 +38,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        CliqzUtils.init();
+        CliqzUtils.init(window);
         CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
@@ -124,6 +124,7 @@ CLIQZ.Core = CLIQZ.Core || {
                (source || 'NONE');
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
+    _tutorialTimeout:null,
     showTutorial: function(onInstall){
         // Only show new tutorial if version greater than 29
         var tutorial_url = "";
@@ -140,7 +141,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (!(CliqzUtils.getPref('session','')[0] == '5'))
             tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
 
-        setTimeout(function(){
+        CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
             CLIQZ.Core.openOrReuseTab(tutorial_url, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
@@ -151,6 +152,8 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     // restoring
     destroy: function(){
+        clearTimeout(CLIQZ.Core._tutorialTimeout);
+
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
             item && item.parentNode && item.parentNode.removeChild(item);

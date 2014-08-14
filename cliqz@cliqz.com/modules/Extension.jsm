@@ -4,8 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ToolbarButtonManager',
-  'chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+Cu.import('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm?v=1');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -207,16 +206,17 @@ var Extension = {
         }
 
         if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
-            win.Application.prefs.setValue(dontHideSearchBar, true);
-
             //try to hide quick search
-            var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
-            if(toolbarID){
-                win.Application.prefs.setValue(searchBarPosition, toolbarID);
-            }
-            if(nextEl){
-                win.Application.prefs.setValue(searchBarPositionNext, nextEl);
-            }
+            try{
+                var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
+                if(toolbarID){
+                    win.Application.prefs.setValue(searchBarPosition, toolbarID);
+                }
+                if(nextEl){
+                    win.Application.prefs.setValue(searchBarPositionNext, nextEl);
+                }
+                win.Application.prefs.setValue(dontHideSearchBar, true);
+            } catch(e){}
         }
 
         // cliqz button
@@ -335,7 +335,8 @@ var Extension = {
             try{
                 var btn = win.document.getElementById('cliqz-button')
                 if(btn && btn.children && btn.children.cliqz_menupopup){
-                    btn.children.cliqz_menupopup.lastChild.remove();
+                    var searchOptions = btn.children.cliqz_menupopup.lastChild;
+                    searchOptions.parentNode.removeChild(searchOptions);
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
                 }
             } catch(e){}
@@ -349,11 +350,12 @@ var Extension = {
     unloadFromWindow: function(win){
         try {
             if(win && win.document){
-                if(win.document.getElementById('cliqz-button')){
-                    win.document.getElementById('cliqz-button').remove();
+                var btn;
+                if(btn = win.document.getElementById('cliqz-button')){
+                    btn.parentNode.removeChild(btn);
                 }
-                if(win.document.getElementById('cliqz-share-button')){
-                    win.document.getElementById('cliqz-share-button').remove();
+                if(btn = win.document.getElementById('cliqz-share-button')){
+                    btn.parentNode.removeChild(btn);
                 }
             }
             win.CLIQZ.Core.destroy();
