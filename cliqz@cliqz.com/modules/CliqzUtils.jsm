@@ -51,7 +51,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(){
+  init: function(window){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -60,7 +60,8 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    CliqzUtils.loadLocale();
+    if (window && window.navigator != null)
+        CliqzUtils.loadLocale(window.navigator.language);
     CliqzUtils.log('Initialized', 'UTILS');
 
   },
@@ -100,6 +101,25 @@ var CliqzUtils = {
   },
   httpPost: function(url, callback, data, onerror, timeout) {
     return CliqzUtils.httpHandler('POST', url, callback, onerror, timeout, data);
+  },
+  /**
+   * Loads a resource URL from the xpi.
+   *
+   * Wraps httpGet in a try-catch clause. We need to do this, because when
+   * trying to load a non-existing file from an xpi via xmlhttprequest, Firefox
+   * throws a NS_ERROR_FILE_NOT_FOUND exception instead of calling the onerror
+   * function.
+   *
+   * @see https://bugzilla.mozilla.org/show_bug.cgi?id=827243 (probably).
+   */
+  loadResource: function(url, callback, onerror) {
+    try {
+        return CliqzUtils.httpGet(url, callback, onerror, 3000);
+    } catch (e) {
+      CliqzUtils.log("Could not load resource " + url + " from the xpi",
+                     "CliqzUtils.httpHandler");
+      onerror && onerror();
+    }
   },
   getPrefs: function(){
     var prefs = {};
@@ -420,14 +440,48 @@ var CliqzUtils = {
     });
   },
   locale: {},
-  loadLocale : function(){
-    CliqzUtils.httpGet('chrome://cliqzres/content/locale/de-DE/cliqz.json',
-        function(req){
-            CliqzUtils.locale = JSON.parse(req.response);
-        });
+  currLocale: null,
+  loadLocale : function(lang_locale){
+    //var ww = Components.classes['@mozilla.org/embedcomp/window-watcher;1']
+    //                 .getService(Components.interfaces.nsIWindowWatcher);
+    // The default language
+    if (!CliqzUtils.locale.hasOwnProperty('default')) {
+        CliqzUtils.loadResource('chrome://cliqzres/content/locale/de/cliqz.json',
+            function(req){
+                CliqzUtils.locale['default'] = JSON.parse(req.response);
+            });
+    }
+    if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
+        CliqzUtils.loadResource('chrome://cliqzres/content/locale/'
+                + encodeURIComponent(lang_locale) + '/cliqz.json',
+            function(req) {
+                CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                CliqzUtils.currLocale = lang_locale;
+            },
+            function() {
+                // We did not find the full locale (e.g. en-GB): let's try just the
+                // language!
+                var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
+                CliqzUtils.loadResource(
+                    'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
+                    function(req) {
+                        CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                        CliqzUtils.currLocale = lang_locale;
+                    }
+                );
+            }
+        );
+    }
   },
   getLocalizedString: function(key){
-    return (CliqzUtils.locale[key] && CliqzUtils.locale[key].message) || key;
+    if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
+            && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
+        return CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+    } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
+        return CliqzUtils.locale['default'][key].message;
+    } else {
+        return key;
+    }
   },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']

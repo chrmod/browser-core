@@ -14,32 +14,40 @@ var CliqzABTests = CliqzABTests || {
         CliqzABTests.retrieve(
             function(response){
                 try{
-                    var prevABtests = [];
+                    var prevABtests = {};
                     if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
                         prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
                     var respABtests = JSON.parse(response.responseText);
+                    var newABtests = {};
 
                     var changes = false; // any changes?
                     // find new AB tests to enter
                     for(let n in respABtests) {
                         if(!(prevABtests[n])) {
-                            changes = true;
-                            CliqzABTests.enter(n, respABtests[n]);
+                            if(CliqzABTests.enter(n, respABtests[n])) {
+                                changes = true;
+                                newABtests[n] = respABtests[n];
+                            }
                         }
                     }
 
                     // find old AB tests to leave
                     for(let o in prevABtests) {
                         if(!respABtests[o]) {
-                            changes = true;
-                            CliqzABTests.leave(o);
+                            if(CliqzABTests.leave(o))
+                                changes = true;
                         }
-                    }
-                    CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(respABtests))
+                        else {
+                            // keep this old test in the list of current tests
+                            newABtests[o] = prevABtests[o]
+                        }
 
-                    if(changes)
+                    }
+                    if(changes) {
+                        CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(newABtests))
                         CliqzUtils.extensionRestart();
+                    }
                 } catch(e){
                     CliqzUtils.log(e, "CliqzABTests.check Error");
                 }
@@ -62,13 +70,10 @@ var CliqzABTests = CliqzABTests || {
     },
     enter: function(abtest, payload) {
         var logname = "CliqzABTests.enter"
-        if(payload.msg)
-            CliqzUtils.log(abtest + ": " + payload.msg, logname);
-        else
-           CliqzUtils.log(abtest, logname);
 
         // Add new AB tests here.
         // It is safe to remove them as soon as the test is over.
+        var rule_executed = true
         switch(abtest) {
             /* 1000: enable timing log signal */
             case "1000_A":
@@ -93,6 +98,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("abCluster", true);
                 break;
             case "1003_A":
+            case "1004_A":
                 // enable clustering + series
                 // History length: 12
                 var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -103,6 +109,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("abCluster", true);
                 break;
             case "1003_B":
+            case "1004_B":
                 // enable clustering + series
                 // History length: 20
                 var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -112,17 +119,27 @@ var CliqzABTests = CliqzABTests || {
 
                 CliqzUtils.setPref("abCluster", true);
                 break;
-
+            default:
+                rule_executed = false;
         }
+        if(rule_executed) {
+            if(payload.msg)
+                CliqzUtils.log(abtest + ": " + payload.msg, logname);
+            else
+               CliqzUtils.log(abtest, logname);
+            return true;
+       } else {
+            return false;
+       }
     },
     leave: function(abtest) {
         var logname = "CliqzABTests.leave"
-        CliqzUtils.log(abtest, logname);
 
         // Restore defaults after an AB test is finished.
         // DO NOT remove test cleanup code too quickly, a user
         // might not start the browser for a long time and
         // get stuck in a test if we remove cases too early.
+        var rule_executed = true;
         switch(abtest) {
             case "1000_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("logTimings");
@@ -136,6 +153,8 @@ var CliqzABTests = CliqzABTests || {
             case "1002_A":
             case "1003_A":
             case "1003_B":
+            case "1004_A":
+            case "1004_B":
                 // disable clustering + series
                 var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                                   .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -146,6 +165,15 @@ var CliqzABTests = CliqzABTests || {
 
                 CliqzUtils.cliqzPrefs.clearUserPref("abCluster");
                 break;
+            default:
+                rule_executed = false;
         }
+
+        if(rule_executed) {
+            CliqzUtils.log(abtest, logname);
+            return true;
+       } else {
+            return false;
+       }
     },
 }

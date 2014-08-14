@@ -2,92 +2,95 @@
     "urlBarLastSearch":{
         "message":"↵  "
     },
+    "Sitemap_Summary": {
+        "message":"Meine {} Seiten"
+    },
     "Sitemap_Youtube_Popular": {
-        "message":"Népszerű a Youtebe-on"
+        "message":"Beliebte auf YouTube"
     },
     "Sitemap_Youtube_Subscriptions": {
-        "message":"Feliratkozásaim"
+        "message":"Meine Abos"
     },
     "Sitemap_Youtube_History": {
-        "message":"Előzmények"
+        "message":"Verlauf"
     },
     "Sitemap_Youtube_WatchLater": {
-        "message":"Megnézendő videók"
+        "message":"Später ansehen"
     },
     "Sitemap_Youtube_Channels": {
-        "message":"Csatornák"
+        "message":"Channels"
     },
     "Sitemap_Facebook_Newsfeed": {
-        "message":"Hírek"
+        "message":"Newsfeed"
     },
     "Sitemap_Facebook_Messages": {
-        "message":"Üzenetek"
+        "message":"Nachrichten"
     },
     "Sitemap_Facebook_Events": {
-        "message":"Események"
+        "message":"Events"
     },
     "Sitemap_Facebook_Help": {
-        "message":"Súgó"
+        "message":"Hilfe"
     },
     "Sitemap_Facebook_Pages": {
-        "message":"Oldalak"
+        "message":"Seiten"
     },
     "Sitemap_Facebook_Groups": {
-        "message":"Csoportok"
+        "message":"Gruppen"
     },
     "Sitemap_Facebook_Lists": {
-        "message":"Listák"
+        "message":"Listen"
     },
     "Sitemap_Amazon_MyAmazon": {
-        "message":"Saját Amazon"
+        "message":"Mein Amazon"
     },
     "Sitemap_Amazon_MyAccount": {
-        "message":"Számlám"
+        "message":"Mein Konto"
     },
     "Sitemap_Amazon_Wishlist": {
-        "message":"Kívánságlista"
+        "message":"Wunschzettel"
     },
     "Sitemap_Amazon_Categories": {
-        "message":"Kategóriák"
+        "message":"Kategorien"
     },
     "Sitemap_Amazon_Shops": {
-        "message":"Eladók"
+        "message":"Verkäufer"
     },
     "Sitemap_Ebay_MyEbay": {
-        "message":"Saját eBay"
+        "message":"Mein Ebay"
     },
     "Sitemap_Ebay_Deals": {
-        "message":"Ajánlatok"
+        "message":"Angebote"
     },
     "Sitemap_Ebay_Shops": {
-        "message":"Eladók"
+        "message":"Shops"
     },
     "Sitemap_Chefkoch_Magazin": {
         "message":"Magazin"
     },
     "Sitemap_Chefkoch_Rezepte": {
-        "message":"Receptek"
+        "message":"Rezepte"
     },
     "Sitemap_Chefkoch_Community": {
-        "message":"Fórum"
+        "message":"Community"
     },
     "Sitemap_Chefkoch_Blog": {
         "message":"Blog"
     },
     "Sitemap_Chefkoch_Articles": {
-        "message":"Cikkek"
+        "message":"Artikel"
     },
     "Sitemap_Bild_Shop": {
-        "message":"Bild bolt"
+        "message":"Bild Shop"
     },
     "Sitemap_Bild_Community": {
-        "message":"Fórum"
+        "message":"Community"
     },
     "Sitemap_Bild_Login": {
-        "message":"Bejelentkezés"
+        "message":"Login"
     },
     "Sitemap_Bild_Topics": {
-        "message":"Rovat"
+        "message":"Themen"
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
