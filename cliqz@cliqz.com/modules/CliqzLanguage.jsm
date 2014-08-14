@@ -92,9 +92,6 @@ var CliqzLanguage = CliqzLanguage || {
 
             // now the language detection
             CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
-                //check if cliqz is still around or disabled
-                if(!CliqzUtils || !CliqzLanguage) return;
-
                 try {
                     var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
                     if (''+currURLAtTime == ''+currURL) {
@@ -109,14 +106,11 @@ var CliqzLanguage = CliqzLanguage || {
                }
                catch(ee) {
                 // silent fail
-                CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
-
+                //CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
                }
 
             };})(this.currentURL), CliqzLanguage.READING_THRESHOLD);
-
         },
-
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
     },
