@@ -2,10 +2,10 @@
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzSearchHistory'];
 
@@ -40,6 +40,7 @@ var CliqzSearchHistory = {
         this.searchHistoryContainer.appendChild(searcHistoryDropdown)
 
         // Add panel with search history results to dropdown button
+        this.searchHistoryPanel.className = 'cliqz-urlbar-Last-search-dropdown';
         searcHistoryDropdown.appendChild(this.searchHistoryPanel);
 
         return this.searchHistoryContainer;

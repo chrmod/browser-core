@@ -6,7 +6,7 @@ var EXPORTED_SYMBOLS = ['CliqzLanguage'];
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm?v=0.5.04');
 
@@ -91,6 +91,8 @@ var CliqzLanguage = CliqzLanguage || {
 
             // now the language detection
             CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
+                //check if cliqz is still around or disabled
+                if(!CliqzUtils || !CliqzLanguage) return;
 
                 try {
                     var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
@@ -238,7 +240,7 @@ var CliqzLanguage = CliqzLanguage || {
         }
     },
     stateToQueryString: function() {
-        return '&lang=' + CliqzLanguage.state().join(',');
+        return '&lang=' + encodeURIComponent(CliqzLanguage.state().join(','));
     },
     // Save the current state to preferences,
     saveCurrentState: function() {
