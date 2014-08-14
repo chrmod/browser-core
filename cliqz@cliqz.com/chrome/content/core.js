@@ -23,8 +23,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
-//  'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
+  'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -69,15 +69,15 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         // Add search history dropdown
-        //var urlbarIcons = document.getElementById('urlbar-icons');
-        //var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
-        //CLIQZ.Core.elem.push(searchHistoryContainer);
+        var urlbarIcons = document.getElementById('urlbar-icons');
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
+        CLIQZ.Core.elem.push(searchHistoryContainer);
 
-        //CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
-        //gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
+        gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
-        //CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
-        //gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
+        CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
+        gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         // preferences
         CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
@@ -195,7 +195,7 @@ CLIQZ.Core = CLIQZ.Core || {
         delete window.ResultProviders;
         delete window.CliqzTimings;
         delete window.CliqzABTests;
-        //delete window.CliqzSearchHistory;
+        delete window.CliqzSearchHistory;
     },
     restart: function(){
         CLIQZ.Core.destroy();
@@ -216,11 +216,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
-        //CliqzSearchHistory.hideLastQuery();
+        CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
-        //CliqzSearchHistory.lastQuery();
+        CliqzSearchHistory.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {

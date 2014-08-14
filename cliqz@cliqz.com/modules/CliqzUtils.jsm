@@ -52,7 +52,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(win){
+  init: function(window){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -61,8 +61,13 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    if (win && win.navigator != null)
-        CliqzUtils.loadLocale(win.navigator.language);
+    if (window && window.navigator) {
+        // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
+        var nav = window.navigator;
+        var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
+            || nav.browserLanguage || nav.systemLanguage || 'en';
+        CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
+    }
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -553,6 +558,11 @@ var CliqzUtils = {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator);
     return wm.getMostRecentWindow("navigator:browser");
+  },
+  getWindowID: function(){
+    var win = CliqzUtils.getWindow();
+    var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+    return util.outerWindowID;
   },
   performance: {
     timers:null,
