@@ -60,8 +60,13 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    if (window && window.navigator != null)
-        CliqzUtils.loadLocale(window.navigator.language);
+    if (window && window.navigator) {
+        // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
+        var nav = window.navigator;
+        var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
+            || nav.browserLanguage || nav.systemLanguage || 'en';
+        CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
+    }
     CliqzUtils.log('Initialized', 'UTILS');
 
   },
