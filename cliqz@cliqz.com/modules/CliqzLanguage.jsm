@@ -40,6 +40,7 @@ var CliqzLanguage = CliqzLanguage || {
             var action = {
                 type: 'performance',
                 redirect: false,
+                action: 'compare_result',
                 query_made: CliqzAutocomplete.afterQueryCount,
             };
 
