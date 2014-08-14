@@ -52,7 +52,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(win){
+  init: function(window){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
