@@ -106,14 +106,16 @@ var UI = {
             result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
-        if(suggestions){
-            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                // do not show a suggestion is it is exactly the query
-                suggestions: suggestions.filter(function(s){ return s != q; }),
-                q:q
-            });
-        } else {
-            gCliqzBox.suggestionBox.innerHTML = '';
+        if(gCliqzBox) {
+            if(suggestions){
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                    // do not show a suggestion is it is exactly the query
+                    suggestions: suggestions.filter(function(s){ return s != q; }),
+                    q:q
+                });
+            } else {
+                gCliqzBox.suggestionBox.innerHTML = '';
+            }
         }
     },
     keyDown: function(ev){
