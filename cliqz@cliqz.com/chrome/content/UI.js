@@ -13,6 +13,7 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custo
         'h': 'hq'      ,
         'q': 'qaa'     ,
         'k': 'science' ,
+        'l': 'dictionary'
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
