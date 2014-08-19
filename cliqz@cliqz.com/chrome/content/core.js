@@ -204,9 +204,11 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.init();
     },
     popupOpen: function(){
+        CliqzAutocomplete.isPopupOpen = true;
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
+        CliqzAutocomplete.isPopupOpen = false;
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {

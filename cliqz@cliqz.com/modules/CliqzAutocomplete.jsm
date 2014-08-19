@@ -33,6 +33,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastResult: null,
     lastSuggestions: null,
     afterQueryCount: 0,
+    isPopupOpen: false,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -186,11 +187,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
             },
-            sendResultsSignal: function(results) {
+            sendResultsSignal: function(results, instant, popup) {
                 var action = {
                     type: 'activity',
                     action: 'results',
-                    result_order:  CliqzAutocomplete.getResultsOrder(results)
+                    result_order:  CliqzAutocomplete.getResultsOrder(results),
+                    instant: instant ? true : false,
+                    popup: popup ? true : false
                 };
                 CliqzUtils.track(action);
             },
@@ -217,7 +220,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         this.listener.onSearchResult(this, this.mixedResults);
-                        this.sendResultsSignal(this.mixedResults._results);
+                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -236,6 +239,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
+                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
+
                     }
                 }
             },
