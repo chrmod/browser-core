@@ -5,13 +5,20 @@
     <div class='cliqz-result-mid-box' style="width:{{ width }}px">
         <div class='cliqz-result-title-box overflow'>
             {{ title }}
+            {{#if data.richData.pronunciation}}
+            <span class='cliqz-result-dictionary-pronunciation'>[ {{data.richData.pronunciation}} ]</span>
+            {{/if}}
         </div>
-
+        {{#if data.richData.type}}
+            <div class="cliqz-result-dictionary-type">
+                {{data.richData.type}}
+            </div>
+        {{/if}}
         <ol>
             {{#each data.richData.definitions}}
             <li>
             <div class='cliqz-result-dictionary-definition'>
-                {{ definition }} {{#if type}} - <span class='cliqz-result-dictionary-type'>{{type}}</span>{{/if}}
+                {{ definition }} {{#if type}} - <span class='cliqz-result-dictionary-subtype'>{{type}}</span>{{/if}}
             </div>
             </li>
             {{/each}}
