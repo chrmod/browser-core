@@ -258,8 +258,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
                         
-                        CliqzUtils.log(CliqzAutocomplete.lastSearch, 'query')
-                        CliqzUtils.log(q, 'query')
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
