@@ -43,9 +43,9 @@ var Mixer = {
             bucketHistoryCluster.push(
                     Result.generic(style, data.url || '', null, '', '', '', data));
 
-            // we have to empty the history_trans so that only the new collapsed/clustered results is
-            // displayed
-            history_trans = [];
+            // we have to delete the clustered result from history_trans so that
+            // we don't display it as history
+            history_trans = history_trans.slice(1);
         }
 
         // Was instant history result also available as a cliqz result
