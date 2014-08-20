@@ -322,7 +322,8 @@ function resultClick(ev){
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 extra: el.getAttribute('extra'), //extra data about the link
-                search: CliqzUtils.isSearch(url)
+                search: CliqzUtils.isSearch(url),
+                clustering_overide: CliqzAutocomplete.overide
             };
 
             CliqzUtils.track(action);
@@ -443,7 +444,8 @@ function onEnter(ev, item){
             action: 'result_enter',
             current_position: index,
             query_length: CliqzAutocomplete.lastSearch.length,
-            search: false
+            search: false,
+            clustering_overide: CliqzAutocomplete.overide
         };
 
     if(popupOpen && index != -1){
