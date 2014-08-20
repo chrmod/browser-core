@@ -22,6 +22,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
   'chrome://cliqzmodules/content/CliqzWeather.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
+  'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
+
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
                     .getBranch('browser.urlbar.');
@@ -131,18 +134,45 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
+                // We wait until we have all history results
+                if (result.searchResult != result.RESULT_SUCCESS) return;
+
+                // Push a history result as fast as we have it (and we don't
+                // have anything else).
+                if( this.mixedResults.matchCount > 0) return;
+
+                if (this.startTime)
+                    CliqzTimings.add("search_history",
+                                     ((new Date()).getTime() - this.startTime));
+
+
+                CliqzUtils.log('onSearchResult(>' + JSON.stringify(search) + '<, >' + JSON.stringify(result) + '<', "BLABLA");
                 this.historyResults = result;
+                let [is_clustered, history_trans] = CliqzClusterHistory.cluster(
+                    this.historyResults, [], result.searchString);
 
-                // Push a history result as fast as we have it:
-                //   Pick the url that is the shortest subset of the first entry
-                if( this.mixedResults.matchCount == 0) {
+                // If we could cluster the history, put that as the instant result
+                if (is_clustered) {
+                    CliqzUtils.log("IS_CLUSTERED");
+                    let style = history_trans[0]['style'],
+                        value = history_trans[0]['value'],
+                        image = history_trans[0]['image'],
+                        comment = history_trans[0]['data']['summary'],
+                        label = history_trans[0]['label'],
+                        // if is_cluster the object has additional data
+                        data = history_trans[0]['data'];
+                    let instant_cluster = this.mixedResults.push(Result.generic(
+                            style, data.url || '', null, '', '', '', data));
 
+                    //this.historyResults.removeValueAt(candidate_idx, false);
+                    this.mixedResults.addResults([instant_cluster]);
+                    this.pushResults(result.searchString);
+                } else {
+                    CliqzUtils.log("NOT IS_CLUSTERED");
+                    // Pick the url that is the shortest subset of the first entry
                     // candidate for instant history
                     var candidate_idx = -1;
                     var candidate_url = '';
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_history", ((new Date()).getTime() - this.startTime));
 
                     for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
