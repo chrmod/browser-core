@@ -40,7 +40,8 @@ var Mixer = {
                 // if is_cluster the object has additional data
                 data = history_trans[0]['data'];
 
-            if(data)bucketHistoryCluster.push(Result.generic(style, data.url || '', null, '', '', '', data));
+            bucketHistoryCluster.push(
+                    Result.generic(style, data.url || '', null, '', '', '', data));
 
             // we have to empty the history_trans so that only the new collapsed/clustered results is
             // displayed

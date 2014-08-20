@@ -1008,10 +1008,10 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
         } else if (clusteredHistory['topics'].length == 0) {
-	    // no URLs related to the topics defined for the site found in
-	    // the history URLs
+            // no URLs related to the topics defined for the site found in
+            // the history URLs
             CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
-	    return [false, historyTrans];
+            return [false, historyTrans];
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
