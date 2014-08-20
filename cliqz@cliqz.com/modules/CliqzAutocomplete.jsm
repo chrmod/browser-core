@@ -214,14 +214,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
             },
-            sendResultsSignal: function(results, instant, popup, clustering_overide) {
+            sendResultsSignal: function(results, instant, popup) {
                 var action = {
                     type: 'activity',
                     action: 'results',
                     result_order:  CliqzAutocomplete.getResultsOrder(results),
                     instant: instant ? true : false,
                     popup: popup ? true : false,
-                    clustering_overide: clustering_overide ? true : false,
+                    clustering_override: results[0].override ? true : false,
                 };
                 CliqzUtils.track(action);
             },
@@ -242,13 +242,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
-
+                        
+                        CliqzUtils.log(CliqzAutocomplete.lastSearch, 'query')
+                        CliqzUtils.log(q, 'query')
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         this.listener.onSearchResult(this, this.mixedResults);
-                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, CliqzAutocomplete.overide);
+                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -267,7 +269,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
-                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen, CliqzAutocomplete.overide);
+                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
 
                     }
                 }

@@ -323,7 +323,6 @@ function resultClick(ev){
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 extra: el.getAttribute('extra'), //extra data about the link
                 search: CliqzUtils.isSearch(url),
-                clustering_overide: CliqzAutocomplete.overide
             };
 
             CliqzUtils.track(action);
@@ -445,7 +444,6 @@ function onEnter(ev, item){
             current_position: index,
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
-            clustering_overide: CliqzAutocomplete.overide
         };
 
     if(popupOpen && index != -1){
