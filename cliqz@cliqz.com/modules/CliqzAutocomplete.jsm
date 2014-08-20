@@ -161,8 +161,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         label = history_trans[0]['label'],
                         // if is_cluster the object has additional data
                         data = history_trans[0]['data'];
-                    let instant_cluster = this.mixedResults.push(Result.generic(
-                            style, data.url || '', null, '', '', '', data));
+                    let instant_cluster = Result.generic(
+                            style, data.url || '', null, '', '', '', data);
 
                     //this.historyResults.removeValueAt(candidate_idx, false);
                     this.mixedResults.addResults([instant_cluster]);
