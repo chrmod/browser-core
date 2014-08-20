@@ -922,6 +922,15 @@ var templates = {
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
 
+    /**
+     * Tries to cluster the history.
+     *
+     * @return <tt>[is_clustered, filtered_history]</tt>: if the history could
+     *         be clustered, @c is_clustered will be true and
+     *         @c filtered_history will contain all the items in the history
+     *         that do not lead to the clustered domain; otherwise, we return
+     *         @c false and the full history.
+     */
     cluster: function(history, cliqzResults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null) return [false, null];
@@ -964,8 +973,20 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         var historyTransFiltered = [];
+        var historyTransRemained = [];
+        let j = 0;
         for (let i=0; i<freqHash[maxDomain].length; i++) {
-            historyTransFiltered.push(historyTrans[freqHash[maxDomain][i]]);
+            for (; j <= freqHash[maxDomain][i]; j++) {
+                if (j < freqHash[maxDomain][i]) {
+                    historyTransRemained.push(historyTrans[j]);
+                } else {
+                    historyTransFiltered.push(historyTrans[j]);
+                }
+            }
+        }
+        while (j < historyTrans.length) {
+            historyTransRemained.push(historyTrans[j]);
+            j++;
         }
 
         // has templates? if not quit and do the normal history, if so, then convert the maxDomain
@@ -979,7 +1000,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             if (seriesClusteredHistory) {
                 historyTransFiltered[0]['data'] = seriesClusteredHistory;
                 historyTransFiltered[0]['style'] = 'cliqz-series';
-                var v = [true, [historyTransFiltered[0]]];
+                var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
                 CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
                 return v;
@@ -1015,7 +1036,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
-            var v = [true, [historyTransFiltered[0]]];
+            var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
             CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
             return v;
