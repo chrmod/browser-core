@@ -24,6 +24,20 @@ var CliqzLanguage = CliqzLanguage || {
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
+    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
+        var action = {
+            type: 'performance',
+            redirect: redirect,
+            action: actionName,
+            query_made: CliqzAutocomplete.afterQueryCount,
+            popup: CliqzAutocomplete.isPopupOpen,
+            same_result: same_result,
+            result_type: result_type,
+            result_position: result_position
+        };
+        CliqzUtils.track(action)
+    },
+
     listener: {
         currURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
@@ -37,19 +51,13 @@ var CliqzLanguage = CliqzLanguage || {
             var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
-            var action = {
-                type: 'performance',
-                redirect: false,
-                action: 'result_compare',
-                query_made: CliqzAutocomplete.afterQueryCount,
-            };
 
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
                 CliqzAutocomplete.afterQueryCount += 1;
             }
 
             if (reref.test(this.currentURL)) { // this is a google ref
-                action.redirect = true;
+                // action.redirect = true;
                 var m = this.currentURL.match(rerefurl);
                 if (m) {
                     var dest_url = decodeURIComponent(m[1]);
@@ -59,20 +67,15 @@ var CliqzLanguage = CliqzLanguage || {
                         var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '');
                         if (dest_url == comp_url) {
                             // now we have the same result
-                            action.same_result = true;
-                            action.result_position = i;
-                            action.result_type = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
-                            CliqzUtils.track(action);
+                            var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                            CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
                         }
                     }
                     if (!found) {
                         // we don't have the same result
-                        action.same_result = false;
-                        action.result_position = null;
-                        action.result_type = null;
-                        CliqzUtils.track(action);
+                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
                     }
                 }
             } else if (CliqzAutocomplete.afterQueryCount == 1) {
@@ -82,10 +85,8 @@ var CliqzLanguage = CliqzLanguage || {
                     var dest_url = this.currentURL.replace('http://', '').replace('https://', '').replace('www.', '');
                     var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '')
                     if (dest_url == comp_url) {
-                        action.same_result = true;
-                        action.result_position = i;
-                        action.result_type = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
-                        CliqzUtils.track(action);
+                        var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                        CliqzLanguage.sendCompSignal('result_compare', false, true, resType, i);
                     }
                 }
             }
