@@ -164,7 +164,6 @@ var Mixer = {
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
 
-
         results = results.slice(mixed._results.length);
 
         // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
