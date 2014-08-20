@@ -257,7 +257,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
                         this.cliqzWeather) {
-                        
+
                         this.mixedResults.addResults(this.mixResults());
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
