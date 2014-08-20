@@ -146,14 +146,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                                      ((new Date()).getTime() - this.startTime));
 
 
-                CliqzUtils.log('onSearchResult(>' + JSON.stringify(search) + '<, >' + JSON.stringify(result) + '<', "BLABLA");
                 this.historyResults = result;
                 let [is_clustered, history_trans] = CliqzClusterHistory.cluster(
                     this.historyResults, [], result.searchString);
 
                 // If we could cluster the history, put that as the instant result
                 if (is_clustered) {
-                    CliqzUtils.log("IS_CLUSTERED");
                     let style = history_trans[0]['style'],
                         value = history_trans[0]['value'],
                         image = history_trans[0]['image'],
@@ -168,7 +166,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.mixedResults.addResults([instant_cluster]);
                     this.pushResults(result.searchString);
                 } else {
-                    CliqzUtils.log("NOT IS_CLUSTERED");
                     // Pick the url that is the shortest subset of the first entry
                     // candidate for instant history
                     var candidate_idx = -1;
