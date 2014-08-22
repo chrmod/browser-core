@@ -350,10 +350,31 @@ Dropdown open
 }
 ```
 
+Offboarding page shown
+``` bash
+{
+    "action": "offboarding_shown",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
 Offboarding tour started
 ``` bash
 {
     "action": "offboarding_tour",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Offboarding page closed
+``` bash
+{
+    "action": "offboarding_closed",
+    "time": <SECONDS> # How long the user looked at the page before closing
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
