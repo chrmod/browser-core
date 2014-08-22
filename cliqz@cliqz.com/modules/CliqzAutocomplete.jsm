@@ -236,7 +236,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     result_order:  CliqzAutocomplete.getResultsOrder(results),
                     instant: instant ? true : false,
                     popup: popup ? true : false,
-                    clustering_override: results[0].override ? true : false,
+                    clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                 };
                 CliqzUtils.track(action);
             },
