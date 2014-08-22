@@ -40,11 +40,12 @@ var Mixer = {
                 // if is_cluster the object has additional data
                 data = history_trans[0]['data'];
 
-            if(data)bucketHistoryCluster.push(Result.generic(style, data.url || '', null, '', '', '', data));
+            bucketHistoryCluster.push(
+                    Result.generic(style, data.url || '', null, '', '', '', data));
 
-            // we have to empty the history_trans so that only the new collapsed/clustered results is
-            // displayed
-            history_trans = [];
+            // we have to delete the clustered result from history_trans so that
+            // we don't display it as history
+            history_trans = history_trans.slice(1);
         }
 
         // Was instant history result also available as a cliqz result
@@ -162,7 +163,6 @@ var Mixer = {
             results = weatherResults.concat(results);
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
-
 
         results = results.slice(mixed._results.length);
 
