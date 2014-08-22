@@ -22,15 +22,6 @@ var CliqzABTests = CliqzABTests || {
                     var newABtests = {};
 
                     var changes = false; // any changes?
-                    // find new AB tests to enter
-                    for(let n in respABtests) {
-                        if(!(prevABtests[n])) {
-                            if(CliqzABTests.enter(n, respABtests[n])) {
-                                changes = true;
-                                newABtests[n] = respABtests[n];
-                            }
-                        }
-                    }
 
                     // find old AB tests to leave
                     for(let o in prevABtests) {
@@ -42,11 +33,20 @@ var CliqzABTests = CliqzABTests || {
                             // keep this old test in the list of current tests
                             newABtests[o] = prevABtests[o]
                         }
-
                     }
+                    
+                    // find new AB tests to enter
+                    for(let n in respABtests) {
+                        if(!(prevABtests[n])) {
+                            if(CliqzABTests.enter(n, respABtests[n])) {
+                                changes = true;
+                                newABtests[n] = respABtests[n];
+                            }
+                        }
+                    }
+
                     if(changes) {
                         CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(newABtests))
-                        CliqzUtils.extensionRestart();
                     }
                 } catch(e){
                     //CliqzUtils.log(e, "CliqzABTests.check Error");
@@ -74,24 +74,6 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("logTimings", true);
                 break;
 
-            /* 1001: show one of three different changelogs on upgrade, or nothing (default) */
-            case "1001_A":
-                CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001A');
-                CliqzUtils.setPref("showChangelog", true);
-                break;
-            case "1001_B":
-                CliqzUtils.setPref("changelogURL", 'https://beta.cliqz.com/changelog_1001B');
-                CliqzUtils.setPref("showChangelog", true);
-                break;
-            case "1001_C":
-                // use default changelog URL
-                CliqzUtils.setPref("showChangelog", true);
-                break;
-            case "1002_A":
-                // enable clustering + series
-                CliqzUtils.setPref("abCluster", true);
-                break;
-            case "1003_A":
             case "1004_A":
                 // enable clustering + series
                 // History length: 12
@@ -102,7 +84,7 @@ var CliqzABTests = CliqzABTests || {
 
                 CliqzUtils.setPref("abCluster", true);
                 break;
-            case "1003_B":
+
             case "1004_B":
                 // enable clustering + series
                 // History length: 20

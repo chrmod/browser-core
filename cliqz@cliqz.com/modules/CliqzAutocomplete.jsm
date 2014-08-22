@@ -108,16 +108,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzAutocomplete.lastResult = this;
             },
             resetInstantResults: function(oldResults, newResults){
+                // We always have at most 1 oldResult, since now we wait for the
+                // whole history to be fetched. Thus, the old code can be
+                // deleted; as well as this one, if we do not want to log
+                // override anymore
                 var cleaned = oldResults;
-                if(newResults && newResults.length>0 &&
-                    newResults[0].style == "cliqz-cluster" && newResults[0].val){
-                    var clDomain = CliqzUtils.getDetailsFromUrl(newResults[0].val).host;
-                    cleaned = []
-                    for(var i=0; i < oldResults; i++){
-                        if(oldResults[i] &&
-                           CliqzUtils.getDetailsFromUrl(oldResults[i].val).host != clDomain){
-                            cleaned.push(oldResults[i]);
-                        }
+                if (
+                    oldResults && oldResults.length > 0 &&
+                    newResults && newResults.length > 0 &&
+                    (oldResults[0].style == "cliqz-cluster" ||
+                    oldResults[0].style == "cliqz-series") &&
+                    (newResults[0].style == "cliqz-cluster" ||
+                    newResults[0].style == "cliqz-series") &&
+                    newResults[0].val
+                ) {
+                    cleaned = [];
+                    if (oldResults[0].hasOwnProperty("override")) {
+                        newResults[0].override = oldResults[0].override;
                     }
                 }
                 return cleaned.concat(newResults);
@@ -146,31 +153,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                                      ((new Date()).getTime() - this.startTime));
 
 
-                CliqzUtils.log('onSearchResult(>' + JSON.stringify(search) + '<, >' + JSON.stringify(result) + '<', "BLABLA");
                 this.historyResults = result;
                 let [is_clustered, history_trans] = CliqzClusterHistory.cluster(
                     this.historyResults, [], result.searchString);
 
-                // If we could cluster the history, put that as the instant result
-                if (is_clustered) {
-                    CliqzUtils.log("IS_CLUSTERED");
-                    let style = history_trans[0]['style'],
-                        value = history_trans[0]['value'],
-                        image = history_trans[0]['image'],
-                        comment = history_trans[0]['data']['summary'],
-                        label = history_trans[0]['label'],
-                        // if is_cluster the object has additional data
-                        data = history_trans[0]['data'];
-                    let instant_cluster = this.mixedResults.push(Result.generic(
-                            style, data.url || '', null, '', '', '', data));
-
-                    //this.historyResults.removeValueAt(candidate_idx, false);
-                    this.mixedResults.addResults([instant_cluster]);
-                    this.pushResults(result.searchString);
-                } else {
-                    CliqzUtils.log("NOT IS_CLUSTERED");
+                {
                     // Pick the url that is the shortest subset of the first entry
                     // candidate for instant history
+                    // NOTE: this should be in else {} below, only we need it
+                    // here for AB test tracking
                     var candidate_idx = -1;
                     var candidate_url = '';
 
@@ -198,7 +189,28 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             }
                         }
                     }
+                }
+                // If we could cluster the history, put that as the instant result
+                if (is_clustered) {
+                    let style = history_trans[0]['style'],
+                        value = history_trans[0]['value'],
+                        image = history_trans[0]['image'],
+                        comment = history_trans[0]['data']['summary'],
+                        label = history_trans[0]['label'],
+                        // if is_cluster the object has additional data
+                        data = history_trans[0]['data'];
 
+                    // See if we overrode the original instant result
+                    let dataHost = CliqzUtils.getDetailsFromUrl(data.url).host.toLowerCase();
+                    let override = candidate_idx != -1 && candidate_url.indexOf(dataHost) == -1;
+                    let instant_cluster = Result.generic(
+                            style, data.url || '', null, '', '', '', data);
+                    instant_cluster.override = override;
+
+                    //this.historyResults.removeValueAt(candidate_idx, false);
+                    this.mixedResults.addResults([instant_cluster]);
+                    this.pushResults(result.searchString);
+                } else {
                     if(candidate_idx != -1) {
                         var style = this.historyResults.getStyleAt(candidate_idx),
                             value = this.historyResults.getValueAt(candidate_idx),
@@ -223,7 +235,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     action: 'results',
                     result_order:  CliqzAutocomplete.getResultsOrder(results),
                     instant: instant ? true : false,
-                    popup: popup ? true : false
+                    popup: popup ? true : false,
+                    clustering_override: results[0].override ? true : false,
                 };
                 CliqzUtils.track(action);
             },
