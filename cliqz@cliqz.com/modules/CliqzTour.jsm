@@ -52,6 +52,21 @@ var CliqzTour = {
         };
         CliqzUtils.track(action);
         start('wobble');
+    },
+    pageShown: function() {
+        var action = {
+            type: 'activity',
+            action: 'offboarding_shown',
+        };
+        CliqzUtils.track(action);
+    },
+    pageClosed: function(time) {
+        var action = {
+            time: time,
+            type: 'activity',
+            action: 'offboarding_closed',
+        };
+        CliqzUtils.track(action);
     }
 };
 

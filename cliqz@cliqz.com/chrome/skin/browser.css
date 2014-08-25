@@ -810,6 +810,49 @@
 
 /* end video */
 
+/* dictionary */
+
+.cliqz-result-dictionary-pronunciation {
+    font-style: italic;
+    font-weight: normal;
+    color: #ABABAB;
+}
+
+.cliqz-result-dictionary-type {
+    font-weight: bold;
+}
+
+.cliqz-result-mid-box ol {
+    margin: 5px 0;
+    padding-left: 18px
+}
+
+.cliqz-result-dictionary-definition {
+    width: 90%;
+    color: #666666;
+}
+
+.cliqz-result-dictionary-subtype {
+    color: #FFA319;
+}
+
+.cliqz-result-dictionary-translations {
+    display: block
+    font-size: 12px;
+    background: #f3f3f3;
+    padding: 2px 0 2px 15px;
+    max-height: 15px;
+    overflow: hidden;
+}
+
+.cliqz-result-dictionary-translation-language {
+    font-weight: bold;
+    padding-left: 5px;
+}
+
+
+/* end dictionary */
+
 /* custom */
 .cliqz-custom-text {
     color: #999999;

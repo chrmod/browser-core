@@ -57,7 +57,7 @@
         }
     </style>
 </head>
-<body class='back'>
+<body class='back' onbeforeunload='closePage(event)'>
     <h1 class='header'>
         Willkommen! <img class="logo" src="http://beta.cliqz.com/img/CliqzLogo.svg" > hilft Dir beim Finden im Internet.
     </h1>
@@ -75,9 +75,16 @@
     </div>
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm');
+        var now = new Date();
+        CliqzTour.pageShown();
         document.getElementById('test_btn').addEventListener('click', function(){
             CliqzTour.start();
         });
+        closePage = function () {
+            var diff = (new Date()) - now;
+            var diff_sec = diff / 1000;
+            CliqzTour.pageClosed(diff_sec);
+        }
     </script>
 </body>
 </html>
