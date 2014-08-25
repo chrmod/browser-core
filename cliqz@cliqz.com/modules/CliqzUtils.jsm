@@ -374,10 +374,7 @@ var CliqzUtils = {
   _track_start: undefined,
   TRACK_MAX_SIZE: 500,
   pushTrack: function() {
-    if(CliqzUtils._track_req) {
-        CliqzUtils._track_req.abort();
-        CliqzUtils.pushTrackError(CliqzUtils._track_req);
-    }
+    if(CliqzUtils._track_req) return;
 
     // put current data aside in case of failure
     CliqzUtils._track_sending = CliqzUtils.trk.slice(0);
