@@ -491,7 +491,7 @@ function onEnter(ev, item){
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C') {  // if this is a clustering result, we track the clustering domain
-                action.Ctype = CliqzUtils.getCliqzResults(firstUrl)
+                action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
                 CLIQZ.Core.urlbar.value = firstUrl;
