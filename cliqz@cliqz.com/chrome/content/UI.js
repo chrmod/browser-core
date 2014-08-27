@@ -326,7 +326,10 @@ function resultClick(ev){
                 search: CliqzUtils.isSearch(url),
                 clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
             };
-
+            
+            if (action.position_type == 'C') {
+                action.Ctype = CliqzUtils.getClusteringDomain(url)
+            }
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
@@ -453,7 +456,11 @@ function onEnter(ev, item){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(url);
+        if (action.position_type == 'C') { // if this is a clustering result, we track the clustering domain
+            action.Ctype = CliqzUtils.getClusteringDomain(url)
+        }
         openUILink(url);
+
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -483,7 +490,9 @@ function onEnter(ev, item){
                 firstUrl = first.getAttribute('url');
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
-
+            if (action.source == 'C') {  // if this is a clustering result, we track the clustering domain
+                action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
+            }
             if(firstUrl.indexOf(inputValue) != -1){
                 CLIQZ.Core.urlbar.value = firstUrl;
             }

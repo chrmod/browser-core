@@ -634,5 +634,21 @@ var CliqzUtils = {
 
         send_test()
     }
+  },
+  getClusteringDomain: function(url) {
+    var domains = ['ebay.de',
+                   'amazon.de',
+                   'github.com',
+                   'facebook.com',
+                   'klout.com',
+                   'chefkoch.com',
+                   'blid.com',
+                   'basecamp.com',
+                   'youtube.com',
+                   'twitter.com',
+                   'wikipedia.com',]
+    for (var index = 0; index < domains.length; index++) {
+      if (url.indexOf(domains[index]) > -1) return index;
+    }
   }
 };

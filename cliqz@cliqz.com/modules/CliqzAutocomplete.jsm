@@ -37,6 +37,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSuggestions: null,
     afterQueryCount: 0,
     isPopupOpen: false,
+    lastPopupOpen: null,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -238,6 +239,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     popup: popup ? true : false,
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                 };
+                if (action.result_order.indexOf('C') > -1) {
+                    action.Ctype = CliqzUtils.getClusteringDomain(results[0].val)
+                }
+                // keep a track of if the popup was open for last result
+                CliqzAutocomplete.lastPopupOpen = popup
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
