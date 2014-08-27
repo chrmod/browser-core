@@ -556,7 +556,7 @@ function trackArrowNavigation(el){
         current_position: el ? el.getAttribute('idx') : -1,
     };
     if(el){
-        action.position_type = CliqzUtils.encodeResultiType(el.getAttribute('type'));
+        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
         action.search = CliqzUtils.isSearch(el.getAttribute('url'));
     }
     CliqzUtils.track(action);
