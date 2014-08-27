@@ -238,6 +238,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     popup: popup ? true : false,
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                 };
+                if (action.result_order.indexOf('C') > -1) {
+                    action.Ctype = CliqzUtils.getClusteringDomain(results[0].val)
+                }
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
