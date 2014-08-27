@@ -37,6 +37,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSuggestions: null,
     afterQueryCount: 0,
     isPopupOpen: false,
+    lastPopupOpen: null,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -241,6 +242,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (action.result_order.indexOf('C') > -1) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val)
                 }
+                // keep a track of if the popup was open for last result
+                CliqzAutocomplete.lastPopupOpen = popup
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
