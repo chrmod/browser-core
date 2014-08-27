@@ -77,9 +77,9 @@ var locationAction = function(){
         return this.jsonify(popupBox.cliqzBox.suggestionBox.children, ['val', 'idx']);
     };
     // replace https to http to enable mocking
-    CliqzUtils.LOG="http://0.0.0.0:80/";
-    CliqzUtils.RESULTS_PROVIDER = 'http://0.0.0.0:80/api/v1/results?q=';
-    CliqzUtils.SUGGESTIONS = 'http://0.0.0.0:80/complete/search?q=';
+    CliqzUtils.LOG="http://192.168.33.22:80/";
+    CliqzUtils.RESULTS_PROVIDER = 'http://192.168.33.22:80/api/v1/results?q=';
+    CliqzUtils.SUGGESTIONS = 'http://192.168.33.22:80/complete/search?q=';
     this.clean();
 
     return this;
