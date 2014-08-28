@@ -4,6 +4,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
+        'b': 'bundesliga',
         'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
@@ -267,6 +268,7 @@ function constructImage(data){
 }
 
 function getPartial(type){
+    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';

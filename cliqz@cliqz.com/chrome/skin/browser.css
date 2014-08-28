@@ -850,8 +850,41 @@
     padding-left: 5px;
 }
 
-
 /* end dictionary */
+
+/* bundesliga */
+
+.cliqz-bundesliga-match {
+    display: inline-block;
+    margin-right: 30px;
+}
+
+.cliqz-bundesliga-column {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cliqz-bundesliga-team-logo {
+    width: 28px;
+    padding: 2px 0;
+}
+
+.cliqz-bundesliga-team-name {
+    width: 50px;
+    font-size: 25px;
+}
+
+.cliqz-bundesliga-team-score {
+    font-size: 25px;
+    color: #2187CC;
+}
+
+.cliqz-bundesliga-time {
+    color: grey;
+    font-size: 14px;
+}
+
+/* end bundesliga */
 
 /* custom */
 .cliqz-custom-text {

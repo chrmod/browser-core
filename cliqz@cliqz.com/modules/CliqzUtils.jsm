@@ -290,7 +290,7 @@ var CliqzUtils = {
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
-    else if(type.indexOf('favicon') == 0 || 
+    else if(type.indexOf('favicon') == 0 ||
             type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-suggestions') return 'S';
     // cliqz type = "cliqz-custom sources-XXXXX"

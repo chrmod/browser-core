@@ -19,20 +19,45 @@ var CliqzBundesliga = {
             "ff",
             "",
             null,
-            {results:[
+            {   hide: false,
+                results:[
                 {
-                    home: 'Bayern',
-                    away: 'Dortmund'
+                    home: { name: 'Bayern', score: '0', short: 'FCB'},
+                    away: { name: 'Dortmund', score: '1', short: 'BVB'},
+                    started: true
                  },
                 {
-                    home: 'Koln',
-                    away: "Schalke"
+                    home: { name: 'Koln', score: '5', short: 'KOE'},
+                    away: { name: "Schalke", score: '9', short: 'S04'},
+                    started: true
+                },
+                {
+                    home: { name: 'Koln', score: '5', short: 'KOE'},
+                    away: { name: "Schalke", score: '9', short: 'S04'},
+                    started: false,
+                    time: "16:45"
+                },
+                {
+                    home: { name: 'Bayern', score: '0', short: 'FCB'},
+                    away: { name: 'Dortmund', score: '1', short: 'BVB'},
+                    started: true
+                 },
+                {
+                    home: { name: 'Koln', score: '5', short: 'KOE'},
+                    away: { name: "Schalke", score: '9', short: 'S04'},
+                    started: true
+                },
+                {
+                    home: { name: 'Koln', score: '5', short: 'KOE'},
+                    away: { name: "Schalke", score: '9', short: 'S04'},
+                    started: false,
+                    time: "16:45"
                 }
                 ]}
         );
         callback([result], originalQ)
     },
     isBundesligaSearch: function(q){
-        return true;
+        return /liveticker|bundesliga|ergebnis|fußball|liga|topspiel|spieltag|kellerduell|ergebnisse/i.test(q)
     }
 }

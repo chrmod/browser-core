@@ -12,7 +12,7 @@ var Result = {
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZW: 'cliqz-weather',
-    CLIQZWC:'cliqz-worldcup',
+    CLIQZB: 'cliqz-bundesliga',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
