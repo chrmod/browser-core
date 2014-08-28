@@ -642,7 +642,7 @@ var CliqzUtils = {
                    'facebook.com',
                    'klout.com',
                    'chefkoch.com',
-                   'blid.com',
+                   'bild.com',
                    'basecamp.com',
                    'youtube.com',
                    'twitter.com',
