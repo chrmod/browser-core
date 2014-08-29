@@ -592,6 +592,11 @@ function registerHelpers(){
         return rating * 14;
     });
 
+    Handlebars.registerHelper('unix_time_to_hhmm', function(unix_time) {
+        var time = new Date(unix_time * 1000);
+        return time.toLocaleTimeString().substring(0,5);
+    });
+
     Handlebars.registerHelper('even', function(value, options) {
         if (value%2) {
             return options.fn(this);

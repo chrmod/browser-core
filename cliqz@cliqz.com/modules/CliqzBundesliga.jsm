@@ -11,53 +11,19 @@ var EXPORTED_SYMBOLS = ['CliqzBundesliga'];
 
 var CliqzBundesliga = {
     get: function(q, callback){
-        var originalQ = q;
-        var result = Result.generic(
-            Result.CLIQZB,
-            "",
-            null,
-            "ff",
-            "",
-            null,
-            {   hide: false,
-                results:[
+        var BUNDESLIGA_API =  'http://cliqz-sports-machine-694310630.us-east-1.elb.amazonaws.com/api/v1/results';
+        CliqzUtils.httpHandler('GET', BUNDESLIGA_API, function (res) {
+            var data = JSON.parse(res.response);
+            var result = Result.generic(Result.CLIQZB, "", null, "", "", null,
                 {
-                    home: { name: 'Bayern', score: '0', short: 'FCB'},
-                    away: { name: 'Dortmund', score: '1', short: 'BVB'},
-                    started: true
-                 },
-                {
-                    home: { name: 'Koln', score: '5', short: 'KOE'},
-                    away: { name: "Schalke", score: '9', short: 'S04'},
-                    started: true
-                },
-                {
-                    home: { name: 'Koln', score: '5', short: 'KOE'},
-                    away: { name: "Schalke", score: '9', short: 'S04'},
-                    started: false,
-                    time: "16:45"
-                },
-                {
-                    home: { name: 'Bayern', score: '0', short: 'FCB'},
-                    away: { name: 'Dortmund', score: '1', short: 'BVB'},
-                    started: true
-                 },
-                {
-                    home: { name: 'Koln', score: '5', short: 'KOE'},
-                    away: { name: "Schalke", score: '9', short: 'S04'},
-                    started: true
-                },
-                {
-                    home: { name: 'Koln', score: '5', short: 'KOE'},
-                    away: { name: "Schalke", score: '9', short: 'S04'},
-                    started: false,
-                    time: "16:45"
-                }
-                ]}
-        );
-        callback([result], originalQ)
+                    hide: data.results.length ? false : true,
+                    results: data.results
+                });
+            callback([result], q);
+            CliqzUtils.log(JSON.stringify(data.results), 'BUNDESLIGA');
+        });
     },
     isBundesligaSearch: function(q){
-        return /liveticker|bundesliga|ergebnis|fußball|liga|topspiel|spieltag|kellerduell|ergebnisse/i.test(q)
+        return /liveticker|bundesliga|ergebnis|fu\u00DFball|fussball|liga|topspiel|spieltag|kellerduell|ergebnisse/i.test(q)
     }
 }

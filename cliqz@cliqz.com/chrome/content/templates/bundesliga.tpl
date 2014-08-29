@@ -48,7 +48,7 @@
           <div class='cliqz-bundesliga-column'>
               <div class='cliqz-bundesliga-time'>
                   <span style="font-size: 20px;">•</span>
-                  {{time}}
+                  {{unix_time_to_hhmm kickoff}}
               </div>
           </div>
       {{/if}}
