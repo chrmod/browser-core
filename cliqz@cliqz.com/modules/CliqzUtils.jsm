@@ -641,7 +641,7 @@ var CliqzUtils = {
                    'github.com',
                    'facebook.com',
                    'klout.com',
-                   'chefkoch.com',
+                   'chefkoch.de',
                    'bild.de',
                    'basecamp.com',
                    'youtube.com',
