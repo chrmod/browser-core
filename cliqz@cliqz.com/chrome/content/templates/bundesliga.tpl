@@ -13,10 +13,10 @@
   <div class='cliqz-bundesliga-match'>
       <div class='cliqz-bundesliga-column'>
           <div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{home.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{home.short}}.png" alt="{{home.name}}"/>
           </div>
           <div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{away.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{away.short}}.png" alt="{{away.name}}"/>
           </div>
       </div>
       <div class='cliqz-bundesliga-column'>
@@ -41,7 +41,11 @@
           </div>
           <div class='cliqz-bundesliga-column'>
               <div class='cliqz-bundesliga-time'>
-                  <span style="color: green; font-size: 20px;">•</span>
+                  {{#if finished}}
+                    <span style="color: red; font-size: 20px;">•</span>
+                  {{else}}
+                    <span style="color: green; font-size: 20px;">•</span>
+                  {{/if}}
               </div>
           </div>
       {{else}}
