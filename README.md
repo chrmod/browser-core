@@ -74,6 +74,7 @@ Glossary
     c - census
     n - news
     w - weather
+    b - bundesliga
     d - cache
     e - english
     f - french

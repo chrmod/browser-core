@@ -4,6 +4,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
+        'b': 'bundesliga',
         'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
@@ -267,6 +268,7 @@ function constructImage(data){
 }
 
 function getPartial(type){
+    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
@@ -597,6 +599,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('shopping_stars_width', function(rating) {
         return rating * 14;
+    });
+
+    Handlebars.registerHelper('unix_time_to_hhmm', function(unix_time) {
+        var time = new Date(unix_time * 1000);
+        return time.toLocaleTimeString().substring(0,5);
     });
 
     Handlebars.registerHelper('even', function(value, options) {
