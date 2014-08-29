@@ -271,7 +271,8 @@ Results - results shown in the dropdown
     "action": "results",
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
-    "ts": <UNIX_TIMESTAMP>
+    "ts": <UNIX_TIMESTAMP>,
+    "popup": true/false // if the result really got the chance to be displayed for the user
 }
 ```
 
@@ -413,7 +414,7 @@ Addon disable
 
 ### Performance
 Result compare
-```
+``` bash
 {
 	"action": "result_compare",
     "session": "<RANDOM_ID>",
@@ -424,5 +425,6 @@ Result compare
     "same_result": true, // found an ignored cliqz result,
     "result_position": 0, // null if same_result == false
     "result_type": "<ENCODED_RESULT_TYPE>" // null if same_result == false
+    "popup": true/fasle // if our result had a chance to be displayed
 }
 ```

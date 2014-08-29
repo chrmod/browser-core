@@ -354,10 +354,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
                     results = [Result.generic('cliqz-empty', '')];
                 }
-                CliqzUtils.log('Results for ' + this.searchString + ' : ' + results.length
-                  + ' (results:' + (this.cliqzResults || []).length
-                  + ', suggestions: ' + (this.cliqzSuggestions || []).length
-                  + ')' );
 
                 return results;
             },
