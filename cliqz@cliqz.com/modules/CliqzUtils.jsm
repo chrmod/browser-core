@@ -20,6 +20,7 @@ var VERTICAL_ENCODINGS = {
     'census':'c',
     'news':'n',
     'weather':'w',
+    'bundesliga':'b',
     'cache':'d',
     'english':'e',
     'french':'f',
@@ -286,6 +287,7 @@ var CliqzUtils = {
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
+    else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);

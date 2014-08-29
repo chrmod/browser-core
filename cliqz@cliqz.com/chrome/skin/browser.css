@@ -854,6 +854,10 @@
 
 /* bundesliga */
 
+.cliqz-bundesliga-logo {
+    height: 70px;
+}
+
 .cliqz-bundesliga-match {
     display: inline-block;
     margin-right: 30px;
@@ -865,8 +869,10 @@
 }
 
 .cliqz-bundesliga-team-logo {
-    width: 28px;
+    height: 32px;
     padding: 2px 0;
+    display:block;
+    margin: auto;
 }
 
 .cliqz-bundesliga-team-name {

@@ -54,4 +54,7 @@
       {{/if}}
   </div>
   {{/each}}
+  <div class='cliqz-bundesliga-match' style="float:right;">
+      <img class='cliqz-bundesliga-logo' src="chrome://cliqzres/content/skin/bundesliga/bundesliga.png" />
+  </div>
 </div>
