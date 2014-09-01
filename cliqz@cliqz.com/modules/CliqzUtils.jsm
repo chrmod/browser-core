@@ -272,8 +272,7 @@ var CliqzUtils = {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + 
-                                                CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
@@ -283,13 +282,6 @@ var CliqzUtils = {
     CliqzUtils.httpGet(WORLD_CUP_API, function(res){
       callback && callback(res, q);
     });
-  },
-  encodeCountry: function() {
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')){
-      return "&country=" + CliqzUtils.getPref('forceCountry')
-    } else {
-      return ""
-    }
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';

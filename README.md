@@ -58,7 +58,6 @@ And we always know what commit is deployed in production.
     "showDebugLogs": false, // show debug logs in console
     "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
     "dnt": false, // if set to true the extension will not send any tracking signals
-    "forceCountry": "fr", // force mixer to return results as if we are in this country
 ```
 
 # Logging
