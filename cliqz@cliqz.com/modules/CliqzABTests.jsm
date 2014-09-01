@@ -95,6 +95,9 @@ var CliqzABTests = CliqzABTests || {
 
                 CliqzUtils.setPref("abCluster", true);
                 break;
+            case "1005_B":
+                // log clustering site
+                CliqzUtils.setPref("logCluster", true);
             default:
                 rule_executed = false;
         }
@@ -141,6 +144,9 @@ var CliqzABTests = CliqzABTests || {
 
                 CliqzUtils.cliqzPrefs.clearUserPref("abCluster");
                 break;
+            case "1005_B":
+                // remove log clustering
+                CliqzUtils.cliqzPrefs.clearUserPref('logCluster');
             default:
                 rule_executed = false;
         }
