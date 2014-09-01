@@ -273,7 +273,9 @@ Results - results shown in the dropdown
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
-    "popup": true/false // if the result really got the chance to be displayed for the user
+    "instant": true/false, // was this an 'instant' result or full result
+    "popup": true/false, // if the result really got the chance to be displayed for the user
+    "latency": <TIME_MS>, // time in ms from start of search until this result was shown
 }
 ```
 
