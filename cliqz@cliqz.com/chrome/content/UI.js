@@ -329,7 +329,7 @@ function resultClick(ev){
                 clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
             };
             
-            if (action.position_type == 'C') {
+            if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             CliqzUtils.track(action);
@@ -458,7 +458,7 @@ function onEnter(ev, item){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(url);
-        if (action.position_type == 'C') { // if this is a clustering result, we track the clustering domain
+        if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         openUILink(url);
@@ -492,7 +492,7 @@ function onEnter(ev, item){
                 firstUrl = first.getAttribute('url');
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
-            if (action.source == 'C') {  // if this is a clustering result, we track the clustering domain
+            if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
