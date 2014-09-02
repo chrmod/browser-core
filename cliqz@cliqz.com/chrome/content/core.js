@@ -203,7 +203,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     tabChange: function(ev){
         //clean last search to avoid conflicts
-        CliqzAutocomplete.lastSearch = '';
+        CliqzUtils.setLastSearch('');
 
         if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
@@ -230,7 +230,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     lastQuery: function(){
         var val = CLIQZ.Core.urlbar.value.trim(),
-            lastQ = CliqzAutocomplete.lastSearch.trim();
+            lastQ = CliqzUtils.getLastSearch().trim();
 
         if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);
@@ -253,12 +253,11 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarfocus: function() {
         CLIQZ.Core.hideLastQuery();
-        CliqzUtils.cliqzPrefs.setCharPref('query_session', CLIQZ.Core.generateSession());
+        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
         CLIQZ.Core.lastQuery();
-        CliqzUtils.cliqzPrefs.clearUserPref('query_session');
         CLIQZ.Core.urlbarEvent('blur');
     },
     urlbarEvent: function(ev) {
@@ -349,5 +348,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
+    },
+
+    getQuerySession: function() {
+        return _querySession;
     }
 };

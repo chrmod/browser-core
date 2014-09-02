@@ -31,19 +31,20 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
-  HOST:             'https://beta.cliqz.com',
-  SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'http://ec2-54-226-106-92.compute-1.amazonaws.com/api/v1/results?q=',
-  LOG:              'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
-  CLIQZ_URL:        'https://beta.cliqz.com/',
-  UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:     'https://beta.cliqz.com/erste-schritte',
-  INSTAL_URL:       'https://beta.cliqz.com/code-verified',
-  CHANGELOG:        'https://beta.cliqz.com/changelog',
-  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
-  PREF_STRING:      32,
-  PREF_INT:         64,
-  PREF_BOOL:        128,
+  HOST:                 'https://beta.cliqz.com',
+  SUGGESTIONS:          'https://www.google.com/complete/search?client=firefox&q=',
+  RESULTS_PROVIDER:     'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG: 'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/logging?r=',
+  LOG:                  'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
+  CLIQZ_URL:            'https://beta.cliqz.com/',
+  UPDATE_URL:           'chrome://cliqz/content/update.html',
+  TUTORIAL_URL:         'https://beta.cliqz.com/erste-schritte',
+  INSTAL_URL:           'https://beta.cliqz.com/code-verified',
+  CHANGELOG:            'https://beta.cliqz.com/changelog',
+  UNINSTALL:            'https://beta.cliqz.com/deinstall.html',
+  PREF_STRING:          32,
+  PREF_INT:             64,
+  PREF_BOOL:            128,
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
 
@@ -237,10 +238,14 @@ var CliqzUtils = {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() + CliqzLanguage.stateToQueryString(),
-                                function(res){
-                                  callback && callback(res, q);
-                                });
+    CliqzUtils._querySeq++;
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(
+      CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
+        CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() + CliqzUtils.encodeResultOrder(),
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
@@ -267,8 +272,23 @@ var CliqzUtils = {
   encodeCliqzResultType: function(type){
     return CliqzUtils.encodeSources(type.substr(22));
   },
+  _querySession: '',
+  _querySeq: 0,
+  setQuerySession: function(querySession){
+    CliqzUtils.log('set _querySession to ' + querySession, '!!!');
+    CliqzUtils._querySession = querySession;
+    CliqzUtils._querySeq = 0;
+  },
+  resetQuerySession: function(){
+    CliqzUtils.log('reset _querySession', '!!!');
+    CliqzUtils._querySession = '';
+    CliqzUtils._querySeq = 0;
+  },
   encodeQuerySession: function(){
-        return CliqzUtils.cliqzPrefs.prefHasUserValue('query_session') ? '&s=' + CliqzUtils.cliqzPrefs.getCharPref('query_session') : '';
+    return CliqzUtils._querySession.length ? '&s=' + CliqzUtils._querySession : '';
+  },
+  encodeQuerySeq: function(){
+    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeSources: function(sources){
     return sources.split(', ').map(
@@ -328,6 +348,28 @@ var CliqzUtils = {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
+
+  trackResult: function(result) {
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + result +
+      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder() +
+      CliqzUtils.encodeLastSearch() + CliqzUtils.encodeLastAutocomplete());
+    CliqzUtils.setResultOrder('');
+  },
+
+  _resultOrder: '',
+  setResultOrder: function(resultOrder) {
+    CliqzUtils._resultOrder = resultOrder;
+  },
+  encodeResultOrder: function() {
+    return CliqzUtils._resultOrder.length ? '&o=' + CliqzUtils._resultOrder : '';
+  },
+  encodeLastSearch: function() {
+    return CliqzUtils._lastSearch.length ? '&q=' + CliqzUtils._lastSearch : '';
+  },
+  encodeLastAutocomplete: function() {
+    return CliqzUtils._lastAutocomplete.length ? '&a=' + CliqzUtils._lastAutocomplete : '';
+  },
+
   _track_req: null,
   _track_sending: [],
   _track_start: undefined,
@@ -548,5 +590,22 @@ var CliqzUtils = {
 
         send_test()
     }
+  },
+
+  _lastSearch: '',
+  setLastSearch: function(lastSearch) {
+    CliqzUtils._lastSearch = lastSearch;
+  },
+  getLastSearch: function() {
+    return CliqzUtils._lastSearch;
+  },
+
+  _lastAutocomplete: '',
+  setLastAutocomplete: function(lastAutocomplete) {
+    CliqzUtils._lastAutocomplete = lastAutocomplete;
+  },
+  resetLastAutocomplete: function() {
+    CliqzUtils._lastAutocomplete = '';
   }
+
 };

@@ -324,13 +324,14 @@ function resultClick(ev){
                 new_tab: newTab,
                 current_position: el.getAttribute('idx'),
                 query_length: CLIQZ.Core.urlbar.value.length,
-                query_hash : hashCode(CLIQZ.Core.urlbar.value),
                 inner_link: el.className != IC, //link inside the result or the actual result
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 search: CliqzUtils.isSearch(url)
             };
 
             CliqzUtils.track(action);
+
+            CliqzUtils.trackResult(el.getAttribute('idx'));
 
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
@@ -458,9 +459,9 @@ function onEnter(ev, item){
     if(popupOpen && index != -1){
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(item.getAttribute('url'));
-        action.query_hash = hashCode(inputValue);
         openUILink(item.getAttribute('url'));
 
+        CliqzUtils.trackResult(index);
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
@@ -499,6 +500,7 @@ function onEnter(ev, item){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
         }
+        CliqzUtils.trackResult(index);
         CliqzUtils.track(action);
 
         //CLIQZ.Core.popup.closePopup();

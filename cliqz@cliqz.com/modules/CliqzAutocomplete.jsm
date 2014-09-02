@@ -29,7 +29,6 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 1000,
-    lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
     init: function(){
@@ -101,6 +100,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             addResults: function(results){
                 this._results = this._results.concat(results);
                 CliqzAutocomplete.lastResult = this;
+                CliqzUtils.setResultOrder(CliqzAutocomplete.getResultsOrder(this._results));
             }
         };
     },
@@ -167,6 +167,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
                         this.pushResults(result.searchString);
+                        CliqzUtils.setLastAutocomplete(candidate_url);
+                    }
+                    else
+                    {
+                        CliqzUtils.resetLastAutocomplete();
                     }
                 }
             },
@@ -297,8 +302,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzUtils.log('search: ' + searchString);
-
-                CliqzAutocomplete.lastSearch = searchString;
+                CliqzUtils.setLastSearch(searchString);
                 CliqzAutocomplete.lastResult = null;
                 CliqzAutocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;
