@@ -234,7 +234,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
             },
-            sendResultsSignal: function(results, instant, popup, latency) {
+            sendResultsSignal: function(results, instant, popup, latency_backend, latency_mixed, latency_all) {
                 var action = {
                     type: 'activity',
                     action: 'results',
@@ -242,7 +242,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     instant: instant ? true : false,
                     popup: popup ? true : false,
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
-                    latency: latency,
+                    latency_backend: latency_backend,
+                    latency_mixed: latency_mixed,
+                    latency_all: latency_all,
                 };
                 if (action.result_order.indexOf('C') > -1) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val)
@@ -264,7 +266,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
-                    var latency = now - this.startTime;
+                    var latency_backend = now - this.startTime;
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
                         this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
@@ -274,8 +276,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
 
+                        var latency_mixed = (new Date()).getTime() - this.startTime;
+
                         this.listener.onSearchResult(this, this.mixedResults);
-                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, latency);
+
+                        var latency_all = (new Date()).getTime() - this.startTime;
+
+                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, 
+                                               latency_backend, latency_mixed, latency_all);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -288,13 +296,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzWeather= null;
                         return;
                     } else {
+                        var latency_mixed = (new Date()).getTime() - this.startTime;
+
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
                         this.resultsTimer = CliqzUtils.setTimeout(this.pushResults, timeout, this.searchString);
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
-                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen, latency);
+                        var latency_all = (new Date()).getTime() - this.startTime;
+
+                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen, 
+                                               latency_backend, latency_mixed, latency_all);
 
                     }
                 }

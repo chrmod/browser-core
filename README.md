@@ -275,7 +275,9 @@ Results - results shown in the dropdown
     "ts": <UNIX_TIMESTAMP>,
     "instant": true/false, // was this an 'instant' result or full result
     "popup": true/false, // if the result really got the chance to be displayed for the user
-    "latency": <TIME_MS>, // time in ms from start of search until this result was shown
+    "latency_backend": <TIME_MS>, // time in ms from start of search until the backend returns
+    "latency_mixer": <TIME_MS>, // time in ms from start of search until the results are mixed
+    "latency_all": <TIME_MS>, // time in ms from start of search until this result was shown
 }
 ```
 
