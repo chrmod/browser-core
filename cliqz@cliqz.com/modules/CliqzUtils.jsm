@@ -21,9 +21,6 @@ var VERTICAL_ENCODINGS = {
     'news':'n',
     'weather':'w',
     'bundesliga':'b',
-    'cache':'d',
-    'english':'e',
-    'french':'f',
     'video':'v',
     'hq':'h',
     'shopping':'s',
@@ -319,7 +316,10 @@ var CliqzUtils = {
   encodeSources: function(sources){
     return sources.split(', ').map(
       function(s){
-        return VERTICAL_ENCODINGS[s] || s;
+        if(s.indexOf('cache') == 0) // to catch 'cache-*' for specific countries
+          return 'd'
+        else
+          return VERTICAL_ENCODINGS[s] || s;
       }).join('');
   },
   combineSources: function(internal, cliqz){

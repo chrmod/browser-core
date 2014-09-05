@@ -234,7 +234,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
             },
-            sendResultsSignal: function(results, instant, popup, latency_backend, latency_mixed, latency_all) {
+            sendResultsSignal: function(results, instant, popup, latency_backend, latency_mixed, latency_all, country) {
                 var action = {
                     type: 'activity',
                     action: 'results',
@@ -246,11 +246,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_mixed: latency_mixed,
                     latency_all: latency_all,
                 };
+                if(country)
+                    action.country = country;
+
                 if (action.result_order.indexOf('C') > -1 && Cliqz.getPref('logCluster', fasle)) {
-                    action.Ctype = CliqzUtils.getClusteringDomain(results[0].val)
+                    action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
                 }
                 // keep a track of if the popup was open for last result
-                CliqzAutocomplete.lastPopupOpen = popup
+                CliqzAutocomplete.lastPopupOpen = popup;
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
@@ -282,8 +285,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         var latency_all = (new Date()).getTime() - this.startTime;
 
+                        if(this.cliqzResults)
+                            var country = this.cliqzCountry;
+
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, 
-                                               latency_backend, latency_mixed, latency_all);
+                                               latency_backend, latency_mixed, latency_all, country);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -316,6 +322,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var results = [];
+                    var country = "";
 
                     if(this.startTime)
                         CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
@@ -323,8 +330,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
                         results = json.result;
+                        country = json.country;
                     }
                     this.cliqzResults = results;
+                    this.cliqzCountry = country;
                 }
                 this.pushResults(q);
             },
@@ -407,6 +416,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 searchString = this.analyzeQuery(searchString);
 
                 this.cliqzResults = null;
+                this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
@@ -455,6 +465,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 } else {
                     this.cliqzResults = [];
+                    this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzWeather = [];
