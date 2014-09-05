@@ -6,7 +6,7 @@
 
 var {assert} = require('lib/assertions');
 var WAIT_TIME_FOR_KEY_PRESS = 700,
-    WAIT_TIME_FOR_MULTIPLE_KEY_PRESSES = 200;
+    WAIT_TIME_FOR_MULTIPLE_KEY_PRESSES = 2000;
 
 var setupModule = function (module) {
     module.controller = mozmill.getBrowserController();
@@ -59,7 +59,7 @@ var locationAction = function(){
     };
     this.results = function(){
         //wait for initialization
-        while(!popupBox.cliqzBox)controller.sleep(100);
+        if(!popupBox.cliqzBox)controller.sleep(2000);
         return this.jsonify(popupBox.cliqzBox.resultsBox.children, ['url', 'type', 'idx']);
     };
     this.jsonify = function(results, fields){
