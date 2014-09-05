@@ -30,7 +30,7 @@ var CliqzLanguage = CliqzLanguage || {
             redirect: redirect,
             action: actionName,
             query_made: CliqzAutocomplete.afterQueryCount,
-            popup: CliqzAutocomplete.isPopupOpen,
+            popup: CliqzAutocomplete.lastPopupOpen,
             same_result: same_result,
             result_type: result_type,
             result_position: result_position

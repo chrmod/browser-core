@@ -20,9 +20,7 @@ var VERTICAL_ENCODINGS = {
     'census':'c',
     'news':'n',
     'weather':'w',
-    'cache':'d',
-    'english':'e',
-    'french':'f',
+    'bundesliga':'b',
     'video':'v',
     'hq':'h',
     'shopping':'s',
@@ -271,7 +269,8 @@ var CliqzUtils = {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzLanguage.stateToQueryString(),
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + 
+                                                CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
@@ -282,15 +281,23 @@ var CliqzUtils = {
       callback && callback(res, q);
     });
   },
+  encodeCountry: function() {
+    if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')){
+      return "&country=" + CliqzUtils.getPref('forceCountry')
+    } else {
+      return ""
+    }
+  },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-weather') return 'w';
+    else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
-    else if(type.indexOf('favicon') == 0 || 
+    else if(type.indexOf('favicon') == 0 ||
             type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-suggestions') return 'S';
     // cliqz type = "cliqz-custom sources-XXXXX"
@@ -309,7 +316,10 @@ var CliqzUtils = {
   encodeSources: function(sources){
     return sources.split(', ').map(
       function(s){
-        return VERTICAL_ENCODINGS[s] || s;
+        if(s.indexOf('cache') == 0) // to catch 'cache-*' for specific countries
+          return 'd'
+        else
+          return VERTICAL_ENCODINGS[s] || s;
       }).join('');
   },
   combineSources: function(internal, cliqz){
@@ -633,6 +643,22 @@ var CliqzUtils = {
         }
 
         send_test()
+    }
+  },
+  getClusteringDomain: function(url) {
+    var domains = ['ebay.de',
+                   'amazon.de',
+                   'github.com',
+                   'facebook.com',
+                   'klout.com',
+                   'chefkoch.de',
+                   'bild.de',
+                   'basecamp.com',
+                   'youtube.com',
+                   'twitter.com',
+                   'wikipedia.com',]
+    for (var index = 0; index < domains.length; index++) {
+      if (url.indexOf(domains[index]) > -1) return index;
     }
   }
 };

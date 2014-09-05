@@ -4,6 +4,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
+        'b': 'bundesliga',
         'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
@@ -267,6 +268,7 @@ function constructImage(data){
 }
 
 function getPartial(type){
+    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
@@ -326,7 +328,10 @@ function resultClick(ev){
                 search: CliqzUtils.isSearch(url),
                 clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
             };
-
+            
+            if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
+                action.Ctype = CliqzUtils.getClusteringDomain(url)
+            }
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
@@ -453,7 +458,11 @@ function onEnter(ev, item){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
         action.search = CliqzUtils.isSearch(url);
+        if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
+            action.Ctype = CliqzUtils.getClusteringDomain(url)
+        }
         openUILink(url);
+
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -483,7 +492,9 @@ function onEnter(ev, item){
                 firstUrl = first.getAttribute('url');
 
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
-
+            if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
+                action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
+            }
             if(firstUrl.indexOf(inputValue) != -1){
                 CLIQZ.Core.urlbar.value = firstUrl;
             }
@@ -588,6 +599,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('shopping_stars_width', function(rating) {
         return rating * 14;
+    });
+
+    Handlebars.registerHelper('unix_time_to_hhmm', function(unix_time) {
+        var time = new Date(unix_time * 1000);
+        return time.toLocaleTimeString().substring(0,5);
     });
 
     Handlebars.registerHelper('even', function(value, options) {

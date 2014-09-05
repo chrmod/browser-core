@@ -58,6 +58,7 @@ And we always know what commit is deployed in production.
     "showDebugLogs": false, // show debug logs in console
     "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
     "dnt": false, // if set to true the extension will not send any tracking signals
+    "forceCountry": "fr", // force mixer to return results as if we are in this country
 ```
 
 # Logging
@@ -74,6 +75,7 @@ Glossary
     c - census
     n - news
     w - weather
+    b - bundesliga
     d - cache
     e - english
     f - french
@@ -271,7 +273,12 @@ Results - results shown in the dropdown
     "action": "results",
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
-    "ts": <UNIX_TIMESTAMP>
+    "ts": <UNIX_TIMESTAMP>,
+    "instant": true/false, // was this an 'instant' result or full result
+    "popup": true/false, // if the result really got the chance to be displayed for the user
+    "latency_backend": <TIME_MS>, // time in ms from start of search until the backend returns
+    "latency_mixer": <TIME_MS>, // time in ms from start of search until the results are mixed
+    "latency_all": <TIME_MS>, // time in ms from start of search until this result was shown
 }
 ```
 
@@ -413,7 +420,7 @@ Addon disable
 
 ### Performance
 Result compare
-```
+``` bash
 {
 	"action": "result_compare",
     "session": "<RANDOM_ID>",
@@ -424,5 +431,6 @@ Result compare
     "same_result": true, // found an ignored cliqz result,
     "result_position": 0, // null if same_result == false
     "result_type": "<ENCODED_RESULT_TYPE>" // null if same_result == false
+    "popup": true/fasle // if our result had a chance to be displayed
 }
 ```

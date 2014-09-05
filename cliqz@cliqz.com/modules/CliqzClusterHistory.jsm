@@ -962,11 +962,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
 
-        if(!CliqzUtils.getPref("abCluster", false)){
-            CliqzUtils.log('Disabled', CliqzClusterHistory.LOG_KEY);
-            return [false, historyTrans];
-        }
-
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
@@ -992,7 +987,12 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // has templates? if not quit and do the normal history, if so, then convert the maxDomain
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
-        if (templates[maxDomain]==null && q.length > 6) {
+        if (templates[maxDomain] == null && q.length <= 6 && q.length > 1) {
+            CliqzUtils.log('test', 'series')
+            var seriesClusteredHistory2 = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
+        }
+
+        else if (templates[maxDomain]==null && q.length > 6) {
             // in principle there is not template, but we must check for the possibility that falls to a
             // misc category,
 

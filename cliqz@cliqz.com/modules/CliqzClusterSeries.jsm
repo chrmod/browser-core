@@ -22,6 +22,14 @@ var series_regexs = [
 ];
 var title_regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
 
+var series_regexs_general = [
+    /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
+    /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
+    /(.*s[ae][ai]?[sz]on[-\/_])(\d{1,2})(.*?\/)(\d{1,2})(.*)/,
+    /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
+    /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/
+];
+
 /************************** Title / series guessing ***************************/
 
 /**
@@ -381,8 +389,8 @@ var CliqzClusterSeries = {
     //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
     var domains = {};
-
-    for(let i=0; i<urls.length;i++) {
+    var domains2 = {};
+    for(let i=0; i<urls.length; i++) {
         var url = urls[i]['value'];
         var title = urls[i]['comment'];
 
@@ -406,10 +414,22 @@ var CliqzClusterSeries = {
                 break;
             }
         }
+
+        // check with more general regex
+        for (let r = 0; r < series_regexs_general.length; r++) {
+            var d = path.match(series_regexs_general[r]);
+            if (d && title_regex.test(path)) {
+                if (domains2[domain]==null) domains2[domain] = [];
+                domains2[domain].push([title, url, 'type' + r, parseInt(d[1]), parseInt(d[2]), d]);
+                break;
+            }
+        }
     }
 
     var maxDomain = null;
+    var maxDomain2 = null;
     var maxDomainLen = -1;
+    var maxDomainLen2 = -1;
     Object.keys(domains).forEach(function (key) {
         if (domains[key].length > maxDomainLen) {
             maxDomainLen=domains[key].length;
@@ -417,7 +437,35 @@ var CliqzClusterSeries = {
         }
     });
 
+    Object.keys(domains2).forEach(function (key) {
+        if (domains2[key].length > maxDomainLen2) {
+            maxDomainLen2=domains2[key].length;
+            maxDomain2=key;
+        }
+    });
+   
+
     log('DOMAINS: ' + JSON.stringify(domains));
+    if (maxDomain2!=null && maxDomainLen2>4) {
+        action = {
+            type: 'performance',
+            action: 'potential_tvshow',
+            regex: 'general',
+            query_length: q.length
+        };
+        CliqzUtils.track(action);
+    }
+
+    if (maxDomain != null && maxDomainLen > 4 && q.length < 6) {
+        action = {
+            type: 'performance',
+            action: 'potential_tvshow',
+            regex: 'strict',
+            query_length: q.length
+        };
+        CliqzUtils.track(action);
+    }
+
     if (maxDomain!=null && maxDomainLen>4) {
         // at least 5
         log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));
