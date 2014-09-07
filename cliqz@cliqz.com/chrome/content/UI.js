@@ -4,6 +4,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
+        'i': 'images',
         'b': 'bundesliga',
         'w': 'weather' ,
         's': 'shopping',
