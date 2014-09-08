@@ -97,6 +97,10 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.whoAmI(true); //startup
         CliqzUtils.log('Initialized', 'CORE');
+
+        //try to 'heat up' the connection
+        CliqzUtils.getCliqzResults(' ');
+        CliqzUtils.getSuggestions(' ');
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;

@@ -206,6 +206,7 @@ Result click (mouse)
     "position_type": "<ENCODED_RESULT_TYPE>",
     "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
+    "has_image": true/false // result has an image (nobody image from xing is considered no image)
 }
 ```
 
@@ -235,6 +236,7 @@ Result enter (keyboard)
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
+    "has_image": true/false // result has an image (nobody image from xing is considered no image)
 }
 ```
 2.

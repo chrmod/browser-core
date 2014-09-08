@@ -326,6 +326,7 @@ function resultClick(ev){
                 position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
                 extra: el.getAttribute('extra'), //extra data about the link
                 search: CliqzUtils.isSearch(url),
+                has_image: el.getAttribute('hasimage') || false,
                 clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
             };
             
@@ -451,6 +452,7 @@ function onEnter(ev, item){
             current_position: index,
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
+            has_image: item.getAttribute('hasimage') || false,
             clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
         };
 
@@ -674,6 +676,14 @@ function registerHelpers(){
     Handlebars.registerHelper('video_provider', function(host) {
         if(host.indexOf('youtube') === 0)
           return "YouTube";
+    });
+
+    Handlebars.registerHelper('hasimage', function(image) {
+        if(image && image.src &&
+            !(image.src.indexOf('xing') !== -1 && image.src.indexOf('nobody_') !==-1))
+            return true;
+        else
+            return false
     });
 
     Handlebars.registerHelper('video_views', function(views) {
