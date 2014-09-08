@@ -21,7 +21,8 @@ CliqzUtils.init();
 var Mixer = {
 	mix: function(q, history, cliqz, mixed, weatherResults, bundesligaResults, maxResults){
 		var results = [],
-            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q),
+            showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
@@ -61,7 +62,9 @@ var Mixer = {
                 // combine sources
                 var tempCliqzResult = Result.cliqz(cliqz[i]);
                 st = CliqzUtils.combineSources(st, tempCliqzResult.style);
-                co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+
+                if(showQueryDebug)
+                    co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
 
                 // create new instant entry to replace old one
                 var newInstant = Result.generic(st, va, im, co, la, da);
@@ -112,8 +115,6 @@ var Mixer = {
         }
 
         /// 2) Prepare final result list from buckets
-
-        var showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug')
 
         // the top history with matching domain will be show already via instant-serve
         // all bucketHistoryCache
