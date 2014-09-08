@@ -660,5 +660,11 @@ var CliqzUtils = {
     for (var index = 0; index < domains.length; index++) {
       if (url.indexOf(domains[index]) > -1) return index;
     }
+  },
+  isUrlBarEmpty: function() {
+    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+             .getService(Components.interfaces.nsIWindowMediator);
+    var urlbar = wm.getMostRecentWindow("navigator:browser").document.getElementById('urlbar');
+    return urlbar.value.length == 0;
   }
 };

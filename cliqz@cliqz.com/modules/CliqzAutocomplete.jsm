@@ -266,6 +266,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
+                // special case: user has deleted text from urlbar
+                if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
+                    return;
+
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
