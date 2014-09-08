@@ -249,7 +249,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(country)
                     action.country = country;
 
-                if (action.result_order.indexOf('C') > -1 && Cliqz.getPref('logCluster', fasle)) {
+                if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', fasle)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
                 }
                 // keep a track of if the popup was open for last result
