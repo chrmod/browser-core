@@ -130,6 +130,8 @@ Sent at startup and every 1 hour afterwards
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
     "ts": <UNIX_TIMESTAMP>,
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
+    "height": 1280, // height of current document (i.e., content frame)
+    "width": 722, // width of current document
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point

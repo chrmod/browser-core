@@ -661,5 +661,9 @@ var CliqzUtils = {
     for (var index = 0; index < domains.length; index++) {
       if (url.indexOf(domains[index]) > -1) return index;
     }
+  },
+  isUrlBarEmpty: function() {
+    var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+    return urlbar.value.length == 0;
   }
 };

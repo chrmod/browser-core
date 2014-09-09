@@ -249,7 +249,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(country)
                     action.country = country;
 
-                if (action.result_order.indexOf('C') > -1 && Cliqz.getPref('logCluster', fasle)) {
+                if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', fasle)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
                 }
                 // keep a track of if the popup was open for last result
@@ -266,6 +266,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
+                // special case: user has deleted text from urlbar
+                if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
+                    return;
+
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
