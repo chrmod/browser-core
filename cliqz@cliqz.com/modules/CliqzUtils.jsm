@@ -405,9 +405,9 @@ var CliqzUtils = {
       if(response.new_session){
         CliqzUtils.setPref('session', response.new_session);
       }
+      CliqzUtils._track_sending = [];
+      CliqzUtils._track_req = null;
     } catch(e){}
-    CliqzUtils._track_sending = [];
-    CliqzUtils._track_req = null;
   },
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
@@ -425,30 +425,36 @@ var CliqzUtils = {
     CliqzUtils._track_sending = [];
     CliqzUtils._track_req = null;
   },
-  timers: [],
-  setTimer: function(func, timeout, type, param) {
+  // references to all the timers to avoid garbage collection before firing
+  // automatically removed when fired
+  _timers: [],
+  _setTimer: function(func, timeout, type, param) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
-    CliqzUtils.timers.push(timer);
+    CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
         func(param);
+        CliqzUtils._removeTimerRef(timer);
       }
     };
     timer.initWithCallback(event, timeout, type);
     return timer;
   },
+  _removeTimerRef: function(timer){
+    var i = CliqzUtils._timers.indexOf(timer);
+    if (i >= 0) {
+      CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
+    }
+  },
   setTimeout: function(func, timeout, param) {
-    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
     }
     timer.cancel();
-    var i = CliqzUtils.timers.indexOf(timer);
-    if (i >= 0) {
-      CliqzUtils.timers.splice(CliqzUtils.timers.indexOf(timer), 1);
-    }
+    CliqzUtils._removeTimerRef(timer);
   },
   clearInterval: this.clearTimeout,
   loadFile: function (fileName, callback) {
@@ -584,16 +590,9 @@ var CliqzUtils = {
     return util.outerWindowID;
   },
   performance: {
-    timers:null,
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
             reqtimes = {}, statistics = [];
-
-        CliqzUtils.performance.timers = [];
-        function setTO(){
-          // keep reference to all timers to avoid garbage collection
-          CliqzUtils.performance.timers.push(CliqzUtils.setTimeout.apply(this, arguments));
-        }
 
         function send_test(){
           var start = 1000;
@@ -602,7 +601,7 @@ var CliqzUtils = {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              setTO(function(t){
+              CliqzUtils.setTimeout(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -610,7 +609,7 @@ var CliqzUtils = {
               start += delay || (600 + (Math.random() * 100));
             }
           }
-          setTO(function(){
+          CliqzUtils.setTimeout(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
