@@ -34,7 +34,7 @@ var CliqzUtils = {
   HOST:                 'https://beta.cliqz.com',
   SUGGESTIONS:          'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER:     'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/logging?r=',
+  RESULTS_PROVIDER_LOG: 'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/logging?q=',
   LOG:                  'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
   CLIQZ_URL:            'https://beta.cliqz.com/',
   UPDATE_URL:           'chrome://cliqz/content/update.html',
@@ -349,10 +349,12 @@ var CliqzUtils = {
     }
   },
 
-  trackResult: function(result) {
-    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + result +
-      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder() +
-      CliqzUtils.encodeLastSearch() + CliqzUtils.encodeLastAutocomplete());
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+      '&i=' + resultIndex +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
     CliqzUtils.setResultOrder('');
   },
 
@@ -362,12 +364,6 @@ var CliqzUtils = {
   },
   encodeResultOrder: function() {
     return CliqzUtils._resultOrder.length ? '&o=' + CliqzUtils._resultOrder : '';
-  },
-  encodeLastSearch: function() {
-    return CliqzUtils._lastSearch.length ? '&q=' + CliqzUtils._lastSearch : '';
-  },
-  encodeLastAutocomplete: function() {
-    return CliqzUtils._lastAutocomplete.length ? '&a=' + CliqzUtils._lastAutocomplete : '';
   },
 
   _track_req: null,
@@ -591,21 +587,4 @@ var CliqzUtils = {
         send_test()
     }
   },
-
-  _lastSearch: '',
-  setLastSearch: function(lastSearch) {
-    CliqzUtils._lastSearch = lastSearch;
-  },
-  getLastSearch: function() {
-    return CliqzUtils._lastSearch;
-  },
-
-  _lastAutocomplete: '',
-  setLastAutocomplete: function(lastAutocomplete) {
-    CliqzUtils._lastAutocomplete = lastAutocomplete;
-  },
-  resetLastAutocomplete: function() {
-    CliqzUtils._lastAutocomplete = '';
-  }
-
 };

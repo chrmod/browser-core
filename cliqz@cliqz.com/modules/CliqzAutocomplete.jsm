@@ -100,7 +100,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             addResults: function(results){
                 this._results = this._results.concat(results);
                 CliqzAutocomplete.lastResult = this;
-                CliqzUtils.setResultOrder(CliqzAutocomplete.getResultsOrder(this._results));
+                var order = CliqzAutocomplete.getResultsOrder(this._results);
+                CliqzUtils.setResultOrder(order);
             }
         };
     },
@@ -167,11 +168,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
                         this.pushResults(result.searchString);
-                        CliqzUtils.setLastAutocomplete(candidate_url);
-                    }
-                    else
-                    {
-                        CliqzUtils.resetLastAutocomplete();
                     }
                 }
             },
@@ -203,6 +199,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         //this.listener.onSearchResult(this, this.mixResults());
                         this.mixedResults.addResults(this.mixResults());
+
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         this.sendSuggestionsSignal(this.cliqzSuggestions);
 
@@ -302,7 +299,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzUtils.log('search: ' + searchString);
-                CliqzUtils.setLastSearch(searchString);
+                CliqzAutocomplete.lastSearch = searchString;
                 CliqzAutocomplete.lastResult = null;
                 CliqzAutocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;

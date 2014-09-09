@@ -331,7 +331,15 @@ function resultClick(ev){
 
             CliqzUtils.track(action);
 
-            CliqzUtils.trackResult(el.getAttribute('idx'));
+            var query = CLIQZ.Core.urlbar.value;
+            var queryAutocompleted = null;
+            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            {
+                queryAutocompleted = query;
+                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            }
+            
+            CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'), url);
 
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
@@ -456,12 +464,20 @@ function onEnter(ev, item){
             search: false
         };
 
+    var query = inputValue;
+    var queryAutocompleted = null;
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+    {
+        queryAutocompleted = query;
+        query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
+    
     if(popupOpen && index != -1){
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
-        action.search = CliqzUtils.isSearch(item.getAttribute('url'));
-        openUILink(item.getAttribute('url'));
-
-        CliqzUtils.trackResult(index);
+        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
+        var url = item.getAttribute('url');
+        action.search = CliqzUtils.isSearch(url);
+        openUILink(url);
+        CliqzUtils.trackResult(query, queryAutocompleted, index, CliqzUtils.cleanMozillaActions(url));
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
@@ -489,6 +505,8 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
+            CliqzUtils.trackResult(query, queryAutocompleted, index, CliqzUtils.cleanMozillaActions(firstUrl));
+
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
 
             if(firstUrl.indexOf(inputValue) != -1){
@@ -499,8 +517,9 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
+            var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
-        CliqzUtils.trackResult(index);
         CliqzUtils.track(action);
 
         //CLIQZ.Core.popup.closePopup();

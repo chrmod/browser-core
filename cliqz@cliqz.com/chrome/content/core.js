@@ -203,7 +203,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     tabChange: function(ev){
         //clean last search to avoid conflicts
-        CliqzUtils.setLastSearch('');
+        CliqzAutocomplete.lastSearch = '';
 
         if(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel])
             CLIQZ.Core.showLastQuery(CLIQZ.Core.lastQueryInTab[ev.target.linkedPanel]);
@@ -230,7 +230,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     lastQuery: function(){
         var val = CLIQZ.Core.urlbar.value.trim(),
-            lastQ = CliqzUtils.getLastSearch().trim();
+            lastQ = CliqzAutocomplete.lastSearch.trim();
 
         if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !CLIQZ.Core.isAutocomplete(val, lastQ) )){
             CLIQZ.Core.showLastQuery(lastQ);

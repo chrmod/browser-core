@@ -17,6 +17,7 @@ CliqzUtils.init();
 
 var Mixer = {
 	mix: function(q, history, cliqz, mixed, weatherResults, maxResults){
+
 		var results = [];
 
 		/// 1) put each result into a bucket
