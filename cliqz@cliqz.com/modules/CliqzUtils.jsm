@@ -662,9 +662,7 @@ var CliqzUtils = {
     }
   },
   isUrlBarEmpty: function() {
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-             .getService(Components.interfaces.nsIWindowMediator);
-    var urlbar = wm.getMostRecentWindow("navigator:browser").document.getElementById('urlbar');
+    var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
     return urlbar.value.length == 0;
   }
 };
