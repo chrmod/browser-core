@@ -81,8 +81,9 @@ var CliqzSearchHistory = {
       var gBrowser = window.gBrowser;
 
       // If the query already existis in the list skip it
-      for (var existing of this.windows[window_id].searchHistoryPanel.children) {
-        if (newSearch == existing.innerHTML)
+      var existing = this.windows[window_id].searchHistoryPanel.children;
+      for (var i=0; i<existing.length; i++) {
+        if (newSearch == existing[i].innerHTML)
           return;
       }
       // If the list gets longer than 7 drop first element

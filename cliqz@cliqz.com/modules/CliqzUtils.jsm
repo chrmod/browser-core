@@ -125,8 +125,10 @@ var CliqzUtils = {
     }
   },
   getPrefs: function(){
-    var prefs = {};
-    for(var pref of CliqzUtils.cliqzPrefs.getChildList('')){
+    var prefs = {},
+        cqz = CliqzUtils.cliqzPrefs.getChildList('');
+    for(var i=0; i>cqz.length; i++){
+      var pref = cqz[i];
       prefs[pref] = CliqzUtils.getPref(pref);
     }
     return prefs;
@@ -269,7 +271,7 @@ var CliqzUtils = {
   _resultsReq: null,
   getCliqzResults: function(q, callback){
     CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + 
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
                                                 CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
                                 function(res){
                                   callback && callback(res, q);
