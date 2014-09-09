@@ -329,7 +329,7 @@ function resultClick(ev){
                 has_image: el.getAttribute('hasimage') || false,
                 clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
             };
-            
+
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
@@ -601,11 +601,6 @@ function registerHelpers(){
 
     Handlebars.registerHelper('shopping_stars_width', function(rating) {
         return rating * 14;
-    });
-
-    Handlebars.registerHelper('unix_time_to_hhmm', function(unix_time) {
-        var time = new Date(unix_time * 1000);
-        return time.toLocaleTimeString().substring(0,5);
     });
 
     Handlebars.registerHelper('even', function(value, options) {

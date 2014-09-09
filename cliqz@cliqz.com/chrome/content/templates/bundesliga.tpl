@@ -1,64 +1,104 @@
 <div style='padding:5px 0;
             height: 70px;
             overflow: hidden;
-            {{#if data.hide}}
+            {{#if data.hide_results_1st}}
                 display: none;
             {{/if}}
             '>
-  <div class='cliqz-weather-left-box'>
+<div class='cliqz-weather-left-box'>
       <div class='cliqz-weather-city'>Bundesliga</div>
       <div class='cliqz-weather-status'>aktuell</div>
-  </div>
-  {{#each data.results}}
-  <div class='cliqz-bundesliga-match'>
+</div>
+
+{{#each data.results_1st}}
+<div>
+  <div class='cliqz-bundesliga-match' style='padding: 8px 0; color:grey;'>{{@key}}</div>
+  {{#each this}}
+  <div class='cliqz-bundesliga-match' style='border: 1px solid
+                                             {{#if finished}} red;
+                                             {{else}}
+                                                {{#if started}} green;
+                                                {{else}} #CCC
+                                                {{/if}}
+                                             {{/if}}
+                                             '>
       <div class='cliqz-bundesliga-column'>
-          <div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{home.short}}.png" alt="{{home.name}}"/>
-          </div>
-          <div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{away.short}}.png" alt="{{away.name}}"/>
-          </div>
-      </div>
-      <div class='cliqz-bundesliga-column'>
-          <div class='cliqz-bundesliga-team-name'>
-              {{home.short}}
-          </div>
-          <div style='height: 5px;'></div>
-          <div class='cliqz-bundesliga-team-name'>
-              {{away.short}}
-          </div>
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.home.short}}.png" />
+              <div class='cliqz-bundesliga-team-name'>{{this.home.short}} -</div>
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.away.short}}.png" />
+              <div class='cliqz-bundesliga-team-name'>{{this.away.short}}</div>
       </div>
 
-      {{#if started}}
-          <div class='cliqz-bundesliga-column'>
-              <div class='cliqz-bundesliga-team-score'>
-                  {{home.score}}
-              </div>
-              <div style='height: 5px;'></div>
-              <div class='cliqz-bundesliga-team-score'>
-                  {{away.score}}
-              </div>
-          </div>
-          <div class='cliqz-bundesliga-column'>
-              <div class='cliqz-bundesliga-time'>
-                  {{#if finished}}
-                    <span style="color: red; font-size: 20px;">•</span>
-                  {{else}}
-                    <span style="color: green; font-size: 20px;">•</span>
-                  {{/if}}
-              </div>
-          </div>
-      {{else}}
-          <div class='cliqz-bundesliga-column'>
-              <div class='cliqz-bundesliga-time'>
-                  <span style="font-size: 20px;">•</span>
-                  {{unix_time_to_hhmm kickoff}}
-              </div>
-          </div>
-      {{/if}}
+      <div class='cliqz-bundesliga-column' style='background-color:
+                                                  {{#if finished}} red;
+                                                  {{else}}
+                                                     {{#if started}} green;
+                                                     {{else}} #CCC;
+                                                     {{/if}}
+                                                  {{/if}}
+                                                  padding: 3px 5px;'>
+          <div class='cliqz-bundesliga-team-score'>{{this.home.score}}</div>
+          <div class='cliqz-bundesliga-team-score'>:</div>
+          <div class='cliqz-bundesliga-team-score'>{{this.away.score}}</div>
+      </div>
   </div>
   {{/each}}
-  <div class='cliqz-bundesliga-match' style="float:right;">
-      <img class='cliqz-bundesliga-logo' src="chrome://cliqzres/content/skin/bundesliga/bundesliga.png" />
+</div>
+{{/each}}
+
+</div>
+
+<div style='padding:5px 0;
+            height: 70px;
+            overflow: hidden;
+            {{#if data.hide_results_2nd}}
+                display: none;
+            {{else}}
+              {{#unless data.hide_results_1st}}
+                border-top: 1px solid #CCC;
+              {{/unless}}
+            {{/if}}
+            '>
+<div class='cliqz-weather-left-box'>
+      <div class='cliqz-weather-city'>2. Bundesliga</div>
+      <div class='cliqz-weather-status'>aktuell</div>
+</div>
+
+{{#each data.results_2nd}}
+<div>
+  <div class='cliqz-bundesliga-match' style='color:grey;'>{{@key}}</div>
+  {{#each this}}
+  <div class='cliqz-bundesliga-match' style='margin-top: 5px;
+                                             border: 1px solid
+                                             {{#if finished}} red;
+                                             {{else}}
+                                                {{#if started}} green;
+                                                {{else}} #CCC
+                                                {{/if}}
+                                             {{/if}}
+                                             '>
+      <div class='cliqz-bundesliga-column'>
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.home.short}}.png" />
+              <div class='cliqz-bundesliga-team-name'>{{this.home.short}} -</div>
+              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.away.short}}.png" />
+              <div class='cliqz-bundesliga-team-name'>{{this.away.short}}</div>
+      </div>
+
+      <div class='cliqz-bundesliga-column' style='background-color:
+                                                  {{#if finished}} red;
+                                                  {{else}}
+                                                     {{#if started}} green;
+                                                     {{else}} #CCC;
+                                                     {{/if}}
+                                                  {{/if}}
+                                                  padding: 3px 5px;'>
+          <div class='cliqz-bundesliga-team-score'>{{this.home.score}}</div>
+          <div class='cliqz-bundesliga-team-score'>:</div>
+          <div class='cliqz-bundesliga-team-score'>{{this.away.score}}</div>
+      </div>
   </div>
+  {{/each}}
+</div>
+{{/each}}
+
 </div>
