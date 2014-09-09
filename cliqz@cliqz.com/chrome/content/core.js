@@ -256,6 +256,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     type: 'environment',
                     agent: navigator.userAgent,
                     language: navigator.language,
+                    width: CliqzUtils.getWindow().document.width,
+                    height: CliqzUtils.getWindow().document.height,
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,
