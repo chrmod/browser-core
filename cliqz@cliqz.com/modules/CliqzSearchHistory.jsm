@@ -104,22 +104,22 @@ var CliqzSearchHistory = {
 
     /* */
     lastQuery: function(){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var gBrowser = CliqzUtils.getWindow().gBrowser,
+            win = this.windows[CliqzUtils.getWindowID()];
 
-        var val = this.windows[window_id].urlbar.value.trim(),
-            lastQ = CliqzAutocomplete.lastSearch.trim();
+        if(win && win.urlbar){
+            var val = win.urlbar.value.trim(),
+                lastQ = CliqzAutocomplete.lastSearch.trim();
 
-        if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
-            this.showLastQuery(lastQ);
-            this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
-            this.addToLastSearches(lastQ);
-        } else {
-            // remove last query if the user ended his search session
-            if(CliqzUtils.isUrl(lastQ))
-                delete this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+            if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
+                this.showLastQuery(lastQ);
+                win.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+                this.addToLastSearches(lastQ);
+            } else {
+                // remove last query if the user ended his search session
+                if(CliqzUtils.isUrl(lastQ))
+                    delete win.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+            }
         }
     },
 
