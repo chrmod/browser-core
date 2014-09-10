@@ -353,7 +353,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
                 }
-                // this.pushResults(q);
             },
             // handles weather queries
             cliqzWeatherCallback: function(res, q) {
