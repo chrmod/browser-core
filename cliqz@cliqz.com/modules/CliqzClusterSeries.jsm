@@ -17,17 +17,17 @@ function zfill(number, size) {
 }
 
 var series_regexs = [
-    /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
-    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
+    /[-\/_]s(\d+)[-\/_ ]?e(\d+)(?:[-\/_.]|$)/,
+    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)(?:[-\/_.]|$)/
 ];
 var title_regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
 
 var series_regexs_general = [
-    /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ]episode[-\/_ ])(\d{1,2})(.*)/,
-    /(.*s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})([-\/_ ])(\d{1,2})(.*)/,
-    /(.*s[ae][ai]?[sz]on[-\/_])(\d{1,2})(.*?\/)(\d{1,2})(.*)/,
-    /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
-    /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/
+    /(?:s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(?:[-\/_ ]episode[-\/_ ])(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(?:[-\/_ ])(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s[ae][ai]?[sz]on[-\/_])(\d{1,2})(?:.*?\/)(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s)(\d{1,2})(?:_?ep?)(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:[-_\/])(\d{1,2})(?:x)(\d{1,2})(?:[-\/_.]|$)/
 ];
 
 /************************** Title / series guessing ***************************/
@@ -395,7 +395,7 @@ var CliqzClusterSeries = {
         var title = urls[i]['comment'];
 
         // Avoid long urls, they are expensive to parse and unlikely to be what we want
-        if(url.length > 100)
+        if(url.length > 1024)
             continue;
 
         var urlDetails = CliqzUtils.getDetailsFromUrl(url),
