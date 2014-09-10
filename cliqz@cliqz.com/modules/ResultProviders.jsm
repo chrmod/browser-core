@@ -8,10 +8,11 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.02');
+  'chrome://cliqzmodules/content/Result.jsm');
+
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -104,15 +105,11 @@ var ResultProviders = {
         return Services.search.getEngineByName(engine).getSubmission(q);
     },
     setCurrentSearchEngine: function(engine){
-        var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
-
-        searchPrefs.setCharPref('defaultenginename', engine);
-        searchPrefs.setCharPref('selectedEngine', engine);
+        Services.search.currentEngine = Services.search.getEngineByName(engine);
     },
     // called for each query
     isCustomQuery: function(q){
-        if(CUSTOM[q.trim()]){
+        if(CUSTOM[q.trim()] && CUSTOM[q.trim()].url){
             return {
                 updatedQ  : q,
                 engineName: 'CLIQZ',

@@ -58,6 +58,7 @@ And we always know what commit is deployed in production.
     "showDebugLogs": false, // show debug logs in console
     "popupHeight": 165, // popup (dropdown) height in pixels (requires restart)
     "dnt": false, // if set to true the extension will not send any tracking signals
+    "forceCountry": "fr", // force mixer to return results as if we are in this country
 ```
 
 # Logging
@@ -68,17 +69,22 @@ Glossary
 ``` bash
   "<ENCODED_RESULT_TYPE>"
 
- - T-tab result, B-bookmark, H-history
+ - T-tab result, B-bookmark, H-history, S-series, C-cluster
  - any combination of one or more for vertical results:
     p - people
     c - census
     n - news
     w - weather
+    b - bundesliga
     d - cache
     e - english
     f - french
     v - video
     h - hq
+    k - science
+    q - qaa
+    l - dictionary
+    s - shopping
 - any of the folowing for custom search engine search
     1 - google images
     2 - google maps
@@ -124,6 +130,8 @@ Sent at startup and every 1 hour afterwards
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
     "ts": <UNIX_TIMESTAMP>,
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
+    "height": 1280, // height of current document (i.e., content frame)
+    "width": 722, // width of current document
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point
@@ -198,7 +206,9 @@ Result click (mouse)
     "new_tab": true/false, // is the result open in new tab
     "current_position": "1", // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>",
+    "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
+    "has_image": true/false // result has an image (nobody image from xing is considered no image)
 }
 ```
 
@@ -228,6 +238,7 @@ Result enter (keyboard)
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
+    "has_image": true/false // result has an image (nobody image from xing is considered no image)
 }
 ```
 2.
@@ -266,7 +277,12 @@ Results - results shown in the dropdown
     "action": "results",
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
-    "ts": <UNIX_TIMESTAMP>
+    "ts": <UNIX_TIMESTAMP>,
+    "instant": true/false, // was this an 'instant' result or full result
+    "popup": true/false, // if the result really got the chance to be displayed for the user
+    "latency_backend": <TIME_MS>, // time in ms from start of search until the backend returns
+    "latency_mixer": <TIME_MS>, // time in ms from start of search until the results are mixed
+    "latency_all": <TIME_MS>, // time in ms from start of search until this result was shown
 }
 ```
 
@@ -345,6 +361,37 @@ Dropdown open
 }
 ```
 
+Offboarding page shown
+``` bash
+{
+    "action": "offboarding_shown",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Offboarding tour started
+``` bash
+{
+    "action": "offboarding_tour",
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
+Offboarding page closed
+``` bash
+{
+    "action": "offboarding_closed",
+    "time": <SECONDS> # How long the user looked at the page before closing
+    "session": "<RANDOM_ID>",
+    "type": "activity",
+    "ts": <UNIX_TIMESTAMP>
+}
+```
+
 Dropdown close
 ``` bash
 {
@@ -372,5 +419,22 @@ Addon disable
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
+}
+```
+
+### Performance
+Result compare
+``` bash
+{
+	"action": "result_compare",
+    "session": "<RANDOM_ID>",
+    "type": "performance",
+    "ts": <UNIX_TIMESTAMP>
+    "redirect": true/false, // if a google redirect was captured
+    "query_made": 1, number of google queries made after last cliqz result shown
+    "same_result": true, // found an ignored cliqz result,
+    "result_position": 0, // null if same_result == false
+    "result_type": "<ENCODED_RESULT_TYPE>" // null if same_result == false
+    "popup": true/fasle // if our result had a chance to be displayed
 }
 ```
