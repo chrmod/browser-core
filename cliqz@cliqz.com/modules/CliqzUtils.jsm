@@ -327,7 +327,7 @@ var CliqzUtils = {
     CliqzUtils._querySeq = 0;
   },
   encodeQuerySession: function(){
-    return CliqzUtils._querySession.length ? '&s=' + CliqzUtils._querySession : '';
+    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
   },
   encodeQuerySeq: function(){
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
@@ -413,7 +413,7 @@ var CliqzUtils = {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
-    return CliqzUtils._resultOrder.length ? '&o=' + CliqzUtils._resultOrder : '';
+    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(CliqzUtils._resultOrder) : '';
   },
 
   _track_req: null,
