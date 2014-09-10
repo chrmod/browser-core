@@ -124,12 +124,10 @@ var CliqzSearchHistory = {
     },
 
     hideLastQuery: function(){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var win = this.windows[CliqzUtils.getWindowID()];
 
-        this.windows[window_id].searchHistoryContainer.className = 'hidden';
+        if(win && win.searchHistoryContainer)
+            win.searchHistoryContainer.className = 'hidden';
     },
 
     showLastQuery: function(q){

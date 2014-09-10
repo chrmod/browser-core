@@ -85,8 +85,10 @@ var CliqzUtils = {
       onerror && onerror();
     }
     req.ontimeout = function(){
-      CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
-      onerror && onerror();
+      if(CliqzUtils){ //might happen after disabling the extension
+        CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
+        onerror && onerror();
+      }
     }
 
     if(callback){
