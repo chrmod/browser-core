@@ -446,6 +446,51 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
+            else {
+                // not autocomplete, not custom query
+                // my stuff goes here
+                setTimeout(
+                    function(inputValue) { 
+                        CliqzUtils.log('----------------' + inputValue + '------------------------');
+                        // take first 3 chars
+                        var cliqzQuery = inputValue.substring(0, 3);
+                        CliqzUtils.httpGet("http://suggestions.clyqz.com/api/suggestions?q=" + cliqzQuery, 
+                            function(req) {
+                                var sugs = JSON.parse(req.response); 
+                                CliqzUtils.log("Query: " + cliqzQuery);
+                                CliqzUtils.log("Top 3 suggestions: ");
+                                for (var i = 0; i < 3; i++) {
+                                    CliqzUtils.log(sugs[i].value);
+                                }
+                                reorder(sugs, function(pers) {
+                                    CliqzUtils.log("Top 3 reordered: ");
+                                    for (var i = 0; i < 3; i++) {
+                                        CliqzUtils.log(pers[i]);
+                                    }
+                                });
+
+                            },
+                            function() { CliqzUtils.log("Suggester error!"); });
+
+                        // reorder the given suggestions by their similarity to the corpus
+                        function reorder(sugs, callback) {
+                            var scores = [];
+                            for (var i = 0; i < sugs.length; i++) {
+                                var sc = CliqzHistoryManager.historyModel.similarity(sugs[i].value);
+                                scores.push({score: sc, suggestion: sugs[i].value});
+                            }
+                            // sort in reverse
+                            scores.sort(function(a, b) {return b.score - a.score});
+                            var reordered = [];
+                            for (var i = 0; i < scores.length; i++) {
+                                //CliqzUtils.log(scores[i].suggestion + " " + scores[i].score);
+                                reordered.push(scores[i].suggestion + " " + scores[i].score);
+                            }
+                            callback(reordered);
+                        };
+                    },
+                0, inputValue);
+            }
         }
         CliqzUtils.track(action);
 
