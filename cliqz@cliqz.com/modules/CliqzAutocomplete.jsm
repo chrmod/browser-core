@@ -277,12 +277,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var latency_backend = now - this.startTime;
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) ||
-                        this.historyResults && this.cliqzResults && /* this.cliqzSuggestions && */
+                        this.historyResults && this.cliqzResults &&
                         this.cliqzWeather) {
 
                         this.mixedResults.addResults(this.mixResults());
-                        CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
-                        this.sendSuggestionsSignal(this.cliqzSuggestions);
 
                         var latency_mixed = (new Date()).getTime() - this.startTime;
 
@@ -302,7 +300,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.resultsTimer = null;
                         this.cliqzResults = null;
                         this.cliqzCache = null;
-                        this.cliqzSuggestions = null;
                         this.historyResults = null;
                         this.cliqzWeather= null;
                         return;
@@ -354,8 +351,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         response = JSON.parse(req.response);
                     }
                     this.cliqzSuggestions = response[1];
+                    CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                    this.sendSuggestionsSignal(this.cliqzSuggestions);
                 }
-                this.pushResults(q);
             },
             // handles weather queries
             cliqzWeatherCallback: function(res, q) {
@@ -380,7 +378,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.mixedResults,
-                            //this.cliqzSuggestions,
                             this.cliqzWeather,
                             this.cliqzBundesliga,
                             maxResults
