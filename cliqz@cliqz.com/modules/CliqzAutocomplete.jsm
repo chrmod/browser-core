@@ -149,11 +149,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = result;
 
                 // We wait until we have all history results
-                if (result.searchResult != result.RESULT_SUCCESS) return;
+                if (result.searchResult == result.RESULT_NOMATCH_ONGOING || 
+                    result.searchResult == result.RESULT_SUCCESS_ONGOING) return;
 
                 // Push a history result as fast as we have it (and we don't
                 // have anything else).
-                if( this.mixedResults.matchCount > 0) return;
+                if (this.mixedResults.matchCount > 0) return;
 
                 if (this.startTime)
                     CliqzTimings.add("search_history",
@@ -230,8 +231,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
-                        this.pushResults(result.searchString);
                     }
+                    this.pushResults(result.searchString);
                 }
             },
             sendResultsSignal: function(results, instant, popup, latency_backend, latency_mixed, latency_all, country) {
