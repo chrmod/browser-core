@@ -323,13 +323,7 @@ var CliqzUtils = {
   _querySession: '',
   _querySeq: 0,
   setQuerySession: function(querySession){
-    CliqzUtils.log('set _querySession to ' + querySession, '!!!');
     CliqzUtils._querySession = querySession;
-    CliqzUtils._querySeq = 0;
-  },
-  resetQuerySession: function(){
-    CliqzUtils.log('reset _querySession', '!!!');
-    CliqzUtils._querySession = '';
     CliqzUtils._querySeq = 0;
   },
   encodeQuerySession: function(){
