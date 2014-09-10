@@ -342,7 +342,7 @@ function resultClick(ev){
                 queryAutocompleted = query;
                 query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
             }
-            
+
             CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'), url);
 
             if(newTab) gBrowser.addTab(url);
@@ -352,10 +352,6 @@ function resultClick(ev){
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
-}
-
-function hashCode(s){
-    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
 }
 
 function getResultSelection(){
