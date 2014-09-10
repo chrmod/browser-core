@@ -36,6 +36,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 1000,
+    lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
     afterQueryCount: 0,

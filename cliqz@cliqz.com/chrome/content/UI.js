@@ -462,7 +462,7 @@ function onEnter(ev, item){
             current_position: index,
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
-            has_image: item.getAttribute('hasimage') || false,
+            has_image: item && item.getAttribute('hasimage') || false,
             clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
         };
 
@@ -473,7 +473,7 @@ function onEnter(ev, item){
         queryAutocompleted = query;
         query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
     }
-    
+
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
@@ -486,6 +486,7 @@ function onEnter(ev, item){
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
+
         var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
         if(popupOpen && suggestion){
