@@ -250,7 +250,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(country)
                     action.country = country;
 
-                if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', fasle)) {
+                if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
                 }
                 // keep a track of if the popup was open for last result
@@ -293,7 +293,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         if(this.cliqzResults)
                             var country = this.cliqzCountry;
 
-                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, 
+                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen,
                                                latency_backend, latency_mixed, latency_all, country);
 
                         if(this.startTime)
@@ -317,7 +317,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
                         var latency_all = (new Date()).getTime() - this.startTime;
 
-                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen, 
+                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen,
                                                latency_backend, latency_mixed, latency_all);
 
                     }

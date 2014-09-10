@@ -394,6 +394,10 @@ var CliqzClusterSeries = {
         var url = urls[i]['value'];
         var title = urls[i]['comment'];
 
+        // Avoid long urls, they are expensive to parse and unlikely to be what we want
+        if(url.length > 100)
+            continue;
+
         var urlDetails = CliqzUtils.getDetailsFromUrl(url),
           domain = urlDetails.host,
           path = urlDetails.path;
