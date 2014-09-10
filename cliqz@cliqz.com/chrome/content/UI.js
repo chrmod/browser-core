@@ -452,7 +452,7 @@ function onEnter(ev, item){
             current_position: index,
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
-            has_image: item.getAttribute('hasimage') || false,
+            has_image: item && item.getAttribute('hasimage') || false,
             clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
         };
 
