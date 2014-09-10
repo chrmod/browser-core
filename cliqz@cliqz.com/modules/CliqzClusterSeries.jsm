@@ -17,8 +17,8 @@ function zfill(number, size) {
 }
 
 var series_regexs = [
-    /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
-    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
+    /[-\/_]s(\d+)[-\/_ ]?e(\d+)(?:[-\/_.]|$)/,
+    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)(?:[-\/_.$]|$)/
 ];
 var title_regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
 
