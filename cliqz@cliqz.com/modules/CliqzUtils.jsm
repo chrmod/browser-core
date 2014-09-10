@@ -163,7 +163,7 @@ var CliqzUtils = {
   },
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      CliqzUtils._log.logStringMessage(key + ' : ' + msg);
+      CliqzUtils._log.logStringMessage((new Date()).toISOString() + " " + key + ' : ' + msg);
     }
   },
   getDay: function() {
