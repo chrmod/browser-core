@@ -226,19 +226,17 @@ var CliqzUtils = {
 
     return urlDetails;
   },
-  // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
+  _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
-    var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.\\(\\)~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    if(!pattern.test(input)) {
-      return false;
-    } else {
-      return true;
+    //step 1 remove eventual protocol
+    var protocolPos = input.indexOf('://');
+    if(protocolPos != -1 && protocolPos <= 6){
+      input = input.slice(protocolPos+3)
     }
+    //step2 remove path & everything after
+    input = input.split('/')[0];
+    //step3 run the regex
+    return CliqzUtils._isUrlRegExp.test(input);
   },
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
