@@ -512,7 +512,6 @@ function onEnter(ev, item){
             }
             else {
                 // not autocomplete, not custom query
-                // my stuff goes here
                 setTimeout(
                     function(inputValue) { 
                         // take first 3 chars
