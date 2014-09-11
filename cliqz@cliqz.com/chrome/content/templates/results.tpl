@@ -3,6 +3,7 @@
 		type='{{ type }}'
 		url='{{ url }}'
 		idx='{{ @index }}'
+		hasimage='{{ hasimage image }}'
 		>
 		{{partial vertical}}
 	</div>

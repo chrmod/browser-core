@@ -1,0 +1,98 @@
+{
+    "urlBarLastSearch":{
+        "message":"↵  "
+    },
+    "Sitemap_Summary": {
+        "message":"La mappa del sito di {}"
+    },
+    "Sitemap_Youtube_Popular": {
+        "message":"Popolari su YouTube"
+    },
+    "Sitemap_Youtube_Subscriptions": {
+        "message":"Le mie iscrizioni"
+    },
+    "Sitemap_Youtube_History": {
+        "message":"Cronologia"
+    },
+    "Sitemap_Youtube_WatchLater": {
+        "message":"Guarda più tardi"
+    },
+    "Sitemap_Youtube_Channels": {
+        "message":"Canali"
+    },
+    "Sitemap_Facebook_Newsfeed": {
+        "message":"Notizie"
+    },
+    "Sitemap_Facebook_Messages": {
+        "message":"Messaggi"
+    },
+    "Sitemap_Facebook_Events": {
+        "message":"Eventi"
+    },
+    "Sitemap_Facebook_Help": {
+        "message":"Aiuto"
+    },
+    "Sitemap_Facebook_Pages": {
+        "message":"Pagine"
+    },
+    "Sitemap_Facebook_Groups": {
+        "message":"Gruppi"
+    },
+    "Sitemap_Facebook_Lists": {
+        "message":"Liste"
+    },
+    "Sitemap_Amazon_MyAmazon": {
+        "message":"Il tuo Amazon"
+    },
+    "Sitemap_Amazon_MyAccount": {
+        "message":"Il tuo Account"
+    },
+    "Sitemap_Amazon_Wishlist": {
+        "message":"Lista dei Desideri"
+    },
+    "Sitemap_Amazon_Categories": {
+        "message":"Categorie"
+    },
+    "Sitemap_Amazon_Shops": {
+        "message":"Negozi"
+    },
+    "Sitemap_Ebay_MyEbay": {
+        "message":"Il mio eBay"
+    },
+    "Sitemap_Ebay_Deals": {
+        "message":"Offerte del giorno"
+    },
+    "Sitemap_Ebay_Shops": {
+        "message":"Negozi"
+    },
+    "Sitemap_Chefkoch_Magazin": {
+        "message":"Rivista"
+    },
+    "Sitemap_Chefkoch_Rezepte": {
+        "message":"Ricette"
+    },
+    "Sitemap_Chefkoch_Community": {
+        "message":"Communità"
+    },
+    "Sitemap_Chefkoch_Blog": {
+        "message":"Blog"
+    },
+    "Sitemap_Chefkoch_Articles": {
+        "message":"Articoli"
+    },
+    "Sitemap_Bild_Shop": {
+        "message":"Bild Shop"
+    },
+    "Sitemap_Bild_Community": {
+        "message":"Communità"
+    },
+    "Sitemap_Bild_Login": {
+        "message":"Login"
+    },
+    "Sitemap_Bild_Topics": {
+        "message":"Argomenti"
+    },
+    "Sitemap_Bild_Bundesliga": {
+        "message":"Bundesliga"
+    }
+}

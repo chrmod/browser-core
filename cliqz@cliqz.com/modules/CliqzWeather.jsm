@@ -3,14 +3,13 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
-Cu.import('chrome://cliqzmodules/content/Result.jsm?v=0.5.04');
+Cu.import('chrome://cliqzmodules/content/Result.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
   'chrome://cliqzmodules/content/extern/Promise.jsm');
@@ -101,9 +100,9 @@ function geocodeCallback(res, callback){
         // http://api.openweathermap.org/data/2.5/weather?q=M%C3%BCnchen&lang=de&units=metric&cnt=1&mode=json
         CliqzUtils._weatherReq && CliqzUtils._weatherReq.abort();
         var URL= WEATHER_URL_CURR_DAY
-          + '&lat=' + coord.lat
-          + '&lon=' + coord.lon
-          + '&lang=' + determineUserLang();
+          + '&lat=' + encodeURIComponent(coord.lat)
+          + '&lon=' + encodeURIComponent(coord.lon)
+          + '&lang=' + encodeURIComponent(determineUserLang());
 
         CliqzUtils._weatherReq = CliqzUtils.httpGet(URL, function(res){ allDone(res, null, callback, locName); });
 
@@ -111,9 +110,9 @@ function geocodeCallback(res, callback){
         // http://api.openweathermap.org/data/2.5/weather?q=M%C3%BCnchen&lang=de&units=metric&cnt=1&mode=json
         CliqzUtils._weatherReqNext && CliqzUtils._weatherReqNext.abort();
         URL= WEATHER_URL_3DAYS_FORECAST
-          + '&lat=' + coord.lat
-          + '&lon=' + coord.lon
-          + '&lang=' + determineUserLang();
+          + '&lat=' + encodeURIComponent(coord.lat)
+          + '&lon=' + encodeURIComponent(coord.lon)
+          + '&lang=' + encodeURIComponent(determineUserLang());
 
         //TODO: fix this, using Promises
         CliqzUtils._weatherReqNext = CliqzUtils.httpGet(URL,  function(res){ allDone(null, res, callback, locName); });
@@ -131,7 +130,7 @@ var CliqzWeather = {
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
                         + '&query=' + encodeURIComponent(q)
-                        + '&lang=' + determineUserLang();
+                        + '&lang=' + encodeURIComponent(determineUserLang());
 
         CliqzUtils.httpHandler('GET', GEOLOC_API, function(res){
             geocodeCallback(res, function(today, next, locName){

@@ -5,15 +5,16 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZW: 'cliqz-weather',
-    CLIQZWC:'cliqz-worldcup',
-    CLIQZF1:'cliqz-f1',
+    CLIQZB: 'cliqz-bundesliga',
+    CLIQZCLUSTER: 'cliqz-cluster',
+    CLIQZSERIES: 'cliqz-series',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
     RULES: {
         'video': [

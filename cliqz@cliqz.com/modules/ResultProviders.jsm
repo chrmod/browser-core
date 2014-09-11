@@ -8,10 +8,11 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
-  'chrome://cliqzmodules/content/Result.jsm?v=0.5.04');
+  'chrome://cliqzmodules/content/Result.jsm');
+
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -76,8 +77,10 @@ var ResultProviders = {
         return [q, results];
     },
     getSearchEngines: function(){
-        var engines = {};
-        for(var engine of Services.search.getEngines()){
+        var engines = {},
+            defEngines = Services.search.getEngines();
+        for(var i=0; i<defEngines.length; i++){
+            var engine = defEngines[i];
             if(engine.hidden != true && engine.iconURI){
                 engines[engine.name] = {
                     prefix: ResultProviders.getShortcut(engine.name),
@@ -104,11 +107,7 @@ var ResultProviders = {
         return Services.search.getEngineByName(engine).getSubmission(q);
     },
     setCurrentSearchEngine: function(engine){
-        var searchPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefService).getBranch('browser.search.');
-
-        searchPrefs.setCharPref('defaultenginename', engine);
-        searchPrefs.setCharPref('selectedEngine', engine);
+        Services.search.currentEngine = Services.search.getEngineByName(engine);
     },
     // called for each query
     isCustomQuery: function(q){
