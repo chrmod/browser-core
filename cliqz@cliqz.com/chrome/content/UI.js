@@ -315,20 +315,21 @@ function resultClick(ev){
 
     while (el){
         if(el.getAttribute('url')){
-            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
-            var action = {
-                type: 'activity',
-                action: 'result_click',
-                new_tab: newTab,
-                current_position: getResultPosition(el),
-                query_length: CliqzAutocomplete.lastSearch.length,
-                inner_link: el.className != IC, //link inside the result or the actual result
-                position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
-                extra: el.getAttribute('extra'), //extra data about the link
-                search: CliqzUtils.isSearch(url),
-                has_image: el.getAttribute('hasimage') || false,
-                clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
-            };
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
+                lr = CliqzAutocomplete.lastResult,
+                action = {
+                    type: 'activity',
+                    action: 'result_click',
+                    new_tab: newTab,
+                    current_position: getResultPosition(el),
+                    query_length: CliqzAutocomplete.lastSearch.length,
+                    inner_link: el.className != IC, //link inside the result or the actual result
+                    position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                    extra: el.getAttribute('extra'), //extra data about the link
+                    search: CliqzUtils.isSearch(url),
+                    has_image: el.getAttribute('hasimage') || false,
+                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+                };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -336,7 +337,10 @@ function resultClick(ev){
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
-            else openUILink(url);
+            else {
+                openUILink(url);
+                CLIQZ.Core.popup.hidePopup()
+            }
             break;
         }
         if(el.className == IC) break; //do not go higher than a result
@@ -446,6 +450,7 @@ function onEnter(ev, item){
     var index = item ? item.getAttribute('idx'): -1,
         inputValue = CLIQZ.Core.urlbar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
+        lr = CliqzAutocomplete.lastResult,
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -453,7 +458,7 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
-            clustering_override: CliqzAutocomplete.lastResult && CliqzAutocomplete.lastResult._results[0].override ? true : false
+            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
         };
 
     if(popupOpen && index != -1){
@@ -468,7 +473,7 @@ function onEnter(ev, item){
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
-        var suggestion = $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
+        var suggestion = gCliqzBox && $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
         if(popupOpen && suggestion){
             CLIQZ.Core.urlbar.mInputField.setUserInput(suggestion.getAttribute('val'));
@@ -489,7 +494,7 @@ function onEnter(ev, item){
         }
         else action.position_type = 'inbar_query';
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
-        if(action.autocompleted){
+        if(action.autocompleted && gCliqzBox){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
