@@ -263,7 +263,7 @@ var CliqzUtils = {
     if(locales.length > 0)
       local_param = "&hl=" + encodeURIComponent(locales[0]);
 
-    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
+    CliqzUtils.tryAbort(CliqzUtils._suggestionsReq);
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
       function(res){
         callback && callback(res, q);
@@ -271,8 +271,13 @@ var CliqzUtils = {
     );
   },
   _resultsReq: null,
+  tryAbort: function(req){
+    if(CliqzUtils.getPref('abortConnections', true)){
+      req && req.abort();
+    }
+  },
   getCliqzResults: function(q, callback){
-    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
+    CliqzUtils.tryAbort(CliqzUtils._resultsReq);
     CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
                                                 CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
                                 function(res){

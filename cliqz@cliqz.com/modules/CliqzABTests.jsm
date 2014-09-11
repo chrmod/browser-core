@@ -34,7 +34,7 @@ var CliqzABTests = CliqzABTests || {
                             newABtests[o] = prevABtests[o]
                         }
                     }
-                    
+
                     // find new AB tests to enter
                     for(let n in respABtests) {
                         if(!(prevABtests[n])) {
@@ -98,6 +98,9 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // log clustering site
                 CliqzUtils.setPref("logCluster", true);
+            case "1006_A":
+                // abort http connections if a new one appears
+                CliqzUtils.setPref("abortConnections", false);
             default:
                 rule_executed = false;
         }
@@ -147,6 +150,9 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // remove log clustering
                 CliqzUtils.cliqzPrefs.clearUserPref('logCluster');
+            case "1006_A":
+                // abort http connections if a new one appears
+                CliqzUtils.cliqzPrefs.clearUserPref("abortConnections");
             default:
                 rule_executed = false;
         }

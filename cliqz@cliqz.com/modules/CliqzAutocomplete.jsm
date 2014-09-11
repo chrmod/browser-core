@@ -150,7 +150,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = result;
 
                 // We wait until we have all history results
-                if (result.searchResult == result.RESULT_NOMATCH_ONGOING || 
+                if (result.searchResult == result.RESULT_NOMATCH_ONGOING ||
                     result.searchResult == result.RESULT_SUCCESS_ONGOING) return;
 
                 // Push a history result as fast as we have it (and we don't
@@ -279,13 +279,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
                     // var latency_backend = now - this.startTime;
-                    
+
                     if (!this.historyResults && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT) {
                         CliqzUtils.log('history timeout', 'latency');
                     }
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
-                        this.historyResults && this.cliqzResults && this.cliqzWeather || // all results are ready
-                        this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT) { // 100ms timeout for history
+                        this.historyResults && this.cliqzResults && this.cliqzWeather /*|| // all results are ready
+                        //this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT*/) { // 100ms timeout for history
 
                         this.mixedResults.addResults(this.mixResults());
 
