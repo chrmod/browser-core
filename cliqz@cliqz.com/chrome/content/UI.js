@@ -451,42 +451,63 @@ function onEnter(ev, item){
                 // my stuff goes here
                 setTimeout(
                     function(inputValue) { 
-                        CliqzUtils.log('----------------' + inputValue + '------------------------');
                         // take first 3 chars
                         var cliqzQuery = inputValue.substring(0, 3);
-                        CliqzUtils.httpGet("http://suggestions.clyqz.com/api/suggestions?q=" + cliqzQuery, 
+                        CliqzUtils.httpGet("http://54.90.135.180/api/suggestions?q=" + cliqzQuery, 
                             function(req) {
                                 var sugs = JSON.parse(req.response); 
-                                CliqzUtils.log("Query: " + cliqzQuery);
-                                CliqzUtils.log("Top 3 suggestions: ");
-                                for (var i = 0; i < 3; i++) {
-                                    CliqzUtils.log(sugs[i].value);
-                                }
-                                reorder(sugs, function(pers) {
-                                    CliqzUtils.log("Top 3 reordered: ");
-                                    for (var i = 0; i < 3; i++) {
-                                        CliqzUtils.log(pers[i]);
+                                var s1_pos = -1,
+                                    s2_pos = -1;
+                                for (var i = 0; i < sugs.length; i++) {
+                                    if (sugs[i].value == inputValue) {
+                                        s1_pos = i;
                                     }
-                                });
+                                }
+                                var reordered = reorder(sugs),
+                                    maxScore = 0.0,
+                                    isSame = true;
+                                for (var i = 0; i < reordered.length; i++) {
+                                    if (reordered[i].value == inputValue) {
+                                        s2_pos = i;
+                                    }
+                                    maxScore = Math.max(maxScore, reordered[i].score);
+                                    if (reordered[i].value != sugs[i].value) {
+                                       isSame = false;
+                                    }
+                                }
+                                //CliqzUtils.log("s1 = " + s1_pos);
+                                //CliqzUtils.log("s2 = " + s2_pos);
+                                //CliqzUtils.log("same = " + isSame);
+                                //CliqzUtils.log("max = " + maxScore);
 
+                                var action = {
+                                    type: 'experiments-v1',
+                                    action: {
+                                        s1: s1_pos,
+                                        s2: s2_pos,
+                                        same: isSame,
+                                        max: maxScore
+                                    }
+                                };
+
+                                CliqzUtils.track(action);
                             },
                             function() { CliqzUtils.log("Suggester error!"); });
 
                         // reorder the given suggestions by their similarity to the corpus
-                        function reorder(sugs, callback) {
+                        function reorder(sugs) {
                             var scores = [];
                             for (var i = 0; i < sugs.length; i++) {
                                 var sc = CliqzHistoryManager.historyModel.similarity(sugs[i].value);
-                                scores.push({score: sc, suggestion: sugs[i].value});
+                                scores.push({score: sc, value: sugs[i].value});
                             }
                             // sort in reverse
                             scores.sort(function(a, b) {return b.score - a.score});
                             var reordered = [];
                             for (var i = 0; i < scores.length; i++) {
-                                //CliqzUtils.log(scores[i].suggestion + " " + scores[i].score);
-                                reordered.push(scores[i].suggestion + " " + scores[i].score);
+                                reordered.push(scores[i]);
                             }
-                            callback(reordered);
+                            return reordered;
                         };
                     },
                 0, inputValue);
