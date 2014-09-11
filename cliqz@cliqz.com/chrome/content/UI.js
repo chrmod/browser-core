@@ -337,7 +337,10 @@ function resultClick(ev){
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
-            else openUILink(url);
+            else {
+                openUILink(url);
+                CLIQZ.Core.popup.hidePopup()
+            }
             break;
         }
         if(el.className == IC) break; //do not go higher than a result
