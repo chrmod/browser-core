@@ -41,7 +41,6 @@ var CliqzHistoryManager = {
                 });
             });
     },
-    //getModel: function(cliqzQuery, callback){
     getHistoryModel: function(mainCallback){
 
         function vecDotProduct(vecA, vecB) {
