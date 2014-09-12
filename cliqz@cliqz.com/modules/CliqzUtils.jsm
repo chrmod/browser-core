@@ -34,8 +34,8 @@ var CliqzUtils = {
 
   HOST:                 'https://beta.cliqz.com',
   SUGGESTIONS:          'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:     'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://ec2-54-87-82-25.compute-1.amazonaws.com/api/logging?q=',
+  RESULTS_PROVIDER:     'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG: 'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/logging?q=',
   LOG:                  'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
   CLIQZ_URL:            'https://beta.cliqz.com/',
   UPDATE_URL:           'chrome://cliqz/content/update.html',
