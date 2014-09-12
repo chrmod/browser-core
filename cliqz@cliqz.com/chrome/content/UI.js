@@ -286,7 +286,7 @@ function constructImage(data){
     function setheight(images, height) {
        //  HEIGHTS.push(height);
         for (var i = 0; i < images.length; ++i) {
-           images[i].width = parseInt(height * images[i].image_width /images[i].image_height)
+           images[i].width = parseInt(height * images[i].image_width /images[i].image_height)-1
            images[i].height = parseInt(height)
            // console.log('width (new): ' + images[i].width +
            //             ', height (new): ' + images[i].height);
