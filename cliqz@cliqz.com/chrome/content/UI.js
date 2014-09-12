@@ -538,10 +538,6 @@ function onEnter(ev, item){
                                        isSame = false;
                                     }
                                 }
-                                //CliqzUtils.log("s1 = " + s1_pos);
-                                //CliqzUtils.log("s2 = " + s2_pos);
-                                //CliqzUtils.log("same = " + isSame);
-                                //CliqzUtils.log("max = " + maxScore);
 
                                 var action = {
                                     type: 'experiments-v1',
@@ -568,6 +564,7 @@ function onEnter(ev, item){
                             scores.sort(function(a, b) {return b.score - a.score});
                             var reordered = [];
                             for (var i = 0; i < scores.length; i++) {
+                                //CliqzUtils.log(scores[i].score + " " + scores[i].value);
                                 reordered.push(scores[i]);
                             }
                             return reordered;

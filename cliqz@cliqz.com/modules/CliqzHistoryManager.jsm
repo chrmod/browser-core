@@ -140,10 +140,9 @@ var CliqzHistoryManager = {
 
             function toBinVector(doc_tf) {
                 var vec = [];
-                for (var term in dted) {
-                    if (doc_tf[term]) {
-                        vec.push(doc_tf[term]*Object.keys(doc_tf).length);
-                    } else vec.push(0);
+                for (var term in doc_tf) {
+                    //vec.push(doc_tf[term]*Object.keys(doc_tf).length);
+                    vec.push(term in dted ? 1 : 0);
                 }
                 return vec;
             }
