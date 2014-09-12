@@ -336,6 +336,16 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
+            var query = CLIQZ.Core.urlbar.value;
+            var queryAutocompleted = null;
+            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            {
+                queryAutocompleted = query;
+                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            }
+
+            CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'), url);
+
             if(newTab) gBrowser.addTab(url);
             else {
                 openUILink(url);
@@ -461,6 +471,14 @@ function onEnter(ev, item){
             clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
         };
 
+    var query = inputValue;
+    var queryAutocompleted = null;
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+    {
+        queryAutocompleted = query;
+        query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
+
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
@@ -469,7 +487,7 @@ function onEnter(ev, item){
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         openUILink(url);
-
+        CliqzUtils.trackResult(query, queryAutocompleted, index, url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -498,6 +516,8 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
+            CliqzUtils.trackResult(query, queryAutocompleted, index, CliqzUtils.cleanMozillaActions(firstUrl));
+
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
@@ -510,6 +530,8 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
+            var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
         CliqzUtils.track(action);
 

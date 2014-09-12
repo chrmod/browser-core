@@ -226,6 +226,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarfocus: function() {
         CliqzSearchHistory.hideLastQuery();
+        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
@@ -325,5 +326,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
+    },
+
+    getQuerySession: function() {
+        return _querySession;
     }
 };

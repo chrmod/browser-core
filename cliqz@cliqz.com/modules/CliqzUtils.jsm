@@ -31,20 +31,23 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
-  HOST:             'https://beta.cliqz.com',
-  SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  LOG:              'https://logging.cliqz.com',
-  CLIQZ_URL:        'https://beta.cliqz.com/',
-  UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL_OLD: 'https://beta.cliqz.com/erste-schritte',
-  TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
-  INSTAL_URL:       'https://beta.cliqz.com/code-verified',
-  CHANGELOG:        'https://beta.cliqz.com/changelog',
-  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
-  PREF_STRING:      32,
-  PREF_INT:         64,
-  PREF_BOOL:        128,
+
+  HOST:                 'https://beta.cliqz.com',
+  SUGGESTIONS:          'https://www.google.com/complete/search?client=firefox&q=',
+  RESULTS_PROVIDER:     'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG: 'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/v1/logging?q=',
+  LOG:                  'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
+  CLIQZ_URL:            'https://beta.cliqz.com/',
+  UPDATE_URL:           'chrome://cliqz/content/update.html',
+  TUTORIAL_URL_OLD:     'https://beta.cliqz.com/erste-schritte',
+  TUTORIAL_URL:         'chrome://cliqz/content/offboarding.html',
+  INSTAL_URL:           'https://beta.cliqz.com/code-verified',
+  CHANGELOG:            'https://beta.cliqz.com/changelog',
+  UNINSTALL:            'https://beta.cliqz.com/deinstall.html',
+  PREF_STRING:          32,
+  PREF_INT:             64,
+  PREF_BOOL:            128,
+
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
 
@@ -276,11 +279,15 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils.tryAbort(CliqzUtils._resultsReq);
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
-                                                CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
-                                function(res){
-                                  callback && callback(res, q);
-                                });
+    CliqzUtils._querySeq++;
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(
+      CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
+        CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
+        CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
@@ -319,6 +326,18 @@ var CliqzUtils = {
       return CliqzUtils.encodeSources(type.substr(pos+8));
     else
       return ""
+  },
+  _querySession: '',
+  _querySeq: 0,
+  setQuerySession: function(querySession){
+    CliqzUtils._querySession = querySession;
+    CliqzUtils._querySeq = 0;
+  },
+  encodeQuerySession: function(){
+    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
+  },
+  encodeQuerySeq: function(){
+    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeSources: function(sources){
     return sources.split(', ').map(
@@ -386,6 +405,24 @@ var CliqzUtils = {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
+
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+      '&i=' + resultIndex +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
+    CliqzUtils.setResultOrder('');
+  },
+
+  _resultOrder: '',
+  setResultOrder: function(resultOrder) {
+    CliqzUtils._resultOrder = resultOrder;
+  },
+  encodeResultOrder: function() {
+    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(CliqzUtils._resultOrder) : '';
+  },
+
   _track_req: null,
   _track_sending: [],
   _track_start: undefined,
