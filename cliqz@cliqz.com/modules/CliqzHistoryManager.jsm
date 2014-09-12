@@ -3,17 +3,11 @@
 var EXPORTED_SYMBOLS = ['CliqzHistoryManager'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import("resource://gre/modules/PlacesUtils.jsm")
+Cu.import('resource://gre/modules/PlacesUtils.jsm')
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
-  'chrome://cliqzmodules/content/extern/Promise.jsm');
-
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var CliqzHistoryManager = {
-	_db: null,
     getStats: function(callback){
         let historysize = 0;
         let daysVisited = {};
@@ -49,68 +43,22 @@ var CliqzHistoryManager = {
     },
 	PlacesInterestsStorage: {
         _execute: function PIS__execute(sql, optional={}) {
-            let {columns, key, listParams, onRow, params} = optional;
+            var {columns, onRow} = optional,
+                conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
+                statement = conn.createAsyncStatement(sql),
+                onThen, //called after the async operation is finalized
+                promiseMock = {
+                    then: function(func){
+                        onThen = func;
+                    }
+                };
 
-            // Convert listParams into params and the desired number of identifiers
-            if (listParams != null) {
-                params = params || {};
-                Object.keys(listParams).forEach(function(listName) {
-                  let listIdentifiers = [];
-                  for (let i = 0; i < listParams[listName].length; i++) {
-                    let paramName = listName + i;
-                    params[paramName] = listParams[listName][i];
-                    listIdentifiers.push(":" + paramName);
-                  }
-
-                  // Replace the list placeholders with comma-separated identifiers
-                  sql = sql.replace(":" + listName, listIdentifiers, "g");
-                });
-            }
-
-            // Initialize the statement cache and the callback to clean it up
-            if (this._cachedStatements == null) {
-                this._cachedStatements = {};
-                PlacesUtils.registerShutdownFunction(function() {
-                  Object.keys(this._cachedStatements).forEach(function(key)  {
-                    this._cachedStatements[key].finalize();
-                  });
-                });
-            }
-
-            // Use a cached version of the statement if handy; otherwise created it
-            let statement = this._cachedStatements[sql];
-            if (statement == null) {
-                this._db = this._db || PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection;
-                statement = this._db.createAsyncStatement(sql);
-                this._cachedStatements[sql] = statement;
-            }
-
-            // Bind params if we have any
-            if (params != null) {
-                Object.keys(params).forEach(function(param)  {
-                  statement.bindByName(param, params[param]);
-                });
-            }
-
-            // Determine the type of result as nothing, a keyed object or array of columns
-            let results;
-            if (onRow != null) {}
-            else if (key != null) {
-                results = {};
-            }
-            else if (columns != null) {
-                results = [];
-            }
-
-            // Execute the statement and update the promise accordingly
-            let deferred = Promise.defer();
             statement.executeAsync({
                 handleCompletion: function(reason)  {
-                  deferred.resolve(results);
+                  onThen();
                 },
 
                 handleError: function(error)  {
-                  deferred.reject(new Error(error.message));
                 },
 
                 handleResult: function(resultSet)  {
@@ -123,7 +71,7 @@ var CliqzHistoryManager = {
                       if (columns.length == 1) {
                         result = row.getResultByName(columns[0]);
                       }
-                      // For multiple columns, put as valyes on an object
+                      // For multiple columns, put as values on an object
                       else {
                         result = {};
                         columns.forEach(function(column) {
@@ -131,24 +79,12 @@ var CliqzHistoryManager = {
                         });
                       }
                     }
-
-                    // Give the packaged result to the handler
-                    if (onRow != null) {
-                      onRow(result);
-                    }
-                    // Store the result keyed on the result key
-                    else if (key != null) {
-                      results[row.getResultByName(key)] = result;
-                    }
-                    // Append the result in order
-                    else if (columns != null) {
-                      results.push(result);
-                    }
+                    //pass the result to the onRow handler
+                    onRow(result);
                   }
                 }
             });
-
-            return deferred.promise;
+            return promiseMock;
         }
     }
 };

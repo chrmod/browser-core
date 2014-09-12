@@ -570,7 +570,6 @@ var templates = {
     },
     'github.com': {
         fun: function(urls) {
-            debugger;
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
