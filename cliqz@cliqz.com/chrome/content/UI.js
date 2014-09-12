@@ -85,8 +85,9 @@ var UI = {
     results: function(res){
         if (!gCliqzBox)
             return;
-
+        
         var enhanced = enhanceResults(res);
+        run(res,130); // applies images layout
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -268,7 +269,74 @@ function constructImage(data){
     return null;
 }
 
+
+    // image search layout 
+    
+    // HEIGHTS = [];
+    function getheight(images, width) {
+        width -= images.length * 2; //images  margin
+        var h = 0;
+        for (var i = 0; i < images.length; ++i) {
+            // console.log('width (getheight): '+images[i].image_width)
+            h += images[i].image_width / images[i].image_height 
+        }
+        return width / h;
+    }
+
+    function setheight(images, height) {
+       //  HEIGHTS.push(height);
+        for (var i = 0; i < images.length; ++i) {
+           images[i].width = parseInt(height * images[i].image_width /images[i].image_height)
+           images[i].height = parseInt(height)
+           // console.log('width (new): ' + images[i].width +
+           //             ', height (new): ' + images[i].height);
+        }
+    }
+
+    function resize(images, width) {
+        setheight(images, getheight(images, width));
+    }
+
+    function run(res, max_height) {
+        for(var k=0; k<res.results.length; k++){
+            var r = res.results[k];
+            if (getPartial(r.type) == 'images') {
+                console.log(r.data.results[0]);
+                var size = CLIQZ.Core.urlbar.clientWidth*0.98;
+                var n = 0;
+                var images = r.data.results;
+                // console.log('global width: '+ size +', images nbr: '+images.length)
+                w: while ((images.length > 0) && (n==0)){
+                    var i = 1;
+                    while ((i < images.length + 1) && (n==0)){
+                        var slice = images.slice(0, i);
+                        var h = getheight(slice, size);
+                        if (h < max_height) {
+                            setheight(slice, h);
+                            res.results[k].data.results=slice
+                            // console.log('height: '+h);
+                            n++;
+                            images = images.slice(i);
+                            continue w;
+                        }
+                        i++;
+                    }
+                    setheight(slice, Math.min(max_height, h));
+                    n++;
+                    break;
+                }
+                // console.log(r.data.results);
+                // console.log('lines: '+n); // should be 1
+                }
+            }
+
+        }
+
+    // end image-search layout
+
+
 function getPartial(type){
+    if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
@@ -289,11 +357,12 @@ function getPartial(type){
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
-
         r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
         r.logo = generateLogoClass(r.urlDetails);
-        r.image = constructImage(r.data);
-        r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+        if (getPartial(r.type) != 'images'){
+            r.image = constructImage(r.data);
+            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+        }
         r.vertical = getPartial(r.type);
     }
     return res;

@@ -167,7 +167,7 @@
 }
 
 .cliqz-result-item-box {
-    border-bottom: 1px solid #CCC;
+    border-bottom: 0px solid #CCC;
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -766,6 +766,53 @@
 }
 
 /* end shopping */
+
+
+/* images */
+
+.cliqz-images {
+    display: inline-block;    
+    margin-left:auto;
+    margin-right:auto;
+    background: black;
+}
+
+.cliqz-image-item {
+    display: inline-block;
+    float: left;
+    position: relative;
+    margin:  0px 1px 0px 1px;
+    background: red;
+}
+
+.cliqz-image-hidden{
+    filter: grayscale(0.2) blur(10px);
+    filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
+}
+
+.cliqz-image-clear{
+}
+
+.cliqz-image-hilight{
+
+    white-space: word-wrap;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(0,0,0,0.5);
+    position: relative;
+    font-family: Courier New;
+    font-size:11px;
+    top: -40px;
+    z-index: 1;
+}
+
+.cliqz-image-hilight:hover{
+    text-overflow:inherit;
+    overflow:visible;
+}
+
+/* end images */
 
 /* video */
 

@@ -1,0 +1,24 @@
+    <div id="cliqz-images-results" class='cliqz-images'>
+        {{#each data.results}}
+        <div class='cliqz-image-item'
+             style='width:{{width}}px; height:{{height}}px;' 
+             type="image" url="{{ ref_url }}">
+                {{#if filter}}
+                <img class="cliqz-image-hidden" src="{{thumb_url}}"
+                     id="{{im_url}}"
+                     width="{{width}}"
+                     height="{{height}}"
+                     />
+                {{else}}
+                <img class="cliqz-image-clear" src="{{thumb_url}}"
+                     id="{{im_url}}"
+                     width="{{width}}"
+                     height="{{height}}"
+                     />
+                {{/if}}
+
+                <div class="cliqz-image-hilight" style='width:{{width}}px; max-width:{{width}}px;'>
+                  {{orig_image_width}} x {{orig_image_height}} - {{domain}}
+                </div>
+        </div>{{/each}}</div>
+

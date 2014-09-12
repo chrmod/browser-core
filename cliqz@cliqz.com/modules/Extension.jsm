@@ -129,6 +129,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzImages.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');

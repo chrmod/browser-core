@@ -11,6 +11,7 @@ var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
+    CLIQZI: 'cliqz-images',
     CLIQZW: 'cliqz-weather',
     CLIQZB: 'cliqz-bundesliga',
     CLIQZCLUSTER: 'cliqz-cluster',
