@@ -11,7 +11,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 
-var CliqzLanguage = CliqzLanguage || {
+var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
     LOG_KEY: 'cliqz language: ',
@@ -92,25 +92,26 @@ var CliqzLanguage = CliqzLanguage || {
             }
 
             // now the language detection
-            CliqzLanguage.window.setTimeout((function(a) { var currURLAtTime=a; return function() {
+            CliqzLanguage.window.setTimeout(function(currURLAtTime) {
                 try {
-                    var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
-                    if (''+currURLAtTime == ''+currURL) {
-                        // the person has stayed at least READING_THRESHOLD at the URL, now let's try
-                        // to fetch the locale
-                        CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
-                        var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
-                            .getElementsByTagName('html').item(0).getAttribute('lang');
-                        if (locale) CliqzLanguage.addLocale(''+currURL,locale);
+                    if(CliqzLanguage){ //might be called after the extension is disabled
+                        var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
+                        if (''+currURLAtTime == ''+currURL) {
+                            // the person has stayed at least READING_THRESHOLD at the URL, now let's try
+                            // to fetch the locale
+                            CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
+                            var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
+                                .getElementsByTagName('html').item(0).getAttribute('lang');
+                            if (locale) CliqzLanguage.addLocale(''+currURL,locale);
+                        }
                     }
-
                }
                catch(ee) {
                 // silent fail
                 //CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
                }
 
-            };})(this.currentURL), CliqzLanguage.READING_THRESHOLD);
+            }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
