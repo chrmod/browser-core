@@ -4,7 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Cu.import('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm?v=1');
+Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -117,7 +117,7 @@ var Extension = {
     unloadModules: function(){
         //unload all cliqz modules
         Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/ToolbarButtonManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
@@ -181,8 +181,9 @@ var Extension = {
         if (!win) return;
 
         if(CliqzUtils.shouldLoad(win)){
-            for (let src of ['core', 'UI', 'libs/handlebars-v1.3.0'])
-                Extension.addScript(src, win);
+            Extension.addScript('core', win);
+            Extension.addScript('UI', win);
+            Extension.addScript('libs/handlebars-v1.3.0', win);
 
             Extension.addButtons(win);
 

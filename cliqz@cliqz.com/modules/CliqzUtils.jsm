@@ -34,6 +34,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -85,8 +86,10 @@ var CliqzUtils = {
       onerror && onerror();
     }
     req.ontimeout = function(){
-      CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
-      onerror && onerror();
+      if(CliqzUtils){ //might happen after disabling the extension
+        CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
+        onerror && onerror();
+      }
     }
 
     if(callback){
@@ -125,8 +128,10 @@ var CliqzUtils = {
     }
   },
   getPrefs: function(){
-    var prefs = {};
-    for(var pref of CliqzUtils.cliqzPrefs.getChildList('')){
+    var prefs = {},
+        cqz = CliqzUtils.cliqzPrefs.getChildList('');
+    for(var i=0; i<cqz.length; i++){
+      var pref = cqz[i];
       prefs[pref] = CliqzUtils.getPref(pref);
     }
     return prefs;
@@ -159,7 +164,7 @@ var CliqzUtils = {
   },
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      CliqzUtils._log.logStringMessage(key + ' : ' + msg);
+      CliqzUtils._log.logStringMessage((new Date()).toISOString() + " " + key + ' : ' + msg);
     }
   },
   getDay: function() {
@@ -222,19 +227,17 @@ var CliqzUtils = {
 
     return urlDetails;
   },
-  // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
+  _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
-    var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.\\(\\)~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    if(!pattern.test(input)) {
-      return false;
-    } else {
-      return true;
+    //step 1 remove eventual protocol
+    var protocolPos = input.indexOf('://');
+    if(protocolPos != -1 && protocolPos <= 6){
+      input = input.slice(protocolPos+3)
     }
+    //step2 remove path & everything after
+    input = input.split('/')[0];
+    //step3 run the regex
+    return CliqzUtils._isUrlRegExp.test(input);
   },
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
@@ -259,7 +262,7 @@ var CliqzUtils = {
     if(locales.length > 0)
       local_param = "&hl=" + encodeURIComponent(locales[0]);
 
-    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
+    CliqzUtils.tryAbort(CliqzUtils._suggestionsReq);
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
       function(res){
         callback && callback(res, q);
@@ -267,13 +270,36 @@ var CliqzUtils = {
     );
   },
   _resultsReq: null,
+  tryAbort: function(req){
+    if(CliqzUtils.getPref('abortConnections', true)){
+      req && req.abort();
+    }
+  },
   getCliqzResults: function(q, callback){
-    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + 
+    CliqzUtils.tryAbort(CliqzUtils._resultsReq);
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
                                                 CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
+  },
+  // IP driven configuration
+  fetchAndStoreConfig: function(callback){
+    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
+      function(res){
+        if(res && res.response){
+          try {
+            var config = JSON.parse(res.response);
+            for(var k in config){
+              CliqzUtils.setPref('config_' + k, config[k]);
+            }
+          } catch(e){}
+        }
+
+        callback();
+      },
+      callback //on error the callback still needs to be called
+    );
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
@@ -403,9 +429,9 @@ var CliqzUtils = {
       if(response.new_session){
         CliqzUtils.setPref('session', response.new_session);
       }
+      CliqzUtils._track_sending = [];
+      CliqzUtils._track_req = null;
     } catch(e){}
-    CliqzUtils._track_sending = [];
-    CliqzUtils._track_req = null;
   },
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
@@ -423,30 +449,36 @@ var CliqzUtils = {
     CliqzUtils._track_sending = [];
     CliqzUtils._track_req = null;
   },
-  timers: [],
-  setTimer: function(func, timeout, type, param) {
+  // references to all the timers to avoid garbage collection before firing
+  // automatically removed when fired
+  _timers: [],
+  _setTimer: function(func, timeout, type, param) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
-    CliqzUtils.timers.push(timer);
+    CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
         func(param);
+        CliqzUtils._removeTimerRef(timer);
       }
     };
     timer.initWithCallback(event, timeout, type);
     return timer;
   },
+  _removeTimerRef: function(timer){
+    var i = CliqzUtils._timers.indexOf(timer);
+    if (i >= 0) {
+      CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
+    }
+  },
   setTimeout: function(func, timeout, param) {
-    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
     }
     timer.cancel();
-    var i = CliqzUtils.timers.indexOf(timer);
-    if (i >= 0) {
-      CliqzUtils.timers.splice(CliqzUtils.timers.indexOf(timer), 1);
-    }
+    CliqzUtils._removeTimerRef(timer);
   },
   clearInterval: this.clearTimeout,
   loadFile: function (fileName, callback) {
@@ -582,16 +614,9 @@ var CliqzUtils = {
     return util.outerWindowID;
   },
   performance: {
-    timers:null,
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
             reqtimes = {}, statistics = [];
-
-        CliqzUtils.performance.timers = [];
-        function setTO(){
-          // keep reference to all timers to avoid garbage collection
-          CliqzUtils.performance.timers.push(CliqzUtils.setTimeout.apply(this, arguments));
-        }
 
         function send_test(){
           var start = 1000;
@@ -600,7 +625,7 @@ var CliqzUtils = {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              setTO(function(t){
+              CliqzUtils.setTimeout(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -608,7 +633,7 @@ var CliqzUtils = {
               start += delay || (600 + (Math.random() * 100));
             }
           }
-          setTO(function(){
+          CliqzUtils.setTimeout(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];

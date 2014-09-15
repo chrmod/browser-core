@@ -157,6 +157,7 @@ CLIQZ.Core = CLIQZ.Core || {
     // restoring
     destroy: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
+        clearTimeout(CLIQZ.Core._whoAmItimer);
 
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
@@ -239,16 +240,21 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzUtils.track(action);
     },
+    _whoAmItimer: null,
     whoAmI: function(startup){
         // schedule another signal
-        setTimeout(function(){
-            if(CLIQZ) CLIQZ.Core.whoAmI();
+        CLIQZ.Core._whoAmItimer = setTimeout(function(){
+            if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
-
-        var start = (new Date()).getTime();
+        CliqzUtils.fetchAndStoreConfig(function(){
+            //executed after the services are fetched
+            CLIQZ.Core.sendEnvironmentalSignal(startup);
+        });
+    },
+    sendEnvironmentalSignal: function(startup){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;

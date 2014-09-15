@@ -77,8 +77,10 @@ var ResultProviders = {
         return [q, results];
     },
     getSearchEngines: function(){
-        var engines = {};
-        for(var engine of Services.search.getEngines()){
+        var engines = {},
+            defEngines = Services.search.getEngines();
+        for(var i=0; i<defEngines.length; i++){
+            var engine = defEngines[i];
             if(engine.hidden != true && engine.iconURI){
                 engines[engine.name] = {
                     prefix: ResultProviders.getShortcut(engine.name),
