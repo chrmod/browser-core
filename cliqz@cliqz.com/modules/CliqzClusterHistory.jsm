@@ -145,7 +145,7 @@ var templates = {
 
 
                 }
-                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^\d+$/)) != null) && (vpath.length == 1)) {
+                else if ((vpath.length == 1) && (vpath.length > 0 && (cond_match = vpath[0].match(/^\d+$/)) != null)) {
                     var item = decodeURIComponent((cond_match.length > 1) ? cond_match[1] : vpath[0]);
                     var label = null;
 
@@ -157,7 +157,7 @@ var templates = {
                     }
 
                 }
-                else if ((vpath[1] == 'projects') && (vpath.length == 3)) {
+                else if ((vpath.length == 3) && (vpath[1] == 'projects')) {
                     var item = decodeURIComponent(vpath[0]);
                     var label = CliqzUtils.getLocalizedString('Projects');
 
@@ -180,7 +180,7 @@ var templates = {
                         topic['label_set'][item_title] = true;
                     }
                 }
-                else if ((vpath[1] == 'people') && (vpath.length == 3)) {
+                else if ((vpath.length == 3) && (vpath[1] == 'people')) {
                     var item = decodeURIComponent(vpath[0]);
                     var label = CliqzUtils.getLocalizedString('People');
 
@@ -377,7 +377,11 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((vpath[0] == 'wiki') && (vpath.length == 2)) {
+                if ((vpath[0] == 'wiki') && ((vpath[1] == 'wikipedia:hauptseite') || (/^spezial:/.test(vpath[1])) || (/^portal:/.test(vpath[1])) || (/^kategorie:/.test(vpath[1])) || (/^hilfe:/.test(vpath[1])))) {
+
+
+                }
+                else if ((vpath.length == 2) && (vpath[0] == 'wiki')) {
                     var item = decodeURIComponent(vpath[1]);
                     var label = CliqzUtils.getLocalizedString('Artikel');
 
@@ -394,7 +398,12 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    var item_title = item;
+                    var title_match = title.match(/(.+?)(?:\s+\S\s+Wikipedia.*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
                     if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
@@ -441,7 +450,7 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if ((vpath[0] == 'usr' && vpath.length > 1 && (cond_match = vpath[1].match(/^([^?]+)/)) != null) && (vpath.length == 2)) {
+                if ((vpath.length == 2) && (vpath[0] == 'usr' && vpath.length > 1 && (cond_match = vpath[1].match(/^([^?]+)/)) != null)) {
                     var item = decodeURIComponent((cond_match.length > 1) ? cond_match[1] : vpath[1]);
                     var label = CliqzUtils.getLocalizedString('Sitemap_Ebay_Shops');
 
@@ -676,7 +685,7 @@ var templates = {
 
 
                 }
-                else if ((vpath.length > 0 && (cond_match = vpath[0].match(/^([^?]+)/)) != null) && (vpath.length == 1)) {
+                else if ((vpath.length == 1) && (vpath.length > 0 && (cond_match = vpath[0].match(/^([^?]+)/)) != null)) {
                     var item = decodeURIComponent((cond_match.length > 1) ? cond_match[1] : vpath[0]);
                     var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Pages');
 

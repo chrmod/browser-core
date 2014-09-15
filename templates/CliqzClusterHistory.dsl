@@ -257,6 +257,10 @@ program:
         home: http://de.wikipedia.org/
         rules:
         -
+            type: exclude
+            cond: (/wiki/) and ((/*/wikipedia:hauptseite/) or (/*/re:^spezial:/) or (/*/re:^portal:/) or (/*/re:^kategorie:/) or (/*/re:^hilfe:/))
+        -
             type: topic
             label: Artikel
             cond: /wiki/{item}//
+            title: title::re:(.+?)(?:\s+\S\s+Wikipedia.*)
