@@ -163,6 +163,12 @@ var Extension = {
         //0.5.02 - 0.5.04
         prefs.clearUserPref('analysis');
     },
+    saveOriginalPrefs: function(reason) {
+        CliqzUtils.log("SAVE ORIGINAL PREFS " + reason);
+    },
+    loadOriginalPrefs: function(reason) {
+        CliqzUtils.log("LOAD ORIGINAL PREFS " + reason);
+    },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
