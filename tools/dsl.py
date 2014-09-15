@@ -135,7 +135,7 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'\w[-?&=\w]*', re.UNICODE).setParseAction(__create)
+        return Regex(ur'\w[-?&=\w:]*', re.UNICODE).setParseAction(__create)
 
     def condition(self, index, capturing=False):
         return "vpath[{}] == '{}'".format(index, self.word)
@@ -345,7 +345,7 @@ class UrlCondWithLength(AndConds):
             if len(toks) > 1:
                 url_cond = toks[0]
                 length = Length(len(url_cond.parts))
-                return UrlCondWithLength([url_cond, length])
+                return UrlCondWithLength([length, url_cond])
             else:
                 return toks[0]
         expr = (UrlCond.parser() ^
@@ -359,7 +359,7 @@ class DomainCondWithLength(AndConds):
             if len(toks) > 1:
                 domain_cond = toks[1]
                 length = Length(len(domain_cond.parts))
-                return DomainCondWithLength([domain_cond, length])
+                return DomainCondWithLength([length, domain_cond])
             else:
                 return toks[0]
         # No, Optional() doesn't work >:(((
