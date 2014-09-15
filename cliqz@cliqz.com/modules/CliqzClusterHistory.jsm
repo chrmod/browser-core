@@ -343,7 +343,7 @@ var templates = {
             return template;
         }
     },
-    'wikipedia.org': {
+    'de.wikipedia.org': {
         fun: function(urls) {
 
             var site = 'Wikipedia';
@@ -352,7 +352,7 @@ var templates = {
                 control: [],
                 control_set: {},
                 topics: [],
-                url: 'http://wikipedia.org/'
+                url: 'http://de.wikipedia.org/'
             };
 
             var next_color = 0;
@@ -377,9 +377,9 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath.length == 1) {
-                    var item = vpath[0];
-                    var label = CliqzUtils.getLocalizedString('People');
+                if ((vpath[0] == 'wiki') && (vpath.length == 2)) {
+                    var item = vpath[1];
+                    var label = CliqzUtils.getLocalizedString('Artikel');
 
                     // Check if the first level (label) exists
                     var topic = null
@@ -389,7 +389,7 @@ var templates = {
 
                     // if the topic did not exist, we must create it
                     if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-user'};
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
                         template['topics'].push(topic);
                         next_color = (next_color+1)%COLORS.length;
                     }
@@ -570,7 +570,7 @@ var templates = {
     },
     'github.com': {
         fun: function(urls) {
-            debugger;
+
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),

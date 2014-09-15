@@ -253,11 +253,10 @@ program:
             cond: /{item}//
     Wikipedia:
         summary: Sitemap_Summary
-        url: wikipedia.org
-        home: http://wikipedia.org/
+        url: de.wikipedia.org
+        home: http://de.wikipedia.org/
         rules:
         -
             type: topic
-            label: People
-            icon: cliqz-fa fa-user
-            cond: /{item}//
+            label: Artikel
+            cond: /wiki/{item}//
