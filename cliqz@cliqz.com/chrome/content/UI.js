@@ -273,8 +273,9 @@ function constructImage(data){
     // image search layout 
     
     // HEIGHTS = [];
+    var IMAGES_MARGIN = 2;
     function getheight(images, width) {
-        width -= images.length * 2; //images  margin
+        width -= IMAGES_MARGIN * images.length ; //images  margin
         var h = 0;
         for (var i = 0; i < images.length; ++i) {
             // console.log('width (getheight): '+images[i].image_width)
@@ -284,13 +285,48 @@ function constructImage(data){
     }
 
     function setheight(images, height) {
-       //  HEIGHTS.push(height);
+        // HEIGHTS.push(height);
+        var verif_width = 0;
+        var estim_width = 0;
         for (var i = 0; i < images.length; ++i) {
-           images[i].width = parseInt(height * images[i].image_width /images[i].image_height)-1
-           images[i].height = parseInt(height)
-           // console.log('width (new): ' + images[i].width +
-           //             ', height (new): ' + images[i].height);
+           var width_float = height * images[i].image_width /images[i].image_height;
+            verif_width += ( IMAGES_MARGIN + width_float);
+            images[i].width = parseInt(width_float);
+            estim_width +=  ( IMAGES_MARGIN + images[i].width);
+            images[i].height = parseInt(height);
+            // console.log('width (new): ' + images[i].width +
+            //             ', height (new): ' + images[i].height);
         }
+
+        // Collecting sub pixel error
+        var error = estim_width - parseInt(verif_width)
+        console.log('estimation error:' +  error + ', int error: '+ parseInt(error) + ', ceil:' + Math.ceil(error));
+
+        if (error>0) {
+            var int_error = parseInt(Math.abs(Math.ceil(error)));
+            // distribute the error on first images each take 1px
+            for (var i = 0; i < int_error; ++i) {
+                images[i].width -= 1;
+            }
+        }
+        else {
+            var int_error = parseInt(Math.abs(Math.floor(error)));
+            for (var i = 0; i < int_error; ++i) {
+                images[i].width += 1;
+            }
+        }
+
+
+
+        var verify = 0;
+        for (var i = 0; i < images.length; ++i) {
+           var width_float = height * images[i].image_width /images[i].image_height;
+           verify += (images[i].width + IMAGES_MARGIN);
+        }
+        
+        console.log('global width (verif): '+ verify+', verify (float):'+ verif_width);
+
+
     }
 
     function resize(images, width) {
@@ -301,11 +337,12 @@ function constructImage(data){
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
             if (getPartial(r.type) == 'images') {
-                console.log(r.data.results[0]);
-                var size = CLIQZ.Core.urlbar.clientWidth*0.98;
+                // console.log(r.data.results[0]);
+                var size = CLIQZ.Core.urlbar.clientWidth - 15;
                 var n = 0;
                 var images = r.data.results;
-                // console.log('global width: '+ size +', images nbr: '+images.length)
+                console.log('global width: '+ size);
+                    //+', images nbr: '+images.length)
                 w: while ((images.length > 0) && (n==0)){
                     var i = 1;
                     while ((i < images.length + 1) && (n==0)){
