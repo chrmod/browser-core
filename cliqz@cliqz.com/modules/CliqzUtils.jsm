@@ -34,6 +34,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -129,7 +130,7 @@ var CliqzUtils = {
   getPrefs: function(){
     var prefs = {},
         cqz = CliqzUtils.cliqzPrefs.getChildList('');
-    for(var i=0; i>cqz.length; i++){
+    for(var i=0; i<cqz.length; i++){
       var pref = cqz[i];
       prefs[pref] = CliqzUtils.getPref(pref);
     }
@@ -281,6 +282,24 @@ var CliqzUtils = {
                                 function(res){
                                   callback && callback(res, q);
                                 });
+  },
+  // IP driven configuration
+  fetchAndStoreConfig: function(callback){
+    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
+      function(res){
+        if(res && res.response){
+          try {
+            var config = JSON.parse(res.response);
+            for(var k in config){
+              CliqzUtils.setPref('config_' + k, config[k]);
+            }
+          } catch(e){}
+        }
+
+        callback();
+      },
+      callback //on error the callback still needs to be called
+    );
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
