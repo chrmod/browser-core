@@ -87,7 +87,7 @@ var UI = {
             return;
         
         var enhanced = enhanceResults(res);
-        run(res,130); // applies images layout
+        run(res,150); // applies images layout
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -274,6 +274,7 @@ function constructImage(data){
     
     // HEIGHTS = [];
     var IMAGES_MARGIN = 2;
+    var IMAGES_LINES = 3;
     function getheight(images, width) {
         width -= IMAGES_MARGIN * images.length ; //images  margin
         var h = 0;
@@ -298,7 +299,7 @@ function constructImage(data){
             //             ', height (new): ' + images[i].height);
         }
 
-        // Collecting sub pixel error
+        // Collecting sub-pixel error
         var error = estim_width - parseInt(verif_width)
         console.log('estimation error:' +  error + ', int error: '+ parseInt(error) + ', ceil:' + Math.ceil(error));
 
@@ -316,15 +317,12 @@ function constructImage(data){
             }
         }
 
-
-
-        var verify = 0;
-        for (var i = 0; i < images.length; ++i) {
-           var width_float = height * images[i].image_width /images[i].image_height;
-           verify += (images[i].width + IMAGES_MARGIN);
-        }
-        
-        console.log('global width (verif): '+ verify+', verify (float):'+ verif_width);
+        // var verify = 0;
+        // for (var i = 0; i < images.length; ++i) {
+        //    var width_float = height * images[i].image_width /images[i].image_height;
+        //    verify += (images[i].width + IMAGES_MARGIN);
+        // }
+        // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
 
 
     }
@@ -334,6 +332,7 @@ function constructImage(data){
     }
 
     function run(res, max_height) {
+        var tmp = []
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
             if (getPartial(r.type) == 'images') {
@@ -343,14 +342,15 @@ function constructImage(data){
                 var images = r.data.results;
                 console.log('global width: '+ size);
                     //+', images nbr: '+images.length)
-                w: while ((images.length > 0) && (n==0)){
+                w: while ((images.length > 0) && (n<IMAGES_LINES)){
                     var i = 1;
-                    while ((i < images.length + 1) && (n==0)){
+                    while ((i < images.length + 1) && (n<IMAGES_LINES)){
                         var slice = images.slice(0, i);
                         var h = getheight(slice, size);
                         if (h < max_height) {
                             setheight(slice, h);
-                            res.results[k].data.results=slice
+                            //res.results[k].data.results = slice
+                            tmp.push.apply(tmp, slice);
                             // console.log('height: '+h);
                             n++;
                             images = images.slice(i);
@@ -362,6 +362,7 @@ function constructImage(data){
                     n++;
                     break;
                 }
+                res.results[k].data.results = tmp
                 // console.log(r.data.results);
                 // console.log('lines: '+n); // should be 1
                 }
@@ -370,6 +371,11 @@ function constructImage(data){
         }
 
     // end image-search layout
+
+
+    function report_image() {
+        window.alert('--- report image');
+    }
 
 
 function getPartial(type){
@@ -441,8 +447,10 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            if(newTab) gBrowser.addTab(url);
-            else openUILink(url);
+            if(url != '-'){
+                if(newTab) gBrowser.addTab(url);
+                else openUILink(url);
+            }
             break;
         }
         if(el.className == IC) break; //do not go higher than a result
