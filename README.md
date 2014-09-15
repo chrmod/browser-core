@@ -110,6 +110,8 @@ Glossary
          - 02 - CHIP store
          - 03 - Softonic
          - 04 - AMO (Mozilla Firefox Store)
+         - 05 - CHIP testing
+         - 06 - CHIP link to Cliqz
      eg: 10378300660576423|16148|OO
 ```
 
@@ -280,6 +282,8 @@ Results - results shown in the dropdown
     "ts": <UNIX_TIMESTAMP>,
     "instant": true/false, // was this an 'instant' result or full result
     "popup": true/false, // if the result really got the chance to be displayed for the user
+    "latency_history": <TIME_MS>, // time in ms from start of search until history returns
+    "latency_cliqz": <TIME_MS>, // time in ms reported by mixer
     "latency_backend": <TIME_MS>, // time in ms from start of search until the backend returns
     "latency_mixer": <TIME_MS>, // time in ms from start of search until the results are mixed
     "latency_all": <TIME_MS>, // time in ms from start of search until this result was shown
