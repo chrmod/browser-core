@@ -685,6 +685,10 @@ var templates = {
 
 
                 }
+                else if (vpath[0] == 'photo.php') {
+
+
+                }
                 else if ((vpath.length == 1) && (vpath.length > 0 && (cond_match = vpath[0].match(/^([^?]+)/)) != null)) {
                     var item = decodeURIComponent((cond_match.length > 1) ? cond_match[1] : vpath[0]);
                     var label = CliqzUtils.getLocalizedString('Sitemap_Facebook_Pages');

@@ -55,6 +55,9 @@ program:
             type: exclude
             cond: (/re:^login/) or (/re:^messages/) or (/re:^events/) or (/re:^help/) or (/re:^settings/) or (/re:^robots[.]txt/)
         -
+            type: exclude
+            cond: /photo.php/
+        -
             type: topic
             label: Sitemap_Facebook_Pages
             cond: /{item::re:^([^?]+)}//
