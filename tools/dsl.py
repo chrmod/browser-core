@@ -539,15 +539,15 @@ $RULE_BODY
         """
         assignments = []
         for var in Program.CAPTURE_VARS:
-            if var in rule['capture']:
+            if var in rule['capture']:  # From path
                 assignments.append(
-                    "                    var {} = {};\n".format(
+                    "                    var {} = decodeURIComponent({});\n".format(
                         var, rule['capture'][var]))
-            elif var in rule:
+            elif var in rule:  # Manual, localized value
                 assignments.append(
                     "                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
                         var, rule[var]))
-            else:
+            else:  # nothing
                 assignments.append(
                     "                    var {} = null;\n".format(var))
         return ''.join(assignments)
