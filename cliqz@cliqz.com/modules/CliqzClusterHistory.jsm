@@ -343,7 +343,7 @@ var templates = {
             return template;
         }
     },
-    'wikipedia.org': {
+    'de.wikipedia.org': {
         fun: function(urls) {
 
             var site = 'Wikipedia';
@@ -352,7 +352,7 @@ var templates = {
                 control: [],
                 control_set: {},
                 topics: [],
-                url: 'http://wikipedia.org/'
+                url: 'http://de.wikipedia.org/'
             };
 
             var next_color = 0;
@@ -377,9 +377,10 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath.length == 1) {
-                    var item = vpath[0];
-                    var label = CliqzUtils.getLocalizedString('People');
+                if (vpath.length == 2) {
+                    var item = decodeURIComponent(vpath[1]);
+                    // var label = CliqzUtils.getLocalizedString('People');
+                    var label = CliqzUtils.getLocalizedString(vpath[0])
 
                     // Check if the first level (label) exists
                     var topic = null
