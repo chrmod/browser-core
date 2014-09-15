@@ -5,10 +5,10 @@ var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm?v=0.5.06');
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
-  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm?v=0.5.06');
+  'chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
 
 /******************************************************
  * Warning: this file is auto-generated; do not edit. *
@@ -19,6 +19,15 @@ $DSL_OUTPUT
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
 
+    /**
+     * Tries to cluster the history.
+     *
+     * @return <tt>[is_clustered, filtered_history]</tt>: if the history could
+     *         be clustered, @c is_clustered will be true and
+     *         @c filtered_history will contain all the items in the history
+     *         that do not lead to the clustered domain; otherwise, we return
+     *         @c false and the full history.
+     */
     cluster: function(history, cliqzResults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null) return [false, null];
@@ -50,25 +59,37 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
 
-        if(!CliqzUtils.getPref("abCluster", false)){
-            CliqzUtils.log('Disabled', CliqzClusterHistory.LOG_KEY);
-            return [false, historyTrans];
-        }
-
         if (history.matchCount < 10) {
             CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
         }
 
         var historyTransFiltered = [];
+        var historyTransRemained = [];
+        let j = 0;
         for (let i=0; i<freqHash[maxDomain].length; i++) {
-            historyTransFiltered.push(historyTrans[freqHash[maxDomain][i]]);
+            for (; j <= freqHash[maxDomain][i]; j++) {
+                if (j < freqHash[maxDomain][i]) {
+                    historyTransRemained.push(historyTrans[j]);
+                } else {
+                    historyTransFiltered.push(historyTrans[j]);
+                }
+            }
+        }
+        while (j < historyTrans.length) {
+            historyTransRemained.push(historyTrans[j]);
+            j++;
         }
 
         // has templates? if not quit and do the normal history, if so, then convert the maxDomain
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
-        if (templates[maxDomain]==null && q.length > 6) {
+        if (templates[maxDomain] == null && q.length <= 6 && q.length > 1) {
+            CliqzUtils.log('test', 'series')
+            var seriesClusteredHistory2 = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
+        }
+
+        else if (templates[maxDomain]==null && q.length > 6) {
             // in principle there is not template, but we must check for the possibility that falls to a
             // misc category,
 
@@ -76,7 +97,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             if (seriesClusteredHistory) {
                 historyTransFiltered[0]['data'] = seriesClusteredHistory;
                 historyTransFiltered[0]['style'] = 'cliqz-series';
-                var v = [true, [historyTransFiltered[0]]];
+                var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
                 CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
                 return v;
@@ -105,14 +126,14 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
         } else if (clusteredHistory['topics'].length == 0) {
-	    // no URLs related to the topics defined for the site found in
-	    // the history URLs
+            // no URLs related to the topics defined for the site found in
+            // the history URLs
             CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
-	    return [false, historyTrans];
+            return [false, historyTrans];
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
-            var v = [true, [historyTransFiltered[0]]];
+            var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
             CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
             return v;
