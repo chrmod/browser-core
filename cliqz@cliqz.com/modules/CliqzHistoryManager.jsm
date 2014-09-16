@@ -276,6 +276,8 @@ var CliqzHistoryManager = {
     }
 };
 
-CliqzHistoryManager.getHistoryModel(function(model) {
-    CliqzHistoryManager.historyModel = model;
-});
+if (CliqzUtils.getPref("historyExperiment")) {
+    CliqzHistoryManager.getHistoryModel(function(model) {
+        CliqzHistoryManager.historyModel = model;
+    });
+}

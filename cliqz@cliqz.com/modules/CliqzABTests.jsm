@@ -101,6 +101,9 @@ var CliqzABTests = CliqzABTests || {
             case "1006_A":
                 // abort http connections if a new one appears
                 CliqzUtils.setPref("abortConnections", false);
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.cliqzPrefs.setPref("historyExperiment", true);
             default:
                 rule_executed = false;
         }
@@ -153,6 +156,9 @@ var CliqzABTests = CliqzABTests || {
             case "1006_A":
                 // abort http connections if a new one appears
                 CliqzUtils.cliqzPrefs.clearUserPref("abortConnections");
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
             default:
                 rule_executed = false;
         }
