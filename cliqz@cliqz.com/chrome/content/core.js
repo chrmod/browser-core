@@ -249,8 +249,12 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
-
-        var start = (new Date()).getTime();
+        CliqzUtils.fetchAndStoreConfig(function(){
+            //executed after the services are fetched
+            CLIQZ.Core.sendEnvironmentalSignal(startup);
+        });
+    },
+    sendEnvironmentalSignal: function(startup){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
