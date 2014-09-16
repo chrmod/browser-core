@@ -55,6 +55,9 @@ program:
             type: exclude
             cond: (/re:^login/) or (/re:^messages/) or (/re:^events/) or (/re:^help/) or (/re:^settings/) or (/re:^robots[.]txt/)
         -
+            type: exclude
+            cond: /photo.php/
+        -
             type: topic
             label: Sitemap_Facebook_Pages
             cond: /{item::re:^([^?]+)}//
@@ -253,11 +256,14 @@ program:
             cond: /{item}//
     Wikipedia:
         summary: Sitemap_Summary
-        url: wikipedia.org
-        home: http://wikipedia.org/
+        url: de.wikipedia.org
+        home: http://de.wikipedia.org/
         rules:
         -
+            type: exclude
+            cond: (/wiki/) and ((/*/wikipedia:hauptseite/) or (/*/re:^spezial:/) or (/*/re:^portal:/) or (/*/re:^kategorie:/) or (/*/re:^hilfe:/))
+        -
             type: topic
-            label: People
-            icon: cliqz-fa fa-user
-            cond: /{item}//
+            label: Artikel
+            cond: /wiki/{item}//
+            title: title::re:(.+?)(?:\s+\S\s+Wikipedia.*)
