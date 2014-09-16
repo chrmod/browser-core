@@ -557,26 +557,17 @@ function onEnter(ev, item){
                                 }
                             }
                             var reordered = reorder(sugs),
-                                maxScore = 0.0,
-                                isSame = true;
+                                maxScore = 0.0;
                             for (var i = 0; i < reordered.length; i++) {
                                 if (reordered[i].value == inputValue) {
-
                                     s2_pos = i;
                                 }
                                 maxScore = Math.max(maxScore, reordered[i].score);
-                                if (reordered[i].value != sugs[i].value) {
-                                   isSame = false;
-                                }
                             }
 
-                            results[qkey] = {s1: s1_pos,
-                                             s2: s2_pos,
-                                             same: isSame,
-                                             max: maxScore};
-
+                            results[qkey] = {s1: s1_pos, s2: s2_pos, max: maxScore};
                             if (Object.keys(results).length == 4) {
-                                var action = {
+                                var qAction = {
                                     type: 'experiments-v1',
                                     qlen: inputValue.length,
                                     qwords: inputValue.split(/\s+/).length,
@@ -587,7 +578,7 @@ function onEnter(ev, item){
                                         'ql': results['ql'],
                                     }
                                 };
-                                CliqzUtils.track(action);
+                                CliqzUtils.track(qAction);
                             }
                         };
                         // take first 3 chars
