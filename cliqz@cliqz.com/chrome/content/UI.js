@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -289,9 +289,11 @@ function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
-            var eData = r.data;
-            if(eData && eData.type === 'template'){
-                r.vertical = eData.template;
+            var d = r.data;
+            if(d){
+                if(d.template && TEMPLATES.indexOf(d.template) != -1){
+                    r.vertical = d.template;
+                }
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -301,6 +303,8 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
         }
     }
+    //prioritize extra (fun-vertical) results
+    res.results = res.results.sort(function(r){ return r.type !== "cliqz-extra"; });
     return res;
 }
 
@@ -591,7 +595,8 @@ var AGO_CEILINGS=[
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
-        return new Handlebars.SafeString(UI.tpl[name](this));
+        var template = UI.tpl[name] || UI.tpl.empty;
+        return new Handlebars.SafeString(template(this));
     });
 
     Handlebars.registerHelper('agoline', function(ts, options) {
