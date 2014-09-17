@@ -87,7 +87,7 @@ var UI = {
             return;
         
         var enhanced = enhanceResults(res);
-        run(res,150); // applies images layout
+        process_images_result(res, 110); // applies images layout
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -274,7 +274,7 @@ function constructImage(data){
     
     // HEIGHTS = [];
     var IMAGES_MARGIN = 2;
-    var IMAGES_LINES = 3;
+    var IMAGES_LINES = 1;
     function getheight(images, width) {
         width -= IMAGES_MARGIN * images.length ; //images  margin
         var h = 0;
@@ -331,7 +331,7 @@ function constructImage(data){
         setheight(images, getheight(images, width));
     }
 
-    function run(res, max_height) {
+    function process_images_result(res, max_height) {
         var tmp = []
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
