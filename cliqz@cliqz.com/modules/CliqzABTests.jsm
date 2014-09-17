@@ -105,7 +105,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1007_A":
                 // run history-based suggester experiment
-                CliqzUtils.cliqzPrefs.setPref("historyExperiment", true);
+                CliqzUtils.setPref("historyExperiment", true);
                 break;
             default:
                 rule_executed = false;
