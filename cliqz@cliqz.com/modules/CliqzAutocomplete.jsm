@@ -305,6 +305,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.startTime = null;
                         this.resultsTimer = null;
                         this.cliqzResults = null;
+                        this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.cliqzWeather= null;
@@ -340,6 +341,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         var json = JSON.parse(req.response);
                         results = json.result;
                         country = json.country;
+                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                            this.cliqzResultsExtra =
+                                json.extra.results.map(Result.cliqzExtra);
                         this.latency.cliqz = json.duration;
                     }
                     this.cliqzResults = results;
@@ -385,6 +389,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.searchString,
                             this.historyResults,
                             this.cliqzResults,
+                            this.cliqzResultsExtra,
                             this.mixedResults,
                             this.cliqzWeather,
                             this.cliqzBundesliga,
@@ -426,6 +431,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 searchString = this.analyzeQuery(searchString);
 
                 this.cliqzResults = null;
+                this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
@@ -483,6 +489,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 } else {
                     this.cliqzResults = [];
+                    this.cliqzResultsExtra = [];
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];

@@ -59,6 +59,7 @@
             }
 
             if(this.mInput && this._matchCount > 0){
+              debugger;
               var data = [],
                 ctrl = this.mInput.controller,
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
@@ -79,7 +80,7 @@
                 results: data,
                 width: CLIQZ.Core.urlbar.clientWidth - 100
               });
-              CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
+              CLIQZ.UI.suggestions(['#news '+q, '#hq '+q], q);
               CLIQZ.Core.autocompleteQuery(data[0].url);
             }
           ]]>

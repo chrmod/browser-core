@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -288,12 +288,18 @@ function getPartial(type){
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
-
-        r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-        r.logo = generateLogoClass(r.urlDetails);
-        r.image = constructImage(r.data);
-        r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
-        r.vertical = getPartial(r.type);
+        if(r.type == 'cliqz-extra'){
+            var eData = r.data;
+            if(eData && eData.type === 'template'){
+                r.vertical = eData.template;
+            }
+        } else {
+            r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+            r.logo = generateLogoClass(r.urlDetails);
+            r.image = constructImage(r.data);
+            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.vertical = getPartial(r.type);
+        }
     }
     return res;
 }

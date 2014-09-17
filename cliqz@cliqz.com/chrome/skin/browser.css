@@ -271,6 +271,81 @@
 
 /* End last search history */
 
+/* oktoberfest */
+
+.cliqz-okt-left-box {
+    padding-top: 10px;
+    margin-right: 20px;
+    width: 178px;
+    float: left;
+}
+
+.cliqz-okt-name {
+    background-color: #289EF4;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    padding: 5px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cliqz-okt-date {
+    color: grey;
+    padding: 5px;
+}
+
+.cliqz-okt-image {
+    margin-top: 5px;
+    float: left;
+    width: 300px;
+    height: 55px;
+}
+
+.cliqz-okt-btn-box {
+    margin: 5px 10px 0 0;
+    float: right;
+}
+
+.cliqz-okt-btn {
+    line-height: 20px;
+    color: white;
+    font-weight: bold;
+    padding: 3px 5px;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.cliqz-okt-btn-top {
+    background-color: #289EF4;
+    margin-bottom: 5px;
+}
+.cliqz-okt-btn-bot-left {
+    float: left;
+    background-color: #289EFF;
+    margin-right: 5px;
+}
+.cliqz-okt-btn-bot-right {
+    float: left;
+    background-color: #289EE6;
+}
+.cliqz-okt-btn-bot-right:after {
+    clear: both;
+}
+.cliqz-okt-logo {
+    float: right;
+    margin: 5px 15px 0 0;
+    background-image:url(https://lh3.googleusercontent.com/-ed2xRtW5E-w/AAAAAAAAAAI/AAAAAAAAAGg/t8fsuLZOwVI/s120-c/photo.jpg);
+    background-size: 55px 55px;
+    width: 55px;
+    height: 55px;
+}
+/* end oktoberfest*/
+
+
 /* weather */
 .cliqz-weather-left-box {
     padding-top: 10px;
