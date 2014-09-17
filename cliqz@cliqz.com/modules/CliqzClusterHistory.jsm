@@ -263,7 +263,12 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    var item_title = item;
+                    var title_match = title.match(/(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
                     if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;

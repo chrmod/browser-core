@@ -28,6 +28,7 @@ program:
         -
             type: topic
             label: Sitemap_Youtube_Channels
+            title: title::re:(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)
             cond: /user/{item}/
         # TODO: playlists, videos
     Facebook:
