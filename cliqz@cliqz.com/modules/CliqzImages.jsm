@@ -27,9 +27,10 @@ var CliqzImages = {
         }, null, 2000);
     },
     isImagesSearch: function(q){
-        if (q.indexOf('#im ') == 0)
-            return { flag:true, query:q.substring(4)}
-        else
-            return { flag:false}
+        return true;
+        // if (q.indexOf('#im ') == 0)
+        //     return { flag:true, query:q.substring(4)}
+        // else
+        //     return { flag:false}
     }
 }
