@@ -73,7 +73,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -96,7 +97,8 @@ var templates = {
                     }
 
                     var item_title = CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga');
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -150,7 +152,8 @@ var templates = {
                     var label = null;
 
                     var item_title = item;
-                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0
+                            && !template['control_set'].hasOwnProperty(item_title)) {
                         var control = {title: item_title, url: url, iconCls: 'cliqz-fa fa-database'};
                         template['control'].push(control);
                         template['control_set'][item_title] = true;
@@ -175,7 +178,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -198,7 +202,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -269,7 +274,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -337,7 +343,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -409,7 +416,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -473,7 +481,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -543,7 +552,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -571,7 +581,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -638,7 +649,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -717,7 +729,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -740,7 +753,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -763,7 +777,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -830,7 +845,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -901,7 +917,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -929,7 +946,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
