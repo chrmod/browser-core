@@ -691,7 +691,7 @@ var CliqzUtils = {
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
     return urlbar.value.length == 0;
-  }
+  },
   /** Modify the user's Firefox preferences -- always do a backup! */
   setOurOwnPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");

@@ -56,10 +56,11 @@ program:
             cond: (/re:^login/) or (/re:^messages/) or (/re:^events/) or (/re:^help/) or (/re:^settings/) or (/re:^robots[.]txt/)
         -
             type: exclude
-            cond: /photo.php/
+            cond: /re:.+[.]php/
         -
             type: topic
             label: Sitemap_Facebook_Pages
+            title: title::re:(?:[(].*[)]\s*)?(.+)
             cond: /{item::re:^([^?]+)}//
         -
             type: topic
