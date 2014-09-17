@@ -73,7 +73,7 @@ var Extension = {
 
             try{
                 Extension.restoreSearchBar(win);
-                Extension.loadOriginalPrefs();
+                CliqzUtils.resetOriginalPrefs();
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -163,30 +163,6 @@ var Extension = {
     cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
         prefs.clearUserPref('analysis');
-    },
-    saveOriginalPrefs: function() {
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
-        if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-            CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
-                    CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
-            CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-        } else {
-            CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
-        }
-    },
-    loadOriginalPrefs: function() {
-        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
-        if (cliqzBackup) {
-            CliqzUtils.log("Loading maxRichResults backup...");
-            CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
-                    CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
-            // deleteBranch does not work for some reason :(
-            //CliqzUtils.cliqzPrefs.deleteBranch("maxRichResultsBackup");
-            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
-        } else {
-            CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
-        }
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);

@@ -692,4 +692,30 @@ var CliqzUtils = {
     var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
     return urlbar.value.length == 0;
   }
+  /** Modify the user's Firefox preferences -- always do a backup! */
+  setOurOwnPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+          CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
+    } else {
+      CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
+    }
+  },
+  /** Reset the user's preferences that we changed. */
+  resetOriginalPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (cliqzBackup) {
+      CliqzUtils.log("Loading maxRichResults backup...");
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
+          CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+      // deleteBranch does not work for some reason :(
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+      CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+    } else {
+      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
+    }
+  },
 };

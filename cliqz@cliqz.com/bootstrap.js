@@ -8,7 +8,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
     //if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
-    //    Extension.saveOriginalPrefs();
+    //    CliqzUtils.setOurOwnPrefs();
     //    TODO: to ABTest, for now
 }
 
