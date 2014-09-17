@@ -7,8 +7,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
-    if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
-        Extension.saveOriginalPrefs();
+    //if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
+    //    Extension.saveOriginalPrefs();
+    //    TODO: to ABTest, for now
 }
 
 function shutdown(aData, aReason) {
@@ -19,8 +20,6 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_DISABLE) eventLog('addon_disable');
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
-    if (aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL)
-        Extension.loadOriginalPrefs();
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
 }
