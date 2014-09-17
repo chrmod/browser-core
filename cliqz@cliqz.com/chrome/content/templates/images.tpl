@@ -4,7 +4,6 @@
              style='width:{{width}}px; height:{{height}}px;' 
              type="image" url="{{ ref_url }}">
 
-
                 {{#if filter}}
                 <img class="cliqz-image-hidden" src="{{thumb_url}}"
                      id="{{im_url}}"
@@ -23,10 +22,13 @@
                   {{orig_image_width}} x {{orig_image_height}} - {{domain}}
                 </div>
 
-              <div class="cliqz-image-report" style='max-width:{{width}}px;'>
-                  <img src="chrome://cliqzres/content/skin/small_18.png" width="20" height="20" onclick="report_image({{im_url}})" type='image' extra='adult -- {{im_url}}' url='-' />
-                    <img src="chrome://cliqzres/content/skin/small_broken.png" width="20" height="20" onclick="report_image({{im_url}})" type='image' extra='broken -- {{im_url}}' url='-' />
-            
+              <div class="cliqz-image-report" style='width:53px;max-width:{{width}}px;'>
+                  <img src="chrome://cliqzres/content/skin/small_18.png"
+                       width="23px" height="23px" 
+                       type='icon-image' extra='image-report-adult -- {{im_url}}' url='-' />
+                  <img src="chrome://cliqzres/content/skin/small_broken.png" 
+                       width="23px" height="23px" 
+                       type='icon-image' extra='image-report-broken -- {{im_url}}' url='-' />
                 </div>
 
         </div>{{/each}}</div>
