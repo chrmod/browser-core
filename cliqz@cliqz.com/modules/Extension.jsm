@@ -311,12 +311,70 @@ var Extension = {
         if(Services.search.init != null){
             Services.search.init(function(){
                 menupopup.appendChild(Extension.createSearchOptions(doc));
+                menupopup.appendChild(Extension.createLanguageOptions(doc));
             });
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
         }
 
         return menupopup;
+    },
+    createLanguageOptions: function (doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        var languages = {
+          'DE': { lang: 'Deutschland', selected: false},
+          'US': { lang: 'United States', selected: false},
+          'GB': { lang: 'United Kingdom', selected: false},
+          'FR': { lang: 'France', selected: false},
+          'SG': { lang: 'Singapore', selected: false},
+          'VN': { lang: 'Vietnam', selected: false},
+          'HR': { lang: 'Croatia', selected: false},
+          'CA': { lang: 'Canada', selected: false},
+          'GR': { lang: 'Greece', selected: false},
+          'IT': { lang: 'Italy', selected: false},
+          'TR': { lang: 'Turkey ', selected: false},
+          'ES': { lang: 'Spain', selected: false},
+          'RU': { lang: 'Russia', selected: false},
+          'HU': { lang: 'Hungary', selected: false},
+          'RO': { lang: 'Romania', selected: false},
+          'TH': { lang: 'Thailand', selected: false},
+          'PS': { lang: 'Palestine', selected: false},
+          'CH': { lang: 'Switzerland', selected: false},
+          'AT': { lang: 'Austria', selected: false},
+          'EE': { lang: 'Estonia', selected: false},
+          'ID': { lang: 'Indonesia', selected: false},
+          'BR': { lang: 'Brasil', selected: false},
+          'RS': { lang: 'Serbia', selected: false}
+        };
+
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')) {
+          var countryCode = CliqzUtils.getPref('forceCountry');
+          if(languages[countryCode])
+            languages[countryCode].selected = true;
+        } else {
+          languages['DE'].selected = true;
+        }
+
+        menu.setAttribute('label', 'Sprache');
+        for (var language in languages) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', languages[language].lang);
+          item.setAttribute('class', 'menuitem-iconic');
+          if (languages[language].selected) {
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+          item.lang = new String(language);
+          item.addEventListener('command', function(event) {
+              CliqzUtils.setPref('forceCountry', this.lang.toString());
+              timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+          }, false);
+          menupopup.appendChild(item);
+        }
+
+        menu.appendChild(menupopup);
+        return menu;
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -358,9 +416,12 @@ var Extension = {
             try{
                 var btn = win.document.getElementById('cliqz-button')
                 if(btn && btn.children && btn.children.cliqz_menupopup){
+                    var languageOptions = btn.children.cliqz_menupopup.lastChild;
+                    languageOptions.parentNode.removeChild(languageOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
                     searchOptions.parentNode.removeChild(searchOptions);
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
+                    btn.children.cliqz_menupopup.appendChild(Extension.createLanguageOptions(doc));
                 }
             } catch(e){}
         }
