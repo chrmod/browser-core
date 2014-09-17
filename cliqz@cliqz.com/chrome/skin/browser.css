@@ -160,14 +160,14 @@
 }
 
 .cliqz-result-type {
-    height: 9px;
-    width: 9px;
-    border-radius: 50%;
+    height: 35px;
+    width: 5px;
+    /* border-radius: 50%; */
     display: inline-block;
 }
 
 .cliqz-result-item-box {
-    border-bottom: 0px solid #CCC;
+    border-bottom: 0px solid #CCC; /* to have  1px should be in an inner div to this  */
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -771,22 +771,34 @@
 /* images */
 
 .cliqz-images {
-    display: inline-block;    
+    width:100%;
+    height:100%;
+    display: inline-block;
     margin-left:auto;
     margin-right:auto;
-    background: black;
+    background: green;
 }
 
 .cliqz-image-item {
     display: inline-block;
     float: left;
     position: relative;
-    margin:  0px 1px 0px 1px;
-    background: red;
+    /* margin:  0px 1px 0px 1px; */
+    border:solid 1px black;
+    /* background: red; */
+}
+
+.cliqz-image-item:hover {border:solid 1px red
+}
+
+.cliqz-image-item:hover .cliqz-image-hilight {display: none;
+}
+
+.cliqz-image-item:hover .cliqz-image-report {display: block;
 }
 
 .cliqz-image-hidden{
-    filter: grayscale(0.2) blur(10px);
+    filter: grayscale(0.6) blur(30px);
     filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
 }
 
@@ -799,18 +811,34 @@
     overflow: hidden;
     /* text-overflow: ellipsis; */
     color: rgba(255, 255, 255, 1);
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.3);
     position: relative;
     font-family: Courier New;
-    font-size:11px;
-    top: -40px;
+    font-size:10px;
+    top: -80%;
     z-index: 1;
 }
 
-.cliqz-image-hilight:hover{
+.cliqz-image-item > .cliqz-image-hilight:hover{
     text-overflow:inherit;
     overflow:visible;
+    display:hidden;
 }
+
+.cliqz-image-report{
+    white-space: word-wrap;
+    overflow: hidden;
+    position: relative;
+    top: -60%;
+    left:5px;
+    z-index: 5;
+    display: none;
+}
+
+/* .cliqz-image-item > .cliqz-image-report:hover{ */
+/*    display: block; */
+/*    border:solid 2px red;  */
+/* } */
 
 /* end images */
 
