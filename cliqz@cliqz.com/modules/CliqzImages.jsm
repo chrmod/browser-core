@@ -12,7 +12,7 @@ var EXPORTED_SYMBOLS = ['CliqzImages'];
 var CliqzImages = {
     get: function(q, callback){
         CliqzUtils.log('enabled', 'IMAGES');       
-        //var IMAGES_API = 'http://cliqz:cliqz-245@im-search-cache-elb.fbt.co/api/images-json?q='+q+'&n=50';
+        //var IMAGES_API = 'http://cliqz:cliqz-245@im-search-cache-elb.fbt.co/api/images-json?q='+q+'&n=20';
         var IMAGES_API = 'http://im-search-cache-elb.fbt.co/api/images-json?q='+q+'&n=20';
         CliqzUtils.httpHandler('GET', IMAGES_API, function (res) {
             var data = JSON.parse(res.response);
@@ -27,6 +27,9 @@ var CliqzImages = {
         }, null, 2000);
     },
     isImagesSearch: function(q){
-        return true;
+        if (q.indexOf('#im ') == 0)
+            return { flag:true, query:q.substring(4)}
+        else
+            return { flag:false}
     }
 }
