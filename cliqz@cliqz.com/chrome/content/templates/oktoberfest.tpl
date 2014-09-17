@@ -1,5 +1,5 @@
 {{#with data}}
-<div style='padding:5px 0; background-image: url(chrome://cliqzres/content/skin/okt/okt.png)'>
+<div class='cliqz-okt-container'>
     <div class='cliqz-okt-left-box'>
       <div class='cliqz-okt-name'>Oktoberfest 2014</div>
       <div class='cliqz-okt-date'>München, 20. Sept. - 5. Okt.</div>

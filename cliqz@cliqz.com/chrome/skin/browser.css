@@ -273,6 +273,13 @@
 
 /* oktoberfest */
 
+.cliqz-okt-container {
+    padding:5px 0;
+    background-image: url(chrome://cliqzres/content/skin/okt/okt.png);
+    height: 79px;
+    overflow: hidden;
+}
+
 .cliqz-okt-left-box {
     padding: 15px 0 10px 0;
     margin-right: 20px;
@@ -350,23 +357,24 @@
     height: 53px;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1300px) {
   .cliqz-okt-logo {
     display: none;
   }
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1200px) {
   .cliqz-okt-btn-box {
     display: none;
   }
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 1050px) {
   .cliqz-okt-image {
     display: none;
   }
 }
+
 /* end oktoberfest*/
 
 
