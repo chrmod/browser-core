@@ -431,13 +431,25 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
 
-
                 if(searchString.trim().length){
                     // start fetching results and suggestions
 
-                    CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+                    // var im_search_obj = CliqzImages.isImagesSearch(searchString)
+                    // if (im_search_obj.flag){
+                    //     // CliqzUtils.getSuggestions(im_search_obj.query, this.cliqzSuggestionFetcher);
+                    //     CliqzImages.get(im_search_obj.query, this.cliqzImagesCallback);
+                    // }
+                    // else {
+                    //     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    // }
+
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-                    CliqzImages.get(searchString, this.cliqzImagesCallback);
+
+                    if (CliqzImages.isImagesSearch(searchString)){
+                         CliqzImages.get(searchString, this.cliqzImagesCallback);
+                    }
+                    CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+
 
                     // Fetch weather and bundesliga only if search contains trigger
                     if(CliqzWeather.isWeatherSearch(searchString)){
