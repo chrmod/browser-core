@@ -348,20 +348,22 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            var query = CLIQZ.Core.urlbar.value;
-            var queryAutocompleted = null;
-            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
-            {
-                var first = gCliqzBox.resultsBox.children[0];
-                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+            if(CliqzUtils.getPref('sessionExperiment', false)){
+                var query = CLIQZ.Core.urlbar.value;
+                var queryAutocompleted = null;
+                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
                 {
-                    queryAutocompleted = query;
+                    var first = gCliqzBox.resultsBox.children[0];
+                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                    {
+                        queryAutocompleted = query;
+                    }
+                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
                 }
-                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
-            }
 
-            CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'),
-                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+                CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'),
+                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+            }
 
             if(newTab) gBrowser.addTab(url);
             else {
