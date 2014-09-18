@@ -271,6 +271,113 @@
 
 /* End last search history */
 
+/* oktoberfest */
+
+.cliqz-okt-container {
+    padding:5px 0;
+    background-image: url(chrome://cliqzres/content/skin/okt/okt.png);
+    height: 79px;
+    overflow: hidden;
+}
+
+.cliqz-okt-left-box {
+    padding: 15px 0 10px 0;
+    margin-right: 20px;
+    width: 170px;
+    float: left;
+}
+
+.cliqz-okt-name {
+    background-color: #0099ff;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    padding: 5px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cliqz-okt-date {
+    color: grey;
+    padding: 5px 5px 5px 10px;
+    font-size: 11px;
+}
+
+.cliqz-okt-image {
+    margin-top: 12px;
+    float: left;
+    width: 541px;
+    height: 55px;
+    background-size: 541px 55px;
+}
+
+.cliqz-okt-btn-box {
+    margin: 10px 10px 0 0;
+    float: right;
+}
+
+.cliqz-okt-btn {
+    line-height: 20px;
+    color: white;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.cliqz-okt-btn-top {
+    background: url(chrome://cliqzres/content/skin/okt/clock.png) no-repeat 8px center;
+    background-size: 15px 15px;
+    background-color: #0099ff;
+    margin-bottom: 5px;
+    padding-left: 28px;
+    padding-bottom: 4px;
+}
+.cliqz-okt-btn-bot-left {
+    float: left;
+    background-color: #3d7ade;
+    margin-right: 5px;
+}
+.cliqz-okt-btn-bot-right {
+    float: left;
+    background-color: #5cb0fe;
+}
+.cliqz-okt-btn-bot-right:after {
+    clear: both;
+}
+.cliqz-okt-logo {
+    float: right;
+    margin: 15px 20px 0 10px;
+    background-image:url(chrome://cliqzres/content/skin/okt/cliqz_okt_logo.png);
+    background-size: 65px 53px;
+    width: 65px;
+    height: 53px;
+}
+
+@media (max-width: 1300px) {
+  .cliqz-okt-logo {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cliqz-okt-btn-box {
+    display: none;
+  }
+}
+
+@media (max-width: 1050px) {
+  .cliqz-okt-image {
+    display: none;
+  }
+}
+
+/* end oktoberfest*/
+
+
 /* weather */
 .cliqz-weather-left-box {
     padding-top: 10px;

@@ -34,7 +34,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
+  CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -321,6 +321,7 @@ var CliqzUtils = {
     else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
+    else if(type === 'cliqz-extra') return 'X';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
