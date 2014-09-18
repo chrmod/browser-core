@@ -59,8 +59,8 @@ var CliqzUtils = {
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
     }
     //use a different results API
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
-      //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
+    if(CliqzUtils.getPref('sessionExperiment', false)){
+      CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q='
     }
     if (window && window.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/

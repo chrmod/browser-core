@@ -110,6 +110,10 @@ var CliqzABTests = CliqzABTests || {
             case "1008_A":
                 CliqzUtils.setOurOwnPrefs();
                 break;
+            case "1009_A":
+                CliqzUtils.setPref('sessionExperiment', true);
+                CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q=';
+                break;
             default:
                 rule_executed = false;
         }
@@ -170,6 +174,10 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1008_A":
                 CliqzUtils.resetOriginalPrefs();
+                break;
+            case "1009_A":
+                CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
+                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
                 break;
             default:
                 rule_executed = false;
