@@ -107,6 +107,9 @@ var CliqzABTests = CliqzABTests || {
                 // run history-based suggester experiment
                 CliqzUtils.setPref("historyExperiment", true);
                 break;
+            case "1008_A":
+                CliqzUtils.setOurOwnPrefs();
+                break;
             default:
                 rule_executed = false;
         }
@@ -164,6 +167,9 @@ var CliqzABTests = CliqzABTests || {
             case "1007_A":
                 // run history-based suggester experiment
                 CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
+                break;
+            case "1008_A":
+                CliqzUtils.resetOriginalPrefs();
                 break;
             default:
                 rule_executed = false;

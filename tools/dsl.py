@@ -435,7 +435,8 @@ $RULES
 
     CONTROL_TEMPLATE = Template(
 """$ITEM_TITLE
-                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0
+                            && !template['control_set'].hasOwnProperty(item_title)) {
                         var control = {title: item_title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
                         template['control_set'][item_title] = true;
@@ -458,7 +459,8 @@ $RULES
                     }
 
 $ITEM_TITLE
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }"""
