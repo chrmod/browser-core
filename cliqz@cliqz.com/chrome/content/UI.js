@@ -304,7 +304,9 @@ function enhanceResults(res){
         }
     }
     //prioritize extra (fun-vertical) results
-    res.results = res.results.sort(function(r){ return r.type !== "cliqz-extra"; });
+    var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    res.results = first.concat(last);
     return res;
 }
 
