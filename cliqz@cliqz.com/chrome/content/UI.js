@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'generic', 'custom', 'clustering', 'series'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -288,13 +288,25 @@ function getPartial(type){
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
-
-        r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-        r.logo = generateLogoClass(r.urlDetails);
-        r.image = constructImage(r.data);
-        r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
-        r.vertical = getPartial(r.type);
+        if(r.type == 'cliqz-extra'){
+            var d = r.data;
+            if(d){
+                if(d.template && TEMPLATES.indexOf(d.template) != -1){
+                    r.vertical = d.template;
+                }
+            }
+        } else {
+            r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+            r.logo = generateLogoClass(r.urlDetails);
+            r.image = constructImage(r.data);
+            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.vertical = getPartial(r.type);
+        }
     }
+    //prioritize extra (fun-vertical) results
+    var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    res.results = first.concat(last);
     return res;
 }
 
@@ -336,20 +348,21 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            var query = CLIQZ.Core.urlbar.value;
-            var queryAutocompleted = null;
-            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
-            {
-                var first = gCliqzBox.resultsBox.children[0];
-                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+            if(CliqzUtils.getPref('sessionExperiment', false)){
+                var query = CLIQZ.Core.urlbar.value;
+                var queryAutocompleted = null;
+                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
                 {
-                    queryAutocompleted = query;
+                    var first = gCliqzBox.resultsBox.children[0];
+                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                    {
+                        queryAutocompleted = query;
+                    }
+                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
                 }
-                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
-
-            CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'),
-                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
             if(newTab) gBrowser.addTab(url);
             else {
@@ -540,9 +553,37 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
+            else { // not autocomplete, not custom query
+
+                // run A-B test if present
+                if (CliqzUtils.getPref("historyExperiment")) {
+                    //var testQueries = ['bitcoin', 'futurama', 'barcelona',
+                                       //'ghost in the shell',
+                                       //'bitcoin value', 'firefox browser',
+                                       //'javascript array',
+                                       //'bootstrap css',
+                                       //'haskell', 'duct tape for engineers',
+                                       //'python emr',
+                                       //'ruby array', 'tapas madrid',
+                                       //];
+                    ////start test loop
+                    //for (var jj = 0; jj < testQueries.length; jj++) {
+                        //inputValue = testQueries[jj];
+                    if (!CliqzHistoryManager.historyModel) {
+                        CliqzHistoryManager.getHistoryModel(function(model) {
+                            CliqzHistoryManager.historyModel = model;
+                            runHistoryExperiment(inputValue);
+                        });
+                    }
+                    else {
+                        runHistoryExperiment(inputValue);
+                    }
+                    //} // end test loop
+
+                } // end A-B test if
+            }
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
-            CliqzUtils.trackResult(query, queryAutocompleted, index,
-                CliqzUtils.isPrivateResultType(el.getAttribute('type')) ? '' : url);
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
         CliqzUtils.track(action);
 
@@ -618,7 +659,8 @@ var AGO_CEILINGS=[
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
-        return new Handlebars.SafeString(UI.tpl[name](this));
+        var template = UI.tpl[name] || UI.tpl.empty;
+        return new Handlebars.SafeString(template(this));
     });
 
     Handlebars.registerHelper('agoline', function(ts, options) {
@@ -738,6 +780,88 @@ function registerHelpers(){
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
     });
+}
+
+function runHistoryExperiment(inputValue) {
+    setTimeout(
+        function(inputValue) {
+
+            // reorder the given suggestions by their similarity to the corpus
+            function reorder(sugs) {
+                var scores = [];
+                for (var i = 0; i < sugs.length; i++) {
+                    var sc = CliqzHistoryManager.historyModel.similarity(sugs[i].value);
+                    scores.push({score: sc, value: sugs[i].value});
+                }
+                // sort in reverse
+                scores.sort(function(a, b) {return b.score - a.score});
+                var reordered = [];
+                for (var i = 0; i < scores.length; i++) {
+                    //CliqzUtils.log(scores[i].score + " " + scores[i].value);
+                    reordered.push(scores[i]);
+                }
+                return reordered;
+            };
+
+            var results = {};
+            function suggesterCallback(req) {
+                var sugs = JSON.parse(req.response);
+                var s1_pos = -1,
+                    s2_pos = -1;
+                for (var i = 0; i < sugs.length; i++) {
+                    if (sugs[i].value == inputValue) {
+                        s1_pos = i;
+                    }
+                }
+                var reordered = reorder(sugs),
+                    maxScore = 0.0;
+                for (var i = 0; i < reordered.length; i++) {
+                    if (reordered[i].value == inputValue) {
+                        s2_pos = i;
+                    }
+                    maxScore = Math.max(maxScore, reordered[i].score);
+                }
+
+                results[qkey] = {s1: s1_pos, s2: s2_pos, max: maxScore};
+                if (Object.keys(results).length == 4) {
+                    var qAction = {
+                        type: 'experiments-v1',
+                        qlen: inputValue.length,
+                        qwords: inputValue.split(/\s+/).length,
+                        action: {
+                            'q3': results['q3'],
+                            'q5': results['q5'],
+                            'qw': results['qw'],
+                            'ql': results['ql'],
+                        }
+                    };
+                    CliqzUtils.track(qAction);
+                }
+            };
+            // take first 3 chars
+            var cliqzQuery3 = inputValue.substring(0, 3);
+            var cliqzQuery5 = inputValue.substring(0, 5);
+            var cliqzQueryW = inputValue.lastIndexOf(' ') == -1 ?
+                inputValue : inputValue.substring(0, inputValue.indexOf(' '));
+            var cliqzQueryL = inputValue.lastIndexOf(' ') == -1 ?
+                inputValue.substring(0, 1) : inputValue.substring(0, inputValue.lastIndexOf(' ')+2);
+            var suggesterUrl = "http://54.90.135.180/api/suggestions?q=";
+            var qkey = '', qq = '';
+            CliqzUtils.httpGet(suggesterUrl + cliqzQuery3,
+                function (req) { qkey = 'q3', qq = cliqzQuery3; suggesterCallback(req); },
+                function() { CliqzUtils.log("Suggester error!"); });
+            CliqzUtils.httpGet(suggesterUrl + cliqzQuery5,
+                function (req) { qkey = 'q5', qq = cliqzQuery5; suggesterCallback(req); },
+                function() { CliqzUtils.log("Suggester error!"); });
+            CliqzUtils.httpGet(suggesterUrl + cliqzQueryW,
+                function (req) { qkey = 'qw', qq = cliqzQueryW; suggesterCallback(req); },
+                function() { CliqzUtils.log("Suggester error!"); });
+            CliqzUtils.httpGet(suggesterUrl + cliqzQueryL,
+                function (req) { qkey = 'ql', qq = cliqzQueryL; suggesterCallback(req); },
+                function() { CliqzUtils.log("Suggester error!"); });
+
+        },
+    0, inputValue);
 }
 
 ctx.CLIQZ = ctx.CLIQZ || {};

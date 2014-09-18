@@ -130,24 +130,9 @@ CLIQZ.Core = CLIQZ.Core || {
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     _tutorialTimeout:null,
     showTutorial: function(onInstall){
-        // Only show new tutorial if version greater than 29
-        var tutorial_url = "";
-        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                        .getService(Components.interfaces.nsIXULAppInfo);
-        var versionComparator = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-                                  .getService(Components.interfaces.nsIVersionComparator);
-        if (versionComparator.compare(appInfo.version, "29") == 1)
-            tutorial_url = CliqzUtils.TUTORIAL_URL;
-        else
-            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
-
-        // Show it only to users that have a session starting with 5 (10% users)
-        if (!(CliqzUtils.getPref('session','')[0] == '5'))
-            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
-
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(tutorial_url, CliqzUtils.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // force component reload at install/uninstall
@@ -250,8 +235,12 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
-
-        var start = (new Date()).getTime();
+        CliqzUtils.fetchAndStoreConfig(function(){
+            //executed after the services are fetched
+            CLIQZ.Core.sendEnvironmentalSignal(startup);
+        });
+    },
+    sendEnvironmentalSignal: function(startup){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;

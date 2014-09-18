@@ -31,25 +31,25 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
-
-  HOST:                 'https://beta.cliqz.com',
-  SUGGESTIONS:          'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:     'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://ec2-54-80-161-206.compute-1.amazonaws.com/api/v1/logging?q=',
-  LOG:                  'http://ec2-54-166-152-179.compute-1.amazonaws.com/',
-  CLIQZ_URL:            'https://beta.cliqz.com/',
-  UPDATE_URL:           'chrome://cliqz/content/update.html',
-  TUTORIAL_URL_OLD:     'https://beta.cliqz.com/erste-schritte',
-  TUTORIAL_URL:         'chrome://cliqz/content/offboarding.html',
-  INSTAL_URL:           'https://beta.cliqz.com/code-verified',
-  CHANGELOG:            'https://beta.cliqz.com/changelog',
-  UNINSTALL:            'https://beta.cliqz.com/deinstall.html',
-  PREF_STRING:          32,
-  PREF_INT:             64,
-  PREF_BOOL:            128,
-
+  HOST:             'https://beta.cliqz.com',
+  SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
+  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG: 'http://54.160.219.66/api/v1/logging?q=',
+  CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
+  LOG:              'https://logging.cliqz.com',
+  CLIQZ_URL:        'https://beta.cliqz.com/',
+  UPDATE_URL:       'chrome://cliqz/content/update.html',
+  TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
+  INSTAL_URL:       'https://beta.cliqz.com/code-verified',
+  CHANGELOG:        'https://beta.cliqz.com/changelog',
+  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
+  PREF_STRING:      32,
+  PREF_INT:         64,
+  PREF_BOOL:        128,
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefBranch),
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
@@ -59,8 +59,8 @@ var CliqzUtils = {
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
     }
     //use a different results API
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
-      //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
+    if(CliqzUtils.getPref('sessionExperiment', false)){
+      CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q='
     }
     if (window && window.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -132,7 +132,7 @@ var CliqzUtils = {
   getPrefs: function(){
     var prefs = {},
         cqz = CliqzUtils.cliqzPrefs.getChildList('');
-    for(var i=0; i>cqz.length; i++){
+    for(var i=0; i<cqz.length; i++){
       var pref = cqz[i];
       prefs[pref] = CliqzUtils.getPref(pref);
     }
@@ -279,14 +279,42 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils.tryAbort(CliqzUtils._resultsReq);
-    CliqzUtils._querySeq++;
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(
-      CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
-        CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
-        CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
+    if(CliqzUtils.getPref('sessionExperiment', false)){
+      CliqzUtils._querySeq++;
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(
+        CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
+          CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
+          CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
+        function(res){
+          callback && callback(res, q);
+        }
+      );
+    }
+    else {
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
+         CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
+        function(res){
+          callback && callback(res, q);
+        }
+      );
+    }
+  },
+  // IP driven configuration
+  fetchAndStoreConfig: function(callback){
+    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
       function(res){
-        callback && callback(res, q);
-      }
+        if(res && res.response){
+          try {
+            var config = JSON.parse(res.response);
+            for(var k in config){
+              CliqzUtils.setPref('config_' + k, config[k]);
+            }
+          } catch(e){}
+        }
+
+        callback();
+      },
+      callback //on error the callback still needs to be called
     );
   },
   getWorldCup: function(q, callback){
@@ -308,6 +336,7 @@ var CliqzUtils = {
     else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
+    else if(type === 'cliqz-extra') return 'X';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
@@ -410,12 +439,14 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
-      '&i=' + resultIndex +
-      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
-    CliqzUtils.setResultOrder('');
+    if(CliqzUtils.getPref('sessionExperiment', false)){
+      CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
+        (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+        '&i=' + resultIndex +
+        (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
+        CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
+      CliqzUtils.setResultOrder('');
+    }
   },
 
   _resultOrder: '',
@@ -710,5 +741,31 @@ var CliqzUtils = {
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
     return urlbar.value.length == 0;
-  }
+  },
+  /** Modify the user's Firefox preferences -- always do a backup! */
+  setOurOwnPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+          CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
+    } else {
+      CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
+    }
+  },
+  /** Reset the user's preferences that we changed. */
+  resetOriginalPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (cliqzBackup) {
+      CliqzUtils.log("Loading maxRichResults backup...");
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
+          CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+      // deleteBranch does not work for some reason :(
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+      CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+    } else {
+      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
+    }
+  },
 };

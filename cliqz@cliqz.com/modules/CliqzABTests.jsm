@@ -98,9 +98,22 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // log clustering site
                 CliqzUtils.setPref("logCluster", true);
+                break;
             case "1006_A":
                 // abort http connections if a new one appears
                 CliqzUtils.setPref("abortConnections", false);
+                break;
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.setPref("historyExperiment", true);
+                break;
+            case "1008_A":
+                CliqzUtils.setOurOwnPrefs();
+                break;
+            case "1009_A":
+                CliqzUtils.setPref('sessionExperiment', true);
+                CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q=';
+                break;
             default:
                 rule_executed = false;
         }
@@ -150,9 +163,22 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // remove log clustering
                 CliqzUtils.cliqzPrefs.clearUserPref('logCluster');
+                break;
             case "1006_A":
                 // abort http connections if a new one appears
                 CliqzUtils.cliqzPrefs.clearUserPref("abortConnections");
+                break;
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
+                break;
+            case "1008_A":
+                CliqzUtils.resetOriginalPrefs();
+                break;
+            case "1009_A":
+                CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
+                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
+                break;
             default:
                 rule_executed = false;
         }
