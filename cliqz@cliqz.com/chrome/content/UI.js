@@ -360,8 +360,7 @@ function resultClick(ev){
                     }
                     query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
                 }
-
-                CliqzUtils.trackResult(query, queryAutocompleted, el.getAttribute('idx'),
+                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
 
