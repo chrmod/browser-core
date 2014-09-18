@@ -584,8 +584,7 @@ function onEnter(ev, item){
                 } // end A-B test if
             }
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
-            CliqzUtils.trackResult(query, queryAutocompleted, index,
-                CliqzUtils.isPrivateResultType(el.getAttribute('type')) ? '' : url);
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
         CliqzUtils.track(action);
 
