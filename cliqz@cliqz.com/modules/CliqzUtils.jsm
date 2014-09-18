@@ -279,15 +279,25 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils.tryAbort(CliqzUtils._resultsReq);
-    CliqzUtils._querySeq++;
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(
-      CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
-        CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
-        CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
-      function(res){
-        callback && callback(res, q);
-      }
-    );
+    if(CliqzUtils.getPref('sessionExperiment', false)){
+      CliqzUtils._querySeq++;
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(
+        CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
+          CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
+          CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
+        function(res){
+          callback && callback(res, q);
+        }
+      );
+    }
+    else {
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
+         CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
+        function(res){
+          callback && callback(res, q);
+        }
+      );
+    }
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
