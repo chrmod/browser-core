@@ -526,7 +526,15 @@ function onEnter(ev, item){
                     ////start test loop
                     //for (var jj = 0; jj < testQueries.length; jj++) {
                         //inputValue = testQueries[jj];
-                    runHistoryExperiment(inputValue);
+                    if (!CliqzHistoryManager.historyModel) {
+                        CliqzHistoryManager.getHistoryModel(function(model) {
+                            CliqzHistoryManager.historyModel = model;
+                            runHistoryExperiment(inputValue);
+                        });
+                    }
+                    else {
+                        runHistoryExperiment(inputValue);
+                    }
                     //} // end test loop
 
                 } // end A-B test if

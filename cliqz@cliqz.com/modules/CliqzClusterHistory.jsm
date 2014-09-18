@@ -73,7 +73,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -96,7 +97,8 @@ var templates = {
                     }
 
                     var item_title = CliqzUtils.getLocalizedString('Sitemap_Bild_Bundesliga');
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -150,7 +152,8 @@ var templates = {
                     var label = null;
 
                     var item_title = item;
-                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0
+                            && !template['control_set'].hasOwnProperty(item_title)) {
                         var control = {title: item_title, url: url, iconCls: 'cliqz-fa fa-database'};
                         template['control'].push(control);
                         template['control_set'][item_title] = true;
@@ -175,7 +178,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -198,7 +202,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -246,7 +251,11 @@ var templates = {
 
                 CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
 
-                if (vpath[0] == 'user') {
+                if (/playlist\?list=wl/.test(vpath[0])) {
+
+
+                }
+                else if (vpath[0] == 'user') {
                     var item = decodeURIComponent(vpath[1]);
                     var label = CliqzUtils.getLocalizedString('Sitemap_Youtube_Channels');
 
@@ -263,8 +272,43 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    var title_match = title.match(/(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+                else if (/playlist\?list=[A-Za-z0-9]+/.test(vpath[0])) {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Youtube_Playlists');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var title_match = title.match(/(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -332,7 +376,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -404,7 +449,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -468,7 +514,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -538,7 +585,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -566,7 +614,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -633,7 +682,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -685,7 +735,7 @@ var templates = {
 
 
                 }
-                else if (vpath[0] == 'photo.php') {
+                else if (/.+[.]php/.test(vpath[0])) {
 
 
                 }
@@ -706,8 +756,14 @@ var templates = {
                         next_color = (next_color+1)%COLORS.length;
                     }
 
-                    var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    var title_match = title.match(/(?:[(].*[)]\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -730,7 +786,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -753,7 +810,8 @@ var templates = {
                     }
 
                     var item_title = title;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -820,7 +878,8 @@ var templates = {
                     }
 
                     var item_title = item;
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -891,7 +950,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }
@@ -919,7 +979,8 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }

@@ -73,6 +73,7 @@ var Extension = {
 
             try{
                 Extension.restoreSearchBar(win);
+                CliqzUtils.resetOriginalPrefs();
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }

@@ -24,12 +24,21 @@ program:
             type: control
             title: Sitemap_Youtube_WatchLater
             url: http://www.youtube.com/playlist?list=WL
-            #cond: /playlist?list=WL/
+            #cond: /playlist?list=wl/
+        -
+            type: exclude
+            cond: /re:playlist\?list=wl/
         -
             type: topic
             label: Sitemap_Youtube_Channels
+            title: title::re:(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)
             cond: /user/{item}/
-        # TODO: playlists, videos
+        -
+            type: topic
+            label: Sitemap_Youtube_Playlists
+            title: title::re:(.+)(?:\s+\S\s+[Yy]ou[Tt]ube\s*)
+            cond: /re:playlist\?list=[A-Za-z0-9]+/
+        # TODO: videos
     Facebook:
         summary: Sitemap_Summary
         url: facebook.com
@@ -56,10 +65,11 @@ program:
             cond: (/re:^login/) or (/re:^messages/) or (/re:^events/) or (/re:^help/) or (/re:^settings/) or (/re:^robots[.]txt/)
         -
             type: exclude
-            cond: /photo.php/
+            cond: /re:.+[.]php/
         -
             type: topic
             label: Sitemap_Facebook_Pages
+            title: title::re:(?:[(].*[)]\s*)?(.+)
             cond: /{item::re:^([^?]+)}//
         -
             type: topic
