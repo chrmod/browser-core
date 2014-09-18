@@ -33,7 +33,7 @@ var VERTICAL_ENCODINGS = {
 var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'http://107.21.83.20/api/v1/results?q=',
+  RESULTS_PROVIDER: 'http://webbeta.cliqz.com/api/v1/results?q=',
   CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
