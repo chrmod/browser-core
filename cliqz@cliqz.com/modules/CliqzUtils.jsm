@@ -34,6 +34,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG: 'http://54.160.219.66/api/v1/logging?q=',
   CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
@@ -278,11 +279,15 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils.tryAbort(CliqzUtils._resultsReq);
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
-                                                CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
-                                function(res){
-                                  callback && callback(res, q);
-                                });
+    CliqzUtils._querySeq++;
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(
+      CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
+        CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
+        CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -332,6 +337,9 @@ var CliqzUtils = {
 
     return type; //fallback to style - it should never happen
   },
+  isPrivateResultType: function(type) {
+    return type == 'H' || type == 'B' || type == 'T';
+  },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
     var pos = type.indexOf('sources-')
@@ -339,6 +347,18 @@ var CliqzUtils = {
       return CliqzUtils.encodeSources(type.substr(pos+8));
     else
       return ""
+  },
+  _querySession: '',
+  _querySeq: 0,
+  setQuerySession: function(querySession){
+    CliqzUtils._querySession = querySession;
+    CliqzUtils._querySeq = 0;
+  },
+  encodeQuerySession: function(){
+    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
+  },
+  encodeQuerySeq: function(){
+    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeSources: function(sources){
     return sources.split(', ').map(
@@ -406,6 +426,24 @@ var CliqzUtils = {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
+
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+      '&i=' + resultIndex +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
+    CliqzUtils.setResultOrder('');
+  },
+
+  _resultOrder: '',
+  setResultOrder: function(resultOrder) {
+    CliqzUtils._resultOrder = resultOrder;
+  },
+  encodeResultOrder: function() {
+    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(CliqzUtils._resultOrder) : '';
+  },
+
   _track_req: null,
   _track_sending: [],
   _track_start: undefined,
