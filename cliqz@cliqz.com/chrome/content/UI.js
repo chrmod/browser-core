@@ -102,6 +102,9 @@ var UI = {
         }
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+
+        //might be unset at the first open
+        CLIQZ.Core.popup.mPopupOpen = true;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -337,10 +340,7 @@ function resultClick(ev){
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
-            else {
-                openUILink(url);
-                CLIQZ.Core.popup.hidePopup()
-            }
+            else openUILink(url);
             break;
         }
         if(el.className == IC) break; //do not go higher than a result
@@ -738,7 +738,7 @@ function registerHelpers(){
 
 function runHistoryExperiment(inputValue) {
     setTimeout(
-        function(inputValue) { 
+        function(inputValue) {
 
             // reorder the given suggestions by their similarity to the corpus
             function reorder(sugs) {
