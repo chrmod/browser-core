@@ -109,7 +109,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             }
         }
 
-        if (maxCounter < (history.matchCount * 0.60)) {
+        if (maxCounter < (history.matchCount * 0.50)) {
             CliqzUtils.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60, CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
         }
