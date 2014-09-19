@@ -40,7 +40,7 @@
 			<div class='cliqz-hq-links'>
 			{{#each data.richData.additional_sources}}
 				<div url='{{url}}'
-					 idx='{{ @index }}'
+					 extra='sources{{ @index }}'
 					 type='{{ ../type }}'
 				     class='cliqz-hq-link'>
 					{{title}}
