@@ -761,10 +761,12 @@ function runHistoryExperiment(inputValue) {
             function suggesterCallback(req) {
                 var sugs = JSON.parse(req.response);
                 var s1_pos = -1,
-                    s2_pos = -1;
+                    s2_pos = -1,
+                    pop = 0;
                 for (var i = 0; i < sugs.length; i++) {
                     if (sugs[i].value == inputValue) {
                         s1_pos = i;
+                        pop = sugs[i].score;
                     }
                 }
                 var reordered = reorder(sugs),
@@ -776,10 +778,12 @@ function runHistoryExperiment(inputValue) {
                     maxScore = Math.max(maxScore, reordered[i].score);
                 }
 
-                results[qkey] = {s1: s1_pos, s2: s2_pos, max: maxScore};
+                results[qkey] = {s1: s1_pos, s2: s2_pos, pop: pop, max: maxScore};
                 if (Object.keys(results).length == 4) {
                     var qAction = {
-                        type: 'experiments-v1',
+                        type: 'experiments-v2',
+                        docs: CliqzHistoryManager.historyModel.dlen,
+                        terms: CliqzHistoryManager.historyModel.dted,
                         qlen: inputValue.length,
                         qwords: inputValue.split(/\s+/).length,
                         action: {
