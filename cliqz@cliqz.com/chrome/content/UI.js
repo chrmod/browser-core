@@ -782,8 +782,8 @@ function runHistoryExperiment(inputValue) {
                 if (Object.keys(results).length == 4) {
                     var qAction = {
                         type: 'experiments-v2',
-                        docs: CliqzHistoryManager.historyModel.dlen,
-                        terms: CliqzHistoryManager.historyModel.dted,
+                        docs: CliqzHistoryManager.historyModel.docs,
+                        terms: CliqzHistoryManager.historyModel.terms,
                         qlen: inputValue.length,
                         qwords: inputValue.split(/\s+/).length,
                         action: {
@@ -799,8 +799,7 @@ function runHistoryExperiment(inputValue) {
             // take first 3 chars
             var cliqzQuery3 = inputValue.substring(0, 3);
             var cliqzQuery5 = inputValue.substring(0, 5);
-            var cliqzQueryW = inputValue.lastIndexOf(' ') == -1 ?
-                inputValue : inputValue.substring(0, inputValue.indexOf(' '));
+            var cliqzQueryW = inputValue;
             var cliqzQueryL = inputValue.lastIndexOf(' ') == -1 ?
                 inputValue.substring(0, 1) : inputValue.substring(0, inputValue.lastIndexOf(' ')+2);
             var suggesterUrl = "http://54.90.135.180/api/suggestions?q=";
