@@ -34,7 +34,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  CONFIG_PROVIDER:  'http://webbeta.cliqz.com/api/v1/config',
+  CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
@@ -47,6 +47,8 @@ var CliqzUtils = {
   PREF_BOOL:        128,
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefBranch),
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
@@ -319,6 +321,7 @@ var CliqzUtils = {
     else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
+    else if(type === 'cliqz-extra') return 'X';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
@@ -688,5 +691,31 @@ var CliqzUtils = {
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
     return urlbar.value.length == 0;
-  }
+  },
+  /** Modify the user's Firefox preferences -- always do a backup! */
+  setOurOwnPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+          CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
+    } else {
+      CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
+    }
+  },
+  /** Reset the user's preferences that we changed. */
+  resetOriginalPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (cliqzBackup) {
+      CliqzUtils.log("Loading maxRichResults backup...");
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
+          CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+      // deleteBranch does not work for some reason :(
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+      CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+    } else {
+      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
+    }
+  },
 };
