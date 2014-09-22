@@ -749,7 +749,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('is_twitter', function(url) {
-        if(url.indexOf('http://twitter.com/') > -1)
+        var twitter_url_regex = /^https?:\/\/twitter\.com/;
+        if(url.match(twitter_url_regex))
           return true;
         else
           return false;
