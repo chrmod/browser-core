@@ -186,7 +186,10 @@ var Extension = {
             Extension.addScript('UI', win);
             Extension.addScript('libs/handlebars-v1.3.0', win);
 
-            Extension.addButtons(win);
+            // Give time to locals to load before adding strings
+            CliqzUtils.setTimeout(function() {
+              Extension.addButtons(win);
+            }, 1);
 
             try {
                 win.CLIQZ.Core.init();
@@ -324,29 +327,29 @@ var Extension = {
             menupopup = doc.createElement('menupopup');
 
         var languages = {
-          'DE': { lang: 'Deutschland', selected: false},
-          'US': { lang: 'United States', selected: false},
-          'GB': { lang: 'United Kingdom', selected: false},
-          'FR': { lang: 'France', selected: false},
-          'SG': { lang: 'Singapore', selected: false},
-          'VN': { lang: 'Vietnam', selected: false},
-          'HR': { lang: 'Croatia', selected: false},
-          'CA': { lang: 'Canada', selected: false},
-          'GR': { lang: 'Greece', selected: false},
-          'IT': { lang: 'Italy', selected: false},
-          'TR': { lang: 'Turkey ', selected: false},
-          'ES': { lang: 'Spain', selected: false},
-          'RU': { lang: 'Russia', selected: false},
-          'HU': { lang: 'Hungary', selected: false},
-          'RO': { lang: 'Romania', selected: false},
-          'TH': { lang: 'Thailand', selected: false},
-          'PS': { lang: 'Palestine', selected: false},
-          'CH': { lang: 'Switzerland', selected: false},
-          'AT': { lang: 'Austria', selected: false},
-          'EE': { lang: 'Estonia', selected: false},
-          'ID': { lang: 'Indonesia', selected: false},
-          'BR': { lang: 'Brasil', selected: false},
-          'RS': { lang: 'Serbia', selected: false}
+          'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
+          'BR': { lang: CliqzUtils.getLocalizedString('country_code_BR'), selected: false},
+          'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
+          'HR': { lang: CliqzUtils.getLocalizedString('country_code_HR'), selected: false},
+          'EE': { lang: CliqzUtils.getLocalizedString('country_code_EE'), selected: false},
+          'FR': { lang: CliqzUtils.getLocalizedString('country_code_FR'), selected: false},
+          'DE': { lang: CliqzUtils.getLocalizedString('country_code_DE'), selected: false},
+          'GR': { lang: CliqzUtils.getLocalizedString('country_code_GR'), selected: false},
+          'HU': { lang: CliqzUtils.getLocalizedString('country_code_HU'), selected: false},
+          'ID': { lang: CliqzUtils.getLocalizedString('country_code_ID'), selected: false},
+          'IT': { lang: CliqzUtils.getLocalizedString('country_code_IT'), selected: false},
+          'PS': { lang: CliqzUtils.getLocalizedString('country_code_PS'), selected: false},
+          'RO': { lang: CliqzUtils.getLocalizedString('country_code_RO'), selected: false},
+          'RU': { lang: CliqzUtils.getLocalizedString('country_code_RU'), selected: false},
+          'RS': { lang: CliqzUtils.getLocalizedString('country_code_RS'), selected: false},
+          'SG': { lang: CliqzUtils.getLocalizedString('country_code_SG'), selected: false},
+          'ES': { lang: CliqzUtils.getLocalizedString('country_code_ES'), selected: false},
+          'CH': { lang: CliqzUtils.getLocalizedString('country_code_CH'), selected: false},
+          'TH': { lang: CliqzUtils.getLocalizedString('country_code_TH'), selected: false},
+          'TR': { lang: CliqzUtils.getLocalizedString('country_code_TR'), selected: false},
+          'GB': { lang: CliqzUtils.getLocalizedString('country_code_GB'), selected: false},
+          'US': { lang: CliqzUtils.getLocalizedString('country_code_US'), selected: false},
+          'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };
 
         if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')) {
@@ -357,7 +360,7 @@ var Extension = {
           languages['DE'].selected = true;
         }
 
-        menu.setAttribute('label', 'Sprache');
+        menu.setAttribute('label', 'Regionale Ergebnisse');
         for (var language in languages) {
           var item = doc.createElement('menuitem');
           item.setAttribute('label', languages[language].lang);
