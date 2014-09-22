@@ -305,7 +305,16 @@ var Extension = {
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
         menupopup.appendChild(menuitem4);
-        menupopup.appendChild(Extension.createSearchOptions(doc));
+
+        //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
+        //FF16+
+        if(Services.search.init != null){
+            Services.search.init(function(){
+                menupopup.appendChild(Extension.createSearchOptions(doc));
+            });
+        } else {
+            menupopup.appendChild(Extension.createSearchOptions(doc));
+        }
 
         return menupopup;
     },

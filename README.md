@@ -69,7 +69,7 @@ Glossary
 ``` bash
   "<ENCODED_RESULT_TYPE>"
 
- - T-tab result, B-bookmark, H-history, S-series, C-cluster
+ - T-tab result, B-bookmark, H-history, S-series, C-cluster, X - fun
  - any combination of one or more for vertical results:
     p - people
     c - census
