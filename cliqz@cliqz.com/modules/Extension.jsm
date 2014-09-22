@@ -189,7 +189,7 @@ var Extension = {
             // Give time to locals to load before adding strings
             CliqzUtils.setTimeout(function() {
               Extension.addButtons(win);
-            }, 1);
+            }, 2000);
 
             try {
                 win.CLIQZ.Core.init();
