@@ -186,10 +186,7 @@ var Extension = {
             Extension.addScript('UI', win);
             Extension.addScript('libs/handlebars-v1.3.0', win);
 
-            // Give time to locals to load before adding strings
-            CliqzUtils.setTimeout(function() {
-              Extension.addButtons(win);
-            }, 2000);
+            Extension.addButtons(win);
 
             try {
                 win.CLIQZ.Core.init();
