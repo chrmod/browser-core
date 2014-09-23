@@ -325,6 +325,7 @@ var Extension = {
             menupopup = doc.createElement('menupopup');
 
         var languages = {
+          '': { lang: CliqzUtils.getLocalizedString('country_code_'), selected: false},
           'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
           'BR': { lang: CliqzUtils.getLocalizedString('country_code_BR'), selected: false},
           'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
@@ -350,13 +351,13 @@ var Extension = {
           'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };
 
-        if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')) {
-          var countryCode = CliqzUtils.getPref('forceCountry');
-          if(languages[countryCode])
-            languages[countryCode].selected = true;
-        } else {
-          languages['DE'].selected = true;
-        }
+        var location = CliqzUtils.getPref('config_location', 'DE');
+        // Append current location to Automatic string
+        languages[''].lang += ' (' + languages[location].lang + ')';
+
+        var countryCode = CliqzUtils.getPref('forceCountry', '');
+        if(languages[countryCode])
+          languages[countryCode].selected = true;
 
         menu.setAttribute('label', 'Regionale Ergebnisse');
         for (var language in languages) {
@@ -372,6 +373,9 @@ var Extension = {
               timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
           }, false);
           menupopup.appendChild(item);
+          // Add seperator after Automatic item
+          if (language === '')
+            menupopup.appendChild(doc.createElement('menuseparator'));
         }
 
         menu.appendChild(menupopup);
