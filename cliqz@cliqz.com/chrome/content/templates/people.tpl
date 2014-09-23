@@ -26,13 +26,13 @@
 				<span class='cliqz-people-jobtitle'>
 					{{current_job_title}}
 				</span>
-				bei
+				{{local 'peoplePositionAt'}}
 				<span class='cliqz-people-company'>
 					{{current_company}}
 				</span>
 				{{#if since}}
 					<span class='cliqz-people-agoline'>
-						seit {{since}}
+						{{local 'peoplePositionSince'}} {{since}}
 					</span>
 				{{/if}}
 			</div>

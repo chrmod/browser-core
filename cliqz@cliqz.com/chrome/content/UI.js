@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -90,8 +90,11 @@ var UI = {
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
 
-        if(gCliqzBox.messageBox)
-            gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse';
+        if(gCliqzBox.messageBox){
+            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
+            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
+            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -296,6 +299,8 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
+
+                    if(r.vertical == 'text')r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -613,16 +618,16 @@ function trackArrowNavigation(el){
 }
 var AGO_CEILINGS=[
     [0            , '',                , 1],
-    [120          , 'vor einer Minute' , 1],
-    [3600         , 'vor %d Minuten'   , 60],
-    [7200         , 'vor einer Stunde' , 1],
-    [86400        , 'vor %d Stunden'   , 3600],
-    [172800       , 'gestern'          , 1],
-    [604800       , 'vor %d Tagen'     , 86400],
-    [4838400      , 'vor einem Monat'  , 1],
-    [29030400     , 'vor %d Monaten'   , 2419200],
-    [58060800     , 'vor einem Jahr'   , 1],
-    [2903040000   , 'vor %d Jaren'     , 29030400],
+    [120          , 'ago1Minute' , 1],
+    [3600         , 'agoXMinutes'   , 60],
+    [7200         , 'ago1Hour' , 1],
+    [86400        , 'agoXHours'   , 3600],
+    [172800       , 'agoYesterday'          , 1],
+    [604800       , 'agoXDays'     , 86400],
+    [4838400      , 'ago1Month'  , 1],
+    [29030400     , 'agoXMonths'   , 2419200],
+    [58060800     , 'ago1year'   , 1],
+    [2903040000   , 'agoXYears'     , 29030400],
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
@@ -638,7 +643,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -656,6 +661,10 @@ function registerHelpers(){
         } else {
             return options.inverse(this);
         }
+    });
+
+    Handlebars.registerHelper('local', function(key, v1, v2 ) {
+        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
     Handlebars.registerHelper('json', function(value, options) {

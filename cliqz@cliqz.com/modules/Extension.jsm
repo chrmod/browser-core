@@ -186,10 +186,7 @@ var Extension = {
             Extension.addScript('UI', win);
             Extension.addScript('libs/handlebars-v1.3.0', win);
 
-            // Give time to locals to load before adding strings
-            CliqzUtils.setTimeout(function() {
-              Extension.addButtons(win);
-            }, 2000);
+            Extension.addButtons(win);
 
             try {
                 win.CLIQZ.Core.init();
@@ -236,11 +233,16 @@ var Extension = {
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
-        var menupopup = Extension.createMenu(win)
+        var menupopup = doc.createElement('menupopup');
+        menupopup.setAttribute('id', 'cliqz_menupopup');
         button.appendChild(menupopup);
 
+        menupopup.addEventListener('popupshowing', function(){
+            Extension.createMenuifEmpty(win, menupopup);
+        });
         button.addEventListener('command', function(ev) {
-            menupopup.openPopup(button,"after_start", 0, 0, false, true);
+            Extension.createMenuifEmpty(win, menupopup);
+            button.children[0].openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
@@ -263,13 +265,11 @@ var Extension = {
 
         ToolbarButtonManager.restorePosition(doc, shareButton);
     },
-    createMenu: function(win){
-        var doc = win.document,
-            menupopup = doc.createElement('menupopup');
-        menupopup.setAttribute('id', 'cliqz_menupopup');
-        menupopup.addEventListener('command', function(event) {
+    // creates the menu items at first click
+    createMenuifEmpty: function(win, menupopup){
+        if(menupopup.children.length > 0) return;
 
-        }, false);
+        var doc = win.document;
 
         var menuitem1 = doc.createElement('menuitem');
         menuitem1.setAttribute('id', 'cliqz_menuitem1');
@@ -299,7 +299,7 @@ var Extension = {
 
         var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'cliqz_menuitem4');
-        menuitem4.setAttribute('label', 'Datenschutz');
+        menuitem4.setAttribute('label', CliqzUtils.getLocalizedString('btnPrivacy'));
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
         }, false);
@@ -319,8 +319,6 @@ var Extension = {
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
         }
-
-        return menupopup;
     },
     createLanguageOptions: function (doc) {
         var menu = doc.createElement('menu'),
@@ -389,7 +387,7 @@ var Extension = {
             engines = ResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
-        menu.setAttribute('label', 'Standard-Suchmaschine');
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
 
         for(var i in engines){
 

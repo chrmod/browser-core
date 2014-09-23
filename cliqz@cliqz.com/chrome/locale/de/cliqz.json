@@ -1,6 +1,84 @@
 {
+    "btnPrivacy":{
+        "message": "Datenschutz"
+    },
+    "btnDefaultSearchEngine":{
+        "message": "Standard-Suchmaschine"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
+    },
+    "noResultTitle":{
+        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+    },
+    "noResultMessage":{
+        "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
+    },
+    "noResults": {
+        "message":"Keine Ergebnisse"
+    },
+    "numResults": {
+        "message":"Top {} Ergebnisse"
+    },
+    "moreResults":{
+        "message":"noch mehr ..."
+    },
+    "customSearch":{
+        "message":"Suche <b><i>{}</i></b> auf {}"
+    },
+    "peoplePositionAt":{
+        "message":"bei"
+    },
+    "peoplePositionSince":{
+        "message":"seit"
+    },
+    "videoBy":{
+        "message":"von"
+    },
+    "weatherCurrent":{
+        "message":"aktuell"
+    },
+    "weatherCredits":{
+        "message":"zur Verfügung gestellt von <br /> openweathermap.org"
+    },
+    "ago1Minute":{
+        "message":"vor einer Minute"
+    },
+    "agoXMinutes":{
+        "message":"vor {} Minuten"
+    },
+    "ago1Hour":{
+        "message":"vor einer Stunde"
+    },
+    "agoXHours":{
+        "message":"vor {} Stunden"
+    },
+    "agoYesterday":{
+        "message":"gestern"
+    },
+    "agoXDays":{
+        "message":"vor {} Tagen"
+    },
+    "ago1Month":{
+        "message":"vor einem Monat"
+    },
+    "agoXMonths":{
+        "message":"vor {} Monaten"
+    },
+    "ago1year":{
+        "message":"vor einem Jahr"
+    },
+    "agoXYears":{
+        "message":"vor {} Jaren"
+    },
+    "offTitle":{
+        "message":"die neue Art, durch’s Web zu navigieren"
+    },
+    "offBtn":{
+        "message":"Jetzt ausprobieren"
+    },
+    "offMessage":{
+        "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
     },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
@@ -170,5 +248,4 @@
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
     }
-
 }

@@ -30,7 +30,7 @@
       </span>
       <span class='cliqz-result-video-author'>
       {{#if data.richData.poster}}
-        von
+        {{local 'videoBy'}}
         <strong style='margin-right:5px;'>
           {{ data.richData.poster }}
         </strong>
