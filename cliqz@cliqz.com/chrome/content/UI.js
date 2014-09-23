@@ -618,16 +618,16 @@ function trackArrowNavigation(el){
 }
 var AGO_CEILINGS=[
     [0            , '',                , 1],
-    [120          , 'vor einer Minute' , 1],
-    [3600         , 'vor %d Minuten'   , 60],
-    [7200         , 'vor einer Stunde' , 1],
-    [86400        , 'vor %d Stunden'   , 3600],
-    [172800       , 'gestern'          , 1],
-    [604800       , 'vor %d Tagen'     , 86400],
-    [4838400      , 'vor einem Monat'  , 1],
-    [29030400     , 'vor %d Monaten'   , 2419200],
-    [58060800     , 'vor einem Jahr'   , 1],
-    [2903040000   , 'vor %d Jaren'     , 29030400],
+    [120          , 'ago1Minute' , 1],
+    [3600         , 'agoXMinutes'   , 60],
+    [7200         , 'ago1Hour' , 1],
+    [86400        , 'agoXHours'   , 3600],
+    [172800       , 'agoYesterday'          , 1],
+    [604800       , 'agoXDays'     , 86400],
+    [4838400      , 'ago1Month'  , 1],
+    [29030400     , 'agoXMonths'   , 2419200],
+    [58060800     , 'ago1year'   , 1],
+    [2903040000   , 'agoXYears'     , 29030400],
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
@@ -643,7 +643,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -661,6 +661,10 @@ function registerHelpers(){
         } else {
             return options.inverse(this);
         }
+    });
+
+    Handlebars.registerHelper('local', function(key, v1, v2 ) {
+        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
     Handlebars.registerHelper('json', function(value, options) {

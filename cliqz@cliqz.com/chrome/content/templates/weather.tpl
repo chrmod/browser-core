@@ -2,7 +2,7 @@
 <div style='padding:5px 0'>
   <div class='cliqz-weather-left-box'>
       <div class='cliqz-weather-city'>{{ city }}</div>
-      <div class='cliqz-weather-status'>aktuell</div>
+      <div class='cliqz-weather-status'>{{local 'weatherCurrent'}}</div>
   </div>
 
   <div class='cliqz-weather-today-container'>
@@ -21,12 +21,7 @@
 
 
   <div class='cliqz-weather-credits'>
-    <div>
-      zur Verfügung gestellt von
-    </div>
-    <div>
-      openweathermap.org
-    </div>
+    {{{local 'weatherCredits'}}}
   </div>
 
   <div class='cliqz-weather-skew-container cliqz-weather-aTomorrow'>

@@ -233,11 +233,12 @@ var Extension = {
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
-        var menupopup = Extension.createMenu(win)
-        button.appendChild(menupopup);
 
         button.addEventListener('command', function(ev) {
-            menupopup.openPopup(button,"after_start", 0, 0, false, true);
+            if(button.children.length == 0){
+                button.appendChild( Extension.createMenu(win));
+            }
+            button.children[0].openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
@@ -296,7 +297,7 @@ var Extension = {
 
         var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'cliqz_menuitem4');
-        menuitem4.setAttribute('label', 'Datenschutz');
+        menuitem4.setAttribute('label', CliqzUtils.getLocalizedString('btnPrivacy'));
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
         }, false);
@@ -324,7 +325,7 @@ var Extension = {
             engines = ResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
-        menu.setAttribute('label', 'Standard-Suchmaschine');
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
 
         for(var i in engines){
 

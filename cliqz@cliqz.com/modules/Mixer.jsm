@@ -180,7 +180,7 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra) results = cliqzExtra.concat(results);
-        if(results.length ==0 ){
+        if(results.length == 0 && mixed.matchCount == 0){
             results.push(
                 Result.cliqzExtra(
                     {

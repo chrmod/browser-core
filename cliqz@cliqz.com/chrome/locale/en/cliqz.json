@@ -1,6 +1,75 @@
 {
+    "btnPrivacy":{
+        "message": "Privacy Policy"
+    },
+    "btnDefaultSearchEngine":{
+        "message": "Default Search Engine"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
+    },
+    "noResultTitle":{
+        "message":"Bummer, we don’t have the right result yet.<br />We’re working on it!"
+    },
+    "noResultMessage":{
+        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+    },
+    "noResults": {
+        "message":"No results"
+    },
+    "numResults": {
+        "message":"Top {} Results"
+    },
+    "moreResults":{
+        "message":"more ..."
+    },
+    "customSearch":{
+        "message":"Search <b><i>{}</i></b> on {}"
+    },
+    "peoplePositionAt":{
+        "message":"at"
+    },
+    "peoplePositionSince":{
+        "message":"since"
+    },
+    "videoBy":{
+        "message":"by"
+    },
+    "weatherCurrent":{
+        "message":"current"
+    },
+    "weatherCredits":{
+        "message":"provided courtesy of <br /> openweathermap.org"
+    },
+    "ago1Minute":{
+        "message":"one minute ago"
+    },
+    "agoXMinutes":{
+        "message":"{} minutes ago"
+    },
+    "ago1Hour":{
+        "message":"one hour ago"
+    },
+    "agoXHours":{
+        "message":"{} hours ago"
+    },
+    "agoYesterday":{
+        "message":"yesterday"
+    },
+    "agoXDays":{
+        "message":"{} days ago"
+    },
+    "ago1Month":{
+        "message":"one month ago"
+    },
+    "agoXMonths":{
+        "message":"{} months ago"
+    },
+    "ago1year":{
+        "message":"one year ago"
+    },
+    "agoXYears":{
+        "message":"{} years ago"
     },
     "Sitemap_Summary": {
         "message":"My sitemap for {}"
