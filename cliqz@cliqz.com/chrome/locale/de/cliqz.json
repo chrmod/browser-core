@@ -71,6 +71,15 @@
     "agoXYears":{
         "message":"vor {} Jaren"
     },
+    "offTitle":{
+        "message":"die neue Art, durch’s Web zu navigieren"
+    },
+    "offBtn":{
+        "message":"Jetzt ausprobieren"
+    },
+    "offMessage":{
+        "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
+    },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
     },

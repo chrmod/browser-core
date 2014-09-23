@@ -59,32 +59,32 @@
 </head>
 <body class='back' onbeforeunload='closePage(event)'>
     <h1 class='header'>
-        Willkommen! <img class="logo" src="http://beta.cliqz.com/img/CliqzLogo.svg" > hilft Dir beim Finden im Internet.
+        <img class="logo" src="http://beta.cliqz.com/img/CliqzLogo.svg">
+        <span class='cliqz-locale' key='offTitle'></span>
     </h1>
-    <div class='mid'>
-        Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten
+    <div class='mid cliqz-locale' key='offMessage'>
     </div>
     <br /><br /><br /><br />
     <div class='mid' id='test_btn'>
-        <span class='test'>
-            Jetzt ausprobieren
-        </span>
+        <span class='test cliqz-locale' key='offBtn'></span>
     </div>
     <div class="screenshot mid">
       <img src="chrome://cliqzres/content/skin/offboarding.png" alt="" />
     </div>
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm');
+        Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         var now = new Date();
         CliqzTour.pageShown();
         document.getElementById('test_btn').addEventListener('click', function(){
             CliqzTour.start();
         });
-        closePage = function () {
+        var closePage = function () {
             var diff = (new Date()) - now;
             var diff_sec = diff / 1000;
             CliqzTour.pageClosed(diff_sec);
         }
+        CliqzUtils.localizeDoc(document);
     </script>
 </body>
 </html>

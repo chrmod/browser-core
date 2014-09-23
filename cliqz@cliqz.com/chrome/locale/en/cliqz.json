@@ -71,6 +71,15 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "offTitle":{
+        "message":"the new way to navigate the web"
+    },
+    "offBtn":{
+        "message":"Try out now!"
+    },
+    "offMessage":{
+        "message":"Insert your search query in the address bar – receive results instantly"
+    },
     "Sitemap_Summary": {
         "message":"My sitemap for {}"
     },

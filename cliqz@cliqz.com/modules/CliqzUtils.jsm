@@ -536,6 +536,15 @@ var CliqzUtils = {
         return key;
     }
   },
+  // gets all the elements with the class 'cliqz-locale' and adds
+  // the localized string - key attribute - as content
+  localizeDoc: function(doc){
+    var locale = doc.getElementsByClassName('cliqz-locale');
+    for(var i = 0; i < locale.length; i++){
+        var el = locale[i];
+        el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
+    }
+  },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                      .getService(Components.interfaces.nsIWindowMediator),
