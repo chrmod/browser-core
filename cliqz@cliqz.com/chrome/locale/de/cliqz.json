@@ -98,6 +98,9 @@
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
     },
+    "country_code_": {
+      "message":"Automatisch"
+    },
     "country_code_AT": {
       "message":"Österreich - Austria"
     },
