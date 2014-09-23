@@ -233,11 +233,15 @@ var Extension = {
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
+        var menupopup = doc.createElement('menupopup');
+        menupopup.setAttribute('id', 'cliqz_menupopup');
+        button.appendChild(menupopup);
 
+        menupopup.addEventListener('popupshowing', function(){
+            Extension.createMenuifEmpty(win, menupopup);
+        });
         button.addEventListener('command', function(ev) {
-            if(button.children.length == 0){
-                button.appendChild( Extension.createMenu(win));
-            }
+            Extension.createMenuifEmpty(win, menupopup);
             button.children[0].openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
@@ -261,13 +265,11 @@ var Extension = {
 
         ToolbarButtonManager.restorePosition(doc, shareButton);
     },
-    createMenu: function(win){
-        var doc = win.document,
-            menupopup = doc.createElement('menupopup');
-        menupopup.setAttribute('id', 'cliqz_menupopup');
-        menupopup.addEventListener('command', function(event) {
+    // creates the menu items at first click
+    createMenuifEmpty: function(win, menupopup){
+        if(menupopup.children.length > 0) return;
 
-        }, false);
+        var doc = win.document;
 
         var menuitem1 = doc.createElement('menuitem');
         menuitem1.setAttribute('id', 'cliqz_menuitem1');
@@ -317,8 +319,6 @@ var Extension = {
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
         }
-
-        return menupopup;
     },
     createLanguageOptions: function (doc) {
         var menu = doc.createElement('menu'),
