@@ -756,6 +756,18 @@ function registerHelpers(){
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
     });
+
+    Handlebars.registerHelper('is_twitter', function(url) {
+        var twitter_url_regex = /^https?:\/\/twitter\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('reduce_width', function(width, reduction) {
+        return width - reduction;
+    });
 }
 
 function runHistoryExperiment(inputValue) {
