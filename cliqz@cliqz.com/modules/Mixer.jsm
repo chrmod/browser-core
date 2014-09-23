@@ -188,7 +188,7 @@ var Mixer = {
                         {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
-                            message: CliqzUtils.getLocalizedString('noResultMessage')
+                            //message: CliqzUtils.getLocalizedString('noResultMessage')
                         }
                     }
                 )

@@ -9,7 +9,7 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Bummer, we don’t have the right result yet.<br />We’re working on it!"
+        "message":"Sorry, we don’t have any results yet.<br />We’re working on it."
     },
     "noResultMessage":{
         "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
