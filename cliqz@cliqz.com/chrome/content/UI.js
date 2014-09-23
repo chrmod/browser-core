@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -90,8 +90,11 @@ var UI = {
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
 
-        if(gCliqzBox.messageBox)
-            gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse';
+        if(gCliqzBox.messageBox){
+            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
+            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
+            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -296,6 +299,8 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
+
+                    if(r.vertical == 'text')r.dontCountAsResult = true;
                 }
             }
         } else {

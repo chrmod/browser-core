@@ -180,7 +180,20 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra) results = cliqzExtra.concat(results);
-
+        if(results.length ==0 ){
+            results.push(
+                Result.cliqzExtra(
+                    {
+                        data:
+                        {
+                            template:'text',
+                            title: CliqzUtils.getLocalizedString('noResultTitle'),
+                            message: CliqzUtils.getLocalizedString('noResultMessage')
+                        }
+                    }
+                )
+            );
+        }
         return results.slice(0, maxResults);
 	}
 }
