@@ -9,8 +9,8 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
              .getService(Components.interfaces.nsIWindowMediator),
     win = wm.getMostRecentWindow("navigator:browser");
 
-var text = 'Was ist cliqz?', pos = 0, urlBar, highlightPopup,
-    fin = "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!",
+var text = CliqzUtils.getLocalizedString('whatIsCliqz'), pos = 0, urlBar, highlightPopup,
+    fin = CliqzUtils.getLocalizedString('whatIsCliqzTry'),
     results = [
         {
             title : 'FAQ',

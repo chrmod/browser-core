@@ -1,4 +1,10 @@
 {
+    "whatIsCliqz":{
+        "message": "What is cliqz?"
+    },
+    "whatIsCliqzTry":{
+        "message": "What is cliqz? <-- try it yourself, eg: 'Mario Gotze'"
+    },
     "btnPrivacy":{
         "message": "Privacy Policy"
     },
