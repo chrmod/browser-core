@@ -822,6 +822,18 @@
     border: 2px solid #00659c;
 }
 
+.cliqz-people-image-twitter {
+  border: 2px solid #19ade4
+}
+
+.cliqz-people-image-linkedin {
+  border: 2px solid #0497bb
+}
+
+.cliqz-people-image-facebook {
+  border: 2px solid #3b579d
+}
+
 .cliqz-people-name {
   font-weight: bold;
   color: #222222;
