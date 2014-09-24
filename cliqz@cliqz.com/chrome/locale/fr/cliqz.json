@@ -27,10 +27,10 @@
         "message":"Survolez <b><i>plus</i></b> en bas à droite et sélectionnez un autre moteur de recherche."
     },
     "noResults": {
-        "message":"Aucun Résultat"
+        "message":"Aucun résultat"
     },
     "numResults": {
-        "message":"{} Meilleurs Résultats"
+        "message":"{} meilleurs résultats"
     },
     "moreResults":{
         "message":"plus ..."
@@ -51,37 +51,37 @@
         "message":"actuellement"
     },
     "weatherCredits":{
-        "message":"Avec l'aimable autorisation de <br /> openweathermap.org"
+        "message":"Resultats fournis par <br /> openweathermap.org"   
     },
     "ago1Minute":{
-        "message":"depuis une minute"
+        "message":"il y a une minute"
     },
     "agoXMinutes":{
-        "message":"depuis{} minutes"
+        "message":"il y a {} minutes"
     },
     "ago1Hour":{
-        "message":"depuis une heure"
+        "message":"il y a une heure"
     },
     "agoXHours":{
-        "message":"depuis {} heures"
+        "message":"il y a {} heures"
     },
     "agoYesterday":{
         "message":"hier"
     },
     "agoXDays":{
-        "message":"depuis {} jours"
+        "message":"il y a {} jours"
     },
     "ago1Month":{
-        "message":"depuis un mois"
+        "message":"il y a un mois"
     },
     "agoXMonths":{
-        "message":"depuis {} mois"
+        "message":"il y a {} mois"
     },
     "ago1year":{
-        "message":"depuis un an"
+        "message":"il y a un an"
     },
     "agoXYears":{
-        "message":"depuis {} ans"
+        "message":"il y a {} ans"
     },
     "offTitle":{
         "message":"le nouveau moyen pour surfer sereinement."
@@ -90,7 +90,7 @@
         "message":"Essayer cliqz!"
     },
     "offMessage":{
-        "message":"Insérez votre requête de recherche dans la barre d'adresse -  recevez les résultats instantanément."
+        "message":"Insérez le terme de votre recherche dans la barre d'adresse. Et vous recevrez les résultats instantanément."
     },
     "Sitemap_Summary": {
         "message":"Mon plan du site pour {}"
