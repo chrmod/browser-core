@@ -110,6 +110,10 @@ var CliqzABTests = CliqzABTests || {
             case "1008_A":
                 CliqzUtils.setOurOwnPrefs();
                 break;
+            case "1010_A":
+                // show no results message
+                CliqzUtils.setPref("showNoResults", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -174,6 +178,9 @@ var CliqzABTests = CliqzABTests || {
             case "1009_A":
                 CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
                 CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
+                break;
+            case "1010_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
             default:
                 rule_executed = false;

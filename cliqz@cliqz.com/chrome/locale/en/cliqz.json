@@ -1,9 +1,21 @@
 {
+    "whatIsCliqz":{
+        "message": "What is cliqz?"
+    },
+    "whatIsCliqzTry":{
+        "message": "What is cliqz? <-- try it yourself, eg: 'Mario Gotze'"
+    },
+    "settings":{
+        "message": "Settings"
+    },
     "btnPrivacy":{
         "message": "Privacy Policy"
     },
     "btnDefaultSearchEngine":{
         "message": "Default Search Engine"
+    },
+    "btnRegion":{
+        "message": "Local Results"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -175,5 +187,8 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "country_code_": {
+      "message":"Automatic"
     }
 }

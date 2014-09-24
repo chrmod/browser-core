@@ -1,11 +1,11 @@
 {{#with data}}
-<div style='padding:5px 0'>
+<div style='padding:5px 0; max-height: 85px; overflow: hidden;'>
   <div class='cliqz-weather-left-box'>
       <div class='cliqz-weather-city'>{{ city }}</div>
       <div class='cliqz-weather-status'>{{local 'weatherCurrent'}}</div>
   </div>
 
-  <div class='cliqz-weather-today-container'>
+  <div class='cliqz-weather-today-container' hide-if-misaligned='cliqz-weather-left-box'>
     <div class='cliqz-weather-today-date'
          style="background-image:url({{ todayIcon }})">
           {{ todayDate }}
@@ -24,7 +24,7 @@
     {{{local 'weatherCredits'}}}
   </div>
 
-  <div class='cliqz-weather-skew-container cliqz-weather-aTomorrow'>
+  <div class='cliqz-weather-skew-container cliqz-weather-aTomorrow' hide-if-misaligned='cliqz-weather-left-box'>
       <div class="cliqz-weather-next-container"
            style="transform: skew(30deg);">
           <div class='cliqz-inline-box-children'>
@@ -54,7 +54,7 @@
       </div>
   </div>
 
-  <div class='cliqz-weather-skew-container cliqz-weather-tomorrow'>
+  <div class='cliqz-weather-skew-container cliqz-weather-tomorrow' hide-if-misaligned='cliqz-weather-left-box'>
       <div class="cliqz-weather-next-container"
            style="transform: skew(30deg);">
           <div class='cliqz-inline-box-children'>

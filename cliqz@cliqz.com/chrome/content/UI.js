@@ -108,6 +108,9 @@ var UI = {
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
+
+        // try to find and hide misaligned elemets - eg - weather
+        setTimeout(hideMisalignedElements, 0, gCliqzBox.resultsBox);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -166,6 +169,23 @@ var UI = {
     }
 };
 
+// hide misaligned elements in a context - after rendering it compares offsetTop of an element to a reference element
+var misalignedAttr = 'hide-if-misaligned', misalignDelta = 25;
+function hideMisalignedElements(ctx){
+    var elems = $$('['+ misalignedAttr +']', ctx);
+    for(var i = 0; elems && i < elems.length; i++){
+        var el = elems[i],
+            refClass = el.getAttribute(misalignedAttr),
+            ref = $$('.' + refClass, el.parentElement);
+
+        if(ref.length == 1){
+            ref = ref[0];
+            if(Math.abs(el.offsetTop - ref.offsetTop) > misalignDelta) el.style.display = 'none';
+        }
+
+    }
+}
+
 function handlePopupHeight(box){
     var MAX=352, MIN =160,
         height = CliqzUtils.getPref('popupHeight', 290),
@@ -201,6 +221,7 @@ function handlePopupHeight(box){
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
+function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
 
 function generateLogoClass(urlDetails){
     var cls = '';

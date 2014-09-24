@@ -1,9 +1,21 @@
 {
+    "whatIsCliqz":{
+        "message": "Was ist cliqz?"
+    },
+    "whatIsCliqzTry":{
+        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+    },
+    "settings":{
+        "message": "Einstellung"
+    },
     "btnPrivacy":{
         "message": "Datenschutz"
     },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
+    },
+    "btnRegion":{
+        "message": "Regionale Ergebnisse"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -21,7 +33,7 @@
         "message":"Top {} Ergebnisse"
     },
     "moreResults":{
-        "message":"noch mehr ..."
+        "message":"mehr ..."
     },
     "customSearch":{
         "message":"Suche <b><i>{}</i></b> auf {}"

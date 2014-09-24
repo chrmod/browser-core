@@ -1,15 +1,27 @@
 {
+    "whatIsCliqz":{
+        "message": "cliqz, c'est quoi?"
+    },
+    "whatIsCliqzTry":{
+        "message": "Cliqz, c'est quoi? <-- essayer, exemple: 'Mario Gotze'"
+    },
+    "settings":{
+        "message": "Paramètres"
+    },
     "btnPrivacy":{
         "message": "Politique de confidentialité"
     },
     "btnDefaultSearchEngine":{
         "message": "Moteur de recherche par défaut"
     },
+    "btnRegion":{
+        "message": "Options régionales"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Oops, Nous n'avons pas encore le bon résultat.<br /> Nous faisons notre mieux pour résoudre le problème!"
+        "message":"Oops, Nous n'avons pas encore le bon résultat.<br /> Nous faisons de notre mieux pour résoudre le problème!"
     },
     "noResultMessage":{
         "message":"Survolez <b><i>plus</i></b> en bas à droite et sélectionnez un autre moteur de recherche."
@@ -175,5 +187,8 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "country_code_": {
+      "message":"Détection automatique"
     }
 }
