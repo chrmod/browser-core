@@ -5,6 +5,9 @@
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
     },
+    "btnRegion":{
+        "message": "Regionale Ergebnisse"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },

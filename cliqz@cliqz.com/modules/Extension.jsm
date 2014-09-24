@@ -359,7 +359,7 @@ var Extension = {
         if(languages[countryCode])
           languages[countryCode].selected = true;
 
-        menu.setAttribute('label', 'Regionale Ergebnisse');
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnRegion'));
         for (var language in languages) {
           var item = doc.createElement('menuitem');
           item.setAttribute('label', languages[language].lang);

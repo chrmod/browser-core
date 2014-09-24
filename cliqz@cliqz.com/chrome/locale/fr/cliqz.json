@@ -5,6 +5,9 @@
     "btnDefaultSearchEngine":{
         "message": "Moteur de recherche par défaut"
     },
+    "btnRegion":{
+        "message": "Options régionales"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -175,5 +178,8 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "country_code_": {
+      "message":"Détection automatique"
     }
 }
