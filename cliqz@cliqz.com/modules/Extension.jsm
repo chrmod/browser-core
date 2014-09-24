@@ -318,6 +318,7 @@ var Extension = {
             });
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
+            menupopup.appendChild(Extension.createLanguageOptions(doc));
         }
     },
     createLanguageOptions: function (doc) {
