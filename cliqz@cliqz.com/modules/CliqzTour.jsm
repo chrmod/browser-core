@@ -7,19 +7,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
              .getService(Components.interfaces.nsIWindowMediator),
-    win = wm.getMostRecentWindow("navigator:browser");
-
-var text = CliqzUtils.getLocalizedString('whatIsCliqz'), pos = 0, urlBar, highlightPopup,
+    win = wm.getMostRecentWindow("navigator:browser"),
+    text = CliqzUtils.getLocalizedString('whatIsCliqz'), pos = 0, urlBar, highlightPopup,
     fin = CliqzUtils.getLocalizedString('whatIsCliqzTry'),
+    lang = CliqzUtils.getLanguage(win),
     results = [
         {
             title : 'FAQ',
-            url   : 'http://beta.cliqz.com/faq',
+            url   : 'http://beta.cliqz.com/faq_' + lang + '.html',
             type  : 'cliqz-results sources-o'
         },
         {
             title : 'Datenschutz',
-            url   : 'http://beta.cliqz.com/datenschutz.html',
+            url   : 'http://beta.cliqz.com/datenschutz_' + lang + '.html',
             type  : 'cliqz-results sources-o'
         },
         {

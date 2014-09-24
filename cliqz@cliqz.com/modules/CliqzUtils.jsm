@@ -31,6 +31,7 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
+  LANGS:            {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
@@ -41,7 +42,6 @@ var CliqzUtils = {
   TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
-  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
@@ -52,7 +52,7 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(window){
+  init: function(win){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -61,13 +61,15 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    if (window && window.navigator) {
+    if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
-        var nav = window.navigator;
+        var nav = win.navigator;
         var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
             || nav.browserLanguage || nav.systemLanguage || 'en';
         CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
     }
+
+    if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -514,9 +516,9 @@ var CliqzUtils = {
             function() {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
-                var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
+                var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
                 CliqzUtils.loadResource(
-                    'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
+                    'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
                     function(req) {
                         CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                         CliqzUtils.currLocale = lang_locale;
@@ -525,6 +527,12 @@ var CliqzUtils = {
             }
         );
     }
+  },
+  getLanguageFromLocale: function(locale){
+    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
+  },
+  getLanguage: function(win){
+    return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
   getLocalizedString: function(key){
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]

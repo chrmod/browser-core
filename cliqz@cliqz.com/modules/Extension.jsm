@@ -269,7 +269,8 @@ var Extension = {
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
 
-        var doc = win.document;
+        var doc = win.document,
+            lang = CliqzUtils.getLanguage(win);
 
         var menuitem1 = doc.createElement('menuitem');
         menuitem1.setAttribute('id', 'cliqz_menuitem1');
@@ -294,14 +295,14 @@ var Extension = {
         menuitem2.setAttribute('id', 'cliqz_menuitem2');
         menuitem2.setAttribute('label', 'FAQ');
         menuitem2.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/faq');
+            Extension.openTab(doc, 'http://beta.cliqz.com/faq_' + lang + '.html');
         }, false);
 
         var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'cliqz_menuitem4');
         menuitem4.setAttribute('label', CliqzUtils.getLocalizedString('btnPrivacy'));
         menuitem4.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
+            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
 
 
