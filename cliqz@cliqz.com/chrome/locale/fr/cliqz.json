@@ -5,6 +5,9 @@
     "whatIsCliqzTry":{
         "message": "Cliqz, c'est quoi? <-- essayer, exemple: 'Mario Gotze'"
     },
+    "settings":{
+        "message": "Paramètres"
+    },
     "btnPrivacy":{
         "message": "Politique de confidentialité"
     },

@@ -5,6 +5,9 @@
     "whatIsCliqzTry":{
         "message": "What is cliqz? <-- try it yourself, eg: 'Mario Gotze'"
     },
+    "settings":{
+        "message": "Settings"
+    },
     "btnPrivacy":{
         "message": "Privacy Policy"
     },
@@ -12,7 +15,7 @@
         "message": "Default Search Engine"
     },
     "btnRegion":{
-        "message": "Local results"
+        "message": "Local Results"
     },
     "urlBarLastSearch":{
         "message":"↵  "

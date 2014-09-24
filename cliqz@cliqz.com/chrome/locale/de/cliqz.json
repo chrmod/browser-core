@@ -5,6 +5,9 @@
     "whatIsCliqzTry":{
         "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
+    "settings":{
+        "message": "Einstellung"
+    },
     "btnPrivacy":{
         "message": "Datenschutz"
     },
