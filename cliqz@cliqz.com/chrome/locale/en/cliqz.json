@@ -50,9 +50,6 @@
     "weatherCurrent":{
         "message":"current"
     },
-    "weatherDateSeparator":{
-        "message":" "
-    },
     "weatherCredits":{
         "message":"provided courtesy of <br /> openweathermap.org"
     },
