@@ -50,11 +50,8 @@
     "weatherCurrent":{
         "message":"actuellement"
     },
-    "weatherDateSeparator":{
-        "message":" "
-    },
     "weatherCredits":{
-        "message":"Resultats fournis par <br /> openweathermap.org"   
+        "message":"Résultats fournis par <br /> openweathermap.org"   
     },
     "ago1Minute":{
         "message":"il y a une minute"
