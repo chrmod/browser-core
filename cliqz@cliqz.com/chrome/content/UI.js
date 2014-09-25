@@ -786,6 +786,22 @@ function registerHelpers(){
           return false;
     });
 
+    Handlebars.registerHelper('is_facebook', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?facebook\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('is_xing', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?xing\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
     });
