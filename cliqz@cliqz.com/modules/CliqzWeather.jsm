@@ -16,44 +16,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Promise',
 
 var EXPORTED_SYMBOLS = ['CliqzWeather'];
 
-Date.locale = {
-    en: {
-       month_names: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-       dow_names:   ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    },
-    de: {
-       month_names: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
-       dow_names:   ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"]
-    },
-    it: {
-       month_names: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
-       dow_names:   ["Domenica", "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"]
-    },
-    fr: {
-       month_names: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-       dow_names:   ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
-    }
-};
-
-Date.prototype.getMonthName = function() {
-    return Date.locale[determineUserLang()].month_names[this.getMonth()];
-};
-
-Date.prototype.getDayOfWeekName = function() {
-    return Date.locale[determineUserLang()].dow_names[this.getDay()];
-};
-
-
-function determineUserLang(){
-    var locales = CliqzLanguage.state();
-    var len = locales.length;
-    for(var i=0; i<len; i++){
-        if(locales[i] in Date.locale){
-          return locales[i];
-        }
-    }
-    return "de";
-};
+function cap(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function geocodeCallback(res, callback){
     var DATA = [null,null];
@@ -102,7 +67,7 @@ function geocodeCallback(res, callback){
         var URL= WEATHER_URL_CURR_DAY
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
-          + '&lang=' + encodeURIComponent(determineUserLang());
+          + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
 
         CliqzUtils._weatherReq = CliqzUtils.httpGet(URL, function(res){ allDone(res, null, callback, locName); });
 
@@ -112,7 +77,7 @@ function geocodeCallback(res, callback){
         URL= WEATHER_URL_3DAYS_FORECAST
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
-          + '&lang=' + encodeURIComponent(determineUserLang());
+          + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
 
         //TODO: fix this, using Promises
         CliqzUtils._weatherReqNext = CliqzUtils.httpGet(URL,  function(res){ allDone(null, res, callback, locName); });
@@ -130,7 +95,7 @@ var CliqzWeather = {
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
                         + '&query=' + encodeURIComponent(q)
-                        + '&lang=' + encodeURIComponent(determineUserLang());
+                        + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
 
         CliqzUtils.httpHandler('GET', GEOLOC_API, function(res){
             geocodeCallback(res, function(today, next, locName){
@@ -173,16 +138,16 @@ var CliqzWeather = {
                         todayTemp: Math.round(todayData.main.temp) + DEGREE,
                         todayMin: Math.round(todayData.main.temp_min) + DEGREE,
                         todayMax: Math.round(todayData.main.temp_max) + DEGREE,
-                        todayDate: today.getDayOfWeekName() + " " + today.getDate() + ". " + today.getMonthName(),
+                        todayDate: cap(today.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long", month: "long", day: "numeric"})),
                         todayIcon: WEATHER_ICON_BASE_URL + todayData.weather[0].icon + ".png",
-                        tomorrowDay: tomorrow.getDayOfWeekName(),
-                        tomorrowDate: tomorrow.getDate()+ '. ' + tomorrow.getMonthName(),
+                        tomorrowDay: cap(tomorrow.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long"})),
+                        tomorrowDate: cap(tomorrow.toLocaleDateString(CliqzUtils.currLocale, {month: "long", day: "numeric"})),
                         tomorrowMin: Math.round(days[1].temp.min) + DEGREE,
                         tomorrowMax: Math.round(days[1].temp.max) + DEGREE,
                         tomorrowDesc: days[1].weather[0].description,
                         tomorrowIcon: WEATHER_ICON_BASE_URL + days[1].weather[0].icon + ".png",
-                        aTomorrowDay: aTomorrow.getDayOfWeekName(),
-                        aTomorrowDate: aTomorrow.getDate()+ '. ' + aTomorrow.getMonthName(),
+                        aTomorrowDay: cap(aTomorrow.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long"})),
+                        aTomorrowDate: cap(aTomorrow.toLocaleDateString(CliqzUtils.currLocale, {month: "long", day: "numeric"})),
                         aTomorrowMin: Math.round(days[2].temp.min) + DEGREE,
                         aTomorrowMax: Math.round(days[2].temp.max) + DEGREE,
                         aTomorrowDesc: days[2].weather[0].description,
