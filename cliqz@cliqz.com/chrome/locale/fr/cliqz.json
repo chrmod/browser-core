@@ -3,7 +3,7 @@
         "message": "cliqz, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "Cliqz, c'est quoi? <-- essayer, exemple: 'Mario Gotze'"
+        "message": "Cliqz, c'est quoi? <-- essayez l'exemple: 'Mario Gotze'"
     },
     "settings":{
         "message": "Paramètres"
