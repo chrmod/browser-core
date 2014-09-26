@@ -17,6 +17,9 @@
     "btnRegion":{
         "message": "Local Results"
     },
+    "btnShare":{
+        "message": "cliqz Share"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },

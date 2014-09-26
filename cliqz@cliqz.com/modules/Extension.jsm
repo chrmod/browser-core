@@ -255,6 +255,13 @@ var Extension = {
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
+        // localization mechanism might take a while to load.
+        // TODO: find better sollution
+        CliqzUtils.setTimeout(function(){
+            shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
+            shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+        }, 2000);
+
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;

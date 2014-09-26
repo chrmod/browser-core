@@ -3,7 +3,7 @@
         "message": "cliqz, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "Cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
+        "message": "cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
     },
     "settings":{
         "message": "Paramètres"
@@ -16,6 +16,9 @@
     },
     "btnRegion":{
         "message": "Pays de recherche"
+    },
+    "btnShare":{
+        "message": "Partager avec cliqz"
     },
     "urlBarLastSearch":{
         "message":"↵  "
