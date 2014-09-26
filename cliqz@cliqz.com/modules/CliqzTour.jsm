@@ -18,7 +18,7 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
             type  : 'cliqz-results sources-o'
         },
         {
-            title : 'Datenschutz',
+            title : CliqzUtils.getLocalizedString('btnPrivacy'),
             url   : 'http://beta.cliqz.com/datenschutz_' + lang + '.html',
             type  : 'cliqz-results sources-o'
         },
