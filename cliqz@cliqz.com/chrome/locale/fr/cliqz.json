@@ -3,7 +3,7 @@
         "message": "cliqz, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "Cliqz, c'est quoi? <-- essayez l'exemple: 'Mario Gotze'"
+        "message": "Cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
     },
     "settings":{
         "message": "Paramètres"
@@ -51,7 +51,7 @@
         "message":"actuellement"
     },
     "weatherCredits":{
-        "message":"Résultats fournis par <br /> openweathermap.org"   
+        "message":"Résultats fournis par <br /> openweathermap.org"
     },
     "ago1Minute":{
         "message":"il y a une minute"

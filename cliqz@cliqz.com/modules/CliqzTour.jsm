@@ -85,8 +85,8 @@ function start(effect){
     }
 
     highlightPopup.openPopup(urlBar, "overlap", 15, -12);
-    highlightPopup.style.transition = 'all 4s linear';
-    highlightPopup.style.marginLeft = '65px';
+    highlightPopup.style.transition = 'all ' + parseInt(0.3 * text.length) + 's linear';
+    highlightPopup.style.marginLeft = parseInt(4.6 * text.length) + 'px';
 
     win.CLIQZ.Core.urlbar.mInputField.focus();
     urlBar.mInputField.setUserInput(text.substr(0, ++pos));
