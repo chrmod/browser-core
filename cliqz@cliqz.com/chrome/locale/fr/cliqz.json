@@ -15,7 +15,7 @@
         "message": "Moteur de recherche par défaut"
     },
     "btnRegion":{
-        "message": "Options régionales"
+        "message": "Pays de recherche"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -190,5 +190,75 @@
     },
     "country_code_": {
       "message":"Détection automatique"
+    },
+    "country_code_AT": {
+      "message":"Österreich - Autriche"
+    },
+    "country_code_BR": {
+      "message":"Brazil - Brésil"
+    },
+    "country_code_CA": {
+      "message":"Canada - Canada"
+    },
+    "country_code_HR": {
+      "message":"Hrvatska - Croatie"
+    },
+    "country_code_EE": {
+      "message":"Eesti - Estonie"
+    },
+    "country_code_FR": {
+      "message":"France"
+    },
+    "country_code_DE": {
+      "message":"Deutschland - Allemagne"
+    },
+    "country_code_GR": {
+      "message":"Ελλάδα - Grèce"
+    },
+    "country_code_HU": {
+      "message":"Magyarország - Hongrie"
+    },
+    "country_code_ID": {
+      "message":"indonedia - Indonésie"
+    },
+    "country_code_IT": {
+      "message":"Italia - Italie"
+    },
+    "country_code_PS": {
+      "message":"Palestine"
+    },
+    "country_code_RO": {
+      "message":"România - Roumanie"
+    },
+    "country_code_RU": {
+      "message":"Россия - Russie"
+    },
+    "country_code_RS": {
+      "message":"Србија - Serbie"
+    },
+    "country_code_SG": {
+      "message":"Singapore - Singapour"
+    },
+    "country_code_ES": {
+      "message":"España - Espagne"
+    },
+    "country_code_CH": {
+      "message":"Schweiz - Suisse"
+    },
+    "country_code_TH": {
+      "message":"ประเทศไทย - Thaïlande"
+    },
+    "country_code_TR": {
+      "message":"Türkiye - Turquie"
+    },
+    "country_code_GB": {
+      "message":"United Kingdom - Royaume-Uni"
+    },
+    "country_code_US": {
+      "message":"United States - Les États-Unis"
+    },
+    "country_code_VN": {
+      "message":"Việt Nam - Viêtnam"
     }
+
 }
