@@ -69,12 +69,12 @@
         <span class='test cliqz-locale' key='offBtn'></span>
     </div>
     <div class="screenshot mid">
-      <img src="chrome://cliqzres/content/skin/offboarding.png" alt="" />
+      <img id='offImg' alt=""  style="max-width: 95%;"/>
     </div>
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm');
         Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        var now = new Date();
+        var now = new Date(), lang = CliqzUtils.getLanguage(window);
         CliqzTour.pageShown();
         document.getElementById('test_btn').addEventListener('click', function(){
             CliqzTour.start();
@@ -85,6 +85,8 @@
             CliqzTour.pageClosed(diff_sec);
         }
         CliqzUtils.localizeDoc(document);
+
+        document.getElementById('offImg').src = 'chrome://cliqzres/content/skin/offboarding_' + lang + '.png';
     </script>
 </body>
 </html>

@@ -255,6 +255,13 @@ var Extension = {
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
+        // localization mechanism might take a while to load.
+        // TODO: find better sollution
+        CliqzUtils.setTimeout(function(){
+            shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
+            shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+        }, 2000);
+
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
@@ -281,10 +288,10 @@ var Extension = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion + '-' + source);
+                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
 
@@ -328,17 +335,17 @@ var Extension = {
 
         var languages = {
           '': { lang: CliqzUtils.getLocalizedString('country_code_'), selected: false},
-          'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
           'BR': { lang: CliqzUtils.getLocalizedString('country_code_BR'), selected: false},
-          'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
-          'HR': { lang: CliqzUtils.getLocalizedString('country_code_HR'), selected: false},
+          'DE': { lang: CliqzUtils.getLocalizedString('country_code_DE'), selected: false},
           'EE': { lang: CliqzUtils.getLocalizedString('country_code_EE'), selected: false},
           'FR': { lang: CliqzUtils.getLocalizedString('country_code_FR'), selected: false},
-          'DE': { lang: CliqzUtils.getLocalizedString('country_code_DE'), selected: false},
           'GR': { lang: CliqzUtils.getLocalizedString('country_code_GR'), selected: false},
-          'HU': { lang: CliqzUtils.getLocalizedString('country_code_HU'), selected: false},
+          'GB': { lang: CliqzUtils.getLocalizedString('country_code_GB'), selected: false},
           'ID': { lang: CliqzUtils.getLocalizedString('country_code_ID'), selected: false},
           'IT': { lang: CliqzUtils.getLocalizedString('country_code_IT'), selected: false},
+          'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
+          'HR': { lang: CliqzUtils.getLocalizedString('country_code_HR'), selected: false},
+          'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
           'PS': { lang: CliqzUtils.getLocalizedString('country_code_PS'), selected: false},
           'RO': { lang: CliqzUtils.getLocalizedString('country_code_RO'), selected: false},
           'RU': { lang: CliqzUtils.getLocalizedString('country_code_RU'), selected: false},
@@ -348,7 +355,7 @@ var Extension = {
           'CH': { lang: CliqzUtils.getLocalizedString('country_code_CH'), selected: false},
           'TH': { lang: CliqzUtils.getLocalizedString('country_code_TH'), selected: false},
           'TR': { lang: CliqzUtils.getLocalizedString('country_code_TR'), selected: false},
-          'GB': { lang: CliqzUtils.getLocalizedString('country_code_GB'), selected: false},
+          'HU': { lang: CliqzUtils.getLocalizedString('country_code_HU'), selected: false},
           'US': { lang: CliqzUtils.getLocalizedString('country_code_US'), selected: false},
           'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };

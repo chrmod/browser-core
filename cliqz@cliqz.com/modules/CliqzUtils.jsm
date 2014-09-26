@@ -403,7 +403,7 @@ var CliqzUtils = {
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
-    if(instantPush || CliqzUtils.trk.length > 100){
+    if(instantPush || CliqzUtils.trk.length % 100 == 0){
       CliqzUtils.pushTrack();
     } else {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
@@ -444,7 +444,7 @@ var CliqzUtils = {
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE + 100;
     if(slice_pos > 0){
       CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
       CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
