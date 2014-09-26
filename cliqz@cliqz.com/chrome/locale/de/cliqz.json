@@ -189,7 +189,7 @@
         "message":"Bundesliga"
     },
     "country_code_": {
-      "message":"Automatic"
+      "message":"Automatisch"
     },
     "country_code_AT": {
       "message":"Österreich - Österreich"
@@ -225,7 +225,7 @@
       "message":"Italia - Italien"
     },
     "country_code_PS": {
-      "message":"Palestine"
+      "message":"Palestine - Palästina"
     },
     "country_code_RO": {
       "message":"România - Rumänien"
