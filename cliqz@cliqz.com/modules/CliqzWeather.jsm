@@ -91,7 +91,7 @@ var WEATHER_URL_3DAYS_FORECAST = 'http://api.openweathermap.org/data/2.5/forecas
 var CliqzWeather = {
     get: function(q, callback){
         var originalQ = q;
-        q = q.replace(/^(wetter|weather|meteo|temps) /gi, "")
+        q = q.replace(/^(wetter|weather|meteo|m\u00E9t\u00e9o|temps) /gi, "")
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
                         + '&query=' + encodeURIComponent(q)
@@ -108,7 +108,7 @@ var CliqzWeather = {
         //var WEATHER_ICON_BASE_URL= "http://openweathermap.org/img/w/";
         var WEATHER_ICON_BASE_URL= "chrome://cliqzres/content/skin/weather/";
 
-        var old_q = q.replace(/^(wetter|weather|meteo|temps) /gi, "");
+        var old_q = q.replace(/^(wetter|weather|meteo|m\u00E9t\u00e9o|temps) /gi, "");
         if(q == old_q){ // be sure this is not a delayed result
             var response = [],
                 DEGREE = "\u00B0";
@@ -166,6 +166,7 @@ var CliqzWeather = {
         return q.indexOf("wetter ") == 0 ||
                q.indexOf("weather ") == 0 ||
                q.indexOf("meteo ") == 0 ||
+               q.indexOf("m\u00E9t\u00e9o ") == 0 || // "météo in UTF-16"
                q.indexOf("temps ") == 0;
     }
 }
