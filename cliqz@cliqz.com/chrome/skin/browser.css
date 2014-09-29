@@ -495,24 +495,6 @@
     color: #777;
 }
 
-@media (max-width: 1200px) {
-  .cliqz-weather-aTomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 1000px) {
-  .cliqz-weather-tomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 800px) {
-  .cliqz-weather-credits {
-    display: none;
-  }
-}
-
 /* end weather */
 
 /* cluster */
