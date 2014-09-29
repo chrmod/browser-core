@@ -110,6 +110,21 @@ Glossary
          - 02 - CHIP store
          - 03 - Softonic
          - 04 - AMO (Mozilla Firefox Store)
+         - 05 -
+         - 06 - Chip editorial activities
+         - 07 - Chip editor’s suggestion box
+         - 08 - Chip display advertising
+         - 09 - French version
+         - 10 -
+         - 11 - Provided to Thomas K
+         - 12 - Provided to Thomas K
+         - 13 - Provided to Thomas K
+         - 14 - Provided to Thomas K
+         - 15 - Provided to Thomas K
+         - 16 - Provided to Thomas K
+         - 17 - Provided to Thomas K
+         - 18 - Provided to Thomas K
+         - 19 - Provided to Thomas K
      eg: 10378300660576423|16148|OO
 ```
 
