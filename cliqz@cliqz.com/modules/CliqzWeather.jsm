@@ -86,12 +86,13 @@ function geocodeCallback(res, callback){
 
 var WEATHER_URL_3DAYS_FORECAST = 'http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&type=accurate&cnt=3&mode=json',
     WEATHER_URL_CURR_DAY       = 'http://api.openweathermap.org/data/2.5/weather?units=metric&type=accurate&cnt=1&mode=json',
-    WEATHER_GEOLOC_URL         = 'http://weather-search.fbt.co:8081/?autocomplete=true&maxInterpretations=1';
+    WEATHER_GEOLOC_URL         = 'http://weather-search.fbt.co:8081/?autocomplete=true&maxInterpretations=1',
+    TRIGGER                    = /(\W|^)(wetter|weather|meteo|m\u00E9t\u00e9o|temps)(\W|^|$)/gi;
 
 var CliqzWeather = {
     get: function(q, callback){
         var originalQ = q;
-        q = q.replace(/^(wetter|weather|meteo|m\u00E9t\u00e9o|temps) /gi, "")
+        q = q.replace(TRIGGER, "")
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
                         + '&query=' + encodeURIComponent(q)
@@ -108,7 +109,7 @@ var CliqzWeather = {
         //var WEATHER_ICON_BASE_URL= "http://openweathermap.org/img/w/";
         var WEATHER_ICON_BASE_URL= "chrome://cliqzres/content/skin/weather/";
 
-        var old_q = q.replace(/^(wetter|weather|meteo|m\u00E9t\u00e9o|temps) /gi, "");
+        var old_q = q.replace(TRIGGER, "");
         if(q == old_q){ // be sure this is not a delayed result
             var response = [],
                 DEGREE = "\u00B0";
@@ -162,11 +163,28 @@ var CliqzWeather = {
         return [];
     },
     isWeatherSearch: function(q){
-        q = q.trim().toLowerCase();
-        return q.indexOf("wetter ") == 0 ||
-               q.indexOf("weather ") == 0 ||
-               q.indexOf("meteo ") == 0 ||
-               q.indexOf("m\u00E9t\u00e9o ") == 0 || // "météo in UTF-16"
-               q.indexOf("temps ") == 0;
+        return TRIGGER.test(q);
+    },
+    test: function(){
+        //Cu.import('chrome://cliqzmodules/content/CliqzWeather.jsm'); CliqzWeather.test();
+        var data = {
+            'wetter munich':true,
+            'munich wetter':true,
+            'wetter munich wetter':true,
+            'munich wetter munich':true,
+            'wetter munich germany':true,
+            'germany wetter munich':true,
+            'germany wetterr munich':false,
+            'germany bwetter':false,
+            'wwetter  munich':false,
+        }, lg = function(txt){ CliqzUtils.log(txt, 'weather test'); }
+
+        for(var k in data){
+            lg('');
+            lg('q='+k);
+            lg('test '+ TRIGGER.test(k));
+            lg('clean -'+ k.replace(TRIGGER,'') + '-');
+        }
+
     }
 }
