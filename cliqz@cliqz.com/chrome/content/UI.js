@@ -169,20 +169,29 @@ var UI = {
     }
 };
 
-// hide misaligned elements in a context - after rendering it compares offsetTop of an element to a reference element
-var misalignedAttr = 'hide-if-misaligned', misalignDelta = 25;
+// hide elements in a context folowing a priority (0-lowest)
+//
+// looks for all the elements with 'hide-check' attribute and
+// hides childrens based on the 'hide-priority' order
 function hideMisalignedElements(ctx){
-    var elems = $$('['+ misalignedAttr +']', ctx);
+    var elems = $$('[hide-check]', ctx);
     for(var i = 0; elems && i < elems.length; i++){
-        var el = elems[i],
-            refClass = el.getAttribute(misalignedAttr),
-            ref = $$('.' + refClass, el.parentElement);
+        var el = elems[i], childrenW = 40 /* paddings */;
+        for(var c=0; c<el.children.length; c++)
+            childrenW += el.children[c].clientWidth;
 
-        if(ref.length == 1){
-            ref = ref[0];
-            if(Math.abs(el.offsetTop - ref.offsetTop) > misalignDelta) el.style.display = 'none';
+        if(childrenW > el.clientWidth){
+            var children = [].slice.call($$('[hide-priority]', el)),
+                sorted = children.sort(function(a, b){
+                    return +a.getAttribute('hide-priority') < +b.getAttribute('hide-priority')
+                });
+
+            while(sorted.length && childrenW > el.clientWidth){
+                var excluded = sorted.pop();
+                childrenW -= excluded.clientWidth;
+                excluded.style.display = 'none';
+            }
         }
-
     }
 }
 
