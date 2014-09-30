@@ -437,6 +437,29 @@ Addon disable
 }
 ```
 
+### A/B Tests
+Enter an A/B test
+``` bash
+{
+    "type": "abtest",
+    "action": "enter",
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "name": "<AB TEST NAME>"
+}
+```
+
+Leave an A/B test
+``` bash
+{
+    "type": "abtest",
+    "action": "leave",
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "name": "<AB TEST NAME>"
+}
+```
+
 ### Performance
 Result compare
 ``` bash
