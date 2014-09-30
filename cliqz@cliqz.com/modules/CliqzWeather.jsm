@@ -60,10 +60,13 @@ function geocodeCallback(res, callback){
             coord= {"lat": data.interpretations[0].feature.geometry.center.lat,
                     "lon": data.interpretations[0].feature.geometry.center.lng};
             locName= data.interpretations[0].feature.name;
+        } else {
+            callback();
+            return;
         }
+
         // get weather for the current day
         // http://api.openweathermap.org/data/2.5/weather?q=M%C3%BCnchen&lang=de&units=metric&cnt=1&mode=json
-        CliqzUtils._weatherReq && CliqzUtils._weatherReq.abort();
         var URL= WEATHER_URL_CURR_DAY
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
@@ -73,7 +76,6 @@ function geocodeCallback(res, callback){
 
         // get weather for the current day
         // http://api.openweathermap.org/data/2.5/weather?q=M%C3%BCnchen&lang=de&units=metric&cnt=1&mode=json
-        CliqzUtils._weatherReqNext && CliqzUtils._weatherReqNext.abort();
         URL= WEATHER_URL_3DAYS_FORECAST
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
@@ -111,6 +113,8 @@ var CliqzWeather = {
 
         var old_q = q.replace(TRIGGER, "");
         if(q == old_q){ // be sure this is not a delayed result
+            if(!today || !next) return [];
+
             var response = [],
                 DEGREE = "\u00B0";
 
