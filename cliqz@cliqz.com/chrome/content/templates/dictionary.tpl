@@ -15,25 +15,27 @@ The dictionary template defines two snippet types:
             <span class='cliqz-result-dictionary-pronunciation'>[ {{data.richData.pronunciation}} ]</span>
             {{/if}}
         </div>
+        <!-- TODO only for definitions? -->
         {{#if data.richData.type}}
             <div class="cliqz-result-dictionary-type">
                 {{data.richData.type}}
             </div>
         {{/if}}
 
-        {{#if multilang}}
+        <!-- TODO back to multilang -->
+        {{#if data.richData.translations}}
             <!-- translation snippet -->
-            {{#with data.richdata.translations.[0]}}
-                <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
-            <ol>
-                {{#each values}}
-                <li>
-                <div class='cliqz-result-dictionary-definition'>
-                    {{ definition }}  <!-- no type for translations yet -->
-                </div>
-                </li>
-                {{/each}}
-            </ol>
+            {{#with data.richData.translations.[0]}}
+                <div class='cliqz-result-dictionary-translation-header'>{{language}}:</div>
+                <ol>
+                    {{#each values}}
+                    <li>
+                    <div class='cliqz-result-dictionary-definition'>
+                        {{ this }}  <!-- no type for translations yet -->
+                    </div>
+                    </li>
+                    {{/each}}
+                </ol>
             {{/with}}
         {{else}}
             <!-- definition snippet -->
@@ -54,7 +56,8 @@ The dictionary template defines two snippet types:
     </div>
 </div>
 
-{{#if multilang}}
+<!-- TODO back to multilang -->
+{{#if data.richData.translations}}
     <!-- translation snippet -->
     {{#if data.richData.translations}}
     <div class='cliqz-result-dictionary-translations'>
