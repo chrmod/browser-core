@@ -957,6 +957,29 @@
     padding-left: 5px;
 }
 
+.cliqz-result-dictionary-synonyms {
+    display: block
+    font-size: 12px;
+    /*background: #f3f3f3;*/
+    background: #f00000;
+    border: 1px solid blue;
+    padding: 2px 0 2px 15px;
+    max-height: 15px;
+    overflow: hidden;
+}
+
+.cliqz-result-dictionary-synonyms:after {
+    content: ','
+}
+.cliqz-result-dictionary-synonyms:last-of-type:after {
+    content: ''
+}
+
+.cliqz-result-dictionary-synonyms-header {
+    font-weight: bold;
+    padding-left: 5px;
+}
+
 /* end dictionary */
 
 /* bundesliga */
