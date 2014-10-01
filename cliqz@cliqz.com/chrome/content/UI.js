@@ -378,6 +378,7 @@ function resultClick(ev){
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
+                    ad_ui: el.getAttribute('ad-ui') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
                 };
 
@@ -505,6 +506,7 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
+            ad_ui: item && item.getAttribute('ad-ui') || false,
             clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
         };
 
@@ -814,6 +816,25 @@ function registerHelpers(){
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
     });
+
+    var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
+    Handlebars.registerHelper('cliqz-ad', function(idx, q) {
+        if(idx!=0) return false;
+        if(AD.test(q)) return true;
+        return false;
+    });
+
+    Handlebars.registerHelper('cliqz-premium', function(idx, q) {
+        if((new Date()).getMinutes() % 2){
+            return new Handlebars.SafeString(UI.tpl.generic({
+                title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
+                text: '',
+                width: CLIQZ.Core.urlbar.clientWidth - 100,
+                data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
+            }));
+        } else return '';
+    });
+
 }
 
 function runHistoryExperiment(inputValue) {

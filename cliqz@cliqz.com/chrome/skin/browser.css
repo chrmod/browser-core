@@ -196,6 +196,49 @@
     background-color: #eefafe;
 }
 
+/* cliqz ad  */
+.cliqz-result-item-box[ad-ui="true"] {
+    background-color: #fffef2 ;
+}
+.cliqz-result-item-box[ad-ui="true"] .cliqz-result-type {
+    opacity: 1 !important;
+}
+
+.cliqz-result-item-box[ad-ui="true"] .cliqz-result-type:after {
+    content: 'AD';
+    background-color: #f4d23e;
+    opacity: 1 !important;
+    color: white;
+    padding: 3px;
+}
+
+.cliqz-result-item-box[ad-ui="true"] .cliqz-result-left-box {
+    text-align: left;
+}
+
+/* end cliqz ad  */
+/* cliqz premium  */
+.cliqz-premium {
+    background-color: #dff5ff ;
+}
+.cliqz-premium .cliqz-result-type {
+    opacity: 1 !important;
+}
+
+.cliqz-premium .cliqz-result-type:after {
+    content: '✔';
+    font-size: 20px;
+    background-color: #4caffa;
+    opacity: 1 !important;
+    color: white;
+    padding: 0 6px;
+}
+
+.cliqz-premium .cliqz-result-left-box {
+    text-align: left;
+}
+/* end cliqz premium  */
+
 .cliqz-result-generic {
    padding: 10px 0;
 }

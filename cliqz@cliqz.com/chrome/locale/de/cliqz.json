@@ -95,6 +95,12 @@
     "offMessage":{
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
     },
+    "cliqzPremiumTitle":{
+        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
+    },
+    "cliqzPremiumDesc":{
+        "message": "Upgrade testen für nur 3,99 €/Mo"
+    },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
     },
