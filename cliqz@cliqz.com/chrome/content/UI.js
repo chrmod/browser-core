@@ -787,6 +787,17 @@ function registerHelpers(){
         return formatedDate;
     });
 
+    Handlebars.registerHelper('twitter_image_id', function(title) {
+        // Because we have different colored twitter images we want to "randomly"
+        // match them with users that don't have a picture
+        var random = 0;
+        for (var i = 0; i < title.length; i++) {
+          random += title.charCodeAt(i);
+        }
+        return random % 7 // We have only 0 - 6 images
+
+    });
+
     Handlebars.registerHelper('is_twitter', function(url) {
         var twitter_url_regex = /^https?:\/\/twitter\.com/;
         if(url.match(twitter_url_regex))
