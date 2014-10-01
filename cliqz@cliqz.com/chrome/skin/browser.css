@@ -952,9 +952,15 @@
     overflow: hidden;
 }
 
+.cliqz-result-dictionary-translation-header {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .cliqz-result-dictionary-translation-language {
     font-weight: bold;
     padding-left: 5px;
+    text-transform: uppercase;
 }
 
 .cliqz-result-dictionary-synonyms {
