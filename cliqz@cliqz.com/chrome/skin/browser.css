@@ -495,6 +495,24 @@
     color: #777;
 }
 
+@media (max-width: 1200px) {
+  .cliqz-weather-aTomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .cliqz-weather-tomorrow {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .cliqz-weather-credits {
+    display: none;
+  }
+}
+
 /* end weather */
 
 /* cluster */
@@ -997,6 +1015,36 @@
 }
 
 /* end bundesliga */
+
+/* bitcoin */
+.cliqz-bitcoin-logo {
+    height: 50px;
+    float: left; 
+    padding-right: 20px;
+}
+
+.cliqz-bitcoin-item {
+    background-color: #CCC;
+    border: 1px solid #CCC;
+    display: inline-block;
+    height: 25px;
+    padding: 2;
+    width: 220px;
+}
+
+.cliqz-bitcoin-column {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.cliqz-bitcoin-score {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* end bitcoin */
 
 /* custom */
 .cliqz-custom-text {
