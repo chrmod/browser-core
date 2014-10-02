@@ -272,7 +272,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var UNINSTALL_PREF = 'uninstallVersion',
             lastUninstallVersion = CliqzUtils.getPref(UNINSTALL_PREF, '');
 
-        if(lastUninstallVersion != currentVersion){
+        if(currentVersion && lastUninstallVersion != currentVersion){
             CliqzUtils.setPref(UNINSTALL_PREF, currentVersion);
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
