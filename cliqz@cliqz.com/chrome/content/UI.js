@@ -195,6 +195,25 @@ function handlePopupHeight(box){
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
+function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
+
+/**
+ * Finds the closest ancestor of @p elem that matches @p selector.
+ *
+ * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
+ */
+function closest(elem, selector) {
+   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
+    while (elem) {
+        if (matchesSelector.bind(elem)(selector)) {
+            return elem;
+        } else {
+            elem = elem.parentElement;
+        }
+    }
+    return false;
+}
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -354,15 +373,28 @@ function resultClick(ev){
                 CLIQZ.Core.popup.hidePopup()
             }
             break;
-        } else if (el.getAttribute('toggle-with')) {
+        } else if (el.getAttribute('cliqz-action')) {
             /*
              * Hides the current element and displays one of its siblings that
              * was specified in the toggle-with attribute.
              */
-            var showThis = el.getAttribute('toggle-with');
-            el.parentElement.style.display = "none";
-            $('.' + showThis, el.parentElement.parentElement).style.display = "block";
-            break;
+            if (el.getAttribute('cliqz-action') == 'toggle') {
+                var hideAttr = el.getAttribute('toggle-hide');
+                var showAttr = el.getAttribute('toggle-show');
+                var context = el.getAttribute('toggle-context');
+                var ancestor = closest(el, '.' + context);
+                if (hideAttr && showAttr && context) {
+                    var toHide = $$("[" + hideAttr + "]", ancestor);
+                    for (var i = 0; i < toHide.length; i++) {
+                        toHide[i].style.display = "none";
+                    }
+                    var toShow = $$("[" + showAttr + "]", ancestor);
+                    for (var i = 0; i < toShow.length; i++) {
+                        toShow[i].style.display = "block";
+                    }
+                    break;
+                }
+            }
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
