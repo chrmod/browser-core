@@ -952,6 +952,11 @@
     overflow: hidden;
 }
 
+.cliqz-result-dictionary-translation-header {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .cliqz-result-dictionary-translation-language {
 	text-transform: uppercase;
     font-weight: bold;
@@ -967,6 +972,30 @@
     display: block
     font-size: 12px;
     background: #f3f3f3;
+    padding: 2px 0 2px 15px;
+    max-height: 15px;
+    overflow: hidden;
+}
+
+.cliqz-result-dictionary-synonyms:after {
+    content: ','
+}
+.cliqz-result-dictionary-synonyms:last-of-type:after {
+    content: ''
+}
+
+.cliqz-result-dictionary-synonyms-header {
+    font-weight: bold;
+    padding-left: 5px;
+    text-transform: uppercase;
+}
+
+.cliqz-result-dictionary-synonyms {
+    display: block
+    font-size: 12px;
+    /*background: #f3f3f3;*/
+    background: #f00000;
+    border: 1px solid blue;
     padding: 2px 0 2px 15px;
     max-height: 15px;
     overflow: hidden;

@@ -1,14 +1,21 @@
+<!--
+The dictionary template defines two snippet types:
+- translation (for multilingual dictionaries) (multilang property);
+- definition (for monolingual dictionaries + thesauri).
+-->
 <div class='cliqz-inline-box-children cliqz-result-generic'>
     <div class='cliqz-result-left-box'>
         <div class='cliqz-result-type' ></div>
     </div>
     <div class='cliqz-result-mid-box' style="width:{{ width }}px">
+        <!-- the common part for both snippet types -->
         <div class='cliqz-result-title-box overflow'>
             {{ title }}
             {{#if data.richData.pronunciation}}
             <span class='cliqz-result-dictionary-pronunciation'>[ {{data.richData.pronunciation}} ]</span>
             {{/if}}
         </div>
+        <!-- TODO only for definitions? -->
         {{#if data.richData.type}}
             <div class="cliqz-result-dictionary-type">
                 {{data.richData.type}}
@@ -16,30 +23,32 @@
         {{/if}}
         <div {{#if data.richData.multilang}}style='display:none'{{/if}}
              defi='true'>
+            <!-- definition snippet -->
             <ol>
                 {{#each data.richData.definitions}}
-                <li>
-                <div class='cliqz-result-dictionary-definition'>
-                    {{ definition }} {{#if type}} - <span class='cliqz-result-dictionary-subtype'>{{type}}</span>{{/if}}
-                </div>
-                </li>
+                    <li>
+                    <div class='cliqz-result-dictionary-definition'>
+                        {{ definition }} {{#if type}} - <span class='cliqz-result-dictionary-subtype'>{{type}}</span>{{/if}}
+                    </div>
+                    </li>
                 {{/each}}
             </ol>
         </div>
         <div {{#unless data.richData.multilang}}style='display:none'{{/unless}}
              trans='true'>
-           {{#with data.richData.translations.[0]}}
-               <div class='cliqz-result-dictionary-language-header'>{{language}}:</div>
-               <ol>
-                       {{#each values}}
-                       <li>
-                       <div class='cliqz-result-dictionary-definition'>
-                           {{this}}
-                       </div>
-                       </li>
-                       {{/each}}
-                   {{/with}}
-               </ol>
+            <!-- translation snippet -->
+            {{#with data.richData.translations.[0]}}
+                <div class='cliqz-result-dictionary-language-header'>{{language}}:</div>
+                <ol>
+                    {{#each values}}
+                        <li>
+                        <div class='cliqz-result-dictionary-definition'>
+                            {{this}}
+                        </div>
+                        </li>
+                    {{/each}}
+                </ol>
+            {{/with}}
         </div>
     </div>
 
@@ -62,6 +71,7 @@
         </span>
     {{/if}}
     {{#each data.richData.translations}}
+        <!-- the first translation is the main content -->
         {{#unless @first}}
             <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
             <span>
