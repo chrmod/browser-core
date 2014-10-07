@@ -354,6 +354,15 @@ function resultClick(ev){
                 CLIQZ.Core.popup.hidePopup()
             }
             break;
+        } else if (el.getAttribute('toggle-with')) {
+            /*
+             * Hides the current element and displays one of its siblings that
+             * was specified in the toggle-with attribute.
+             */
+            var showThis = el.getAttribute('toggle-with');
+            el.parentElement.style.display = "none";
+            $('.' + showThis, el.parentElement.parentElement).style.display = "block";
+            break;
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
