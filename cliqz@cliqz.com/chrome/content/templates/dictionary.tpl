@@ -9,11 +9,14 @@ The dictionary template defines two snippet types:
     </div>
     <div class='cliqz-result-mid-box' style="width:{{ width }}px">
         <!-- the common part for both snippet types -->
-        <div class='cliqz-result-title-box overflow'>
+        <div class='cliqz-result-title-box'>
             {{ title }}
             {{#if data.richData.pronunciation}}
             <span class='cliqz-result-dictionary-pronunciation'>[ {{data.richData.pronunciation}} ]</span>
             {{/if}}
+            <span class='cliqz-result-dictionary-pronunciation'
+                  {{#unless data.richData.multilang}}style='display:none'{{/unless}}
+                  trans='true'>( {{data.richData.language}} )</span>
         </div>
         <!-- TODO only for definitions? -->
         {{#if data.richData.type}}
