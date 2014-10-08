@@ -495,24 +495,6 @@
     color: #777;
 }
 
-@media (max-width: 1200px) {
-  .cliqz-weather-aTomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 1000px) {
-  .cliqz-weather-tomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 800px) {
-  .cliqz-weather-credits {
-    display: none;
-  }
-}
-
 /* end weather */
 
 /* cluster */
@@ -820,6 +802,18 @@
     width: 54px;
     height: 54px;
     border: 2px solid #00659c;
+}
+
+.cliqz-people-image-twitter {
+  border: 2px solid #19ade4
+}
+
+.cliqz-people-image-linkedin {
+  border: 2px solid #0497bb
+}
+
+.cliqz-people-image-facebook {
+  border: 2px solid #3b579d
 }
 
 .cliqz-people-name {

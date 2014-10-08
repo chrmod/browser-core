@@ -23,15 +23,13 @@ var CliqzHistoryManager = {
                 "JOIN moz_places h " +
                 "ON h.id = v.place_id " +
                 "WHERE h.hidden = 0 AND h.visit_count > 0 ",
-                {
-                    columns: ["cnt", "first"],
-                    onRow: function({cnt, first}) {
-                        try {
-                            history = Math.floor(first / 86400000000);
-                            historysize = cnt;
-                        }
-                        catch(ex) {}
+                ["cnt", "first"],
+                function(result) {
+                    try {
+                        history = Math.floor(result.first / 86400000000);
+                        historysize = result.cnt;
                     }
+                    catch(ex) {}
                 }
             )
             .then(function() {
@@ -50,7 +48,7 @@ var CliqzHistoryManager = {
             }
             return product;
         };
-         
+
         // Vector length
         function vecMagnitude(vec) {
             var sum = 0;
@@ -59,7 +57,7 @@ var CliqzHistoryManager = {
             }
             return Math.sqrt(sum);
         };
-         
+
         // Cosine similarity
         function cosineSimilarity(vecA, vecB) {
                 return vecDotProduct(vecA, vecB) / (vecMagnitude(vecA) * vecMagnitude(vecB));
@@ -166,6 +164,8 @@ var CliqzHistoryManager = {
             }
 
             return {
+                docs: D,
+                terms: Object.keys(dted).length,
                 similarity: function (doc) {
                     var dh = hash(doc),
                         doc_tf = tf(tokenize(doc), stopWords),
@@ -193,11 +193,9 @@ var CliqzHistoryManager = {
                     "SELECT moz_places.url FROM moz_places " +
                     "WHERE (url LIKE '%search?q=%' OR url LIKE '%search?p=%' OR url LIKE '%results.aspx?q=%' OR " +
                     "url LIKE '%web?q=%' OR url LIKE '%google.de/#q=%' OR url LIKE '%#q=%' OR url LIKE '%duckduckgo.com/?q=%')",
-                    {
-                        columns: ["url"],
-                        onRow: function(url) {
-                            urls.push(url);
-                        }
+                    ["url"],
+                    function(url) {
+                        urls.push(url);
                     }
                 )
                 .then(function() { callback(urls); });
@@ -219,7 +217,7 @@ var CliqzHistoryManager = {
                 return queries;
             };
             function buildModel(docs) {
-                var stop = ["the", "a"];
+                var stop = ["aber", "als", "am", "an", "auch", "auf", "aus", "bei", "bin", "bis", "bist", "da", "dadurch", "daher", "darum", "das", "daß", "dass", "dein", "deine", "dem", "den", "der", "des", "dessen", "deshalb", "die", "dies", "dieser", "dieses", "doch", "dort", "du", "durch", "ein", "eine", "einem", "einen", "einer", "eines", "er", "es", "euer", "eure", "für", "hatte", "hatten", "hattest", "hattet", "hier", "hinter", "ich", "ihr", "ihre", "im", "in", "ist", "ja", "jede", "jedem", "jeden", "jeder", "jedes", "jener", "jenes", "jetzt", "kann", "kannst", "können", "könnt", "machen", "mein", "meine", "mit", "muß", "mußt", "musst", "müssen", "müßt", "nach", "nachdem", "nein", "nicht", "nun", "oder", "seid", "sein", "seine", "sich", "sie", "sind", "soll", "sollen", "sollst", "sollt", "sonst", "soweit", "sowie", "und", "unser", "unsere", "unter", "vom", "von", "vor", "wann", "warum", "was", "weiter", "weitere", "wenn", "wer", "werde", "werden", "werdet", "weshalb", "wie", "wieder", "wieso", "wir", "wird", "wirst", "wo", "woher", "wohin", "zu", "zum", "zur", "über", "the"];
                 var model = buildTfidfModel(docs, stop);
                 return callback(model);
             }
@@ -229,9 +227,8 @@ var CliqzHistoryManager = {
         getTfidfModel(mainCallback);
     },
 	PlacesInterestsStorage: {
-        _execute: function PIS__execute(sql, optional={}) {
-            var {columns, onRow} = optional,
-                conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
+        _execute: function PIS__execute(sql, columns, onRow) {
+            var conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
                 statement = conn.createAsyncStatement(sql),
                 onThen, //called after the async operation is finalized
                 promiseMock = {
@@ -261,9 +258,10 @@ var CliqzHistoryManager = {
                       // For multiple columns, put as values on an object
                       else {
                         result = {};
-                        columns.forEach(function(column) {
-                          result[column] = row.getResultByName(column);
-                        });
+                        for(var i=0; i<columns.length; i++){
+                            var column = columns[i];
+                            result[column] = row.getResultByName(column);
+                        }
                       }
                     }
                     //pass the result to the onRow handler

@@ -1,11 +1,11 @@
 {{#with data}}
-<div style='padding:5px 0'>
+<div style='padding:5px 0; max-height: 85px; overflow: hidden;' hide-check=''>
   <div class='cliqz-weather-left-box'>
       <div class='cliqz-weather-city'>{{ city }}</div>
-      <div class='cliqz-weather-status'>aktuell</div>
+      <div class='cliqz-weather-status'>{{local 'weatherCurrent'}}</div>
   </div>
 
-  <div class='cliqz-weather-today-container'>
+  <div class='cliqz-weather-today-container' hide-priority='3'>
     <div class='cliqz-weather-today-date'
          style="background-image:url({{ todayIcon }})">
           {{ todayDate }}
@@ -20,16 +20,11 @@
   </div>
 
 
-  <div class='cliqz-weather-credits'>
-    <div>
-      zur Verfügung gestellt von
-    </div>
-    <div>
-      openweathermap.org
-    </div>
+  <div class='cliqz-weather-credits' hide-priority='2'>
+    {{{local 'weatherCredits'}}}
   </div>
 
-  <div class='cliqz-weather-skew-container cliqz-weather-aTomorrow'>
+  <div class='cliqz-weather-skew-container cliqz-weather-aTomorrow' hide-priority='0'>
       <div class="cliqz-weather-next-container"
            style="transform: skew(30deg);">
           <div class='cliqz-inline-box-children'>
@@ -59,7 +54,7 @@
       </div>
   </div>
 
-  <div class='cliqz-weather-skew-container cliqz-weather-tomorrow'>
+  <div class='cliqz-weather-skew-container cliqz-weather-tomorrow' hide-priority='1'>
       <div class="cliqz-weather-next-container"
            style="transform: skew(30deg);">
           <div class='cliqz-inline-box-children'>

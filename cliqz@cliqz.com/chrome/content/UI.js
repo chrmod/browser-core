@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -90,8 +90,11 @@ var UI = {
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
 
-        if(gCliqzBox.messageBox)
-            gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse';
+        if(gCliqzBox.messageBox){
+            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
+            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
+            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -102,6 +105,12 @@ var UI = {
         }
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+
+        //might be unset at the first open
+        CLIQZ.Core.popup.mPopupOpen = true;
+
+        // try to find and hide misaligned elemets - eg - weather
+        setTimeout(hideMisalignedElements, 0, gCliqzBox.resultsBox);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -159,6 +168,32 @@ var UI = {
 
     }
 };
+
+// hide elements in a context folowing a priority (0-lowest)
+//
+// looks for all the elements with 'hide-check' attribute and
+// hides childrens based on the 'hide-priority' order
+function hideMisalignedElements(ctx){
+    var elems = $$('[hide-check]', ctx);
+    for(var i = 0; elems && i < elems.length; i++){
+        var el = elems[i], childrenW = 40 /* paddings */;
+        for(var c=0; c<el.children.length; c++)
+            childrenW += el.children[c].clientWidth;
+
+        if(childrenW > el.clientWidth){
+            var children = [].slice.call($$('[hide-priority]', el)),
+                sorted = children.sort(function(a, b){
+                    return +a.getAttribute('hide-priority') < +b.getAttribute('hide-priority')
+                });
+
+            while(sorted.length && childrenW > el.clientWidth){
+                var excluded = sorted.pop();
+                childrenW -= excluded.clientWidth;
+                excluded.style.display = 'none';
+            }
+        }
+    }
+}
 
 function handlePopupHeight(box){
     var MAX=352, MIN =160,
@@ -312,6 +347,8 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
+
+                    if(r.vertical == 'text')r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -368,10 +405,7 @@ function resultClick(ev){
             CliqzUtils.track(action);
 
             if(newTab) gBrowser.addTab(url);
-            else {
-                openUILink(url);
-                CLIQZ.Core.popup.hidePopup()
-            }
+            else openUILink(url);
             break;
         } else if (el.getAttribute('cliqz-action')) {
             /*
@@ -654,16 +688,16 @@ function trackArrowNavigation(el){
 }
 var AGO_CEILINGS=[
     [0            , '',                , 1],
-    [120          , 'vor einer Minute' , 1],
-    [3600         , 'vor %d Minuten'   , 60],
-    [7200         , 'vor einer Stunde' , 1],
-    [86400        , 'vor %d Stunden'   , 3600],
-    [172800       , 'gestern'          , 1],
-    [604800       , 'vor %d Tagen'     , 86400],
-    [4838400      , 'vor einem Monat'  , 1],
-    [29030400     , 'vor %d Monaten'   , 2419200],
-    [58060800     , 'vor einem Jahr'   , 1],
-    [2903040000   , 'vor %d Jaren'     , 29030400],
+    [120          , 'ago1Minute' , 1],
+    [3600         , 'agoXMinutes'   , 60],
+    [7200         , 'ago1Hour' , 1],
+    [86400        , 'agoXHours'   , 3600],
+    [172800       , 'agoYesterday'          , 1],
+    [604800       , 'agoXDays'     , 86400],
+    [4838400      , 'ago1Month'  , 1],
+    [29030400     , 'agoXMonths'   , 2419200],
+    [58060800     , 'ago1year'   , 1],
+    [2903040000   , 'agoXYears'     , 29030400],
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
@@ -679,7 +713,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -697,6 +731,10 @@ function registerHelpers(){
         } else {
             return options.inverse(this);
         }
+    });
+
+    Handlebars.registerHelper('local', function(key, v1, v2 ) {
+        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
     Handlebars.registerHelper('json', function(value, options) {
@@ -801,11 +839,50 @@ function registerHelpers(){
             "%": lvalue % rvalue
         }[operator];
     });
+
+    Handlebars.registerHelper('twitter_image_id', function(title) {
+        // Because we have different colored twitter images we want to "randomly"
+        // match them with users that don't have a picture
+        var random = 0;
+        for (var i = 0; i < title.length; i++) {
+          random += title.charCodeAt(i);
+        }
+        return random % 7 // We have only 0 - 6 images
+
+    });
+
+    Handlebars.registerHelper('is_twitter', function(url) {
+        var twitter_url_regex = /^https?:\/\/twitter\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('is_facebook', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?facebook\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('is_xing', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?xing\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('reduce_width', function(width, reduction) {
+        return width - reduction;
+    });
 }
 
 function runHistoryExperiment(inputValue) {
     setTimeout(
-        function(inputValue) { 
+        function(inputValue) {
 
             // reorder the given suggestions by their similarity to the corpus
             function reorder(sugs) {
@@ -828,10 +905,12 @@ function runHistoryExperiment(inputValue) {
             function suggesterCallback(req) {
                 var sugs = JSON.parse(req.response);
                 var s1_pos = -1,
-                    s2_pos = -1;
+                    s2_pos = -1,
+                    pop = 0;
                 for (var i = 0; i < sugs.length; i++) {
                     if (sugs[i].value == inputValue) {
                         s1_pos = i;
+                        pop = sugs[i].score;
                     }
                 }
                 var reordered = reorder(sugs),
@@ -843,10 +922,12 @@ function runHistoryExperiment(inputValue) {
                     maxScore = Math.max(maxScore, reordered[i].score);
                 }
 
-                results[qkey] = {s1: s1_pos, s2: s2_pos, max: maxScore};
+                results[qkey] = {s1: s1_pos, s2: s2_pos, pop: pop, max: maxScore};
                 if (Object.keys(results).length == 4) {
                     var qAction = {
-                        type: 'experiments-v1',
+                        type: 'experiments-v2',
+                        docs: CliqzHistoryManager.historyModel.docs,
+                        terms: CliqzHistoryManager.historyModel.terms,
                         qlen: inputValue.length,
                         qwords: inputValue.split(/\s+/).length,
                         action: {
@@ -862,8 +943,7 @@ function runHistoryExperiment(inputValue) {
             // take first 3 chars
             var cliqzQuery3 = inputValue.substring(0, 3);
             var cliqzQuery5 = inputValue.substring(0, 5);
-            var cliqzQueryW = inputValue.lastIndexOf(' ') == -1 ?
-                inputValue : inputValue.substring(0, inputValue.indexOf(' '));
+            var cliqzQueryW = inputValue;
             var cliqzQueryL = inputValue.lastIndexOf(' ') == -1 ?
                 inputValue.substring(0, 1) : inputValue.substring(0, inputValue.lastIndexOf(' ')+2);
             var suggesterUrl = "http://54.90.135.180/api/suggestions?q=";

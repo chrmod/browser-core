@@ -6,13 +6,43 @@
 		<div class='cliqz-result-type' ></div>
 	</div>
 	{{#if image.src}}
-		<div class='cliqz-people-image-box'>
-			<div class="cliqz-people-image"
-				 style="background-image: url({{ image.src }});"
-			>
-			</div>
-			<div class="cliqz-people-source {{ logo }}"></div>
-		</div>
+    {{#if (is_twitter url)}}
+      <div class='cliqz-people-image-box '>
+        <div class="cliqz-people-image cliqz-people-image-twitter"
+           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_{{twitter_image_id data.richData.full_name}}.png);"
+        ></div>
+        <div class="cliqz-people-source"
+          style="background-image: url(chrome://cliqzres/content/skin/twitter_logo.png);"></div>
+      </div>
+    {{else}}
+      {{#if (is_facebook url)}}
+        <div class='cliqz-people-image-box'>
+          <div class="cliqz-people-image cliqz-people-image-facebook"
+             style="background-image: url(chrome://cliqzres/content/skin/facebook_user.jpeg);"
+          ></div>
+          <div class="cliqz-people-source"
+            style="background-image: url(chrome://cliqzres/content/skin/facebook_logo.png);"></div>
+        </div>
+      {{else}}
+        {{#if (is_xing url)}}
+          <div class='cliqz-people-image-box'>
+            <div class="cliqz-people-image"
+               style="background-image: url({{ image.src }});"
+            >
+            </div>
+            <div class="cliqz-people-source {{ logo }}"></div>
+          </div>
+        {{else}}
+          <div class='cliqz-people-image-box'>
+              <div class="cliqz-people-image cliqz-people-image-linkedin"
+                 style="background-image: url(chrome://cliqzres/content/skin/linkedin_user.png);"
+              ></div>
+              <div class="cliqz-people-source"
+                style="background-image: url(chrome://cliqzres/content/skin/linkedin_logo.png);"></div>
+          </div>
+        {{/if}}
+      {{/if}}
+    {{/if}}
 	{{/if}}
 	<div class='cliqz-result-mid-box people-box' style="width:{{ width }}px;">
 		{{#with data.richData}}
@@ -26,13 +56,13 @@
 				<span class='cliqz-people-jobtitle'>
 					{{current_job_title}}
 				</span>
-				bei
+				{{local 'peoplePositionAt'}}
 				<span class='cliqz-people-company'>
 					{{current_company}}
 				</span>
 				{{#if since}}
 					<span class='cliqz-people-agoline'>
-						seit {{since}}
+						{{local 'peoplePositionSince'}} {{since}}
 					</span>
 				{{/if}}
 			</div>
@@ -47,5 +77,58 @@
 </div>
 
 {{else}}
-	{{partial 'generic'}}
+<div class='cliqz-inline-box-children cliqz-result-generic'>
+  <div class='cliqz-result-left-box'>
+    <div class='cliqz-result-type' ></div>
+  </div>
+  {{#if image.src}}
+    <div class='cliqz-people-image-box'>
+      <div class="cliqz-people-image"
+         style="background-image: url({{ image.src }});"
+      >
+      </div>
+      <div class="cliqz-people-source {{ logo }}"></div>
+    </div>
+  {{else}}
+    {{#if (is_twitter url)}}
+      <div class='cliqz-people-image-box '>
+        <div class="cliqz-people-image cliqz-people-image-twitter"
+           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_{{twitter_image_id title}}.png);"
+        ></div>
+        <div class="cliqz-people-source"
+          style="background-image: url(chrome://cliqzres/content/skin/twitter_logo.png);"></div>
+      </div>
+    {{else}}
+      {{#if (is_facebook url)}}
+        <div class='cliqz-people-image-box'>
+          <div class="cliqz-people-image cliqz-people-image-facebook"
+             style="background-image: url(chrome://cliqzres/content/skin/facebook_user.jpeg);"
+          ></div>
+          <div class="cliqz-people-source"
+            style="background-image: url(chrome://cliqzres/content/skin/facebook_logo.png);"></div>
+        </div>
+      {{else}}
+        <div class='cliqz-people-image-box'>
+            <div class="cliqz-people-image cliqz-people-image-linkedin"
+               style="background-image: url(chrome://cliqzres/content/skin/linkedin_user.png);"
+            ></div>
+            <div class="cliqz-people-source"
+              style="background-image: url(chrome://cliqzres/content/skin/linkedin_logo.png);"></div>
+          </div>
+        {{/if}}
+    {{/if}}
+  {{/if}}
+  <div class='cliqz-result-mid-box' style="width:{{reduce_width width 75}}px">
+    <div class='cliqz-result-title-box overflow'>
+      {{ emphasis title text 2 false}}
+    </div>
+    {{> url this}}
+    <div class='cliqz-result-description'>
+      {{ emphasis data.description text 2 true }}
+    </div>
+  </div>
+  <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
+       newtab='true'>
+  </div>
+</div>
 {{/if}}

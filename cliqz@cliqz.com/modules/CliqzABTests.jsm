@@ -110,14 +110,21 @@ var CliqzABTests = CliqzABTests || {
             case "1008_A":
                 CliqzUtils.setOurOwnPrefs();
                 break;
+            case "1010_A":
+                // show no results message
+                CliqzUtils.setPref("showNoResults", true);
+                break;
             default:
                 rule_executed = false;
         }
         if(rule_executed) {
-            if(payload.msg)
-                CliqzUtils.log(abtest + ": " + payload.msg, logname);
-            else
-               CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'enter',
+                name: abtest
+            };
+            CliqzUtils.track(action);
+    
             return true;
        } else {
             return false;
@@ -171,12 +178,24 @@ var CliqzABTests = CliqzABTests || {
             case "1008_A":
                 CliqzUtils.resetOriginalPrefs();
                 break;
+            case "1009_A":
+                CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
+                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
+                break;
+            case "1010_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
+                break;
             default:
                 rule_executed = false;
         }
 
         if(rule_executed) {
-            CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'leave',
+                name: abtest
+            };
+            CliqzUtils.track(action);
             return true;
        } else {
             return false;

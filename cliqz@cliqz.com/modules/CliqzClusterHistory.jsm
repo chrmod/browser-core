@@ -632,7 +632,7 @@ var templates = {
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('Settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control: [{title: CliqzUtils.getLocalizedString('settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
                 control_set: {},
                 topics: [],
                 url: 'http://github.com/'
