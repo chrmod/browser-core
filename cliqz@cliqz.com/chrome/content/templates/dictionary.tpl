@@ -96,7 +96,7 @@ The dictionary template defines two snippet types:
     {{#each data.richData.translations}}
         <!-- the first translation is the main content -->
         {{#unless @first}}
-            <span class='cliqz-result-dictionary-translation-language'>{{lang}}:</span>
+            <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
             <span>
                 {{#each values}}
                     {{this}}
@@ -106,11 +106,13 @@ The dictionary template defines two snippet types:
     {{/each}}
 </div>
 <!-- definition snippet -->
-<div class='cliqz-result-dictionary-synonyms'
-     {{#if data.richData.multilang}}style='display:none'{{/if}}
-     defi='true'>
-    <span class='cliqz-result-dictionary-synonyms-header'>Synonyms:</span>
-    {{#each data.richData.synonyms}}
-        <span>{{this}}{{#if @last}}{{else}},{{/if}}</span>
-    {{/each}}
-</div>
+{{#if data.richData.synonyms}}
+    <div class='cliqz-result-dictionary-synonyms'
+         {{#if data.richData.multilang}}style='display:none'{{/if}}
+         defi='true'>
+        <span class='cliqz-result-dictionary-synonyms-header'>Synonyms:</span>
+        {{#each data.richData.synonyms}}
+            <span>{{this}}{{#if @last}}{{else}},{{/if}}</span>
+        {{/each}}
+    </div>
+{{/if}}
