@@ -47,7 +47,7 @@ The dictionary template defines two snippet types:
                           toggle-show="trans"
                           toggle-context="cliqz-result-item-box"
                           align="center">
-                        Translations<br/>
+                        {{data.richData.i18n.translations}}<br/>
                         {{#unless data.richData.multilang}}&gt;&gt;{{else}}&lt;&lt;{{/unless}}
                     </div>
                 </div>
@@ -79,7 +79,7 @@ The dictionary template defines two snippet types:
                           toggle-show="defi"
                           toggle-context="cliqz-result-item-box"
                           align="center">
-                        Definitions<br/>
+                        {{data.richData.i18n.definitions}}<br/>
                         {{#if data.richData.multilang}}&gt;&gt;{{else}}&lt;&lt;{{/if}}
                     </div>
                 </div>
@@ -113,7 +113,7 @@ The dictionary template defines two snippet types:
     <div class='cliqz-result-dictionary-synonyms'
          {{#if data.richData.multilang}}style='display:none'{{/if}}
          defi='true'>
-        <span class='cliqz-result-dictionary-synonyms-header'>Synonyms:</span>
+        <span class='cliqz-result-dictionary-synonyms-header'>{{data.richData.i18n.synonyms}}:</span>
         {{#each data.richData.synonyms}}
             <span>{{this}}{{#if @last}}{{else}},{{/if}}</span>
         {{/each}}
