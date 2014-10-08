@@ -223,7 +223,11 @@ Result click (mouse)
     "position_type": "<ENCODED_RESULT_TYPE>",
     "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
-    "has_image": true/false // result has an image (nobody image from xing is considered no image)
+    "has_image": true/false, // result has an image (nobody image from xing is considered no image)
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 
@@ -253,7 +257,11 @@ Result enter (keyboard)
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
-    "has_image": true/false // result has an image (nobody image from xing is considered no image)
+    "has_image": true/false, // result has an image (nobody image from xing is considered no image)
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 2.
@@ -272,6 +280,10 @@ Result enter (keyboard)
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
     "source": "<ENCODED_RESULT_TYPE>", // encoded results type of the result which autocompleted
     "search": true/false, //only if position_type = inbar_url and the url is a search page
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 3. With a focused suggestion
@@ -293,6 +305,7 @@ Results - results shown in the dropdown
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
+    "query_length": 2 //length of the query in the moment of this action
     "instant": true/false, // was this an 'instant' result or full result
     "popup": true/false, // if the result really got the chance to be displayed for the user
     "latency_history": <TIME_MS>, // time in ms from start of search until history returns
