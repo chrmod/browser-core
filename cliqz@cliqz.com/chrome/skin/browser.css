@@ -919,6 +919,18 @@
 
 /* dictionary */
 
+.cliqz-result-dictionary-main {
+	float: left;
+	margin-right: 110px;
+	background: red;
+}
+
+.cliqz-result-dictionary-toggler {
+	width: 100px;
+	float: right;
+	background: blue;
+}
+
 .cliqz-result-dictionary-pronunciation {
     font-style: italic;
     font-weight: normal;
