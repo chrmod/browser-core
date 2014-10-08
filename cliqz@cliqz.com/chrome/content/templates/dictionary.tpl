@@ -92,7 +92,7 @@ The dictionary template defines two snippet types:
     {{#each data.richData.translations}}
         <!-- the first translation is the main content -->
         {{#unless @first}}
-            <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
+            <span class='cliqz-result-dictionary-translation-language'>{{lang}}:</span>
             <span>
                 {{#each values}}
                     {{this}}
