@@ -233,11 +233,16 @@ var Extension = {
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
 
-        var menupopup = Extension.createMenu(win)
+        var menupopup = doc.createElement('menupopup');
+        menupopup.setAttribute('id', 'cliqz_menupopup');
         button.appendChild(menupopup);
 
+        menupopup.addEventListener('popupshowing', function(){
+            Extension.createMenuifEmpty(win, menupopup);
+        });
         button.addEventListener('command', function(ev) {
-            menupopup.openPopup(button,"after_start", 0, 0, false, true);
+            Extension.createMenuifEmpty(win, menupopup);
+            button.children[0].openPopup(button,"after_start", 0, 0, false, true);
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
@@ -250,6 +255,13 @@ var Extension = {
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
+        // localization mechanism might take a while to load.
+        // TODO: find better sollution
+        CliqzUtils.setTimeout(function(){
+            shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
+            shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+        }, 2000);
+
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
@@ -260,13 +272,12 @@ var Extension = {
 
         ToolbarButtonManager.restorePosition(doc, shareButton);
     },
-    createMenu: function(win){
-        var doc = win.document,
-            menupopup = doc.createElement('menupopup');
-        menupopup.setAttribute('id', 'cliqz_menupopup');
-        menupopup.addEventListener('command', function(event) {
+    // creates the menu items at first click
+    createMenuifEmpty: function(win, menupopup){
+        if(menupopup.children.length > 0) return;
 
-        }, false);
+        var doc = win.document,
+            lang = CliqzUtils.getLanguage(win);
 
         var menuitem1 = doc.createElement('menuitem');
         menuitem1.setAttribute('id', 'cliqz_menuitem1');
@@ -277,10 +288,10 @@ var Extension = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion + '-' + source);
+                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/feedback/' + beVersion);
+                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
 
@@ -291,23 +302,93 @@ var Extension = {
         menuitem2.setAttribute('id', 'cliqz_menuitem2');
         menuitem2.setAttribute('label', 'FAQ');
         menuitem2.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/faq');
+            Extension.openTab(doc, 'http://beta.cliqz.com/faq_' + lang + '.html');
         }, false);
 
         var menuitem4 = doc.createElement('menuitem');
         menuitem4.setAttribute('id', 'cliqz_menuitem4');
-        menuitem4.setAttribute('label', 'Datenschutz');
+        menuitem4.setAttribute('label', CliqzUtils.getLocalizedString('btnPrivacy'));
         menuitem4.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz.html');
+            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
 
 
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
         menupopup.appendChild(menuitem4);
-        menupopup.appendChild(Extension.createSearchOptions(doc));
 
-        return menupopup;
+        //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
+        //FF16+
+        if(Services.search.init != null){
+            Services.search.init(function(){
+                menupopup.appendChild(Extension.createSearchOptions(doc));
+                menupopup.appendChild(Extension.createLanguageOptions(doc));
+            });
+        } else {
+            menupopup.appendChild(Extension.createSearchOptions(doc));
+            menupopup.appendChild(Extension.createLanguageOptions(doc));
+        }
+    },
+    createLanguageOptions: function (doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        var languages = {
+          '': { lang: CliqzUtils.getLocalizedString('country_code_'), selected: false},
+          'BR': { lang: CliqzUtils.getLocalizedString('country_code_BR'), selected: false},
+          'DE': { lang: CliqzUtils.getLocalizedString('country_code_DE'), selected: false},
+          'EE': { lang: CliqzUtils.getLocalizedString('country_code_EE'), selected: false},
+          'FR': { lang: CliqzUtils.getLocalizedString('country_code_FR'), selected: false},
+          'GR': { lang: CliqzUtils.getLocalizedString('country_code_GR'), selected: false},
+          'GB': { lang: CliqzUtils.getLocalizedString('country_code_GB'), selected: false},
+          'ID': { lang: CliqzUtils.getLocalizedString('country_code_ID'), selected: false},
+          'IT': { lang: CliqzUtils.getLocalizedString('country_code_IT'), selected: false},
+          'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
+          'HR': { lang: CliqzUtils.getLocalizedString('country_code_HR'), selected: false},
+          'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
+          'PS': { lang: CliqzUtils.getLocalizedString('country_code_PS'), selected: false},
+          'RO': { lang: CliqzUtils.getLocalizedString('country_code_RO'), selected: false},
+          'RU': { lang: CliqzUtils.getLocalizedString('country_code_RU'), selected: false},
+          'RS': { lang: CliqzUtils.getLocalizedString('country_code_RS'), selected: false},
+          'SG': { lang: CliqzUtils.getLocalizedString('country_code_SG'), selected: false},
+          'ES': { lang: CliqzUtils.getLocalizedString('country_code_ES'), selected: false},
+          'CH': { lang: CliqzUtils.getLocalizedString('country_code_CH'), selected: false},
+          'TH': { lang: CliqzUtils.getLocalizedString('country_code_TH'), selected: false},
+          'TR': { lang: CliqzUtils.getLocalizedString('country_code_TR'), selected: false},
+          'HU': { lang: CliqzUtils.getLocalizedString('country_code_HU'), selected: false},
+          'US': { lang: CliqzUtils.getLocalizedString('country_code_US'), selected: false},
+          'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
+        };
+
+        var location = CliqzUtils.getPref('config_location', 'DE');
+        // Append current location to Automatic string
+        languages[''].lang += ' (' + languages[location].lang + ')';
+
+        var countryCode = CliqzUtils.getPref('forceCountry', '');
+        if(languages[countryCode])
+          languages[countryCode].selected = true;
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnRegion'));
+        for (var language in languages) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', languages[language].lang);
+          item.setAttribute('class', 'menuitem-iconic');
+          if (languages[language].selected) {
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+          item.lang = new String(language);
+          item.addEventListener('command', function(event) {
+              CliqzUtils.setPref('forceCountry', this.lang.toString());
+              timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+          }, false);
+          menupopup.appendChild(item);
+          // Add seperator after Automatic item
+          if (language === '')
+            menupopup.appendChild(doc.createElement('menuseparator'));
+        }
+
+        menu.appendChild(menupopup);
+        return menu;
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -315,7 +396,7 @@ var Extension = {
             engines = ResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
-        menu.setAttribute('label', 'Standard-Suchmaschine');
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
 
         for(var i in engines){
 
@@ -349,9 +430,12 @@ var Extension = {
             try{
                 var btn = win.document.getElementById('cliqz-button')
                 if(btn && btn.children && btn.children.cliqz_menupopup){
+                    var languageOptions = btn.children.cliqz_menupopup.lastChild;
+                    languageOptions.parentNode.removeChild(languageOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
                     searchOptions.parentNode.removeChild(searchOptions);
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
+                    btn.children.cliqz_menupopup.appendChild(Extension.createLanguageOptions(doc));
                 }
             } catch(e){}
         }

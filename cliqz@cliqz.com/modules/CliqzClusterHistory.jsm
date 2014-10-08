@@ -632,7 +632,7 @@ var templates = {
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('Settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control: [{title: CliqzUtils.getLocalizedString('settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
                 control_set: {},
                 topics: [],
                 url: 'http://github.com/'
@@ -1086,7 +1086,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             }
         }
 
-        if (maxCounter < (history.matchCount * 0.60)) {
+        if (maxCounter < (history.matchCount * 0.50)) {
             CliqzUtils.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60, CliqzClusterHistory.LOG_KEY);
             return [false, historyTrans];
         }

@@ -19,7 +19,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, weatherResults, bundesligaResults, maxResults){
+	mix: function(q, history, cliqz, cliqzExtra, mixed, weatherResults, bundesligaResults, maxResults){
 		var results = [],
             [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q),
             showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
@@ -176,6 +176,23 @@ var Mixer = {
             if(showQueryDebug)
                 bucketHistoryCluster[0].comment += " (Clustering)";
             results.unshift(bucketHistoryCluster[0]);
+        }
+
+        // add extra (fun search) results at the beginning
+        if(cliqzExtra) results = cliqzExtra.concat(results);
+        if(results.length == 0 && mixed.matchCount == 0 && CliqzUtils.getPref('showNoResults')){
+            results.push(
+                Result.cliqzExtra(
+                    {
+                        data:
+                        {
+                            template:'text',
+                            title: CliqzUtils.getLocalizedString('noResultTitle'),
+                            //message: CliqzUtils.getLocalizedString('noResultMessage')
+                        }
+                    }
+                )
+            );
         }
         return results.slice(0, maxResults);
 	}
