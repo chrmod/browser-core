@@ -362,7 +362,6 @@ function resultClick(ev){
         newTab = ev.metaKey ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-
     while (el){
         if(el.getAttribute('url')){
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
@@ -378,7 +377,10 @@ function resultClick(ev){
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
-                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -498,6 +500,7 @@ function onEnter(ev, item){
         inputValue = CLIQZ.Core.urlbar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
+        currentTime = (new Date()).getTime(),
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -505,9 +508,12 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
-            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+            reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
+            display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
+            urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
+            result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
         };
-
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
@@ -587,7 +593,8 @@ function onEnter(ev, item){
                 } // end A-B test if
             }
         }
-        CliqzUtils.track(action);
+        if (CLIQZ.Core.urlbar.value.length > 0)
+            CliqzUtils.track(action);
 
         //CLIQZ.Core.popup.closePopup();
         //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
