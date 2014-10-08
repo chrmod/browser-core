@@ -390,7 +390,7 @@ function resultClick(ev){
                     }
                     var toShow = $$("[" + showAttr + "]", ancestor);
                     for (var i = 0; i < toShow.length; i++) {
-                        toShow[i].style.display = "block";
+                        toShow[i].style.display = "";
                     }
                     break;
                 }
