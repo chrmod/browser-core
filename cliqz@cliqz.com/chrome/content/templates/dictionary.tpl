@@ -25,7 +25,8 @@ The dictionary template defines two snippet types:
              defi='true'>
             <!-- definition snippet -->
             <div {{#if data.richData.translations}}
-                 class='cliqz-result-dictionary-main'{{/if}}>
+                 class='cliqz-result-dictionary-main'
+                 style='width:{{math width "-" 110}}px'{{/if}}>
                 <ol>
                     {{#each data.richData.definitions}}
                         <li>
@@ -44,7 +45,7 @@ The dictionary template defines two snippet types:
                           toggle-context="cliqz-result-item-box"
                           align="center">
                         Translations<br/>
-                        &lt;&lt;
+                        {{#unless data.richData.multilang}}&gt;&gt;{{else}}&lt;&lt;{{/unless}}
                     </div>
                 </div>
             {{/if}}
@@ -53,7 +54,8 @@ The dictionary template defines two snippet types:
              trans='true'>
             <!-- translation snippet -->
             <div {{#if data.richData.definitions}}
-                 class='cliqz-result-dictionary-main'{{/if}}>
+                 class='cliqz-result-dictionary-main'
+                 style='width:{{math width "-" 110}}px'{{/if}}>
                 {{#with data.richData.translations.[0]}}
                     <div class='cliqz-result-dictionary-language-header'>{{language}}:</div>
                     <ol>
@@ -72,8 +74,10 @@ The dictionary template defines two snippet types:
                     <div cliqz-action="toggle"
                           toggle-hide="trans"
                           toggle-show="defi"
-                          toggle-context="cliqz-result-item-box">
-                        &lt;&lt;
+                          toggle-context="cliqz-result-item-box"
+                          align="center">
+                        Definitions<br/>
+                        {{#if data.richData.multilang}}&gt;&gt;{{else}}&lt;&lt;{{/if}}
                     </div>
                 </div>
             {{/if}}

@@ -920,15 +920,14 @@
 /* dictionary */
 
 .cliqz-result-dictionary-main {
-	float: left;
-	margin-right: 110px;
-	background: red;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .cliqz-result-dictionary-toggler {
-	width: 100px;
-	float: right;
-	background: blue;
+    width: 100px;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .cliqz-result-dictionary-pronunciation {
@@ -970,13 +969,12 @@
 }
 
 .cliqz-result-dictionary-translation-language {
-	text-transform: uppercase;
+    text-transform: uppercase;
     font-weight: bold;
     padding-left: 5px;
 }
 
 .cliqz-result-dictionary-language-header {
-	text-transform: uppercase;
     font-weight: bold;
 }
 
