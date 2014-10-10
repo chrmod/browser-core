@@ -232,6 +232,24 @@ function handlePopupHeight(box){
 function $(e, ctx){return (ctx || document).querySelector(e); }
 function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
 
+/**
+ * Finds the closest ancestor of @p elem that matches @p selector.
+ *
+ * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
+ */
+function closest(elem, selector) {
+   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
+    while (elem) {
+        if (matchesSelector.bind(elem)(selector)) {
+            return elem;
+        } else {
+            elem = elem.parentElement;
+        }
+    }
+    return false;
+}
+
 function generateLogoClass(urlDetails){
     var cls = '';
     // lowest priority: base domain, no tld
@@ -391,6 +409,28 @@ function resultClick(ev){
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
+        } else if (el.getAttribute('cliqz-action')) {
+            /*
+             * Hides the current element and displays one of its siblings that
+             * was specified in the toggle-with attribute.
+             */
+            if (el.getAttribute('cliqz-action') == 'toggle') {
+                var toggleId = el.getAttribute('toggle-id');
+                var context = el.getAttribute('toggle-context');
+                if (toggleId && context) {
+                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                    var ancestor = closest(el, '.' + context);
+                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                    for (var i = 0; i < toggleElements.length; i++) {
+                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                            toggleElements[i].style.display = "";
+                        } else {
+                            toggleElements[i].style.display = "none";
+                        }
+                    }
+                    break;
+                }
+            }
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -792,6 +832,19 @@ function registerHelpers(){
         var year = d.getFullYear();
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
+    });
+
+    Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+        lvalue = parseFloat(lvalue);
+        rvalue = parseFloat(rvalue);
+            
+        return {
+            "+": lvalue + rvalue,
+            "-": lvalue - rvalue,
+            "*": lvalue * rvalue,
+            "/": lvalue / rvalue,
+            "%": lvalue % rvalue
+        }[operator];
     });
 
     Handlebars.registerHelper('twitter_image_id', function(title) {
