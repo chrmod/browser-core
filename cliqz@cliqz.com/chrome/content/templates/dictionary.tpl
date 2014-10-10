@@ -1,14 +1,14 @@
-<!--
+{{!--
 The dictionary template defines two snippet types:
 - translation (for multilingual dictionaries) (multilang property);
 - definition (for monolingual dictionaries + thesauri).
--->
+--}}
 <div class='cliqz-inline-box-children cliqz-result-generic'>
     <div class='cliqz-result-left-box'>
         <div class='cliqz-result-type' ></div>
     </div>
     <div class='cliqz-result-mid-box' style="width:{{ width }}px">
-        <!-- the common part for both snippet types -->
+        {{!-- the common part for both snippet types --}}
         <div class='cliqz-result-title-box'>
             {{ title }}
             {{#if data.richData.pronunciation}}
@@ -18,7 +18,7 @@ The dictionary template defines two snippet types:
                   {{#unless data.richData.multilang}}style='display:none'{{/unless}}
                   cliqz-toggle='trans'>( {{data.richData.language}} )</span>
         </div>
-        <!-- TODO only for definitions? -->
+        {{!-- TODO only for definitions? --}}
         {{#if data.richData.type}}
             <div class="cliqz-result-dictionary-type">
                 {{data.richData.type}}
@@ -26,7 +26,7 @@ The dictionary template defines two snippet types:
         {{/if}}
         <div {{#if data.richData.multilang}}style='display:none'{{/if}}
              cliqz-toggle='defi'>
-            <!-- definition snippet -->
+            {{!-- definition snippet --}}
             <div {{#if data.richData.translations}}
                  class='cliqz-result-dictionary-main'
                  style='width:{{math width "-" 110}}px'{{/if}}>
@@ -54,7 +54,7 @@ The dictionary template defines two snippet types:
         </div>
         <div {{#unless data.richData.multilang}}style='display:none'{{/unless}}
              cliqz-toggle='trans'>
-            <!-- translation snippet -->
+            {{!-- translation snippet --}}
             <div {{#if data.richData.definitions}}
                  class='cliqz-result-dictionary-main'
                  style='width:{{math width "-" 110}}px'{{/if}}>
@@ -90,12 +90,12 @@ The dictionary template defines two snippet types:
     </div>
 </div>
 
-<!-- translation snippet -->
+{{!-- translation snippet --}}
 <div class='cliqz-result-dictionary-translations'
      {{#unless data.richData.multilang}}style='display:none'{{/unless}}
      cliqz-toggle='trans'>
     {{#each data.richData.translations}}
-        <!-- the first translation is the main content -->
+        {{!-- the first translation is the main content --}}
         {{#unless @first}}
             <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
             <span>
@@ -106,7 +106,7 @@ The dictionary template defines two snippet types:
         {{/unless}}
     {{/each}}
 </div>
-<!-- definition snippet -->
+{{!-- definition snippet --}}
 {{#if data.richData.synonyms}}
     <div class='cliqz-result-dictionary-synonyms'
          {{#if data.richData.multilang}}style='display:none'{{/if}}
