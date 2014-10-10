@@ -16,7 +16,7 @@ The dictionary template defines two snippet types:
             {{/if}}
             <span class='cliqz-result-dictionary-pronunciation'
                   {{#unless data.richData.multilang}}style='display:none'{{/unless}}
-                  trans='true'>( {{data.richData.language}} )</span>
+                  cliqz-toggle='trans'>( {{data.richData.language}} )</span>
         </div>
         <!-- TODO only for definitions? -->
         {{#if data.richData.type}}
@@ -25,7 +25,7 @@ The dictionary template defines two snippet types:
             </div>
         {{/if}}
         <div {{#if data.richData.multilang}}style='display:none'{{/if}}
-             defi='true'>
+             cliqz-toggle='defi'>
             <!-- definition snippet -->
             <div {{#if data.richData.translations}}
                  class='cliqz-result-dictionary-main'
@@ -43,8 +43,7 @@ The dictionary template defines two snippet types:
             {{#if data.richData.translations}}
                 <div class='cliqz-result-dictionary-toggler'>
                     <div cliqz-action="toggle"
-                          toggle-hide="defi"
-                          toggle-show="trans"
+                          toggle-id="trans"
                           toggle-context="cliqz-result-item-box"
                           align="center">
                         {{data.richData.i18n.translations}}<br/>
@@ -54,7 +53,7 @@ The dictionary template defines two snippet types:
             {{/if}}
         </div>
         <div {{#unless data.richData.multilang}}style='display:none'{{/unless}}
-             trans='true'>
+             cliqz-toggle='trans'>
             <!-- translation snippet -->
             <div {{#if data.richData.definitions}}
                  class='cliqz-result-dictionary-main'
@@ -75,8 +74,7 @@ The dictionary template defines two snippet types:
             {{#if data.richData.definitions}}
                 <div class='cliqz-result-dictionary-toggler'>
                     <div cliqz-action="toggle"
-                          toggle-hide="trans"
-                          toggle-show="defi"
+                          toggle-id="defi"
                           toggle-context="cliqz-result-item-box"
                           align="center">
                         {{data.richData.i18n.definitions}}<br/>
@@ -95,7 +93,7 @@ The dictionary template defines two snippet types:
 <!-- translation snippet -->
 <div class='cliqz-result-dictionary-translations'
      {{#unless data.richData.multilang}}style='display:none'{{/unless}}
-     trans='true'>
+     cliqz-toggle='trans'>
     {{#each data.richData.translations}}
         <!-- the first translation is the main content -->
         {{#unless @first}}
@@ -112,7 +110,7 @@ The dictionary template defines two snippet types:
 {{#if data.richData.synonyms}}
     <div class='cliqz-result-dictionary-synonyms'
          {{#if data.richData.multilang}}style='display:none'{{/if}}
-         defi='true'>
+         cliqz-toggle='defi'>
         <span class='cliqz-result-dictionary-synonyms-header'>{{data.richData.i18n.synonyms}}:</span>
         {{#each data.richData.synonyms}}
             <span>{{this}}{{#if @last}}{{else}},{{/if}}</span>

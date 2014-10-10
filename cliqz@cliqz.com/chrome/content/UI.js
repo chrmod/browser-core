@@ -413,18 +413,18 @@ function resultClick(ev){
              * was specified in the toggle-with attribute.
              */
             if (el.getAttribute('cliqz-action') == 'toggle') {
-                var hideAttr = el.getAttribute('toggle-hide');
-                var showAttr = el.getAttribute('toggle-show');
+                var toggleId = el.getAttribute('toggle-id');
                 var context = el.getAttribute('toggle-context');
-                var ancestor = closest(el, '.' + context);
-                if (hideAttr && showAttr && context) {
-                    var toHide = $$("[" + hideAttr + "]", ancestor);
-                    for (var i = 0; i < toHide.length; i++) {
-                        toHide[i].style.display = "none";
-                    }
-                    var toShow = $$("[" + showAttr + "]", ancestor);
-                    for (var i = 0; i < toShow.length; i++) {
-                        toShow[i].style.display = "";
+                if (toggleId && context) {
+                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                    var ancestor = closest(el, '.' + context);
+                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                    for (var i = 0; i < toggleElements.length; i++) {
+                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                            toggleElements[i].style.display = "";
+                        } else {
+                            toggleElements[i].style.display = "none";
+                        }
                     }
                     break;
                 }
