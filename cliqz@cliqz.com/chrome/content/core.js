@@ -210,12 +210,14 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
+        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
     },
     urlbarblur: function(ev) {
         CliqzSearchHistory.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
+        CliqzAutocomplete.lastFocusTime = null;
     },
     urlbarEvent: function(ev) {
         var action = {
