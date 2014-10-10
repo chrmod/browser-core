@@ -115,7 +115,7 @@ Glossary
          - 07 - Chip editor’s suggestion box
          - 08 - Chip display advertising
          - 09 - French version
-         - 10 -
+         - 10 - English(US) version
          - 11 - Provided to Thomas K
          - 12 - Provided to Thomas K
          - 13 - Provided to Thomas K
