@@ -321,6 +321,12 @@ function constructImage(data){
     return null;
 }
 
+//loops though al the source and returns the first one with custom snippet
+function getFirstVertical(type){
+    while(type && !VERTICALS[type[0]])type = type.substr(1);
+    return VERTICALS[type[0]] || 'generic';
+}
+
 function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
@@ -330,13 +336,24 @@ function getPartial(type){
     if(type.indexOf('cliqz-results sources-') == 0){
         // type format: cliqz-results sources-XXXX
         // XXXX -  are the verticals which provided the result
-        type = type.substr(22);
-
-        while(type && !VERTICALS[type[0]])type = type.substr(1);
-
-        return VERTICALS[type[0]] || 'generic';
+        return getFirstVertical(type.substr(22));
     }
+    // history and cliqz results, eg: favicon sources-XXXXX
+    var combined = type.split(' ');
+    if(combined.length == 2 && combined[0].length > 0 && combined[1].length > 8){
+        return getFirstVertical(combined[1].substr(8));
+    }
+
     return 'generic';
+}
+
+// tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
+function getTags(fullTitle){
+    var tags, title;
+    [, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
+
+    // Each tag is split by a comma in an undefined order, so sort it
+    return [title, tags.split(",").sort().join(", ")]
 }
 
 function enhanceResults(res){
@@ -357,6 +374,11 @@ function enhanceResults(res){
             r.image = constructImage(r.data);
             r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
+
+            //extract tags from title
+            if(r.type.indexOf('tag') == 0)
+                [r.title, r.tags] = getTags(r.title);
+
         }
     }
     //prioritize extra (fun-vertical) results
@@ -837,7 +859,7 @@ function registerHelpers(){
     Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         lvalue = parseFloat(lvalue);
         rvalue = parseFloat(rvalue);
-            
+
         return {
             "+": lvalue + rvalue,
             "-": lvalue - rvalue,

@@ -95,6 +95,10 @@
     overflow-y: scroll;
 }
 
+.cliqz-result-tags {
+    float: right;
+    padding-right: 0px !important;
+}
 /*
 #cliqz-results * {
     border:1px solid black;
@@ -137,7 +141,7 @@
     font-size: 12pt;
     font-weight: 500;
     padding-bottom: 3px;
-    width: 85%;
+    display: inline-block;;
 }
 
 .cliqz-result-url-box {
