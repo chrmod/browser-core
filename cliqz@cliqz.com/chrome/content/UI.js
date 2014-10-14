@@ -353,7 +353,7 @@ function getTags(fullTitle){
     [, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
 
     // Each tag is split by a comma in an undefined order, so sort it
-    return [title, tags.split(",").sort().join(", ")]
+    return [title, tags.split(",").sort()]
 }
 
 function enhanceResults(res){

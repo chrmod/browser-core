@@ -26,7 +26,9 @@
 			{{#if tags}}
 				<span style='max-width: {{math width '*' '0.20'}}px;'
 					  class='cliqz-result-tags overflow'>
-				      {{ tags }}
+					  {{#each tags}}
+				      	<span>{{this}}</span>
+				      {{/each}}
 				</span>
 			{{/if}}
 		</div>
