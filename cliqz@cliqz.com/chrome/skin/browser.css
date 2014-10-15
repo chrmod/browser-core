@@ -798,8 +798,11 @@
 }
 
 .cliqz-image-hidden{
-    filter: grayscale(0.6) blur(30px);
+    /* filter: blur(30px); */
+    background-color: black;
+    opcity:0.8;
     filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
+    filter: blur(10px);
 }
 
 .cliqz-image-clear{
