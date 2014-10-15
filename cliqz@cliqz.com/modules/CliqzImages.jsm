@@ -13,7 +13,7 @@ var CliqzImages = {
     get: function(q, callback){
         CliqzUtils.log('enabled', 'IMAGES');       
         //var IMAGES_API = 'http://cliqz:cliqz-245@im-search-cache-elb.fbt.co/api/images-json?q='+q+'&n=20';
-        var IMAGES_API = 'http://im-search-cache-elb.fbt.co/api/images-json?q='+q+'&n=20';
+        var IMAGES_API = 'http://images-search.fbt.co/api/images-json?q='+q+'&n=20';
         CliqzUtils.httpHandler('GET', IMAGES_API, function (res) {
             var data = JSON.parse(res.response);
             var result = Result.generic(Result.CLIQZI, "", null, "", "", null,
