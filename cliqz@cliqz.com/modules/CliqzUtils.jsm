@@ -295,7 +295,8 @@ var CliqzUtils = {
 
         callback();
       },
-      callback //on error the callback still needs to be called
+      callback, //on error the callback still needs to be called
+      2000
     );
   },
   getWorldCup: function(q, callback){
