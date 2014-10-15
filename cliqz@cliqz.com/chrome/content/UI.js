@@ -276,7 +276,7 @@ function constructImage(data){
     var IMAGES_MARGIN = 2;
     var IMAGES_LINES = 1;
     function getheight(images, width) {
-        width -= IMAGES_MARGIN * images.length ; //images  margin
+        width -= IMAGES_MARGIN * images.length; //images  margin
         var h = 0;
         for (var i = 0; i < images.length; ++i) {
             // console.log('width (getheight): '+images[i].image_width)
@@ -301,18 +301,19 @@ function constructImage(data){
 
         // Collecting sub-pixel error
         var error = estim_width - parseInt(verif_width)
-        console.log('estimation error:' +  error + ', int error: '+ parseInt(error) + ', ceil:' + Math.ceil(error));
+        console.log('estimation error:' + error);
 
         if (error>0) {
-            var int_error = parseInt(Math.abs(Math.ceil(error)));
+            //var int_error = parseInt(Math.abs(Math.ceil(error)));
             // distribute the error on first images each take 1px
-            for (var i = 0; i < int_error; ++i) {
+            for (var i = 0; i < error; ++i) {
                 images[i].width -= 1;
             }
         }
         else {
-            var int_error = parseInt(Math.abs(Math.floor(error)));
-            for (var i = 0; i < int_error; ++i) {
+            error=Math.abs(error)
+            //var int_error = parseInt(Math.abs(Math.floor(error)));
+            for (var i = 0; i < error; ++i) {
                 images[i].width += 1;
             }
         }
