@@ -45,6 +45,8 @@ var CliqzUtils = {
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
+  PREFERRED_LANGUAGE: null,
+
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
@@ -64,9 +66,8 @@ var CliqzUtils = {
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
-        var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
-            || nav.browserLanguage || nav.systemLanguage || 'en';
-        CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
+        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
+        CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
 
     if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
@@ -294,7 +295,8 @@ var CliqzUtils = {
 
         callback();
       },
-      callback //on error the callback still needs to be called
+      callback, //on error the callback still needs to be called
+      2000
     );
   },
   getWorldCup: function(q, callback){

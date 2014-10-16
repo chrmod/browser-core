@@ -126,10 +126,13 @@ var CliqzABTests = CliqzABTests || {
                 rule_executed = false;
         }
         if(rule_executed) {
-            if(payload.msg)
-                CliqzUtils.log(abtest + ": " + payload.msg, logname);
-            else
-               CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'enter',
+                name: abtest
+            };
+            CliqzUtils.track(action);
+    
             return true;
        } else {
             return false;
@@ -203,7 +206,12 @@ var CliqzABTests = CliqzABTests || {
         }
 
         if(rule_executed) {
-            CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'leave',
+                name: abtest
+            };
+            CliqzUtils.track(action);
             return true;
        } else {
             return false;

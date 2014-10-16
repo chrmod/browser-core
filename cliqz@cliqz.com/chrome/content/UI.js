@@ -232,6 +232,24 @@ function handlePopupHeight(box){
 function $(e, ctx){return (ctx || document).querySelector(e); }
 function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
 
+/**
+ * Finds the closest ancestor of @p elem that matches @p selector.
+ *
+ * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
+ */
+function closest(elem, selector) {
+   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
+    while (elem) {
+        if (matchesSelector.bind(elem)(selector)) {
+            return elem;
+        } else {
+            elem = elem.parentElement;
+        }
+    }
+    return false;
+}
+
 function generateLogoClass(urlDetails){
     var cls = '';
     // lowest priority: base domain, no tld
@@ -362,7 +380,6 @@ function resultClick(ev){
         newTab = ev.metaKey ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-
     while (el){
         if(el.getAttribute('url')){
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
@@ -378,7 +395,10 @@ function resultClick(ev){
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
-                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -389,6 +409,28 @@ function resultClick(ev){
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
+        } else if (el.getAttribute('cliqz-action')) {
+            /*
+             * Hides the current element and displays one of its siblings that
+             * was specified in the toggle-with attribute.
+             */
+            if (el.getAttribute('cliqz-action') == 'toggle') {
+                var toggleId = el.getAttribute('toggle-id');
+                var context = el.getAttribute('toggle-context');
+                if (toggleId && context) {
+                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                    var ancestor = closest(el, '.' + context);
+                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                    for (var i = 0; i < toggleElements.length; i++) {
+                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                            toggleElements[i].style.display = "";
+                        } else {
+                            toggleElements[i].style.display = "none";
+                        }
+                    }
+                    break;
+                }
+            }
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -498,6 +540,7 @@ function onEnter(ev, item){
         inputValue = CLIQZ.Core.urlbar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
+        currentTime = (new Date()).getTime(),
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -505,9 +548,12 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
-            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+            reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
+            display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
+            urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
+            result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
         };
-
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
@@ -587,7 +633,8 @@ function onEnter(ev, item){
                 } // end A-B test if
             }
         }
-        CliqzUtils.track(action);
+        if (CLIQZ.Core.urlbar.value.length > 0)
+            CliqzUtils.track(action);
 
         //CLIQZ.Core.popup.closePopup();
         //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
@@ -785,6 +832,30 @@ function registerHelpers(){
         var year = d.getFullYear();
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
+    });
+
+    Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+        lvalue = parseFloat(lvalue);
+        rvalue = parseFloat(rvalue);
+            
+        return {
+            "+": lvalue + rvalue,
+            "-": lvalue - rvalue,
+            "*": lvalue * rvalue,
+            "/": lvalue / rvalue,
+            "%": lvalue % rvalue
+        }[operator];
+    });
+
+    Handlebars.registerHelper('twitter_image_id', function(title) {
+        // Because we have different colored twitter images we want to "randomly"
+        // match them with users that don't have a picture
+        var random = 0;
+        for (var i = 0; i < title.length; i++) {
+          random += title.charCodeAt(i);
+        }
+        return random % 7 // We have only 0 - 6 images
+
     });
 
     Handlebars.registerHelper('is_twitter', function(url) {

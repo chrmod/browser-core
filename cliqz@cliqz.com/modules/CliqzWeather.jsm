@@ -70,7 +70,7 @@ function geocodeCallback(res, callback){
         var URL= WEATHER_URL_CURR_DAY
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
-          + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
+          + '&lang=' + encodeURIComponent(CliqzUtils.PREFERRED_LANGUAGE);
 
         CliqzUtils._weatherReq = CliqzUtils.httpGet(URL, function(res){ allDone(res, null, callback, locName); });
 
@@ -79,7 +79,7 @@ function geocodeCallback(res, callback){
         URL= WEATHER_URL_3DAYS_FORECAST
           + '&lat=' + encodeURIComponent(coord.lat)
           + '&lon=' + encodeURIComponent(coord.lon)
-          + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
+          + '&lang=' + encodeURIComponent(CliqzUtils.PREFERRED_LANGUAGE);
 
         //TODO: fix this, using Promises
         CliqzUtils._weatherReqNext = CliqzUtils.httpGet(URL,  function(res){ allDone(null, res, callback, locName); });
@@ -98,7 +98,7 @@ var CliqzWeather = {
 
         var GEOLOC_API = WEATHER_GEOLOC_URL
                         + '&query=' + encodeURIComponent(q)
-                        + '&lang=' + encodeURIComponent(CliqzUtils.currLocale);
+                        + '&lang=' + encodeURIComponent(CliqzUtils.PREFERRED_LANGUAGE);
 
         CliqzUtils.httpHandler('GET', GEOLOC_API, function(res){
             geocodeCallback(res, function(today, next, locName){
@@ -143,16 +143,16 @@ var CliqzWeather = {
                         todayTemp: Math.round(todayData.main.temp) + DEGREE,
                         todayMin: Math.round(todayData.main.temp_min) + DEGREE,
                         todayMax: Math.round(todayData.main.temp_max) + DEGREE,
-                        todayDate: cap(today.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long", month: "long", day: "numeric"})),
+                        todayDate: cap(today.toLocaleDateString(CliqzUtils.PREFERRED_LANGUAGE, {weekday: "long", month: "long", day: "numeric"})),
                         todayIcon: WEATHER_ICON_BASE_URL + todayData.weather[0].icon + ".png",
-                        tomorrowDay: cap(tomorrow.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long"})),
-                        tomorrowDate: cap(tomorrow.toLocaleDateString(CliqzUtils.currLocale, {month: "long", day: "numeric"})),
+                        tomorrowDay: cap(tomorrow.toLocaleDateString(CliqzUtils.PREFERRED_LANGUAGE, {weekday: "long"})),
+                        tomorrowDate: cap(tomorrow.toLocaleDateString(CliqzUtils.PREFERRED_LANGUAGE, {month: "long", day: "numeric"})),
                         tomorrowMin: Math.round(days[1].temp.min) + DEGREE,
                         tomorrowMax: Math.round(days[1].temp.max) + DEGREE,
                         tomorrowDesc: days[1].weather[0].description,
                         tomorrowIcon: WEATHER_ICON_BASE_URL + days[1].weather[0].icon + ".png",
-                        aTomorrowDay: cap(aTomorrow.toLocaleDateString(CliqzUtils.currLocale, {weekday: "long"})),
-                        aTomorrowDate: cap(aTomorrow.toLocaleDateString(CliqzUtils.currLocale, {month: "long", day: "numeric"})),
+                        aTomorrowDay: cap(aTomorrow.toLocaleDateString(CliqzUtils.PREFERRED_LANGUAGE, {weekday: "long"})),
+                        aTomorrowDate: cap(aTomorrow.toLocaleDateString(CliqzUtils.PREFERRED_LANGUAGE, {month: "long", day: "numeric"})),
                         aTomorrowMin: Math.round(days[2].temp.min) + DEGREE,
                         aTomorrowMax: Math.round(days[2].temp.max) + DEGREE,
                         aTomorrowDesc: days[2].weather[0].description,
