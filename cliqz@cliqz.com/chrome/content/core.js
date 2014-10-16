@@ -14,6 +14,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
@@ -93,6 +96,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
+            window.gBrowser.addProgressListener(CliqzHistory.listener);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
