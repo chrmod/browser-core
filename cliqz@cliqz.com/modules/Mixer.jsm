@@ -23,7 +23,7 @@ var Mixer = {
 		var results = [],
             [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q),
             showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
-        CliqzUtils.log(mixed);
+        // CliqzUtils.log(mixed);
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
