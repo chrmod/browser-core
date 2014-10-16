@@ -33,24 +33,24 @@ var CliqzHistory = {
     },
     // type: typed / link_click / cliqz_result_click / cliqz_autocomplete
     addHistoryEntry: function(url, type) {
+        CliqzHistory.domWindow = CliqzUtils.getWindow();
         CliqzHistory.currentURL = url;
-        CliqzUtils.log(url + " " + type, "DEBUG");
         // Timeout because title cannot be read immediately
         CliqzHistory.domWindow.setTimeout(
-                (function(url) {
+                (function(url, type, panel) {
                     return function() {
-                        CliqzHistory._addHistoryEntryToDB(url, type);
+                        CliqzHistory._addHistoryEntryToDB(url, type, panel);
                     }
-                })(CliqzHistory.currentURL), 1000);
+                })(CliqzHistory.currentURL, type, CliqzHistory.domWindow.gBrowser.selectedTab.linkedPanel), 1000);
     },
-    _addHistoryEntryToDB: function(url, type) {
+    _addHistoryEntryToDB: function(url, type, panel) {
         if (!url ||
             (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google")) {
             return;
         }
         var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '"+url+"'");
         var title = CliqzHistory.domWindow.gBrowser.selectedBrowser.contentDocument.title;
-        var query = CliqzHistory.lastQuery[CliqzHistory.domWindow.gBrowser.selectedTab.linkedPanel];
+        var query = CliqzHistory.lastQuery[panel];
         if (!query) {
             query = "";
         }
@@ -64,7 +64,6 @@ var CliqzHistory = {
                 WHERE url='"+url+"'");
         }
         // Insert history entry
-        CliqzUtils.log(this.lastQuery, "DEBUG");
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,"+type+")\
                 VALUES ('"+url+"', "+(new Date().getTime())+",'"+query+"',1)");
     },

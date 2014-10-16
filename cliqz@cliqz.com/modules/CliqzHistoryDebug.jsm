@@ -7,11 +7,15 @@ Cu.import('resource://gre/modules/PlacesUtils.jsm')
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
+
 var CliqzHistoryDebug = {
-    getHistory: function(searchTerm, callback){
+    getHistoryFirefox: function(searchTerm, callback){
         let history = new Array();
         this.SQL
             ._execute(
+                PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
                 "SELECT url, title, visit_count, typed, frecency, last_visit_date " +
                 "FROM moz_places " +
                 "WHERE url LIKE \"%"+searchTerm+"%\" OR title LIKE \"%"+searchTerm+"%\"",
@@ -24,14 +28,43 @@ var CliqzHistoryDebug = {
                 }
             )
             .then(function() {
-                //CliqzUtils.log(history.length, 'DEBUG');
+                callback(history);
+            });
+    },
+    getHistoryCliqz: function(searchTerm, callback){
+        let history = new Array();
+        let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
+        CliqzUtils.log("SELECT visits.url, title, sum(typed) as typed, " +
+                "sum(link) as link, sum(result) as result, " +
+                "sum(autocomplete) as autocomplete, sum(google) as google " +
+                "FROM visits left join urltitles on visits.url=urltitles.url WHERE visits.url=urltitles.url " +
+                "AND (visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%')" +
+                "group by visits.url", "DEBUG");
+        this.SQL
+            ._execute(
+                Services.storage.openDatabase(file),
+                "SELECT visits.url, title, sum(typed) as typed, " +
+                "sum(link) as link, sum(result) as result, " +
+                "sum(autocomplete) as autocomplete, sum(google) as google, last_query " +
+                "FROM visits left join urltitles on visits.url=urltitles.url " +
+                "WHERE visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%' " +
+                "group by visits.url",
+                ["url", "title", "link", "typed", "result", "autocomplete", "google", "last_query"],
+                function(result) {
+                    try {
+                        CliqzUtils.log(result.url, "DEBUG");
+                        history.push(result);
+                    }
+                    catch(ex) {}
+                }
+            )
+            .then(function() {
                 callback(history);
             });
     },
     SQL: {
-        _execute: function PIS__execute(sql, columns, onRow) {
-            var conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
-                statement = conn.createAsyncStatement(sql),
+        _execute: function PIS__execute(conn, sql, columns, onRow) {
+                var statement = conn.createAsyncStatement(sql),
                 onThen, //called after the async operation is finalized
                 promiseMock = {
                     then: function(func){
