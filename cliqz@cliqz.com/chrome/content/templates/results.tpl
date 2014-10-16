@@ -1,6 +1,6 @@
 <div class='cliqz-result-item-box cliqz-premium'
 	type='cliqz-results sources-X'
-	url='http://cliqz.com'
+	url='https://beta.cliqz.com/premium'
 	idx='-2'>
 		{{cliqz-premium}}
 </div>
@@ -9,7 +9,7 @@
 		type='{{ type }}'
 		url='{{ url }}'
 		idx='{{ @index }}'
-		ad-ui='{{cliqz-ad @index text}}'
+		ad-ui='{{cliqz-ad @index type text}}'
 		hasimage='{{ hasimage image }}'
 		>
 		{{partial vertical}}

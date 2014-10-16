@@ -818,14 +818,18 @@ function registerHelpers(){
     });
 
     var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
-    Handlebars.registerHelper('cliqz-ad', function(idx, q) {
-        if(idx!=0) return false;
-        if(AD.test(q)) return true;
+    Handlebars.registerHelper('cliqz-ad', function(idx, type, q) {
+        if(CliqzUtils.getPref("showAdResults", -1) == -1 ||
+            idx!=0 || type == 'cliqz-extra') return false;
+        if(AD.test(q)){
+            CliqzUtils.setPref("showAdResults", 2);
+            return true;
+        }
         return false;
     });
 
     Handlebars.registerHelper('cliqz-premium', function(idx, q) {
-        if((new Date()).getMinutes() % 2){
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
             return new Handlebars.SafeString(UI.tpl.generic({
                 title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
                 text: '',
