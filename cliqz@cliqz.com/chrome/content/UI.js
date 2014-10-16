@@ -620,7 +620,7 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-            CliqzHistory.addHistoryEntry(firstUrl, "autocomplete");
+            CliqzHistory.addHistoryEntry(inputValue, "autocomplete");
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
