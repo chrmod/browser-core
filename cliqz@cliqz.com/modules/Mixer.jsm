@@ -19,11 +19,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, mixed, imagesResults, weatherResults, bundesligaResults, maxResults){
+	mix: function(q, history, cliqz, cliqzExtra, mixed, imagesResults, weatherResults, bundesligaResults, maxResults){
 		var results = [],
             [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q),
             showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
-
+        CliqzUtils.log(mixed);
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
