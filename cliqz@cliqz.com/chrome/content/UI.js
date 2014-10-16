@@ -378,7 +378,6 @@ function resultClick(ev){
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
-                    ad_ui: el.getAttribute('ad-ui') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
                 };
 
@@ -506,7 +505,6 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
-            ad_ui: item && item.getAttribute('ad-ui') || false,
             clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
         };
 
@@ -820,16 +818,18 @@ function registerHelpers(){
     var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
     Handlebars.registerHelper('cliqz-ad', function(idx, type, q) {
         if(CliqzUtils.getPref("showAdResults", -1) == -1 ||
-            idx!=0 || type == 'cliqz-extra') return false;
+            idx!=0 || type == 'cliqz-extra') return '';
         if(AD.test(q)){
             CliqzUtils.setPref("showAdResults", 2);
-            return true;
+            CliqzUtils.track({type:'ab', action:'ad_result'});
+            return 'ad';
         }
-        return false;
+        return '';
     });
 
     Handlebars.registerHelper('cliqz-premium', function(idx, q) {
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            CliqzUtils.track({type:'ab', action:'premium_result'});
             return new Handlebars.SafeString(UI.tpl.generic({
                 title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
                 text: '',
