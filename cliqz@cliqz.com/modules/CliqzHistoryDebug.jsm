@@ -45,11 +45,11 @@ var CliqzHistoryDebug = {
                 Services.storage.openDatabase(file),
                 "SELECT visits.url, title, sum(typed) as typed, " +
                 "sum(link) as link, sum(result) as result, " +
-                "sum(autocomplete) as autocomplete, sum(google) as google, last_query " +
+                "sum(autocomplete) as autocomplete, sum(google) as google, last_query, last_query_date " +
                 "FROM visits left join urltitles on visits.url=urltitles.url " +
                 "WHERE visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%' " +
                 "group by visits.url",
-                ["url", "title", "link", "typed", "result", "autocomplete", "google", "last_query"],
+                ["url", "title", "link", "typed", "result", "autocomplete", "google", "last_query", "last_query_date"],
                 function(result) {
                     try {
                         CliqzUtils.log(result.url, "DEBUG");

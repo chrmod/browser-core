@@ -430,7 +430,7 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             CliqzUtils.track(action);
-            CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+            CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
             CliqzHistory.addHistoryEntry(url, "result");
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
@@ -587,7 +587,7 @@ function onEnter(ev, item){
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
-        CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+        CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
         CliqzHistory.addHistoryEntry(url, "result");
         openUILink(url);
 
@@ -619,7 +619,7 @@ function onEnter(ev, item){
             
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
-            CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+            CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
             CliqzHistory.addHistoryEntry(firstUrl, "autocomplete");
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
@@ -630,10 +630,10 @@ function onEnter(ev, item){
             }
         } else {
             if(CliqzUtils.isUrl(inputValue)){
-                CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = inputValue;
+                CliqzHistory.updateQuery(inputValue);
                 CliqzHistory.addHistoryEntry(inputValue, "typed");
             } else {
-                CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = inputValue;
+                CliqzHistory.updateQuery(inputValue);
                 CliqzHistory.addHistoryEntry(inputValue, "google");
             }
             

@@ -81,6 +81,7 @@
         $("#resultTableCliqz").append("<th>Autocomplete</th>");
         $("#resultTableCliqz").append("<th>Google</th>");
         $("#resultTableCliqz").append("<th>Query</th>");
+        $("#resultTableCliqz").append("<th>Query Date</th>");
         for (var i = 0; i < data.length; i++) {
             $("#resultTableCliqz").append("<tr>");
             $("#resultTableCliqz tr").last().append("<td>cliqz</td>");
@@ -92,6 +93,7 @@
             $("#resultTableCliqz tr").last().append("<td>" + data[i].autocomplete + "</td>");
             $("#resultTableCliqz tr").last().append("<td>" + data[i].google + "</td>");
             $("#resultTableCliqz tr").last().append("<td>" + data[i].last_query + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].last_query_date + "</td>");
             //var date = new Date(data[i].last_visit_date/1000);
             //$("#resultTableCliqz tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
             $("#resultTableCliqz").append("</tr>");

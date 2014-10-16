@@ -17,6 +17,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var CliqzHistory = {
     domWindow: null,
     lastQuery: new Array(),
+    lastQueryDates: new Array(),
     currentURL: null,
 	listener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
@@ -51,8 +52,12 @@ var CliqzHistory = {
         var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '"+url+"'");
         var title = CliqzHistory.domWindow.gBrowser.selectedBrowser.contentDocument.title;
         var query = CliqzHistory.lastQuery[panel];
+        var queryDate = CliqzHistory.lastQueryDates[panel];
         if (!query) {
             query = "";
+        }
+        if (!queryDate) {
+            queryDate = "";
         }
 
         // Insert/Update website title (only when still on that page after timeout)
@@ -64,8 +69,18 @@ var CliqzHistory = {
                 WHERE url='"+url+"'");
         }
         // Insert history entry
-        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,"+type+")\
-                VALUES ('"+url+"', "+(new Date().getTime())+",'"+query+"',1)");
+        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
+                VALUES ('"+url+"', "+(new Date().getTime())+",'"+query+"',"+queryDate+",1)");
+    },
+    updateQuery: function(query) {
+        CliqzHistory.domWindow = CliqzUtils.getWindow();
+        var date = new Date().getTime();
+        var index = CliqzHistory.domWindow.gBrowser.selectedTab.linkedPanel;
+        var last = CliqzHistory.lastQuery[index];
+        if (last != query) {
+            CliqzHistory.lastQuery[index] = query;
+            CliqzHistory.lastQueryDates[index] = date;
+        }
     },
     SQL: function (sql) {
         let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
