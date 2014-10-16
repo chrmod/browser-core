@@ -428,7 +428,7 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            if(CliqzUtils.getPref('sessionExperiment', false)){
+            if(CliqzUtils.getPref('sessionLogging', false)){
                 var query = CLIQZ.Core.urlbar.value;
                 var queryAutocompleted = null;
                 if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)

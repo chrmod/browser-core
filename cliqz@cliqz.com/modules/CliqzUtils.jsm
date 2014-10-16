@@ -35,7 +35,7 @@ var CliqzUtils = {
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://54.160.219.66/api/v1/logging?q=',
+  RESULTS_PROVIDER_LOG: 'http://webbeta.cliqz.com/api/v1/logging?q=',
   CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
@@ -59,10 +59,6 @@ var CliqzUtils = {
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
-    }
-    //use a different results API
-    if(CliqzUtils.getPref('sessionExperiment', false)){
-      CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q='
     }
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -275,7 +271,7 @@ var CliqzUtils = {
   },
   _resultsReq: null,
   getCliqzResults: function(q, callback){
-    if(CliqzUtils.getPref('sessionExperiment', false)){
+    if(CliqzUtils.getPref('sessionLogging', false)){
       CliqzUtils._querySeq++;
       CliqzUtils._resultsReq = CliqzUtils.httpGet(
         CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
@@ -432,7 +428,7 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    if(CliqzUtils.getPref('sessionExperiment', false)){
+    if(CliqzUtils.getPref('sessionLogging', false)){
       CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
         (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
         '&i=' + resultIndex +
