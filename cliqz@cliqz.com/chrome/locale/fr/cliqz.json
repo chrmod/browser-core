@@ -1,132 +1,132 @@
 {
     "whatIsCliqz":{
-        "message": "What is cliqz?"
+        "message": "cliqz, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "What is cliqz? <-- try it yourself, eg: 'weather new york'"
+        "message": "cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
     },
     "settings":{
-        "message": "Settings"
+        "message": "Paramètres"
     },
     "btnPrivacy":{
-        "message": "Privacy Policy"
+        "message": "Politique de confidentialité"
     },
     "btnDefaultSearchEngine":{
-        "message": "Default Search Engine"
+        "message": "Moteur de recherche par défaut"
     },
     "btnRegion":{
-        "message": "Local Results"
+        "message": "Pays de recherche"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "Partager avec cliqz"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Sorry, we don’t have any results yet.<br />We’re working on it."
+        "message":"Oops, Nous n'avons pas encore le bon résultat.<br /> Nous faisons de notre mieux pour résoudre le problème!"
     },
     "noResultMessage":{
-        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+        "message":"Survolez <b><i>plus</i></b> en bas à droite et sélectionnez un autre moteur de recherche."
     },
     "noResults": {
-        "message":"No results"
+        "message":"Aucun résultat"
     },
     "numResults": {
-        "message":"Top {} Results"
+        "message":"{} meilleurs résultats"
     },
     "moreResults":{
-        "message":"more ..."
+        "message":"plus ..."
     },
     "customSearch":{
-        "message":"Search <b><i>{}</i></b> on {}"
+        "message":"Recherche <b><i>{}</i></b> sur {}"
     },
     "peoplePositionAt":{
-        "message":"at"
+        "message":"à"
     },
     "peoplePositionSince":{
-        "message":"since"
+        "message":"depuis"
     },
     "videoBy":{
-        "message":"by"
+        "message":"par"
     },
     "weatherCurrent":{
-        "message":"current"
+        "message":"actuellement"
     },
     "weatherCredits":{
-        "message":"provided courtesy of <br /> openweathermap.org"
+        "message":"Résultats fournis par <br /> openweathermap.org"
     },
     "ago1Minute":{
-        "message":"one minute ago"
+        "message":"il y a une minute"
     },
     "agoXMinutes":{
-        "message":"{} minutes ago"
+        "message":"il y a {} minutes"
     },
     "ago1Hour":{
-        "message":"one hour ago"
+        "message":"il y a une heure"
     },
     "agoXHours":{
-        "message":"{} hours ago"
+        "message":"il y a {} heures"
     },
     "agoYesterday":{
-        "message":"yesterday"
+        "message":"hier"
     },
     "agoXDays":{
-        "message":"{} days ago"
+        "message":"il y a {} jours"
     },
     "ago1Month":{
-        "message":"one month ago"
+        "message":"il y a un mois"
     },
     "agoXMonths":{
-        "message":"{} months ago"
+        "message":"il y a {} mois"
     },
     "ago1year":{
-        "message":"one year ago"
+        "message":"il y a un an"
     },
     "agoXYears":{
-        "message":"{} years ago"
+        "message":"il y a {} ans"
     },
     "offTitle":{
-        "message":"the new way to navigate the web"
+        "message":"le nouveau moyen pour surfer sereinement."
     },
     "offBtn":{
-        "message":"Try out now!"
+        "message":"Essayer cliqz!"
     },
     "offMessage":{
-        "message":"Insert your search query in the address bar – receive results instantly"
+        "message":"Insérez le terme de votre recherche dans la barre d'adresse. Et vous recevrez les résultats instantanément."
     },
     "Sitemap_Summary": {
-        "message":"My sitemap for {}"
+        "message":"Mon plan du site pour {}"
     },
     "Sitemap_Youtube_Popular": {
-        "message":"Popular on YouTube"
+        "message":"Populaire sur YouTube"
     },
     "Sitemap_Youtube_Subscriptions": {
-        "message":"My Subscriptions"
+        "message":"Mes abonnements"
     },
     "Sitemap_Youtube_History": {
-        "message":"History"
+        "message":"Historique"
     },
     "Sitemap_Youtube_WatchLater": {
-        "message":"Watch Later"
+        "message":"A regarder ultérieurement"
     },
     "Sitemap_Youtube_Channels": {
-        "message":"Channels"
+        "message":"Chaînes"
     },
     "Sitemap_Youtube_Playlists": {
         "message":"Playlists"
     },
     "Sitemap_Facebook_Newsfeed": {
-        "message":"News Feed"
+        "message":"Fil d'actualités"
     },
     "Sitemap_Facebook_Messages": {
         "message":"Messages"
     },
     "Sitemap_Facebook_Events": {
-        "message":"Events"
+        "message":"Évenements"
     },
     "Sitemap_Facebook_Help": {
-        "message":"Help"
+        "message":"Aide"
     },
     "Sitemap_Facebook_Pages": {
         "message":"Pages"
@@ -135,40 +135,40 @@
         "message":"Groups"
     },
     "Sitemap_Facebook_Lists": {
-        "message":"Lists"
+        "message":"Listes"
     },
     "Sitemap_Amazon_MyAmazon": {
-        "message":"Your Amazon"
+        "message":"Votre espace Amazon"
     },
     "Sitemap_Amazon_MyAccount": {
-        "message":"Your Account"
+        "message":"Votre compte"
     },
     "Sitemap_Amazon_Wishlist": {
-        "message":"Wish List"
+        "message":"Liste d'envies"
     },
     "Sitemap_Amazon_Categories": {
-        "message":"Categories"
+        "message":"Catégories"
     },
     "Sitemap_Amazon_Shops": {
-        "message":"Shops"
+        "message":"Les boutiques"
     },
     "Sitemap_Ebay_MyEbay": {
-        "message":"My eBay"
+        "message":"Mon eBay"
     },
     "Sitemap_Ebay_Deals": {
-        "message":"Daily Deals"
+        "message":"Deals journaliers"
     },
     "Sitemap_Ebay_Shops": {
-        "message":"Shops"
+        "message":"Boutiques"
     },
     "Sitemap_Chefkoch_Magazin": {
         "message":"Magazine"
     },
     "Sitemap_Chefkoch_Rezepte": {
-        "message":"Recipes"
+        "message":"Recettes"
     },
     "Sitemap_Chefkoch_Community": {
-        "message":"Community"
+        "message":"Communauté"
     },
     "Sitemap_Chefkoch_Blog": {
         "message":"Blog"
@@ -177,90 +177,91 @@
         "message":"Articles"
     },
     "Sitemap_Bild_Shop": {
-        "message":"Bild Shop"
+        "message":"Boutique de Bild"
     },
     "Sitemap_Bild_Community": {
-        "message":"Community"
+        "message":"Communauté"
     },
     "Sitemap_Bild_Login": {
         "message":"Login"
     },
     "Sitemap_Bild_Topics": {
-        "message":"Topics"
+        "message":"Sujets"
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
     },
     "country_code_": {
-      "message":"Automatic"
+      "message":"Détection automatique"
     },
     "country_code_AT": {
-      "message":"Österreich - Austria"
+      "message":"Österreich - Autriche"
     },
     "country_code_BR": {
-      "message":"Brazil - Brasil"
+      "message":"Brazil - Brésil"
     },
     "country_code_CA": {
       "message":"Canada - Canada"
     },
     "country_code_HR": {
-      "message":"Hrvatska - Croatia"
+      "message":"Hrvatska - Croatie"
     },
     "country_code_EE": {
-      "message":"Eesti - Estonia"
+      "message":"Eesti - Estonie"
     },
     "country_code_FR": {
-      "message":"France - France"
+      "message":"France"
     },
     "country_code_DE": {
-      "message":"Deutschland - Germany"
+      "message":"Deutschland - Allemagne"
     },
     "country_code_GR": {
-      "message":"Ελλάδα - Greece"
+      "message":"Ελλάδα - Grèce"
     },
     "country_code_HU": {
-      "message":"Magyarország - Hungary"
+      "message":"Magyarország - Hongrie"
     },
     "country_code_ID": {
-      "message":"Indonesia"
+      "message":"indonedia - Indonésie"
     },
     "country_code_IT": {
-      "message":"Italia - Italy"
+      "message":"Italia - Italie"
     },
     "country_code_PS": {
       "message":"Palestine"
     },
     "country_code_RO": {
-      "message":"România - Romania"
+      "message":"România - Roumanie"
     },
     "country_code_RU": {
-      "message":"Россия - Russia"
+      "message":"Россия - Russie"
     },
     "country_code_RS": {
-      "message":"Србија - Serbia"
+      "message":"Србија - Serbie"
     },
     "country_code_SG": {
-      "message":"Singapore - Singapore"
+      "message":"Singapore - Singapour"
     },
     "country_code_ES": {
-      "message":"España - Spain"
+      "message":"España - Espagne"
     },
     "country_code_CH": {
-      "message":"Schweiz - Switzerland"
+      "message":"Schweiz - Suisse"
     },
     "country_code_TH": {
-      "message":"ประเทศไทย - Thailand"
+      "message":"ประเทศไทย - Thaïlande"
     },
     "country_code_TR": {
-      "message":"Türkiye - Turkey"
+      "message":"Türkiye - Turquie"
     },
     "country_code_GB": {
-      "message":"United Kingdom"
+      "message":"United Kingdom - Royaume-Uni"
     },
     "country_code_US": {
-      "message":"United States"
+      "message":"United States - Les États-Unis"
     },
     "country_code_VN": {
-      "message":"Việt Nam - Vietnam"
+      "message":"Việt Nam - Viêtnam"
     }
+
 }

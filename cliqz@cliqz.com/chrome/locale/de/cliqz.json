@@ -1,6 +1,105 @@
 {
+    "whatIsCliqz":{
+        "message": "Was ist cliqz?"
+    },
+    "whatIsCliqzTry":{
+        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+    },
+    "settings":{
+        "message": "Einstellung"
+    },
+    "btnPrivacy":{
+        "message": "Datenschutz"
+    },
+    "btnDefaultSearchEngine":{
+        "message": "Standard-Suchmaschine"
+    },
+    "btnRegion":{
+        "message": "Regionale Ergebnisse"
+    },
+    "btnShare":{
+        "message": "cliqz Share"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
+    },
+    "noResultTitle":{
+        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+    },
+    "noResultMessage":{
+        "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
+    },
+    "noResults": {
+        "message":"Keine Ergebnisse"
+    },
+    "numResults": {
+        "message":"Top {} Ergebnisse"
+    },
+    "moreResults":{
+        "message":"mehr ..."
+    },
+    "customSearch":{
+        "message":"Suche <b><i>{}</i></b> auf {}"
+    },
+    "peoplePositionAt":{
+        "message":"bei"
+    },
+    "peoplePositionSince":{
+        "message":"seit"
+    },
+    "videoBy":{
+        "message":"von"
+    },
+    "weatherCurrent":{
+        "message":"aktuell"
+    },
+    "weatherCredits":{
+        "message":"zur Verfügung gestellt von <br /> openweathermap.org"
+    },
+    "ago1Minute":{
+        "message":"vor einer Minute"
+    },
+    "agoXMinutes":{
+        "message":"vor {} Minuten"
+    },
+    "ago1Hour":{
+        "message":"vor einer Stunde"
+    },
+    "agoXHours":{
+        "message":"vor {} Stunden"
+    },
+    "agoYesterday":{
+        "message":"gestern"
+    },
+    "agoXDays":{
+        "message":"vor {} Tagen"
+    },
+    "ago1Month":{
+        "message":"vor einem Monat"
+    },
+    "agoXMonths":{
+        "message":"vor {} Monaten"
+    },
+    "ago1year":{
+        "message":"vor einem Jahr"
+    },
+    "agoXYears":{
+        "message":"vor {} Jaren"
+    },
+    "offTitle":{
+        "message":"die neue Art, durch’s Web zu navigieren"
+    },
+    "offBtn":{
+        "message":"Jetzt ausprobieren"
+    },
+    "offMessage":{
+        "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
+    },
+    "cliqzPremiumTitle":{
+        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
+    },
+    "cliqzPremiumDesc":{
+        "message": "Upgrade testen für nur 3,99 €/Mo"
     },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
@@ -97,5 +196,77 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "country_code_": {
+      "message":"Automatisch"
+    },
+    "country_code_AT": {
+      "message":"Österreich - Österreich"
+    },
+    "country_code_BR": {
+      "message":"Brazil - Brasilien"
+    },
+    "country_code_CA": {
+      "message":"Canada - Kanada"
+    },
+    "country_code_HR": {
+      "message":"Hrvatska - Kroatien"
+    },
+    "country_code_EE": {
+      "message":"Eesti - Estland"
+    },
+    "country_code_FR": {
+      "message":"France - Frankreich"
+    },
+    "country_code_DE": {
+      "message":"Deutschland - Deutschland"
+    },
+    "country_code_GR": {
+      "message":"Ελλάδα - Griechenland"
+    },
+    "country_code_HU": {
+      "message":"Magyarország - Ungarn"
+    },
+    "country_code_ID": {
+      "message":"Indonesia - Indonesien"
+    },
+    "country_code_IT": {
+      "message":"Italia - Italien"
+    },
+    "country_code_PS": {
+      "message":"Palestine - Palästina"
+    },
+    "country_code_RO": {
+      "message":"România - Rumänien"
+    },
+    "country_code_RU": {
+      "message":"Россия - Russland"
+    },
+    "country_code_RS": {
+      "message":"Србија - Serbien"
+    },
+    "country_code_SG": {
+      "message":"Singapore - Singapur"
+    },
+    "country_code_ES": {
+      "message":"España - Spanien"
+    },
+    "country_code_CH": {
+      "message":"Schweiz - Schweiz"
+    },
+    "country_code_TH": {
+      "message":"ประเทศไทย - Thailand"
+    },
+    "country_code_TR": {
+      "message":"Türkiye - Türkei"
+    },
+    "country_code_GB": {
+      "message":"United Kingdom - Großbritannien"
+    },
+    "country_code_US": {
+      "message":"United States - Vereinigte Staten"
+    },
+    "country_code_VN": {
+      "message":"Việt Nam - Vietnam"
     }
 }

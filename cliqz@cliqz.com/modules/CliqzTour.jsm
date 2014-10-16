@@ -7,19 +7,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
              .getService(Components.interfaces.nsIWindowMediator),
-    win = wm.getMostRecentWindow("navigator:browser");
-
-var text = 'Was ist cliqz?', pos = 0, urlBar, highlightPopup,
-    fin = "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!",
+    win = wm.getMostRecentWindow("navigator:browser"),
+    text = CliqzUtils.getLocalizedString('whatIsCliqz'), pos = 0, urlBar, highlightPopup,
+    fin = CliqzUtils.getLocalizedString('whatIsCliqzTry'),
+    lang = CliqzUtils.getLanguage(win),
     results = [
         {
             title : 'FAQ',
-            url   : 'http://beta.cliqz.com/faq',
+            url   : 'http://beta.cliqz.com/faq_' + lang + '.html',
             type  : 'cliqz-results sources-o'
         },
         {
-            title : 'Datenschutz',
-            url   : 'http://beta.cliqz.com/datenschutz.html',
+            title : CliqzUtils.getLocalizedString('btnPrivacy'),
+            url   : 'http://beta.cliqz.com/datenschutz_' + lang + '.html',
             type  : 'cliqz-results sources-o'
         },
         {
@@ -85,8 +85,8 @@ function start(effect){
     }
 
     highlightPopup.openPopup(urlBar, "overlap", 15, -12);
-    highlightPopup.style.transition = 'all 4s linear';
-    highlightPopup.style.marginLeft = '65px';
+    highlightPopup.style.transition = 'all ' + parseInt(0.3 * text.length) + 's linear';
+    highlightPopup.style.marginLeft = parseInt(4.6 * text.length) + 'px';
 
     win.CLIQZ.Core.urlbar.mInputField.focus();
     urlBar.mInputField.setUserInput(text.substr(0, ++pos));

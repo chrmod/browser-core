@@ -43,6 +43,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     afterQueryCount: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
+    lastQueryTime: null,
+    lastDisplayTime: null,
+    lastFocusTime: null,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -243,7 +246,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var action = {
                     type: 'activity',
                     action: 'results',
-                    result_order:  CliqzAutocomplete.getResultsOrder(results),
+                    query_length: CliqzAutocomplete.lastSearch.length,
+                    result_order: CliqzAutocomplete.getResultsOrder(results),
                     instant: instant ? true : false,
                     popup: popup ? true : false,
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
@@ -261,6 +265,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 // keep a track of if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = popup;
+                if (results.length > 0) {
+                    CliqzAutocomplete.lastDisplayTime = (new Date()).getTime();
+                }
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
@@ -287,7 +294,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
                         this.historyResults && this.cliqzResults && this.cliqzWeather /*|| // all results are ready
-                        //this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT*/) { // 100ms timeout for history
+                        this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT*/) { // 100ms timeout for history
 
                         this.mixedResults.addResults(this.mixResults());
 
@@ -412,12 +419,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
-                CliqzUtils.log('search: ' + searchString);
+                CliqzAutocomplete.lastQueryTime = (new Date()).getTime();
+                CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastSearch = searchString;
                 CliqzAutocomplete.lastResult = null;
                 CliqzAutocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;
                 this.customResults = null;
+
+                CliqzUtils.log('search: ' + searchString);
 
                 var action = {
                     type: 'activity',

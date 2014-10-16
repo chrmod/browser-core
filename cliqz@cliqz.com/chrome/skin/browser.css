@@ -95,6 +95,17 @@
     overflow-y: scroll;
 }
 
+.cliqz-result-tags {
+    float: right;
+    padding-right: 0px !important;
+    margin-right: 5px;
+}
+.cliqz-result-tags span {
+    background-color: #e4fbe0;
+    padding: 8px;
+    line-height: 20px;
+    margin: 3px 3px 0 0;
+}
 /*
 #cliqz-results * {
     border:1px solid black;
@@ -137,7 +148,7 @@
     font-size: 12pt;
     font-weight: 500;
     padding-bottom: 3px;
-    width: 85%;
+    display: inline-block;;
 }
 
 .cliqz-result-url-box {
@@ -195,6 +206,49 @@
 .cliqz-result-item-box[selected="true"] {
     background-color: #eefafe;
 }
+
+/* cliqz ad  */
+.cliqz-result-item-box[extra="ad"] {
+    background-color: #fffef2 ;
+}
+.cliqz-result-item-box[extra="ad"] .cliqz-result-type {
+    opacity: 1 !important;
+}
+
+.cliqz-result-item-box[extra="ad"] .cliqz-result-type:after {
+    content: 'AD';
+    background-color: #f4d23e;
+    opacity: 1 !important;
+    color: white;
+    padding: 3px;
+}
+
+.cliqz-result-item-box[extra="ad"] .cliqz-result-left-box {
+    text-align: left;
+}
+
+/* end cliqz ad  */
+/* cliqz premium  */
+.cliqz-premium {
+    background-color: #dff5ff ;
+}
+.cliqz-premium .cliqz-result-type {
+    opacity: 1 !important;
+}
+
+.cliqz-premium .cliqz-result-type:after {
+    content: '✔';
+    font-size: 20px;
+    background-color: #4caffa;
+    opacity: 1 !important;
+    color: white;
+    padding: 0 6px;
+}
+
+.cliqz-premium .cliqz-result-left-box {
+    text-align: left;
+}
+/* end cliqz premium  */
 
 .cliqz-result-generic {
    padding: 10px 0;
@@ -493,24 +547,6 @@
 
 .cliqz-weather-next-desc {
     color: #777;
-}
-
-@media (max-width: 1200px) {
-  .cliqz-weather-aTomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 1000px) {
-  .cliqz-weather-tomorrow {
-    display: none;
-  }
-}
-
-@media (max-width: 800px) {
-  .cliqz-weather-credits {
-    display: none;
-  }
 }
 
 /* end weather */
@@ -822,6 +858,18 @@
     border: 2px solid #00659c;
 }
 
+.cliqz-people-image-twitter {
+  border: 2px solid #19ade4
+}
+
+.cliqz-people-image-linkedin {
+  border: 2px solid #0497bb
+}
+
+.cliqz-people-image-facebook {
+  border: 2px solid #3b579d
+}
+
 .cliqz-people-name {
   font-weight: bold;
   color: #222222;
@@ -919,6 +967,17 @@
 
 /* dictionary */
 
+.cliqz-result-dictionary-main {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.cliqz-result-dictionary-toggler {
+    width: 100px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .cliqz-result-dictionary-pronunciation {
     font-style: italic;
     font-weight: normal;
@@ -952,9 +1011,39 @@
     overflow: hidden;
 }
 
+.cliqz-result-dictionary-translation-header {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .cliqz-result-dictionary-translation-language {
     font-weight: bold;
     padding-left: 5px;
+}
+
+.cliqz-result-dictionary-language-header {
+    font-weight: bold;
+}
+
+.cliqz-result-dictionary-synonyms {
+    display: block
+    font-size: 12px;
+    background: #f3f3f3;
+    padding: 2px 0 2px 15px;
+    max-height: 15px;
+    overflow: hidden;
+}
+
+.cliqz-result-dictionary-synonyms-header {
+    font-weight: bold;
+    padding-left: 5px;
+}
+
+.cliqz-result-dictionary-synonyms:after {
+    content: ','
+}
+.cliqz-result-dictionary-synonyms:last-of-type:after {
+    content: ''
 }
 
 /* end dictionary */

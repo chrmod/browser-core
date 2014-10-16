@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -90,8 +90,11 @@ var UI = {
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
 
-        if(gCliqzBox.messageBox)
-            gCliqzBox.messageBox.textContent = 'Top ' + enhanced.results.length + ' Ergebnisse';
+        if(gCliqzBox.messageBox){
+            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
+            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
+            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -102,6 +105,12 @@ var UI = {
         }
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+
+        //might be unset at the first open
+        CLIQZ.Core.popup.mPopupOpen = true;
+
+        // try to find and hide misaligned elemets - eg - weather
+        setTimeout(hideMisalignedElements, 0, gCliqzBox.resultsBox);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -160,6 +169,32 @@ var UI = {
     }
 };
 
+// hide elements in a context folowing a priority (0-lowest)
+//
+// looks for all the elements with 'hide-check' attribute and
+// hides childrens based on the 'hide-priority' order
+function hideMisalignedElements(ctx){
+    var elems = $$('[hide-check]', ctx);
+    for(var i = 0; elems && i < elems.length; i++){
+        var el = elems[i], childrenW = 40 /* paddings */;
+        for(var c=0; c<el.children.length; c++)
+            childrenW += el.children[c].clientWidth;
+
+        if(childrenW > el.clientWidth){
+            var children = [].slice.call($$('[hide-priority]', el)),
+                sorted = children.sort(function(a, b){
+                    return +a.getAttribute('hide-priority') < +b.getAttribute('hide-priority')
+                });
+
+            while(sorted.length && childrenW > el.clientWidth){
+                var excluded = sorted.pop();
+                childrenW -= excluded.clientWidth;
+                excluded.style.display = 'none';
+            }
+        }
+    }
+}
+
 function handlePopupHeight(box){
     var MAX=352, MIN =160,
         height = CliqzUtils.getPref('popupHeight', 290),
@@ -195,6 +230,25 @@ function handlePopupHeight(box){
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
+function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
+
+/**
+ * Finds the closest ancestor of @p elem that matches @p selector.
+ *
+ * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
+ */
+function closest(elem, selector) {
+   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+
+    while (elem) {
+        if (matchesSelector.bind(elem)(selector)) {
+            return elem;
+        } else {
+            elem = elem.parentElement;
+        }
+    }
+    return false;
+}
 
 function generateLogoClass(urlDetails){
     var cls = '';
@@ -267,6 +321,12 @@ function constructImage(data){
     return null;
 }
 
+//loops though al the source and returns the first one with custom snippet
+function getFirstVertical(type){
+    while(type && !VERTICALS[type[0]])type = type.substr(1);
+    return VERTICALS[type[0]] || 'generic';
+}
+
 function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
@@ -276,13 +336,24 @@ function getPartial(type){
     if(type.indexOf('cliqz-results sources-') == 0){
         // type format: cliqz-results sources-XXXX
         // XXXX -  are the verticals which provided the result
-        type = type.substr(22);
-
-        while(type && !VERTICALS[type[0]])type = type.substr(1);
-
-        return VERTICALS[type[0]] || 'generic';
+        return getFirstVertical(type.substr(22));
     }
+    // history and cliqz results, eg: favicon sources-XXXXX
+    var combined = type.split(' ');
+    if(combined.length == 2 && combined[0].length > 0 && combined[1].length > 8){
+        return getFirstVertical(combined[1].substr(8));
+    }
+
     return 'generic';
+}
+
+// tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
+function getTags(fullTitle){
+    var tags, title;
+    [, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
+
+    // Each tag is split by a comma in an undefined order, so sort it
+    return [title, tags.split(",").sort()]
 }
 
 function enhanceResults(res){
@@ -293,6 +364,8 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
+
+                    if(r.vertical == 'text')r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -301,6 +374,11 @@ function enhanceResults(res){
             r.image = constructImage(r.data);
             r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
+
+            //extract tags from title
+            if(r.type.indexOf('tag') == 0)
+                [r.title, r.tags] = getTags(r.title);
+
         }
     }
     //prioritize extra (fun-vertical) results
@@ -324,7 +402,6 @@ function resultClick(ev){
         newTab = ev.metaKey ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-
     while (el){
         if(el.getAttribute('url')){
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
@@ -340,7 +417,10 @@ function resultClick(ev){
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
-                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+                    clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -365,11 +445,30 @@ function resultClick(ev){
             }
 
             if(newTab) gBrowser.addTab(url);
-            else {
-                openUILink(url);
-                CLIQZ.Core.popup.hidePopup()
-            }
+            else openUILink(url);
             break;
+        } else if (el.getAttribute('cliqz-action')) {
+            /*
+             * Hides the current element and displays one of its siblings that
+             * was specified in the toggle-with attribute.
+             */
+            if (el.getAttribute('cliqz-action') == 'toggle') {
+                var toggleId = el.getAttribute('toggle-id');
+                var context = el.getAttribute('toggle-context');
+                if (toggleId && context) {
+                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                    var ancestor = closest(el, '.' + context);
+                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                    for (var i = 0; i < toggleElements.length; i++) {
+                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                            toggleElements[i].style.display = "";
+                        } else {
+                            toggleElements[i].style.display = "none";
+                        }
+                    }
+                    break;
+                }
+            }
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -479,6 +578,7 @@ function onEnter(ev, item){
         inputValue = CLIQZ.Core.urlbar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
+        currentTime = (new Date()).getTime(),
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -486,7 +586,11 @@ function onEnter(ev, item){
             query_length: CliqzAutocomplete.lastSearch.length,
             search: false,
             has_image: item && item.getAttribute('hasimage') || false,
-            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false
+            clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
+            reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
+            display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
+            urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
+            result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
         };
 
     var query = inputValue;
@@ -585,7 +689,8 @@ function onEnter(ev, item){
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
             CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
-        CliqzUtils.track(action);
+        if (CLIQZ.Core.urlbar.value.length > 0)
+            CliqzUtils.track(action);
 
         //CLIQZ.Core.popup.closePopup();
         //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
@@ -646,16 +751,16 @@ function trackArrowNavigation(el){
 }
 var AGO_CEILINGS=[
     [0            , '',                , 1],
-    [120          , 'vor einer Minute' , 1],
-    [3600         , 'vor %d Minuten'   , 60],
-    [7200         , 'vor einer Stunde' , 1],
-    [86400        , 'vor %d Stunden'   , 3600],
-    [172800       , 'gestern'          , 1],
-    [604800       , 'vor %d Tagen'     , 86400],
-    [4838400      , 'vor einem Monat'  , 1],
-    [29030400     , 'vor %d Monaten'   , 2419200],
-    [58060800     , 'vor einem Jahr'   , 1],
-    [2903040000   , 'vor %d Jaren'     , 29030400],
+    [120          , 'ago1Minute' , 1],
+    [3600         , 'agoXMinutes'   , 60],
+    [7200         , 'ago1Hour' , 1],
+    [86400        , 'agoXHours'   , 3600],
+    [172800       , 'agoYesterday'          , 1],
+    [604800       , 'agoXDays'     , 86400],
+    [4838400      , 'ago1Month'  , 1],
+    [29030400     , 'agoXMonths'   , 2419200],
+    [58060800     , 'ago1year'   , 1],
+    [2903040000   , 'agoXYears'     , 29030400],
 ];
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
@@ -671,7 +776,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return slot[1].replace('%d', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -689,6 +794,10 @@ function registerHelpers(){
         } else {
             return options.inverse(this);
         }
+    });
+
+    Handlebars.registerHelper('local', function(key, v1, v2 ) {
+        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
     Handlebars.registerHelper('json', function(value, options) {
@@ -780,6 +889,83 @@ function registerHelpers(){
         var formatedDate = date + '/' + month + '/' + year;
         return formatedDate;
     });
+
+    Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
+        lvalue = parseFloat(lvalue);
+        rvalue = parseFloat(rvalue);
+
+        return {
+            "+": lvalue + rvalue,
+            "-": lvalue - rvalue,
+            "*": lvalue * rvalue,
+            "/": lvalue / rvalue,
+            "%": lvalue % rvalue
+        }[operator];
+    });
+
+    Handlebars.registerHelper('twitter_image_id', function(title) {
+        // Because we have different colored twitter images we want to "randomly"
+        // match them with users that don't have a picture
+        var random = 0;
+        for (var i = 0; i < title.length; i++) {
+          random += title.charCodeAt(i);
+        }
+        return random % 7 // We have only 0 - 6 images
+
+    });
+
+    Handlebars.registerHelper('is_twitter', function(url) {
+        var twitter_url_regex = /^https?:\/\/twitter\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('is_facebook', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?facebook\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('is_xing', function(url) {
+        var twitter_url_regex = /^https?:\/\/(www\.)?xing\.com/;
+        if(url.match(twitter_url_regex))
+          return true;
+        else
+          return false;
+    });
+
+    Handlebars.registerHelper('reduce_width', function(width, reduction) {
+        return width - reduction;
+    });
+
+    var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
+    Handlebars.registerHelper('cliqz-ad', function(idx, type, q) {
+        if(CliqzUtils.getPref("showAdResults", -1) == -1 ||
+            idx!=0 || type == 'cliqz-extra') return '';
+        if(AD.test(q)){
+            CliqzUtils.setPref("showAdResults", 2);
+            CliqzUtils.track({type:'ab', action:'ad_result'});
+            return 'ad';
+        }
+        return '';
+    });
+
+    Handlebars.registerHelper('cliqz-premium', function(idx, q) {
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            CliqzUtils.track({type:'ab', action:'premium_result'});
+            return new Handlebars.SafeString(UI.tpl.generic({
+                title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
+                text: '',
+                width: CLIQZ.Core.urlbar.clientWidth - 100,
+                data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
+            }));
+        } else return '';
+    });
+
 }
 
 function runHistoryExperiment(inputValue) {
@@ -807,10 +993,12 @@ function runHistoryExperiment(inputValue) {
             function suggesterCallback(req) {
                 var sugs = JSON.parse(req.response);
                 var s1_pos = -1,
-                    s2_pos = -1;
+                    s2_pos = -1,
+                    pop = 0;
                 for (var i = 0; i < sugs.length; i++) {
                     if (sugs[i].value == inputValue) {
                         s1_pos = i;
+                        pop = sugs[i].score;
                     }
                 }
                 var reordered = reorder(sugs),
@@ -822,10 +1010,12 @@ function runHistoryExperiment(inputValue) {
                     maxScore = Math.max(maxScore, reordered[i].score);
                 }
 
-                results[qkey] = {s1: s1_pos, s2: s2_pos, max: maxScore};
+                results[qkey] = {s1: s1_pos, s2: s2_pos, pop: pop, max: maxScore};
                 if (Object.keys(results).length == 4) {
                     var qAction = {
-                        type: 'experiments-v1',
+                        type: 'experiments-v2',
+                        docs: CliqzHistoryManager.historyModel.docs,
+                        terms: CliqzHistoryManager.historyModel.terms,
                         qlen: inputValue.length,
                         qwords: inputValue.split(/\s+/).length,
                         action: {
@@ -841,8 +1031,7 @@ function runHistoryExperiment(inputValue) {
             // take first 3 chars
             var cliqzQuery3 = inputValue.substring(0, 3);
             var cliqzQuery5 = inputValue.substring(0, 5);
-            var cliqzQueryW = inputValue.lastIndexOf(' ') == -1 ?
-                inputValue : inputValue.substring(0, inputValue.indexOf(' '));
+            var cliqzQueryW = inputValue;
             var cliqzQueryL = inputValue.lastIndexOf(' ') == -1 ?
                 inputValue.substring(0, 1) : inputValue.substring(0, inputValue.lastIndexOf(' ')+2);
             var suggesterUrl = "http://54.90.135.180/api/suggestions?q=";
