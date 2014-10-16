@@ -57,7 +57,7 @@ var CliqzHistory = {
             query = "";
         }
         if (!queryDate) {
-            queryDate = "";
+            queryDate = new Date().getTime();
         }
 
         // Insert/Update website title (only when still on that page after timeout)
