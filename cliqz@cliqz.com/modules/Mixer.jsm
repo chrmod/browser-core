@@ -88,6 +88,9 @@ var Mixer = {
                     var tempResult = Result.cliqz(cliqz[i]);
                     tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
 
+                    //always use the title from history/bookmark - might be manually changed - eg: for tag results
+                    tempResult.comment = comment;
+
                     bucketHistoryCache.push(tempResult);
                     cacheIndex = i;
                     break;
