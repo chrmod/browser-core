@@ -135,7 +135,7 @@ class Term(CondPart):
     def parser(cls, *args):
         def __create(toks):
             return Term(toks[0])
-        return Regex(ur'\w[-?&=\w]*', re.UNICODE).setParseAction(__create)
+        return Regex(ur'\w[-?&=\w:.]*', re.UNICODE).setParseAction(__create)
 
     def condition(self, index, capturing=False):
         return "vpath[{}] == '{}'".format(index, self.word)
@@ -345,7 +345,7 @@ class UrlCondWithLength(AndConds):
             if len(toks) > 1:
                 url_cond = toks[0]
                 length = Length(len(url_cond.parts))
-                return UrlCondWithLength([url_cond, length])
+                return UrlCondWithLength([length, url_cond])
             else:
                 return toks[0]
         expr = (UrlCond.parser() ^
@@ -359,7 +359,7 @@ class DomainCondWithLength(AndConds):
             if len(toks) > 1:
                 domain_cond = toks[1]
                 length = Length(len(domain_cond.parts))
-                return DomainCondWithLength([domain_cond, length])
+                return DomainCondWithLength([length, domain_cond])
             else:
                 return toks[0]
         # No, Optional() doesn't work >:(((
@@ -435,7 +435,8 @@ $RULES
 
     CONTROL_TEMPLATE = Template(
 """$ITEM_TITLE
-                    if (!template['control_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0
+                            && !template['control_set'].hasOwnProperty(item_title)) {
                         var control = {title: item_title, url: url, iconCls: '$icon'};
                         template['control'].push(control);
                         template['control_set'][item_title] = true;
@@ -458,7 +459,8 @@ $RULES
                     }
 
 $ITEM_TITLE
-                    if (topic!=null && !topic['label_set'].hasOwnProperty(item_title)) {
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
                         topic['label_set'][item_title] = true;
                     }"""
@@ -539,15 +541,15 @@ $RULE_BODY
         """
         assignments = []
         for var in Program.CAPTURE_VARS:
-            if var in rule['capture']:
+            if var in rule['capture']:  # From path
                 assignments.append(
-                    "                    var {} = {};\n".format(
+                    "                    var {} = decodeURIComponent({});\n".format(
                         var, rule['capture'][var]))
-            elif var in rule:
+            elif var in rule:  # Manual, localized value
                 assignments.append(
                     "                    var {} = CliqzUtils.getLocalizedString('{}');\n".format(
                         var, rule[var]))
-            else:
+            else:  # nothing
                 assignments.append(
                     "                    var {} = null;\n".format(var))
         return ''.join(assignments)

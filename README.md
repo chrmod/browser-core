@@ -69,7 +69,7 @@ Glossary
 ``` bash
   "<ENCODED_RESULT_TYPE>"
 
- - T-tab result, B-bookmark, H-history, S-series, C-cluster
+ - T-tab result, B-bookmark, H-history, S-series, C-cluster, X - fun
  - any combination of one or more for vertical results:
     p - people
     c - census
@@ -110,6 +110,21 @@ Glossary
          - 02 - CHIP store
          - 03 - Softonic
          - 04 - AMO (Mozilla Firefox Store)
+         - 05 -
+         - 06 - Chip editorial activities
+         - 07 - Chip editor’s suggestion box
+         - 08 - Chip display advertising
+         - 09 - French version
+         - 10 - English(US) version
+         - 11 - Provided to Thomas K
+         - 12 - Provided to Thomas K
+         - 13 - Provided to Thomas K
+         - 14 - Provided to Thomas K
+         - 15 - Provided to Thomas K
+         - 16 - Provided to Thomas K
+         - 17 - Provided to Thomas K
+         - 18 - Provided to Thomas K
+         - 19 - Provided to Thomas K
      eg: 10378300660576423|16148|OO
 ```
 
@@ -130,6 +145,8 @@ Sent at startup and every 1 hour afterwards
     "startup": false,  // if this signal is sent at browser startup or during a regular interval
     "ts": <UNIX_TIMESTAMP>,
     "agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:27.0) Gecko/20100101 Firefox/27.0", // user agent from the browser
+    "height": 1280, // height of current document (i.e., content frame)
+    "width": 722, // width of current document
     "history_urls": 1518, // number of history points from the browser
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point
@@ -206,6 +223,11 @@ Result click (mouse)
     "position_type": "<ENCODED_RESULT_TYPE>",
     "extra": 'topic0', //extra information about the click - used for topic clustering, guessed series, ... + position
     "search": true/false, //if the url is a search page
+    "has_image": true/false, // result has an image (nobody image from xing is considered no image)
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 
@@ -235,6 +257,11 @@ Result enter (keyboard)
     "current_position": 1, // 0 = the first result, 1 = the second result ...
     "position_type": "<ENCODED_RESULT_TYPE>"
     "search": true/false, //if the url is a search page
+    "has_image": true/false, // result has an image (nobody image from xing is considered no image)
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 2.
@@ -253,6 +280,10 @@ Result enter (keyboard)
     "autocompleted": true/false, // true - if the url or the query was autocompleted with the first result
     "source": "<ENCODED_RESULT_TYPE>", // encoded results type of the result which autocompleted
     "search": true/false, //only if position_type = inbar_url and the url is a search page
+    "reaction_time": 100, // time since stop typing (in ms)
+    "display_time": 90, // time since cliqz result displayed, null if not displayed (in ms)
+    "urlbar_time": 200, // time since user last clicked on url bar (in ms)
+	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
 3. With a focused suggestion
@@ -274,7 +305,14 @@ Results - results shown in the dropdown
 	"result_order": "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
     "session": "<RANDOM_ID>",
     "ts": <UNIX_TIMESTAMP>,
-    "popup": true/false // if the result really got the chance to be displayed for the user
+    "query_length": 2 //length of the query in the moment of this action
+    "instant": true/false, // was this an 'instant' result or full result
+    "popup": true/false, // if the result really got the chance to be displayed for the user
+    "latency_history": <TIME_MS>, // time in ms from start of search until history returns
+    "latency_cliqz": <TIME_MS>, // time in ms reported by mixer
+    "latency_backend": <TIME_MS>, // time in ms from start of search until the backend returns
+    "latency_mixer": <TIME_MS>, // time in ms from start of search until the results are mixed
+    "latency_all": <TIME_MS>, // time in ms from start of search until this result was shown
 }
 ```
 
@@ -411,6 +449,29 @@ Addon disable
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>
+}
+```
+
+### A/B Tests
+Enter an A/B test
+``` bash
+{
+    "type": "abtest",
+    "action": "enter",
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "name": "<AB TEST NAME>"
+}
+```
+
+Leave an A/B test
+``` bash
+{
+    "type": "abtest",
+    "action": "leave",
+    "session": "<RANDOM_ID>",
+    "ts": <UNIX_TIMESTAMP>,
+    "name": "<AB TEST NAME>"
 }
 ```
 

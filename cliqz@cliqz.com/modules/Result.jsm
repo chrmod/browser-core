@@ -14,6 +14,7 @@ var Result = {
     CLIQZI: 'cliqz-images',
     CLIQZW: 'cliqz-weather',
     CLIQZB: 'cliqz-bundesliga',
+    CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
     CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
@@ -83,6 +84,17 @@ var Result = {
         } else {
             return Result.generic(resStyle, result.url);
         }
+    },
+    cliqzExtra: function(result){
+        return Result.generic(
+            Result.CLIQZE, //style
+            result.url, //value
+            null, //image -> favico
+            null,
+            null, //label
+            result.q, //query
+            result.data
+        );
     },
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {

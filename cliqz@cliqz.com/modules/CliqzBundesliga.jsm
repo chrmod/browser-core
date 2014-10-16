@@ -10,17 +10,38 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var EXPORTED_SYMBOLS = ['CliqzBundesliga'];
 
 var CliqzBundesliga = {
+    unixTimeToLocal: function (unix_time) {
+      var time = new Date(unix_time * 1000);
+      return time.toLocaleTimeString().substring(0,5);
+    },
+    groupMatchesByTime: function (matches) {
+      var results = {};
+      for(var i=0; i < matches.length; i++) {
+        var match = matches[i],
+            time = CliqzBundesliga.unixTimeToLocal(match.kickoff);
+
+        results[time] = results[time] ? [match].concat(results[time]) : [match];
+      }
+      return results;
+    },
+    generateResults: function (json_response) {
+      var results = json_response.results;
+      return Result.generic(Result.CLIQZB, "", null, "", "", null,
+          {
+              hide_results_1st: results.gbl1.length ? false : true,
+              results_1st: CliqzBundesliga.groupMatchesByTime(results.gbl1),
+              hide_results_2nd: results.gbl2.length ? false : true,
+              results_2nd: CliqzBundesliga.groupMatchesByTime(results.gbl2)
+          });
+    },
     get: function(q, callback){
         var BUNDESLIGA_API =  'http://cliqz-sports-machine-694310630.us-east-1.elb.amazonaws.com/api/v1/results';
         CliqzUtils.httpHandler('GET', BUNDESLIGA_API, function (res) {
-            var data = JSON.parse(res.response);
-            var result = Result.generic(Result.CLIQZB, "", null, "", "", null,
-                {
-                    hide: data.results.length ? false : true,
-                    results: data.results
-                });
+            var json_response = JSON.parse(res.response);
+            var result = CliqzBundesliga.generateResults(json_response);
             callback([result], q);
-            CliqzUtils.log(JSON.stringify(data.results), 'BUNDESLIGA');
+
+            CliqzUtils.log(JSON.stringify(json_response), 'BUNDESLIGA');
         });
     },
     isBundesligaSearch: function(q){

@@ -17,10 +17,18 @@ function zfill(number, size) {
 }
 
 var series_regexs = [
-    /[-\/_]s(\d+)[-\/_ ]?e(\d+)[\/-_\.$]*/,
-    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)[\/-_\.$]*/
+    /[-\/_]s(\d+)[-\/_ ]?e(\d+)(?:[-\/_.]|$)/,
+    /[-\/_ ]season[-\/_ ](\d+)[-\/_ ]episode[-\/_ ](\d+)(?:[-\/_.]|$)/
 ];
 var title_regex = /(.+)(?:S|[Ss]eason[\/\- ])\d+[\/\-, ]*(?:E|[Ee]pisode[\/\- ])\d+(.+)/;
+
+var series_regexs_general = [
+    /(?:s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(?:[-\/_ ]episode[-\/_ ])(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s[ae][ai]?[sz]on[-\/_ ])(\d{1,2})(?:[-\/_ ])(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s[ae][ai]?[sz]on[-\/_])(\d{1,2})(?:.*?\/)(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:s)(\d{1,2})(?:_?ep?)(\d{1,2})(?:[-\/_.]|$)/,
+    /(?:[-_\/])(\d{1,2})(?:x)(\d{1,2})(?:[-\/_.]|$)/
+];
 
 /************************** Title / series guessing ***************************/
 
@@ -202,7 +210,7 @@ function getSeriesGrouping(titles_and_urls) {
     var movingParts = [];
     var boilerParts = [];
     for (var i = 0; i < tokens_dfs.length; i++) {
-        var token_dfs = [df.toString() for (df of tokens_dfs[i])];
+        var token_dfs = tokens_dfs[i].map(function(df){ return df.toString(); })
         viterbiData['observations'] = token_dfs;
 
         var result = Viterbi(viterbiData);
@@ -381,10 +389,14 @@ var CliqzClusterSeries = {
     //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
     var domains = {};
-
-    for(let i=0; i<urls.length;i++) {
+    var domains2 = {};
+    for(let i=0; i<urls.length; i++) {
         var url = urls[i]['value'];
         var title = urls[i]['comment'];
+
+        // Avoid long urls, they are expensive to parse and unlikely to be what we want
+        if(url.length > 1024)
+            continue;
 
         var urlDetails = CliqzUtils.getDetailsFromUrl(url),
           domain = urlDetails.host,
@@ -406,10 +418,22 @@ var CliqzClusterSeries = {
                 break;
             }
         }
+
+        // check with more general regex
+        for (let r = 0; r < series_regexs_general.length; r++) {
+            var d = path.match(series_regexs_general[r]);
+            if (d && title_regex.test(path)) {
+                if (domains2[domain]==null) domains2[domain] = [];
+                domains2[domain].push([title, url, 'type' + r, parseInt(d[1]), parseInt(d[2]), d]);
+                break;
+            }
+        }
     }
 
     var maxDomain = null;
+    var maxDomain2 = null;
     var maxDomainLen = -1;
+    var maxDomainLen2 = -1;
     Object.keys(domains).forEach(function (key) {
         if (domains[key].length > maxDomainLen) {
             maxDomainLen=domains[key].length;
@@ -417,7 +441,35 @@ var CliqzClusterSeries = {
         }
     });
 
+    Object.keys(domains2).forEach(function (key) {
+        if (domains2[key].length > maxDomainLen2) {
+            maxDomainLen2=domains2[key].length;
+            maxDomain2=key;
+        }
+    });
+
+
     log('DOMAINS: ' + JSON.stringify(domains));
+    if (maxDomain2!=null && maxDomainLen2>4) {
+        action = {
+            type: 'performance',
+            action: 'potential_tvshow',
+            regex: 'general',
+            query_length: q.length
+        };
+        CliqzUtils.track(action);
+    }
+
+    if (maxDomain != null && maxDomainLen > 4 && q.length < 6) {
+        action = {
+            type: 'performance',
+            action: 'potential_tvshow',
+            regex: 'strict',
+            query_length: q.length
+        };
+        CliqzUtils.track(action);
+    }
+
     if (maxDomain!=null && maxDomainLen>4) {
         // at least 5
         log('The watching series detection has triggered!!! ' + maxDomain + ' ' + JSON.stringify(domains[maxDomain]));

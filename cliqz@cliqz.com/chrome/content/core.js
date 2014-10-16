@@ -97,6 +97,10 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.whoAmI(true); //startup
         CliqzUtils.log('Initialized', 'CORE');
+
+        //try to 'heat up' the connection
+        CliqzUtils.getCliqzResults(' ');
+        CliqzUtils.getSuggestions(' ');
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;
@@ -126,24 +130,9 @@ CLIQZ.Core = CLIQZ.Core || {
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     _tutorialTimeout:null,
     showTutorial: function(onInstall){
-        // Only show new tutorial if version greater than 29
-        var tutorial_url = "";
-        var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                        .getService(Components.interfaces.nsIXULAppInfo);
-        var versionComparator = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-                                  .getService(Components.interfaces.nsIVersionComparator);
-        if (versionComparator.compare(appInfo.version, "29") == 1)
-            tutorial_url = CliqzUtils.TUTORIAL_URL;
-        else
-            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
-
-        // Show it only to users that have a session starting with 5 (10% users)
-        if (!(CliqzUtils.getPref('session','')[0] == '5'))
-            tutorial_url = CliqzUtils.TUTORIAL_URL_OLD;
-
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(tutorial_url, CliqzUtils.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // force component reload at install/uninstall
@@ -153,6 +142,7 @@ CLIQZ.Core = CLIQZ.Core || {
     // restoring
     destroy: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
+        clearTimeout(CLIQZ.Core._whoAmItimer);
 
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
@@ -220,12 +210,28 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
+        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
+            //if test is active trigger it
+            CliqzUtils.setPref("showPremiumResults", 2);
+        }
     },
     urlbarblur: function(ev) {
         CliqzSearchHistory.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
+        }
+
+        if(CliqzUtils.getPref("showAdResults", -1) == 2){
+            //if test is active trigger it
+            CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+        }
+        CliqzAutocomplete.lastFocusTime = null;
     },
     urlbarEvent: function(ev) {
         var action = {
@@ -235,16 +241,21 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzUtils.track(action);
     },
+    _whoAmItimer: null,
     whoAmI: function(startup){
         // schedule another signal
-        setTimeout(function(){
-            if(CLIQZ) CLIQZ.Core.whoAmI();
+        CLIQZ.Core._whoAmItimer = setTimeout(function(){
+            if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
-
-        var start = (new Date()).getTime();
+        CliqzUtils.fetchAndStoreConfig(function(){
+            //executed after the services are fetched
+            CLIQZ.Core.sendEnvironmentalSignal(startup);
+        });
+    },
+    sendEnvironmentalSignal: function(startup){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
@@ -252,6 +263,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     type: 'environment',
                     agent: navigator.userAgent,
                     language: navigator.language,
+                    width: CliqzUtils.getWindow().document.width,
+                    height: CliqzUtils.getWindow().document.height,
                     version: beVersion,
                     history_days: history.days,
                     history_urls: history.size,

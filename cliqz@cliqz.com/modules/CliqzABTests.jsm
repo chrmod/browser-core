@@ -34,7 +34,7 @@ var CliqzABTests = CliqzABTests || {
                             newABtests[o] = prevABtests[o]
                         }
                     }
-                    
+
                     // find new AB tests to enter
                     for(let n in respABtests) {
                         if(!(prevABtests[n])) {
@@ -98,14 +98,41 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // log clustering site
                 CliqzUtils.setPref("logCluster", true);
+                break;
+            case "1006_A":
+                // abort http connections if a new one appears
+                CliqzUtils.setPref("abortConnections", false);
+                break;
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.setPref("historyExperiment", true);
+                break;
+            case "1008_A":
+                CliqzUtils.setOurOwnPrefs();
+                break;
+            case "1010_A":
+                // show no results message
+                CliqzUtils.setPref("showNoResults", true);
+                break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.setPref("showAdResults", 1);
+                break;
+            case "1012_A":
+                // show ad results
+                CliqzUtils.setPref("showPremiumResults", 1);
+                break;
             default:
                 rule_executed = false;
         }
         if(rule_executed) {
-            if(payload.msg)
-                CliqzUtils.log(abtest + ": " + payload.msg, logname);
-            else
-               CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'enter',
+                name: abtest
+            };
+            CliqzUtils.track(action);
+    
             return true;
        } else {
             return false;
@@ -147,12 +174,44 @@ var CliqzABTests = CliqzABTests || {
             case "1005_B":
                 // remove log clustering
                 CliqzUtils.cliqzPrefs.clearUserPref('logCluster');
+                break;
+            case "1006_A":
+                // abort http connections if a new one appears
+                CliqzUtils.cliqzPrefs.clearUserPref("abortConnections");
+                break;
+            case "1007_A":
+                // run history-based suggester experiment
+                CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
+                break;
+            case "1008_A":
+                CliqzUtils.resetOriginalPrefs();
+                break;
+            case "1009_A":
+                CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
+                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
+                break;
+            case "1010_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
+                break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+                break;
+            case "1012_A":
+                // show ad results
+                CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
+                break;
             default:
                 rule_executed = false;
         }
 
         if(rule_executed) {
-            CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'leave',
+                name: abtest
+            };
+            CliqzUtils.track(action);
             return true;
        } else {
             return false;

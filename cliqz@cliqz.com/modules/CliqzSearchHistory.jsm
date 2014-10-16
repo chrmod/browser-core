@@ -81,8 +81,9 @@ var CliqzSearchHistory = {
       var gBrowser = window.gBrowser;
 
       // If the query already existis in the list skip it
-      for (var existing of this.windows[window_id].searchHistoryPanel.children) {
-        if (newSearch == existing.innerHTML)
+      var existing = this.windows[window_id].searchHistoryPanel.children;
+      for (var i=0; i<existing.length; i++) {
+        if (newSearch == existing[i].innerHTML)
           return;
       }
       // If the list gets longer than 7 drop first element
@@ -103,32 +104,30 @@ var CliqzSearchHistory = {
 
     /* */
     lastQuery: function(){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var gBrowser = CliqzUtils.getWindow().gBrowser,
+            win = this.windows[CliqzUtils.getWindowID()];
 
-        var val = this.windows[window_id].urlbar.value.trim(),
-            lastQ = CliqzAutocomplete.lastSearch.trim();
+        if(win && win.urlbar){
+            var val = win.urlbar.value.trim(),
+                lastQ = CliqzAutocomplete.lastSearch.trim();
 
-        if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
-            this.showLastQuery(lastQ);
-            this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
-            this.addToLastSearches(lastQ);
-        } else {
-            // remove last query if the user ended his search session
-            if(CliqzUtils.isUrl(lastQ))
-                delete this.windows[window_id].lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+            if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
+                this.showLastQuery(lastQ);
+                win.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
+                this.addToLastSearches(lastQ);
+            } else {
+                // remove last query if the user ended his search session
+                if(CliqzUtils.isUrl(lastQ))
+                    delete win.lastQueryInTab[gBrowser.selectedTab.linkedPanel];
+            }
         }
     },
 
     hideLastQuery: function(){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var win = this.windows[CliqzUtils.getWindowID()];
 
-        this.windows[window_id].searchHistoryContainer.className = 'hidden';
+        if(win && win.searchHistoryContainer)
+            win.searchHistoryContainer.className = 'hidden';
     },
 
     showLastQuery: function(q){

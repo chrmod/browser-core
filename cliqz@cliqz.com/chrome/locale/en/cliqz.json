@@ -1,6 +1,99 @@
 {
+    "whatIsCliqz":{
+        "message": "What is cliqz?"
+    },
+    "whatIsCliqzTry":{
+        "message": "What is cliqz? <-- try it yourself, eg: 'weather new york'"
+    },
+    "settings":{
+        "message": "Settings"
+    },
+    "btnPrivacy":{
+        "message": "Privacy Policy"
+    },
+    "btnDefaultSearchEngine":{
+        "message": "Default Search Engine"
+    },
+    "btnRegion":{
+        "message": "Local Results"
+    },
+    "btnShare":{
+        "message": "cliqz Share"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
+    },
+    "noResultTitle":{
+        "message":"Sorry, we don’t have any results yet.<br />We’re working on it."
+    },
+    "noResultMessage":{
+        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+    },
+    "noResults": {
+        "message":"No results"
+    },
+    "numResults": {
+        "message":"Top {} Results"
+    },
+    "moreResults":{
+        "message":"more ..."
+    },
+    "customSearch":{
+        "message":"Search <b><i>{}</i></b> on {}"
+    },
+    "peoplePositionAt":{
+        "message":"at"
+    },
+    "peoplePositionSince":{
+        "message":"since"
+    },
+    "videoBy":{
+        "message":"by"
+    },
+    "weatherCurrent":{
+        "message":"current"
+    },
+    "weatherCredits":{
+        "message":"provided courtesy of <br /> openweathermap.org"
+    },
+    "ago1Minute":{
+        "message":"one minute ago"
+    },
+    "agoXMinutes":{
+        "message":"{} minutes ago"
+    },
+    "ago1Hour":{
+        "message":"one hour ago"
+    },
+    "agoXHours":{
+        "message":"{} hours ago"
+    },
+    "agoYesterday":{
+        "message":"yesterday"
+    },
+    "agoXDays":{
+        "message":"{} days ago"
+    },
+    "ago1Month":{
+        "message":"one month ago"
+    },
+    "agoXMonths":{
+        "message":"{} months ago"
+    },
+    "ago1year":{
+        "message":"one year ago"
+    },
+    "agoXYears":{
+        "message":"{} years ago"
+    },
+    "offTitle":{
+        "message":"the new way to navigate the web"
+    },
+    "offBtn":{
+        "message":"Try out now!"
+    },
+    "offMessage":{
+        "message":"Insert your search query in the address bar – receive results instantly"
     },
     "Sitemap_Summary": {
         "message":"My sitemap for {}"
@@ -19,6 +112,9 @@
     },
     "Sitemap_Youtube_Channels": {
         "message":"Channels"
+    },
+    "Sitemap_Youtube_Playlists": {
+        "message":"Playlists"
     },
     "Sitemap_Facebook_Newsfeed": {
         "message":"News Feed"
@@ -94,5 +190,77 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "country_code_": {
+      "message":"Automatic"
+    },
+    "country_code_AT": {
+      "message":"Österreich - Austria"
+    },
+    "country_code_BR": {
+      "message":"Brazil - Brasil"
+    },
+    "country_code_CA": {
+      "message":"Canada - Canada"
+    },
+    "country_code_HR": {
+      "message":"Hrvatska - Croatia"
+    },
+    "country_code_EE": {
+      "message":"Eesti - Estonia"
+    },
+    "country_code_FR": {
+      "message":"France - France"
+    },
+    "country_code_DE": {
+      "message":"Deutschland - Germany"
+    },
+    "country_code_GR": {
+      "message":"Ελλάδα - Greece"
+    },
+    "country_code_HU": {
+      "message":"Magyarország - Hungary"
+    },
+    "country_code_ID": {
+      "message":"Indonesia"
+    },
+    "country_code_IT": {
+      "message":"Italia - Italy"
+    },
+    "country_code_PS": {
+      "message":"Palestine"
+    },
+    "country_code_RO": {
+      "message":"România - Romania"
+    },
+    "country_code_RU": {
+      "message":"Россия - Russia"
+    },
+    "country_code_RS": {
+      "message":"Србија - Serbia"
+    },
+    "country_code_SG": {
+      "message":"Singapore - Singapore"
+    },
+    "country_code_ES": {
+      "message":"España - Spain"
+    },
+    "country_code_CH": {
+      "message":"Schweiz - Switzerland"
+    },
+    "country_code_TH": {
+      "message":"ประเทศไทย - Thailand"
+    },
+    "country_code_TR": {
+      "message":"Türkiye - Turkey"
+    },
+    "country_code_GB": {
+      "message":"United Kingdom"
+    },
+    "country_code_US": {
+      "message":"United States"
+    },
+    "country_code_VN": {
+      "message":"Việt Nam - Vietnam"
     }
 }

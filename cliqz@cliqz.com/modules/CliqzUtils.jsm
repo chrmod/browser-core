@@ -21,9 +21,6 @@ var VERTICAL_ENCODINGS = {
     'news':'n',
     'weather':'w',
     'bundesliga':'b',
-    'cache':'d',
-    'english':'e',
-    'french':'f',
     'video':'v',
     'hq':'h',
     'shopping':'s',
@@ -34,26 +31,30 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
+  LANGS:            {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
+  CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
   UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL_OLD: 'https://beta.cliqz.com/erste-schritte',
   TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
-  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
+  PREFERRED_LANGUAGE: null,
+
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+  genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefBranch),
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(window){
+  init: function(win){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
@@ -62,13 +63,14 @@ var CliqzUtils = {
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('resultsAPI')){
       //CliqzUtils.RESULTS_PROVIDER = CliqzUtils.getPref('resultsAPI');
     }
-    if (window && window.navigator) {
+    if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
-        var nav = window.navigator;
-        var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
-            || nav.browserLanguage || nav.systemLanguage || 'en';
-        CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
+        var nav = win.navigator;
+        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
+        CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
+
+    if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -88,8 +90,10 @@ var CliqzUtils = {
       onerror && onerror();
     }
     req.ontimeout = function(){
-      CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
-      onerror && onerror();
+      if(CliqzUtils){ //might happen after disabling the extension
+        CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
+        onerror && onerror();
+      }
     }
 
     if(callback){
@@ -128,8 +132,10 @@ var CliqzUtils = {
     }
   },
   getPrefs: function(){
-    var prefs = {};
-    for(var pref of CliqzUtils.cliqzPrefs.getChildList('')){
+    var prefs = {},
+        cqz = CliqzUtils.cliqzPrefs.getChildList('');
+    for(var i=0; i<cqz.length; i++){
+      var pref = cqz[i];
       prefs[pref] = CliqzUtils.getPref(pref);
     }
     return prefs;
@@ -162,7 +168,7 @@ var CliqzUtils = {
   },
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      CliqzUtils._log.logStringMessage(key + ' : ' + msg);
+      CliqzUtils._log.logStringMessage((new Date()).toISOString() + " " + key + ' : ' + msg);
     }
   },
   getDay: function() {
@@ -225,19 +231,17 @@ var CliqzUtils = {
 
     return urlDetails;
   },
-  // used for messages in urlbar and the url does not need to be complete (eg: no protocol)
+  _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
-    var pattern = new RegExp(//'^(https?:\\/\\/)?'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.\\(\\)~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    if(!pattern.test(input)) {
-      return false;
-    } else {
-      return true;
+    //step 1 remove eventual protocol
+    var protocolPos = input.indexOf('://');
+    if(protocolPos != -1 && protocolPos <= 6){
+      input = input.slice(protocolPos+3)
     }
+    //step2 remove path & everything after
+    input = input.split('/')[0];
+    //step3 run the regex
+    return CliqzUtils._isUrlRegExp.test(input);
   },
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
@@ -262,7 +266,6 @@ var CliqzUtils = {
     if(locales.length > 0)
       local_param = "&hl=" + encodeURIComponent(locales[0]);
 
-    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
       function(res){
         callback && callback(res, q);
@@ -271,12 +274,30 @@ var CliqzUtils = {
   },
   _resultsReq: null,
   getCliqzResults: function(q, callback){
-    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + 
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
                                                 CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
                                 function(res){
                                   callback && callback(res, q);
                                 });
+  },
+  // IP driven configuration
+  fetchAndStoreConfig: function(callback){
+    CliqzUtils.httpGet(CliqzUtils.CONFIG_PROVIDER,
+      function(res){
+        if(res && res.response){
+          try {
+            var config = JSON.parse(res.response);
+            for(var k in config){
+              CliqzUtils.setPref('config_' + k, config[k]);
+            }
+          } catch(e){}
+        }
+
+        callback();
+      },
+      callback, //on error the callback still needs to be called
+      2000
+    );
   },
   getWorldCup: function(q, callback){
     var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
@@ -297,6 +318,7 @@ var CliqzUtils = {
     else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
+    else if(type === 'cliqz-extra') return 'X';
     else if(type === 'cliqz-series') return 'S';
     else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
     else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
@@ -319,17 +341,16 @@ var CliqzUtils = {
   encodeSources: function(sources){
     return sources.split(', ').map(
       function(s){
-        return VERTICAL_ENCODINGS[s] || s;
+        if(s.indexOf('cache') == 0) // to catch 'cache-*' for specific countries
+          return 'd'
+        else
+          return VERTICAL_ENCODINGS[s] || s;
       }).join('');
   },
   combineSources: function(internal, cliqz){
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
 
     return internal + " " + cliqz_sources
-  },
-  stopSearch: function(){
-    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
   },
   shouldLoad: function(window){
     return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
@@ -373,7 +394,7 @@ var CliqzUtils = {
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
-    if(instantPush || CliqzUtils.trk.length > 100){
+    if(instantPush || CliqzUtils.trk.length % 100 == 0){
       CliqzUtils.pushTrack();
     } else {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
@@ -403,9 +424,9 @@ var CliqzUtils = {
       if(response.new_session){
         CliqzUtils.setPref('session', response.new_session);
       }
+      CliqzUtils._track_sending = [];
+      CliqzUtils._track_req = null;
     } catch(e){}
-    CliqzUtils._track_sending = [];
-    CliqzUtils._track_req = null;
   },
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
@@ -414,7 +435,7 @@ var CliqzUtils = {
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE + 100;
     if(slice_pos > 0){
       CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
       CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
@@ -423,30 +444,36 @@ var CliqzUtils = {
     CliqzUtils._track_sending = [];
     CliqzUtils._track_req = null;
   },
-  timers: [],
-  setTimer: function(func, timeout, type, param) {
+  // references to all the timers to avoid garbage collection before firing
+  // automatically removed when fired
+  _timers: [],
+  _setTimer: function(func, timeout, type, param) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
-    CliqzUtils.timers.push(timer);
+    CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
         func(param);
+        CliqzUtils._removeTimerRef(timer);
       }
     };
     timer.initWithCallback(event, timeout, type);
     return timer;
   },
+  _removeTimerRef: function(timer){
+    var i = CliqzUtils._timers.indexOf(timer);
+    if (i >= 0) {
+      CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
+    }
+  },
   setTimeout: function(func, timeout, param) {
-    return CliqzUtils.setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },
   clearTimeout: function(timer) {
     if (!timer) {
       return;
     }
     timer.cancel();
-    var i = CliqzUtils.timers.indexOf(timer);
-    if (i >= 0) {
-      CliqzUtils.timers.splice(CliqzUtils.timers.indexOf(timer), 1);
-    }
+    CliqzUtils._removeTimerRef(timer);
   },
   clearInterval: this.clearTimeout,
   loadFile: function (fileName, callback) {
@@ -480,9 +507,9 @@ var CliqzUtils = {
             function() {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
-                var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
+                var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
                 CliqzUtils.loadResource(
-                    'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
+                    'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
                     function(req) {
                         CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                         CliqzUtils.currLocale = lang_locale;
@@ -492,6 +519,12 @@ var CliqzUtils = {
         );
     }
   },
+  getLanguageFromLocale: function(locale){
+    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
+  },
+  getLanguage: function(win){
+    return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
+  },
   getLocalizedString: function(key){
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
@@ -500,6 +533,15 @@ var CliqzUtils = {
         return CliqzUtils.locale['default'][key].message;
     } else {
         return key;
+    }
+  },
+  // gets all the elements with the class 'cliqz-locale' and adds
+  // the localized string - key attribute - as content
+  localizeDoc: function(doc){
+    var locale = doc.getElementsByClassName('cliqz-locale');
+    for(var i = 0; i < locale.length; i++){
+        var el = locale[i];
+        el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
@@ -582,16 +624,9 @@ var CliqzUtils = {
     return util.outerWindowID;
   },
   performance: {
-    timers:null,
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
             reqtimes = {}, statistics = [];
-
-        CliqzUtils.performance.timers = [];
-        function setTO(){
-          // keep reference to all timers to avoid garbage collection
-          CliqzUtils.performance.timers.push(CliqzUtils.setTimeout.apply(this, arguments));
-        }
 
         function send_test(){
           var start = 1000;
@@ -600,7 +635,7 @@ var CliqzUtils = {
             for(var key in INPUT[word]){
               t+=INPUT[word][key];
               CliqzUtils.log(t, 'PERFORMANCE');
-              setTO(function(t){
+              CliqzUtils.setTimeout(function(t){
                 reqtimes[t] = new Date();
                 CliqzUtils.getCliqzResults(t, receive_test)
               }, start, t);
@@ -608,7 +643,7 @@ var CliqzUtils = {
               start += delay || (600 + (Math.random() * 100));
             }
           }
-          setTO(function(){
+          CliqzUtils.setTimeout(function(){
             var stats =[0, 0, 0, 0];
             for(var i=0; i < statistics.length; i++){
                 for(var j=0; j<4; j++) stats[j] += statistics[i][j];
@@ -660,5 +695,35 @@ var CliqzUtils = {
     for (var index = 0; index < domains.length; index++) {
       if (url.indexOf(domains[index]) > -1) return index;
     }
-  }
+  },
+  isUrlBarEmpty: function() {
+    var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+    return urlbar.value.length == 0;
+  },
+  /** Modify the user's Firefox preferences -- always do a backup! */
+  setOurOwnPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+          CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
+    } else {
+      CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
+    }
+  },
+  /** Reset the user's preferences that we changed. */
+  resetOriginalPrefs: function() {
+    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (cliqzBackup) {
+      CliqzUtils.log("Loading maxRichResults backup...");
+      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
+          CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+      // deleteBranch does not work for some reason :(
+      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+      CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+    } else {
+      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
+    }
+  },
 };
