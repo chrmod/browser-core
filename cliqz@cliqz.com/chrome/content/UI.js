@@ -1,5 +1,8 @@
 'use strict';
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
@@ -405,7 +408,8 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             CliqzUtils.track(action);
-
+            CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+            CliqzHistory.addHistoryEntry(url, "result");
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -561,6 +565,8 @@ function onEnter(ev, item){
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
+        CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+        CliqzHistory.addHistoryEntry(url, "result");
         openUILink(url);
 
 
@@ -588,9 +594,11 @@ function onEnter(ev, item){
         else action.position_type = 'inbar_query';
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted && gCliqzBox){
+            
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
-
+            CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
+            CliqzHistory.addHistoryEntry(firstUrl, "autocomplete");
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
@@ -599,6 +607,14 @@ function onEnter(ev, item){
                 CLIQZ.Core.urlbar.value = firstUrl;
             }
         } else {
+            if(CliqzUtils.isUrl(inputValue)){
+                CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = inputValue;
+                CliqzHistory.addHistoryEntry(inputValue, "typed");
+            } else {
+                CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = inputValue;
+                CliqzHistory.addHistoryEntry(inputValue, "google");
+            }
+            
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;

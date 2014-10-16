@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Search Debug</title>
+
+    <style type="text/css">
+    body {
+        font-size: 11pt;
+    }
+    th {
+        background: #aaa;
+    }
+    td {
+        background: #eee;
+    }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryDebug.jsm');
+    Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+
+    $(document).ready(function() {
+        $("#searchInput").bind("keypress", {}, keypressInSearchInput);     
+    });
+
+    function keypressInSearchInput(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code == 13) { // Enter keycode                        
+            e.preventDefault();
+            startSearch();
+        }
+    };
+
+    function historySearch(searchTerm) {
+        CliqzHistoryDebug.getHistory(searchTerm, function(history){
+            showResultTable(history);
+        });
+    }
+
+    function startSearch() {    
+        historySearch($("#searchInput").val());
+    }
+
+    function showResultTable(data) {
+        $("#resultTable").html("");
+        $("#resultTable").append("<th>Provider</th>");
+        $("#resultTable").append("<th>Title</th>");
+        $("#resultTable").append("<th>URL</th>");
+        $("#resultTable").append("<th>Count</th>");
+        $("#resultTable").append("<th>Typed</th>");
+        $("#resultTable").append("<th>Frecency</th>");
+        $("#resultTable").append("<th>Last Visit</th>");
+        for (var i = 0; i < data.length; i++) {
+            $("#resultTable").append("<tr>");
+            $("#resultTable tr").last().append("<td>History</td>");
+            $("#resultTable tr").last().append("<td>" + data[i].title + "</td>");
+            $("#resultTable tr").last().append("<td><a href='" + data[i].url + "'>" + data[i].url + "</a></td>");
+            $("#resultTable tr").last().append("<td>" + data[i].visit_count + "</td>");
+            $("#resultTable tr").last().append("<td>" + data[i].typed + "</td>");
+            $("#resultTable tr").last().append("<td>" + data[i].frecency + "</td>");
+            var date = new Date(data[i].last_visit_date/1000);
+            $("#resultTable tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
+            $("#resultTable").append("</tr>");
+        };    
+        $("#resultTable").append("</table>");    
+    }
+    </script>
+</head>
+<body>
+    <h1>Search Debug</h1>
+    <p><input type="text" id='searchInput'><input type="submit" value="Search" onclick='startSearch()'></p>
+    <div id='resultWrapper'><table id="resultTable" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table></div>
+</body>
+</html>
