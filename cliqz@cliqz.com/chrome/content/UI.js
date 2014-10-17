@@ -428,6 +428,22 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
+            if(CliqzUtils.getPref('sessionLogging', false)){
+                var query = CLIQZ.Core.urlbar.value;
+                var queryAutocompleted = null;
+                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+                {
+                    var first = gCliqzBox.resultsBox.children[0];
+                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                    {
+                        queryAutocompleted = query;
+                    }
+                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+                }
+                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+            }
+
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -576,15 +592,29 @@ function onEnter(ev, item){
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
             result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
         };
+
+    var query = inputValue;
+    var queryAutocompleted = null;
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+    {
+        var first = gCliqzBox.resultsBox.children[0];
+        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+        {
+            queryAutocompleted = query;
+        }
+        query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
+
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
+        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         openUILink(url);
-
+        CliqzUtils.trackResult(query, queryAutocompleted, index,
+            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -620,6 +650,8 @@ function onEnter(ev, item){
             if(firstUrl.indexOf(inputValue) != -1){
                 CLIQZ.Core.urlbar.value = firstUrl;
             }
+            CliqzUtils.trackResult(query, queryAutocompleted, index,
+                CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
@@ -654,6 +686,8 @@ function onEnter(ev, item){
 
                 } // end A-B test if
             }
+            var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
         if (CLIQZ.Core.urlbar.value.length > 0)
             CliqzUtils.track(action);
@@ -930,6 +964,12 @@ function registerHelpers(){
                 data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
             }));
         } else return '';
+    });
+
+    Handlebars.registerHelper('is-cliqz-premium', function(idx, q) {
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            return true
+        } else return false;
     });
 
 }

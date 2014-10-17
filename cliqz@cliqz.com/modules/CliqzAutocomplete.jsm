@@ -115,6 +115,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             addResults: function(results){
                 this._results = this.resetInstantResults(this._results, results);
                 CliqzAutocomplete.lastResult = this;
+                var order = CliqzAutocomplete.getResultsOrder(this._results);
+                CliqzUtils.setResultOrder(order);
             },
             resetInstantResults: function(oldResults, newResults){
                 // We always have at most 1 oldResult, since now we wait for the
