@@ -213,10 +213,24 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.urlbarEvent('focus');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
+            //if test is active trigger it
+            CliqzUtils.setPref("showPremiumResults", 2);
+        }
     },
     urlbarblur: function(ev) {
         CliqzSearchHistory.lastQuery();
         CLIQZ.Core.urlbarEvent('blur');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
+        }
+
+        if(CliqzUtils.getPref("showAdResults", -1) == 2){
+            //if test is active trigger it
+            CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+        }
         CliqzAutocomplete.lastFocusTime = null;
     },
     urlbarEvent: function(ev) {

@@ -114,6 +114,14 @@ var CliqzABTests = CliqzABTests || {
                 // show no results message
                 CliqzUtils.setPref("showNoResults", true);
                 break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.setPref("showAdResults", 1);
+                break;
+            case "1012_A":
+                // show ad results
+                CliqzUtils.setPref("showPremiumResults", 1);
+                break;
             default:
                 rule_executed = false;
         }
@@ -184,6 +192,14 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1010_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
+                break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+                break;
+            case "1012_A":
+                // show ad results
+                CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
                 break;
             default:
                 rule_executed = false;
