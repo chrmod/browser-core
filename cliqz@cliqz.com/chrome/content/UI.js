@@ -34,6 +34,7 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 
 
 var UI = {
     tpl: {},
+    showDebug: false,
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -55,6 +56,8 @@ var UI = {
         });
 
         registerHelpers();
+
+        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
     },
     main: function(box){
         gCliqzBox = box;
@@ -347,6 +350,15 @@ function getPartial(type){
     return 'generic';
 }
 
+// debug message are at the end of the title like this: "title (debug)!"
+function getDebugMsg(fullTitle){
+    var r = fullTitle.match(/^(.+) \((.+)\)!$/)
+    if(r && r.length >= 3)
+        return [r[1], r[2]]
+    else
+        return [fullTitle, null]
+}
+
 // tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
 function getTags(fullTitle){
     var tags, title;
@@ -374,6 +386,11 @@ function enhanceResults(res){
             r.image = constructImage(r.data);
             r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
+
+            //extract debug info from title
+            [r.title, r.debug] = getDebugMsg(r.title)
+            if(!UI.showDebug)
+                r.debug = null;
 
             //extract tags from title
             if(r.type.indexOf('tag') == 0)

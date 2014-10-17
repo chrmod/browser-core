@@ -113,6 +113,18 @@
     line-height: 20px;
     margin: 3px 3px 0 0;
 }
+
+.cliqz-result-debug {
+    float: right;
+    padding-right: 0px !important;
+    margin-right: 5px;
+}
+.cliqz-result-debug span {
+    color: #999999;
+    padding: 8px;
+    line-height: 20px;
+    margin: 3px 3px 0 0;
+}
 /*
 #cliqz-results * {
     border:1px solid black;
