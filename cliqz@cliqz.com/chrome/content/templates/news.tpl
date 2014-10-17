@@ -18,7 +18,7 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ title }}
 		</div>
-				{{#if debug}}
+		{{#if debug}}
 			<span class='cliqz-result-debug overflow'>
 				<span>{{ debug }}</span>
 			</span>
