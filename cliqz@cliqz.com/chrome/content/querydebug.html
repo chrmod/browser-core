@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Query Debig</title>
+
+    <style type="text/css">
+
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+        Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Components.utils.import('chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
+
+        document.write(CliqzQueryDebug.counts())
+
+        CliqzUtils.log("testing", "querydebug.html");
+    </script>
+</body>
+</html>

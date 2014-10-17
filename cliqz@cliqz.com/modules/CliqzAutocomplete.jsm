@@ -28,6 +28,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzQueryDebug',
+  'chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -307,6 +310,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
+                        CliqzQueryDebug.cliqzResults = this.cliqzResults;
+                        CliqzQueryDebug.historyResults = this.historyResults;
+                        CliqzQueryDebug.mixedResults = this.mixedResults;
+                
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
@@ -333,6 +340,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     }
                 }
+
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
