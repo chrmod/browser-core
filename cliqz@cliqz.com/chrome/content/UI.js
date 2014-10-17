@@ -966,6 +966,12 @@ function registerHelpers(){
         } else return '';
     });
 
+    Handlebars.registerHelper('is-cliqz-premium', function(idx, q) {
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            return true
+        } else return false;
+    });
+
 }
 
 function runHistoryExperiment(inputValue) {
