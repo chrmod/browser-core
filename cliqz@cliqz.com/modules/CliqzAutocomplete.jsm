@@ -231,8 +231,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         CliqzUtils.log("instant:" + label)
                         var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        if(CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug'))
-                            instant.comment += " (instant History Domain)!";
+                        instant.comment += " (instant history domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
