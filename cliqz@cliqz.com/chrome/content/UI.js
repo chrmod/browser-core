@@ -37,6 +37,7 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 
 
 var UI = {
     tpl: {},
+    showDebug: false,
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -58,6 +59,8 @@ var UI = {
         });
 
         registerHelpers();
+
+        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
     },
     main: function(box){
         gCliqzBox = box;
@@ -350,6 +353,15 @@ function getPartial(type){
     return 'generic';
 }
 
+// debug message are at the end of the title like this: "title (debug)!"
+function getDebugMsg(fullTitle){
+    var r = fullTitle.match(/^(.+) \((.+)\)!$/)
+    if(r && r.length >= 3)
+        return [r[1], r[2]]
+    else
+        return [fullTitle, null]
+}
+
 // tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
 function getTags(fullTitle){
     var tags, title;
@@ -377,6 +389,11 @@ function enhanceResults(res){
             r.image = constructImage(r.data);
             r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
+
+            //extract debug info from title
+            [r.title, r.debug] = getDebugMsg(r.title)
+            if(!UI.showDebug)
+                r.debug = null;
 
             //extract tags from title
             if(r.type.indexOf('tag') == 0)
@@ -430,8 +447,26 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             CliqzUtils.track(action);
+
             CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
             CliqzHistory.addHistoryEntry(url, "result");
+
+            if(CliqzUtils.getPref('sessionLogging', false)){
+                var query = CLIQZ.Core.urlbar.value;
+                var queryAutocompleted = null;
+                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+                {
+                    var first = gCliqzBox.resultsBox.children[0];
+                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                    {
+                        queryAutocompleted = query;
+                    }
+                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+                }
+                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+            }
+
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -580,9 +615,22 @@ function onEnter(ev, item){
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
             result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
         };
+
+    var query = inputValue;
+    var queryAutocompleted = null;
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+    {
+        var first = gCliqzBox.resultsBox.children[0];
+        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+        {
+            queryAutocompleted = query;
+        }
+        query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
+
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'))
+        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -590,7 +638,8 @@ function onEnter(ev, item){
         CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = CliqzAutocomplete.lastSearch;
         CliqzHistory.addHistoryEntry(url, "result");
         openUILink(url);
-
+        CliqzUtils.trackResult(query, queryAutocompleted, index,
+            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -628,6 +677,8 @@ function onEnter(ev, item){
             if(firstUrl.indexOf(inputValue) != -1){
                 CLIQZ.Core.urlbar.value = firstUrl;
             }
+            CliqzUtils.trackResult(query, queryAutocompleted, index,
+                CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.lastQuery[gBrowser.selectedTab.linkedPanel] = inputValue;
@@ -670,6 +721,8 @@ function onEnter(ev, item){
 
                 } // end A-B test if
             }
+            var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
+            CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
         if (CLIQZ.Core.urlbar.value.length > 0)
             CliqzUtils.track(action);
@@ -946,6 +999,12 @@ function registerHelpers(){
                 data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
             }));
         } else return '';
+    });
+
+    Handlebars.registerHelper('is-cliqz-premium', function(idx, q) {
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            return true
+        } else return false;
     });
 
 }

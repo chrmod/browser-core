@@ -21,6 +21,11 @@
          style='padding-bottom: 0px;'>
       {{ title }}
     </div>
+    {{#if debug}}
+      <span class='cliqz-result-debug overflow'>
+        <span>{{ debug }}</span>
+      </span>
+    {{/if}}
     <div class='cliqz-result-url-box overflow'>
       <span class='cliqz-result-url-host
         {{#if urlDetails.ssl }}
@@ -50,6 +55,7 @@
     <div class='cliqz-result-description'>
       {{ data.description }}
     </div>
+
   </div>
   <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
        newtab='true'>

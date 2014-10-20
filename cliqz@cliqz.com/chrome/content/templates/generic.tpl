@@ -31,6 +31,11 @@
 				      {{/each}}
 				</span>
 			{{/if}}
+			{{#if debug}}
+				<span class='cliqz-result-debug overflow'>
+					  <span>{{ debug }}</span>
+				</span>
+			{{/if}}
 		</div>
 		{{> url this}}
 		<div class='cliqz-result-description'>
