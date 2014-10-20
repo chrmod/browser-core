@@ -171,6 +171,17 @@ var CliqzUtils = {
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
   },
+  //creates a random 'len' long string from the input space
+  rand: function(len, _space){
+      var ret = '', i,
+          space = _space || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+          sLen = space.length;
+
+      for(i=0; i < len; i++ )
+          ret += space.charAt(Math.floor(Math.random() * sLen));
+
+      return ret;
+  },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
         var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
