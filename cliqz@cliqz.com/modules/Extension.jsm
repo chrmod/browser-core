@@ -312,10 +312,18 @@ var Extension = {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
 
+        var menuitem5 = doc.createElement('menuitem');
+        menuitem5.setAttribute('id', 'cliqz_menuitem5');
+        menuitem5.setAttribute('label', CliqzUtils.getLocalizedString('btnStats'));
+        menuitem5.addEventListener('command', function(event) {
+            Extension.openTab(doc, 'chrome://cliqz/content/stats.html');
+        }, false);
+
 
         menupopup.appendChild(menuitem1);
         menupopup.appendChild(menuitem2);
         menupopup.appendChild(menuitem4);
+        menupopup.appendChild(menuitem5);
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+

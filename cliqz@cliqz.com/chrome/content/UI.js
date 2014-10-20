@@ -1,5 +1,8 @@
 'use strict';
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
+  'chrome://cliqzmodules/content/CliqzStats.jsm');
+
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
@@ -459,6 +462,10 @@ function resultClick(ev){
                 }
                 CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+            }
+
+            if(CliqzUtils.isCliqzResult(el.getAttribute('type'))){
+                CliqzStats.cliqz();
             }
 
             if(newTab) gBrowser.addTab(url);

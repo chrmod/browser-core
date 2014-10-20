@@ -26,6 +26,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
+  'chrome://cliqzmodules/content/CliqzStats.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -219,6 +222,8 @@ CLIQZ.Core = CLIQZ.Core || {
             //if test is active trigger it
             CliqzUtils.setPref("showPremiumResults", 2);
         }
+
+        CliqzStats.query();
     },
     urlbarblur: function(ev) {
         CliqzSearchHistory.lastQuery();

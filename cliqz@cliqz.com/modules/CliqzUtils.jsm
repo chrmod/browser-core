@@ -341,6 +341,9 @@ var CliqzUtils = {
 
     return type; //fallback to style - it should never happen
   },
+  isCliqzResult: function(type){
+    return type.indexOf('cliqz-') == 0;
+  },
   isPrivateResultType: function(type) {
     return type == 'H' || type == 'B' || type == 'T';
   },

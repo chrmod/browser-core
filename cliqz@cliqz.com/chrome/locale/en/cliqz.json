@@ -20,6 +20,9 @@
     "btnShare":{
         "message": "cliqz Share"
     },
+    "btnStats":{
+        "message": "Stats"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
