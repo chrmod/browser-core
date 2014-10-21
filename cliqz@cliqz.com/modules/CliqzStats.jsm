@@ -75,10 +75,10 @@ function computeLastWeek(db, day){
     }
 
     summary.resultsNUM = summary.resultsNUM || 1;
-    summary.resultsAvg = (summary.results_TOT / summary.resultsNUM).toFixed(1);
-    summary.aproxAvg   = (summary.resultsG_TOT / summary.resultsNUM).toFixed(1);
-    summary.adsTot   = parseInt(summary.searches * 7);
-    summary.timeTot   = (summary.searches * 3.5 / 60).toFixed(2);
+    summary.resultsAvg = parseFloat((summary.results_TOT / summary.resultsNUM).toFixed(2)).toLocaleString();
+    summary.aproxAvg   = parseInt(summary.resultsG_TOT / summary.resultsNUM).toLocaleString();
+    summary.adsTot   = parseInt(summary.searches * 7).toLocaleString();
+    summary.timeTot   = parseInt(summary.searches * 3.5 / 60);
 
     return summary;
 }
