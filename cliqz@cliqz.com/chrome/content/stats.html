@@ -6,27 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
     <script id="stats-template" type="text/x-handlebars-template">
-      In den letzten 7 Tagen hast du {{{b stats.searches }}} Suchen gestarted.
+      In den letzten <span class='big'>7 Tagen</span> hast du <span class='big'>{{{stats.searches }}} Suchen</span> gestarted.
       <br/><br/>
-      Bey {{{b stats.results }}} dieser Suchen hat cliqz Dich zu Deinem Ziel geführt.
+      Bey <span class='big'>{{{stats.results }}}</span> dieser Suchen hat <span class='big'>cliqz</span> Dich zu Deinem Ziel geführt.
       <br/><br/>
-      Dabei musstest Du im Schnitt unter lediglich {{{b stats.resultsAvg }}} Vorschlägen aussuchen, statt auf langen
-      Suchmaschinen-Ergebnisseiten unter im Schnitt {{{b stats.aproxAvg }}} Vorschlägen das richtige Ergebnis zu suchen.
+      Dabei musstest Du im Schnitt <span class='big'>unter lediglich {{{stats.resultsAvg }}} Vorschlägen aussuchen,</span> statt auf langen
+      Suchmaschinen-Ergebnisseiten unter im Schnitt {{{stats.aproxAvg }}} Vorschlägen das richtige Ergebnis zu suchen.
       <br/><br/>
 
-      Zusätzlich hat cliqz Dir damit {{{b stats.adsTot }}} Werbeplatzierungen erspart
+      Zusätzlich hat cliqz Dir damit <span class='big'>{{{stats.adsTot }}} Werbeplatzierungen erspart</span>
       (eine Suchmaschine zeigt im Schnitt 7 gekaufte Links auf seinen Suchergebnis-Seiten an).
       <br/><br/>
       Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,
-      hat cliqz Dir zusätzlich {{{b stats.timeTot }}} Minuten Deiner wertvollen Zeit gespart.
-      <br/><br/>
+      hat cliqz Dir zusätzlich <span class='big'>{{{stats.timeTot }}} Minuten Deiner wertvollen Zeit gespart.</span>
+      <br/><br/><br/><br/>
       Diese Statistik auf
       <a href="https://www.facebook.com/sharer/sharer.php?u=beta.cliqz.com"
         onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
         target="_blank" title="Share on Facebook">Facebook
       </a>
       |
-      <a href="https://twitter.com/share?url=beta.cliqz.com&text=Cliqz%20saved%20me%20{{ stats.timeTot }}%20minutes%20over%20the%20last%207%20days"
+      <a href="https://twitter.com/share?url=beta.cliqz.com&text=%40cliqz%20saved%20me%20{{ stats.timeTot }}%20minutes%20over%20the%20last%207%20days"
          onclick="javascript:window.open(this.href, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');return false;"
          target="_blank" title="Share on Twitter">Twitter
       </a>
@@ -47,9 +47,13 @@
         #content {
             max-width: 500px;
             text-align: left;
-            background-color: lightgreen;
             border-radius: 5px;
             padding: 15px;
+        }
+
+        .big {
+            font-weight: bold;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -61,14 +65,9 @@
     </center>
     <script type="text/javascript">
     Components.utils.import('chrome://cliqzmodules/content/CliqzStats.jsm');
-    document.getElementById('debug').textContent = JSON.stringify(CliqzStats.get());
 
     var rawTpl = document.getElementById('stats-template').innerHTML,
         tpl = Handlebars.compile(rawTpl);
-
-    Handlebars.registerHelper('b', function(val, options) {
-        return '<b>' + val + '</b>';
-    });
 
     document.getElementById('content').innerHTML = tpl(CliqzStats.get());
     </script>
