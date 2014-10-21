@@ -29,9 +29,21 @@ var db_wrapper = function(func) {
 
 var CliqzStats = {
     get: db_wrapper(function(db, day){
+        var s = computeLastWeek(db, day), //stats
+            text = CliqzUtils.createLocalizedString(
+                'statsText',
+                s.searches,
+                s.results,
+                s.resultsAvg,
+                s.aproxAvg,
+                s.adsTot,
+                s.timeTot
+            ),
+            shareMsg = CliqzUtils.createLocalizedString('statsShareMsg', s.timeTot);
+
         return {
-            stats: computeLastWeek(db, day),
-            db: db
+            text: text,
+            shareMsg: shareMsg
         }
     }),
     //add a query
@@ -75,7 +87,7 @@ function computeLastWeek(db, day){
     }
 
     summary.resultsNUM = summary.resultsNUM || 1;
-    summary.resultsAvg = parseFloat((summary.results_TOT / summary.resultsNUM).toFixed(2)).toLocaleString();
+    summary.resultsAvg = parseInt(summary.results_TOT / summary.resultsNUM).toLocaleString();
     summary.aproxAvg   = parseInt(summary.resultsG_TOT / summary.resultsNUM).toLocaleString();
     summary.adsTot   = parseInt(summary.searches * 7).toLocaleString();
     summary.timeTot   = parseInt(summary.searches * 3.5 / 60);

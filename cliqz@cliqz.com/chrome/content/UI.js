@@ -820,8 +820,8 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('local', function(key, v1, v2 ) {
-        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
+    Handlebars.registerHelper('local', function() {
+        return CliqzUtils.createLocalizedString.apply(null, arguments);
     });
 
     Handlebars.registerHelper('json', function(value, options) {
