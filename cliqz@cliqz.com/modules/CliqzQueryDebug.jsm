@@ -9,13 +9,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var CliqzQueryDebug = CliqzQueryDebug || {
     
-    cliqzResults: null,
-    historyResults: null,
-    mixedResults: null,
+    results: [],
+    MAX_PREV: 20,
 
-    counts: function() {
-        return ("cliqz: " + CliqzQueryDebug.cliqzResults.length + 
-               " history: " + CliqzQueryDebug.historyResults.matchCount + 
-               " mixed: " + CliqzQueryDebug.mixedResults.matchCount)
+    recordResults: function(query, cliqz, history, mixed) {
+        CliqzUtils.log("xxxxx");
+        var r = {
+            'query': query,
+            'cliqz': cliqz,
+            'history': history,
+            'mixed': mixed
+        };
+
+        CliqzQueryDebug.results.unshift(r);
+        CliqzQueryDebug.results = CliqzQueryDebug.results.slice(0, CliqzQueryDebug.MAX_PREV);
     },
 }

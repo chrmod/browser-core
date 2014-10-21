@@ -311,9 +311,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        CliqzQueryDebug.cliqzResults = this.cliqzResults;
-                        CliqzQueryDebug.historyResults = this.historyResults;
-                        CliqzQueryDebug.mixedResults = this.mixedResults;
+                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.mixedResults);
                 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
