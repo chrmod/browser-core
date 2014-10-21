@@ -60,16 +60,20 @@ var Mixer = {
                     la = mixed.getLabelAt(0),
                     da = mixed.getDataAt(0);
 
-                // combine sources
-                var tempCliqzResult = Result.cliqz(cliqz[i]);
-                st = CliqzUtils.combineSources(st, tempCliqzResult.style);
+                // do this for all types except clustering for now
+                // TODO: find a way to report where all clustered values come from
+                if(st != 'cliqz-cluster' && st != 'cliqz-series') {
+                    // combine sources
+                    var tempCliqzResult = Result.cliqz(cliqz[i]);
+                    st = CliqzUtils.combineSources(st, tempCliqzResult.style);
 
-                co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+                    co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
 
-                // create new instant entry to replace old one
-                var newInstant = Result.generic(st, va, im, co, la, da);
-                mixed._results.splice(0);
-                mixed.addResults([newInstant]);
+                    // create new instant entry to replace old one
+                    var newInstant = Result.generic(st, va, im, co, la, da);
+                    mixed._results.splice(0);
+                    mixed.addResults([newInstant]);
+                }
             }
         }
 
