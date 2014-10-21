@@ -28,6 +28,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
+  'chrome://cliqzmodules/content/CliqzStats.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -405,6 +407,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     );
 
                 CliqzAutocomplete.afterQueryCount = 0;
+
+                // store the numeber of results
+                CliqzStats.resultsNum(results.length, this.searchString.length);
 
                 //if there is a custom cliqzResults - force the opening of the dropdown
                 if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){

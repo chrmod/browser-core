@@ -4,19 +4,57 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
+    <script id="stats-template" type="text/x-handlebars-template">
+      In den letzten 7 Tagen hast du {{{b stats.searches }}} Suchen gestarted.
+      <br/><br/>
+      Bey {{{b stats.results }}} dieser Suchen hat cliqz Dich zu Deinem Ziel geführt.
+      <br/><br/>
+      Dabei musstest Du im Schnitt unter lediglich {{{b stats.resultsAvg }}} Vorschlägen aussuchen, statt auf langen
+      Suchmaschinen-Ergebnisseiten unter im Schnitt {{{b stats.aproxAvg }}} Vorschlägen das richtige Ergebnis zu suchen.
+      <br/><br/>
+
+      Zusätzlich hat cliqz Dir damit {{{b stats.adsTot }}} Werbeplatzierungen erspart
+      (Google zeigt im Schnitt 7 gekaufte Links auf seinen Suchergebnis-Seiten an).
+      <br/><br/>
+      Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,
+      hat cliqz Dir zusätzlich {{{b stats.timeTot }}} Minuten Deiner wertvollen Zeit gespart.
+      <br/><br/>
+      Diese Statistik auf Facebook | Twitter | Google+ posten.
+    </script>
     <title>Cliqz</title>
 
     <style type="text/css">
         body {
+
+        }
+        #content {
+            max-width: 500px;
+            text-align: left;
             background-color: lightgreen;
+            border-radius: 5px;
+            padding: 5px;
         }
     </style>
 </head>
 <body>
-    <div id='content'></div>
+    <div id='debug'></div>
+    <br />
+    <center>
+        <div id='content'></div>
+    </center>
     <script type="text/javascript">
     Components.utils.import('chrome://cliqzmodules/content/CliqzStats.jsm');
-    document.getElementById('content').textContent = JSON.stringify(CliqzStats.get());
+    document.getElementById('debug').textContent = JSON.stringify(CliqzStats.get());
+
+    var rawTpl = document.getElementById('stats-template').innerHTML,
+        tpl = Handlebars.compile(rawTpl);
+
+    Handlebars.registerHelper('b', function(val, options) {
+        return '<b>' + val + '</b>';
+    });
+
+    document.getElementById('content').innerHTML = tpl(CliqzStats.get());
     </script>
 </body>
 </html>

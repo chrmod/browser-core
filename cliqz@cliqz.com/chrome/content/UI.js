@@ -464,9 +464,7 @@ function resultClick(ev){
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
 
-            if(CliqzUtils.isCliqzResult(el.getAttribute('type'))){
-                CliqzStats.cliqz();
-            }
+            CliqzStats.resultSelected();
 
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
