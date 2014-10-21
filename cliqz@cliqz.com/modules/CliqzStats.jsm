@@ -75,8 +75,8 @@ function computeLastWeek(db, day){
     }
 
     summary.resultsNUM = summary.resultsNUM || 1;
-    summary.resultsAvg = parseInt(summary.results_TOT / summary.resultsNUM);
-    summary.aproxAvg   = parseInt(summary.resultsG_TOT / summary.resultsNUM);
+    summary.resultsAvg = (summary.results_TOT / summary.resultsNUM).toFixed(1);
+    summary.aproxAvg   = (summary.resultsG_TOT / summary.resultsNUM).toFixed(1);
     summary.adsTot   = parseInt(summary.searches * 7);
     summary.timeTot   = (summary.searches * 3.5 / 60).toFixed(2);
 

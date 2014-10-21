@@ -635,6 +635,8 @@ function onEnter(ev, item){
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         openUILink(url);
+        CliqzStats.resultSelected();
+
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
