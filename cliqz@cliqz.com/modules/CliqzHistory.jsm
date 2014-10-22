@@ -13,46 +13,55 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-
 var CliqzHistory = {
-    domWindow: null,
-    lastQuery: new Array(),
-    lastQueryDates: new Array(),
-    currentURL: null,
+    tabData: new Array(),
 	listener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
-        onLocationChange: function(aProgress, aRequest, aURI) {
-            if (CliqzHistory.currentURL == aURI.spec ||
-                aURI.spec.substring(0,6) == "about:") {
+        onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
+            CliqzUtils.log(aRequest.name, "DEBUG");
+            var url = aBrowser.currentURI.spec;
+            var panel = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow).linkedPanel;
+            // Reset tab data if on a new tab
+            if (url == "about:newtab" && CliqzHistory.getTabData(panel, "newTab") != true) {
+                CliqzHistory.setTabData(panel, 'url', null);
+                CliqzHistory.setTabData(panel, 'query', null);
+                CliqzHistory.setTabData(panel, 'queryDate', null);  
+                CliqzHistory.setTabData(panel, 'type', null);
+                CliqzHistory.setTabData(panel, 'newTab', true);
                 return;
-            }               
-            CliqzHistory.addHistoryEntry(aURI.spec, "link");
-        },
-        onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
+            }
+            // Skip if url already saved before or on any about: pages
+            if (CliqzHistory.getTabData(panel, "url") == url ||
+                url.substring(0,6) == "about:") {
+                return;
+            }   
+            
+            if (!CliqzHistory.getTabData(panel, "type")) {
+                CliqzHistory.setTabData(panel, "type", "link");
+            };
+            CliqzHistory.setTabData(panel, 'url', url);         
+            CliqzHistory.addHistoryEntry(aBrowser);
+            CliqzHistory.setTabData(panel, 'type', "link");
+            CliqzHistory.setTabData(panel, 'newTab', false);
         }
     },
-    // type: typed / link_click / cliqz_result_click / cliqz_autocomplete
-    addHistoryEntry: function(url, type) {
-        CliqzHistory.domWindow = CliqzUtils.getWindow();
-        CliqzHistory.currentURL = url;
-        // Timeout because title cannot be read immediately
-        CliqzHistory.domWindow.setTimeout(
-                (function(url, type, panel) {
-                    return function() {
-                        CliqzHistory._addHistoryEntryToDB(url, type, panel);
-                    }
-                })(CliqzHistory.currentURL, type, CliqzHistory.domWindow.gBrowser.selectedTab.linkedPanel), 1000);
-    },
-    _addHistoryEntryToDB: function(url, type, panel) {
+    addHistoryEntry: function(browser) {
+        var tab = CliqzHistory.getTabForContentWindow(browser.contentWindow);
+        var panel = tab.linkedPanel;
+        var title = browser.contentDocument.title;
+        var url = CliqzHistory.getTabData(panel, 'url');    
+        var type = CliqzHistory.getTabData(panel, 'type');
+        var query = CliqzHistory.getTabData(panel, 'query');
+        var queryDate = CliqzHistory.getTabData(panel, 'queryDate'); 
+
         if (!url ||
             (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google")) {
             return;
-        }
+        }      
+
         var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '"+url+"'");
-        var title = CliqzHistory.domWindow.gBrowser.selectedBrowser.contentDocument.title;
-        var query = CliqzHistory.lastQuery[panel];
-        var queryDate = CliqzHistory.lastQueryDates[panel];
+
         if (!query) {
             query = "";
         }
@@ -60,11 +69,11 @@ var CliqzHistory = {
             queryDate = new Date().getTime();
         }
 
-        // Insert/Update website title (only when still on that page after timeout)
-        if (url == CliqzHistory.currentURL && res.length == 0 && CliqzHistory.domWindow) {           
+        // Insert website title or update if already in DB
+        if (res.length == 0) {           
             CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
                 VALUES ('"+url+"','"+title+"')");
-        } else if(url == CliqzHistory.currentURL && CliqzHistory.domWindow) {
+        } else {
             CliqzHistory.SQL("UPDATE urltitles SET title='"+title+"'\
                 WHERE url='"+url+"'");
         }
@@ -72,14 +81,26 @@ var CliqzHistory = {
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
                 VALUES ('"+url+"', "+(new Date().getTime())+",'"+query+"',"+queryDate+",1)");
     },
+    getTabData: function(panel, attr) {
+        if (!CliqzHistory.tabData[panel]) {
+            return undefined;
+        } else {
+            return CliqzHistory.tabData[panel][attr];
+        }
+    },
+    setTabData: function(panel, attr, val) {
+        if (!CliqzHistory.tabData[panel]) {
+            CliqzHistory.tabData[panel] = new Array();
+        };
+        CliqzHistory.tabData[panel][attr] = val;
+    },
     updateQuery: function(query) {
-        CliqzHistory.domWindow = CliqzUtils.getWindow();
         var date = new Date().getTime();
-        var index = CliqzHistory.domWindow.gBrowser.selectedTab.linkedPanel;
-        var last = CliqzHistory.lastQuery[index];
+        var panel = CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel;
+        var last = CliqzHistory.getTabData(panel, 'query');
         if (last != query) {
-            CliqzHistory.lastQuery[index] = query;
-            CliqzHistory.lastQueryDates[index] = date;
+            CliqzHistory.setTabData(panel, 'query', query);
+            CliqzHistory.setTabData(panel, 'queryDate', date);
         }
     },
     SQL: function (sql) {
@@ -96,5 +117,54 @@ var CliqzHistory = {
             statement.reset();
             return result;
         }
+    },
+    initDB: function() {
+        var visits = "create table visits(\
+            id INTEGER PRIMARY KEY NOT NULL,\
+            url VARCHAR(255) NOT NULL,\
+            visit_date DATE,\
+            last_query VARCHAR(255),\
+            last_query_date DATE,\
+            typed BOOLEAN DEFAULT 0,\
+            link BOOLEAN DEFAULT 0,\
+            result BOOLEAN DEFAULT 0,\
+            autocomplete BOOLEAN DEFAULT 0,\
+            google BOOLEAN DEFAULT 0\
+            )";
+        var titles = "create table urltitles(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            title VARCHAR(255)\
+        )";
+        CliqzHistory.SQL(visits);
+        CliqzHistory.SQL(titles);
+    },
+    getTabForContentWindow: function (window) {
+      let browser;
+      try {
+        browser = window.QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIWebNavigation)
+                        .QueryInterface(Ci.nsIDocShell)
+                        .chromeEventHandler;
+      } catch(e) {
+      }
+
+      if (!browser) {
+        return null;
+      }
+
+      let chromeWindow = browser.ownerDocument.defaultView;
+
+      if ('gBrowser' in chromeWindow && chromeWindow.gBrowser &&
+          'browsers' in chromeWindow.gBrowser) {
+        let browsers = chromeWindow.gBrowser.browsers;
+        let i = browsers.indexOf(browser);
+        if (i !== -1)
+          return chromeWindow.gBrowser.tabs[i];
+        return null;
+      }
+      else if ('BrowserApp' in chromeWindow) {
+        return getTabForWindow(window);
+      }
+      return null;
     }
 }

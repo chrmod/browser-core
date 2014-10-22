@@ -431,7 +431,7 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
             CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-            CliqzHistory.addHistoryEntry(url, "result");
+            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -588,7 +588,7 @@ function onEnter(ev, item){
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-        CliqzHistory.addHistoryEntry(url, "result");
+        CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
         openUILink(url);
 
 
@@ -620,7 +620,7 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-            CliqzHistory.addHistoryEntry(inputValue, "autocomplete");
+            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
@@ -631,10 +631,10 @@ function onEnter(ev, item){
         } else {
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.updateQuery(inputValue);
-                CliqzHistory.addHistoryEntry(inputValue, "typed");
+                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "typed");
             } else {
                 CliqzHistory.updateQuery(inputValue);
-                CliqzHistory.addHistoryEntry(inputValue, "google");
+                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "google");
             }
             
             var customQuery = ResultProviders.isCustomQuery(inputValue);

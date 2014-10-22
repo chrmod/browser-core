@@ -42,6 +42,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
     init: function(){
         CliqzUtils.init(window);
+        CliqzHistory.initDB();
         CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
@@ -92,11 +93,26 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
-        // detecting the languages that the person speak
+        // Listeners for language detection and history
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
-            window.gBrowser.addProgressListener(CliqzHistory.listener);
+            window.gBrowser.addTabsProgressListener(CliqzHistory.listener, Components.interfaces.nsIWebProgressListener.STATE_STOP);
+            window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
+                var tabs = window.gBrowser.tabs;
+                var curPanel = window.gBrowser.selectedTab.linkedPanel;
+                var maxId = -1, newPanel = "";
+                for (var i = 0; i < tabs.length; i++) {
+                    var id = tabs.item(i).linkedPanel.split("-");
+                    id = id[id.length-1];
+                    if (id > maxId) {
+                        newPanel = tabs.item(i).linkedPanel;
+                        maxId = id;
+                    };
+                };
+                CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
+                CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+            }, false);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
