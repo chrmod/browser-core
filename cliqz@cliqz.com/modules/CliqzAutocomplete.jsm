@@ -118,6 +118,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             addResults: function(results){
                 this._results = this.resetInstantResults(this._results, results);
                 CliqzAutocomplete.lastResult = this;
+                var order = CliqzAutocomplete.getResultsOrder(this._results);
+                CliqzUtils.setResultOrder(order);
             },
             resetInstantResults: function(oldResults, newResults){
                 // We always have at most 1 oldResult, since now we wait for the
@@ -234,8 +236,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         CliqzUtils.log("instant:" + label)
                         var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        if(CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug'))
-                            instant.comment += " (instant History Domain)!";
+                        instant.comment += " (instant history domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
@@ -310,9 +311,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        CliqzQueryDebug.cliqzResults = this.cliqzResults;
-                        CliqzQueryDebug.historyResults = this.historyResults;
-                        CliqzQueryDebug.mixedResults = this.mixedResults;
+                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.mixedResults);
                 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));

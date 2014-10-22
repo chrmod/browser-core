@@ -2,8 +2,8 @@
 <div id='cliqz-results'></div>
 <div id='cliqz-footer'>
 	<span id='cliqz-navigation-message'>-</span>
+	<span id='cliqz-querydebug-link'> debug</span>
 	<span class='cliqz-footer-engines'>
-		<span class='cliqz-engines-text'>{{local 'moreResults'}}</span>
 		<span id='cliqz-engines-box'>
 			{{#each this}}
 				<img class='cliqz-engine'

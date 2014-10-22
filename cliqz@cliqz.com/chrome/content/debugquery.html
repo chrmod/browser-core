@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliqz - Debug Query</title>
+
+    <style type="text/css">
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+#query {
+    margin:5px;
+}
+
+#query_text {
+    font-style: italic;
+}
+
+#query_nav {
+    font-size: 10pt;
+    display: inline-block;
+}
+
+#query_nav span {
+    text-decoration: underline;
+}
+
+
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+<script type="text/javascript">
+    Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+    Components.utils.import('chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
+
+    var query_num = 0;
+
+    $(document).ready(function() {
+        showQuery(query_num);
+
+        $( "#query_prev" ).click(function() {
+            query_num++;
+            if(query_num >= CliqzQueryDebug.results.length)
+                query_num = CliqzQueryDebug.results.length - 1;
+            showQuery(query_num);
+            return false;
+        });
+
+        $( "#query_next" ).click(function() {
+            query_num--;
+            if(query_num < 0)
+                query_num = 0;
+            showQuery(query_num);
+            return false;
+        });
+
+    });
+
+
+
+    function showQuery(n) {
+        if(CliqzQueryDebug.results.length > n) {
+            mixed = CliqzQueryDebug.results[n].mixed;
+            history = CliqzQueryDebug.results[n].history;
+            cliqz = CliqzQueryDebug.results[n].cliqz;
+
+            $("#query_head").text("Query (" + (-query_num) + ")");
+            $("#query_text").text(" " + CliqzQueryDebug.results[n].query);
+            showResultTableMixed(mixed);
+            showResultTableHistory(history);
+            showResultTableCliqz(cliqz);
+        }
+    }
+
+    function showResultTableMixed(data) {
+        $("#resultTableMixed").html("");
+        $("#resultTableMixed").append("<th>Final Mixed</th>");
+        for (var i = 0; i < data.matchCount; i++) {
+            var st = data.getStyleAt(i),
+                va = data.getValueAt(i),
+                im = data.getImageAt(i),
+                co = data.getCommentAt(i),
+                la = data.getLabelAt(i),
+                da = data.getDataAt(i);
+
+            $("#resultTableMixed").append("<tr>");
+            if(co == "")
+                co = "(no title)"
+            $("#resultTableMixed tr").last().append("<td>" + co + "</td>");
+            $("#resultTableMixed tr").last().append("<td><a href='" + va + "'>" + va + "</a></td>");
+            $("#resultTableMixed tr").last().append("<td>" + st + "</td>");
+            $("#resultTableMixed tr").last().append("<td>" + JSON.stringify(da) + "</td>");
+            $("#resultTableMixed").append("</tr>");
+        };    
+        $("#resultTableMixed").append("</table>");    
+    }
+
+    function showResultTableHistory(data) {
+        $("#resultTableHistory").html("");
+        $("#resultTableHistory").append("<th>Raw History</th>");
+        for (var i = 0; i < data.matchCount; i++) {
+            var st = data.getStyleAt(i),
+                va = data.getValueAt(i),
+                im = data.getImageAt(i),
+                co = data.getCommentAt(i),
+                la = data.getLabelAt(i);
+            $("#resultTableHistory").append("<tr>");
+            if(co == "")
+                co = "(no title)"
+            $("#resultTableHistory tr").last().append("<td>" + co + "</td>");
+            $("#resultTableHistory tr").last().append("<td><a href='" + va + "'>" + va + "</a></td>");
+            $("#resultTableHistory").append("</tr>");
+        };    
+        $("#resultTableHistory").append("</table>");    
+    }
+
+    function showResultTableCliqz(data) {
+        $("#resultTableCliqz").html("");
+        $("#resultTableCliqz").append("<th>Cliqz</th>");
+        for (var i = 0; i < data.length; i++) {
+            $("#resultTableCliqz").append("<tr>");
+            $("#resultTableCliqz tr").last().append("<td>" + JSON.stringify(data[i]) + "</td>");
+            $("#resultTableCliqz").append("</tr>");
+        };    
+        $("#resultTableCliqz").append("</table>");    
+    }
+
+</script>
+
+
+</head>
+<body>
+
+    <div id="query">        
+        <span id="query_head"></span>
+        <div id="query_nav">(
+            <span id="query_next"><a href="#">next</a></span> /
+            <span id="query_prev"><a href="#">prev</a></span>
+            ): 
+        </div><span id="query_text"></span>
+
+    </div>
+    <div id='resultWrapper'>
+    <table id="resultTableMixed" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    <table id="resultTableHistory" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    <table id="resultTableCliqz" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    </div>
+</body>
+</html>

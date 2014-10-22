@@ -1,3 +1,4 @@
+{{#if (is-cliqz-premium)}}
 <div class='cliqz-result-item-box cliqz-premium'
 	type='cliqz-results sources-X'
 	url='https://beta.cliqz.com/premium'
@@ -5,6 +6,7 @@
 	idx='-2'>
 		{{cliqz-premium}}
 </div>
+{{/if}}
 {{#each results}}
 	<div class='cliqz-result-item-box'
 		type='{{ type }}'
