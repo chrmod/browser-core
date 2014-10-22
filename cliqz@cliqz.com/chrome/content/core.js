@@ -104,7 +104,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 var maxId = -1, newPanel = "";
                 for (var i = 0; i < tabs.length; i++) {
                     var id = tabs.item(i).linkedPanel.split("-");
-                    id = id[id.length-1];
+                    id = parseInt(id[id.length-1]);
                     if (id > maxId) {
                         newPanel = tabs.item(i).linkedPanel;
                         maxId = id;
