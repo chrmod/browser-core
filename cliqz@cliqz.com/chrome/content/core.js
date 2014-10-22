@@ -141,7 +141,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     generateSession: function(source){
-        return Math.random().toString().split('.')[1]
+        return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
                + '|' +
                CliqzUtils.getDay()
                + '|' +
@@ -232,6 +232,7 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarfocus: function() {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
+        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
@@ -350,5 +351,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
+    },
+
+    getQuerySession: function() {
+        return _querySession;
     }
 };

@@ -70,6 +70,7 @@ var Result = {
     },
     cliqz: function(result){
         var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
+        var debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
         if(result.snippet){
             return Result.generic(
                 resStyle, //style
@@ -77,11 +78,11 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                result.source + ' ' + result.q + ' ' + result.confidence, //query
+                debugInfo, //query
                 Result.getData(result)
             );
         } else {
-            return Result.generic(resStyle, result.url);
+            return Result.generic(resStyle, result.url, null, null, null, debugInfo);
         }
     },
     cliqzExtra: function(result){

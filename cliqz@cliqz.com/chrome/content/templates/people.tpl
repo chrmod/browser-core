@@ -126,6 +126,11 @@
     <div class='cliqz-result-description'>
       {{ emphasis data.description text 2 true }}
     </div>
+    {{#if debug}}
+    <span class='cliqz-result-debug overflow'>
+      <span>{{ debug }}</span>
+    </span>
+    {{/if}}
   </div>
   <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
        newtab='true'>
