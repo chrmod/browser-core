@@ -43,7 +43,8 @@ var CliqzStats = {
 
         return {
             text: text,
-            shareMsg: shareMsg
+            shareMsg: shareMsg,
+            shareAction: CliqzUtils.getLocalizedString('statsShareAction')
         }
     }),
     //add a query
