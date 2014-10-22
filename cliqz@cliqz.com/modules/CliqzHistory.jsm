@@ -119,6 +119,7 @@ var CliqzHistory = {
         }
     },
     initDB: function() {
+        if ( FileUtils.getFile("ProfD", ["cliqz.db"]).exists() ) {return};
         var visits = "create table visits(\
             id INTEGER PRIMARY KEY NOT NULL,\
             url VARCHAR(255) NOT NULL,\
