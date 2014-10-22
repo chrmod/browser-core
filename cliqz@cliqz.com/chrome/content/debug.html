@@ -3,111 +3,44 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Search Debug</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliqz - Debug Home</title>
 
     <style type="text/css">
-    body {
-        font-size: 11pt;
-    }
-    th {
-        background: #aaa;
-    }
-    td {
-        background: #eee;
-    }
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    font-size: 16pt;
+}
+
     </style>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script type="text/javascript">
-    Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryDebug.jsm');
+
+<script type="text/javascript">
     Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
     $(document).ready(function() {
-        $("#searchInput").bind("keypress", {}, keypressInSearchInput);     
+        $("#stats_link").attr("href", "http://ux.fbt.co/stats?session=" + 
+                              encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')));    
     });
+</script>
 
-    function keypressInSearchInput(e) {
-        var code = (e.keyCode ? e.keyCode : e.which);
-        if (code == 13) { // Enter keycode                        
-            e.preventDefault();
-            startSearch();
-        }
-    };
 
-    function historySearch(searchTerm) {
-        CliqzHistoryDebug.getHistoryFirefox(searchTerm, function(history){
-            showResultTableFirefox(history);
-        });
-        CliqzHistoryDebug.getHistoryCliqz(searchTerm, function(history){
-            showResultTableCliqz(history);
-        });
-    }
-
-    function startSearch() {    
-        historySearch($("#searchInput").val());
-    }
-
-    function showResultTableFirefox(data) {
-        $("#resultTableFirefox").html("");
-        $("#resultTableFirefox").append("<th>Provider</th>");
-        $("#resultTableFirefox").append("<th>Title</th>");
-        $("#resultTableFirefox").append("<th>URL</th>");
-        $("#resultTableFirefox").append("<th>Count</th>");
-        $("#resultTableFirefox").append("<th>Typed</th>");
-        $("#resultTableFirefox").append("<th>Frecency</th>");
-        $("#resultTableFirefox").append("<th>Last Visit</th>");
-        for (var i = 0; i < data.length; i++) {
-            $("#resultTableFirefox").append("<tr>");
-            $("#resultTableFirefox tr").last().append("<td>Firefox</td>");
-            $("#resultTableFirefox tr").last().append("<td>" + data[i].title + "</td>");
-            $("#resultTableFirefox tr").last().append("<td><a href='" + data[i].url + "'>" + data[i].url + "</a></td>");
-            $("#resultTableFirefox tr").last().append("<td>" + data[i].visit_count + "</td>");
-            $("#resultTableFirefox tr").last().append("<td>" + data[i].typed + "</td>");
-            $("#resultTableFirefox tr").last().append("<td>" + data[i].frecency + "</td>");
-            var date = new Date(data[i].last_visit_date/1000);
-            $("#resultTableFirefox tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
-            $("#resultTableFirefox").append("</tr>");
-        };    
-        $("#resultTableFirefox").append("</table>");    
-    }
-
-    function showResultTableCliqz(data) {
-        $("#resultTableCliqz").html("");
-        $("#resultTableCliqz").append("<th>Provider</th>");
-        $("#resultTableCliqz").append("<th>Title</th>");
-        $("#resultTableCliqz").append("<th>URL</th>");
-        $("#resultTableCliqz").append("<th>Typed</th>");
-        $("#resultTableCliqz").append("<th>Link</th>");
-        $("#resultTableCliqz").append("<th>Result</th>");
-        $("#resultTableCliqz").append("<th>Autocomplete</th>");
-        $("#resultTableCliqz").append("<th>Google</th>");
-        $("#resultTableCliqz").append("<th>Query</th>");
-        $("#resultTableCliqz").append("<th>Query Date</th>");
-        for (var i = 0; i < data.length; i++) {
-            $("#resultTableCliqz").append("<tr>");
-            $("#resultTableCliqz tr").last().append("<td>cliqz</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].title + "</td>");
-            $("#resultTableCliqz tr").last().append("<td><a href='" + data[i].url + "'>" + data[i].url + "</a></td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].typed + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].link + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].result + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].autocomplete + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].google + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].last_query + "</td>");
-            $("#resultTableCliqz tr").last().append("<td>" + data[i].last_query_date + "</td>");
-            //var date = new Date(data[i].last_visit_date/1000);
-            //$("#resultTableCliqz tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
-            $("#resultTableCliqz").append("</tr>");
-        };    
-        $("#resultTableCliqz").append("</table>");    
-    }
-    </script>
 </head>
 <body>
-    <h1>Search Debug</h1>
-    <p><input type="text" id='searchInput'><input type="submit" value="Search" onclick='startSearch()'></p>
-    <div id='resultWrapper'>
-    <table id="resultTableFirefox" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
-    <table id="resultTableCliqz" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    <h1>Cliqz - Debug Home</h1>
+
+    <div id='links'>
+        <ul>
+            <li><a href="chrome://cliqz/content/debugquery.html">Previous Queries</a></li>
+            <li><a href="chrome://cliqz/content/debughistory.html">History</a></li>
+
+            <li><a id="stats_link" href="#">Your stats (from logs)</a></li>
+            <li><a href="http://ux.fbt.co/stats">Summary stats for yesterday</a></li>
+        </ul>
     </div>
+
 </body>
 </html>
