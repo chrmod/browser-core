@@ -1,5 +1,8 @@
 'use strict';
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
@@ -460,7 +463,9 @@ function resultClick(ev){
                 CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
-
+            CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
+            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+            
             if(newTab) gBrowser.addTab(url);
             else openUILink(url);
             break;
@@ -629,6 +634,9 @@ function onEnter(ev, item){
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
+        CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
+        CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+        
         openUILink(url);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
@@ -659,7 +667,9 @@ function onEnter(ev, item){
         if(action.autocompleted && gCliqzBox){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
-
+            CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
+            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
@@ -670,6 +680,13 @@ function onEnter(ev, item){
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
+            if(CliqzUtils.isUrl(inputValue)){
+                CliqzHistory.updateQuery(inputValue);
+                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "typed");
+            } else {
+                CliqzHistory.updateQuery(inputValue);
+                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "google");
+            }
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
