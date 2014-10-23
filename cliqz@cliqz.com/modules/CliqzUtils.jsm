@@ -97,7 +97,7 @@ var CliqzUtils = {
       if(timeout){
         req.timeout = parseInt(timeout)
       } else {
-        req.timeout = (method == 'POST'? 2000 : 1000);
+        req.timeout = (method == 'POST'? 10000 : 1000);
       }
     }
     req.send(data);
