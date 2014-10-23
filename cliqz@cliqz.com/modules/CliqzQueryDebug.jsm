@@ -13,7 +13,6 @@ var CliqzQueryDebug = CliqzQueryDebug || {
     MAX_PREV: 20,
 
     recordResults: function(query, cliqz, history, mixed) {
-        CliqzUtils.log("xxxxx");
         var r = {
             'query': query,
             'cliqz': cliqz,
