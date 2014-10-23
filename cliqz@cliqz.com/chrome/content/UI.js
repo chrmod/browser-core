@@ -674,35 +674,6 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
-            else { // not autocomplete, not custom query
-
-                // run A-B test if present
-                if (CliqzUtils.getPref("historyExperiment")) {
-                    //var testQueries = ['bitcoin', 'futurama', 'barcelona',
-                                       //'ghost in the shell',
-                                       //'bitcoin value', 'firefox browser',
-                                       //'javascript array',
-                                       //'bootstrap css',
-                                       //'haskell', 'duct tape for engineers',
-                                       //'python emr',
-                                       //'ruby array', 'tapas madrid',
-                                       //];
-                    ////start test loop
-                    //for (var jj = 0; jj < testQueries.length; jj++) {
-                        //inputValue = testQueries[jj];
-                    if (!CliqzHistoryManager.historyModel) {
-                        CliqzHistoryManager.getHistoryModel(function(model) {
-                            CliqzHistoryManager.historyModel = model;
-                            runHistoryExperiment(inputValue);
-                        });
-                    }
-                    else {
-                        runHistoryExperiment(inputValue);
-                    }
-                    //} // end test loop
-
-                } // end A-B test if
-            }
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
             CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
