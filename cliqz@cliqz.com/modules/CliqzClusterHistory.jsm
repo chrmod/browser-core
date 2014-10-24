@@ -39,6 +39,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -127,6 +131,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -235,6 +243,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (false) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -338,6 +350,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -406,6 +422,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -480,6 +500,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -546,6 +570,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -632,7 +660,7 @@ var templates = {
             var site = 'GitHub';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control: [{title: CliqzUtils.getLocalizedString('Settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
                 control_set: {},
                 topics: [],
                 url: 'http://github.com/'
@@ -644,6 +672,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -715,6 +747,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (false) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -840,6 +876,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -911,6 +951,10 @@ var templates = {
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if (true) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
