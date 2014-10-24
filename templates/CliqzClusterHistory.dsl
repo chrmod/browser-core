@@ -5,6 +5,7 @@ program:
         summary: Sitemap_Summary
         url: youtube.com
         home: http://youtube.com
+        drop_url_parameters: false
         rules:
         -
             type: control
@@ -43,6 +44,7 @@ program:
         summary: Sitemap_Summary
         url: facebook.com
         home: http://www.facebook.com
+        drop_url_parameters: false
         rules:
         -
             type: control

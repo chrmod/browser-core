@@ -406,6 +406,10 @@ $SWITCH
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if ($drop_url_parameters) {
+                    val param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -611,6 +615,10 @@ $RULE_BODY
             in program['fix_controls'])
         if 'home' not in ret:
             ret['home'] = ret['url']
+        if 'drop_url_parameters' not in ret:
+            ret['drop_url_parameters'] = 'true';
+        # Ehhh... so that we output false, not False...
+        ret['drop_url_parameters'] = str(ret['drop_url_parameters']).lower()
 
         control_index = 0
         rules = []
