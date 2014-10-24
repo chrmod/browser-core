@@ -106,6 +106,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
             getValueAt: function(index) { return this._results[index].val; },
+            getFinalCompleteValueAt: function(index) { return this.getValueAt(index); }, //FF31+
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
             getImageAt: function (index) { return undefined; },

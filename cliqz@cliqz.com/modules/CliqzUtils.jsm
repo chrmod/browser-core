@@ -398,8 +398,7 @@ var CliqzUtils = {
           Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
           return PrivateBrowsingUtils.isWindowPrivate(window);
         } catch(e) {
-          // pre Firefox 20 (if you do not have access to a doc.
-          // might use doc.hasAttribute('privatebrowsingmode') then instead)
+          // pre Firefox 20
           try {
             var inPrivateBrowsing = Components.classes['@mozilla.org/privatebrowsing;1'].
                                     getService(Components.interfaces.nsIPrivateBrowsingService).
