@@ -85,6 +85,11 @@ var UI = {
 
         gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
 
+        var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
+        queryDebugLink.addEventListener('click', function(ev){
+            openUILink("chrome://cliqz/content/debugquery.html")
+        });
+
         handlePopupHeight(box);
     },
     results: function(res){
