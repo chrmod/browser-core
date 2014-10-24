@@ -7,7 +7,10 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator', 'bitcoin'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
+                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'entity-search', 'bitcoin'],
+
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -94,6 +97,13 @@ var UI = {
     results: function(res){
         if (!gCliqzBox)
             return;
+
+        var entity = false; //CliqzEntityZones.getEntity(res.q);
+        if(entity) {
+          var data = {}
+          gCliqzBox.resultsBox.innerHTML = UI.tpl["entity-search"](data);
+          return;
+        }
 
         var enhanced = enhanceResults(res);
         //try to update reference if it doesnt exist
