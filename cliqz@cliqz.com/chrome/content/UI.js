@@ -113,7 +113,7 @@ var UI = {
         CLIQZ.Core.popup.mPopupOpen = true;
 
         // try to find and hide misaligned elemets - eg - weather
-        setTimeout(hideMisalignedElements, 0, gCliqzBox.resultsBox);
+        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
