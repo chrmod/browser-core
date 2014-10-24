@@ -40,7 +40,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -132,7 +132,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -244,7 +244,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (false) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -351,7 +351,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -423,7 +423,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -501,7 +501,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -571,7 +571,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -673,7 +673,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -748,7 +748,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (false) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -877,7 +877,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 
@@ -952,7 +952,7 @@ var templates = {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if (true) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 

@@ -407,7 +407,7 @@ $SWITCH
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
                 if ($drop_url_parameters) {
-                    val param_index = url.indexOf("?");
+                    var param_index = url.indexOf("?");
                     if (param_index != -1) url = url.slice(0, param_index);
                 }
 

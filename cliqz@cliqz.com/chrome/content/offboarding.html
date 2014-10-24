@@ -74,11 +74,19 @@
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm');
         Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        var now = new Date(), lang = CliqzUtils.getLanguage(window);
-        CliqzTour.pageShown();
-        document.getElementById('test_btn').addEventListener('click', function(){
-            CliqzTour.start();
-        });
+        var now = new Date(), lang = CliqzUtils.getLanguage(window),
+            btn = document.getElementById('test_btn');
+
+        var activate = CliqzTour.init();
+
+        if(activate){
+            btn.addEventListener('click', function(){
+                CliqzTour.start();
+            });
+        } else {
+            btn.parentElement.removeChild(btn);
+        }
+
         var closePage = function () {
             var diff = (new Date()) - now;
             var diff_sec = diff / 1000;
