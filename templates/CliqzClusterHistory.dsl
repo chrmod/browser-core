@@ -83,7 +83,7 @@ program:
             label: Sitemap_Facebook_Lists
             title: title
             cond: /lists/
-    Amazon:
+    Amazon.de:
         summary: Sitemap_Summary
         url: amazon.de
         home: http://www.amazon.de
@@ -110,24 +110,107 @@ program:
             label: Sitemap_Amazon_Shops
             title: title::re:(?:^[Aa]mazon.de.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
-    Ebay:
+    Amazon.fr:
         summary: Sitemap_Summary
-        url: ebay.de
-        home: http://www.ebay.de
+        url: amazon.fr
+        home: http://www.amazon.fr
         rules:
         -
             type: control
-            title: Sitemap_Ebay_MyEbay
-            url: http://my.ebay.de
+            title: Sitemap_Amazon_MyAmazon
+            url: https://www.amazon.fr/gp/yourstore/home
         -
             type: control
-            title: Sitemap_Ebay_Deals
-            url: http://www.ebay.de/rpp/deals
+            title: Sitemap_Amazon_MyAccount
+            url: https://www.amazon.fr/gp/css/homepage.html
+        -
+            type: control
+            title: Sitemap_Amazon_Wishlist
+            url: http://www.amazon.fr/gp/registry/wishlist
         -
             type: topic
-            label: Sitemap_Ebay_Shops
-            cond: /usr/{item::re:^([^?]+)}//
-        # TODO: categories, but it's crazy
+            label: Sitemap_Amazon_Categories
+            title: title::re:(?:^[Aa]mazon.fr.*?:\s*)?(.+)
+            cond: /*/b/
+        -
+            type: topic
+            label: Sitemap_Amazon_Shops
+            title: title::re:(?:^[Aa]mazon.fr.*?:\s*)?(.+)
+            cond: /gp/aag/re:(seller|merchant)=/
+    Amazon.co.uk:
+        summary: Sitemap_Summary
+        url: amazon.co.uk
+        home: http://www.amazon.co.uk
+        rules:
+        -
+            type: control
+            title: Sitemap_Amazon_MyAmazon
+            url: https://www.amazon.co.uk/gp/yourstore/home
+        -
+            type: control
+            title: Sitemap_Amazon_MyAccount
+            url: https://www.amazon.co.uk/gp/css/homepage.html
+        -
+            type: control
+            title: Sitemap_Amazon_Wishlist
+            url: http://www.amazon.co.uk/gp/registry/wishlist
+        -
+            type: topic
+            label: Sitemap_Amazon_Categories
+            title: title::re:(?:^[Aa]mazon.co.uk.*?:\s*)?(.+)
+            cond: /*/b/
+        -
+            type: topic
+            label: Sitemap_Amazon_Shops
+            title: title::re:(?:^[Aa]mazon.co.uk.*?:\s*)?(.+)
+            cond: /gp/aag/re:(seller|merchant)=/
+    Amazon.com:
+        summary: Sitemap_Summary
+        url: amazon.com
+        home: http://www.amazon.com
+        rules:
+        -
+            type: control
+            title: Sitemap_Amazon_MyAmazon
+            url: https://www.amazon.com/gp/yourstore/home
+        -
+            type: control
+            title: Sitemap_Amazon_MyAccount
+            url: https://www.amazon.com/gp/css/homepage.html
+        -
+            type: control
+            title: Sitemap_Amazon_Wishlist
+            url: http://www.amazon.com/gp/registry/wishlist
+        -
+            type: topic
+            label: Sitemap_Amazon_Categories
+            title: title::re:(?:^[Aa]mazon.com.*?:\s*)?(.+)
+            cond: /*/b/
+        -
+            type: topic
+            label: Sitemap_Amazon_Shops
+            title: title::re:(?:^[Aa]mazon.com.*?:\s*)?(.+)
+            cond: /gp/aag/re:(seller|merchant)=/
+# Disable ebay for now, it is not very useful because it only have support for shops, 
+# which is broken.
+#    Ebay.de:
+#        summary: Sitemap_Summary
+#        url: ebay.de
+#        home: http://www.ebay.de
+#        rules:
+#        -
+#            type: control
+#            title: Sitemap_Ebay_MyEbay
+#            url: http://my.ebay.de
+#        -
+#            type: control
+#            title: Sitemap_Ebay_Deals
+#            url: http://www.ebay.de/rpp/deals
+#        -
+#            type: topic
+#            label: Sitemap_Ebay_Shops
+#            cond: /usr/{item::re:^([^?]+)}//
+#        # TODO: categories, but it's crazy
     Chefkoch:
         summary: Sitemap_Summary
         url: chefkoch.de
@@ -194,7 +277,7 @@ program:
         rules:
         -
             type: control
-            title: Settings
+            title: settings
             url: http://github.com/settings/
             icon: cliqz-fa fa-bars
         -
@@ -218,14 +301,14 @@ program:
             cond: /{item::re:^\d+$}//
         -
             type: topic
-            label: Projects
+            label: Sitemap_Projects
             icon: cliqz-fa fa-folder
             labelUrl: 1
             cond: /{item}/projects/*//
             title: title
         -
             type: topic
-            label: People
+            label: Sitemap_People
             icon: cliqz-fa fa-user
             labelUrl: 2
             cond: /{item}/people/*//
@@ -237,20 +320,20 @@ program:
         rules:
         -
             type: control
-            title: Suchen
+            title: Sitemap_Search
             url: http://search.twitter.com/
             icon: cliqz-fa fa-search
         -
             type: control
-            title: Entdecken
+            title: Sitemap_Twitter_Discover
             url: http://twitter.com/i/discover
             icon: cliqz-fa fa-lightbulb-o
         -
             type: exclude
-            cond: (/settings/) or (/i/) or (/re:^search/)
+            cond: (/settings/) or (/i/) or (/re:^search/) or (/re:^share/) or (/re:^intent/)
         -
             type: topic
-            label: Leute
+            label: Sitemap_People
             icon: cliqz-fa fa-user
             cond: /{item}//
     Klout:
@@ -263,19 +346,45 @@ program:
             cond: (/settings/) or (/i/) or (/search/) or (/register/) or (/dashboard/)
         -
             type: topic
-            label: People
+            label: Sitemap_People
             icon: cliqz-fa fa-user
             cond: /{item}//
-    Wikipedia:
+    de.wikipedia.org:
         summary: Sitemap_Summary
         url: de.wikipedia.org
         home: http://de.wikipedia.org/
         rules:
         -
             type: exclude
-            cond: (/wiki/) and ((/*/wikipedia:hauptseite/) or (/*/re:^spezial:/) or (/*/re:^portal:/) or (/*/re:^kategorie:/) or (/*/re:^hilfe:/))
+            cond: (/wiki/main_page/) or (/wiki/re:.+:.+/)
         -
             type: topic
-            label: Artikel
+            label: Sitemap_Wikipedia_Articles
             cond: /wiki/{item}//
             title: title::re:(.+?)(?:\s+\S\s+Wikipedia.*)
+    en.wikipedia.org:
+        summary: Sitemap_Summary
+        url: en.wikipedia.org
+        home: http://en.wikipedia.org/
+        rules:
+        -
+            type: exclude
+            cond: (/wiki/main_page/) or (/wiki/re:.+:.+/)
+        -
+            type: topic
+            label: Sitemap_Wikipedia_Articles
+            cond: /wiki/{item}//
+            title: title::re:(.+?)(?:\s+\S\s+Wikipedia.*)
+    fr.wikipedia.org:
+        summary: Sitemap_Summary
+        url: fr.wikipedia.org
+        home: http://fr.wikipedia.org/
+        rules:
+        -
+            type: exclude
+            cond: (/*/main_page/) or (/wiki/re:.+:.+/)
+        -
+            type: topic
+            label: Sitemap_Wikipedia_Articles
+            cond: /wiki/{item}//
+            title: title::re:(.+?)(?:\s+\S\s+Wikip.dia.*)
