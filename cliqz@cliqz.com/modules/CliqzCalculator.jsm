@@ -12,16 +12,17 @@ var EXPORTED_SYMBOLS = ['CliqzCalculator'];
 
 var CliqzCalculator = {
 
-    get: function(q, callback){
+    get: function(q){
         var mathRes = null;
         try {
           mathRes = math.eval(q);
         }
         catch(err){
+          return null;
         }
-        
+
         if (mathRes == null || mathRes == q){
-          callback([], q);
+          return null;
         } else {
           var result = Result.cliqzExtra(
                       {
@@ -35,7 +36,7 @@ var CliqzCalculator = {
                           }
                       }
                   );
-          callback([result], q);
+          return result;
         }
     },
 
@@ -53,10 +54,11 @@ var CliqzCalculator = {
         return false;
       }
 
-      suggestion = suggestion.toString().trim().lower().split(" ")[0];
-      answer = answer.toString().trim().lower().split(" ")[0];
+      suggestion = suggestion.toString().trim().toLowerCase().split(" ")[0];
+      answer = answer.toString().trim().toLowerCase().split(" ")[0];
 
       // google start showing in E notation after 10^10, we show after 10^21
+      // invest more if this is an issue
       // if(suggestion.indexOf("e")){
       //   CliqzUtils.log(Number(suggestion).toString, "Long number");
       // }

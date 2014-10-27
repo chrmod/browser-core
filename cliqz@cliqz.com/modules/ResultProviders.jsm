@@ -13,6 +13,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
+  'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -72,6 +75,11 @@ var ResultProviders = {
                 )
             ];
             q = customQuery.updatedQ;
+        } else if(CliqzCalculator.isCalculatorSearch(q)){
+            var calcRes = CliqzCalculator.get(q);
+            if (calcRes != null){
+                results = [calcRes];    
+            }
         }
 
         return [q, results];
