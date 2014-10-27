@@ -260,6 +260,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
+                var defaultSearchEngine = Components.classes["@mozilla.org/browser/search-service;1"]
+                    .getService(Components.interfaces.nsIBrowserSearchService).currentEngine.name;
                 var info = {
                     type: 'environment',
                     agent: navigator.userAgent,
@@ -270,7 +272,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     history_days: history.days,
                     history_urls: history.size,
                     startup: startup? true: false,
-                    prefs: CliqzUtils.getPrefs()
+                    prefs: CliqzUtils.getPrefs(),
+                    defaultSearchEngine: defaultSearchEngine
                 };
 
                 CliqzUtils.track(info);
