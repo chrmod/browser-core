@@ -121,7 +121,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     generateSession: function(source){
-        return Math.random().toString().split('.')[1]
+        return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
                + '|' +
                CliqzUtils.getDay()
                + '|' +
@@ -212,7 +212,7 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarfocus: function() {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
-        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
+        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
@@ -260,6 +260,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
+                var defaultSearchEngine = Components.classes["@mozilla.org/browser/search-service;1"]
+                    .getService(Components.interfaces.nsIBrowserSearchService).currentEngine.name;
                 var info = {
                     type: 'environment',
                     agent: navigator.userAgent,
@@ -270,7 +272,8 @@ CLIQZ.Core = CLIQZ.Core || {
                     history_days: history.days,
                     history_urls: history.size,
                     startup: startup? true: false,
-                    prefs: CliqzUtils.getPrefs()
+                    prefs: CliqzUtils.getPrefs(),
+                    defaultSearchEngine: defaultSearchEngine
                 };
 
                 CliqzUtils.track(info);

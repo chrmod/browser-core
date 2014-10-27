@@ -97,7 +97,7 @@ var CliqzUtils = {
       if(timeout){
         req.timeout = parseInt(timeout)
       } else {
-        req.timeout = (method == 'POST'? 2000 : 1000);
+        req.timeout = (method == 'POST'? 10000 : 1000);
       }
     }
     req.send(data);
@@ -170,6 +170,17 @@ var CliqzUtils = {
   },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
+  },
+  //creates a random 'len' long string from the input space
+  rand: function(len, _space){
+      var ret = '', i,
+          space = _space || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+          sLen = space.length;
+
+      for(i=0; i < len; i++ )
+          ret += space.charAt(Math.floor(Math.random() * sLen));
+
+      return ret;
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -387,8 +398,7 @@ var CliqzUtils = {
           Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
           return PrivateBrowsingUtils.isWindowPrivate(window);
         } catch(e) {
-          // pre Firefox 20 (if you do not have access to a doc.
-          // might use doc.hasAttribute('privatebrowsingmode') then instead)
+          // pre Firefox 20
           try {
             var inPrivateBrowsing = Components.classes['@mozilla.org/privatebrowsing;1'].
                                     getService(Components.interfaces.nsIPrivateBrowsingService).
