@@ -395,6 +395,7 @@ Offboarding page shown
 ``` bash
 {
     "action": "offboarding_shown",
+    "tour_active": true/false, //only active from FF29+
     "session": "<RANDOM_ID>",
     "type": "activity",
     "ts": <UNIX_TIMESTAMP>

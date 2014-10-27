@@ -5,7 +5,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'oktoberfest'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -121,7 +121,7 @@ var UI = {
         CLIQZ.Core.popup.mPopupOpen = true;
 
         // try to find and hide misaligned elemets - eg - weather
-        setTimeout(hideMisalignedElements, 0, gCliqzBox.resultsBox);
+        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -696,35 +696,6 @@ function onEnter(ev, item){
             if(customQuery){
                 CLIQZ.Core.urlbar.value = customQuery.queryURI;
             }
-            else { // not autocomplete, not custom query
-
-                // run A-B test if present
-                if (CliqzUtils.getPref("historyExperiment")) {
-                    //var testQueries = ['bitcoin', 'futurama', 'barcelona',
-                                       //'ghost in the shell',
-                                       //'bitcoin value', 'firefox browser',
-                                       //'javascript array',
-                                       //'bootstrap css',
-                                       //'haskell', 'duct tape for engineers',
-                                       //'python emr',
-                                       //'ruby array', 'tapas madrid',
-                                       //];
-                    ////start test loop
-                    //for (var jj = 0; jj < testQueries.length; jj++) {
-                        //inputValue = testQueries[jj];
-                    if (!CliqzHistoryManager.historyModel) {
-                        CliqzHistoryManager.getHistoryModel(function(model) {
-                            CliqzHistoryManager.historyModel = model;
-                            runHistoryExperiment(inputValue);
-                        });
-                    }
-                    else {
-                        runHistoryExperiment(inputValue);
-                    }
-                    //} // end test loop
-
-                } // end A-B test if
-            }
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
             CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
@@ -1011,91 +982,6 @@ function registerHelpers(){
         } else return false;
     });
 
-}
-
-function runHistoryExperiment(inputValue) {
-    setTimeout(
-        function(inputValue) {
-
-            // reorder the given suggestions by their similarity to the corpus
-            function reorder(sugs) {
-                var scores = [];
-                for (var i = 0; i < sugs.length; i++) {
-                    var sc = CliqzHistoryManager.historyModel.similarity(sugs[i].value);
-                    scores.push({score: sc, value: sugs[i].value});
-                }
-                // sort in reverse
-                scores.sort(function(a, b) {return b.score - a.score});
-                var reordered = [];
-                for (var i = 0; i < scores.length; i++) {
-                    //CliqzUtils.log(scores[i].score + " " + scores[i].value);
-                    reordered.push(scores[i]);
-                }
-                return reordered;
-            };
-
-            var results = {};
-            function suggesterCallback(req) {
-                var sugs = JSON.parse(req.response);
-                var s1_pos = -1,
-                    s2_pos = -1,
-                    pop = 0;
-                for (var i = 0; i < sugs.length; i++) {
-                    if (sugs[i].value == inputValue) {
-                        s1_pos = i;
-                        pop = sugs[i].score;
-                    }
-                }
-                var reordered = reorder(sugs),
-                    maxScore = 0.0;
-                for (var i = 0; i < reordered.length; i++) {
-                    if (reordered[i].value == inputValue) {
-                        s2_pos = i;
-                    }
-                    maxScore = Math.max(maxScore, reordered[i].score);
-                }
-
-                results[qkey] = {s1: s1_pos, s2: s2_pos, pop: pop, max: maxScore};
-                if (Object.keys(results).length == 4) {
-                    var qAction = {
-                        type: 'experiments-v2',
-                        docs: CliqzHistoryManager.historyModel.docs,
-                        terms: CliqzHistoryManager.historyModel.terms,
-                        qlen: inputValue.length,
-                        qwords: inputValue.split(/\s+/).length,
-                        action: {
-                            'q3': results['q3'],
-                            'q5': results['q5'],
-                            'qw': results['qw'],
-                            'ql': results['ql'],
-                        }
-                    };
-                    CliqzUtils.track(qAction);
-                }
-            };
-            // take first 3 chars
-            var cliqzQuery3 = inputValue.substring(0, 3);
-            var cliqzQuery5 = inputValue.substring(0, 5);
-            var cliqzQueryW = inputValue;
-            var cliqzQueryL = inputValue.lastIndexOf(' ') == -1 ?
-                inputValue.substring(0, 1) : inputValue.substring(0, inputValue.lastIndexOf(' ')+2);
-            var suggesterUrl = "http://54.90.135.180/api/suggestions?q=";
-            var qkey = '', qq = '';
-            CliqzUtils.httpGet(suggesterUrl + cliqzQuery3,
-                function (req) { qkey = 'q3', qq = cliqzQuery3; suggesterCallback(req); },
-                function() { CliqzUtils.log("Suggester error!"); });
-            CliqzUtils.httpGet(suggesterUrl + cliqzQuery5,
-                function (req) { qkey = 'q5', qq = cliqzQuery5; suggesterCallback(req); },
-                function() { CliqzUtils.log("Suggester error!"); });
-            CliqzUtils.httpGet(suggesterUrl + cliqzQueryW,
-                function (req) { qkey = 'qw', qq = cliqzQueryW; suggesterCallback(req); },
-                function() { CliqzUtils.log("Suggester error!"); });
-            CliqzUtils.httpGet(suggesterUrl + cliqzQueryL,
-                function (req) { qkey = 'ql', qq = cliqzQueryL; suggesterCallback(req); },
-                function() { CliqzUtils.log("Suggester error!"); });
-
-        },
-    0, inputValue);
 }
 
 ctx.CLIQZ = ctx.CLIQZ || {};
