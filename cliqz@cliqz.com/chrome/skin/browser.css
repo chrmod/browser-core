@@ -1112,6 +1112,48 @@
 
 /* end bundesliga */
 
+/* calculator */
+
+.cliqz-calc-text-div {
+    text-align: left;
+    padding-left: 35px
+}
+
+.cliqz-calc-text-expr {
+    color: #A8B9C0; 
+    font-size: 20px;
+}
+
+.cliqz-calc-text-answer {
+    color: black;
+    font-size: 25px;
+}
+
+.cliqz-calc-button-div {
+    height: 25px;
+    margin-left: 35px; 
+    border-radius: 3px; 
+    background-color: #b6d6e3; 
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.cliqz-calc-button-img {
+    height: 22px;
+    width: 22px;
+    margin-left: 5px;
+}
+
+.cliqz-calc-button-text {
+    padding-left: 10px; 
+    color: white;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* end calculator */
+
 /* custom */
 .cliqz-custom-text {
     color: #999999;

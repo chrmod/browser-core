@@ -19,7 +19,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, cliqzExtra, mixed, weatherResults, bundesligaResults, maxResults){
+	mix: function(q, history, cliqz, cliqzExtra, mixed, weatherResults, bundesligaResults, calculatorResults, maxResults){
 		var results = [],
             [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
 
@@ -187,6 +187,10 @@ var Mixer = {
         // add external bundesliga API results
         if(bundesligaResults && bundesligaResults.length > 0)
             results = bundesligaResults.concat(results);
+
+        // add calculator results
+        if(calculatorResults && calculatorResults.length > 0)
+            results = calculatorResults.concat(results);
 
         results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
 

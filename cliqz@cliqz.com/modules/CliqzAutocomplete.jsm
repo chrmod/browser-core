@@ -28,6 +28,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
+  'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -277,6 +280,30 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
             },
+            sendCalculatorSignal: function() {
+                var calcAnswer = null;
+                var same = false;
+
+                if(this.cliqzCalculator && this.cliqzCalculator.length > 0){
+                    calcAnswer = this.cliqzCalculator[0].data.answer;
+                }
+                if (calcAnswer == null && this.suggestedCalcResult == null){
+                    return;
+                }
+                var action = {
+                    type: 'activity',
+                    action: 'calculator',
+                    suggestions_recived:  this.suggestionsRecieved,
+                    same_results: CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult),
+                    suggested: this.suggestedCalcResult != null,
+                    calculator: calcAnswer != null,
+                };
+                CliqzUtils.log(action.suggestions_recived, "suggestions_recived");
+                CliqzUtils.log(action.same_results, "same_results");
+                CliqzUtils.log(action.suggested, "suggested");
+                CliqzUtils.log(action.calculator, "calculator");
+                CliqzUtils.track(action);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 // special case: user has deleted text from urlbar
@@ -307,6 +334,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             var country = this.cliqzCountry;
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
+                        this.sendCalculatorSignal();
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -363,13 +391,22 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             cliqzSuggestionFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var response = [];
+                    this.suggestedCalcResult = null;
 
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
                     if(req.status == 200){
                         response = JSON.parse(req.response);
+                        this.suggestionsRecieved = true;
                     }
+
+                    // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
+                    // if(q.trim().indexOf("=") != 0 && response.length >1 && 
+                    //         response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
+                    //     this.suggestedCalcResult = response[1].shift().replace("=", "").trim();
+                    // }
+                    //XXX: is that safe ? 1st element in potentially 0-sized array. Should we put a check here ? 
                     this.cliqzSuggestions = response[1];
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
@@ -384,6 +421,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzBundesliga = res;
                 this.pushResults(q);
             },
+            cliqzCalculatorCallback: function(res, q) {
+                this.cliqzCalculator = res;
+                this.pushResults(q);
+            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -391,7 +432,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // mixes history, results and suggestions
             mixResults: function() {
                 var maxResults = prefs.getIntPref('maxRichResults');
-
 
                 var results = Mixer.mix(
                             this.searchString,
@@ -401,6 +441,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.mixedResults,
                             this.cliqzWeather,
                             this.cliqzBundesliga,
+                            this.cliqzCalculator,
                             maxResults
                     );
 
@@ -448,6 +489,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzSuggestions = null;
                 this.cliqzWeather = null;
                 this.cliqzBundesliga = null;
+                this.cliqzCalculator = null;
+                this.suggestionsRecieved = false;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
@@ -480,11 +523,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
+                this.cliqzCalculatorCallback = this.cliqzCalculatorCallback.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+
+                    // if query looks like math expression, try to get an answer for that
+                    if(CliqzCalculator.isCalculatorSearch(searchString)){
+                        CliqzCalculator.get(searchString, this.cliqzCalculatorCallback);
+                    } else {
+                        this.cliqzCalculator = [];
+                    }
 
                     // Fetch weather and bundesliga only if search contains trigger
                     if(CliqzWeather.isWeatherSearch(searchString)){
@@ -505,6 +556,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.customResults = [];
                     this.cliqzWeather = [];
                     this.cliqzBundesliga = [];
+                    this.cliqzCalculator = [];
                 }
 
                 // trigger history search
