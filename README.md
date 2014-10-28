@@ -151,7 +151,8 @@ Sent at startup and every 1 hour afterwards
     "version": "0.3.0.preview", // exact version of the browser extension
     "history_days": 37, // days since the first history data point
     "type": "environment", // signal type
-    "prefs": {...} // a snapshot of the current preferences described in Settings
+    "prefs": {...}, // a snapshot of the current preferences described in Settings
+    "defaultSearchEngine" : "Google" // default search engine of the user
 }
 ```
 

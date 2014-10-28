@@ -28,6 +28,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
+  'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -242,6 +245,24 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.pushResults(result.searchString);
                 }
             },
+            addCalculatorSignal: function(action) {
+                var calcAnswer = null;
+                
+                if(this.customResults && this.customResults.length > 0 &&
+                        this.customResults[0].style == Result.CLIQZE &&
+                        this.customResults[0].data.template == 'calculator'){
+                    calcAnswer = this.customResults[0].data.answer;
+                }
+                if (calcAnswer == null && this.suggestedCalcResult == null){
+                    return;
+                }
+                action.suggestions_recived =  this.suggestionsRecieved;
+                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
+                action.suggested = this.suggestedCalcResult != null;
+                action.calculator = calcAnswer != null;
+                this.suggestionsRecieved = false;
+                this.suggestedCalcResult = null;
+            },
             sendResultsSignal: function(results, instant, popup, country) {
                 var action = {
                     type: 'activity',
@@ -268,6 +289,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = (new Date()).getTime();
                 }
+                this.addCalculatorSignal(action);
                 CliqzUtils.track(action);
             },
             sendSuggestionsSignal: function(suggestions) {
@@ -363,14 +385,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // handles suggested queries
             cliqzSuggestionFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = [];
+                    var response = JSON.parse(req.response);
+                    this.suggestedCalcResult = null;
+                    
 
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
-                    if(req.status == 200){
-                        response = JSON.parse(req.response);
+                    // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
+                    if(q.trim().indexOf("=") != 0 && response.length >1 && 
+                            response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
+                        this.suggestedCalcResult = response[1].shift().replace("=", "").trim();
                     }
+
+                    this.suggestionsRecieved = true;
                     this.cliqzSuggestions = response[1];
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
@@ -392,7 +420,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // mixes history, results and suggestions
             mixResults: function() {
                 var maxResults = prefs.getIntPref('maxRichResults');
-
 
                 var results = Mixer.mix(
                             this.searchString,
@@ -449,6 +476,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzSuggestions = null;
                 this.cliqzWeather = null;
                 this.cliqzBundesliga = null;
+                this.suggestionsRecieved = false;
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
