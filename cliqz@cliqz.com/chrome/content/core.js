@@ -68,11 +68,6 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
-        // Add search history dropdown
-        var urlbarIcons = document.getElementById('urlbar-icons');
-        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
-        CLIQZ.Core.elem.push(searchHistoryContainer);
-
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -88,6 +83,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        // Add search history dropdown
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
+        CLIQZ.Core.elem.push(searchHistoryContainer);
 
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
