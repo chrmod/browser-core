@@ -1078,6 +1078,58 @@
 
 /* end calculator */
 
+/* entity zones */
+
+.entity-search-container {
+  padding: 15px;
+}
+
+.entity-search-aktuell {
+  padding-bottom: 15px;
+}
+
+.entity-search-aktuell span{
+  padding: 0 13px;
+  color: #717171;
+}
+
+#entity-search-box {
+  border: 1px solid #3E86FC;
+  width: 485px;
+  height: 30px;
+  margin-bottom: 15px;
+}
+
+#entity-search-box-input {
+  width: 480px;
+  height: 20px;
+  border: none;
+}
+
+.entity-search-container-app {
+  display: inline-block;
+  width: 90px;
+  height: 90px;
+  background-color: red;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.entity-search-container-app-text {
+  color: white;
+  padding: 5px 0;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.entity-search-container-app div {
+  margin-top: 15px;
+  text-align: center;
+}
+
+
+/* end entity zones */
+
 /* custom */
 .cliqz-custom-text {
     color: #999999;

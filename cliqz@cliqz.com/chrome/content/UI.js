@@ -98,7 +98,7 @@ var UI = {
         if (!gCliqzBox)
             return;
 
-        var entity = false; //CliqzEntityZones.getEntity(res.q);
+        var entity = true; //CliqzEntityZones.getEntity(res.q);
         if(entity) {
           var data = {}
           gCliqzBox.resultsBox.innerHTML = UI.tpl["entity-search"](data);
