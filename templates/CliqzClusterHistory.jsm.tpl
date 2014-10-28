@@ -18,6 +18,7 @@ $DSL_OUTPUT
 
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
+    templates: templates,  // to export the templates for testing
 
     /**
      * Tries to cluster the history.

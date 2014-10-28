@@ -63,9 +63,9 @@ body {
 
     function showQuery(n) {
         if(CliqzQueryDebug.results.length > n) {
-            mixed = CliqzQueryDebug.results[n].mixed;
-            history = CliqzQueryDebug.results[n].history;
-            cliqz = CliqzQueryDebug.results[n].cliqz;
+            var mixed = CliqzQueryDebug.results[n].mixed;
+            var history = CliqzQueryDebug.results[n].history;
+            var cliqz = CliqzQueryDebug.results[n].cliqz;
 
             $("#query_head").text("Query (" + (-query_num) + ")");
             $("#query_text").text(" " + CliqzQueryDebug.results[n].query);
