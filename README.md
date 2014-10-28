@@ -66,6 +66,8 @@ And we always know what commit is deployed in production.
 
 Glossary
 
+##### Result type encoding
+
 ``` bash
   "<ENCODED_RESULT_TYPE>"
 
@@ -98,9 +100,11 @@ Glossary
     0 - other
 ```
 
+##### Session ID format
+
 ``` bash
   "<RANDOM_ID>"
-     Random sequence - aprox 16 digits
+     Random sequence - 24 alphanumeric chars (18 alphanumeric + 6 numeric digits)
      | - separator
      number of days since (GMT: Thu, 01 Jan 1970 00:00:00 GMT) - unix timestamp - 5 digits eg:  16474
      | - separator
@@ -127,6 +131,8 @@ Glossary
          - 19 - Provided to Thomas K
      eg: 10378300660576423|16148|OO
 ```
+
+##### Timestamp
 
 ``` bash
   "<UNIX_TIMESTAMP>"
@@ -171,7 +177,7 @@ Sent with the 'environment' signal if the preference `extensions.cliqz.logTiming
 
 ### Actions
 
-Keystoke - any key stroke which triggers a search
+##### Keystoke - any key stroke which triggers a search
 ``` bash
 {
     "action": "key_stroke",
@@ -182,7 +188,7 @@ Keystoke - any key stroke which triggers a search
 }
 ```
 
-Arrow key (up/down) - navigation through the results with keyboard
+##### Arrow key (up/down) - navigation through the results with keyboard
 
 ``` bash
 {
@@ -196,7 +202,7 @@ Arrow key (up/down) - navigation through the results with keyboard
 }
 ```
 
-Arrow key (tab) - navigation through the suggestions with keyboard
+##### Arrow key (tab) - navigation through the suggestions with keyboard
 
 ``` bash
 {
@@ -209,7 +215,7 @@ Arrow key (tab) - navigation through the suggestions with keyboard
 }
 ```
 
-Result click (mouse)
+##### Result click (mouse)
 
 ``` bash
 {
@@ -232,7 +238,7 @@ Result click (mouse)
 }
 ```
 
-Suggestion click (mouse)
+##### Suggestion click (mouse)
 
 ``` bash
 {
@@ -245,9 +251,9 @@ Suggestion click (mouse)
 }
 ```
 
-Result enter (keyboard)
+##### Result enter (keyboard)
 
-1. With a focused result
+###### 1. With a focused result
 ``` bash
 {
     "session": "<RANDOM_ID>",
@@ -265,8 +271,7 @@ Result enter (keyboard)
 	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
-2.
- With no focused result - in the urlbar
+###### 2. With no focused result - in the urlbar
 ``` bash
 {
     "session": "<RANDOM_ID>",
@@ -287,7 +292,7 @@ Result enter (keyboard)
 	"result_order":, "[<ENCODED_RESULT_TYPE>|<ENCODED_RESULT_TYPE>|...]" // list of encoded result type (after mixing) separated by '|'
 }
 ```
-3. With a focused suggestion
+###### 3. With a focused suggestion
 ``` bash
 {
     "session": "<RANDOM_ID>",
@@ -317,7 +322,7 @@ Results - results shown in the dropdown
 }
 ```
 
-Suggestions - suggestions shown in the dropdown
+##### Suggestions - suggestions shown in the dropdown
 ``` bash
 {
     "type": "activity",
@@ -328,7 +333,7 @@ Suggestions - suggestions shown in the dropdown
 }
 ```
 
-Urlbar focus - user clicks in the url bar
+##### Urlbar focus - user clicks in the url bar
 ``` bash
 {
     "action": "urlbar_focus",
@@ -338,7 +343,7 @@ Urlbar focus - user clicks in the url bar
 }
 ```
 
-Last search button pressed
+##### Last search button pressed
 ``` bash
 {
     "action": "last_search",
@@ -348,7 +353,7 @@ Last search button pressed
 }
 ```
 
-Visual hash tag
+##### Visual hash tag
 ``` bash
 {
     "action": "visual_hash_tag",
@@ -372,7 +377,7 @@ Visual hash tag
 }
 ```
 
-Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
+##### Urlbar blur - url bar loses focus - user selects a result, click outside or browser looses focus
 ``` bash
 {
     "action": "urlbar_blur",
@@ -382,7 +387,7 @@ Urlbar blur - url bar loses focus - user selects a result, click outside or brow
 }
 ```
 
-Dropdown open
+##### Dropdown open
 ``` bash
 {
     "action": "dropdown_open",
@@ -392,7 +397,7 @@ Dropdown open
 }
 ```
 
-Offboarding page shown
+##### Offboarding page shown
 ``` bash
 {
     "action": "offboarding_shown",
@@ -403,7 +408,7 @@ Offboarding page shown
 }
 ```
 
-Offboarding tour started
+##### Offboarding tour started
 ``` bash
 {
     "action": "offboarding_tour",
@@ -413,7 +418,7 @@ Offboarding tour started
 }
 ```
 
-Offboarding page closed
+##### Offboarding page closed
 ``` bash
 {
     "action": "offboarding_closed",
@@ -424,7 +429,7 @@ Offboarding page closed
 }
 ```
 
-Dropdown close
+##### Dropdown close
 ``` bash
 {
     "action": "dropdown_close",
@@ -434,7 +439,7 @@ Dropdown close
 }
 ```
 
-Browser shutdown
+##### Browser shutdown
 ``` bash
 {
     "action": "browser_shutdown",
@@ -444,7 +449,7 @@ Browser shutdown
 }
 ```
 
-Addon disable
+##### Addon disable
 ``` bash
 {
     "action": "addon_disable",
@@ -455,7 +460,7 @@ Addon disable
 ```
 
 ### A/B Tests
-Enter an A/B test
+##### Enter an A/B test
 ``` bash
 {
     "type": "abtest",
@@ -466,7 +471,7 @@ Enter an A/B test
 }
 ```
 
-Leave an A/B test
+##### Leave an A/B test
 ``` bash
 {
     "type": "abtest",
@@ -478,7 +483,7 @@ Leave an A/B test
 ```
 
 ### Performance
-Result compare
+##### Result compare
 ``` bash
 {
 	"action": "result_compare",
