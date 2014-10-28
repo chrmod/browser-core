@@ -10,7 +10,7 @@ program:
         -
             type: control
             title: Sitemap_Youtube_Popular
-            url: http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ
+            url: http://www.youtube.com/channel/UCF0pVplsI8R5kcAqgtoRqoA
         -
             type: control
             title: Sitemap_Youtube_Subscriptions
@@ -388,3 +388,19 @@ program:
             label: Sitemap_Wikipedia_Articles
             cond: /wiki/{item}//
             title: title::re:(.+?)(?:\s+\S\s+Wikip.dia.*)
+    New York Times:
+        summary: Sitemap_Summary
+        url: nytimes.com
+        home: http://www.nytimes.com/
+        rules:
+        -
+            type: topic
+            label: Sections
+            cond: (/pages/{item}/) or (/pages/{item}/*/) or (/pages/{item}/*/*/)
+            title: title::re:(.+)(?:.+-.*Times.*)
+        -
+            type: topic
+            label: Articles
+            cond: /re:\d\d\d\d/re:\d\d/re:\d\d/*/
+            title: title::re:(.+)(?:.+-.*Times.*)
+
