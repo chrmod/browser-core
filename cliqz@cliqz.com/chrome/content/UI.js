@@ -2,7 +2,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -68,7 +68,9 @@ var UI = {
         box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
 
         var resultsBox = document.getElementById('cliqz-results',box);
+
         resultsBox.addEventListener('click', resultClick);
+
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
 
@@ -465,6 +467,14 @@ function resultClick(ev){
             else openUILink(url);
             break;
         } else if (el.getAttribute('cliqz-action')) {
+            // copy calculator answer to clipboard
+            if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
+                const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                           .getService(Components.interfaces.nsIClipboardHelper);
+                gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                document.getElementById('calc-copied-btn').style.display = "";
+                document.getElementById('calc-copy-btn').style.display = "none";
+            }
             /*
              * Hides the current element and displays one of its siblings that
              * was specified in the toggle-with attribute.
