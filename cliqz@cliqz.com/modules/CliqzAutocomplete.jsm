@@ -28,6 +28,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
+  'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
