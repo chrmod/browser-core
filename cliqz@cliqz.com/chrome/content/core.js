@@ -212,6 +212,7 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarfocus: function() {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
+        CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
@@ -219,9 +220,14 @@ CLIQZ.Core = CLIQZ.Core || {
             //if test is active trigger it
             CliqzUtils.setPref("showPremiumResults", 2);
         }
+
+        //if(CLIQZ.Core.urlbar.value.trim().length > 0)
+        //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarblur: function(ev) {
-        CliqzSearchHistory.lastQuery();
+        if(CLIQZ.Core.triggerLastQ)
+            CliqzSearchHistory.lastQuery();
+
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
@@ -298,6 +304,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._lastKey = ev.keyCode;
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
+    },
+    openLink: function(url, newTab){
+        CLIQZ.Core.triggerLastQ = true;
+        if(newTab) gBrowser.addTab(url);
+        else {
+            //clean selected text to have a valid last Query
+            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            openUILink(url);
+        }
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){

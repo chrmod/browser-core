@@ -461,8 +461,7 @@ function resultClick(ev){
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
 
-            if(newTab) gBrowser.addTab(url);
-            else openUILink(url);
+            CLIQZ.Core.openLink(url, newTab);
             break;
         } else if (el.getAttribute('cliqz-action')) {
             /*
@@ -629,7 +628,7 @@ function onEnter(ev, item){
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
-        openUILink(url);
+        CLIQZ.Core.openLink(url, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
@@ -680,9 +679,7 @@ function onEnter(ev, item){
         if (CLIQZ.Core.urlbar.value.length > 0)
             CliqzUtils.track(action);
 
-        //CLIQZ.Core.popup.closePopup();
-        //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
-        //return true;
+        CLIQZ.Core.triggerLastQ = true;
         return false;
     }
     CliqzUtils.track(action);
@@ -712,7 +709,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                gBrowser.addTab(url);
+                CLIQZ.Core.openLink(url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.contentDocument.location = url;
