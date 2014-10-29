@@ -34,22 +34,17 @@ var CliqzHistoryDebug = {
     getHistoryCliqz: function(searchTerm, callback){
         let history = new Array();
         let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
-        CliqzUtils.log("SELECT visits.url, title, sum(typed) as typed, " +
-                "sum(link) as link, sum(result) as result, " +
-                "sum(autocomplete) as autocomplete, sum(google) as google " +
-                "FROM visits left join urltitles on visits.url=urltitles.url WHERE visits.url=urltitles.url " +
-                "AND (visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%')" +
-                "group by visits.url", "DEBUG");
         this.SQL
             ._execute(
                 Services.storage.openDatabase(file),
                 "SELECT visits.url, title, sum(typed) as typed, " +
                 "sum(link) as link, sum(result) as result, " +
-                "sum(autocomplete) as autocomplete, sum(google) as google, last_query, last_query_date " +
+                "sum(autocomplete) as autocomplete, sum(google) as google, sum(bookmark) as bookmark, " +
+                "last_query, last_query_date " +
                 "FROM visits left join urltitles on visits.url=urltitles.url " +
-                "WHERE visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%' " +
+                "WHERE visits.url LIKE \"%"+searchTerm+"%\" OR urltitles.title LIKE '%"+searchTerm+"%' OR visits.last_query LIKE '%"+searchTerm+"%'" +
                 "group by visits.url",
-                ["url", "title", "link", "typed", "result", "autocomplete", "google", "last_query", "last_query_date"],
+                ["url", "title", "link", "typed", "result", "autocomplete", "google", "bookmark", "last_query", "last_query_date"],
                 function(result) {
                     try {
                         CliqzUtils.log(result.url, "DEBUG");
