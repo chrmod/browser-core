@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module acts as a result factory
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Result'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 

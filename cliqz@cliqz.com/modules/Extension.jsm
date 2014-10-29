@@ -1,4 +1,10 @@
 'use strict';
+/*
+ * This module handles the loading and the unloading of the extension
+ * It injects all the needed scripts into the chrome context
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -127,6 +133,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
@@ -134,6 +141,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -258,8 +266,10 @@ var Extension = {
         // localization mechanism might take a while to load.
         // TODO: find better sollution
         CliqzUtils.setTimeout(function(){
-            shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
-            shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+            if(CliqzUtils){
+                shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
+                shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+            }
         }, 2000);
 
         shareButton.addEventListener('command', function(ev) {

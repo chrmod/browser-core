@@ -1,4 +1,8 @@
 'use strict';
+/*
+ * This module measures statistical data about users history
+ *
+ */
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryManager'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;

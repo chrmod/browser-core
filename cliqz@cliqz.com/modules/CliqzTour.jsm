@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module creates the interactive offboarding
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzTour'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -133,6 +138,3 @@ function messageType(to){
         }
     }, to);
 }
-//setTimeout(function(){
-//    start(doc, 'wobble');
-//},1000);
