@@ -1,4 +1,12 @@
 'use strict';
+/*
+ * This is the core part of the extension.
+ *  - it is injected into each browser window
+ *  - loads all the additional modules needed
+ *  - changes the default search provider
+ *  - ovverides the default UI
+ *
+ */
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -68,11 +76,6 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
-        // Add search history dropdown
-        var urlbarIcons = document.getElementById('urlbar-icons');
-        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
-        CLIQZ.Core.elem.push(searchHistoryContainer);
-
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -88,6 +91,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        // Add search history dropdown
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
+        CLIQZ.Core.elem.push(searchHistoryContainer);
 
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
@@ -212,6 +219,7 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarfocus: function() {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
+        CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
@@ -219,9 +227,14 @@ CLIQZ.Core = CLIQZ.Core || {
             //if test is active trigger it
             CliqzUtils.setPref("showPremiumResults", 2);
         }
+
+        //if(CLIQZ.Core.urlbar.value.trim().length > 0)
+        //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarblur: function(ev) {
-        CliqzSearchHistory.lastQuery();
+        if(CLIQZ.Core.triggerLastQ)
+            CliqzSearchHistory.lastQuery();
+
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
@@ -251,30 +264,37 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
+
+        //executed after the services are fetched
         CliqzUtils.fetchAndStoreConfig(function(){
-            //executed after the services are fetched
-            CLIQZ.Core.sendEnvironmentalSignal(startup);
+            // wait for search component initialization
+            if(Services.search.init != null){
+                Services.search.init(function(){
+                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                });
+            } else {
+                CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+            }
         });
     },
-    sendEnvironmentalSignal: function(startup){
+
+    sendEnvironmentalSignal: function(startup, defaultSearchEngine){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
-                var defaultSearchEngine = Components.classes["@mozilla.org/browser/search-service;1"]
-                    .getService(Components.interfaces.nsIBrowserSearchService).currentEngine.name;
                 var info = {
-                    type: 'environment',
-                    agent: navigator.userAgent,
-                    language: navigator.language,
-                    width: CliqzUtils.getWindow().document.width,
-                    height: CliqzUtils.getWindow().document.height,
-                    version: beVersion,
-                    history_days: history.days,
-                    history_urls: history.size,
-                    startup: startup? true: false,
-                    prefs: CliqzUtils.getPrefs(),
-                    defaultSearchEngine: defaultSearchEngine
-                };
+                        type: 'environment',
+                        agent: navigator.userAgent,
+                        language: navigator.language,
+                        width: CliqzUtils.getWindow().document.width,
+                        height: CliqzUtils.getWindow().document.height,
+                        version: beVersion,
+                        history_days: history.days,
+                        history_urls: history.size,
+                        startup: startup? true: false,
+                        prefs: CliqzUtils.getPrefs(),
+                        defaultSearchEngine: defaultSearchEngine
+                    };
 
                 CliqzUtils.track(info);
             });
@@ -301,6 +321,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core._lastKey = ev.keyCode;
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
+    },
+    openLink: function(url, newTab){
+        CLIQZ.Core.triggerLastQ = true;
+        if(newTab) gBrowser.addTab(url);
+        else {
+            //clean selected text to have a valid last Query
+            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            openUILink(url);
+        }
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){

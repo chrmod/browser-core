@@ -1,3 +1,8 @@
+'use strict';
+/*
+ * This module handles various calculations
+ *
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -9,6 +14,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzCalculator'];
+
+var basics = "[\\\(\\)\\+\\/\\*\\%\\^\\-\\.\\s0123456789]",
+    utils = "|km|cm|meter|mm|m|inch|inches|foot|yard|mile|gr|rad|grad|celsius|fahrenheit|kelvin|to",
+    mathExp = "|log|exp|sin|cos|tan|asin|acos|atan|sqrt|log|abs|ceil|floor|round|exp",
+    REG_CALC = new RegExp( "^([" + basics + mathExp + utils +"|\s])*$"  );
 
 var CliqzCalculator = {
 
@@ -41,12 +51,7 @@ var CliqzCalculator = {
     },
 
     isCalculatorSearch: function(q){
-      var basics = "[\\\(\\)\\+\\/\\*\\%\\^\\-\\.\\s0123456789]";
-      var utils = "|km|cm|meter|mm|m|inch|inches|foot|yard|mile|gr|rad|grad|celsius|fahrenheit|kelvin|to";
-      var math = "|log|exp|sin|cos|tan|asin|acos|atan|sqrt|log|abs|ceil|floor|round|exp";
-      var reg = new RegExp( "^([" + basics + math + utils +"|\s])*$"  );
-
-      return reg.test(q)
+      return REG_CALC.test(q)
     },
 
     isSame: function(suggestion, answer){

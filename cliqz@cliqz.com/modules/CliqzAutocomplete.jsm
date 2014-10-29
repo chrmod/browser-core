@@ -1,4 +1,8 @@
 'use strict';
+/*
+ * This module implements the core functionality based on nsIAutoCompleteResult interface
+ * http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -109,7 +113,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
             getValueAt: function(index) { return this._results[index].val; },
-            getFinalCompleteValueAt: function(index) { return this.getValueAt(index); }, //FF31+
+            getFinalCompleteValueAt: function(index) { return null; }, //FF31+
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
             getImageAt: function (index) { return undefined; },
@@ -247,7 +251,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
-                
+
                 if(this.customResults && this.customResults.length > 0 &&
                         this.customResults[0].style == Result.CLIQZE &&
                         this.customResults[0].data.template == 'calculator'){
@@ -387,13 +391,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var response = JSON.parse(req.response);
                     this.suggestedCalcResult = null;
-                    
+
 
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
                     // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
-                    if(q.trim().indexOf("=") != 0 && response.length >1 && 
+                    if(q.trim().indexOf("=") != 0 && response.length >1 &&
                             response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
                         this.suggestedCalcResult = response[1].shift().replace("=", "").trim();
                     }

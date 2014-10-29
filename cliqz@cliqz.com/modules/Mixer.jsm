@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module mixes the results from cliqz with the history
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Mixer'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 

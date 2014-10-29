@@ -1,4 +1,14 @@
 'use strict';
+/*
+ * This module has a list of helpers used across the extension
+ *  HTTP handlers
+ *  URL manipulators
+ *  Localization mechanics
+ *  Common logging pipe
+ *  Preferences(persistent storage) wrappers
+ *  Browser helpers
+ *  ...
+ */
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 

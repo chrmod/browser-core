@@ -304,12 +304,13 @@
 }
 
 .cliqz-urlbar-Last-search {
-    background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;
+    /*background: url(chrome://cliqzres/content/skin/rabbit_arrow.png) no-repeat 5px center;*/
     background-size: 14px 10px;
     color: white;
     background-color: grey;
     margin: 0px;
-    padding: 2px 6px 2px 24px;
+    padding: 2px 6px 2px 6px;
+    margin-right: 3px;
     border-radius: 1px;
     max-width: 200px;
     text-overflow: ellipsis;

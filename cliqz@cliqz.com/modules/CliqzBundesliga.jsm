@@ -1,3 +1,8 @@
+'use strict';
+/*
+ * This module handles Bundesliga results
+ *
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
