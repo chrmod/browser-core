@@ -191,6 +191,21 @@
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
     },
+    "Sitemap_Wikipedia_Articles": {
+      "message":"Articles"
+    },
+    "Sitemap_People": {
+      "message":"Personnes"
+    },
+    "Sitemap_Search": {
+      "message":"Recherchez"
+    },
+    "Sitemap_Projects": {
+      "message":"Projets"
+    },
+    "Sitemap_Twitter_Discover": {
+      "message":"Découvrir"
+    },
     "country_code_": {
       "message":"Détection automatique"
     },

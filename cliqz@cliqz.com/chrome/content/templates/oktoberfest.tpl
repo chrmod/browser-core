@@ -1,3 +1,4 @@
+<!-- sample template from fun-vertical -->
 {{#with data}}
 <div class='cliqz-okt-container'>
     <div class='cliqz-okt-left-box'>

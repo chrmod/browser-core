@@ -232,7 +232,7 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarfocus: function() {
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
-        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
+        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
