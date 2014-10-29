@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module handles the search engines present in the browser
+ * and provides a series of custom results
+ *
+ */
 
 var EXPORTED_SYMBOLS = ['ResultProviders'];
 
@@ -78,7 +83,7 @@ var ResultProviders = {
         } else if(CliqzCalculator.isCalculatorSearch(q)){
             var calcRes = CliqzCalculator.get(q);
             if (calcRes != null){
-                results = [calcRes];    
+                results = [calcRes];
             }
         }
 

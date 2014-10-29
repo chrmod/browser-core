@@ -1,4 +1,12 @@
 'use strict';
+/*
+ * This is the core part of the extension.
+ *  - it is injected into each browser window
+ *  - loads all the additional modules needed
+ *  - changes the default search provider
+ *  - ovverides the default UI
+ *
+ */
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -256,30 +264,37 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
+
+        //executed after the services are fetched
         CliqzUtils.fetchAndStoreConfig(function(){
-            //executed after the services are fetched
-            CLIQZ.Core.sendEnvironmentalSignal(startup);
+            // wait for search component initialization
+            if(Services.search.init != null){
+                Services.search.init(function(){
+                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                });
+            } else {
+                CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+            }
         });
     },
-    sendEnvironmentalSignal: function(startup){
+
+    sendEnvironmentalSignal: function(startup, defaultSearchEngine){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
-                var defaultSearchEngine = Components.classes["@mozilla.org/browser/search-service;1"]
-                    .getService(Components.interfaces.nsIBrowserSearchService).currentEngine.name;
                 var info = {
-                    type: 'environment',
-                    agent: navigator.userAgent,
-                    language: navigator.language,
-                    width: CliqzUtils.getWindow().document.width,
-                    height: CliqzUtils.getWindow().document.height,
-                    version: beVersion,
-                    history_days: history.days,
-                    history_urls: history.size,
-                    startup: startup? true: false,
-                    prefs: CliqzUtils.getPrefs(),
-                    defaultSearchEngine: defaultSearchEngine
-                };
+                        type: 'environment',
+                        agent: navigator.userAgent,
+                        language: navigator.language,
+                        width: CliqzUtils.getWindow().document.width,
+                        height: CliqzUtils.getWindow().document.height,
+                        version: beVersion,
+                        history_days: history.days,
+                        history_urls: history.size,
+                        startup: startup? true: false,
+                        prefs: CliqzUtils.getPrefs(),
+                        defaultSearchEngine: defaultSearchEngine
+                    };
 
                 CliqzUtils.track(info);
             });

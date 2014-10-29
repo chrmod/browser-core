@@ -1,3 +1,10 @@
+'use strict';
+/*
+ * This module keeps track of the last queries made in a tab and shows
+ * them when appropiate
+ *
+ */
+
 
 // TODO: The "Letzte eingabe" button needs a better architecture
 // What we do now is a bit hacky. Because we need to track the state of many

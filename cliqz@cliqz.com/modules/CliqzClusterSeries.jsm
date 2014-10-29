@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+ * This module clusters(groups) episodes from a series and
+ * tries to guess the next episode
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');

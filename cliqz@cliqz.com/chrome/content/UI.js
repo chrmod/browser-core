@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This is the module which creates the UI for the results
+ *   - uses handlebars templates
+ *   - attaches all the needed listners (keyboard/mouse)
+ */
 
 (function(ctx) {
 
