@@ -1,4 +1,4 @@
 navigation-extension
 ====================
 
-See - [wiki](wiki)
+See - [wiki](https://github.com/cliqz/navigation-extension/wiki)
