@@ -1,4 +1,15 @@
 'use strict';
+
+/*
+ * This module clusters(groups) results for a predefined set of domains
+ *
+ ******************************************************
+ * Warning: this file is auto-generated; do not edit. *
+ ******************************************************
+ *
+ */
+
+
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
@@ -9,10 +20,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
-
-/******************************************************
- * Warning: this file is auto-generated; do not edit. *
- ******************************************************/
 
 
 var COLORS = ['#CC3399', '#27B0CE', '#1777E2'];

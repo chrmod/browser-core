@@ -1,4 +1,8 @@
 'use strict';
+/*
+ * This module handles Weather results using an extern API
+ *
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 

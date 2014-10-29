@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module handles the results(url) deduplication
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Filter'];
 const { classes: Cc, interfaces: Ci } = Components;
 

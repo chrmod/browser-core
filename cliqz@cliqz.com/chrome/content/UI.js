@@ -1,11 +1,16 @@
 'use strict';
+/*
+ * This is the module which creates the UI for the results
+ *   - uses handlebars templates
+ *   - attaches all the needed listners (keyboard/mouse)
+ */
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -71,7 +76,9 @@ var UI = {
         box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
 
         var resultsBox = document.getElementById('cliqz-results',box);
+
         resultsBox.addEventListener('click', resultClick);
+
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
 
@@ -468,13 +475,18 @@ function resultClick(ev){
                 CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                     CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             }
-            CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
-            
-            if(newTab) gBrowser.addTab(url);
-            else openUILink(url);
+
+            CLIQZ.Core.openLink(url, newTab);
             break;
         } else if (el.getAttribute('cliqz-action')) {
+            // copy calculator answer to clipboard
+            if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
+                const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                           .getService(Components.interfaces.nsIClipboardHelper);
+                gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                document.getElementById('calc-copied-btn').style.display = "";
+                document.getElementById('calc-copy-btn').style.display = "none";
+            }
             /*
              * Hides the current element and displays one of its siblings that
              * was specified in the toggle-with attribute.
@@ -639,10 +651,7 @@ function onEnter(ev, item){
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
-        CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
-        CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
-        
-        openUILink(url);
+        CLIQZ.Core.openLink(url, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
@@ -702,9 +711,7 @@ function onEnter(ev, item){
         if (CLIQZ.Core.urlbar.value.length > 0)
             CliqzUtils.track(action);
 
-        //CLIQZ.Core.popup.closePopup();
-        //gBrowser.selectedBrowser.contentDocument.location = 'chrome://cliqz/content/cliqz.html';
-        //return true;
+        CLIQZ.Core.triggerLastQ = true;
         return false;
     }
     CliqzUtils.track(action);
@@ -734,7 +741,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                gBrowser.addTab(url);
+                CLIQZ.Core.openLink(url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.contentDocument.location = url;
