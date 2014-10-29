@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module implements a mechanism which enables/disables AB tests
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzABTests'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
