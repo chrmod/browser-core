@@ -58,9 +58,9 @@ var CliqzHistory = {
                 CliqzHistory.setTabData(panel, 'query', null);
                 CliqzHistory.setTabData(panel, 'queryDate', null);
                 CliqzHistory.setTabData(panel, 'newTab', true);
-            } else /*if (title != CliqzHistory.getTabData(panel, "title"))*/ {
+            } else if (title != CliqzHistory.getTabData(panel, "title")) {
                 CliqzHistory.setTitle(url, title);
-                //CliqzHistory.setTabData(panel, 'title', title);
+                CliqzHistory.setTabData(panel, 'title', title);
            }; 
         },
         onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
