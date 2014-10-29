@@ -429,30 +429,128 @@ program:
             label: Subreddits
             cond: /r/{item}//
             title: title::re:(.*)
-    Chefkoch:
+    Sport1:
         summary: Sitemap_Summary
-        url: chefkoch.de
-        home: http://www.chefkoch.de/
+        url: sport1.de
+        home: http://www.sport1.de/
         rules:
         -
             type: control
-            title: Rezepte
-            url: http://www.chefkoch.de/rezepte
+            title: TV-Programm
+            url: http://tv.sport1.de/programm/
         -
             type: control
-            title: Magazin
-            url: http://www.chefkoch.de/magazin
+            title: Livestream
+            url: http://tv.sport1.de/
         -
             type: topic
-            label: Kategorien
-            cond: /rs/re:(s.*)/*-Rezepte.html
-            title: title::re:(.+)(?:Rezepte \| Chefkoch.de)
+            label: Sportarten
+            cond: /de/{item}//
+            title: title::re:(.+?)\s*\|\s*(.+?)
+    Kicker:
+        summary: Sitemap_Summary
+        url: kicker.de
+        home: http://www.kicker.de/
+        rules:
+        -
+            type: control
+            title: Schlagzeilen
+            url: http://www.kicker.de/news/live-news/schlagzeilen/schlagzeilen_fussball.html
+        -
+            type: control
+            title: Live
+            url: http://www.kicker.de/news/live-news/livescores/livescores_fussball.html
+        -
+            type: topic
+            label: Ligen
+            cond: /news/fussball/{item}/startseite.html
+            title: title::re:(.*)
+    google.de:
+        summary: Sitemap_Summary
+        url: google.de
+        home: http://www.google.com/
+        drop_url_parameters: false
+        drop_url_fragment: false
+        rules:
+        -
+            type: control
+            title: Maps
+            url: http://maps.google.com/
+        -
+            type: control
+            title: Bilder
+            url: http://images.google.com/
+        -
+            type: control
+            title: News
+            url: http://news.google.com/
+        -
+            type: control
+            title: Gmail
+            url: http://gmail.google.com/
+        -
+            type: control
+            title: Drive
+            url: http://drive.google.com/
+        -
+            type: control
+            title: Kalender
+            url: http://calendar.google.com/
+        -
+            type: topic
+            label: Bilder
+            cond: /re:(q=.*tbm=isch.*)//
+            title: title::re:(.+)(?:- Google.*)
         -
             type: exclude
-            cond: /rezepte//
+            cond: /re:(tbm=isch.*)//
         -
             type: topic
-            label: Rezepte
-            cond: /rezepte/{item}/*.html
-            title: title::re:(.+)(?:\(.*)
+            label: Web
+            cond: /re:(q=.*)//
+            title: title::re:(.+)(?:- Google.*)
+    google.com:
+        summary: Sitemap_Summary
+        url: google.com
+        home: http://www.google.com/
+        drop_url_parameters: false
+        drop_url_fragment: false
+        rules:
+        -
+            type: control
+            title: Maps
+            url: http://maps.google.com/
+        -
+            type: control
+            title: Images
+            url: http://images.google.com/
+        -
+            type: control
+            title: News
+            url: http://news.google.com/
+        -
+            type: control
+            title: Gmail
+            url: http://gmail.google.com/
+        -
+            type: control
+            title: Drive
+            url: http://drive.google.com/
+        -
+            type: control
+            title: Calendar
+            url: http://calendar.google.com/
+        -
+            type: topic
+            label: Images
+            cond: /re:(q=.*tbm=isch.*)//
+            title: title::re:(.+)(?:- Google.*)
+        -
+            type: exclude
+            cond: /re:(tbm=isch.*)//
+        -
+            type: topic
+            label: Web
+            cond: /re:(q=.*)//
+            title: title::re:(.+)(?:- Google.*)
 
