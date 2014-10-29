@@ -403,4 +403,56 @@ program:
             label: Articles
             cond: /re:\d\d\d\d/re:\d\d/re:\d\d/*/
             title: title::re:(.+)(?:.+-.*Times.*)
+    Reddit:
+        summary: Sitemap_Summary
+        url: reddit.com
+        home: http://www.reddit.com/
+        rules:
+        -
+            type: control
+            title: My Subreddits
+            cond: /subreddits/mine//
+        -
+            type: control
+            title: Inbox
+            cond: /message/inbox//
+        -
+            type: control
+            title: Overview
+            cond: /user/{item}//
+        -
+            type: control
+            title: Saved
+            cond: /user/{item}/saved//
+        -
+            type: topic
+            label: Subreddits
+            cond: /r/{item}//
+            title: title::re:(.*)
+    Chefkoch:
+        summary: Sitemap_Summary
+        url: chefkoch.de
+        home: http://www.chefkoch.de/
+        rules:
+        -
+            type: control
+            title: Rezepte
+            url: http://www.chefkoch.de/rezepte
+        -
+            type: control
+            title: Magazin
+            url: http://www.chefkoch.de/magazin
+        -
+            type: topic
+            label: Kategorien
+            cond: /rs/re:(s.*)/*-Rezepte.html
+            title: title::re:(.+)(?:Rezepte \| Chefkoch.de)
+        -
+            type: exclude
+            cond: /rezepte//
+        -
+            type: topic
+            label: Rezepte
+            cond: /rezepte/{item}/*.html
+            title: title::re:(.+)(?:\(.*)
 

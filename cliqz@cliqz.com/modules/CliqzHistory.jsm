@@ -90,8 +90,11 @@ var CliqzHistory = {
 
         CliqzHistory.setTitle(url, title);
         if (type == "typed") {
+            if (query.indexOf('://') == -1) {
+                query = "http://" + query;
+            };
             CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
-                VALUES ('"+CliqzHistory.escapeSQL("http://"+query)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
+                VALUES ('"+CliqzHistory.escapeSQL(query)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
             type = "link";
             now += 1;
         }
