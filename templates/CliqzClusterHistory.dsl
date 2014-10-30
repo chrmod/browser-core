@@ -403,4 +403,158 @@ program:
             label: Articles
             cond: /re:\d\d\d\d/re:\d\d/re:\d\d/*/
             title: title::re:(.+)(?:.+-.*Times.*)
+    Reddit:
+        summary: Sitemap_Summary
+        url: reddit.com
+        home: http://www.reddit.com/
+        rules:
+        -
+            type: control
+            title: My Subreddits
+            cond: /subreddits/mine//
+        -
+            type: control
+            title: Inbox
+            cond: /message/inbox//
+        -
+            type: control
+            title: Overview
+            cond: /user/{item}//
+        -
+            type: control
+            title: Saved
+            cond: /user/{item}/saved//
+        -
+            type: control
+            title: Random Subbreddit
+            url: http://www.reddit.com/r/random/
+        -
+            type: topic
+            label: Subreddits
+            cond: /r/{item}//
+            title: title::re:(.*)
+    Sport1:
+        summary: Sitemap_Summary
+        url: sport1.de
+        home: http://www.sport1.de/
+        rules:
+        -
+            type: control
+            title: TV-Programm
+            url: http://tv.sport1.de/programm/
+        -
+            type: control
+            title: Livestream
+            url: http://tv.sport1.de/
+        -
+            type: topic
+            label: Sportarten
+            cond: /de/{item}//
+            title: title::re:(.+?)\s*\|\s*(.+?)
+    Kicker:
+        summary: Sitemap_Summary
+        url: kicker.de
+        home: http://www.kicker.de/
+        rules:
+        -
+            type: control
+            title: Schlagzeilen
+            url: http://www.kicker.de/news/live-news/schlagzeilen/schlagzeilen_fussball.html
+        -
+            type: control
+            title: Live
+            url: http://www.kicker.de/news/live-news/livescores/livescores_fussball.html
+        -
+            type: topic
+            label: Ligen
+            cond: /news/fussball/{item}/startseite.html
+            title: title::re:(.*)
+    google.de:
+        summary: Sitemap_Summary
+        url: google.de
+        home: http://www.google.com/
+        drop_url_parameters: false
+        drop_url_fragment: false
+        rules:
+        -
+            type: control
+            title: Maps
+            url: http://maps.google.com/
+        -
+            type: control
+            title: Bilder
+            url: http://images.google.com/
+        -
+            type: control
+            title: News
+            url: http://news.google.com/
+        -
+            type: control
+            title: Gmail
+            url: http://gmail.google.com/
+        -
+            type: control
+            title: Drive
+            url: http://drive.google.com/
+        -
+            type: control
+            title: Kalender
+            url: http://calendar.google.com/
+        -
+            type: topic
+            label: Bilder
+            cond: /re:(q=.*tbm=isch.*)//
+            title: title::re:(.+)(?:- Google.*)
+        -
+            type: exclude
+            cond: /re:(tbm=isch.*)//
+        -
+            type: topic
+            label: Web
+            cond: /re:(q=.*)//
+            title: title::re:(.+)(?:- Google.*)
+    google.com:
+        summary: Sitemap_Summary
+        url: google.com
+        home: http://www.google.com/
+        drop_url_parameters: false
+        drop_url_fragment: false
+        rules:
+        -
+            type: control
+            title: Maps
+            url: http://maps.google.com/
+        -
+            type: control
+            title: Images
+            url: http://images.google.com/
+        -
+            type: control
+            title: News
+            url: http://news.google.com/
+        -
+            type: control
+            title: Gmail
+            url: http://gmail.google.com/
+        -
+            type: control
+            title: Drive
+            url: http://drive.google.com/
+        -
+            type: control
+            title: Calendar
+            url: http://calendar.google.com/
+        -
+            type: topic
+            label: Images
+            cond: /re:(q=.*tbm=isch.*)//
+            title: title::re:(.+)(?:- Google.*)
+        -
+            type: exclude
+            cond: /re:(tbm=isch.*)//
+        -
+            type: topic
+            label: Web
+            cond: /re:(q=.*)//
+            title: title::re:(.+)(?:- Google.*)
 
