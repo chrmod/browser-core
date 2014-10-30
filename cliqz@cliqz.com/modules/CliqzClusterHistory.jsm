@@ -1069,7 +1069,7 @@ var templates = {
             var site = 'Reddit';
             var template = {
                 summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [],
+                control: [{title: CliqzUtils.getLocalizedString('Random Subbreddit'), url: 'http://www.reddit.com/r/random/', iconCls: 'null'}],
                 control_set: {},
                 topics: [],
                 url: 'http://www.reddit.com/'

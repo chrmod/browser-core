@@ -425,6 +425,10 @@ program:
             title: Saved
             cond: /user/{item}/saved//
         -
+            type: control
+            title: Random Subbreddit
+            url: http://www.reddit.com/r/random/
+        -
             type: topic
             label: Subreddits
             cond: /r/{item}//
