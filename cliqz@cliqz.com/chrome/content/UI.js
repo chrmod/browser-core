@@ -98,13 +98,6 @@ var UI = {
         if (!gCliqzBox)
             return;
 
-        var entity = true; //CliqzEntityZones.getEntity(res.q);
-        if(entity) {
-          var data = {}
-          gCliqzBox.resultsBox.innerHTML = UI.tpl["entity-search"](data);
-          return;
-        }
-
         var enhanced = enhanceResults(res);
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
@@ -418,7 +411,10 @@ function enhanceResults(res){
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    res.results = first.concat(last);
+    res.results = first;
+    if (first.length && first[0].data.only)
+      return res;
+    res.results = res.results.concat(last);
     return res;
 }
 

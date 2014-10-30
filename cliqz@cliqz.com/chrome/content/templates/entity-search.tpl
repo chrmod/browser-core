@@ -7,10 +7,14 @@
   -->
   <div>
     <div id="entity-search-box">
-      <img src="chrome://cliqzres/content/skin/entity_zones/g_search.png" />
-      <input type="text" id="entity-search-box-input" />
+      <img id="entity-search-box-icon" src="chrome://cliqzres/content/skin/entity_zones/g_search.png" />
+      <input dont-close="true" type="text" id="entity-search-box-input"
+       onkeydown="if(event.keyCode==13)
+                  { openUILink('https://www.google.com/search?q=' + this.value);
+                    CLIQZ.Core.forceCloseResults = true;
+                    CLIQZ.Core.popup.hidePopup();
+                    event.preventDefault();}"/>
     </div>
-    {{xxx}}
   </div>
   <div>
     <div class="entity-search-container-app" style="background-color: #A2D5E8;">
@@ -29,7 +33,7 @@
       <div><img src="chrome://cliqzres/content/skin/entity_zones/news.png" /></div>
       <div class="entity-search-container-app-text" style="background-color: #F57037;">News</div>
     </div>
-    <div class="entity-search-container-app" style="background-color: #94E1BF;">
+    <div class="entity-search-container-app" style="background-color: #94E1BF;" url="google.com">
       <div><img src="chrome://cliqzres/content/skin/entity_zones/youtube.png" /></div>
       <div class="entity-search-container-app-text" style="background-color: #6BCC9F;">YouTube</div>
     </div>

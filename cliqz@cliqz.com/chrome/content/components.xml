@@ -14,6 +14,7 @@
        <constructor>
         <![CDATA[
           this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
+          this.setAttribute("onpopuphiding", "CLIQZ.Core.closeResults(event)");
           CLIQZ.UI.main(this.cliqzBox);
         ]]>
       </constructor>

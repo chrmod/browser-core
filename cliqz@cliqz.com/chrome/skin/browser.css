@@ -1098,11 +1098,18 @@
   width: 485px;
   height: 30px;
   margin-bottom: 15px;
+  background-color: white;
+}
+
+#entity-search-box-icon {
+  background-color: #3E86FC;
 }
 
 #entity-search-box-input {
-  width: 480px;
-  height: 20px;
+  vertical-align: top;
+  font-size: 20px;
+  width: 440px;
+  height: 28px;
   border: none;
 }
 
@@ -1110,7 +1117,6 @@
   display: inline-block;
   width: 90px;
   height: 90px;
-  background-color: red;
   border-radius: 5px;
   margin-right: 5px;
 }

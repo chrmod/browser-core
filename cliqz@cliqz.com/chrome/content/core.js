@@ -386,8 +386,25 @@ CLIQZ.Core = CLIQZ.Core || {
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     },
-
     getQuerySession: function() {
         return _querySession;
+    },
+    forceCloseResults: false,
+    closeResults: function (event, force) {
+      if (CLIQZ.Core.forceCloseResults || force) {
+        CLIQZ.Core.forceCloseResults = false;
+        return;
+      }
+
+      var oldActive = event.target;
+      event.preventDefault();
+      setTimeout(function(){
+          var newActive = document.activeElement;
+          if (newActive.getAttribute("dont-close") != "true") {
+            CLIQZ.Core.forceCloseResults = true;
+            oldActive.hidePopup();
+          }
+      }, 0);
+
     }
 };
