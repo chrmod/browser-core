@@ -1,15 +1,4 @@
 'use strict';
-
-/*
- * This module clusters(groups) results for a predefined set of domains
- *
- ******************************************************
- * Warning: this file is auto-generated; do not edit. *
- ******************************************************
- *
- */
-
-
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
@@ -20,6 +9,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
+
+/******************************************************
+ * Warning: this file is auto-generated; do not edit. *
+ ******************************************************/
 
 
 var COLORS = ['#CC3399', '#27B0CE', '#1777E2'];
@@ -225,6 +218,79 @@ var templates = {
                     }
 
                     var item_title = title;
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'reiseauskunft.bahn.de': {
+        fun: function(urls) {
+
+            var site = 'Deutsche Bahn';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Bahn_MeineBahn'), url: 'http://www.bahn.de/p/view/meinebahn/login.shtml', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Bahn_Angebotsberatung'), url: 'http://www.bahn.de/p/view/angebot/berater.shtml', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.bahn.de/'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (true) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (true) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'bin' && vpath[1] == 'query.exe') {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Bahn_Reiseauskunft');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var item_title = CliqzUtils.getLocalizedString('Sitemap_Bahn_Fahrkarten_buchen');
                     if (item_title != null && item_title.length != 0 && topic!=null
                             && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})
@@ -555,6 +621,79 @@ var templates = {
                     } else {
                         var item_title = title;
                     }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            return template;
+        }
+    },
+    'bahn.de': {
+        fun: function(urls) {
+
+            var site = 'Deutsche Bahn2';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Bahn_MeineBahn'), url: 'http://www.bahn.de/p/view/meinebahn/login.shtml', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Bahn_Angebotsberatung'), url: 'http://www.bahn.de/p/view/angebot/berater.shtml', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.bahn.de/'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (true) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (true) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+
+                if (vpath[0] == 'bin' && vpath[1] == 'query.exe') {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Bahn_Reiseauskunft');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var item_title = CliqzUtils.getLocalizedString('Sitemap_Bahn_Fahrkarten_buchen');
                     if (item_title != null && item_title.length != 0 && topic!=null
                             && !topic['label_set'].hasOwnProperty(item_title)) {
                         topic['urls'].push({href: url, path: path, title: item_title})

@@ -212,6 +212,18 @@
     "Sitemap_Twitter_Discover": {
       "message":"Entdecken"
     },
+    "Sitemap_Bahn_MeineBahn": {
+      "message":"Meine Bahn"
+    },
+    "Sitemap_Bahn_Angebotsberatung": {
+      "message":"Angebotsberatung"
+    },
+    "Sitemap_Bahn_Reiseauskunft": {
+      "message":"Reiseauskunft"
+    },
+    "Sitemap_Bahn_Fahrkarten_buchen": {
+      "message":"Fahrkarten buchen"
+    },
     "country_code_": {
       "message":"Automatisch"
     },
