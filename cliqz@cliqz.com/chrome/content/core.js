@@ -104,7 +104,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
-            window.gBrowser.addTabsProgressListener(CliqzHistory.listener, Components.interfaces.nsIWebProgressListener.STATE_STOP);
+            window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
                 var tabs = window.gBrowser.tabs;
                 var curPanel = window.gBrowser.selectedTab.linkedPanel;
