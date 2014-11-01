@@ -343,14 +343,22 @@ CLIQZ.Core = CLIQZ.Core || {
         let urlBar = CLIQZ.Core.urlbar,
             endPoint = urlBar.value.length;
 
+        // Remove protocol and 'www.' from first results
         if(firstResult.indexOf('://') !== -1){
            firstResult = firstResult.split('://')[1];
         }
-
         firstResult = firstResult.replace('www.', '');
 
-        if(firstResult.indexOf(urlBar.value) === 0) {
-            urlBar.value += firstResult.substr(endPoint);
+        // Remove protocol and 'www.' from typed query
+        var query = urlBar.value;
+        if(query.indexOf('://') !== -1){
+           query = query.split('://')[1];
+        }
+        query = query.replace('www.', '');
+
+        // Then add the matching part to the end of the current typed query and set is as selected.
+        if(query && firstResult.indexOf(query) === 0) {
+            urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     },
