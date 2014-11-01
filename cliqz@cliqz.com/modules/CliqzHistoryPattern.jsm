@@ -64,7 +64,7 @@ var CliqzHistoryPattern = {
                         result.push(CliqzHistoryPattern.pattern[key]);
                     };
                 }
-                callback( result.sort(CliqzHistoryPattern.sortPatterns(null,'cnt')) );
+                callback( result.sort(CliqzHistoryPattern.sortPatterns(null,'cnt')).reverse() );
             });
     },
     sortPatterns: function (desc,key) {
