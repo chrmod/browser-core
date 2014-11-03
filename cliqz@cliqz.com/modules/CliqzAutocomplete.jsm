@@ -43,7 +43,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 1000,
-    HISTORY_TIMEOUT: 100,
+    HISTORY_TIMEOUT: 500,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -161,10 +161,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
                 this.historyResults = result;
+                CliqzUtils.log(JSON.stringify(result), "onSearchResult");
 
                 // We wait until we have all history results
-                if (result.searchResult == result.RESULT_NOMATCH_ONGOING ||
-                    result.searchResult == result.RESULT_SUCCESS_ONGOING) return;
+                if(!this.isHistoryReady())
+                    return;
 
                 // Push a history result as fast as we have it (and we don't
                 // have anything else).
@@ -186,25 +187,25 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var candidate_idx = -1;
                     var candidate_url = '';
 
+                    var searchString = this.searchString.replace('http://','').replace('https://','');
+
                     for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
                         let label = this.historyResults.getLabelAt(i);
                         let urlparts = CliqzUtils.getDetailsFromUrl(label);
 
-                        // check if it should not be filtered, and matches only the domain
+                        // check if it should not be filtered, and matches the url
                         if(Result.isValid(label, urlparts) &&
-                           urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
-
-                            CliqzUtils.log(label)
+                           label.toLowerCase().indexOf(searchString) != -1) {
 
                             if(candidate_idx == -1) {
                                 // first entry
-                                CliqzUtils.log("first candidate: " + label)
+                                CliqzUtils.log("first instant candidate: " + label, "CliqzAutocomplete")
                                 candidate_idx = i;
                                 candidate_url = label;
                             } else if(candidate_url.indexOf(label) != -1) {
                                 // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter candidate: " + label)
+                                CliqzUtils.log("found shorter instant candidate: " + label, "CliqzAutocomplete")
                                 candidate_idx = i;
                                 candidate_url = label;
                             }
@@ -239,7 +240,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             comment = this.historyResults.getCommentAt(candidate_idx),
                             label = this.historyResults.getLabelAt(candidate_idx);
 
-                        CliqzUtils.log("instant:" + label)
                         var instant = Result.generic(style, value, image, comment, label, this.searchString);
                         instant.comment += " (instant history domain)!";
 
@@ -248,6 +248,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                     this.pushResults(result.searchString);
                 }
+            },
+            isHistoryReady: function() {
+                if(this.historyResults && 
+                   this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
+                   this.historyResults.searchResult != this.historyResults.RESULT_SUCCESS_ONGOING)
+                    return true;
+                else 
+                    return false;
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
@@ -313,14 +321,17 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
-                    // var latency_backend = now - this.startTime;
 
-                    if (!this.historyResults && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT) {
-                        CliqzUtils.log('history timeout', 'latency');
+                    var historyTimeout = false;
+                    if (!this.isHistoryReady() && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT) {
+                        CliqzUtils.log('history timeout', 'pushResults');
+                        historyTimeout = true;
                     }
+
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
-                        this.historyResults && this.cliqzResults && this.cliqzWeather /*|| // all results are ready
-                        this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT*/) { // 100ms timeout for history
+                       (this.isHistoryReady() || historyTimeout) && // history is ready or timed out
+                       this.cliqzResults && this.cliqzWeather) { // all results are ready
+                        /// Push full result
 
                         this.mixedResults.addResults(this.mixResults());
 
@@ -345,7 +356,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults = null;
                         this.cliqzWeather= null;
                         return;
-                    } else {
+                    } else if(this.isHistoryReady()) {
+                        /// Push instant result
+
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
                         let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
@@ -358,7 +371,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         //instant result, no country info yet
                         this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
-
+                    } else {
+                        /// Nothing to push yet, probably only cliqz results are received, keep waiting
+                        this.resultsTimer = CliqzUtils.setTimeout(this.pushResults, timeout, this.searchString);
                     }
                 }
             },
