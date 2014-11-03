@@ -367,7 +367,7 @@ var Extension = {
           'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };
 
-        var location = CliqzUtils.getPref('config_location', 'DE');
+        var location = CliqzUtils.getPref('config_location', 'DE').toUpperCase();
         // Append current location to Automatic string
         languages[''].lang += ' (' + languages[location].lang + ')';
 
