@@ -41,9 +41,9 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getBranch('browser.urlbar.');
 
 var CliqzAutocomplete = CliqzAutocomplete || {
-    LOG_KEY: 'cliqz results: ',
+    LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
-    HISTORY_TIMEOUT: 500,
+    HISTORY_TIMEOUT: 100,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -157,24 +157,37 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
             QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
             resultsTimer: null,
+            historyTimer: null,
+            historyTimeout: false,
 
+            historyTimeoutCallback: function(params) {
+                CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
+                this.historyTimeout = true;
+                this.onSearchResult({}, this.historyResults);
+            },
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
+                if(!this.startTime) {
+                    return; // no current search, just discard
+                }
+                var now = (new Date()).getTime();
+
                 this.historyResults = result;
-                CliqzUtils.log(JSON.stringify(result), "onSearchResult");
+                this.latency.history = now - this.startTime;
+                CliqzTimings.add("search_history", (now - this.startTime));
 
-                // We wait until we have all history results
-                if(!this.isHistoryReady())
-                    return;
+                CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() + 
+                               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
 
-                // Push a history result as fast as we have it (and we don't
-                // have anything else).
-                this.latency.history = (new Date()).getTime() - this.startTime;
-                if (this.mixedResults.matchCount > 0) return;
-
-                if (this.startTime)
-                    CliqzTimings.add("search_history",
-                                     ((new Date()).getTime() - this.startTime));
+                // Choose an instant result if we have all history results (timeout)
+                // and we haven't already chosen one
+                if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
+                    CliqzUtils.clearTimeout(this.historyTimer);
+                    this.instantResult(search, result);                    
+                }
+            },
+            // Pick one history result or a cluster as the instant result to be shown to the user first
+            instantResult: function(search, result) {
 
                 let [is_clustered, history_trans] = CliqzClusterHistory.cluster(
                     this.historyResults, [], result.searchString);
@@ -189,7 +202,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var searchString = this.searchString.replace('http://','').replace('https://','');
 
-                    for (let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
+                    for(let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
                         let label = this.historyResults.getLabelAt(i);
                         let urlparts = CliqzUtils.getDetailsFromUrl(label);
@@ -200,12 +213,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                             if(candidate_idx == -1) {
                                 // first entry
-                                CliqzUtils.log("first instant candidate: " + label, "CliqzAutocomplete")
+                                CliqzUtils.log("first instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
                                 candidate_url = label;
                             } else if(candidate_url.indexOf(label) != -1) {
                                 // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter instant candidate: " + label, "CliqzAutocomplete")
+                                CliqzUtils.log("found shorter instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
                                 candidate_url = label;
                             }
@@ -213,7 +226,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
                 // If we could cluster the history, put that as the instant result
-                if (is_clustered) {
+                if(is_clustered) {
                     let style = history_trans[0]['style'],
                         value = history_trans[0]['value'],
                         image = history_trans[0]['image'],
@@ -312,6 +325,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
             },
+            pushTimeoutCallback: function(params) {
+                CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
+                this.pushResults(params);
+            },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
                 // special case: user has deleted text from urlbar
@@ -319,19 +336,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return;
 
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
-                    CliqzUtils.clearTimeout(this.resultsTimer);
                     var now = (new Date()).getTime();
 
-                    var historyTimeout = false;
-                    if (!this.isHistoryReady() && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT) {
-                        CliqzUtils.log('history timeout', 'pushResults');
-                        historyTimeout = true;
-                    }
-
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
-                       (this.isHistoryReady() || historyTimeout) && // history is ready or timed out
+                       (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
                        this.cliqzResults && this.cliqzWeather) { // all results are ready
                         /// Push full result
+                        
+                        CliqzUtils.clearTimeout(this.resultsTimer);
+                        CliqzUtils.clearTimeout(this.historyTimer);
 
                         this.mixedResults.addResults(this.mixResults());
 
@@ -350,6 +363,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
                         this.resultsTimer = null;
+                        this.historyTimer = null;
                         this.cliqzResults = null;
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
@@ -361,9 +375,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
-                        let timeout = this.startTime + CliqzAutocomplete.TIMEOUT - now + 1;
-                        this.resultsTimer = CliqzUtils.setTimeout(this.pushResults, timeout, this.searchString);
-
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
@@ -373,7 +384,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
                     } else {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
-                        this.resultsTimer = CliqzUtils.setTimeout(this.pushResults, timeout, this.searchString);
                     }
                 }
             },
@@ -525,6 +535,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
+                this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
+                this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
@@ -545,6 +557,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         this.cliqzBundesliga = [];
                     }
+                    CliqzUtils.clearTimeout(this.resultsTimer);
+                    this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
@@ -557,6 +571,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // trigger history search
                 this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
+                CliqzUtils.clearTimeout(this.historyTimer);
+                this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+                this.historyTimeout = false;
             },
 
             /**
@@ -564,6 +581,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             */
             stopSearch: function() {
                 CliqzUtils.clearTimeout(this.resultsTimer);
+                CliqzUtils.clearTimeout(this.historyTimer);
             }
         }
     }
