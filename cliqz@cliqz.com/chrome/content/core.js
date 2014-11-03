@@ -270,7 +270,7 @@ CLIQZ.Core = CLIQZ.Core || {
             // wait for search component initialization
             if(Services.search.init != null){
                 Services.search.init(function(){
-                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                    if(CLIQZ) CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
                 });
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
