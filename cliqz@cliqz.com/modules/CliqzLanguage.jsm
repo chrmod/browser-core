@@ -1,4 +1,10 @@
 'use strict';
+/*
+ * This module determines the language of visited pages and
+ * creates a list of known languages for a user
+ *
+ */
+
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzLanguage'];

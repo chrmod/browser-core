@@ -1,4 +1,14 @@
 'use strict';
+/*
+ * This module has a list of helpers used across the extension
+ *  HTTP handlers
+ *  URL manipulators
+ *  Localization mechanics
+ *  Common logging pipe
+ *  Preferences(persistent storage) wrappers
+ *  Browser helpers
+ *  ...
+ */
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -31,10 +41,11 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
+  LANGS:            {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:             'https://beta.cliqz.com',
   SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://54.160.219.66/api/v1/logging?q=',
+  RESULTS_PROVIDER_LOG: 'http://webbeta.cliqz.com/api/v1/logging?q=',
   CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
   LOG:              'https://logging.cliqz.com',
   CLIQZ_URL:        'https://beta.cliqz.com/',
@@ -42,10 +53,11 @@ var CliqzUtils = {
   TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:       'https://beta.cliqz.com/code-verified',
   CHANGELOG:        'https://beta.cliqz.com/changelog',
-  UNINSTALL:        'https://beta.cliqz.com/deinstall.html',
   PREF_STRING:      32,
   PREF_INT:         64,
   PREF_BOOL:        128,
+  PREFERRED_LANGUAGE: null,
+
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
@@ -53,22 +65,19 @@ var CliqzUtils = {
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
-  init: function(window){
+  init: function(win){
     //use a different suggestion API
     if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
       //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
     }
-    //use a different results API
-    if(CliqzUtils.getPref('sessionExperiment', false)){
-      CliqzUtils.RESULTS_PROVIDER = 'http://54.160.219.66/api/v1/results?q='
-    }
-    if (window && window.navigator) {
+    if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
-        var nav = window.navigator;
-        var PREFERRED_LANGUAGE = nav.language || nav.userLanguage
-            || nav.browserLanguage || nav.systemLanguage || 'en';
-        CliqzUtils.loadLocale(PREFERRED_LANGUAGE);
+        var nav = win.navigator;
+        CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
+        CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
+
+    if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -98,7 +107,7 @@ var CliqzUtils = {
       if(timeout){
         req.timeout = parseInt(timeout)
       } else {
-        req.timeout = (method == 'POST'? 2000 : 1000);
+        req.timeout = (method == 'POST'? 10000 : 1000);
       }
     }
     req.send(data);
@@ -171,6 +180,17 @@ var CliqzUtils = {
   },
   getDay: function() {
     return Math.floor(new Date().getTime() / 86400000);
+  },
+  //creates a random 'len' long string from the input space
+  rand: function(len, _space){
+      var ret = '', i,
+          space = _space || 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+          sLen = space.length;
+
+      for(i=0; i < len; i++ )
+          ret += space.charAt(Math.floor(Math.random() * sLen));
+
+      return ret;
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -264,7 +284,6 @@ var CliqzUtils = {
     if(locales.length > 0)
       local_param = "&hl=" + encodeURIComponent(locales[0]);
 
-    CliqzUtils.tryAbort(CliqzUtils._suggestionsReq);
     CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
       function(res){
         callback && callback(res, q);
@@ -272,14 +291,8 @@ var CliqzUtils = {
     );
   },
   _resultsReq: null,
-  tryAbort: function(req){
-    if(CliqzUtils.getPref('abortConnections', true)){
-      req && req.abort();
-    }
-  },
   getCliqzResults: function(q, callback){
-    CliqzUtils.tryAbort(CliqzUtils._resultsReq);
-    if(CliqzUtils.getPref('sessionExperiment', false)){
+    if(CliqzUtils.getPref('sessionLogging', false)){
       CliqzUtils._querySeq++;
       CliqzUtils._resultsReq = CliqzUtils.httpGet(
         CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
@@ -314,7 +327,8 @@ var CliqzUtils = {
 
         callback();
       },
-      callback //on error the callback still needs to be called
+      callback, //on error the callback still needs to be called
+      2000
     );
   },
   getWorldCup: function(q, callback){
@@ -385,10 +399,6 @@ var CliqzUtils = {
 
     return internal + " " + cliqz_sources
   },
-  stopSearch: function(){
-    CliqzUtils._resultsReq && CliqzUtils._resultsReq.abort();
-    CliqzUtils._suggestionsReq && CliqzUtils._suggestionsReq.abort();
-  },
   shouldLoad: function(window){
     return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
   },
@@ -398,8 +408,7 @@ var CliqzUtils = {
           Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
           return PrivateBrowsingUtils.isWindowPrivate(window);
         } catch(e) {
-          // pre Firefox 20 (if you do not have access to a doc.
-          // might use doc.hasAttribute('privatebrowsingmode') then instead)
+          // pre Firefox 20
           try {
             var inPrivateBrowsing = Components.classes['@mozilla.org/privatebrowsing;1'].
                                     getService(Components.interfaces.nsIPrivateBrowsingService).
@@ -431,7 +440,7 @@ var CliqzUtils = {
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
-    if(instantPush || CliqzUtils.trk.length > 100){
+    if(instantPush || CliqzUtils.trk.length % 100 == 0){
       CliqzUtils.pushTrack();
     } else {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
@@ -439,7 +448,7 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    if(CliqzUtils.getPref('sessionExperiment', false)){
+    if(CliqzUtils.getPref('sessionLogging', false)){
       CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
         (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
         '&i=' + resultIndex +
@@ -492,7 +501,7 @@ var CliqzUtils = {
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE;
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE + 100;
     if(slice_pos > 0){
       CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
       CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
@@ -564,9 +573,9 @@ var CliqzUtils = {
             function() {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
-                var loc = lang_locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/);
+                var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
                 CliqzUtils.loadResource(
-                    'chrome://cliqzres/content/locale/' + loc[1] + '/cliqz.json',
+                    'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
                     function(req) {
                         CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
                         CliqzUtils.currLocale = lang_locale;
@@ -576,6 +585,12 @@ var CliqzUtils = {
         );
     }
   },
+  getLanguageFromLocale: function(locale){
+    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
+  },
+  getLanguage: function(win){
+    return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
+  },
   getLocalizedString: function(key){
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
@@ -584,6 +599,15 @@ var CliqzUtils = {
         return CliqzUtils.locale['default'][key].message;
     } else {
         return key;
+    }
+  },
+  // gets all the elements with the class 'cliqz-locale' and adds
+  // the localized string - key attribute - as content
+  localizeDoc: function(doc){
+    var locale = doc.getElementsByClassName('cliqz-locale');
+    for(var i = 0; i < locale.length; i++){
+        var el = locale[i];
+        el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
   openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {

@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module logs performance metrics
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzTimings'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 

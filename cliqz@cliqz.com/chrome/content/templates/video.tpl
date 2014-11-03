@@ -24,13 +24,18 @@
            src="chrome://cliqzres/content/skin/{{ video_views data.richData.views }}.png" />
       {{/if}}
     </div>
+    {{#if debug}}
+      <span class='cliqz-result-debug overflow'>
+        <span>{{ debug }}</span>
+      </span>
+    {{/if}}
     <div style="padding-bottom: 5px">
       <span class='cliqz-result-video-provider'>
         {{ video_provider urlDetails.host }}
       </span>
       <span class='cliqz-result-video-author'>
       {{#if data.richData.poster}}
-        von
+        {{local 'videoBy'}}
         <strong style='margin-right:5px;'>
           {{ data.richData.poster }}
         </strong>

@@ -5,11 +5,7 @@
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
 		{{#with data}}
 		<div class='cliqz-custom-text overflow'>
-			Suche
-			<span class='cliqz-custom-suggestion'>
-				{{ q }}
-			</span>
-			auf {{ engine }}
+			{{{local 'customSearch' q engine}}}
 		</div>
 		{{/with}}
 	</div>

@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+ * This module clusters(groups) episodes from a series and
+ * tries to guess the next episode
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -210,7 +216,7 @@ function getSeriesGrouping(titles_and_urls) {
     var movingParts = [];
     var boilerParts = [];
     for (var i = 0; i < tokens_dfs.length; i++) {
-        var token_dfs = [df.toString() for (df of tokens_dfs[i])];
+        var token_dfs = tokens_dfs[i].map(function(df){ return df.toString(); })
         viterbiData['observations'] = token_dfs;
 
         var result = Viterbi(viterbiData);
@@ -447,7 +453,7 @@ var CliqzClusterSeries = {
             maxDomain2=key;
         }
     });
-   
+
 
     log('DOMAINS: ' + JSON.stringify(domains));
     if (maxDomain2!=null && maxDomainLen2>4) {

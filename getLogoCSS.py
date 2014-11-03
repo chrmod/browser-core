@@ -13,6 +13,8 @@ result in a CSS class like this:
 import sys
 import boto
 import tldextract
+import logging
+logging.basicConfig()
 
 
 def printcss(filename):
@@ -44,16 +46,27 @@ def main(argv):
 
     for key in bucket.list():
         filename = key.name
-        domain = filename.replace(".png", "")
+        full_domain = filename.replace(".png", "")
 
-        parts = tldextract.extract(domain)
-        if not parts.subdomain and parts.tld:
+        parts = tldextract.extract(full_domain)
+        tld = parts.tld
+        domain = parts.domain
+        subdomain = parts.subdomain
+
+        # special rule for google is because officially google has applied for
+        # its own tld. We don't want to match that.
+        if tld == "google":
+            subdomain = domain
+            domain = tld
+            tld = None
+
+        if not subdomain and tld:
             domains_dt.append(filename)
-        elif not parts.subdomain and not parts.tld:
+        elif not subdomain and not tld:
             domains_d.append(filename)
-        elif parts.subdomain and parts.tld:
+        elif subdomain and tld:
             domains_sdt.append(filename)
-        elif parts.subdomain and not parts.tld:
+        elif subdomain and not tld:
             domains_sd.append(filename)
         else:
             sys.stderr.write("ERROR: no category for " + domain + "\n")

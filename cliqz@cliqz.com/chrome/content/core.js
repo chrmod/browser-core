@@ -1,4 +1,12 @@
 'use strict';
+/*
+ * This is the core part of the extension.
+ *  - it is injected into each browser window
+ *  - loads all the additional modules needed
+ *  - changes the default search provider
+ *  - ovverides the default UI
+ *
+ */
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -68,11 +76,6 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
 
-        // Add search history dropdown
-        var urlbarIcons = document.getElementById('urlbar-icons');
-        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(urlbarIcons);
-        CLIQZ.Core.elem.push(searchHistoryContainer);
-
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -88,6 +91,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        // Add search history dropdown
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
+        CLIQZ.Core.elem.push(searchHistoryContainer);
 
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
@@ -121,7 +128,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     generateSession: function(source){
-        return Math.random().toString().split('.')[1]
+        return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
                + '|' +
                CliqzUtils.getDay()
                + '|' +
@@ -210,13 +217,35 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
+        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
-        CliqzUtils.setQuerySession(CLIQZ.Core.generateSession());
+        CLIQZ.Core.triggerLastQ = false;
+        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
+            //if test is active trigger it
+            CliqzUtils.setPref("showPremiumResults", 2);
+        }
+
+        //if(CLIQZ.Core.urlbar.value.trim().length > 0)
+        //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarblur: function(ev) {
-        CliqzSearchHistory.lastQuery();
+        if(CLIQZ.Core.triggerLastQ)
+            CliqzSearchHistory.lastQuery();
+
         CLIQZ.Core.urlbarEvent('blur');
+
+        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
+            CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
+        }
+
+        if(CliqzUtils.getPref("showAdResults", -1) == 2){
+            //if test is active trigger it
+            CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+        }
+        CliqzAutocomplete.lastFocusTime = null;
     },
     urlbarEvent: function(ev) {
         var action = {
@@ -235,27 +264,37 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.handleTimings();
         CliqzABTests.check();
+
+        //executed after the services are fetched
         CliqzUtils.fetchAndStoreConfig(function(){
-            //executed after the services are fetched
-            CLIQZ.Core.sendEnvironmentalSignal(startup);
+            // wait for search component initialization
+            if(Services.search.init != null){
+                Services.search.init(function(){
+                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                });
+            } else {
+                CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+            }
         });
     },
-    sendEnvironmentalSignal: function(startup){
+
+    sendEnvironmentalSignal: function(startup, defaultSearchEngine){
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
                 var info = {
-                    type: 'environment',
-                    agent: navigator.userAgent,
-                    language: navigator.language,
-                    width: CliqzUtils.getWindow().document.width,
-                    height: CliqzUtils.getWindow().document.height,
-                    version: beVersion,
-                    history_days: history.days,
-                    history_urls: history.size,
-                    startup: startup? true: false,
-                    prefs: CliqzUtils.getPrefs()
-                };
+                        type: 'environment',
+                        agent: navigator.userAgent,
+                        language: navigator.language,
+                        width: CliqzUtils.getWindow().document.width,
+                        height: CliqzUtils.getWindow().document.height,
+                        version: beVersion,
+                        history_days: history.days,
+                        history_urls: history.size,
+                        startup: startup? true: false,
+                        prefs: CliqzUtils.getPrefs(),
+                        defaultSearchEngine: defaultSearchEngine
+                    };
 
                 CliqzUtils.track(info);
             });
@@ -283,6 +322,16 @@ CLIQZ.Core = CLIQZ.Core || {
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
     },
+    openLink: function(url, newTab){
+        CLIQZ.Core.triggerLastQ = true;
+        if(newTab) gBrowser.addTab(url);
+        else {
+            //clean selected text to have a valid last Query
+            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            openUILink(url);
+        }
+    },
     // autocomplete query inline
     autocompleteQuery: function(firstResult){
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
@@ -294,14 +343,22 @@ CLIQZ.Core = CLIQZ.Core || {
         let urlBar = CLIQZ.Core.urlbar,
             endPoint = urlBar.value.length;
 
+        // Remove protocol and 'www.' from first results
         if(firstResult.indexOf('://') !== -1){
            firstResult = firstResult.split('://')[1];
         }
-
         firstResult = firstResult.replace('www.', '');
 
-        if(firstResult.indexOf(urlBar.value) === 0) {
-            urlBar.value += firstResult.substr(endPoint);
+        // Remove protocol and 'www.' from typed query
+        var query = urlBar.value;
+        if(query.indexOf('://') !== -1){
+           query = query.split('://')[1];
+        }
+        query = query.replace('www.', '');
+
+        // Then add the matching part to the end of the current typed query and set is as selected.
+        if(query && firstResult.indexOf(query) === 0) {
+            urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     },

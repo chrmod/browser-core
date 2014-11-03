@@ -1,3 +1,8 @@
+'use strict';
+/*
+ * This module handles Bundesliga results
+ *
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -16,8 +21,10 @@ var CliqzBundesliga = {
     },
     groupMatchesByTime: function (matches) {
       var results = {};
-      for(var match of matches) {
-        var time = CliqzBundesliga.unixTimeToLocal(match.kickoff);
+      for(var i=0; i < matches.length; i++) {
+        var match = matches[i],
+            time = CliqzBundesliga.unixTimeToLocal(match.kickoff);
+
         results[time] = results[time] ? [match].concat(results[time]) : [match];
       }
       return results;
