@@ -400,7 +400,7 @@ function enhanceResults(res){
                 r.debug = null;
 
             //extract tags from title
-            if(r.type.indexOf('tag') == 0)
+            if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
 
         }
@@ -679,7 +679,7 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
-                CLIQZ.Core.urlbar.value = firstUrl;
+                CLIQZ.Core.urlbar.value = CliqzUtils.cleanMozillaActions(firstUrl);
             }
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
