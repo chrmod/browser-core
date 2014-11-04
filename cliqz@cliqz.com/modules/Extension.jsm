@@ -9,11 +9,8 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
 Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -370,7 +367,7 @@ var Extension = {
           'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };
 
-        var location = CliqzUtils.getPref('config_location', 'DE');
+        var location = CliqzUtils.getPref('config_location', 'DE').toUpperCase();
         // Append current location to Automatic string
         languages[''].lang += ' (' + languages[location].lang + ')';
 

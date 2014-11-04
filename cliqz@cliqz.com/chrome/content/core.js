@@ -270,7 +270,7 @@ CLIQZ.Core = CLIQZ.Core || {
             // wait for search component initialization
             if(Services.search.init != null){
                 Services.search.init(function(){
-                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                    if(CLIQZ) CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
                 });
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
@@ -312,7 +312,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var UNINSTALL_PREF = 'uninstallVersion',
             lastUninstallVersion = CliqzUtils.getPref(UNINSTALL_PREF, '');
 
-        if(lastUninstallVersion != currentVersion){
+        if(currentVersion && lastUninstallVersion != currentVersion){
             CliqzUtils.setPref(UNINSTALL_PREF, currentVersion);
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }

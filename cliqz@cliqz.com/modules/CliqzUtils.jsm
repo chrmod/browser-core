@@ -93,8 +93,10 @@ var CliqzUtils = {
       }
     }
     req.onerror = function(){
-      CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
-      onerror && onerror();
+      if(CliqzUtils){
+        CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
+        onerror && onerror();
+      }
     }
     req.ontimeout = function(){
       if(CliqzUtils){ //might happen after disabling the extension
@@ -433,6 +435,8 @@ var CliqzUtils = {
   trk: [],
   trkTimer: null,
   track: function(msg, instantPush) {
+    if(!CliqzUtils) return; //might be called after the module gets unloaded
+
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
     if(CliqzUtils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
@@ -519,7 +523,7 @@ var CliqzUtils = {
     var event = {
       notify: function (timer) {
         func(param);
-        CliqzUtils._removeTimerRef(timer);
+        if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
       }
     };
     timer.initWithCallback(event, timeout, type);
@@ -560,27 +564,33 @@ var CliqzUtils = {
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
         CliqzUtils.loadResource('chrome://cliqzres/content/locale/de/cliqz.json',
             function(req){
-                CliqzUtils.locale['default'] = JSON.parse(req.response);
+                if(CliqzUtils) CliqzUtils.locale['default'] = JSON.parse(req.response);
             });
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
         CliqzUtils.loadResource('chrome://cliqzres/content/locale/'
                 + encodeURIComponent(lang_locale) + '/cliqz.json',
             function(req) {
-                CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
-                CliqzUtils.currLocale = lang_locale;
+                if(CliqzUtils){
+                  CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                  CliqzUtils.currLocale = lang_locale;
+                }
             },
             function() {
                 // We did not find the full locale (e.g. en-GB): let's try just the
                 // language!
                 var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
-                CliqzUtils.loadResource(
-                    'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
-                    function(req) {
-                        CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
-                        CliqzUtils.currLocale = lang_locale;
-                    }
-                );
+                if(CliqzUtils){
+                  CliqzUtils.loadResource(
+                      'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
+                      function(req) {
+                        if(CliqzUtils){
+                          CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
+                          CliqzUtils.currLocale = lang_locale;
+                        }
+                      }
+                  );
+                }
             }
         );
     }
