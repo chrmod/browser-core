@@ -68,7 +68,7 @@ var CliqzHistoryPattern = {
                     };
                 }
                 
-                if (CliqzHistoryPattern.maxDomainShare() < 0.6) {
+                if (CliqzHistoryPattern.maxDomainShare() < 0.5) {
                     callback(newResult);
                 } else {
                     var newResult = new Array();
@@ -182,7 +182,14 @@ var CliqzHistoryPattern = {
             } else {
                 return url;
             }
-
+        // Bing
+        } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) == 0) {
+            var q = url.substring(url.indexOf("q=")).split("&")[0];
+            if (q != "q=") {
+                return "https://www.bing.com/search?" + q;
+            } else {
+                return url;
+            }
         // Do Nothing if no patterns matched
         } else {
             return url;
