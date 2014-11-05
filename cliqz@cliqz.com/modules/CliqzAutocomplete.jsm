@@ -34,9 +34,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzQueryDebug',
   'chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -164,6 +167,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             onSearchResult: function(search, result) {
                 this.historyResults = result;
 
+                // XXX temporary for HistoryPattern
+                return;
+
                 // We wait until we have all history results
                 if (result.searchResult == result.RESULT_NOMATCH_ONGOING ||
                     result.searchResult == result.RESULT_SUCCESS_ONGOING) return;
@@ -196,8 +202,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // check if it should not be filtered, and matches only the domain
                         if(Result.isValid(label, urlparts) &&
                            urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
-
-                            CliqzUtils.log(label)
 
                             if(candidate_idx == -1) {
                                 // first entry
@@ -250,6 +254,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                     this.pushResults(result.searchString);
                 }
+            },
+            historyPatternCallback: function(results) {
+                CliqzUtils.log("All patterns found:", "CliqzHistoryPattern result");
+                for(var key in results) {
+                    CliqzUtils.log(results[key]['path'] + ": " + results[key]['cnt'], "CliqzHistoryPattern result");
+                    CliqzUtils.log("==>" + results[key]['url'] + ", " + results[key]['title'], "CliqzHistoryPattern result");
+                }
+
+                if(this.mixedResults.matchCount > 0) return;
+
+                if(results.length < 1) return;
+
+                var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
+                instant.comment += " (instant history pattern " + results[0].cnt + ")!";
+
+                this.mixedResults.addResults([instant]);
+                this.pushResults(this.searchString);
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
@@ -518,11 +539,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
+                this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+
+                    // begin history pattern search
+                    CliqzHistoryPattern.detectPattern(searchString, this.historyPatternCallback);
 
                     // Fetch weather and bundesliga only if search contains trigger
                     if(CliqzWeather.isWeatherSearch(searchString)){

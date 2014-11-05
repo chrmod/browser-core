@@ -558,3 +558,26 @@ program:
             cond: /re:(q=.*)//
             title: title::re:(.+)(?:- Google.*)
 
+    Deutsche Bahn:
+        # Ticket booking is at reiseauskunft.bahn.de, use the presense of that
+        # to trigger display of controls, then exclude all.
+        # We should be able to also trigger this rule for just bahn.de, but it is not possible to 
+        # specify a set of urls --> Need to add this function.
+        summary: Sitemap_Summary
+        url: reiseauskunft.bahn.de
+        home: http://www.bahn.de/
+        rules:
+        -
+            type: control
+            title: Sitemap_Bahn_MeineBahn
+            url: http://www.bahn.de/p/view/meinebahn/login.shtml
+        -
+            type: control
+            title: Sitemap_Bahn_Angebotsberatung
+            url: http://www.bahn.de/p/view/angebot/berater.shtml
+        -
+            type: topic
+            label: Sitemap_Bahn_Reiseauskunft
+            cond: /bin/query.exe/  # from http://reiseauskunft.bahn.de/bin/query.exe
+            title: Sitemap_Bahn_Fahrkarten_buchen
+

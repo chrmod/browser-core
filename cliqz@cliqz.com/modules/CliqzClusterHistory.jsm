@@ -61,7 +61,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'startseite' && vpath[2] == vpath[0]) {
                     var item = decodeURIComponent(vpath[0]);
@@ -113,7 +113,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -157,7 +157,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'settings') {
 
@@ -226,7 +226,80 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
+            return template;
+        }
+    },
+    'reiseauskunft.bahn.de': {
+        fun: function(urls) {
+
+            var site = 'Deutsche Bahn';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Bahn_MeineBahn'), url: 'http://www.bahn.de/p/view/meinebahn/login.shtml', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Bahn_Angebotsberatung'), url: 'http://www.bahn.de/p/view/angebot/berater.shtml', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.bahn.de/'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (true) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (true) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
+
+                if (vpath[0] == 'bin' && vpath[1] == 'query.exe') {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Bahn_Reiseauskunft');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var item_title = CliqzUtils.getLocalizedString('Sitemap_Bahn_Fahrkarten_buchen');
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -272,7 +345,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -334,7 +407,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -381,7 +454,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'rezepte' && /[\d]+/.test(vpath[1])) {
                     var item = null;
@@ -443,7 +516,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -490,7 +563,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (/playlist\?list=wl/.test(vpath[0])) {
 
@@ -556,7 +629,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -601,7 +674,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath.length == 2) && (vpath[0] == 'de')) {
                     var item = decodeURIComponent(vpath[1]);
@@ -634,7 +707,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -678,7 +751,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -715,83 +788,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-            return template;
-        }
-    },
-    'github.com': {
-        fun: function(urls) {
-
-            var site = 'GitHub';
-            var template = {
-                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
-                control_set: {},
-                topics: [],
-                url: 'http://github.com/'
-            };
-
-            var next_color = 0;
-            var cond_match = null;  // For groups in regex conditions
-
-            for(let i=0; i<urls.length;i++) {
-                var url = urls[i]['value'];
-                var title = urls[i]['comment'];
-                if (true) {
-                    var param_index = url.indexOf("?");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-                if (true) {
-                    var param_index = url.indexOf("#");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-
-                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                    domain = urlDetails.host,
-                    path = urlDetails.path;
-                var dpath = domain.toLowerCase().split('.');
-                dpath.reverse();
-                var vpath = path.toLowerCase().split('/');
-
-                // remove last element if '', that means that path ended with /
-                // also remove first element if '',
-
-                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                if (vpath[0] == 'settings') {
-
-
-                }
-                else if (vpath.length == 2) {
-                    var item = decodeURIComponent(vpath[1]);
-                    var label = decodeURIComponent(vpath[0]);
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-database'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    var item_title = item;
-                    if (item_title != null && item_title.length != 0 && topic!=null
-                            && !topic['label_set'].hasOwnProperty(item_title)) {
-                        topic['urls'].push({href: url, path: path, title: item_title})
-                        topic['label_set'][item_title] = true;
-                    }
-                }
-            }
-
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -835,7 +832,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'pages') || (vpath[0] == 'pages') || (vpath[0] == 'pages')) {
                     var item = decodeURIComponent(vpath[1]);
@@ -897,7 +894,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -941,7 +938,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'wiki' && vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -978,7 +975,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1022,7 +1019,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'wiki' && vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -1059,7 +1056,306 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
+            return template;
+        }
+    },
+    'github.com': {
+        fun: function(urls) {
+
+            var site = 'GitHub';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('settings'), url: 'http://github.com/settings/', iconCls: 'cliqz-fa fa-bars'}],
+                control_set: {},
+                topics: [],
+                url: 'http://github.com/'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (true) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (true) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
+
+                if (vpath[0] == 'settings') {
+
+
+                }
+                else if (vpath.length == 2) {
+                    var item = decodeURIComponent(vpath[1]);
+                    var label = decodeURIComponent(vpath[0]);
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], 'labelUrl': domain+'/'+vpath[0], color: COLORS[next_color], label_set: {}, iconCls: 'cliqz-fa fa-database'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var item_title = item;
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzClusterHistory.log(JSON.stringify(template));
+            return template;
+        }
+    },
+    'google.com': {
+        fun: function(urls) {
+
+            var site = 'google.com';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('Maps'), url: 'http://maps.google.com/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Images'), url: 'http://images.google.com/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('News'), url: 'http://news.google.com/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Gmail'), url: 'http://gmail.google.com/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Drive'), url: 'http://drive.google.com/', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Calendar'), url: 'http://calendar.google.com/', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.google.com/'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (false) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (false) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
+
+                if ((vpath.length == 1) && (/(q=.*tbm=isch.*)/.test(vpath[0]))) {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Images');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var title_match = title.match(/(.+)(?:- Google.*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+                else if ((vpath.length == 1) && (/(tbm=isch.*)/.test(vpath[0]))) {
+
+
+                }
+                else if ((vpath.length == 1) && (/(q=.*)/.test(vpath[0]))) {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Web');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var title_match = title.match(/(.+)(?:- Google.*)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzClusterHistory.log(JSON.stringify(template));
+            return template;
+        }
+    },
+    'amazon.fr': {
+        fun: function(urls) {
+
+            var site = 'Amazon.fr';
+            var template = {
+                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
+                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAmazon'), url: 'https://www.amazon.fr/gp/yourstore/home', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAccount'), url: 'https://www.amazon.fr/gp/css/homepage.html', iconCls: 'null'},
+                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_Wishlist'), url: 'http://www.amazon.fr/gp/registry/wishlist', iconCls: 'null'}],
+                control_set: {},
+                topics: [],
+                url: 'http://www.amazon.fr'
+            };
+
+            var next_color = 0;
+            var cond_match = null;  // For groups in regex conditions
+
+            for(let i=0; i<urls.length;i++) {
+                var url = urls[i]['value'];
+                var title = urls[i]['comment'];
+                if (true) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if (true) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+
+                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
+                    domain = urlDetails.host,
+                    path = urlDetails.path;
+                var dpath = domain.toLowerCase().split('.');
+                dpath.reverse();
+                var vpath = path.toLowerCase().split('/');
+
+                // remove last element if '', that means that path ended with /
+                // also remove first element if '',
+
+                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
+                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
+
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
+
+                if (vpath[1] == 'b') {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Categories');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var title_match = title.match(/(?:^[Aa]mazon.fr.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+                else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
+                    var item = null;
+                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Shops');
+
+                    // Check if the first level (label) exists
+                    var topic = null
+                    for(let j=0; j<template['topics'].length; j++) {
+                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
+                    }
+
+                    // if the topic did not exist, we must create it
+                    if ((topic==null) && (template['topics'].length<4)) {
+                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
+                        template['topics'].push(topic);
+                        next_color = (next_color+1)%COLORS.length;
+                    }
+
+                    var title_match = title.match(/(?:^[Aa]mazon.fr.*?:\s*)?(.+)/);
+                    if (title_match != null && title_match.length > 1) {
+                        var item_title = title_match[1];
+                    } else {
+                        var item_title = title;
+                    }
+                    if (item_title != null && item_title.length != 0 && topic!=null
+                            && !topic['label_set'].hasOwnProperty(item_title)) {
+                        topic['urls'].push({href: url, path: path, title: item_title})
+                        topic['label_set'][item_title] = true;
+                    }
+                }
+            }
+
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1103,7 +1399,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath.length == 2) && (vpath[0] == 'subreddits' && vpath[1] == 'mine')) {
                     var item = null;
@@ -1188,230 +1484,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-            return template;
-        }
-    },
-    'google.com': {
-        fun: function(urls) {
-
-            var site = 'google.com';
-            var template = {
-                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('Maps'), url: 'http://maps.google.com/', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Images'), url: 'http://images.google.com/', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('News'), url: 'http://news.google.com/', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Gmail'), url: 'http://gmail.google.com/', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Drive'), url: 'http://drive.google.com/', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Calendar'), url: 'http://calendar.google.com/', iconCls: 'null'}],
-                control_set: {},
-                topics: [],
-                url: 'http://www.google.com/'
-            };
-
-            var next_color = 0;
-            var cond_match = null;  // For groups in regex conditions
-
-            for(let i=0; i<urls.length;i++) {
-                var url = urls[i]['value'];
-                var title = urls[i]['comment'];
-                if (false) {
-                    var param_index = url.indexOf("?");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-                if (false) {
-                    var param_index = url.indexOf("#");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-
-                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                    domain = urlDetails.host,
-                    path = urlDetails.path;
-                var dpath = domain.toLowerCase().split('.');
-                dpath.reverse();
-                var vpath = path.toLowerCase().split('/');
-
-                // remove last element if '', that means that path ended with /
-                // also remove first element if '',
-
-                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                if ((vpath.length == 1) && (/(q=.*tbm=isch.*)/.test(vpath[0]))) {
-                    var item = null;
-                    var label = CliqzUtils.getLocalizedString('Images');
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    var title_match = title.match(/(.+)(?:- Google.*)/);
-                    if (title_match != null && title_match.length > 1) {
-                        var item_title = title_match[1];
-                    } else {
-                        var item_title = title;
-                    }
-                    if (item_title != null && item_title.length != 0 && topic!=null
-                            && !topic['label_set'].hasOwnProperty(item_title)) {
-                        topic['urls'].push({href: url, path: path, title: item_title})
-                        topic['label_set'][item_title] = true;
-                    }
-                }
-                else if ((vpath.length == 1) && (/(tbm=isch.*)/.test(vpath[0]))) {
-
-
-                }
-                else if ((vpath.length == 1) && (/(q=.*)/.test(vpath[0]))) {
-                    var item = null;
-                    var label = CliqzUtils.getLocalizedString('Web');
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    var title_match = title.match(/(.+)(?:- Google.*)/);
-                    if (title_match != null && title_match.length > 1) {
-                        var item_title = title_match[1];
-                    } else {
-                        var item_title = title;
-                    }
-                    if (item_title != null && item_title.length != 0 && topic!=null
-                            && !topic['label_set'].hasOwnProperty(item_title)) {
-                        topic['urls'].push({href: url, path: path, title: item_title})
-                        topic['label_set'][item_title] = true;
-                    }
-                }
-            }
-
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
-            return template;
-        }
-    },
-    'amazon.fr': {
-        fun: function(urls) {
-
-            var site = 'Amazon.fr';
-            var template = {
-                summary: CliqzUtils.getLocalizedString('Sitemap_Summary').replace('{}', site),
-                control: [{title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAmazon'), url: 'https://www.amazon.fr/gp/yourstore/home', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_MyAccount'), url: 'https://www.amazon.fr/gp/css/homepage.html', iconCls: 'null'},
-                          {title: CliqzUtils.getLocalizedString('Sitemap_Amazon_Wishlist'), url: 'http://www.amazon.fr/gp/registry/wishlist', iconCls: 'null'}],
-                control_set: {},
-                topics: [],
-                url: 'http://www.amazon.fr'
-            };
-
-            var next_color = 0;
-            var cond_match = null;  // For groups in regex conditions
-
-            for(let i=0; i<urls.length;i++) {
-                var url = urls[i]['value'];
-                var title = urls[i]['comment'];
-                if (true) {
-                    var param_index = url.indexOf("?");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-                if (true) {
-                    var param_index = url.indexOf("#");
-                    if (param_index != -1) url = url.slice(0, param_index);
-                }
-
-                var urlDetails = CliqzUtils.getDetailsFromUrl(url),
-                    domain = urlDetails.host,
-                    path = urlDetails.path;
-                var dpath = domain.toLowerCase().split('.');
-                dpath.reverse();
-                var vpath = path.toLowerCase().split('/');
-
-                // remove last element if '', that means that path ended with /
-                // also remove first element if '',
-
-                if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
-                if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
-
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
-
-                if (vpath[1] == 'b') {
-                    var item = null;
-                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Categories');
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    var title_match = title.match(/(?:^[Aa]mazon.fr.*?:\s*)?(.+)/);
-                    if (title_match != null && title_match.length > 1) {
-                        var item_title = title_match[1];
-                    } else {
-                        var item_title = title;
-                    }
-                    if (item_title != null && item_title.length != 0 && topic!=null
-                            && !topic['label_set'].hasOwnProperty(item_title)) {
-                        topic['urls'].push({href: url, path: path, title: item_title})
-                        topic['label_set'][item_title] = true;
-                    }
-                }
-                else if (vpath[0] == 'gp' && vpath[1] == 'aag' && /(seller|merchant)=/.test(vpath[2])) {
-                    var item = null;
-                    var label = CliqzUtils.getLocalizedString('Sitemap_Amazon_Shops');
-
-                    // Check if the first level (label) exists
-                    var topic = null
-                    for(let j=0; j<template['topics'].length; j++) {
-                        if (template['topics'][j]['label']==label) topic = template['topics'][j];
-                    }
-
-                    // if the topic did not exist, we must create it
-                    if ((topic==null) && (template['topics'].length<4)) {
-                        topic = {'label': label, urls: [], color: COLORS[next_color], label_set: {}, iconCls: 'null'};
-                        template['topics'].push(topic);
-                        next_color = (next_color+1)%COLORS.length;
-                    }
-
-                    var title_match = title.match(/(?:^[Aa]mazon.fr.*?:\s*)?(.+)/);
-                    if (title_match != null && title_match.length > 1) {
-                        var item_title = title_match[1];
-                    } else {
-                        var item_title = title;
-                    }
-                    if (item_title != null && item_title.length != 0 && topic!=null
-                            && !topic['label_set'].hasOwnProperty(item_title)) {
-                        topic['urls'].push({href: url, path: path, title: item_title})
-                        topic['label_set'][item_title] = true;
-                    }
-                }
-            }
-
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1458,7 +1531,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((/^login/.test(vpath[0])) || (/^messages/.test(vpath[0])) || (/^events/.test(vpath[0])) || (/^help/.test(vpath[0])) || (/^settings/.test(vpath[0])) || (/^robots[.]txt/.test(vpath[0]))) {
 
@@ -1547,7 +1620,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1592,7 +1665,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'news' && vpath[1] == 'fussball') {
                     var item = decodeURIComponent(vpath[2]);
@@ -1625,7 +1698,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1669,7 +1742,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (vpath[0] == 'search') || (vpath[0] == 'register') || (vpath[0] == 'dashboard')) {
 
@@ -1701,7 +1774,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1747,7 +1820,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -1809,7 +1882,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1858,7 +1931,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath.length == 1) && (/(q=.*tbm=isch.*)/.test(vpath[0]))) {
                     var item = null;
@@ -1924,7 +1997,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1970,7 +2043,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -2032,7 +2105,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -2077,7 +2150,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (/^search/.test(vpath[0])) || (/^share/.test(vpath[0])) || (/^intent/.test(vpath[0]))) {
 
@@ -2109,7 +2182,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     }
@@ -2118,6 +2191,11 @@ var templates = {
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'cliqz cluster history: ',
     templates: templates,  // to export the templates for testing
+    log: function(str) {
+        if(CliqzUtils.getPref('showDebugLogsCluster', false)) {
+            CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
+        }
+    },
 
     /**
      * Tries to cluster the history.
@@ -2157,10 +2235,10 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 }
         }
 
-        CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('maxDomain: ' + maxDomain);
 
         if (history.matchCount < 10) {
-            CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, matchCount < 10');
             return [false, historyTrans];
         }
 
@@ -2185,7 +2263,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
         if (templates[maxDomain] == null && q.length <= 6 && q.length > 1) {
-            CliqzUtils.log('test', 'series')
             var seriesClusteredHistory2 = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
         }
 
@@ -2199,22 +2276,22 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 historyTransFiltered[0]['style'] = 'cliqz-series';
                 var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-                CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
                 return v;
 
             }
             else {
-                CliqzUtils.log('No templates for domain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log('No templates for domain: ' + maxDomain);
                 return [false, historyTrans];
             }
         }
 
         if (maxCounter < (history.matchCount * 0.50)) {
-            CliqzUtils.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60, CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60);
             return [false, historyTrans];
         }
 
-        CliqzUtils.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]), CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]));
 
 
         var clusteredHistory = CliqzClusterHistory.collapse(maxDomain, historyTransFiltered);
@@ -2223,24 +2300,24 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // the collapse failed, perhaps: too few data?, missing template, error?
             // if clusteredHistory return the normal history
 
-            CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [false, historyTrans];
         } else if (clusteredHistory['topics'].length == 0) {
             // no URLs related to the topics defined for the site found in
             // the history URLs
-            CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, no URLs related to the topics');
             return [false, historyTrans];
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
             var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-            CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
             return v;
         }
     },
     collapse: function(domainForTemplate, filteredHistory) {
-        CliqzUtils.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items', CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items');
         var template = templates[domainForTemplate];
         if (!template) return null;
 
