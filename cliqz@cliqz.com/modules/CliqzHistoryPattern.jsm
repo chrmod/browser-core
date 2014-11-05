@@ -18,27 +18,31 @@ var CliqzHistoryPattern = {
         let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
         CliqzHistoryPattern.data = new Array();
         CliqzHistoryPattern.pattern = new Array();
+
         this.SQL
             ._execute(
                 Services.storage.openDatabase(file),
                 // This statement checks for a pattern match in the first and last query of a session and returns the whole session
-                "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+
+                "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title, visits.result as result from visits "+
                 
-                "inner join ( "+
-                // Last visits of session
-                "select visits.last_query_date as last_query_date, max(visit_date) from visits inner join urltitles on visits.url = urltitles.url "+
-                "where visits.url like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or visits.last_query like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or urltitles.title like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' "+
-                "group by last_query_date having count(*)>1 "+
-                "UNION all "+
-                // First visits of session
-                "select visits.last_query_date as last_query_date, min(visit_date) from visits inner join urltitles on visits.url = urltitles.url "+
-                "where visits.url like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or visits.last_query like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or urltitles.title like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' "+
-                "group by last_query_date having count(*)>1 "+
+                "inner join ( " +
+                    "select * from ("+
+                    // Last visits of session
+                        "select visits.last_query_date as last_query_date, max(visit_date), visits.last_query as last_query, urltitles.title as title, visits.url as url from visits "+
+                        "inner join urltitles on visits.url = urltitles.url "+
+                        "group by last_query_date "+
+                    "UNION all "+
+                    // First visits of session
+                        "select visits.last_query_date as last_query_date, min(visit_date), visits.last_query as last_query, urltitles.title as title, visits.url as url from visits "+
+                        "inner join urltitles on visits.url = urltitles.url "+
+                        "group by last_query_date "+
+                    ") as tmp where tmp.url like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or tmp.last_query like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' or tmp.title like '%"+CliqzHistoryPattern.escapeSQL(query)+"%' " +
                 ") as minmax on visits.last_query_date = minmax.last_query_date "+
 
-                "inner join urltitles on urltitles.url = visits.url "+
+                "left outer join urltitles on urltitles.url = visits.url "+
                 "order by visits.visit_date",
-                ["sdate","query","url","vdate","title"],
+
+                ["sdate","query","url","vdate","title","result"],
                 function(result) {
                     try {
                         if (!CliqzHistoryPattern.data[result.sdate]) {
@@ -57,14 +61,73 @@ var CliqzHistoryPattern = {
                 // Return
                 var result = new Array();
                 for (key in CliqzHistoryPattern.pattern) {
-                    if (processed[CliqzHistoryPattern.pattern[key]['url']]) {
-
+                    if (result[CliqzHistoryPattern.pattern[key]['url']]) {
+                        result[CliqzHistoryPattern.pattern[key]['url']]['cnt'] += CliqzHistoryPattern.pattern[key]['cnt']
                     } else if (CliqzHistoryPattern.pattern[key]["cnt"] > 1) {
                         result[CliqzHistoryPattern.pattern[key]['url']] = CliqzHistoryPattern.pattern[key];
                     };
                 }
-                callback( result.sort(CliqzHistoryPattern.sortPatterns(true,'cnt')) );
+                
+                if (CliqzHistoryPattern.maxDomainShare() < 0.6) {
+                    callback(newResult);
+                } else {
+                    var newResult = new Array();
+                    for (var key in result) {
+                        newResult.push(result[key]);
+                    }
+                    callback( newResult.sort(CliqzHistoryPattern.sortPatterns(true,'cnt')) );
+                }   
             });
+    },
+    maxDomainShare: function() {
+        function parseUri (str) {
+            var o   = parseUri.options,
+                m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+                uri = {},
+                i   = 14;
+
+            while (i--) uri[o.key[i]] = m[i] || "";
+
+            uri[o.q.name] = {};
+            uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+                if ($1) uri[o.q.name][$1] = $2;
+            });
+
+            return uri;
+        };
+
+        parseUri.options = {
+            strictMode: false,
+            key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+            q:   {
+                name:   "queryKey",
+                parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+            },
+            parser: {
+                strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+                loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+            }
+        };
+        var domains = new Array();
+        for(var key in CliqzHistoryPattern.data) {
+            var session = CliqzHistoryPattern.data[key];
+            var url = session[session.length - 1].url;
+            var domain = (parseUri(url).host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1];
+            if (!domains[domain]) {
+                domains[domain] = 1;
+            } else {
+                domains[domain] += 1;
+            }
+        }
+        var max = 0.0;
+        var cnt = 0.0;
+        for (key in domains) {
+            cnt += domains[key];
+            if (domains[key] > max) {
+                max = domains[key];
+            };
+        }
+        return max/cnt;
     },
     sortPatterns: function (desc,key) {
          return function(a,b){
@@ -78,23 +141,33 @@ var CliqzHistoryPattern = {
             if (!start) continue;
             var str = start;
 
+            if (session.length == 1 && session[i].result == true) {
+                CliqzHistoryPattern.updatePattern(session[i], str);
+            };
+
             for (var j=i+1; j<session.length; j++) {
                 var end = CliqzHistoryPattern.simplifyUrl(session[j].url);
                 if (!end) continue;
                 str += " -> " + end; 
 
-                if (!(str in CliqzHistoryPattern.pattern) && start != end) {
-                    CliqzHistoryPattern.pattern[str] = new Array();
-                    CliqzHistoryPattern.pattern[str]["url"] = session[j].url;
-                    CliqzHistoryPattern.pattern[str]["title"] = session[j].title;
-                    CliqzHistoryPattern.pattern[str]["path"] = str;
-                    CliqzHistoryPattern.pattern[str]["cnt"] = 1;
-                } else if (start != end) {
-                    CliqzHistoryPattern.pattern[str]["cnt"] += 1;
+                if (start != end) {
+                    CliqzHistoryPattern.updatePattern(session[j], str);
                 }
             }
         }
         return session;
+    },
+    updatePattern: function(session, path) {
+        if (!(path in CliqzHistoryPattern.pattern)) {
+            CliqzHistoryPattern.pattern[path] = new Array();
+            CliqzHistoryPattern.pattern[path]["url"] = session.url;
+            CliqzHistoryPattern.pattern[path]["title"] = session.title;
+            CliqzHistoryPattern.pattern[path]["path"] = path;
+            CliqzHistoryPattern.pattern[path]["cnt"] = 1;
+        } else {
+            CliqzHistoryPattern.pattern[path]["cnt"] += 1;
+        }
+        
     },
     simplifyUrl: function(url) {
         // Ignore Google redirect urls

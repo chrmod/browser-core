@@ -98,6 +98,7 @@ var CliqzHistory = {
             type = "link";
             now += 1;
         }
+        
         // Insert history entry
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
                 VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
