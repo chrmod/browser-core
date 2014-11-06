@@ -43,7 +43,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
-    HISTORY_TIMEOUT: 100,
+    HISTORY_TIMEOUT: 200,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -176,14 +176,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.latency.history = now - this.startTime;
                 CliqzTimings.add("search_history", (now - this.startTime));
 
-                CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() + 
+                CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
                                "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
 
                 // Choose an instant result if we have all history results (timeout)
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    this.instantResult(search, result);                    
+                    this.instantResult(search, result);
                 }
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
@@ -263,11 +263,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
             },
             isHistoryReady: function() {
-                if(this.historyResults && 
+                if(this.historyResults &&
                    this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
                    this.historyResults.searchResult != this.historyResults.RESULT_SUCCESS_ONGOING)
                     return true;
-                else 
+                else
                     return false;
             },
             addCalculatorSignal: function(action) {
@@ -342,7 +342,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
                        this.cliqzResults && this.cliqzWeather) { // all results are ready
                         /// Push full result
-                        
+
                         CliqzUtils.clearTimeout(this.resultsTimer);
                         CliqzUtils.clearTimeout(this.historyTimer);
 

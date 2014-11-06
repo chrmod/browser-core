@@ -138,6 +138,7 @@ var Result = {
     },
     // rich data and image
     getData: function(result){
+        //TODO: rethink the whole image filtering
         if(!result.snippet)
             return;
 
@@ -145,10 +146,6 @@ var Result = {
             resp = {
                 richData: result.snippet.rich_data
             };
-
-        var ogt;
-        if(result.snippet && result.snippet.og)
-            ogt = result.snippet.og.type;
 
         resp.type = "other";
         for(var type in Result.RULES){
@@ -171,7 +168,11 @@ var Result = {
 
 
         resp.description = result.snippet.desc || result.snippet.snippet;
-        if(resp.type != 'other')
+
+        var ogT = result.snippet && result.snippet.og? result.snippet.og.type: null,
+            imgT = result.snippet && result.snippet.image? result.snippet.image.type: null;
+
+        if(resp.type != 'other' || ogT == 'cliqz' || imgT == 'cliqz')
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
                          Result.getOgImage(result.snippet.og)
         }
