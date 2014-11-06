@@ -32,13 +32,11 @@ var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'session': '',
-        'messageUpdate': '0', // last update message timestamp
-        'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
         'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send any tracking signals
-        'inPrivateWindows': true, // enables extension in private mode
+//      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');

@@ -402,6 +402,7 @@ var CliqzUtils = {
     return internal + " " + cliqz_sources
   },
   shouldLoad: function(window){
+    //always loads, even in private windows
     return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
   },
   isPrivate: function(window) {
