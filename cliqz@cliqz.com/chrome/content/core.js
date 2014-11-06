@@ -104,10 +104,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.whoAmI(true); //startup
         CliqzUtils.log('Initialized', 'CORE');
-
-        //try to 'heat up' the connection
-        CliqzUtils.getCliqzResults(' ');
-        CliqzUtils.getSuggestions(' ');
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;
@@ -217,6 +213,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
+        //try to 'heat up' the connection
+        CliqzUtils.pingCliqzResults();
+
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;

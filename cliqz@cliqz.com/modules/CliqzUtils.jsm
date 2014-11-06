@@ -41,22 +41,23 @@ var VERTICAL_ENCODINGS = {
 };
 
 var CliqzUtils = {
-  LANGS:            {'de':'de', 'en':'en', 'fr':'fr'},
-  HOST:             'https://beta.cliqz.com',
-  SUGGESTIONS:      'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER: 'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG: 'http://webbeta.cliqz.com/api/v1/logging?q=',
-  CONFIG_PROVIDER:  'https://webbeta.cliqz.com/api/v1/config',
-  LOG:              'https://logging.cliqz.com',
-  CLIQZ_URL:        'https://beta.cliqz.com/',
-  UPDATE_URL:       'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:     'chrome://cliqz/content/offboarding.html',
-  INSTAL_URL:       'https://beta.cliqz.com/code-verified',
-  CHANGELOG:        'https://beta.cliqz.com/changelog',
-  PREF_STRING:      32,
-  PREF_INT:         64,
-  PREF_BOOL:        128,
-  PREFERRED_LANGUAGE: null,
+  LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
+  HOST:                  'https://beta.cliqz.com',
+  SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
+  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
+  LOG:                   'https://logging.cliqz.com',
+  CLIQZ_URL:             'https://beta.cliqz.com/',
+  UPDATE_URL:            'chrome://cliqz/content/update.html',
+  TUTORIAL_URL:          'chrome://cliqz/content/offboarding.html',
+  INSTAL_URL:            'https://beta.cliqz.com/code-verified',
+  CHANGELOG:             'https://beta.cliqz.com/changelog',
+  PREF_STRING:           32,
+  PREF_INT:              64,
+  PREF_BOOL:             128,
+  PREFERRED_LANGUAGE:    null,
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -293,6 +294,10 @@ var CliqzUtils = {
     );
   },
   _resultsReq: null,
+  // establishes the connection
+  pingCliqzResults: function(){
+    CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
+  },
   getCliqzResults: function(q, callback){
     if(CliqzUtils.getPref('sessionLogging', false)){
       CliqzUtils._querySeq++;
