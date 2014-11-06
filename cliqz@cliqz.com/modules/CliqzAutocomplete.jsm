@@ -49,6 +49,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'cliqz results: ',
     TIMEOUT: 1000,
     HISTORY_TIMEOUT: 100,
+    lastPattern: null,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -255,22 +256,27 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.pushResults(result.searchString);
                 }
             },
-            historyPatternCallback: function(results) {
-                CliqzUtils.log("All patterns found:", "CliqzHistoryPattern result");
-                for(var key in results) {
-                    CliqzUtils.log(results[key]['path'] + ": " + results[key]['cnt'], "CliqzHistoryPattern result");
-                    CliqzUtils.log("==>" + results[key]['url'] + ", " + results[key]['title'], "CliqzHistoryPattern result");
-                }
+            historyPatternCallback: function(res) {
+                if (res.query == this.searchString) {
+                    // res { query, top_domain, top_domain_share, results, filtered_results() }
+                    CliqzAutocomplete.lastPattern = res;
+                    var results = res.results;
+                    CliqzUtils.log("All patterns found:", "CliqzHistoryPattern result");
+                    for(var key in results) {
+                        CliqzUtils.log(results[key]['path'] + ": " + results[key]['cnt'], "CliqzHistoryPattern result");
+                        CliqzUtils.log("==>" + results[key]['url'] + ", " + results[key]['title'], "CliqzHistoryPattern result");
+                    }
 
-                if(this.mixedResults.matchCount > 0) return;
+                    if(this.mixedResults.matchCount > 0) return;
 
-                if(results.length < 1) return;
+                    if(results.length < 1) return;
 
-                var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
-                instant.comment += " (instant history pattern " + results[0].cnt + ")!";
+                    var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
+                    instant.comment += " (instant history pattern " + results[0].cnt + ")!";
 
-                this.mixedResults.addResults([instant]);
-                this.pushResults(this.searchString);
+                    this.mixedResults.addResults([instant]);
+                    this.pushResults(this.searchString);
+                };        
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;

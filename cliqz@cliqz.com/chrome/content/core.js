@@ -368,8 +368,16 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         firstResult = firstResult.replace('www.', '');
+        var lastPattern = CliqzAutocomplete.lastPattern;
 
-        if(firstResult.indexOf(urlBar.value) === 0) {
+        if(lastPattern && lastPattern.query == urlBar.value && lastPattern.top_domain_share>0.5 && lastPattern.results.length > 0 
+            && urlBar.value.indexOf(".") == -1 && firstResult.indexOf(urlBar.value) !== 0) {
+            if (lastPattern.results[0]['url'].length > 80) {
+                lastPattern.results[0]['url'] = lastPattern.results[0]['url'].substring(0,80) + "...";
+            };
+            urlBar.value += " (" + lastPattern.results[0]['url'] + /*" - " + lastPattern.results[0]['title'] +*/ ")";
+            urlBar.setSelectionRange(endPoint, urlBar.value.length);
+        } else if(firstResult.indexOf(urlBar.value) === 0) {
             urlBar.value += firstResult.substr(endPoint);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
