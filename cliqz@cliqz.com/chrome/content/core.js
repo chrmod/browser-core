@@ -339,27 +339,53 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar,
+        let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
         // Remove protocol and 'www.' from first results
-        if(firstResult.indexOf('://') !== -1){
-           firstResult = firstResult.split('://')[1];
-        }
-        firstResult = firstResult.replace('www.', '');
+        firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
 
-        // Remove protocol and 'www.' from typed query
-        var query = urlBar.value;
-        if(query.indexOf('://') !== -1){
-           query = query.split('://')[1];
-        }
-        query = query.replace('www.', '');
+        // try to update misspelings like ',' or '-'
+        urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+
+        // Remove protocol from typed query
+        var query = CliqzUtils.cleanUrlProtocol(urlBar.mInputField.value, true);
 
         // Then add the matching part to the end of the current typed query and set is as selected.
         if(query && firstResult.indexOf(query) === 0) {
             urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
+    },
+    cleanUrlBarValueTest: function(){
+        var data = {
+            'http://faceboook.com':'http://faceboook.com',
+            'http://www.faceboook.com':'http://www.faceboook.com',
+            'http://www.faceboook.com/login.html':'http://www.faceboook.com/login.html',
+            'http://www.faceboook.com/login,html':'http://www.faceboook.com/login,html',
+            'http://www,faceboook.com':'http://www.faceboook.com',
+            'http://www.faceboook,com':'http://www.faceboook.com',
+            'http://faceboook,com':'http://faceboook.com',
+            'www,faceboook.com':'www.faceboook.com',
+            'www.faceboook,com':'www.faceboook.com',
+            'www,faceboook,com':'www.faceboook.com'
+        }
+
+        for(var k in data){
+            console.log(
+                (CLIQZ.Core.cleanUrlBarValue(k) == data[k]?'OK':'FAIL')
+                + '  --   IN:' + k + ' OUT:' +CLIQZ.Core.cleanUrlBarValue(k));
+        }
+    },
+    cleanUrlBarValue: function(val){
+        var clean = CliqzUtils.cleanUrlProtocol(val, false),
+            SYMBOLS = /,|-/;
+
+        if(clean.indexOf('www') == 0 && clean.length > 4){
+            if(SYMBOLS.test(clean[3]) && clean[4] != ' ')
+                return val.replace(SYMBOLS, '.');
+        }
+        return val;
     },
     // redirects a tab in which oldUrl is loaded to newUrl
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
