@@ -346,14 +346,14 @@ CLIQZ.Core = CLIQZ.Core || {
         firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
 
         // try to update misspelings like ',' or '-'
-        urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+        var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
 
         // Remove protocol from typed query
-        var query = CliqzUtils.cleanUrlProtocol(urlBar.mInputField.value, true);
+        var query = CliqzUtils.cleanUrlProtocol(cleanedUrlBar, true);
 
         // Then add the matching part to the end of the current typed query and set is as selected.
         if(query && firstResult.indexOf(query) === 0) {
-            urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
+            urlBar.mInputField.value = cleanedUrlBar + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     },
@@ -378,12 +378,20 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     cleanUrlBarValue: function(val){
-        var clean = CliqzUtils.cleanUrlProtocol(val, false),
-            SYMBOLS = /,|-/;
+        var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+            host = cleanParts[0],
+            pathLength = 0,
+            SYMBOLS = /,|-|\./g;
 
-        if(clean.indexOf('www') == 0 && clean.length > 4){
-            if(SYMBOLS.test(clean[3]) && clean[4] != ' ')
-                return val.replace(SYMBOLS, '.');
+        if(cleanParts.length > 1){
+            pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+        }
+        if(host.indexOf('www') == 0 && host.length > 4){
+            // only fix symbols in host
+            if(SYMBOLS.test(host[3]) && host[4] != ' ')
+                // replace only issues in the host name, not ever in the path
+                return val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+                       (pathLength? val.substr(-pathLength): '');
         }
         return val;
     },
