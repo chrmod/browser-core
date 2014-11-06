@@ -80,8 +80,8 @@ var CliqzHistoryPattern = {
                 // Return results
                 var res = {
                     query: query,
-                    top_domain: CliqzHistoryPattern.maxDomainShare()[0],
-                    top_domain_share: CliqzHistoryPattern.maxDomainShare()[1],
+                    top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0],
+                    top_domain_share: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[1],
                     results: filteredPatterns.sort(CliqzHistoryPattern.sortPatterns(true,'cnt')),
                     filteredResults: function() {
                         var tmp = new Array();
@@ -127,10 +127,10 @@ var CliqzHistoryPattern = {
         };
         return (parseUri(url).host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1];
     },
-    maxDomainShare: function() {
+    maxDomainShare: function(patterns) {
         var domains = new Array();
-        for(var key in this.pattern) {
-            var url = this.pattern[key]['url'];
+        for(var key in patterns) {
+            var url = patterns[key]['url'];
             var domain = this.domainFromUrl(url);
             if (!domains[domain]) {
                 domains[domain] = 1;
