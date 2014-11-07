@@ -46,6 +46,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
+        CliqzUtils.addHttpObserver();
         CliqzUtils.init(window);
         CLIQZ.UI.init();
 

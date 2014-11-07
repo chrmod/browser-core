@@ -20,6 +20,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
+var nsIHttpActivityObserver = Components.interfaces.nsIHttpActivityObserver;
+var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -63,6 +69,38 @@ var CliqzUtils = {
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
+  activityDistributor: Components.classes["@mozilla.org/network/http-activity-distributor;1"]
+                       .getService(Components.interfaces.nsIHttpActivityDistributor),
+  httpObserver: {
+    observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
+      if (aActivityType == nsIHttpActivityObserver.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIHttpActivityObserver.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
+        var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
+        var res = {url: aChannel.URI.spec,
+                   status: aExtraStringData.split(" ")[1]}
+        if (Math.floor(res.status / 100) !=  2) {
+          CliqzUtils.log(JSON.stringify(res), "httpData")
+          // Now that we see a 404, let's compare to the cliqz results we provided
+          for (var i=0; i < CliqzAutocomplete.lastResult._results.length; i++) {
+            if (res.url == CliqzAutocomplete.lastResult._results[i].val) {
+              var action = {
+                type: "performance",
+                action: "response",
+                response_code: res.status,
+                result_type: CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult._results[i].style)
+              }
+              CliqzUtils.track(action);
+            }
+          }
+        }
+      }
+    }
+  },
+  addHttpObserver: function() {
+    CliqzUtils.activityDistributor.addObserver(CliqzUtils.httpObserver);
+  },
+  removeHttpObserver: function() {
+    CliqzUtils.activityDistributor.removeObserver(CliqzUtils.httpObserver);
+  },
 
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
