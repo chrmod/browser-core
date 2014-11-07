@@ -357,26 +357,6 @@ CLIQZ.Core = CLIQZ.Core || {
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
     },
-    cleanUrlBarValueTest: function(){
-        var data = {
-            'http://faceboook.com':'http://faceboook.com',
-            'http://www.faceboook.com':'http://www.faceboook.com',
-            'http://www.faceboook.com/login.html':'http://www.faceboook.com/login.html',
-            'http://www.faceboook.com/login,html':'http://www.faceboook.com/login,html',
-            'http://www,faceboook.com':'http://www.faceboook.com',
-            'http://www.faceboook,com':'http://www.faceboook.com',
-            'http://faceboook,com':'http://faceboook.com',
-            'www,faceboook.com':'www.faceboook.com',
-            'www.faceboook,com':'www.faceboook.com',
-            'www,faceboook,com':'www.faceboook.com'
-        }
-
-        for(var k in data){
-            console.log(
-                (CLIQZ.Core.cleanUrlBarValue(k) == data[k]?'OK':'FAIL')
-                + '  --   IN:' + k + ' OUT:' +CLIQZ.Core.cleanUrlBarValue(k));
-        }
-    },
     cleanUrlBarValue: function(val){
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
