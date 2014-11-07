@@ -396,11 +396,9 @@ CLIQZ.Core = CLIQZ.Core || {
         return;
       }
 
-      var width_size = CLIQZ.Core.popup.getAttribute("width");
       var oldActive = event.target;
       event.preventDefault();
       setTimeout(function(){
-          CLIQZ.Core.popup.setAttribute("width", width_size);
           var newActive = document.activeElement;
           if (newActive.getAttribute("dont-close") != "true") {
             CLIQZ.Core.forceCloseResults = true;

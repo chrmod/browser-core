@@ -78,7 +78,7 @@
               CLIQZ.UI.results({
                 q: q,
                 results: data,
-                width: CLIQZ.Core.urlbar.clientWidth - 100
+                width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
               CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));

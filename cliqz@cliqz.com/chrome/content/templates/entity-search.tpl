@@ -25,7 +25,7 @@
     <div class="entity-search-container-app" style="background-color: #FD655A;"
          url="https://www.google.com/calendar/" type="entity-search-calendar">
       <div><img src="chrome://cliqzres/content/skin/entity_zones/calendar.png" /></div>
-      <div class="entity-search-container-app-text" style="background-color: #ED4E3B;">Calender</div>
+      <div class="entity-search-container-app-text" style="background-color: #ED4E3B;">Calendar</div>
     </div>
     <div class="entity-search-container-app" style="background-color: #FEE155"
          url="https://maps.google.de/" type="entity-search-maps">

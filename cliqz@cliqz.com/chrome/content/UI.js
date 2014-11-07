@@ -124,6 +124,9 @@ var UI = {
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+
+        // set the width
+        gCliqzBox.style.width = (res.width +1) + 'px';
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -378,6 +381,7 @@ function getTags(fullTitle){
     return [title, tags.split(",").sort()]
 }
 
+var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
@@ -394,7 +398,7 @@ function enhanceResults(res){
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = generateLogoClass(r.urlDetails);
             r.image = constructImage(r.data);
-            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -476,6 +480,7 @@ function resultClick(ev){
             }
 
             CLIQZ.Core.openLink(url, newTab);
+            if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
             // copy calculator answer to clipboard
