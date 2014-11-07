@@ -9,7 +9,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search', 'bitcoin'],
+                 'entity-search', 'entity-news', 'bitcoin'],
 
     VERTICALS = {
         'b': 'bundesliga',

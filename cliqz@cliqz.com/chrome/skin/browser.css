@@ -1080,6 +1080,8 @@
 
 /* entity zones */
 
+/* Entity Search */
+
 .entity-search-container {
   padding: 15px;
 }
@@ -1133,6 +1135,55 @@
   text-align: center;
 }
 
+/* Entity News */
+
+.entity-news-title {
+  color: #414141;
+  font-size: 14px;
+}
+
+.entity-news-story {
+  padding: 5px 0;
+}
+
+.entity-news-story-image img {
+  width: 70px;
+  height: 50px;
+}
+
+.entity-news-story-description {
+  vertical-align: top;
+  padding: 5px 0 0 5px;
+}
+
+.entity-news-story-title {
+  color: #717171;
+  font-size: 15px;
+}
+
+.entity-news-story-time {
+  color: red;
+  font-size: 14px;
+}
+
+.entity-news-categories {
+  color: #414141;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.entity-news-categories span{
+  padding: 0 5px;
+  color: #717171;
+}
+
+.entity-news-story-image {
+  display: inline-block;
+}
+
+.entity-news-story-description {
+  display: inline-block;
+}
 
 /* end entity zones */
 
