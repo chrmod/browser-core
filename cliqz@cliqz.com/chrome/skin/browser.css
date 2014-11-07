@@ -1086,6 +1086,10 @@
   padding: 15px;
 }
 
+.entity-search-container [url] {
+  cursor: pointer;
+}
+
 .entity-search-aktuell {
   padding-bottom: 15px;
 }

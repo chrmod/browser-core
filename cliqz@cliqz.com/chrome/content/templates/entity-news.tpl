@@ -4,23 +4,27 @@
     Meistgelesen
   </div>
   <div class="entity-news-stories">
-    <div class="entity-news-story">
-      <div class="entity-news-story-image">
-        <img src="imageX" />
-      </div>
-      <div class="entity-news-story-description">
-        <div class="entity-news-story-title">
-          Orban treibt es zu weit
+    {{#each data.news}}
+      <div class="entity-news-story" url="{{ this.url }}" type="entity-news-story">
+        <div class="entity-news-story-image">
+          <img src="{{ this.thumbnail }}" />
         </div>
-        <div class="entity-news-story-time">
-          vor 3 Stunden
+        <div class="entity-news-story-description">
+          <div class="entity-news-story-title">
+            {{ this.title }}
+          </div>
+          <div class="entity-news-story-time">
+            {{ this.time }}
+          </div>
         </div>
       </div>
-    </div>
+    {{/each}}
   </div>
 
   <div class="entity-news-categories">
-    Kategorien: <span>Ebola</span> <span>Apple Inc.</span> <span>Police</span>
-             <span>Tropical cyclones</span> <span>Vladimir Putin</span>
+    Kategorien:
+      {{#each data.categories}}
+        <span url="{{ this.url }}" type="entity-news-category">{{ this.title }}</span>
+      {{/each}}
   </div>
 </div>
