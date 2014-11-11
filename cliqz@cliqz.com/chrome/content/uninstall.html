@@ -13,7 +13,7 @@
             //show uninstall page
             var win = window.open();
             CliqzUtils.init(win);
-            win.location.href = CliqzUtils.UNINSTALL;
+            win.location.href = CliqzUtils.UNINSTALL + '?source=extern';
 
             //shut down the extension
             Extension.unload(null, true);
