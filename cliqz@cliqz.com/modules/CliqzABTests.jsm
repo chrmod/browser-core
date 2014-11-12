@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module implements a mechanism which enables/disables AB tests
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzABTests'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -114,14 +119,28 @@ var CliqzABTests = CliqzABTests || {
                 // show no results message
                 CliqzUtils.setPref("showNoResults", true);
                 break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.setPref("showAdResults", 1);
+                break;
+            case "1012_A":
+                // show ad results
+                CliqzUtils.setPref("showPremiumResults", 1);
+                break;
+            case "1013_A":
+                CliqzUtils.setPref("sessionLogging", true);
+                break;
             default:
                 rule_executed = false;
         }
         if(rule_executed) {
-            if(payload.msg)
-                CliqzUtils.log(abtest + ": " + payload.msg, logname);
-            else
-               CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'enter',
+                name: abtest
+            };
+            CliqzUtils.track(action);
+
             return true;
        } else {
             return false;
@@ -182,12 +201,28 @@ var CliqzABTests = CliqzABTests || {
             case "1010_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
+            case "1011_A":
+                // show ad results
+                CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
+                break;
+            case "1012_A":
+                // show premium results
+                CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
+                break;
+            case "1013_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
+                break;
             default:
                 rule_executed = false;
         }
 
         if(rule_executed) {
-            CliqzUtils.log(abtest, logname);
+            var action = {
+                type: 'abtest',
+                action: 'leave',
+                name: abtest
+            };
+            CliqzUtils.track(action);
             return true;
        } else {
             return false;

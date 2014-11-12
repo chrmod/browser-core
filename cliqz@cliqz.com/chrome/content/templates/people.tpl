@@ -9,7 +9,7 @@
     {{#if (is_twitter url)}}
       <div class='cliqz-people-image-box '>
         <div class="cliqz-people-image cliqz-people-image-twitter"
-           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_dark_green.png);"
+           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_{{twitter_image_id data.richData.full_name}}.png);"
         ></div>
         <div class="cliqz-people-source"
           style="background-image: url(chrome://cliqzres/content/skin/twitter_logo.png);"></div>
@@ -93,7 +93,7 @@
     {{#if (is_twitter url)}}
       <div class='cliqz-people-image-box '>
         <div class="cliqz-people-image cliqz-people-image-twitter"
-           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_dark_green.png);"
+           style="background-image: url(chrome://cliqzres/content/skin/twitter_user_{{twitter_image_id title}}.png);"
         ></div>
         <div class="cliqz-people-source"
           style="background-image: url(chrome://cliqzres/content/skin/twitter_logo.png);"></div>
@@ -126,6 +126,11 @@
     <div class='cliqz-result-description'>
       {{ emphasis data.description text 2 true }}
     </div>
+    {{#if debug}}
+    <span class='cliqz-result-debug overflow'>
+      <span>{{ debug }}</span>
+    </span>
+    {{/if}}
   </div>
   <div class='cliqz-result-right-box cliqz-logo {{ logo }}'
        newtab='true'>

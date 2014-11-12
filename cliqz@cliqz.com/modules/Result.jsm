@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module acts as a result factory
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Result'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -70,6 +75,7 @@ var Result = {
     },
     cliqz: function(result){
         var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
+        var debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
         if(result.snippet){
             return Result.generic(
                 resStyle, //style
@@ -77,11 +83,11 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                result.source + ' ' + result.q + ' ' + result.confidence, //query
+                debugInfo, //query
                 Result.getData(result)
             );
         } else {
-            return Result.generic(resStyle, result.url);
+            return Result.generic(resStyle, result.url, null, null, null, debugInfo);
         }
     },
     cliqzExtra: function(result){
@@ -132,6 +138,7 @@ var Result = {
     },
     // rich data and image
     getData: function(result){
+        //TODO: rethink the whole image filtering
         if(!result.snippet)
             return;
 
@@ -139,10 +146,6 @@ var Result = {
             resp = {
                 richData: result.snippet.rich_data
             };
-
-        var ogt;
-        if(result.snippet && result.snippet.og)
-            ogt = result.snippet.og.type;
 
         resp.type = "other";
         for(var type in Result.RULES){
@@ -165,7 +168,11 @@ var Result = {
 
 
         resp.description = result.snippet.desc || result.snippet.snippet;
-        if(resp.type != 'other')
+
+        var ogT = result.snippet && result.snippet.og? result.snippet.og.type: null,
+            imgT = result.snippet && result.snippet.image? result.snippet.image.type: null;
+
+        if(resp.type != 'other' || ogT == 'cliqz' || imgT == 'cliqz')
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
                          Result.getOgImage(result.snippet.og)
         }

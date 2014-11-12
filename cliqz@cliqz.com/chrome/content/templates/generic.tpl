@@ -18,8 +18,24 @@
 		</div>
 	{{/if}}
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
-		<div class='cliqz-result-title-box overflow'>
-			{{ emphasis title text 2 false}}
+		<div>
+			<span style='max-width: {{math width '*' '0.72'}}px;'
+			  	  class='cliqz-result-title-box overflow'>
+				{{ emphasis title text 2 false}}
+			</span>
+			{{#if tags}}
+				<span style='max-width: {{math width '*' '0.20'}}px;'
+					  class='cliqz-result-tags overflow'>
+					  {{#each tags}}
+				      	<span>{{this}}</span>
+				      {{/each}}
+				</span>
+			{{/if}}
+			{{#if debug}}
+				<span class='cliqz-result-debug overflow'>
+					  <span>{{ debug }}</span>
+				</span>
+			{{/if}}
 		</div>
 		{{> url this}}
 		<div class='cliqz-result-description'>
@@ -29,4 +45,5 @@
 	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
 	     newtab='true'>
 	</div>
+
 </div>

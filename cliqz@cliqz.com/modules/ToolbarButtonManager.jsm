@@ -1,4 +1,13 @@
 'use strict';
+/*
+ * This module handles toolbar manipulation
+ *
+ * It mimics Firefox way of adding, hiding and moving elements/buttons
+ * in all the toolbars and persists user changes across sessions (broswer restart)
+ *
+ */
+
+
 var EXPORTED_SYMBOLS = ['ToolbarButtonManager'];
 
 /* ***** BEGIN LICENSE BLOCK *****

@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module creates the interactive offboarding
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzTour'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -45,6 +50,17 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
     ];
 
 var CliqzTour = {
+    init: function(){
+        if(win.document.getElementById('UITourHighlight')){
+            //FF 29+
+            CliqzTour.pageShown(true);
+            return true;
+        } else {
+            // FF28 and older
+            CliqzTour.pageShown(false);
+            return false;
+        }
+    },
     start: function(){
         var action = {
             type: 'activity',
@@ -53,10 +69,11 @@ var CliqzTour = {
         CliqzUtils.track(action);
         start('wobble');
     },
-    pageShown: function() {
+    pageShown: function(active) {
         var action = {
             type: 'activity',
             action: 'offboarding_shown',
+            tour_active: active
         };
         CliqzUtils.track(action);
     },
@@ -121,6 +138,3 @@ function messageType(to){
         }
     }, to);
 }
-//setTimeout(function(){
-//    start(doc, 'wobble');
-//},1000);

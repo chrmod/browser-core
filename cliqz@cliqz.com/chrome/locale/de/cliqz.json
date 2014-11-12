@@ -95,6 +95,12 @@
     "offMessage":{
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
     },
+    "cliqzPremiumTitle":{
+        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
+    },
+    "cliqzPremiumDesc":{
+        "message": "Upgrade testen für nur 3,99 €/Mo"
+    },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
     },
@@ -111,7 +117,7 @@
         "message":"Später ansehen"
     },
     "Sitemap_Youtube_Channels": {
-        "message":"Channels"
+        "message":"Kanäle"
     },
     "Sitemap_Youtube_Playlists": {
         "message":"Playlists"
@@ -191,6 +197,21 @@
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
     },
+    "Sitemap_Wikipedia_Articles": {
+      "message":"Artikel"
+    },
+    "Sitemap_People": {
+      "message":"Leute"
+    },
+    "Sitemap_Search": {
+      "message":"Suchen"
+    },
+    "Sitemap_Projects": {
+      "message":"Projekte"
+    },
+    "Sitemap_Twitter_Discover": {
+      "message":"Entdecken"
+    },
     "country_code_": {
       "message":"Automatisch"
     },
@@ -255,7 +276,7 @@
       "message":"Türkiye - Türkei"
     },
     "country_code_GB": {
-      "message":"United Kingdom - Großbrittanien"
+      "message":"United Kingdom - Großbritannien"
     },
     "country_code_US": {
       "message":"United States - Vereinigte Staten"

@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module mixes the results from cliqz with the history
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Mixer'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -21,15 +26,16 @@ CliqzUtils.init();
 var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, mixed, weatherResults, bundesligaResults, maxResults){
 		var results = [],
-            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q),
-            showQueryDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],
             bucketHistoryCache = [],
-            bucketHistoryCluster = [];
+            bucketHistoryCluster = [],
+            bucketBookmark = [],
+            bucketBookmarkCache = [];
 
 
         if (is_clustered) {
@@ -59,17 +65,20 @@ var Mixer = {
                     la = mixed.getLabelAt(0),
                     da = mixed.getDataAt(0);
 
-                // combine sources
-                var tempCliqzResult = Result.cliqz(cliqz[i]);
-                st = CliqzUtils.combineSources(st, tempCliqzResult.style);
+                // do this for all types except clustering for now
+                // TODO: find a way to report where all clustered values come from
+                if(st != 'cliqz-cluster' && st != 'cliqz-series') {
+                    // combine sources
+                    var tempCliqzResult = Result.cliqz(cliqz[i]);
+                    st = CliqzUtils.combineSources(st, tempCliqzResult.style);
 
-                if(showQueryDebug)
                     co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
 
-                // create new instant entry to replace old one
-                var newInstant = Result.generic(st, va, im, co, la, da);
-                mixed._results.splice(0);
-                mixed.addResults([newInstant]);
+                    // create new instant entry to replace old one
+                    var newInstant = Result.generic(st, va, im, co, la, da);
+                    mixed._results.splice(0);
+                    mixed.addResults([newInstant]);
+                }
             }
         }
 
@@ -80,6 +89,11 @@ var Mixer = {
                 comment = history_trans[i]['comment'],
                 label = history_trans[i]['label'];
 
+            var bookmark = false;
+            if (style.indexOf('tag') == 0 || style.indexOf('bookmark') == 0) {
+                bookmark = true;
+            }
+
             // Deduplicate: check if this result is also in the cache results
             let cacheIndex = -1;
             for(let i in cliqz || []) {
@@ -88,7 +102,14 @@ var Mixer = {
                     var tempResult = Result.cliqz(cliqz[i]);
                     tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
 
-                    bucketHistoryCache.push(tempResult);
+                    //use the title from history/bookmark - might be manually changed - eg: for tag results
+                    if(comment) tempResult.comment = comment;
+
+                    if (bookmark)
+                        bucketBookmarkCache.push(tempResult);
+                    else
+                        bucketHistoryCache.push(tempResult);
+
                     cacheIndex = i;
                     break;
                 }
@@ -100,7 +121,10 @@ var Mixer = {
             } else {
                 let urlparts = CliqzUtils.getDetailsFromUrl(label);
 
-                if(Result.isValid(label, urlparts)) {
+                if(bookmark) {
+                    bucketBookmark.push(Result.generic(style, value, image, comment, label, q));
+                }
+                else if(Result.isValid(label, urlparts)) {
                     // Assign to different buckets if the search string occurs in hostname
                     if(urlparts.host.toLowerCase().indexOf(q) !=-1)
                         bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, q));
@@ -117,45 +141,51 @@ var Mixer = {
         /// 2) Prepare final result list from buckets
 
         // the top history with matching domain will be show already via instant-serve
+        // all bucketBookmarksCache
+        for(let i = 0; i < bucketBookmarkCache.length; i++) {
+            bucketBookmarkCache[i].comment += " (bookmark and vertical: " + bucketBookmarkCache[i].query + ")!";
+            results.push(bucketBookmarkCache[i]);
+        }
+
+        // all bucketBookmarks
+        for(let i = 0; i < bucketBookmark.length; i++) {
+            bucketBookmark[i].comment += " (bookmark: " + bucketBookmark[i].query + ")!";
+            results.push(bucketBookmark[i]);
+        }
+
         // all bucketHistoryCache
         for(let i = 0; i < bucketHistoryCache.length; i++) {
-            if(showQueryDebug)
-                bucketHistoryCache[i].comment += " (History and vertical: " + bucketHistoryCache[i].query + ")!";
+            bucketHistoryCache[i].comment += " (history and vertical: " + bucketHistoryCache[i].query + ")!";
             results.push(bucketHistoryCache[i]);
         }
 
         // top 1 of bucketCache
         if(bucketCache.length > 0) {
-            if(showQueryDebug)
-                bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
+            bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
             results.push(bucketCache[0]);
         }
 
         // top 2 of bucketHistoryDomain
         for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
-            if(showQueryDebug)
-                bucketHistoryDomain[i].comment += " (top History Domain)!";
+            bucketHistoryDomain[i].comment += " (top history domain)!";
             results.push(bucketHistoryDomain[i]);
         }
 
         // rest of bucketCache
         for(let i = 1; i < bucketCache.length && i < 10; i++) {
-            if(showQueryDebug)
-                bucketCache[i].comment += " (" + bucketCache[i].query + ")!";
+            bucketCache[i].comment += " (vertical: " + bucketCache[i].query + ")!";
             results.push(bucketCache[i]);
         }
 
         // rest of bucketHistoryDomain
         for(let i = 2; i < bucketHistoryDomain.length; i++) {
-            if(showQueryDebug)
-                bucketHistoryDomain[i].comment += " (History Domain)!";
+            bucketHistoryDomain[i].comment += " (history domain)!";
             results.push(bucketHistoryDomain[i]);
         }
 
         // all bucketHistoryOther
         for(let i = 0; i < bucketHistoryOther.length; i++) {
-            if(showQueryDebug)
-                bucketHistoryOther[i].comment += " (History Other)!";
+            bucketHistoryOther[i].comment += " (history other)!";
             results.push(bucketHistoryOther[i]);
         }
 
@@ -173,8 +203,7 @@ var Mixer = {
 
         // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
         if (bucketHistoryCluster.length > 0) {
-            if(showQueryDebug)
-                bucketHistoryCluster[0].comment += " (Clustering)";
+            bucketHistoryCluster[0].comment += " (clustering)!";
             results.unshift(bucketHistoryCluster[0]);
         }
 
