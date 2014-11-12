@@ -180,8 +180,19 @@ var UI = {
                 return false;
             break;
         }
-
-
+    },
+    entitySearchKeyDown: function(event, value) {
+      if(event.keyCode==13) {
+        openUILink('https://www.google.com/search?q=' + value);
+        CLIQZ.Core.forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+        event.preventDefault();
+        var signal = {
+          type: 'activity',
+          action: 'entity_search_google'
+        };
+        CliqzUtils.track(signal);
+      }
     }
 };
 
@@ -416,9 +427,6 @@ function enhanceResults(res){
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
     res.results = first;
-    if (first.length && first[0].data.only) {
-      return res;
-    }
     res.results = res.results.concat(last);
     return res;
 }

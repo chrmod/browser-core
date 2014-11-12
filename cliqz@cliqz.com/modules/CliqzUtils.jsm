@@ -44,7 +44,7 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'http://54.83.141.106/api/v1/results?q=',
+  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
   RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
