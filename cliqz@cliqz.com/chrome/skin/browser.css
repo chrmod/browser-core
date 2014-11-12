@@ -1006,6 +1006,36 @@
 
 /* end bundesliga */
 
+/* bitcoin */
+.cliqz-bitcoin-logo {
+    height: 50px;
+    float: left; 
+    padding-right: 20px;
+}
+
+.cliqz-bitcoin-item {
+    background-color: #CCC;
+    border: 1px solid #CCC;
+    display: inline-block;
+    height: 25px;
+    padding: 2;
+    width: 220px;
+}
+
+.cliqz-bitcoin-column {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.cliqz-bitcoin-score {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* end bitcoin */
+
 /* calculator */
 
 .cliqz-calc-text-div {

@@ -7,7 +7,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator', 'bitcoin'],
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
