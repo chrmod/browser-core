@@ -5,7 +5,7 @@
   </div>
   <div class="entity-news-stories">
     {{#each data.news}}
-      <div class="entity-news-story" url="{{ this.url }}" type="entity-news-story">
+      <div class="entity-news-story" url="{{ this.url }}" type="X" extra="entity-news-story">
         <div class="entity-news-story-image">
           <img src="{{ this.thumbnail }}" />
         </div>
@@ -24,7 +24,7 @@
   <div class="entity-news-categories">
     Kategorien:
       {{#each data.categories}}
-        <span url="{{ this.url }}" type="entity-news-category">{{ this.title }}</span>
+        <span url="{{ this.url }}" type="X" extra="entity-news-category">{{ this.title }}</span>
       {{/each}}
   </div>
 </div>
