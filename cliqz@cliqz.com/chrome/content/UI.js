@@ -183,7 +183,11 @@ var UI = {
     },
     entitySearchKeyDown: function(event, value) {
       if(event.keyCode==13) {
-        var google_url = Services.search.getEngineByName("Google").getSubmission(value).uri.spec
+        var search_engine = Services.search.getEngineByName("Google");
+        var google_url = "http://www.google.com/search?q=" + value
+        if (search_engine) {
+          var google_url = search_engine.getSubmission(value).uri.spec
+        }
         openUILink(google_url);
         CLIQZ.Core.forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
