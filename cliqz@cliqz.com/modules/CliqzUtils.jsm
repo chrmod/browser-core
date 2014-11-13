@@ -308,25 +308,21 @@ var CliqzUtils = {
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
   getCliqzResults: function(q, callback){
-    if(CliqzUtils.getPref('sessionLogging', false)){
-      CliqzUtils._querySeq++;
-      CliqzUtils._resultsReq = CliqzUtils.httpGet(
-        CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
-          CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
-          CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
-        function(res){
-          callback && callback(res, q);
-        }
-      );
-    }
-    else {
-      CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
-         CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
-        function(res){
-          callback && callback(res, q);
-        }
-      );
-    }
+    CliqzUtils._querySeq++;
+    var url = CliqzUtils.RESULTS_PROVIDER +
+              encodeURIComponent(q) +
+              CliqzUtils.encodeQuerySession() +
+              CliqzUtils.encodeQuerySeq() +
+              CliqzLanguage.stateToQueryString() +
+              CliqzUtils.encodeResultOrder() +
+              CliqzUtils.encodeCountry() +
+              CliqzUtils.encodeParams();
+
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -354,11 +350,12 @@ var CliqzUtils = {
     });
   },
   encodeCountry: function() {
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')){
-      return "&country=" + CliqzUtils.getPref('forceCountry')
-    } else {
-      return ""
-    }
+    var flag = 'forceCountry';
+    return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
+  },
+  //to be used for temporary params - AB tests
+  encodeParams: function() {
+    return CliqzUtils.getPref('bigmachine', false)? '&bm' : '';
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
@@ -467,14 +464,12 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    if(CliqzUtils.getPref('sessionLogging', false)){
-      CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
-        (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
-        '&i=' + resultIndex +
-        (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-        CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
-      CliqzUtils.setResultOrder('');
-    }
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+      '&i=' + resultIndex +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
+    CliqzUtils.setResultOrder('');
   },
 
   _resultOrder: '',

@@ -452,21 +452,19 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            if(CliqzUtils.getPref('sessionLogging', false)){
-                var query = CLIQZ.Core.urlbar.value;
-                var queryAutocompleted = null;
-                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            var query = CLIQZ.Core.urlbar.value;
+            var queryAutocompleted = null;
+            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            {
+                var first = gCliqzBox.resultsBox.children[0];
+                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
                 {
-                    var first = gCliqzBox.resultsBox.children[0];
-                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
-                    {
-                        queryAutocompleted = query;
-                    }
-                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+                    queryAutocompleted = query;
                 }
-                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
             }
+            CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
             CLIQZ.Core.openLink(url, newTab);
             break;

@@ -120,15 +120,16 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("showNoResults", true);
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.setPref("showAdResults", 1);
                 break;
             case "1012_A":
-                // show ad results
                 CliqzUtils.setPref("showPremiumResults", 1);
                 break;
             case "1013_A":
                 CliqzUtils.setPref("sessionLogging", true);
+                break;
+            case "1014_A":
+                CliqzUtils.setPref("bigmachine", true);
                 break;
             default:
                 rule_executed = false;
@@ -202,15 +203,16 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
                 break;
             case "1012_A":
-                // show premium results
                 CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
                 break;
             case "1013_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
+                break;
+            case "1014_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("bigmachine");
                 break;
             default:
                 rule_executed = false;
