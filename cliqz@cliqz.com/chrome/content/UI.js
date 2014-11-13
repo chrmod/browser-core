@@ -181,9 +181,16 @@ var UI = {
                 CLIQZ.Core.popup.closePopup();
                 return false;
             break;
+            case 8: // BACKSPACE
+            case 46: // DELETE
+                clearResultSelection();
+            break;
         }
 
 
+    },
+    selectFirstElement: function() {
+        setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
     }
 };
 
@@ -655,6 +662,9 @@ function onEnter(ev, item){
         }
         CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
         CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+        if (url == CliqzAutocomplete.autocompletedUrl && CliqzAutocomplete.autocompletedUrl == CliqzAutocomplete.lastPattern.results[0]['url']) {
+            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+        };
 
         CLIQZ.Core.openLink(url, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
@@ -698,7 +708,7 @@ function onEnter(ev, item){
             }
 
             // Check for instant history auto completion
-            if (inputValue.search(/\ (.*\/\/.*)/i) != -1) {
+            if (inputValue.search(/-\ .*\/\/.*/i) != -1) {
                 CLIQZ.Core.urlbar.value = firstUrl;
             };
 

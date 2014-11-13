@@ -59,6 +59,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastQueryTime: null,
     lastDisplayTime: null,
     lastFocusTime: null,
+    autocompletedUrl: null,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -271,10 +272,17 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if(results.length < 1) return;
 
-                    var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
-                    instant.comment += " (instant history pattern " + results[0].cnt + ")!";
-
-                    this.mixedResults.addResults([instant]);
+                    var instantResults = new Array();
+                    for(var key in results) {
+                        var instant = Result.generic("favicon",results[key].url, null, results[key].title, null, this.searchString);
+                        instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
+                        instantResults.push(instant);
+                        if (instantResults.length > 3) {
+                            break;
+                        };
+                    }
+                    
+                    this.mixedResults.addResults(instantResults);
                     this.pushResults(this.searchString);
                 };        
             },

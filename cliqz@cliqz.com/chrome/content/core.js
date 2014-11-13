@@ -19,6 +19,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -47,6 +50,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    _highlightFirstElement: false,
 
     init: function(){
         CliqzUtils.init(window);
@@ -357,8 +361,13 @@ CLIQZ.Core = CLIQZ.Core || {
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
+            if (CLIQZ.Core._highlightFirstElement) {
+                CLIQZ.UI.selectFirstElement();
+            };
+            CLIQZ.Core._highlightFirstElement = false;
             return;
         }
+        CLIQZ.Core._highlightFirstElement = false;
 
         let urlBar = CLIQZ.Core.urlbar,
             endPoint = urlBar.value.length;
@@ -369,18 +378,49 @@ CLIQZ.Core = CLIQZ.Core || {
 
         firstResult = firstResult.replace('www.', '');
         var lastPattern = CliqzAutocomplete.lastPattern;
+        CliqzAutocomplete.autocompletedUrl = null;
 
-        if(lastPattern && lastPattern.query == urlBar.value && lastPattern.top_domain_share>0.5 && lastPattern.results.length > 0 
-            && urlBar.value.indexOf(".") == -1 && firstResult.indexOf(urlBar.value) !== 0) {
-            if (lastPattern.results[0]['url'].length > 80) {
-                lastPattern.results[0]['url'] = lastPattern.results[0]['url'].substring(0,80) + "...";
+
+        if (lastPattern && lastPattern.query == urlBar.value && lastPattern.results.length > 0) {
+            var userInput = urlBar.value.toLowerCase();
+            var result = lastPattern.results[0];
+            var typed = CliqzHistoryPattern.domainFromUrl(urlBar.value, true).replace("www.", "").toLowerCase();
+            var url = CliqzHistoryPattern.domainFromUrl(result['url'], true).replace("www.", "").toLowerCase();
+            var title = result['title'].toLowerCase();
+
+
+            if (url.indexOf(typed) == 0) {
+                urlBar.value += result['url'].substr(result['url'].indexOf(userInput) + userInput.length);
+                urlBar.setSelectionRange(endPoint, urlBar.value.length);
+                CliqzAutocomplete.autocompletedUrl = result['url'];
+            } else if (title.indexOf(userInput) == 0) {
+                urlBar.value += result['title'].substr(title.indexOf(userInput) + userInput.length) + " - " + result['url'];
+                urlBar.setSelectionRange(endPoint, urlBar.value.length);
+                CliqzAutocomplete.autocompletedUrl = result['url'];
+            } else { // Check queries
+                var query = "";
+                for(var key in result['query']) {
+                    var q = result['query'][key];
+                    if (q.indexOf(userInput) == 0 && q.length > query.length) {
+                        query = q;
+                    };
+                }
+                if (query.length > 0) {
+                    urlBar.value += query.substr(query.indexOf(userInput) + userInput.length) + " - " + result['url'];
+                    urlBar.setSelectionRange(endPoint, urlBar.value.length);
+                    CliqzAutocomplete.autocompletedUrl = result['url'];
+                };
+            }
+            if (CliqzAutocomplete.autocompletedUrl) {
+                CLIQZ.Core._highlightFirstElement = true;
+                CLIQZ.UI.selectFirstElement();
             };
-            urlBar.value += " (" + lastPattern.results[0]['url'] + /*" - " + lastPattern.results[0]['title'] +*/ ")";
-            urlBar.setSelectionRange(endPoint, urlBar.value.length);
-        } else if(firstResult.indexOf(urlBar.value) === 0) {
+        }
+
+        /*if(firstResult.indexOf(urlBar.value) === 0) {
             urlBar.value += firstResult.substr(endPoint);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
-        }
+        }*/
     },
     // redirects a tab in which oldUrl is loaded to newUrl
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
