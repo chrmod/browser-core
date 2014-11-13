@@ -79,6 +79,11 @@ var CliqzUtils = {
     }
 
     if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+
+    //set the custom restul provider
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
+
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -305,11 +310,22 @@ var CliqzUtils = {
   _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
-    CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
+    if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
+      //on timeout - permanently fallback to the default results provider
+      CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
+        CliqzUtils.CUSTOM_RESULTS_PROVIDER = null;
+        CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
+        CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
+        CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
+      });
+    }
+    else {
+      CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
+    }
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._querySeq++;
-    var url = CliqzUtils.RESULTS_PROVIDER +
+    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
               CliqzUtils.encodeQuerySession() +
               CliqzUtils.encodeQuerySeq() +

@@ -129,7 +129,10 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("sessionLogging", true);
                 break;
             case "1014_A":
-                CliqzUtils.setPref("bigmachine", true);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
+                CliqzUtils.setPref("customResultsProvider", payload.results);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
+                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
                 break;
             default:
                 rule_executed = false;
@@ -212,7 +215,10 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
                 break;
             case "1014_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("bigmachine");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
                 break;
             default:
                 rule_executed = false;
