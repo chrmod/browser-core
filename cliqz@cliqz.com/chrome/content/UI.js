@@ -43,6 +43,7 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 
 var UI = {
     tpl: {},
     showDebug: false,
+    preventFirstElementHighlight: false,
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -183,14 +184,19 @@ var UI = {
             break;
             case 8: // BACKSPACE
             case 46: // DELETE
+                UI.preventFirstElementHighlight = true;
                 clearResultSelection();
             break;
+            default:
+                UI.preventFirstElementHighlight = false;
         }
 
 
     },
     selectFirstElement: function() {
-        setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+        if (!UI.preventFirstElementHighlight) {
+            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+        };
     }
 };
 

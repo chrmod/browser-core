@@ -94,7 +94,7 @@ var CliqzHistoryPattern = {
                 var filteredPatterns = CliqzHistoryPattern.filterPatterns(groupedPatterns,query).sort(CliqzHistoryPattern.sortPatterns(true,'cnt'));
 
                 // Apply user preferences (ignored suggestions)
-                var userPref = CliqzHistoryPattern.applyUserPref(filteredPatterns[0], query);
+                var userPref = filteredPatterns[0] ? CliqzHistoryPattern.applyUserPref(filteredPatterns[0], query) : null;
                 if (userPref) {
                     // Remove userpref from other results
                     filteredPatterns = CliqzHistoryPattern.removeUserPrefDuplicates(filteredPatterns, userPref);

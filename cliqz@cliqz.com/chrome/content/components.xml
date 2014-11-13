@@ -80,7 +80,7 @@
                 width: CLIQZ.Core.urlbar.clientWidth - 100
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(data[0].url);
+              CLIQZ.Core.autocompleteQuery(data[0].url, data[0].title);
             }
           ]]>
         </body>
