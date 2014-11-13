@@ -1006,6 +1006,36 @@
 
 /* end bundesliga */
 
+/* bitcoin */
+.cliqz-bitcoin-logo {
+    height: 50px;
+    float: left; 
+    padding-right: 20px;
+}
+
+.cliqz-bitcoin-item {
+    background-color: #CCC;
+    border: 1px solid #CCC;
+    display: inline-block;
+    height: 25px;
+    padding: 2;
+    width: 220px;
+}
+
+.cliqz-bitcoin-column {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.cliqz-bitcoin-score {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* end bitcoin */
+
 /* calculator */
 
 .cliqz-calc-text-div {
@@ -1014,7 +1044,7 @@
 }
 
 .cliqz-calc-text-expr {
-    color: #A8B9C0; 
+    color: #A8B9C0;
     font-size: 20px;
 }
 
@@ -1025,9 +1055,9 @@
 
 .cliqz-calc-button-div {
     height: 25px;
-    margin-left: 35px; 
-    border-radius: 3px; 
-    background-color: #b6d6e3; 
+    margin-left: 35px;
+    border-radius: 3px;
+    background-color: #b6d6e3;
     padding: 5px;
     text-align: center;
     cursor: pointer;
@@ -1040,13 +1070,126 @@
 }
 
 .cliqz-calc-button-text {
-    padding-left: 10px; 
+    padding-left: 10px;
     color: white;
     font-size: 16px;
     text-align: center;
 }
 
 /* end calculator */
+
+/* entity zones */
+
+/* Entity Search */
+
+.entity-search-container {
+  padding: 15px;
+}
+
+.entity-search-container [url] {
+  cursor: pointer;
+}
+
+.entity-search-aktuell {
+  padding-bottom: 15px;
+}
+
+.entity-search-aktuell span{
+  padding: 0 13px;
+  color: #717171;
+}
+
+#entity-search-box {
+  border: 1px solid #3E86FC;
+  width: 485px;
+  height: 30px;
+  margin-bottom: 15px;
+  background-color: white;
+}
+
+#entity-search-box-icon {
+  background-color: #3E86FC;
+}
+
+#entity-search-box-input {
+  vertical-align: top;
+  font-size: 20px;
+  width: 440px;
+  height: 28px;
+  border: none;
+}
+
+.entity-search-container-app {
+  display: inline-block;
+  width: 90px;
+  height: 90px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.entity-search-container-app-text {
+  color: white;
+  padding: 5px 0;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.entity-search-container-app div {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* Entity News */
+
+.entity-news-title {
+  color: #414141;
+  font-size: 14px;
+}
+
+.entity-news-story {
+  padding: 5px 0;
+}
+
+.entity-news-story-image img {
+  width: 70px;
+  height: 50px;
+}
+
+.entity-news-story-description {
+  vertical-align: top;
+  padding: 5px 0 0 5px;
+}
+
+.entity-news-story-title {
+  color: #717171;
+  font-size: 15px;
+}
+
+.entity-news-story-time {
+  color: red;
+  font-size: 14px;
+}
+
+.entity-news-categories {
+  color: #414141;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.entity-news-categories span{
+  padding: 0 5px;
+  color: #717171;
+}
+
+.entity-news-story-image {
+  display: inline-block;
+}
+
+.entity-news-story-description {
+  display: inline-block;
+}
+
+/* end entity zones */
 
 /* custom */
 .cliqz-custom-text {

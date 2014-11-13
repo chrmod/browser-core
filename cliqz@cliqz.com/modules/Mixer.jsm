@@ -223,6 +223,13 @@ var Mixer = {
                 )
             );
         }
+
+        // If one of the results is data.only = true Remove all others
+        if (results.reduce(function (x, y)
+            {return (x  || y.data && y.data.only)}, false)) {
+          results = results.filter(function(r) { return r.data && r.data.only });
+        }
+
         return results.slice(0, maxResults);
 	}
 }

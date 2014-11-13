@@ -7,7 +7,10 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
+                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'entity-search', 'entity-news', 'bitcoin'],
+
     VERTICALS = {
         'b': 'bundesliga',
         'w': 'weather' ,
@@ -121,6 +124,9 @@ var UI = {
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+
+        // set the width
+        gCliqzBox.style.width = (res.width +1) + 'px';
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -174,8 +180,24 @@ var UI = {
                 return false;
             break;
         }
-
-
+    },
+    entitySearchKeyDown: function(event, value) {
+      if(event.keyCode==13) {
+        var search_engine = Services.search.getEngineByName("Google");
+        var google_url = "http://www.google.com/search?q=" + value
+        if (search_engine) {
+          var google_url = search_engine.getSubmission(value).uri.spec
+        }
+        openUILink(google_url);
+        CLIQZ.Core.forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+        event.preventDefault();
+        var signal = {
+          type: 'activity',
+          action: 'entity_search_google'
+        };
+        CliqzUtils.track(signal);
+      }
     }
 };
 
@@ -375,6 +397,7 @@ function getTags(fullTitle){
     return [title, tags.split(",").sort()]
 }
 
+var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
@@ -391,7 +414,7 @@ function enhanceResults(res){
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = generateLogoClass(r.urlDetails);
             r.image = constructImage(r.data);
-            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -408,7 +431,8 @@ function enhanceResults(res){
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    res.results = first.concat(last);
+    res.results = first;
+    res.results = res.results.concat(last);
     return res;
 }
 
@@ -467,6 +491,7 @@ function resultClick(ev){
                 CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
             CLIQZ.Core.openLink(url, newTab);
+            if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
             // copy calculator answer to clipboard
