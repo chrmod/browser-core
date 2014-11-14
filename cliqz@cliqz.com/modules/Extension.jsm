@@ -137,6 +137,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSniffer.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();

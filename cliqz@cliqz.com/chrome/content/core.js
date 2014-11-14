@@ -34,6 +34,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
+  'chrome://cliqzmodules/content/CliqzSnifferjsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -46,7 +49,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        CliqzUtils.addHttpObserver();
+        CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
         CLIQZ.UI.init();
 
@@ -175,6 +178,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
         CliqzAutocomplete.destroy();
+        CliqzSniffer.destroy();
 
         // remove listners
         if ('gBrowser' in window) {
@@ -191,6 +195,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
+            delete window.CliqzSniffer;
         }
     },
     restart: function(soft){
