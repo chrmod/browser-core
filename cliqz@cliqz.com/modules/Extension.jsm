@@ -11,6 +11,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');

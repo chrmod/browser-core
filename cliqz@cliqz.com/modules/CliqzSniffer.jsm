@@ -10,7 +10,11 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
                                   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var EXPORTED_SYMBOLS = ['CluqzSniffer'];
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+                                  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
+
+var EXPORTED_SYMBOLS = ['CliqzSniffer'];
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;

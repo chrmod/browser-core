@@ -35,7 +35,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
-  'chrome://cliqzmodules/content/CliqzSnifferjsm');
+  'chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
