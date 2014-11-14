@@ -12,6 +12,14 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+// returns the super type of a result - type to be consider for UI creation
+function getSuperType(result){
+    if(result.snippet && result.snippet.rich_data){
+        return result.snippet.rich_data.type
+    }
+    return null;
+}
+
 var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
@@ -72,7 +80,7 @@ var Result = {
         return item;
     },
     cliqz: function(result){
-        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source);
         var debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
         if(result.snippet){
             return Result.generic(
@@ -143,7 +151,8 @@ var Result = {
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
                 richData: result.snippet.rich_data
-            };
+            },
+            source = getSuperType(result) || result.source;
 
         resp.type = "other";
         for(var type in Result.RULES){
@@ -157,7 +166,7 @@ var Result = {
                            result.snippet.og.type == rule.ogtypes[ogtype])
                                 resp.type = type;
 
-                var verticals = result.source.split(',');
+                var verticals = source.split(',');
                 for(var v in verticals){
                     if(verticals[v].trim() == rule.vertical)
                         resp.type = type;
