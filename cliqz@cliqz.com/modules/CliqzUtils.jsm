@@ -240,6 +240,19 @@ var CliqzUtils = {
     }
     return url;
   },
+  cleanUrlProtocol: function(url, cleanWWW){
+    var protocolPos = url.indexOf('://');
+
+    // removes protocol http(s), ftp, ...
+    if(protocolPos != -1 && protocolPos <= 6)
+      url = url.split('://')[1];
+
+    // removes the www.
+    if(cleanWWW && url.indexOf('www.') == 0)
+      url = url.slice(4);
+
+    return url;
+  },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
@@ -248,13 +261,9 @@ var CliqzUtils = {
         tld = '',
         subdomains = [],
         path = '',
-        ssl = originalUrl.indexOf('https') == 0,
-        protocolPos = url.indexOf('://');
+        ssl = originalUrl.indexOf('https') == 0;
 
-
-    if(protocolPos != -1 && protocolPos <= 6){
-      url = url.split('://')[1];
-    }
+    url = CliqzUtils.cleanUrlProtocol(url, false);
     // extract only hostname
     var host = url.split('/')[0].toLowerCase();
     // extract only path
