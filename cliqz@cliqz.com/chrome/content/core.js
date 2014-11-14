@@ -340,27 +340,41 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar,
+        let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
         // Remove protocol and 'www.' from first results
-        if(firstResult.indexOf('://') !== -1){
-           firstResult = firstResult.split('://')[1];
-        }
-        firstResult = firstResult.replace('www.', '');
+        firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
 
-        // Remove protocol and 'www.' from typed query
-        var query = urlBar.value;
-        if(query.indexOf('://') !== -1){
-           query = query.split('://')[1];
-        }
-        query = query.replace('www.', '');
+        // try to update misspelings like ',' or '-'
+        var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+
+        // Remove protocol from typed query
+        var query = CliqzUtils.cleanUrlProtocol(cleanedUrlBar, true);
 
         // Then add the matching part to the end of the current typed query and set is as selected.
         if(query && firstResult.indexOf(query) === 0) {
-            urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
+            urlBar.mInputField.value = cleanedUrlBar + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
+    },
+    cleanUrlBarValue: function(val){
+        var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+            host = cleanParts[0],
+            pathLength = 0,
+            SYMBOLS = /,|-|\./g;
+
+        if(cleanParts.length > 1){
+            pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+        }
+        if(host.indexOf('www') == 0 && host.length > 4){
+            // only fix symbols in host
+            if(SYMBOLS.test(host[3]) && host[4] != ' ')
+                // replace only issues in the host name, not ever in the path
+                return val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+                       (pathLength? val.substr(-pathLength): '');
+        }
+        return val;
     },
     // redirects a tab in which oldUrl is loaded to newUrl
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
@@ -373,8 +387,24 @@ CLIQZ.Core = CLIQZ.Core || {
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     },
-
     getQuerySession: function() {
         return _querySession;
+    },
+    forceCloseResults: false,
+    closeResults: function (event, force) {
+      if (CLIQZ.Core.forceCloseResults || force) {
+        CLIQZ.Core.forceCloseResults = false;
+        return;
+      }
+
+      event.preventDefault();
+      setTimeout(function(){
+          var newActive = document.activeElement;
+          if (newActive.getAttribute("dont-close") != "true") {
+            CLIQZ.Core.forceCloseResults = true;
+            CLIQZ.Core.popup.hidePopup();
+          }
+      }, 0);
+
     }
 };
