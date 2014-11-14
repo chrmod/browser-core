@@ -331,8 +331,7 @@ var CliqzUtils = {
               CliqzUtils.encodeQuerySeq() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeParams();
+              CliqzUtils.encodeCountry();
 
     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
       function(res){
@@ -368,10 +367,6 @@ var CliqzUtils = {
   encodeCountry: function() {
     var flag = 'forceCountry';
     return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
-  },
-  //to be used for temporary params - AB tests
-  encodeParams: function() {
-    return CliqzUtils.getPref('bigmachine', false)? '&bm' : '';
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
