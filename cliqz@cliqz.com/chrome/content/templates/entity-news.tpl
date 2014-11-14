@@ -1,7 +1,8 @@
 <div class="entity-search-container">
 
   <div class="entity-news-title">
-    Meistgelesen
+    Derzeit aktuell
+    <img src="http://cdnlogos.cliqz.com/spiegel.de.png" />
   </div>
   <div class="entity-news-stories">
     {{#each data.news}}
