@@ -1009,7 +1009,7 @@
 /* bitcoin */
 .cliqz-bitcoin-logo {
     height: 50px;
-    float: left; 
+    float: left;
     padding-right: 20px;
 }
 
@@ -1144,6 +1144,11 @@
 .entity-news-title {
   color: #414141;
   font-size: 14px;
+}
+
+.entity-news-title img {
+  float: right;
+  margin: -5px -5px 0 0;
 }
 
 .entity-news-story {
