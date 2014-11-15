@@ -11,6 +11,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -137,6 +138,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSniffer.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
