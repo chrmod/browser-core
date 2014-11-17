@@ -89,6 +89,7 @@ var CliqzUtils = {
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
     CliqzUtils.log('Initialized', 'UTILS');
   },
@@ -478,11 +479,18 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
+    CliqzUtils.httpGet(
+      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
+      encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' +
+      encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
-      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
+      (resultUrl ? '&u=' +
+      encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() +
+      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeResultOrder());
+
     CliqzUtils.setResultOrder('');
   },
 
