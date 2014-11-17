@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -63,7 +66,6 @@ var CliqzUtils = {
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
-
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
   init: function(win){
