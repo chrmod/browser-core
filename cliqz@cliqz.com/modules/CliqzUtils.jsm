@@ -23,6 +23,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
+  'chrome://cliqzmodules/content/CliqzABTests.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -316,10 +319,7 @@ var CliqzUtils = {
     if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
       //on timeout - permanently fallback to the default results provider
       CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
-        CliqzUtils.CUSTOM_RESULTS_PROVIDER = null;
-        CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
-        CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
-        CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
+        CliqzABTests.disable('1014_A');
       });
     }
     else {

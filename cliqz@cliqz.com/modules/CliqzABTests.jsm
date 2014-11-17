@@ -150,7 +150,7 @@ var CliqzABTests = CliqzABTests || {
             return false;
        }
     },
-    leave: function(abtest) {
+    leave: function(abtest, disable) {
         var logname = "CliqzABTests.leave"
 
         // Restore defaults after an AB test is finished.
@@ -228,12 +228,27 @@ var CliqzABTests = CliqzABTests || {
             var action = {
                 type: 'abtest',
                 action: 'leave',
-                name: abtest
+                name: abtest,
+                disable: disable
             };
             CliqzUtils.track(action);
             return true;
        } else {
             return false;
        }
+    },
+    disable: function(abtest) {
+        // Disable an AB test but do not remove it from list of active AB tests,
+        // this is intended to be used by the extension itself when it experiences
+        // an error associated with this AB test.
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF)) {
+             var curABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
+
+            if(curABtests[abtest] && CliqzABTests.leave(abtest, true)) {
+                // mark as disabled and save back to preferences
+                curABtests[abtest].disabled = true;
+                CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(curABtests))
+            }
+        }
     },
 }
