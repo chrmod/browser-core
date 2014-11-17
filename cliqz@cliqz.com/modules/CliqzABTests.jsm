@@ -120,15 +120,19 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("showNoResults", true);
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.setPref("showAdResults", 1);
                 break;
             case "1012_A":
-                // show ad results
                 CliqzUtils.setPref("showPremiumResults", 1);
                 break;
             case "1013_A":
                 CliqzUtils.setPref("sessionLogging", true);
+                break;
+            case "1014_A":
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
+                CliqzUtils.setPref("customResultsProvider", payload.results);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
+                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
                 break;
             default:
                 rule_executed = false;
@@ -202,15 +206,19 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
                 break;
             case "1012_A":
-                // show premium results
                 CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
                 break;
             case "1013_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
+                break;
+            case "1014_A":
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
                 break;
             default:
                 rule_executed = false;
