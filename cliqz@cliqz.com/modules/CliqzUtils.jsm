@@ -37,16 +37,17 @@ var VERTICAL_ENCODINGS = {
     'science':'k',
     'gaming':'g',
     'dictionary':'l',
-    'qaa':'q'
+    'qaa':'q',
+    'bm': 'm'
 };
 
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
   RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
+  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
@@ -410,7 +411,7 @@ var CliqzUtils = {
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeSources: function(sources){
-    return sources.split(', ').map(
+    return sources.toLowerCase().split(', ').map(
       function(s){
         if(s.indexOf('cache') == 0) // to catch 'cache-*' for specific countries
           return 'd'

@@ -326,6 +326,7 @@ function constructImage(data){
                 height = 67;
                 ratio = 214/317;
                 break;
+            case 'people': //fallthough
             case 'person':
                 ratio = 1;
                 break;
