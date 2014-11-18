@@ -17,10 +17,12 @@ var CliqzSpellCheck = {
     checkQuery: function(query, callback) {
         var words = query.split(" ");
         words = CliqzSpellCheck.clearWords(words);
+        CliqzUtils.log('start', 'spellcheck');
         for (var i = 0; i < words.length; i++) {
             var newWord = CliqzSpellCheck.dbQuery(words[i]);
             if (newWord) words[i] = newWord;
         }
+        CliqzUtils.log('end', 'spellcheck');
         callback(words.join(" "), query);
     },
     clearWords: function(words) {
@@ -65,6 +67,9 @@ var CliqzSpellCheck = {
                     dbConn.executeSimpleSQL('INSERT INTO spell (wrong, correct) VALUES ("' + wrong + '", "' + correct + '")');
                 }, i*3, content[i].split("\t"));
             }
+            CliqzUtils.setTimeout(function() {
+                dbConn.executeSimpleSQL('CREATE UNIQUE INDEX spell_index on spell');
+            }, content.length * 3 + 5);
             CliqzUtils.setPref('spellchecker', version);
         }
     },
