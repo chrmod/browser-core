@@ -408,7 +408,6 @@ CLIQZ.Core = CLIQZ.Core || {
           if (newActive.getAttribute("dont-close") != "true") {
             CLIQZ.Core.forceCloseResults = true;
             CLIQZ.Core.popup.hidePopup();
-            CLIQZ.Core.urlbar.blur();
           }
       }, 0);
 
