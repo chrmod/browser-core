@@ -133,6 +133,8 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("customResultsProvider", payload.results);
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
                 CliqzUtils.setPref("customResultsProviderPing", payload.ping);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
+                CliqzUtils.setPref("customResultsProviderLog", payload.log);
                 break;
             default:
                 rule_executed = false;
@@ -219,6 +221,8 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
             default:
                 rule_executed = false;
