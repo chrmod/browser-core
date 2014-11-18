@@ -178,7 +178,14 @@ var UI = {
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
                 return false;
-            break;
+            case KeyEvent.DOM_VK_HOME:
+                // set the caret at the beginning of the text box
+                ev.originalTarget.setSelectionRange(0, 0);
+                // return true to prevent the default action
+                // on linux the default action will autocomplete to the url of the first result
+                return true;
+            default:
+                return false;
         }
     },
     entitySearchKeyDown: function(event, value) {
