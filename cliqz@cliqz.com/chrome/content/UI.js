@@ -972,37 +972,6 @@ function registerHelpers(){
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
     });
-
-    var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
-    Handlebars.registerHelper('cliqz-ad', function(idx, type, q) {
-        if(CliqzUtils.getPref("showAdResults", -1) == -1 ||
-            idx!=0 || type == 'cliqz-extra') return '';
-        if(AD.test(q)){
-            CliqzUtils.setPref("showAdResults", 2);
-            CliqzUtils.track({type:'ab', action:'ad_result'});
-            return 'ad';
-        }
-        return '';
-    });
-
-    Handlebars.registerHelper('cliqz-premium', function(idx, q) {
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
-            CliqzUtils.track({type:'ab', action:'premium_result'});
-            return new Handlebars.SafeString(UI.tpl.generic({
-                title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
-                text: '',
-                width: CLIQZ.Core.urlbar.clientWidth - 100,
-                data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
-            }));
-        } else return '';
-    });
-
-    Handlebars.registerHelper('is-cliqz-premium', function(idx, q) {
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
-            return true
-        } else return false;
-    });
-
 }
 
 ctx.CLIQZ = ctx.CLIQZ || {};
