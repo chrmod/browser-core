@@ -37,6 +37,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
   'chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
+  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -52,6 +55,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
         CLIQZ.UI.init();
+        CliqzSpellCheck.dbInit();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.elem.push(css);

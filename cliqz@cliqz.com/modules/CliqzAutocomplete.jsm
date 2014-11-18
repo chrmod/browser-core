@@ -35,6 +35,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
+  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -426,7 +429,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var response = JSON.parse(req.response);
                     this.suggestedCalcResult = null;
 
-
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
@@ -437,9 +439,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
 
                     this.suggestionsRecieved = true;
-                    this.cliqzSuggestions = response[1];
+                    if (this.cliqzSuggestions) {  // the spellcheck is already there
+                        // TODO: clear the ones same as spell correction 
+                        for (var i=0; i < response[1].length; i++) {
+                            if (response[1][i] != this.cliqzSuggestions[0]) {
+                                this.cliqzSuggestions.push(response[1][i]);
+                            }
+                        }
+                    } else {
+                        this.cliqzSuggestions = response[1];
+                    }
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
+                }
+            },
+            cliqzSpellCheckFetcher: function(correction, q) {
+                if (q == this.searchString && correction != q && correction != "") {
+                    this.cliqzSuggestions = [correction];
                 }
             },
             // handles weather queries
@@ -543,6 +559,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
+                this.cliqzSpellCheckFetcher = this.cliqzSpellCheckFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
@@ -554,7 +571,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-
+                    CliqzSpellCheck.checkQuery(searchString, this.cliqzSpellCheckFetcher);
+                    
                     // Fetch weather and bundesliga only if search contains trigger
                     if(CliqzWeather.isWeatherSearch(searchString)){
                         CliqzWeather.get(searchString, this.cliqzWeatherCallback);
