@@ -18,7 +18,8 @@ var CliqzSpellCheck = {
         var words = query.split(" ");
         words = CliqzSpellCheck.clearWords(words);
         for (var i = 0; i < words.length; i++) {
-            words[i] = CliqzSpellCheck.dbQuery(words[i]);
+            var newWord = CliqzSpellCheck.dbQuery(words[i]);
+            if (newWord) words[i] = newWord;
         }
         callback(words.join(" "), query);
     },
@@ -47,6 +48,7 @@ var CliqzSpellCheck = {
         let dbConn = Services.storage.openDatabase(file);
         CliqzUtils.log(req.response.substr(0, 100), "spellcheck");
         var content = req.response.split("\n");
+        
         // check version
         var version = content[0];
         CliqzUtils.log("current spellchecker version: " + CliqzUtils.getPref("spellchecker", "-1"), "spellcheck");
