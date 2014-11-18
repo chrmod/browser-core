@@ -120,15 +120,21 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("showNoResults", true);
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.setPref("showAdResults", 1);
                 break;
             case "1012_A":
-                // show ad results
                 CliqzUtils.setPref("showPremiumResults", 1);
                 break;
             case "1013_A":
                 CliqzUtils.setPref("sessionLogging", true);
+                break;
+            case "1014_A":
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
+                CliqzUtils.setPref("customResultsProvider", payload.results);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
+                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
+                CliqzUtils.setPref("customResultsProviderLog", payload.log);
                 break;
             default:
                 rule_executed = false;
@@ -146,7 +152,7 @@ var CliqzABTests = CliqzABTests || {
             return false;
        }
     },
-    leave: function(abtest) {
+    leave: function(abtest, disable) {
         var logname = "CliqzABTests.leave"
 
         // Restore defaults after an AB test is finished.
@@ -202,15 +208,21 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
             case "1011_A":
-                // show ad results
                 CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
                 break;
             case "1012_A":
-                // show premium results
                 CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
                 break;
             case "1013_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
+                break;
+            case "1014_A":
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProvider");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderPing");
+                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
+                CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
             default:
                 rule_executed = false;
@@ -220,12 +232,27 @@ var CliqzABTests = CliqzABTests || {
             var action = {
                 type: 'abtest',
                 action: 'leave',
-                name: abtest
+                name: abtest,
+                disable: disable
             };
             CliqzUtils.track(action);
             return true;
        } else {
             return false;
        }
+    },
+    disable: function(abtest) {
+        // Disable an AB test but do not remove it from list of active AB tests,
+        // this is intended to be used by the extension itself when it experiences
+        // an error associated with this AB test.
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF)) {
+             var curABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
+
+            if(curABtests[abtest] && CliqzABTests.leave(abtest, true)) {
+                // mark as disabled and save back to preferences
+                curABtests[abtest].disabled = true;
+                CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(curABtests))
+            }
+        }
     },
 }
