@@ -394,7 +394,7 @@ CLIQZ.Core = CLIQZ.Core || {
             var typed = CliqzHistoryPattern.domainFromUrl(urlBar.value, true).replace("www.", "").toLowerCase();
             var url = CliqzHistoryPattern.domainFromUrl(result['url'], true).replace("www.", "").toLowerCase();
             //var shortTitle = result['title'].length > 50 ? result['title'].substr(0,50) : result['title'];
-            var shortTitle = result['title'].split(' ')[0];
+            var shortTitle = result['title'].split(' ')[0] || "";
 
             // Url Matching
             if (url.indexOf(typed) == 0) {

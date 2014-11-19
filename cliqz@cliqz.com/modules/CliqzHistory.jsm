@@ -107,7 +107,8 @@ var CliqzHistory = {
             };
         }
         if (type == "autocomplete" ||
-            (type == "result"  && CliqzAutocomplete.lastPattern && CliqzAutocomplete.lastPattern.results[0] && CliqzAutocomplete.lastPattern.results[0]['ignored_url'] && url == CliqzAutocomplete.lastPattern.results[0]['ignored_url'])) {
+                (type == "result"  && CliqzAutocomplete.lastPattern && CliqzAutocomplete.lastPattern.results[0] && CliqzAutocomplete.lastPattern.results[0]['ignored_url'] 
+                && url == CliqzAutocomplete.lastPattern.results[0]['ignored_url'])) {
             CliqzHistory.unignoreUrl(url, query);
         };
         
