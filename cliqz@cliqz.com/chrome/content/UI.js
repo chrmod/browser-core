@@ -205,8 +205,29 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
-    }
+    },
+    closeResults: closeResults
 };
+
+
+var forceCloseResults = false;
+function closeResults(event, force) {
+    if($("[dont-close=true]", gCliqzBox) == null) return;
+
+    if (forceCloseResults || force) {
+        forceCloseResults = false;
+        return;
+    }
+
+    event.preventDefault();
+    setTimeout(function(){
+      var newActive = document.activeElement;
+      if (newActive.getAttribute("dont-close") != "true") {
+        forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+      }
+    }, 0);
+}
 
 // hide elements in a context folowing a priority (0-lowest)
 //
