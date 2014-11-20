@@ -59,7 +59,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastQueryTime: null,
     lastDisplayTime: null,
     lastFocusTime: null,
-    autocompletedUrl: null,
+    highlightFirstElement: false,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();

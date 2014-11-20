@@ -197,6 +197,9 @@ var UI = {
         if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
         };
+    },
+    clearSelection: function() {
+        clearResultSelection();
     }
 };
 
@@ -668,7 +671,7 @@ function onEnter(ev, item){
         }
         CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
         CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
-        if (url == CliqzAutocomplete.autocompletedUrl && CliqzAutocomplete.autocompletedUrl == CliqzAutocomplete.lastPattern.results[0]['url']) {
+        if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
         };
 
@@ -709,14 +712,14 @@ function onEnter(ev, item){
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
-            if(firstUrl.indexOf(inputValue) != -1){
-                CLIQZ.Core.urlbar.value = firstUrl;
-            }
+            //if(firstUrl.indexOf(inputValue) != -1){
+            //    CLIQZ.Core.urlbar.value = firstUrl;
+            //}
 
             // Check for instant history auto completion
-            if (inputValue.search(/-\ .*\/\/.*/i) != -1) {
-                CLIQZ.Core.urlbar.value = firstUrl;
-            };
+            //if (inputValue.search(/-\ .*\/\/.*/i) != -1) {
+            //    CLIQZ.Core.urlbar.value = firstUrl;
+            //};
 
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));

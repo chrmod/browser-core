@@ -100,22 +100,23 @@ var CliqzHistory = {
             now += 1;
 
             // Check if autocomplete was ignored
-            if (CliqzAutocomplete.autocompletedUrl && CliqzAutocomplete.autocompletedUrl == CliqzAutocomplete.lastPattern.results[0]['url'] 
+            /*if (CliqzAutocomplete.autocompletedUrl && CliqzAutocomplete.autocompletedUrl == CliqzAutocomplete.lastPattern.results[0]['url'] 
                 && CliqzAutocomplete.autocompletedUrl.indexOf(query.replace("http://","")) != -1) {
                 CliqzHistory.SQL("INSERT INTO userprefs (userinput,autocomplete,expire)\
                     VALUES ('"+CliqzHistory.escapeSQL(query)+"','"+CliqzHistory.escapeSQL(CliqzAutocomplete.autocompletedUrl)+"', "+(now+CliqzHistory.prefExpire)+")");
-            };
+            };*/
         }
-        if (type == "autocomplete" ||
+        /*if (type == "autocomplete" ||
                 (type == "result"  && CliqzAutocomplete.lastPattern && CliqzAutocomplete.lastPattern.results[0] && CliqzAutocomplete.lastPattern.results[0]['ignored_url'] 
                 && url == CliqzAutocomplete.lastPattern.results[0]['ignored_url'])) {
             CliqzHistory.unignoreUrl(url, query);
-        };
+        };*/
         
         // Insert history entry
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
                 VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
     },
+    // Remove?
     urlReplacement: function(input, autocomplete) {
         var replacement = new Array();
         input = input.replace("www.","");
@@ -131,6 +132,7 @@ var CliqzHistory = {
          });
         return replacement;
     },
+    // Remove?
     unignoreUrl: function(url, query) {
         if (url.replace("http://","").replace("https://","").replace("www.","").indexOf(query.replace("www.","")) != 0) {return};
         var url2 = null;
@@ -221,7 +223,7 @@ var CliqzHistory = {
             )";
         CliqzHistory.SQL(visits);
         CliqzHistory.SQL(titles);
-        CliqzHistory.SQL(prefs);
+        //CliqzHistory.SQL(prefs);
     },
     getTabForContentWindow: function (window) {
       let browser;

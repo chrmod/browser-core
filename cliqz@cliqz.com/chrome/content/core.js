@@ -50,7 +50,6 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
-    _highlightFirstElement: false,
 
     init: function(){
         CliqzUtils.init(window);
@@ -361,13 +360,13 @@ CLIQZ.Core = CLIQZ.Core || {
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
-            if (CLIQZ.Core._highlightFirstElement) {
+            if (CliqzAutocomplete.highlightFirstElement) {
                 CLIQZ.UI.selectFirstElement();
             };
-            CLIQZ.Core._highlightFirstElement = false;
+            CliqzAutocomplete.highlightFirstElement = false;
             return;
         }
-        CLIQZ.Core._highlightFirstElement = false;
+        CliqzAutocomplete.highlightFirstElement = false;
 
         let urlBar = CLIQZ.Core.urlbar,
             endPoint = urlBar.value.length;
@@ -378,10 +377,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         firstResult = firstResult.replace('www.', '');
         var lastPattern = CliqzAutocomplete.lastPattern;
-        CliqzAutocomplete.autocompletedUrl = null;
 
         // Use first entry if there are no patterns
-        if (lastPattern.results.length == 0) {
+        if (lastPattern && lastPattern.results.length == 0) {
             lastPattern.results[0] = new Array();
             lastPattern.results[0]['url'] = firstResult;
             lastPattern.results[0]['title'] = firstTitle;
@@ -389,46 +387,19 @@ CLIQZ.Core = CLIQZ.Core || {
         };
 
         if (lastPattern && lastPattern.query == urlBar.value) {
-            var userInput = urlBar.value.toLowerCase();
-            var result = lastPattern.results[0];
-            var typed = CliqzHistoryPattern.domainFromUrl(urlBar.value, true).replace("www.", "").toLowerCase();
-            var url = CliqzHistoryPattern.domainFromUrl(result['url'], true).replace("www.", "").toLowerCase();
-            //var shortTitle = result['title'].length > 50 ? result['title'].substr(0,50) : result['title'];
-            var shortTitle = result['title'].split(' ')[0] || "";
-
-            // Url Matching
-            if (url.indexOf(typed) == 0) {
-                urlBar.value += result['url'].substr(result['url'].indexOf(userInput) + userInput.length);
-                urlBar.setSelectionRange(endPoint, urlBar.value.length);
-                CliqzAutocomplete.autocompletedUrl = result['url'];
-
-            // Title Matching
-            } else if (shortTitle.toLowerCase().indexOf(userInput) == 0) {
-                urlBar.value += shortTitle.substr(shortTitle.toLowerCase().indexOf(userInput) + userInput.length) + " - " + result['url'];
-                urlBar.setSelectionRange(endPoint, urlBar.value.length);
-                CliqzAutocomplete.autocompletedUrl = result['url'];
-
-            // Query matching
-            } else {
-                var query = "";
-                for(var key in result['query']) {
-                    var q = result['query'][key];
-                    if (q.indexOf(userInput) == 0 && q.length > query.length) {
-                        query = q;
-                    };
-                }
-                if (query.length > 0) {
-                    urlBar.value += query.substr(query.indexOf(userInput) + userInput.length) + " - " + result['url'];
-                    urlBar.setSelectionRange(endPoint, urlBar.value.length);
-                    CliqzAutocomplete.autocompletedUrl = result['url'];
-                };
-            }
+            var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, lastPattern.results[0]);
+            if (autocomplete.autocomplete) {
+                urlBar.value = autocomplete.urlbar;
+                urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            };
 
             // Highlight first entry in dropdown
-            if (CliqzAutocomplete.autocompletedUrl) {
-                CLIQZ.Core._highlightFirstElement = true;
+            if (autocomplete.highlight) {
+                CliqzAutocomplete.highlightFirstElement = true;
                 CLIQZ.UI.selectFirstElement();
-            };
+            } else {
+                CLIQZ.UI.clearSelection();
+            }
         }
     },
     // redirects a tab in which oldUrl is loaded to newUrl
