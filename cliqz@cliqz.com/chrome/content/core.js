@@ -394,22 +394,5 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     getQuerySession: function() {
         return _querySession;
-    },
-    forceCloseResults: false,
-    closeResults: function (event, force) {
-      if (CLIQZ.Core.forceCloseResults || force) {
-        CLIQZ.Core.forceCloseResults = false;
-        return;
-      }
-
-      event.preventDefault();
-      setTimeout(function(){
-          var newActive = document.activeElement;
-          if (newActive.getAttribute("dont-close") != "true") {
-            CLIQZ.Core.forceCloseResults = true;
-            CLIQZ.Core.popup.hidePopup();
-          }
-      }, 0);
-
     }
 };
