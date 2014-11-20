@@ -18,6 +18,8 @@ var CliqzHistoryPattern = {
     data: null,
     pattern: null,
     detectPattern: function(query, callback) {
+        var orig_query = query;
+        query = CliqzHistoryPattern.generalizeUrl(query);
         // Ignore one character queries
         if (CliqzHistoryPattern.generalizeUrl(query).length < 2
         || ("http://www.").indexOf(query) != -1
@@ -25,8 +27,6 @@ var CliqzHistoryPattern = {
         || query.indexOf('://') != -1) {
             return
         };
-        var orig_query = query;
-        query = CliqzHistoryPattern.generalizeUrl(query);
 
         let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
         this.data = new Array();
@@ -300,7 +300,10 @@ var CliqzHistoryPattern = {
     autocompleteTerm: function(urlbar, pattern) {
         var url = CliqzHistoryPattern.generalizeUrl(pattern['autocompleteReplacement']) || CliqzHistoryPattern.generalizeUrl(pattern['url']);
         var input = CliqzHistoryPattern.generalizeUrl(urlbar);
-        var shortTitle = pattern['title'].split(' ')[0] || "";
+        var shortTitle = "";
+        if (pattern['title']) {
+            shortTitle = pattern['title'].split(' ')[0];
+        }
         var shortUrl = pattern['url'].length > 80 ? (pattern['url'].substring(0,80)+"...") : pattern['url']
         var autocomplete = false, highlight = false, selectionStart = 0, urlbarCompleted = "";
         CliqzUtils.log(url);
@@ -394,14 +397,27 @@ var CliqzHistoryPattern = {
     },
     generalizeUrl: function(url) {
         if (!url) {return ""};
-        if (url.indexOf("://") != -1) {
-            url = url.substring(url.indexOf("://")+3);
-        };
-        url = url.replace("www.", "");
+        var val = url.toLowerCase();
+        var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+            host = cleanParts[0],
+            pathLength = 0,
+            SYMBOLS = /,|-|\./g;
+
+        if(cleanParts.length > 1){
+            pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+        }
+        if(host.indexOf('www') == 0 && host.length > 4){
+            // only fix symbols in host
+            if(SYMBOLS.test(host[3]) && host[4] != ' ')
+                // replace only issues in the host name, not ever in the path
+                val = val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+                       (pathLength? val.substr(-pathLength): '');
+        }
+        url = CliqzUtils.cleanUrlProtocol(val, true);
         if (url[url.length-1] == '/') {
             url = url.substring(0, url.length-1);
         };
-        return url.toLowerCase();
+        return url;
     },
     domainFromUrl: function(url, subdomain) {
         function parseUri (str) {

@@ -193,16 +193,14 @@ var UI = {
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
-            default:
-                return false;
-            break;
-            case 8: // BACKSPACE
-            case 46: // DELETE
+            case 8://BACKSPACE
+            case 46://DELETE
                 UI.preventFirstElementHighlight = true;
                 clearResultSelection();
-            break;
+                return false;
             default:
                 UI.preventFirstElementHighlight = false;
+                return false;
         }
     },
     entitySearchKeyDown: function(event, value) {
@@ -705,11 +703,12 @@ function onEnter(ev, item){
         }
         CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
         CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
-        if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
+        if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            //url = CLIQZ.Core.urlbar.value;
         };
 
-        CLIQZ.Core.openLink(url, false);
+        CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 

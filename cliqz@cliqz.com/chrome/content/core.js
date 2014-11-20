@@ -376,16 +376,16 @@ CLIQZ.Core = CLIQZ.Core || {
         let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
-        if(firstResult.indexOf('://') !== -1){
-           firstResult = firstResult.split('://')[1];
-        }
         // Remove protocol and 'www.' from first results
-        firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
-
-        firstResult = firstResult.replace('www.', '');
-        var lastPattern = CliqzAutocomplete.lastPattern;
+        //firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
         // try to update misspelings like ',' or '-'
-        var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+        if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
+            urlBar.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+        };
+        
+        //firstResult = firstResult.replace('www.', '');
+        var lastPattern = CliqzAutocomplete.lastPattern;
+        
 
         // Use first entry if there are no patterns
         if (lastPattern && lastPattern.results.length == 0) {

@@ -48,7 +48,7 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
-    HISTORY_TIMEOUT: 100,
+    HISTORY_TIMEOUT: 200,
     lastPattern: null,
     lastSearch: '',
     lastResult: null,
@@ -182,6 +182,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
+                // XXX temporary for HistoryPattern
+                    //return;
+
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
@@ -198,7 +201,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    this.instantResult(search, result);
+                    //this.instantResult(search, result);
                 }
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
