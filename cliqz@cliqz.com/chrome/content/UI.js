@@ -198,6 +198,24 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
+    },
+    entityVideoKeyDown: function(event, value) {
+      if(event.keyCode==13) {
+        var search_engine = Services.search.getEngineByName("Youtube");
+        var google_url = "http://www.youtube.com/results?search_query=t" + value
+        if (search_engine) {
+          var google_url = search_engine.getSubmission(value).uri.spec
+        }
+        openUILink(google_url);
+        CLIQZ.Core.forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+        event.preventDefault();
+        var signal = {
+          type: 'activity',
+          action: 'entity_search_google'
+        };
+        CliqzUtils.track(signal);
+      }
     }
 };
 
