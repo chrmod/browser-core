@@ -320,7 +320,7 @@ var CliqzUtils = {
     if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
       //on timeout - permanently fallback to the default results provider
       CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
-        CliqzABTests.disable('1014_A');
+        CliqzABTests.disable('1015_A');
       });
     }
     else {
