@@ -23,13 +23,6 @@ var CliqzHistory = {
             var url = aBrowser.currentURI.spec;
             var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
             var panel = tab.linkedPanel;
-
-            // Skip external requests
-            // Not neccessary with onLocationChange
-            /*if (aRequest.name.indexOf(CliqzHistory.getURI(tab)) == -1) {
-                CliqzUtils.log(CliqzHistory.getURI(tab) + "!=" + aRequest.name, "DEBUG");
-                return;
-            };*/
             
             // Skip if already saved or on any about: pages
             if (url.substring(0,6) == "about:" || CliqzHistory.getTabData(panel, "url") == url) {
@@ -98,53 +91,11 @@ var CliqzHistory = {
                 VALUES ('"+CliqzHistory.escapeSQL(query)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
             type = "link";
             now += 1;
-
-            // Check if autocomplete was ignored
-            /*if (CliqzAutocomplete.autocompletedUrl && CliqzAutocomplete.autocompletedUrl == CliqzAutocomplete.lastPattern.results[0]['url'] 
-                && CliqzAutocomplete.autocompletedUrl.indexOf(query.replace("http://","")) != -1) {
-                CliqzHistory.SQL("INSERT INTO userprefs (userinput,autocomplete,expire)\
-                    VALUES ('"+CliqzHistory.escapeSQL(query)+"','"+CliqzHistory.escapeSQL(CliqzAutocomplete.autocompletedUrl)+"', "+(now+CliqzHistory.prefExpire)+")");
-            };*/
         }
-        /*if (type == "autocomplete" ||
-                (type == "result"  && CliqzAutocomplete.lastPattern && CliqzAutocomplete.lastPattern.results[0] && CliqzAutocomplete.lastPattern.results[0]['ignored_url'] 
-                && url == CliqzAutocomplete.lastPattern.results[0]['ignored_url'])) {
-            CliqzHistory.unignoreUrl(url, query);
-        };*/
         
         // Insert history entry
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
                 VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
-    },
-    // Remove?
-    urlReplacement: function(input, autocomplete) {
-        var replacement = new Array();
-        input = input.replace("www.","");
-        var res = CliqzHistory.SQL("select userinput, userprefs.autocomplete as autocomplete, urltitles.title as title from userprefs \
-                inner join visits on visit_date = (expire - "+CliqzHistory.prefExpire+") \
-                inner join urltitles on visits.url = urltitles.url \
-                where userinput like '%"+CliqzHistory.escapeSQL(input)+"%' \
-                and userprefs.autocomplete = '"+CliqzHistory.escapeSQL(autocomplete)+"' \
-                and userprefs.expire > "+(new Date).getTime()+" order by userprefs.expire", function(row) {
-            replacement['url'] = row.userinput;
-            replacement['title'] = row.title;
-            replacement['autocomplete'] = row.autocomplete;
-         });
-        return replacement;
-    },
-    // Remove?
-    unignoreUrl: function(url, query) {
-        if (url.replace("http://","").replace("https://","").replace("www.","").indexOf(query.replace("www.","")) != 0) {return};
-        var url2 = null;
-        if (url.indexOf("http://") == 0) {
-            url2 = url.replace("http://", "https://");
-        } else if(url.indexOf("https://") == 0) {
-            url2 = url.replace("https://", "http://");
-        }
-        CliqzHistory.SQL("delete from userprefs where autocomplete = '"+CliqzHistory.escapeSQL(url)+"'");
-        if (url2) {
-            CliqzHistory.SQL("delete from userprefs where autocomplete = '"+CliqzHistory.escapeSQL(url2)+"'");
-        };
     },
     setTitle: function(url, title) {
         var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '"+CliqzHistory.escapeSQL(url)+"'");
@@ -215,15 +166,8 @@ var CliqzHistory = {
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
             title VARCHAR(255)\
         )";
-        var prefs = "create table userprefs(\
-            id INTEGER PRIMARY KEY NOT NULL,\
-            userinput VARCHAR(255),\
-            autocomplete VARCHAR(255),\
-            expire DATE\
-            )";
         CliqzHistory.SQL(visits);
         CliqzHistory.SQL(titles);
-        //CliqzHistory.SQL(prefs);
     },
     getTabForContentWindow: function (window) {
       let browser;

@@ -21,10 +21,7 @@ var CliqzHistoryPattern = {
         var orig_query = query;
         query = CliqzHistoryPattern.generalizeUrl(query);
         // Ignore one character queries
-        if (CliqzHistoryPattern.generalizeUrl(query).length < 2
-        || ("http://www.").indexOf(query) != -1
-        || ("https://www.").indexOf(query) != -1
-        || query.indexOf('://') != -1) {
+        if (CliqzHistoryPattern.generalizeUrl(query).length < 2) {
             return
         };
 
@@ -34,26 +31,6 @@ var CliqzHistoryPattern = {
         this.SQL
             ._execute(
                 Services.storage.openDatabase(file),
-                /*
-                // This statement checks for a pattern match in the first and last query of a session and returns the whole session
-                "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+
-                
-                "inner join ( " +
-                    "select * from ("+
-                    // Last visits of session
-                        "select visits.last_query_date as last_query_date, max(visit_date), visits.last_query as last_query, urltitles.title as title, visits.url as url from visits "+
-                        "inner join urltitles on visits.url = urltitles.url "+
-                        "group by last_query_date "+
-                    "UNION all "+
-                    // First visits of session
-                        "select visits.last_query_date as last_query_date, min(visit_date), visits.last_query as last_query, urltitles.title as title, visits.url as url from visits "+
-                        "inner join urltitles on visits.url = urltitles.url "+
-                        "group by last_query_date "+
-                    ") as tmp where tmp.url like '%"+this.escapeSQL(query)+"%' or tmp.last_query like '%"+this.escapeSQL(query)+"%' or tmp.title like '%"+this.escapeSQL(query)+"%' " +
-                ") as minmax on visits.last_query_date = minmax.last_query_date "+
-
-                "left outer join urltitles on urltitles.url = visits.url "+
-                "order by visits.visit_date",*/
                 "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+ 
                 "inner join ( "+
                     "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and "+
@@ -80,7 +57,7 @@ var CliqzHistoryPattern = {
                     CliqzHistoryPattern.mutateSession(CliqzHistoryPattern.data[key]);
                 }
 
-                // Group patterns with same end url
+                // Group patterns with same end urls
                 var groupedPatterns = new Array();
                 for (key in CliqzHistoryPattern.pattern) {
                     var cur = CliqzHistoryPattern.pattern[key];
@@ -94,27 +71,18 @@ var CliqzHistoryPattern = {
                     };
                 }
 
-                // Filter patterns with end url that doesn't match query
+                // Filter patterns with end urls that don't match query
                 var filteredPatterns = CliqzHistoryPattern.filterPatterns(groupedPatterns,query).sort(CliqzHistoryPattern.sortPatterns(true,'cnt'));
 
-                // Apply user preferences (ignored suggestions)
-                //var userPref = filteredPatterns[0] ? CliqzHistoryPattern.applyUserPref(filteredPatterns[0], query) : null;
-                //if (userPref) {
-                    // Remove userpref from other results
-                //    filteredPatterns = CliqzHistoryPattern.removeUserPrefDuplicates(filteredPatterns, userPref);
-                //    filteredPatterns.unshift(userPref);
-                //};
-
-                // Set autocomplete to base domain and remove from list
+                // Set autocomplete to base domain (if in found patterns)
                 if (filteredPatterns.length > 0) {
                     filteredPatterns = CliqzHistoryPattern.adjustBaseDomain(filteredPatterns);
                 };
-                
 
                 // Return results
                 var res = {
                     query: orig_query,
-                    top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0],
+                    top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0], // Maybe change to domain of top pattern?
                     top_domain_share: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[1],
                     results: filteredPatterns,
                     filteredResults: function() {
@@ -177,39 +145,6 @@ var CliqzHistoryPattern = {
         }
         return newPatterns;
     },
-    // REMOVE ?
-    removeUserPrefDuplicates: function(patterns, userPref) {
-        var refUrl = userPref['url'];
-        refUrl = refUrl.replace("http://", "").replace("https://", "").replace("www.", "");
-        refUrl = (refUrl[refUrl.length-1] == '/') ? refUrl.substring(0,refUrl.length-1) : refUrl;
-
-        var newPatterns = new Array();
-        for(var i=0; i<patterns.length; i++) {
-            var pUrl = patterns[i]['url'].replace("http://", "").replace("https://", "").replace("www.", "");
-            pUrl = (pUrl[pUrl.length-1] == '/') ? pUrl.substring(0,pUrl.length-1) : pUrl;
-            CliqzUtils.log(refUrl + " = " + pUrl, "PAT");
-            if (refUrl != pUrl) {
-                newPatterns.push(patterns[i]);
-            };
-        }
-        return newPatterns;
-    },
-    // REMOVE?
-    applyUserPref: function(pattern, query) {
-        var replacement = CliqzHistory.urlReplacement(query, pattern['url']);
-        var dup = null;
-        if (replacement && replacement['url'] && replacement['title']) {
-            dup = new Array();
-            dup["url"] = replacement['url'];
-            dup["ignored_url"] = pattern['url'];
-            dup["query"] = pattern['query'];
-            dup["title"] = replacement['title'];
-            dup["path"] = pattern['path'];
-            dup["cnt"] = pattern['cnt'];
-            dup["debug"] = "User pref: " + replacement['autocomplete'] + " -> " + replacement['url'];
-        }
-        return dup;
-    },
     adjustBaseDomain: function(patterns, query) {
         var basePattern = null;
         var baseUrl = patterns[0]['url'];
@@ -226,8 +161,10 @@ var CliqzHistoryPattern = {
         };
         var newPatterns = [];
         if (basePattern) {
+            // Uncomment for removing base pattern
             //patterns[0]['autocompleteReplacement'] = baseUrl;
             patterns[0]['debug'] = 'Replaced by base domain';
+            // Comment for removing base pattern
             newPatterns.push(basePattern);
         };
         
@@ -290,6 +227,17 @@ var CliqzHistoryPattern = {
             var q = url.substring(url.indexOf("q=")).split("&")[0];
             if (q != "q=") {
                 return "https://www.bing.com/search?" + q; 
+            } else {
+                return url;
+            }
+        // Yahoo redirect
+        } else if (url.search(/http(s?):\/\/r.search\.yahoo\.com\/.*/i) == 0) {
+            return null;
+        // Yahoo
+        } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) == 0) {
+            var p = url.substring(url.indexOf("p=")).split("&")[0];
+            if (p != "p=") {
+                return "https://search.yahoo.com/search?" + p;
             } else {
                 return url;
             }
