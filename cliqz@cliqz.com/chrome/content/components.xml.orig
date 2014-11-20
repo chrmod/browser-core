@@ -81,7 +81,11 @@
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url), data[0].title);
+<<<<<<< HEAD
+              CLIQZ.Core.autocompleteQuery(data[0].url, data[0].title);
+=======
+              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
             }
           ]]>
         </body>

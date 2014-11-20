@@ -23,14 +23,23 @@
 .logo-expedia {
 	background-image: url(http://cdnlogos.cliqz.com/expedia.png);
 }
+.logo-facebook {
+	background-image: url(http://cdnlogos.cliqz.com/facebook.png);
+}
 .logo-foodpanda {
 	background-image: url(http://cdnlogos.cliqz.com/foodpanda.png);
 }
 .logo-google {
 	background-image: url(http://cdnlogos.cliqz.com/google.png);
 }
+.logo-hotmail {
+	background-image: url(http://cdnlogos.cliqz.com/hotmail.png);
+}
 .logo-paypal {
 	background-image: url(http://cdnlogos.cliqz.com/paypal.png);
+}
+.logo-xing {
+	background-image: url(http://cdnlogos.cliqz.com/xing.png);
 }
 .logo-zalando {
 	background-image: url(http://cdnlogos.cliqz.com/zalando.png);
@@ -2866,6 +2875,9 @@
 .logo-degussa-bank-de {
 	background-image: url(http://cdnlogos.cliqz.com/degussa-bank.de.png);
 }
+.logo-deichmann-de {
+	background-image: url(http://cdnlogos.cliqz.com/deichmann.de.png);
+}
 .logo-deine-tierwelt-de {
 	background-image: url(http://cdnlogos.cliqz.com/deine-tierwelt.de.png);
 }
@@ -3166,6 +3178,9 @@
 .logo-dkamera-de {
 	background-image: url(http://cdnlogos.cliqz.com/dkamera.de.png);
 }
+.logo-dkb-de {
+	background-image: url(http://cdnlogos.cliqz.com/dkb.de.png);
+}
 .logo-dkv-com {
 	background-image: url(http://cdnlogos.cliqz.com/dkv.com.png);
 }
@@ -3438,6 +3453,9 @@
 }
 .logo-ebaumsworld-com {
 	background-image: url(http://cdnlogos.cliqz.com/ebaumsworld.com.png);
+}
+.logo-ebay-kleinanzeigen-de {
+	background-image: url(http://cdnlogos.cliqz.com/ebay-kleinanzeigen.de.png);
 }
 .logo-ebesucher-de {
 	background-image: url(http://cdnlogos.cliqz.com/ebesucher.de.png);
@@ -3960,6 +3978,9 @@
 }
 .logo-fact-finder-de {
 	background-image: url(http://cdnlogos.cliqz.com/fact-finder.de.png);
+}
+.logo-faehre-de {
+	background-image: url(http://cdnlogos.cliqz.com/faehre.de.png);
 }
 .logo-fahrinfo-berlin-de {
 	background-image: url(http://cdnlogos.cliqz.com/fahrinfo-berlin.de.png);
@@ -4597,6 +4618,9 @@
 .logo-freelogoservices-com {
 	background-image: url(http://cdnlogos.cliqz.com/freelogoservices.com.png);
 }
+.logo-freemail-de {
+	background-image: url(http://cdnlogos.cliqz.com/freemail.de.png);
+}
 .logo-freemake-com {
 	background-image: url(http://cdnlogos.cliqz.com/freemake.com.png);
 }
@@ -4860,9 +4884,6 @@
 }
 .logo-gbpicsonline-com {
 	background-image: url(http://cdnlogos.cliqz.com/gbpicsonline.com.png);
-}
-.logo-gc-ca {
-	background-image: url(http://cdnlogos.cliqz.com/gc.ca.png);
 }
 .logo-gdv-de {
 	background-image: url(http://cdnlogos.cliqz.com/gdv.de.png);
@@ -7354,6 +7375,9 @@
 .logo-live-stream-tv {
 	background-image: url(http://cdnlogos.cliqz.com/live-stream.tv.png);
 }
+.logo-live-com {
+	background-image: url(http://cdnlogos.cliqz.com/live.com.png);
+}
 .logo-live24-gr {
 	background-image: url(http://cdnlogos.cliqz.com/live24.gr.png);
 }
@@ -8841,6 +8865,9 @@
 }
 .logo-newsaktuell-de {
 	background-image: url(http://cdnlogos.cliqz.com/newsaktuell.de.png);
+}
+.logo-newsdeutschland-com {
+	background-image: url(http://cdnlogos.cliqz.com/newsdeutschland.com.png);
 }
 .logo-newsletter2go-de {
 	background-image: url(http://cdnlogos.cliqz.com/newsletter2go.de.png);
@@ -10575,6 +10602,9 @@
 }
 .logo-rlsbb-com {
 	background-image: url(http://cdnlogos.cliqz.com/rlsbb.com.png);
+}
+.logo-rmv-de {
+	background-image: url(http://cdnlogos.cliqz.com/rmv.de.png);
 }
 .logo-robertsspaceindustries-com {
 	background-image: url(http://cdnlogos.cliqz.com/robertsspaceindustries.com.png);
@@ -14026,6 +14056,9 @@
 .logo-wettbasis-com {
 	background-image: url(http://cdnlogos.cliqz.com/wettbasis.com.png);
 }
+.logo-wetter-at {
+	background-image: url(http://cdnlogos.cliqz.com/wetter.at.png);
+}
 .logo-wetter-com {
 	background-image: url(http://cdnlogos.cliqz.com/wetter.com.png);
 }
@@ -14803,4 +14836,7 @@
 }
 .logo-fcbayern-telekom-de {
 	background-image: url(http://cdnlogos.cliqz.com/fcbayern.telekom.de.png);
+}
+.logo-tagesspiegel-feedsportal-com {
+	background-image: url(http://cdnlogos.cliqz.com/tagesspiegel.feedsportal.com.png);
 }

@@ -48,8 +48,12 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
+<<<<<<< HEAD
     HISTORY_TIMEOUT: 100,
     lastPattern: null,
+=======
+    HISTORY_TIMEOUT: 200,
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -187,9 +191,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 var now = (new Date()).getTime();
 
+<<<<<<< HEAD
+                // XXX temporary for HistoryPattern
+                return;
+
+                // We wait until we have all history results
+                if (result.searchResult == result.RESULT_NOMATCH_ONGOING ||
+                    result.searchResult == result.RESULT_SUCCESS_ONGOING) return;
+=======
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
                 CliqzTimings.add("search_history", (now - this.startTime));
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
 
                 CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
                                "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
@@ -224,7 +237,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         // check if it should not be filtered, and matches the url
                         if(Result.isValid(label, urlparts) &&
+<<<<<<< HEAD
+                           urlparts.host.toLowerCase().indexOf(this.searchString) != -1) {
+=======
                            label.toLowerCase().indexOf(searchString) != -1) {
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
 
                             if(candidate_idx == -1) {
                                 // first entry
@@ -278,14 +295,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.pushResults(result.searchString);
                 }
             },
-            isHistoryReady: function() {
-                if(this.historyResults &&
-                   this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
-                   this.historyResults.searchResult != this.historyResults.RESULT_SUCCESS_ONGOING)
-                    return true;
-                else
-                    return false;
-            },
+<<<<<<< HEAD
             historyPatternCallback: function(res) {
                 if (res.query == this.searchString) {
                     // res { query, top_domain, top_domain_share, results, filtered_results() }
@@ -314,6 +324,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.mixedResults.addResults(instantResults);
                     this.pushResults(this.searchString);
                 };        
+=======
+            isHistoryReady: function() {
+                if(this.historyResults &&
+                   this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
+                   this.historyResults.searchResult != this.historyResults.RESULT_SUCCESS_ONGOING)
+                    return true;
+                else
+                    return false;
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
@@ -433,6 +452,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
                     }
                 }
+
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {

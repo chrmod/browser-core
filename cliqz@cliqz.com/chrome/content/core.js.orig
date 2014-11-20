@@ -376,16 +376,15 @@ CLIQZ.Core = CLIQZ.Core || {
         let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
-        if(firstResult.indexOf('://') !== -1){
-           firstResult = firstResult.split('://')[1];
-        }
         // Remove protocol and 'www.' from first results
         firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
 
-        firstResult = firstResult.replace('www.', '');
-        var lastPattern = CliqzAutocomplete.lastPattern;
         // try to update misspelings like ',' or '-'
         var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+
+<<<<<<< HEAD
+        firstResult = firstResult.replace('www.', '');
+        var lastPattern = CliqzAutocomplete.lastPattern;
 
         // Use first entry if there are no patterns
         if (lastPattern && lastPattern.results.length == 0) {
@@ -409,6 +408,15 @@ CLIQZ.Core = CLIQZ.Core || {
             } else {
                 CLIQZ.UI.clearSelection();
             }
+=======
+        // Remove protocol from typed query
+        var query = CliqzUtils.cleanUrlProtocol(cleanedUrlBar, true);
+
+        // Then add the matching part to the end of the current typed query and set is as selected.
+        if(query && firstResult.indexOf(query) === 0) {
+            urlBar.mInputField.value = cleanedUrlBar + firstResult.substr(query.length);
+            urlBar.setSelectionRange(endPoint, urlBar.value.length);
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
         }
     },
     cleanUrlBarValue: function(val){

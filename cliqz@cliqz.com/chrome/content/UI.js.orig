@@ -187,14 +187,7 @@ var UI = {
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
                 return false;
-            case KeyEvent.DOM_VK_HOME:
-                // set the caret at the beginning of the text box
-                ev.originalTarget.setSelectionRange(0, 0);
-                // return true to prevent the default action
-                // on linux the default action will autocomplete to the url of the first result
-                return true;
-            default:
-                return false;
+<<<<<<< HEAD
             break;
             case 8: // BACKSPACE
             case 46: // DELETE
@@ -203,6 +196,26 @@ var UI = {
             break;
             default:
                 UI.preventFirstElementHighlight = false;
+        }
+
+
+    },
+    selectFirstElement: function() {
+        if (!UI.preventFirstElementHighlight) {
+            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+        };
+    },
+    clearSelection: function() {
+        clearResultSelection();
+=======
+            case KeyEvent.DOM_VK_HOME:
+                // set the caret at the beginning of the text box
+                ev.originalTarget.setSelectionRange(0, 0);
+                // return true to prevent the default action
+                // on linux the default action will autocomplete to the url of the first result
+                return true;
+            default:
+                return false;
         }
     },
     entitySearchKeyDown: function(event, value) {
@@ -222,16 +235,7 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
-
-
-    },
-    selectFirstElement: function() {
-        if (!UI.preventFirstElementHighlight) {
-            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
-        };
-    },
-    clearSelection: function() {
-        clearResultSelection();
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
     }
 };
 
@@ -522,10 +526,13 @@ function resultClick(ev){
                 }
                 query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
             }
-            CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+<<<<<<< HEAD
             CliqzHistory.updateQuery(CliqzAutocomplete.lastSearch);
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+=======
+            CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
@@ -746,6 +753,7 @@ function onEnter(ev, item){
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
+<<<<<<< HEAD
             //if(firstUrl.indexOf(inputValue) != -1){
             //    CLIQZ.Core.urlbar.value = firstUrl;
             //}
@@ -755,6 +763,11 @@ function onEnter(ev, item){
             //    CLIQZ.Core.urlbar.value = firstUrl;
             //};
 
+=======
+            if(firstUrl.indexOf(inputValue) != -1){
+                CLIQZ.Core.urlbar.value = CliqzUtils.cleanMozillaActions(firstUrl);
+            }
+>>>>>>> 9351fa2d41dd683287c77c7eb8d99947e1fc0461
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
