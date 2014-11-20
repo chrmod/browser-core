@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
-    if(result.snippet && result.snippet.rich_data){
+    if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
         return result.snippet.rich_data.type
     }
     return null;
