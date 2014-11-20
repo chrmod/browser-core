@@ -87,7 +87,10 @@ var CliqzLanguage = {
             } else if (CliqzAutocomplete.afterQueryCount == 1) {
                 // some times the redict was not captured so if only one query was make, we still compare to cliqz result
                 // but we don't send anything if we can't find a match
-                for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
+                for (var i=0;
+                    CliqzAutocomplete.lastResult &&
+                    i < CliqzAutocomplete.lastResult['_results'].length;
+                    i++) {
                     var dest_url = this.currentURL.replace('http://', '').replace('https://', '').replace('www.', '');
                     var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '')
                     if (dest_url == comp_url) {

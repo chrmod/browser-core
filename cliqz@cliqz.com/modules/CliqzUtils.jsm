@@ -23,6 +23,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
+  'chrome://cliqzmodules/content/CliqzABTests.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -40,7 +43,8 @@ var VERTICAL_ENCODINGS = {
     'science':'k',
     'gaming':'g',
     'dictionary':'l',
-    'qaa':'q'
+    'qaa':'q',
+    'bm': 'm'
 };
 
 var CliqzUtils = {
@@ -81,6 +85,12 @@ var CliqzUtils = {
     }
 
     if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+
+    //set the custom restul provider
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
+    CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
+
     CliqzUtils.log('Initialized', 'UTILS');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -307,28 +317,31 @@ var CliqzUtils = {
   _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
-    CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
-  },
-  getCliqzResults: function(q, callback){
-    if(CliqzUtils.getPref('sessionLogging', false)){
-      CliqzUtils._querySeq++;
-      CliqzUtils._resultsReq = CliqzUtils.httpGet(
-        CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) + CliqzUtils.encodeQuerySession() +
-          CliqzUtils.encodeQuerySeq() + CliqzLanguage.stateToQueryString() +
-          CliqzUtils.encodeResultOrder() + CliqzUtils.encodeCountry(),
-        function(res){
-          callback && callback(res, q);
-        }
-      );
+    if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
+      //on timeout - permanently fallback to the default results provider
+      CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
+        CliqzABTests.disable('1014_A');
+      });
     }
     else {
-      CliqzUtils._resultsReq = CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER + encodeURIComponent(q) +
-         CliqzLanguage.stateToQueryString() + CliqzUtils.encodeCountry(),
-        function(res){
-          callback && callback(res, q);
-        }
-      );
+      CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
     }
+  },
+  getCliqzResults: function(q, callback){
+    CliqzUtils._querySeq++;
+    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
+              encodeURIComponent(q) +
+              CliqzUtils.encodeQuerySession() +
+              CliqzUtils.encodeQuerySeq() +
+              CliqzLanguage.stateToQueryString() +
+              CliqzUtils.encodeResultOrder() +
+              CliqzUtils.encodeCountry();
+
+    CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+      function(res){
+        callback && callback(res, q);
+      }
+    );
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -356,11 +369,8 @@ var CliqzUtils = {
     });
   },
   encodeCountry: function() {
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('forceCountry')){
-      return "&country=" + CliqzUtils.getPref('forceCountry')
-    } else {
-      return ""
-    }
+    var flag = 'forceCountry';
+    return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
@@ -404,7 +414,7 @@ var CliqzUtils = {
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeSources: function(sources){
-    return sources.split(', ').map(
+    return sources.toLowerCase().split(', ').map(
       function(s){
         if(s.indexOf('cache') == 0) // to catch 'cache-*' for specific countries
           return 'd'
@@ -469,14 +479,19 @@ var CliqzUtils = {
   },
 
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
-    if(CliqzUtils.getPref('sessionLogging', false)){
-      CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + encodeURIComponent(query) +
-        (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
-        '&i=' + resultIndex +
-        (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-        CliqzUtils.encodeQuerySession() + CliqzUtils.encodeQuerySeq() + CliqzUtils.encodeResultOrder());
-      CliqzUtils.setResultOrder('');
-    }
+    CliqzUtils.httpGet(
+      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
+      encodeURIComponent(query) +
+      (queryAutocompleted ? '&a=' +
+      encodeURIComponent(queryAutocompleted) : '') +
+      '&i=' + resultIndex +
+      (resultUrl ? '&u=' +
+      encodeURIComponent(resultUrl) : '') +
+      CliqzUtils.encodeQuerySession() +
+      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeResultOrder());
+
+    CliqzUtils.setResultOrder('');
   },
 
   _resultOrder: '',

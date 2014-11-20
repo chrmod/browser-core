@@ -33,7 +33,10 @@ var CliqzSniffer = {
                 if (Math.floor(res.status / 100) !=  2) {
                     CliqzUtils.log(JSON.stringify(res), "httpData")
                     // Now that we see a 404, let's compare to the cliqz results we provided
-                    for (var i=0; i < CliqzAutocomplete.lastResult._results.length; i++) {
+                    for (var i=0;
+                        CliqzAutocomplete.lastResult &&
+                        i < CliqzAutocomplete.lastResult._results.length;
+                        i++) {
                         if (res.url == CliqzAutocomplete.lastResult._results[i].val) {
                             var action = {
                                 type: "performance",
