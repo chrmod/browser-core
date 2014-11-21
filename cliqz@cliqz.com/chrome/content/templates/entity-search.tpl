@@ -6,7 +6,7 @@
   </div>
   -->
   <div>
-    <div id="entity-search-box">
+    <div class="entity-search-box">
       <img id="entity-search-box-icon" src="chrome://cliqzres/content/skin/entity_zones/g_search.png" />
       <input dont-close="true" type="text" id="entity-search-box-input"
        onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value)"/>
