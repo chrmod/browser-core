@@ -20,7 +20,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
-    LOG_KEY: 'cliqz language: ',
+    LOG_KEY: 'CliqzLanguage',
     currentState: {},
     // we keep a different namespace than cliqz so that it does not get
     // removed after a re-install or sent during a logging signal

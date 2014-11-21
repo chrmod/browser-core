@@ -1,15 +1,4 @@
 'use strict';
-
-/*
- * This module clusters(groups) results for a predefined set of domains
- *
- ******************************************************
- * Warning: this file is auto-generated; do not edit. *
- ******************************************************
- *
- */
-
-
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
@@ -20,6 +9,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
   'chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
+
+/******************************************************
+ * Warning: this file is auto-generated; do not edit. *
+ ******************************************************/
 
 
 var COLORS = ['#CC3399', '#27B0CE', '#1777E2'];
@@ -66,7 +59,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'wiki' && vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -103,7 +96,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -149,7 +142,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'startseite' && vpath[2] == vpath[0]) {
                     var item = decodeURIComponent(vpath[0]);
@@ -201,7 +194,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -245,7 +238,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'settings') {
 
@@ -314,7 +307,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -360,7 +353,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -422,7 +415,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -468,7 +461,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -530,7 +523,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -577,7 +570,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (/playlist\?list=wl/.test(vpath[0])) {
 
@@ -643,7 +636,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -688,7 +681,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (/^search/.test(vpath[0])) || (/^share/.test(vpath[0])) || (/^intent/.test(vpath[0]))) {
 
@@ -720,7 +713,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -764,7 +757,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -801,7 +794,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -845,7 +838,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'settings') {
 
@@ -877,7 +870,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -924,7 +917,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((/^login/.test(vpath[0])) || (/^messages/.test(vpath[0])) || (/^events/.test(vpath[0])) || (/^help/.test(vpath[0])) || (/^settings/.test(vpath[0])) || (/^robots[.]txt/.test(vpath[0]))) {
 
@@ -1013,7 +1006,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1057,7 +1050,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'settings') || (vpath[0] == 'i') || (vpath[0] == 'search') || (vpath[0] == 'register') || (vpath[0] == 'dashboard')) {
 
@@ -1089,7 +1082,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1136,7 +1129,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[0] == 'rezepte' && /[\d]+/.test(vpath[1])) {
                     var item = null;
@@ -1198,7 +1191,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1242,7 +1235,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if ((vpath[0] == 'wiki' && vpath[1] == 'main_page') || (vpath[0] == 'wiki' && /.+:.+/.test(vpath[1]))) {
 
@@ -1279,7 +1272,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1325,7 +1318,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -1387,7 +1380,7 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     },
@@ -1433,7 +1426,7 @@ var templates = {
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
                 if (vpath[1] == 'b') {
                     var item = null;
@@ -1495,14 +1488,18 @@ var templates = {
                 }
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     }
 };
 
 var CliqzClusterHistory = CliqzClusterHistory || {
-    LOG_KEY: 'cliqz cluster history: ',
+    LOG_KEY: 'CliqzClusterHistory',
+    templates: templates,  // to export the templates for testing
+    log: function(str) {
+        CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
+    },
 
     /**
      * Tries to cluster the history.
@@ -1542,10 +1539,10 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 }
         }
 
-        CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('maxDomain: ' + maxDomain);
 
         if (history.matchCount < 10) {
-            CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, matchCount < 10');
             return [false, historyTrans];
         }
 
@@ -1570,7 +1567,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
         if (templates[maxDomain] == null && q.length <= 6 && q.length > 1) {
-            CliqzUtils.log('test', 'series')
             var seriesClusteredHistory2 = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
         }
 
@@ -1584,22 +1580,22 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 historyTransFiltered[0]['style'] = 'cliqz-series';
                 var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-                CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
                 return v;
 
             }
             else {
-                CliqzUtils.log('No templates for domain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log('No templates for domain: ' + maxDomain);
                 return [false, historyTrans];
             }
         }
 
         if (maxCounter < (history.matchCount * 0.50)) {
-            CliqzUtils.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60, CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60);
             return [false, historyTrans];
         }
 
-        CliqzUtils.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]), CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]));
 
 
         var clusteredHistory = CliqzClusterHistory.collapse(maxDomain, historyTransFiltered);
@@ -1608,24 +1604,24 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // the collapse failed, perhaps: too few data?, missing template, error?
             // if clusteredHistory return the normal history
 
-            CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [false, historyTrans];
         } else if (clusteredHistory['topics'].length == 0) {
             // no URLs related to the topics defined for the site found in
             // the history URLs
-            CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, no URLs related to the topics');
             return [false, historyTrans];
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
             var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-            CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
             return v;
         }
     },
     collapse: function(domainForTemplate, filteredHistory) {
-        CliqzUtils.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items', CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items');
         var template = templates[domainForTemplate];
         if (!template) return null;
 

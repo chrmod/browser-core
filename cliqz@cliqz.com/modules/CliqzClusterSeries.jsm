@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 function log(msg){
-  CliqzUtils.log(msg, 'Series Guessing');
+  CliqzUtils.log(msg, 'CliqzClusterSeries');
 }
 
 function zfill(number, size) {
