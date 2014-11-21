@@ -428,12 +428,12 @@ $SWITCH
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
 $RULES
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     }""")

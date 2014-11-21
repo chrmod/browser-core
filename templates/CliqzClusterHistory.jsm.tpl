@@ -17,7 +17,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
 $DSL_OUTPUT
 
 var CliqzClusterHistory = CliqzClusterHistory || {
-    LOG_KEY: 'cliqz cluster history: ',
+    LOG_KEY: 'CliqzClusterHistory',
+    templates: templates,  // to export the templates for testing
+    log: function(str) {
+        CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
+    },
 
     /**
      * Tries to cluster the history.
@@ -57,10 +61,10 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 }
         }
 
-        CliqzUtils.log('maxDomain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('maxDomain: ' + maxDomain);
 
         if (history.matchCount < 10) {
-            CliqzUtils.log('History cannot be clustered, matchCount < 10', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, matchCount < 10');
             return [false, historyTrans];
         }
 
@@ -85,7 +89,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // to sitemap. This check is done again within CliqzClusterHistory.collapse but it's better to do
         // it twice so that we can avoid doing the filtering by now.
         if (templates[maxDomain] == null && q.length <= 6 && q.length > 1) {
-            CliqzUtils.log('test', 'series')
             var seriesClusteredHistory2 = CliqzClusterSeries.collapse(historyTransFiltered, cliqzResults, q);
         }
 
@@ -99,22 +102,22 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 historyTransFiltered[0]['style'] = 'cliqz-series';
                 var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-                CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
                 return v;
 
             }
             else {
-                CliqzUtils.log('No templates for domain: ' + maxDomain, CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log('No templates for domain: ' + maxDomain);
                 return [false, historyTrans];
             }
         }
 
         if (maxCounter < (history.matchCount * 0.50)) {
-            CliqzUtils.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60, CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * 0.60);
             return [false, historyTrans];
         }
 
-        CliqzUtils.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]), CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log(JSON.stringify([maxDomain, maxCounter, history.matchCount, freqHash]));
 
 
         var clusteredHistory = CliqzClusterHistory.collapse(maxDomain, historyTransFiltered);
@@ -123,24 +126,24 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // the collapse failed, perhaps: too few data?, missing template, error?
             // if clusteredHistory return the normal history
 
-            CliqzUtils.log('History cannot be clustered, clusteredHistory is null', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [false, historyTrans];
         } else if (clusteredHistory['topics'].length == 0) {
             // no URLs related to the topics defined for the site found in
             // the history URLs
-            CliqzUtils.log('History cannot be clustered, no URLs related to the topics', CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log('History cannot be clustered, no URLs related to the topics');
             return [false, historyTrans];
         } else {
             historyTransFiltered[0]['data'] = clusteredHistory;
             historyTransFiltered[0]['style'] = 'cliqz-cluster';
             var v = [true, [historyTransFiltered[0]].concat(historyTransRemained)];
 
-            CliqzUtils.log(JSON.stringify([historyTransFiltered[0]]), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify([historyTransFiltered[0]]));
             return v;
         }
     },
     collapse: function(domainForTemplate, filteredHistory) {
-        CliqzUtils.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items', CliqzClusterHistory.LOG_KEY);
+        CliqzClusterHistory.log('Collapsing domain: ' + domainForTemplate + ' ' + filteredHistory.length + ' items');
         var template = templates[domainForTemplate];
         if (!template) return null;
 

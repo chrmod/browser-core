@@ -73,7 +73,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
         reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
 
-        CliqzUtils.log('initialized', 'RESULTS');
+        CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
     },
     destroy: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
@@ -492,7 +492,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.oldPushLength = 0;
                 this.customResults = null;
 
-                CliqzUtils.log('search: ' + searchString);
+                CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
                 var action = {
                     type: 'activity',
