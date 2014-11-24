@@ -415,7 +415,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                                 json.extra.results.map(Result.cliqzExtra);
                         this.latency.cliqz = json.duration;
                     }
-                    this.cliqzResults = results;
+                    this.cliqzResults = results.filter(function(r){
+                        // filter results with no or empty url
+                        return r.url != undefined && r.url != '';
+                    });
                     this.cliqzCountry = country;
                 }
                 this.pushResults(q);
