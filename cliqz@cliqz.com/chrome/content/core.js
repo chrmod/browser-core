@@ -55,7 +55,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
         CLIQZ.UI.init();
-        CliqzSpellCheck.dbInit();
+        CliqzSpellCheck.initSpellCorrection();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.elem.push(css);
