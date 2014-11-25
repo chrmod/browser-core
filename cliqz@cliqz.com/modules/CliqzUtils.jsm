@@ -91,7 +91,7 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
-    CliqzUtils.log('Initialized', 'UTILS');
+    CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -190,7 +190,9 @@ var CliqzUtils = {
   },
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      CliqzUtils._log.logStringMessage((new Date()).toISOString() + " " + key + ' : ' + msg);
+      var ignore = JSON.parse(CliqzUtils.getPref('showDebugLogsIgnore', "[]"))
+      if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
+        CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
     }
   },
   getDay: function() {
@@ -258,7 +260,7 @@ var CliqzUtils = {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CliqzUtils.log('getDetailsFromUrl Failed for: ' + originalUrl, 'WARNING');
+      CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
     }
 
     var urlDetails = {
@@ -320,7 +322,7 @@ var CliqzUtils = {
     if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
       //on timeout - permanently fallback to the default results provider
       CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
-        CliqzABTests.disable('1014_A');
+        CliqzABTests.disable('1015_A');
       });
     }
     else {
@@ -812,26 +814,26 @@ var CliqzUtils = {
   setOurOwnPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...");
+      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...", "CliqzUtils.setOurOwnPrefs");
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
     } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.")
+      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */
   resetOriginalPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (cliqzBackup) {
-      CliqzUtils.log("Loading maxRichResults backup...");
+      CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
           CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
       // deleteBranch does not work for some reason :(
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
       CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
     } else {
-      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.")
+      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
 };

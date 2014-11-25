@@ -46,7 +46,7 @@ var CliqzBundesliga = {
             var result = CliqzBundesliga.generateResults(json_response);
             callback([result], q);
 
-            CliqzUtils.log(JSON.stringify(json_response), 'BUNDESLIGA');
+            CliqzUtils.log(JSON.stringify(json_response), 'CliqzBundesliga');
         });
     },
     isBundesligaSearch: function(q){

@@ -116,7 +116,7 @@ var Result = {
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
         // Bing Filters
@@ -124,7 +124,7 @@ var Result = {
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
         // Yahoo filters
@@ -136,7 +136,7 @@ var Result = {
            ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
 
