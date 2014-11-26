@@ -6,8 +6,8 @@
   </div>
   -->
   <div>
-    <div class="entity-search-box">
-      <img id="entity-search-box-icon" src="{{data.search_box_icon}}" />
+    <div class="entity-search-box" style="border: 1px solid {{data.search_box_background_color}};">
+      <img style="background-color: {{data.search_box_background_color}};" id="entity-search-box-icon" src="{{data.search_box_icon}}" />
       <input dont-close="true" type="text" id="entity-search-box-input"
        search-url="{{data.search_url}}" search-provider="{{data.search_provider}}"
        logg-action-type="{{data.logg_action_type}}"
@@ -18,7 +18,7 @@
     {{#each data.links}}
       <div class="entity-search-container-app" style="background-color: {{this.background_color_icon}}"
            url="{{this.url}}" type="X" extra="entity-search-{{this.logg_as}}">
-        <div><img src="{{this.icon_url}}"/></div>
+        <div><img class="entity-search-app-image" src="{{this.icon_url}}"/></div>
         <div class="entity-search-container-app-text" style="background-color: {{this.background_color_text}};">{{this.text}}</div>
       </div>
     {{/each}}
