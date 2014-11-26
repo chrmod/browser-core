@@ -375,19 +375,22 @@ var CliqzUtils = {
     return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeResultType: function(type){
-    if(type.indexOf('action') !== -1) return 'T';
+    if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-weather') return 'w';
-    else if(type === 'cliqz-bundesliga') return 'b';
-    else if(type === 'cliqz-cluster') return 'C';
-    else if(type === 'cliqz-extra') return 'X';
-    else if(type === 'cliqz-series') return 'S';
-    else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
+    else if(type === 'cliqz-weather') return ['w'];
+    else if(type === 'cliqz-bundesliga') return ['b'];
+    else if(type === 'cliqz-cluster') return ['C'];
+    else if(type === 'cliqz-extra') return ['X'];
+    else if(type === 'cliqz-series') return ['S'];
+
+    else if(type.indexOf('bookmark') == 0 ||
+            type.indexOf('tag') == 0) return ['B'].concat(CliqzUtils.encodeCliqzResultType(type));
+
     else if(type.indexOf('favicon') == 0 ||
-            type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-suggestions') return 'S';
-    // cliqz type = "cliqz-custom sources-XXXXX"
+            type.indexOf('history') == 0) return ['H'].concat(CliqzUtils.encodeCliqzResultType(type));
+
+    else if(type === 'cliqz-suggestions') return ['S'];
+    // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
     return type; //fallback to style - it should never happen
@@ -422,7 +425,7 @@ var CliqzUtils = {
           return 'd'
         else
           return VERTICAL_ENCODINGS[s] || s;
-      }).join('');
+      });
   },
   combineSources: function(internal, cliqz){
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
