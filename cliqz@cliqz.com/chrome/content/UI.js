@@ -188,10 +188,12 @@ var UI = {
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value) {
+    entitySearchKeyDown: function(event, value, element) {
       if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Google");
-        var google_url = "http://www.google.com/search?q=" + value
+        var provider_name = element.getAttribute("search-provider");
+        var search_url = element.getAttribute("search-url");
+        var search_engine = Services.search.getEngineByName(provider_name);
+        var google_url = search_url + value
         if (search_engine) {
           var google_url = search_engine.getSubmission(value).uri.spec
         }
@@ -199,27 +201,11 @@ var UI = {
         CLIQZ.Core.forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
+
+        var action_type = element.getAttribute("logg-action-type");
         var signal = {
           type: 'activity',
-          action: 'entity_search_google'
-        };
-        CliqzUtils.track(signal);
-      }
-    },
-    entityVideoKeyDown: function(event, value) {
-      if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Youtube");
-        var google_url = "http://www.youtube.com/results?search_query=t" + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
-        event.preventDefault();
-        var signal = {
-          type: 'activity',
-          action: 'entity_search_google'
+          action: action_type
         };
         CliqzUtils.track(signal);
       }
