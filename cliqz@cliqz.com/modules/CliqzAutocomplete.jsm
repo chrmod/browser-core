@@ -86,6 +86,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }catch(e){}
     },
     getResultsOrder: function(results){
+        CliqzUtils.getWindow().console.log(results);
         return results.map(function(r){
             return CliqzUtils.encodeResultType(r.style);
         });
@@ -298,6 +299,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.suggestedCalcResult = null;
             },
             sendResultsSignal: function(results, instant, popup, country) {
+                if(results.length > 1)debugger;
                 var action = {
                     type: 'activity',
                     action: 'results',

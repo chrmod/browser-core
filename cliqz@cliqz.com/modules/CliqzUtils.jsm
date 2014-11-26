@@ -404,7 +404,7 @@ var CliqzUtils = {
     if(pos != -1)
       return CliqzUtils.encodeSources(type.substr(pos+8));
     else
-      return ""
+      return [];
   },
   _querySession: '',
   _querySeq: 0,

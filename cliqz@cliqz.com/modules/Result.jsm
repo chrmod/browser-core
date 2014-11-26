@@ -55,7 +55,7 @@ var Result = {
             { 'vertical': 'shopping'}
         ]
     },
-	generic: function(style, value, image, comment, label, query, data){
+	generic: function(style, value, image, comment, label, query, data, type){
         //try to show host name if no title (comment) is provided
         if(style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
@@ -74,7 +74,8 @@ var Result = {
             comment: comment,
             label: label || value,
             query: query,
-            data: data
+            data: data,
+            type: type
         };
 
         return item;
