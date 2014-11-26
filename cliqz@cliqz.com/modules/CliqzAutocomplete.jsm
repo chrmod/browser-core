@@ -401,7 +401,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
-                        results = json.result;
+                        results = json.result || [];
                         country = json.country;
                         if(json.extra && json.extra.results && json.extra.results.length >0)
                             this.cliqzResultsExtra =
