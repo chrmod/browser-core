@@ -1067,6 +1067,8 @@
 
 #entity-search-box-icon {
   background-color: #3E86FC;
+  width: 30px;
+  height: 30px;
 }
 
 #entity-search-box-input {
@@ -1083,6 +1085,10 @@
   height: 90px;
   border-radius: 5px;
   margin-right: 5px;
+}
+
+.entity-search-app-image {
+  height: 50px;
 }
 
 .entity-search-container-app-text {
