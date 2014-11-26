@@ -9,7 +9,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search', 'entity-news', 'bitcoin'],
+                 'entity-search-1', 'entity-news-1', 'bitcoin'],
 
     VERTICALS = {
         'b': 'bundesliga',
@@ -439,8 +439,13 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
-
+                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                    r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
+                } else {
+                    // unexpected/unknown template
+                    r.invalid = true;
+                    r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -460,7 +465,14 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
 
         }
+
+        // If one of the results is data.only = true Remove all others.
+        if (!r.invalid && r.data && r.data.only) {
+          res.results = [r];
+          return res;
+        }
     }
+
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });

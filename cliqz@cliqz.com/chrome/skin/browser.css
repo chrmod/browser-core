@@ -873,11 +873,12 @@
 }
 
 .cliqz-result-dictionary-translations {
-    display: block
+    display: block;
     font-size: 12px;
     background: #f3f3f3;
     padding: 2px 0 2px 15px;
     max-height: 15px;
+    line-height: 15px;
     overflow: hidden;
 }
 
@@ -1158,6 +1159,7 @@
   overflow: hidden;
   max-width: 550px;
   font-size: 14px;
+  line-height: 15px;
   height: 30px;
   margin-top: 5px;
 }

@@ -97,8 +97,8 @@ The dictionary template defines two snippet types:
     {{#each data.richData.translations}}
         {{!-- the first translation is the main content --}}
         {{#unless @first}}
-            <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
-            <span>
+            <span style="display: inline-block;">
+                <span class='cliqz-result-dictionary-translation-language'>{{language}}:</span>
                 {{#each values}}
                     {{this}}
                 {{/each}}
