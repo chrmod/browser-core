@@ -147,13 +147,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
 
-                // If one of the results is data.only = true Remove all others.
-                // Including instant results.
-                if (newResults && newResults.length > 0 &&
-                    newResults[0].data && newResults[0].data.only) {
-                  cleaned = [];
-                }
-
                 return cleaned.concat(newResults);
             }
         };
