@@ -439,7 +439,8 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
-
+                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                    r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
                     // unexpected/unknown template
