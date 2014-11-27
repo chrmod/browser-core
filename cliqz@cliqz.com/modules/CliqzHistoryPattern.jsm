@@ -82,8 +82,9 @@ var CliqzHistoryPattern = {
                 // Return results
                 var res = {
                     query: orig_query,
-                    top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0], // Maybe change to domain of top pattern?
-                    top_domain_share: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[1],
+                    top_domain: CliqzHistoryPattern.domainFromUrl(filteredPatterns[0]['url']),
+                    //top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0],
+                    //top_domain_share: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[1],
                     results: filteredPatterns,
                     filteredResults: function() {
                         var tmp = new Array();
@@ -95,7 +96,7 @@ var CliqzHistoryPattern = {
                         return tmp;
                     }
                 };
-                callback( res ); 
+                callback( res );
             });
     },
     maxDomainShare: function(patterns) {
@@ -297,6 +298,27 @@ var CliqzHistoryPattern = {
             selectionStart: selectionStart,
             highlight: highlight
         };
+    },
+    stripTitle: function(pattern) {
+        if (pattern.length < 3) return "";
+        var title1 = pattern[1].title.split("").reverse().join("");
+        var title2 = pattern[2].title.split("").reverse().join("");
+        var charCount = 0;
+        for(; charCount<title1.length && charCount<title2.length && 
+            title1[charCount] == title2[charCount]; charCount++);
+
+        for(var i=3; i < pattern.length; i++) {
+            var refTitle = pattern[i].title.split("").reverse().join("");
+            if (title1.substring(0, charCount) != refTitle.substring(0, charCount)) {
+                return "";
+            };
+        }
+        var found = title1.substring(0,charCount).split("").reverse().join("");
+        if (found.trim().split(" ").length < 2) {
+            return "";
+        } else {
+            return title1.substring(0,charCount).split("").reverse().join("");
+        }
     },
     SQL: {
         _execute: function PIS__execute(conn, sql, columns, onRow) {

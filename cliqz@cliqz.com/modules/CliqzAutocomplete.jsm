@@ -291,9 +291,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             historyPatternCallback: function(res) {
                 if (res.query == this.searchString) {
-                    // res { query, top_domain, top_domain_share, results, filtered_results() }
                     CliqzAutocomplete.lastPattern = res;
-                    var results = res.results;
+                    var results = res.filteredResults();//res.results;
                     CliqzUtils.log("All patterns found:", "CliqzHistoryPattern result");
                     for(var key in results) {
                         CliqzUtils.log(results[key]['path'] + ": " + results[key]['cnt'], "CliqzHistoryPattern result");
@@ -305,13 +304,41 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(results.length < 1) return;
 
                     var instantResults = new Array();
-                    for(var key in results) {
-                        var instant = Result.generic("favicon",results[key].url, null, results[key].title, null, this.searchString);
-                        instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
-                        instantResults.push(instant);
-                        if (instantResults.length > 3) {
-                            break;
+                    // Cluster patterns, at least base url + two patterns
+                    if (results.length > 2) {
+                        var instant = Result.generic("cliqz-pattern",results[0].url, null, results[0].title, null, this.searchString);
+                        instant.comment += " (pattern cluster)!";
+                        var title = CliqzUtils.cleanUrlProtocol(results[0].url, true);
+                        if (title[title.length-1] == '/') title = title.substring(0, title.length-1);
+                        instant.data = {
+                            title: results[0].title,
+                            url: title,
+                            urls: []
                         };
+                        var titleStrip = CliqzHistoryPattern.stripTitle(results);
+                        for(var i=1; i<results.length; i++) {
+                            var link = CliqzUtils.cleanUrlProtocol(results[i].url, true);
+                            instant.data.urls.push( {
+                                href: results[i].url,
+                                link: link.length > 70 ? link.substring(0,70)+"..." : link,
+                                title: results[i].title.replace(titleStrip, ""),
+                            });
+                            if (instant.data.urls.length > 3) {
+                                break;
+                            };
+                        }
+                        instantResults.push(instant);
+                    // No clustering, return two entries
+                    } else {
+                        results = res.results;
+                        for(var key in results) {
+                            var instant = Result.generic("favicon",results[key].url, null, results[key].title, null, this.searchString);
+                            instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
+                            instantResults.push(instant);
+                            if (instantResults.length > 1) {
+                                break;
+                            };
+                        }
                     }
                     
                     this.mixedResults.addResults(instantResults);

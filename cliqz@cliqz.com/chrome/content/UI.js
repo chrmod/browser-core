@@ -11,7 +11,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
-                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                  'entity-search', 'entity-news', 'bitcoin'],
 
     VERTICALS = {
@@ -396,6 +396,7 @@ function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
+    if(type === 'cliqz-pattern') return 'pattern';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){

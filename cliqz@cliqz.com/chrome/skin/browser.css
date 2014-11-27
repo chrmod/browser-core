@@ -525,6 +525,64 @@
 }
 /* END cluster */
 
+/* pattern */
+
+.cliqz-pattern {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+}
+
+.cliqz-pattern-logo {
+    float: left;
+    height: 72px;
+    width: 80px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 72px 72px;   
+}
+
+.cliqz-pattern-circle {
+    float: left;
+    border-radius: 50%;
+    width: 72px;
+    height: 72px;
+    background: gray;
+    color: white;
+    font-size: 28px;
+    line-height: 72px;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.cliqz-pattern-title {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 4px 5px 5px 5px;
+    margin-right: 20px;
+}
+
+.cliqz-pattern-entry-title {
+    font-size: 13px;
+    margin-left: 20px;
+    float: left;
+    text-decoration: underline;
+    color: #446CB3;
+    cursor: pointer;
+}
+.cliqz-pattern-entry-link {
+    font-size: 13px;
+    color: lightgray;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+.cliqz-pattern-icon {
+
+}
+
+/* END pattern */
+
 /* series */
 
 .cliqz-series-title-box {

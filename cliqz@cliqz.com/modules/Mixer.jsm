@@ -67,7 +67,7 @@ var Mixer = {
 
                 // do this for all types except clustering for now
                 // TODO: find a way to report where all clustered values come from
-                if(st != 'cliqz-cluster' && st != 'cliqz-series') {
+                if(st != 'cliqz-cluster' && st != 'cliqz-series' && st != 'cliqz-pattern') {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     st = CliqzUtils.combineSources(st, tempCliqzResult.style);
