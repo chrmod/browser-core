@@ -234,7 +234,6 @@ var UI = {
     },
     clearSelection: function() {
         clearResultSelection();
-    }
     },
     closeResults: closeResults
 };
