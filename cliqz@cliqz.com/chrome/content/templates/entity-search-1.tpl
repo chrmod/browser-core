@@ -5,6 +5,7 @@
              <span>Tropical cyclones</span> <span>Vladimir Putin</span>
   </div>
   -->
+  {{#unless data.no-search-box}}
   <div>
     <div class="entity-search-box" style="border: 1px solid {{data.search_box_background_color}};">
       <img style="background-color: {{data.search_box_background_color}};" id="entity-search-box-icon" src="{{data.search_box_icon}}" />
@@ -14,6 +15,7 @@
        onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value, this)"/>
     </div>
   </div>
+  {{/unless}}
   <div>
     {{#each data.links}}
       <div class="entity-search-container-app" style="background-color: {{this.background_color_icon}}"
