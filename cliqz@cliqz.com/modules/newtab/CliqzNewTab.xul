@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE html>
+<window id="cliqzNewTab"
+        xmlns="http://www.w3.org/1999/xhtml"
+        hasBrowserHandlers="true"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        style="width:100%; height: 100%">
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css' />
+    <link href="media/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+    <link href="media/css/main.css" rel="stylesheet" media="screen" />
+
+    <script src="media/js/jquery-2.1.1.min.js"></script>
+    <script src="chrome://cliqz/content/core.js"></script>
+    <script src="chrome://cliqz/content/UI.js"></script>
+    <script src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
+    <script src="media/js/main.js"></script>
+    
+    <div class="options-btn"></div>
+    <div class="options-container" style="display: none;">
+        <a class="option" style="background-image:url(media/images/google/gmail.png)" href="https://mail.google.com/">Gmail</a>
+        <a class="option" style="background-image:url(media/images/google/calendar.png)" href="https://www.google.com/calendar/">Calendar</a>
+        <a class="option" style="background-image:url(media/images/google/news.png)" href="https://news.google.de/">News</a>
+        <a class="option" style="background-image:url(media/images/google/maps.png)" href="https://maps.google.de/">Maps</a>
+        <a class="option" style="background-image:url(media/images/google/youtube.png)" href="https://www.youtube.de/">Youtube</a>
+    </div>
+    
+    <style>
+        #PopupAutoCompleteRichResult {
+  -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
+}
+    </style>
+
+    <div class="white-cover" style="height: 100%">
+        <div class="background">
+            <div class="container search-container">
+                <div class="row">
+                    <div class="col-sm-10 col-sm-offset-1">
+                        <div class="search-box">
+                            <xul:textbox placeholder="Search" id="urlbar" type="autocomplete"
+                     autocompletesearch="cliqz-results"
+                     autocompletesearchparam="enable-actions"
+                     autocompletepopup="PopupAutoCompleteRichResult"
+                                         
+completeselectedindex="true"
+                     tabscrolling="true"
+                     showcommentcolumn="true"
+                     showimagecolumn="true"
+                     enablehistory="true"
+                     maxrows="6"
+                     newlines="stripsurroundingwhitespace"
+                     
+                     ontextentered="this.handleCommand(param);"
+                     ontextreverted="return this.handleRevert();"                                         
+                                         />
+                            <xul:panel type="autocomplete-richlistbox" id="PopupAutoCompleteRichResult" noautofocus="true" />
+
+                            
+                            <!-- hidden="true"
+
+[27/11/14 14:54:56] Lucian Corlaciu:   <textbox id="urlbar" flex="1"
+                     placeholder="&urlbar.placeholder2;"
+                     type="autocomplete"
+                     autocompletesearch="urlinline history"
+                     autocompletesearchparam="enable-actions"
+                     autocompletepopup="PopupAutoCompleteRichResult"
+                     completeselectedindex="true"
+                     tabscrolling="true"
+                     showcommentcolumn="true"
+                     showimagecolumn="true"
+                     enablehistory="true"
+                     maxrows="6"
+                     newlines="stripsurroundingwhitespace"
+                     oninput="gBrowser.userTypedValue = this.value;"
+                     ontextentered="this.handleCommand(param);"
+                     ontextreverted="return this.handleRevert();"
+
+                            <li role="presentation" class="hidden result" id='result-template' selectable="selectable">
+                                <div class="result-data">
+                                    <div class="result-title ellipsis"></div>
+                                    <div class="result-url ellipsis">
+                                        <span class='result-url-host'></span><span class='result-url-path'></span>
+                                    </div>
+                                    <div class="result-desc"></div>
+                                </div>
+                                <div class="result-icon cliqz-icon"></div>
+                            </li>
+
+                            <ul role="menu" aria-labelledby="search" class="dropdown-menu" id="search-dropdown">
+                            </ul>-->
+                        </div>
+
+                        <a href="/" class="hidden mostvisited" id="history-row-template" selectable="selectable">
+                            <div class="history-row">
+                                <div class='history-icon cliqz-icon'>
+
+                                </div>
+                                <div class='history-desc'>
+                                    <div class='history-title ellipsis'></div>
+                                    <div class='history-url ellipsis'></div>
+                                </div>
+                                <br style="clear:both" />
+                            </div>
+                        </a>
+                        <div class="history-lis" id="history-lis"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</window>

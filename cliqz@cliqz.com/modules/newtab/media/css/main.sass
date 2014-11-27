@@ -1,0 +1,255 @@
+body, h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6
+    font-family: 'Lato', sans-serif
+    font-weight: 400
+    -webkit-font-smoothing: antialiased
+
+=open-sans
+    font-family: 'Open Sans', sans-serif
+
+=lato
+    font-family: 'Lato', sans-serif
+
+=transition
+    -webkit-transition: 0.25s
+    -moz-transition: 0.25s
+    -o-transition: 0.25s
+    transition: 0.25s
+
+a, a:hover, a:visited
+    color: inherit
+    text-decoration: inherit
+
+$blue-gray: #ecf0f1
+$text-blue: #2f8095
+
+body, html
+    height: 100%
+
+.invis
+    opacity: 0
+
+.hidden
+    display: none
+
+.white-cover
+    @media(min-width:1200px)
+        padding: 30px
+    min-height: 100%
+    background-color: white
+    position: relative
+    height: auto
+    height: 100%
+    min-height: 100%
+
+.background
+    background-color: $blue-gray
+    min-height: 100%
+    background-repeat: no-repeat
+    background-size: cover
+    background-position: center center
+
+#bottom-speed-dial-padding
+    height: 40px
+    @media(min-width:1200px)
+        height: 100px
+
+#speed-dial-padding
+    height: 40px
+    line-height: 40px
+
+
+    .col-xs-6,.row
+        height: 100%
+        padding: 0 8px
+
+    @media(min-width:1200px)
+        height: 100px
+        line-height: 100px
+
+.card-container
+    margin: 0 0px
+    .col-xs-3
+        padding: 0
+        .card
+            margin: 8px 5px
+
+.card-row-container
+    max-width: 100%
+    overflow: hidden
+    margin: 0 0px
+    .col-xs-12.col-sm-6
+        padding: 0
+        .card-row
+            margin: 8px 5px
+
+
+.card
+    background-color: rgba(0,0,0,0.5)
+    color: white
+    +lato
+    text-align: center
+    h1
+        margin-top: 0
+        font-weight: 300
+        font-size: 34px
+        padding-top: 10px
+    p.lead
+        margin-bottom: 0
+        font-weight: 400
+        font-size: 12px
+        padding-bottom: 5px
+        padding-left: 5px
+        padding-right: 5px
+
+    @media(min-width:1200px)
+        padding: 5px 5px
+        margin-bottom: 20px
+        h1
+            font-weight: 300
+            font-size: 68px
+        p.lead
+            font-weight: 300
+            font-size: 18px
+
+.card-new
+    h1
+        span
+            position: relative
+            top: 7px
+            font-weight: 300
+
+.dropzone
+    background-color: rgba(0,0,0,0.5)
+    color: white
+    +lato
+    text-align: center
+    height: 100%
+    font-weight: 300
+    -webkit-transition: 0.5s
+    -moz-transition: 0.5s
+    -o-transition: 0.5s
+    transition: 0.5s
+
+.hover.hover
+    background-color: $text-blue
+
+#remove-card
+    margin-left: 5px
+
+#edit-card
+    margin-right: 5px
+
+.card:hover
+    background-color: $text-blue
+    +transition
+    cursor: pointer
+
+.card-row
+    margin-bottom: 10px
+    background-color: rgba(0,0,0,0.36)
+    color: white
+    +lato
+    font-weight: 400
+    padding: 5px
+
+    span
+        line-height: 100%
+        padding-left: 10px
+
+.card-row:hover
+    background-color: $text-blue
+    +transition
+    cursor: pointer
+
+.ellipsis
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis
+    -o-text-overflow: ellipsis
+
+.card-row
+    position: relative
+
+    .favicon
+        position: absolute
+        width: 16px
+        height: 16px
+        top: 6px
+
+    .title
+        max-width: 100%
+        padding-left: 20px
+
+.btn-primary, .btn-info
+    background-color: $text-blue
+    border: 0
+    border-radius: 0
+    text-transform: uppercase
+    +lato
+    font-weight: 400
+    +transition
+    padding: 0
+    box-shadow: 0px 0px 10px #999999 !important
+
+.btn-primary.btn-large
+    height: 50px
+    line-height: 50px
+    color: white
+    @media(min-width:1200px)
+        font-size: 18px
+
+.btn-primary:hover
+    background-color: $text-blue
+    box-shadow: 0px 0px 10px #999999 !important
+
+.btn-shadow-1
+    box-shadow: 0px 0px 10px #999999 !important
+
+#search
+    width: 100%
+    height: 95px
+    border: 0
+    padding: 15px
+    +lato
+    font-weight: 300
+    font-size: 28px
+    outline: 0
+
+.search-container
+    padding-top: 100px
+
+.history-lis
+    padding-top: 15px
+    a
+        display: block
+        height: 30px
+
+    .history-row
+        +lato
+        font-weight: 300
+        color: #666666
+        margin-top: 15px
+        background-color: white
+        height: 30px
+        padding: 0 15px
+        line-height: 30px
+
+    .history-row:hover
+        background-color: #999999
+        color: white
+        cursor: pointer
+
+.search-box
+    position: relative
+
+#search-dropdown
+    width: 100%
+    li.result
+        padding: 0 15px
+    h2
+        +lato
+        font-size: 24px
+
+    p.lead
+        +lato
+        font-size: 14px
