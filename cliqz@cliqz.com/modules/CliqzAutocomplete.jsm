@@ -299,6 +299,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var instantResults = new Array();
                     // Cluster patterns, at least base url + two patterns
                     if (results.length > 2) {
+                        var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url);
+                        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];  
+                        // Add base domain if not in list
+                        if (results[0].base != true) {
+                            var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
+                            res.results.unshift({
+                                title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
+                                url: baseUrl
+                            });
+                            results.unshift(res.results[0]);
+                        };
+                        // Create instant result
                         var instant = Result.generic("cliqz-pattern",results[0].url, null, results[0].title, null, this.searchString);
                         instant.comment += " (pattern cluster)!";
                         var title = CliqzUtils.cleanUrlProtocol(results[0].url, true);
@@ -306,8 +318,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         instant.data = {
                             title: results[0].title,
                             url: title,
-                            urls: []
+                            urls: [],
+                            color: CliqzHistoryPattern.colors[baseUrl],
+                            darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
+                            letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1)
                         };
+                        // Add result urls
                         var titleStrip = CliqzHistoryPattern.stripTitle(results);
                         for(var i=1; i<results.length; i++) {
                             var link = CliqzUtils.cleanUrlProtocol(results[i].url, true);

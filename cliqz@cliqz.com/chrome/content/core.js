@@ -58,6 +58,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
         CliqzHistory.initDB();
+        CliqzHistoryPattern.preloadColors();
         CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');

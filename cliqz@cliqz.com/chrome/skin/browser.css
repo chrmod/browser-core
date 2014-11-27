@@ -223,7 +223,8 @@
 }
 
 .cliqz-result-item-box[selected="true"] {
-    background-color: #eefafe;
+    /*background-color: #eefafe;*/
+    background-color: #E4F1FE;
 }
 
 .cliqz-result-generic {
@@ -493,7 +494,7 @@
 .cliqz-pattern-logo {
     float: left;
     height: 72px;
-    width: 80px;
+    width: 72px;
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 72px 72px;   
@@ -502,21 +503,42 @@
 .cliqz-pattern-circle {
     float: left;
     border-radius: 50%;
-    width: 72px;
-    height: 72px;
-    background: gray;
-    color: white;
-    font-size: 28px;
-    line-height: 72px;
     text-align: center;
     font-family: sans-serif;
+    overflow: hidden;
+    display: table-cell;
+    vertical-align: middle;
+    color: white;
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    font-size: 22pt;
+    margin-left:20px;
+    margin-top:12px;
+    background: #BFBFBF;
 }
 
 .cliqz-pattern-title {
-    font-size: 16px;
+    font-size: 22px;
     font-weight: bold;
     padding: 4px 5px 5px 5px;
     margin-right: 20px;
+}
+
+.cliqz-pattern-title-container {
+    position:absolute;
+    left:0px;
+    right:0px;
+    top:0px;
+    height:44px;
+    line-height: 44px;
+    background: #f2f2f2;
+    color: black;
+    font-size: 16px;
+    text-decoration: bold;
+    -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
 .cliqz-pattern-entry-title {
@@ -524,7 +546,7 @@
     margin-left: 20px;
     float: left;
     text-decoration: underline;
-    color: #446CB3;
+    color: #006666;
     cursor: pointer;
 }
 .cliqz-pattern-entry-link {
@@ -532,6 +554,7 @@
     color: lightgray;
     font-weight: normal;
     text-decoration: none;
+    padding-left: 10px;
 }
 
 .cliqz-pattern-icon {
