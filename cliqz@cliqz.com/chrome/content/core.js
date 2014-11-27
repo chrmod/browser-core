@@ -40,6 +40,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
   'chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
 
+var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
+var Services = Services || CliqzUtils.getWindow().Services;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
