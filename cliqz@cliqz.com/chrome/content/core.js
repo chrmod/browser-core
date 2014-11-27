@@ -37,6 +37,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
   'chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+  'chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -51,6 +54,8 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
+        console.log(window);
+        CliqzNewTab.init(window);
         CLIQZ.UI.init();
 
         var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
@@ -345,7 +350,7 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar, r,
+        var urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
         // Remove protocol and 'www.' from first results

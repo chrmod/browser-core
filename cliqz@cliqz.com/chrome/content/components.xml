@@ -53,6 +53,8 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
+            console.log("just a console log");
+
             function unEscapeUrl(url){
               return Components.classes['@mozilla.org/intl/texttosuburi;1'].
                         getService(Components.interfaces.nsITextToSubURI).
