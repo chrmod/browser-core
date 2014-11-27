@@ -17,12 +17,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterSeries',
 $DSL_OUTPUT
 
 var CliqzClusterHistory = CliqzClusterHistory || {
-    LOG_KEY: 'cliqz cluster history: ',
+    LOG_KEY: 'CliqzClusterHistory',
     templates: templates,  // to export the templates for testing
     log: function(str) {
-        if(CliqzUtils.getPref('showDebugLogsCluster', false)) {
-            CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
-        }
+        CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
     },
 
     /**
