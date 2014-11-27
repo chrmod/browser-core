@@ -11,7 +11,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
-                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                  'entity-search-1', 'entity-news-1', 'bitcoin'],
 
     VERTICALS = {
