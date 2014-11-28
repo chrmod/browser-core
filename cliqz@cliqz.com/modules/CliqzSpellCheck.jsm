@@ -14,6 +14,28 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var EXPORTED_SYMBOLS = ["CliqzSpellCheck"];
 
 var CliqzSpellCheck = {
+    check: function(q) {
+        var words = q.split(" ");
+        var correctBack = {}
+        for (var i = 0; i < words.length; i++) {
+            if (words[i] == "") continue;
+            if (words[i] in CliqzAutocomplete.spellCorrectionDict) {
+                var correct = CliqzAutocomplete.spellCorrectionDict[words[i]];
+                CliqzUtils.log(correct + " " + words[i] + " " + i + " " + words.length, "spellcorr");
+                CliqzUtils.log(correct.slice(0, words[i].length), 'spellcorr');
+                if (correct.length > words[i].length &&
+                    correct.slice(0, words[i].length) == words[i] &&
+                    i == words.length - 1) continue;
+                if (correct.length < words[i].length &&
+                    words[i].slice(0, correct.length) == correct &&
+                    i == words.length - 1) continue;
+                CliqzUtils.log("replace", "spellcorr");
+                correctBack[correct] = words[i]
+                words[i] = correct;
+            }
+        }
+        return [words.join(" "), correctBack];
+    },
     loadRecords: function(req) {
         var content = req.response.split("\n");
         for (var i=0; i < content.length; i++) {

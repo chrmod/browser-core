@@ -241,6 +241,11 @@ CLIQZ.Core = CLIQZ.Core || {
         //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarblur: function(ev) {
+        CliqzAutocomplete.spellCorr = {
+            'on': false,
+            'correctBack': {},
+            'override': false
+        };
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
 

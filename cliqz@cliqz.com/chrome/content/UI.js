@@ -9,7 +9,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search', 'entity-news', 'bitcoin'],
+                 'entity-search', 'entity-news', 'bitcoin', 'spellcheck'],
 
     VERTICALS = {
         'b': 'bundesliga',
@@ -37,7 +37,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96
+    IMAGE_WIDTH = 96,
+    DEL = 8
     ;
 
 var UI = {
@@ -138,13 +139,19 @@ var UI = {
     suggestions: function(suggestions, q){
         if (!gCliqzBox)
             return;
-
         if(suggestions){
-            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                // do not show a suggestion is it is exactly the query
-                suggestions: suggestions.filter(function(s){ return s != q; }),
-                q:q
-            });
+            if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
+                    wrong: suggestions[1]
+                });
+                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestions[0]);
+            } else {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                    // do not show a suggestion is it is exactly the query
+                    suggestions: suggestions.filter(function(s){ return s != q; }),
+                    q:q
+                });
+            }
         } else {
             gCliqzBox.suggestionBox.innerHTML = '';
         }
@@ -184,6 +191,13 @@ var UI = {
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
+            case DEL:
+            CliqzUtils.log('del pressed', 'spellcorr')
+            CliqzAutocomplete.spellCorr = {
+                'on': false,
+                'correctBack': {},
+                'override': false
+            }
             default:
                 return false;
         }
@@ -655,7 +669,19 @@ function suggestionNavigation(ev){
 
 function suggestionClick(ev){
     if(ev && ev.target){
-        var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
+        if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+            var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
+            var extra = ev.target.getAttribute('extra') || ev.target.parentNode.getAttribute('extra');
+            if (extra=='wrong') {
+                // user don't like our suggestion
+                CliqzAutocomplete.spellCorr.override = true;
+                CLIQZ.Core.urlbar.mInputField.focus();
+                CLIQZ.Core.urlbar.mInputField.setUserInput("");
+                // TODO: send some signal here
+            }
+        } else {
+            var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
+        }
         if(suggestionVal){
             CLIQZ.Core.urlbar.mInputField.focus();
             CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);

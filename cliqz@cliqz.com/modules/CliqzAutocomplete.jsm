@@ -57,6 +57,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastDisplayTime: null,
     lastFocusTime: null,
     spellCorrectionDict: {},
+    spellCorr: {
+        'on': false,
+        'correctBack': {},
+        'override': false
+    },
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -486,15 +491,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 [q, this.customResults] = ResultProviders.getCustomResults(q);
                 return q;
             },
-            spellCorrection: function(q) {
-                var words = q.split(" ");
-                for (var i = 0; i < words.length; i++) {
-                    if (words[i] in CliqzAutocomplete.spellCorrectionDict) {
-                        words[i] = CliqzAutocomplete.spellCorrectionDict[words[i]];
-                    }
-                }
-                return words.join(" ");
-            },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzAutocomplete.lastQueryTime = (new Date()).getTime();
                 CliqzAutocomplete.lastDisplayTime = null;
@@ -517,15 +513,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // custom results
                 searchString = this.analyzeQuery(searchString);
-                
-                var newSearchString = this.spellCorrection(searchString);
+                if (!CliqzAutocomplete.spellCorr.override) {
+                    var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
+                    for (var c in correctBack) {
+                        CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
+                    }
+                } else {
+                    // user don't want spell correction
+                    var newSearchString = searchString;
+                }
+                this.wrongSearchString = searchString;
                 if (newSearchString != searchString) {
                     // the local spell checker kicks in
-                    this.localSpellChecker = true;
-                    this.wrongSearchString = searchString;
+                    CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
-                } else {
-                    this.localSpellChecker = false;
                 }
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
@@ -570,16 +571,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
-
+                
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    if (this.localSpellChecker) {
+                    // if spell correction, no suggestions
+                    if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;
-                        this.cliqzSuggestions = [
-                            "Showing results for: " + searchString,
-                            "Did you really mean: " + this.wrongSearchString];
+                        // change the wrong string to the real wrong string
+                        for (var p in CliqzAutocomplete.spellCorr.correctBack) {
+                            this.wrongSearchString = this.wrongSearchString.replace(p, CliqzAutocomplete.spellCorr.correctBack[p]);
+                        }
+                        this.cliqzSuggestions = [searchString, this.wrongSearchString];
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
                     } else {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
