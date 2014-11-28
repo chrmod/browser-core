@@ -9,7 +9,7 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search', 'entity-news', 'bitcoin', 'spellcheck'],
+                 'entity-search-1', 'entity-news-1', 'bitcoin', 'spellcheck'],
 
     VERTICALS = {
         'b': 'bundesliga',
@@ -202,10 +202,12 @@ var UI = {
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value) {
+    entitySearchKeyDown: function(event, value, element) {
       if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Google");
-        var google_url = "http://www.google.com/search?q=" + value
+        var provider_name = element.getAttribute("search-provider");
+        var search_url = element.getAttribute("search-url");
+        var search_engine = Services.search.getEngineByName(provider_name);
+        var google_url = search_url + value
         if (search_engine) {
           var google_url = search_engine.getSubmission(value).uri.spec
         }
@@ -213,27 +215,11 @@ var UI = {
         CLIQZ.Core.forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
+
+        var action_type = element.getAttribute("logg-action-type");
         var signal = {
           type: 'activity',
-          action: 'entity_search_google'
-        };
-        CliqzUtils.track(signal);
-      }
-    },
-    entityVideoKeyDown: function(event, value) {
-      if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Youtube");
-        var google_url = "http://www.youtube.com/results?search_query=t" + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
-        event.preventDefault();
-        var signal = {
-          type: 'activity',
-          action: 'entity_search_google'
+          action: action_type
         };
         CliqzUtils.track(signal);
       }
@@ -467,8 +453,13 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
-
+                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                    r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
+                } else {
+                    // unexpected/unknown template
+                    r.invalid = true;
+                    r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -488,7 +479,14 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
 
         }
+
+        // If one of the results is data.only = true Remove all others.
+        if (!r.invalid && r.data && r.data.only) {
+          res.results = [r];
+          return res;
+        }
     }
+
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });

@@ -873,11 +873,12 @@
 }
 
 .cliqz-result-dictionary-translations {
-    display: block
+    display: block;
     font-size: 12px;
     background: #f3f3f3;
     padding: 2px 0 2px 15px;
     max-height: 15px;
+    line-height: 15px;
     overflow: hidden;
 }
 
@@ -1066,6 +1067,8 @@
 
 #entity-search-box-icon {
   background-color: #3E86FC;
+  width: 30px;
+  height: 30px;
 }
 
 #entity-search-box-input {
@@ -1082,6 +1085,10 @@
   height: 90px;
   border-radius: 5px;
   margin-right: 5px;
+}
+
+.entity-search-app-image {
+  height: 50px;
 }
 
 .entity-search-container-app-text {
@@ -1152,6 +1159,7 @@
   overflow: hidden;
   max-width: 550px;
   font-size: 14px;
+  line-height: 15px;
   height: 30px;
   margin-top: 5px;
 }
