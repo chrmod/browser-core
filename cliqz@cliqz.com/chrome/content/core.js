@@ -37,6 +37,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
   'chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
+  'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -104,6 +108,8 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
+            window.gBrowser.addProgressListener(CliqzUCrawl.listener);
+            CliqzUCrawl.init(window);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
@@ -183,6 +189,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // remove listners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
+            window.gBrowser.removeProgressListener(CliqzUCrawl.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
