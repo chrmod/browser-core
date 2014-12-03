@@ -9,24 +9,24 @@ var loadnumber = 0;
 
 $(document).ready(function() {
     loadnumber++;
-    
+
     if (loadnumber != 2) return;
-    
+
     $(".background").css("background-image", "url(media/images/wave_bg.jpg)");
-    
+
     // don't remove unbind, for some reason it assigns click event twice without unbinding...
     // toggle() does not work for some reasons...
     $(".options-btn").click(function(event){
         if ($(".options-container").css("display") == "none") $(".options-container").css("display","block");
         else $(".options-container").css("display","none");
-        
+
         event.stopPropagation();
     });
-    
+
     $(document).click(function(){
         $(".options-container").css("display","none");
     });
-    
+
     // get & render history
     NewTabUtils.links.populateCache(() => {
         renderHistory(NewTabUtils.links.getLinks());
@@ -88,7 +88,7 @@ function reuseMeFromComponentsXML(_this){
           CLIQZ.UI.results({
             q: q,
             results: data,
-            width: '100'
+            width: '800'
           });
           CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
       }

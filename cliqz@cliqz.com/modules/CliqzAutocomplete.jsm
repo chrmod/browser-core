@@ -147,13 +147,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                 }
 
-                // If one of the results is data.only = true Remove all others.
-                // Including instant results.
-                if (newResults && newResults.length > 0 &&
-                    newResults[0].data && newResults[0].data.only) {
-                  cleaned = [];
-                }
-
                 return cleaned.concat(newResults);
             }
         };
@@ -408,14 +401,17 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
-                        results = json.result;
+                        results = json.result || [];
                         country = json.country;
                         if(json.extra && json.extra.results && json.extra.results.length >0)
                             this.cliqzResultsExtra =
                                 json.extra.results.map(Result.cliqzExtra);
                         this.latency.cliqz = json.duration;
                     }
-                    this.cliqzResults = results;
+                    this.cliqzResults = results.filter(function(r){
+                        // filter results with no or empty url
+                        return r.url != undefined && r.url != '';
+                    });
                     this.cliqzCountry = country;
                 }
                 this.pushResults(q);
