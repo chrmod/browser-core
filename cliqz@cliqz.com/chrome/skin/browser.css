@@ -200,6 +200,10 @@
     border-bottom: 1px solid #CCC;
 }
 
+.cliqz-result-item-box [url]{
+    cursor: pointer;
+}
+
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
     background-color: #3399ff;
 }
