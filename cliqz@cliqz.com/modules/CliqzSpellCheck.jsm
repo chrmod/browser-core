@@ -46,7 +46,8 @@ var CliqzSpellCheck = {
         }
     },
     initSpellCorrection: function() {
-        if (CliqzUtils.getPref("localSpellCheck", false)) {
+        if (CliqzUtils.getPref("localSpellCheck", false) && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
+            CliqzUtils.log('loading dict', 'spellcorr');
             CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords)
         }
     }

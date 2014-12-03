@@ -138,6 +138,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzSniffer.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
