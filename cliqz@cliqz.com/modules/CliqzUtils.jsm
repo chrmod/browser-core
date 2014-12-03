@@ -35,7 +35,6 @@ var VERTICAL_ENCODINGS = {
     'people':'p',
     'census':'c',
     'news':'n',
-    'weather':'w',
     'bundesliga':'b',
     'video':'v',
     'hq':'h',
@@ -377,7 +376,6 @@ var CliqzUtils = {
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return 'T';
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-weather') return 'w';
     else if(type === 'cliqz-bundesliga') return 'b';
     else if(type === 'cliqz-cluster') return 'C';
     else if(type === 'cliqz-extra') return 'X';
