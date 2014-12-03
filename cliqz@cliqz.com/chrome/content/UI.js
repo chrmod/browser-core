@@ -89,8 +89,6 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-
         handlePopupHeight(box);
     },
     results: function(res){
@@ -98,15 +96,6 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
