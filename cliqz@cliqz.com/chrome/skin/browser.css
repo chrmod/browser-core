@@ -1136,6 +1136,7 @@
 .entity-news-story-image img {
   width: 80px;
   height: 50px;
+  background-color: #dddddd;
 }
 
 .entity-news-story-description {
@@ -1153,6 +1154,9 @@
   overflow: hidden;
 }
 
+.entity-news-story:hover .entity-news-story-title {
+    text-decoration: underline;
+}
 .entity-news-story-time {
   color: #c92b35;
   text-overflow: ellipsis;
