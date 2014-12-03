@@ -105,6 +105,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
     CliqzResults: function(){},
+    resetSpellCorr: function() {
+        CliqzAutocomplete.spellCorr = {
+            'on': false,
+            'correctBack': {},
+            'override': false
+        }
+    },
     initProvider: function(){
         CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
             _searchString: '',
@@ -511,6 +518,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.wrongSearchString = searchString;
                 if (newSearchString != searchString) {
                     // the local spell checker kicks in
+                    var action = {
+                        type: 'activity',
+                        action: 'spell_correction',
+                        current_length: searchString.length
+                    }
+                    CliqzUtils.track(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
                 }
@@ -587,6 +600,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzBundesliga = [];
+                    CliqzAutocomplete.resetSpellCorr();
                 }
 
                 // trigger history search

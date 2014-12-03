@@ -136,6 +136,7 @@ var UI = {
             result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
+        CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
         if (!gCliqzBox)
             return;
         if(suggestions){
@@ -143,6 +144,7 @@ var UI = {
                 gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
                     wrong: suggestions[1]
                 });
+                CliqzUtils.log('q: ' + q + '  ' + 'value: ' + CLIQZ.Core.urlbar.value, 'spellcorr')
                 CLIQZ.Core.urlbar.mInputField.setUserInput(suggestions[0]);
             } else {
                 gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
@@ -180,9 +182,11 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
+                CliqzAutocomplete.resetSpellCorr();
             case RIGHT:
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
+                CliqzAutocomplete.resetSpellCorr();
                 return false;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -191,12 +195,7 @@ var UI = {
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
             case DEL:
-            CliqzUtils.log('del pressed', 'spellcorr')
-            CliqzAutocomplete.spellCorr = {
-                'on': false,
-                'correctBack': {},
-                'override': false
-            }
+                CliqzAutocomplete.resetSpellCorr();
             default:
                 return false;
         }
@@ -670,6 +669,10 @@ function suggestionClick(ev){
             var extra = ev.target.getAttribute('extra') || ev.target.parentNode.getAttribute('extra');
             if (extra=='wrong') {
                 // user don't like our suggestion
+                var action = {
+                    type: 'activity',
+                    action: 'correct_back'
+                }
                 CliqzAutocomplete.spellCorr.override = true;
                 CLIQZ.Core.urlbar.mInputField.focus();
                 CLIQZ.Core.urlbar.mInputField.setUserInput("");

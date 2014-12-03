@@ -46,7 +46,9 @@ var CliqzSpellCheck = {
         }
     },
     initSpellCorrection: function() {
-        CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords)
+        if (CliqzUtils.getPref("localSpellCheck", false)) {
+            CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords)
+        }
     }
 }
 

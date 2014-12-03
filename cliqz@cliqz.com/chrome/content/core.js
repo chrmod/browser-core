@@ -212,6 +212,7 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     popupClose: function(){
         CliqzAutocomplete.isPopupOpen = false;
+        CliqzAutocomplete.resetSpellCorr();
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
@@ -241,11 +242,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarblur: function(ev) {
-        CliqzAutocomplete.spellCorr = {
-            'on': false,
-            'correctBack': {},
-            'override': false
-        };
+        CliqzAutocomplete.resetSpellCorr();
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
 
