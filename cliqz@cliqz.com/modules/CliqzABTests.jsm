@@ -147,7 +147,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("customResultsProviderLog", payload.log);
                 break;
             case "1016_A":
-                CliqzUtils.setPref("localSpellChecker", true);
+                CliqzUtils.setPref("localSpellCheck", true);
                 break;
             default:
                 rule_executed = false;
