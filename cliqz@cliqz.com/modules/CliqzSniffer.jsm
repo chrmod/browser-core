@@ -42,7 +42,8 @@ var CliqzSniffer = {
                                 type: "performance",
                                 action: "response",
                                 response_code: res.status,
-                                result_type: CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult._results[i].style)
+                                result_type: CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult._results[i].style),
+                                version: 1
                             }
                             CliqzUtils.track(action);
                         }

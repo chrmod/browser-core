@@ -313,6 +313,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
                     latency_all: this.latency.all,
+                    version: 1
                 };
                 if(country)
                     action.country = country;
@@ -502,9 +503,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
-                    current_length: searchString.length,
-                    f1: searchString.indexOf('f1') == 0,
-                    form: searchString.indexOf('form') == 0,
+                    current_length: searchString.length
                 };
                 CliqzUtils.track(action);
 

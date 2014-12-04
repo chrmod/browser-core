@@ -396,7 +396,7 @@ var CliqzUtils = {
     return type; //fallback to style - it should never happen
   },
   isPrivateResultType: function(type) {
-    return type == 'H' || type == 'B' || type == 'T';
+    return type == ['H'] || type == ['B'] || type == ['T'];
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){

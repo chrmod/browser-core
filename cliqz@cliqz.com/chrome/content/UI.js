@@ -516,6 +516,7 @@ function resultClick(ev){
                     reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
                     display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
                     result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+                    version: 1
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -692,6 +693,7 @@ function onEnter(ev, item){
             display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
             result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+            version: 1
         };
 
     var query = inputValue;
