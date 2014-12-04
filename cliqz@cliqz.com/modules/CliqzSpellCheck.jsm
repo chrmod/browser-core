@@ -29,6 +29,8 @@ var CliqzSpellCheck = {
                 if (correct.length < words[i].length &&
                     words[i].slice(0, correct.length) == correct &&
                     i == words.length - 1) continue;
+                if (i == words.length - 1 && words[i].length <= 4)
+                    continue
                 CliqzUtils.log("replace", "spellcorr");
                 correctBack[correct] = words[i]
                 words[i] = correct;
