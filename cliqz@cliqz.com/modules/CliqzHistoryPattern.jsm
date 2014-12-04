@@ -16,6 +16,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 var CliqzHistoryPattern = {
+    timeFrame: (new Date).getTime() - 60*60*24*7*1000, // one week
     data: null,
     pattern: null,
     colors: null,
@@ -35,7 +36,7 @@ var CliqzHistoryPattern = {
                 Services.storage.openDatabase(file),
                 "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+ 
                 "inner join ( "+
-                    "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and "+
+                    "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > "+CliqzHistoryPattern.timeFrame+" and "+
                     "(visits.url like '%"+this.escapeSQL(query)+"%' or visits.last_query like '%"+this.escapeSQL(query)+"%' or urltitles.title like '%"+this.escapeSQL(query)+"%') "+
                     "group by visits.last_query_date "+
                 ") as matches  "+
@@ -63,7 +64,7 @@ var CliqzHistoryPattern = {
                 var groupedPatterns = new Array();
                 for (key in CliqzHistoryPattern.pattern) {
                     var cur = CliqzHistoryPattern.pattern[key];
-                    var url = CliqzHistoryPattern.generalizeUrl(cur['url']);
+                    var url = CliqzHistoryPattern.generalizeUrl(cur['url'],true);
                     var pat = groupedPatterns[url];
                     if (pat && cur["cnt"] > 1) {
                         pat['cnt'] += cur['cnt'];
@@ -84,14 +85,14 @@ var CliqzHistoryPattern = {
                 // Return results
                 var res = {
                     query: orig_query,
-                    top_domain: filteredPatterns[0] ? CliqzHistoryPattern.domainFromUrl(filteredPatterns[0]['url']) : null,
+                    top_domain: filteredPatterns[0] ? CliqzHistoryPattern.domainFromUrl(filteredPatterns[0]['url'], false) : null,
                     //top_domain: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[0],
                     //top_domain_share: CliqzHistoryPattern.maxDomainShare(filteredPatterns)[1],
                     results: filteredPatterns,
                     filteredResults: function() {
                         var tmp = new Array();
                         for (var key in this.results) {
-                            if (CliqzHistoryPattern.domainFromUrl(this.results[key]['url']) == this.top_domain) {
+                            if (CliqzHistoryPattern.domainFromUrl(this.results[key]['url'], false) == this.top_domain) {
                                 tmp.push(this.results[key]);
                             };
                         }
@@ -134,7 +135,7 @@ var CliqzHistoryPattern = {
         var newPatterns = new Array();
         for(var key in patterns) {
             if (patterns[key]['url'].indexOf(query) != -1 ||
-                (patterns[key]['title'] && patterns[key]['title'].indexOf(query) != -1)) {
+                (patterns[key]['title'] && patterns[key]['title'].split(" ").indexOf(query) != -1)) {
                 newPatterns.push(patterns[key]);
                 continue;
             }
@@ -151,19 +152,22 @@ var CliqzHistoryPattern = {
     adjustBaseDomain: function(patterns, query) {
         var basePattern = null;
         var baseUrl = patterns[0]['url'];
-        baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl);
-        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];   
+        baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl,true);
+        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
+        baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)));   
 
         for (var i = 0; i < patterns.length; i++) {
-            var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i]['url']);
-            CliqzUtils.log(pUrl);
-            if (baseUrl == pUrl) {
+            var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i]['url'],true);
+            CliqzUtils.log(baseUrl+"="+pUrl);
+            if (baseUrl == pUrl ||
+                baseUrl.indexOf(pUrl) != -1) {
                 basePattern = patterns[i];
-                break;
+                if (i != 0) break;
             };
         };
         var newPatterns = [];
         if (basePattern) {
+            CliqzUtils.log("base" + basePattern['url']);
             basePattern['base'] = true;
             patterns[0]['debug'] = 'Replaced by base domain';
             newPatterns.push(basePattern);
@@ -201,13 +205,13 @@ var CliqzHistoryPattern = {
         if (!(path in this.pattern)) {
             this.pattern[path] = new Array();
             this.pattern[path]["url"] = session.url;
-            this.pattern[path]["query"] = [CliqzHistoryPattern.generalizeUrl(session.query)];
+            this.pattern[path]["query"] = [CliqzHistoryPattern.generalizeUrl(session.query,true)];
             this.pattern[path]["title"] = session.title;
             this.pattern[path]["path"] = path;
             this.pattern[path]["cnt"] = 1;
         } else {
             this.pattern[path]["cnt"] += 1;
-            this.pattern[path]["query"].push(CliqzHistoryPattern.generalizeUrl(session.query));
+            this.pattern[path]["query"].push(CliqzHistoryPattern.generalizeUrl(session.query,true));
         }
         
     },
@@ -248,6 +252,17 @@ var CliqzHistoryPattern = {
         }
     },
     autocompleteTerm: function(urlbar, pattern) {
+        function matchQuery(queries) {
+            var query = "";
+            for(var key in queries) {
+                var q = queries[key].toLowerCase();
+                if (q.indexOf(input) == 0 && q.length > query.length) {
+                    query = q;
+                };
+            }
+            return query;
+        }
+
         var url = CliqzHistoryPattern.generalizeUrl(CliqzHistoryPattern.generalizeUrl(pattern['url'], true));
         var input = CliqzHistoryPattern.generalizeUrl(urlbar);
         var shortTitle = "";
@@ -256,34 +271,26 @@ var CliqzHistoryPattern = {
         }
         var shortUrl = pattern['url'].length > 80 ? (pattern['url'].substring(0,80)+"...") : pattern['url']
         var autocomplete = false, highlight = false, selectionStart = 0, urlbarCompleted = "";
-        CliqzUtils.log(url);
-        CliqzUtils.log(input);
+        var queryMatch = matchQuery(pattern['query']);
+        
+
         // Url
         if (url.indexOf(input) == 0 && url != input) {
             autocomplete = true;
             highlight = true;
             urlbarCompleted = urlbar + url.substring(url.indexOf(input)+input.length);
         }
+        // Query
+        else if (queryMatch.length > 0 && queryMatch != input) {
+            autocomplete = true;
+            highlight = true;
+            urlbarCompleted = urlbar + queryMatch.substring(queryMatch.toLowerCase().indexOf(input)+input.length) + " - " + shortUrl;
+        }
         // Title
         else if (shortTitle.toLowerCase().indexOf(input) == 0 && shortTitle != input) {
             autocomplete = true;
             highlight = true;
             urlbarCompleted = urlbar + shortTitle.substring(shortTitle.toLowerCase().indexOf(input)+input.length) + " - " + shortUrl;
-        }
-        // Query
-        else {
-            var query = "";
-            for(var key in pattern['query']) {
-                var q = pattern['query'][key].toLowerCase();
-                if (q.indexOf(input) == 0 && q.length > query.length) {
-                    query = q;
-                };
-            }
-            if (query.length > 0 && query != input) {
-                autocomplete = true;
-                highlight = true;
-                urlbarCompleted = urlbar + query.substring(query.toLowerCase().indexOf(input)+input.length) + " - " + shortUrl;
-            };
         }
         if (autocomplete) {
             selectionStart = urlbar.toLowerCase().indexOf(input) + input.length;
@@ -420,7 +427,7 @@ var CliqzHistoryPattern = {
                 loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
             }
         };
-        if (!subdomain) return (parseUri(url).host.match(/([^.]+)\.\w{2,3}(?:\.\w{2})?$/) || [])[1];
+        if (!subdomain) return (parseUri(url).host.match(/([^.]+)\.\w{2,4}(?:\.\w{2})?$/) || [])[1];
         else return parseUri(url).host;
     },
     escapeSQL: function(str) {

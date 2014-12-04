@@ -299,14 +299,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var instantResults = new Array();
                     // Cluster patterns, at least base url + two patterns
                     if (results.length > 2) {
-                        var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url);
+                        var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url, true);
                         if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];  
                         // Add base domain if not in list
                         if (results[0].base != true) {
                             var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
                             res.results.unshift({
                                 title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
-                                url: baseUrl
+                                url: baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)))
                             });
                             results.unshift(res.results[0]);
                         };
@@ -326,10 +326,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // Add result urls
                         var titleStrip = CliqzHistoryPattern.stripTitle(results);
                         for(var i=1; i<results.length; i++) {
-                            var link = CliqzUtils.cleanUrlProtocol(results[i].url, true);
+                            if (!results[i]['title']) continue;
                             instant.data.urls.push( {
                                 href: results[i].url,
-                                link: link.length > 70 ? link.substring(0,70)+"..." : link,
+                                link: CliqzUtils.cleanUrlProtocol(results[i].url, true),
                                 title: results[i].title.replace(titleStrip, ""),
                             });
                             if (instant.data.urls.length > 3) {

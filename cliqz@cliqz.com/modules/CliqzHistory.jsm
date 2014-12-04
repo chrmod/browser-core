@@ -23,7 +23,6 @@ var CliqzHistory = {
             var url = aBrowser.currentURI.spec;
             var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
             var panel = tab.linkedPanel;
-            
             // Skip if already saved or on any about: pages
             if (url.substring(0,6) == "about:" || CliqzHistory.getTabData(panel, "url") == url) {
                 return;
@@ -40,7 +39,6 @@ var CliqzHistory = {
             CliqzHistory.setTabData(panel, 'url', url);         
             CliqzHistory.addHistoryEntry(aBrowser);
             CliqzHistory.setTabData(panel, 'type', "link");
-            CliqzHistory.setTabData(panel, 'newTab', false);
         },
         onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
             var url = aBrowser.currentURI.spec;
@@ -49,16 +47,16 @@ var CliqzHistory = {
             var title = aBrowser.contentDocument.title || "";
             // Reset tab data if on a new tab
             if (url == "about:newtab" && CliqzHistory.getTabData(panel, "newTab") != true) {
-                CliqzHistory.setTabData(panel, 'query', null);
-                CliqzHistory.setTabData(panel, 'queryDate', null);
-                CliqzHistory.setTabData(panel, 'newTab', true);
+                //CliqzHistory.setTabData(panel, 'query', null);
+                //CliqzHistory.setTabData(panel, 'queryDate', null);
+                //CliqzHistory.setTabData(panel, 'newTab', true);
             } else if (title != CliqzHistory.getTabData(panel, "title")) {
                 CliqzHistory.setTitle(url, title);
                 CliqzHistory.setTabData(panel, 'title', title);
            }; 
         },
         onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
-            CliqzHistory.listener.onStateChange(aBrowser, aWebProgress, aRequest, null, aStatus);
+            //CliqzHistory.listener.onStateChange(aBrowser, aWebProgress, aRequest, null, aStatus);
         }
     },
     addHistoryEntry: function(browser) {
@@ -70,6 +68,7 @@ var CliqzHistory = {
         var query = CliqzHistory.getTabData(panel, 'query');
         var queryDate = CliqzHistory.getTabData(panel, 'queryDate'); 
         var now = new Date().getTime();
+        CliqzUtils.log(panel+query,"PANEL");
         if (!url ||
             (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google" && type != "bookmark")) {
             return;
@@ -81,7 +80,6 @@ var CliqzHistory = {
         if (!queryDate) {
             queryDate = now;
         }
-
         CliqzHistory.setTitle(url, title);
         if (type == "typed") {
             if (query.indexOf('://') == -1) {
