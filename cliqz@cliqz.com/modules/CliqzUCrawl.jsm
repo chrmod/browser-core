@@ -16,31 +16,131 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+//var _winmed = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+
 
 var CliqzUCrawl = {
-    DOMAIN_THRESHOLD: 3,
-    READING_THRESHOLD: 10000,
+    WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
-    currentState: {},
-    // we keep a different namespace than cliqz so that it does not get
-    // removed after a re-install or sent during a logging signal
-    sendCompSignal: function(message) {
-        /*
-        var action = {
-            message: message
-        };
-        CliqzUtils.track(action)
-        */
-    },
-    scrape: {
+    generateId: function(document) {
 
-    }
+      try {
+        var id = '';
+        var text = document.getElementsByTagName('body')[0].textContent;
+        var rpos = [102, 901, 15234, 212344, 909091, 234, 98924, 2304, 502002, 23455, 8289, 288345, 23429, 99852, 3453452, 2452234569964, 454353345, 6345245, 26563, 235235, 60993546, 546562, 565566];
+        for(let i=0;i<rpos.length;i++) {
+          id = id + text[rpos[i]%text.length];
+        }
+
+        if (id==null || id=='') throw('could not figure out the id of the page');
+        else return id
+      }
+      catch(ee) {
+        CliqzUtils.log('Exception: Could not get id of content' + ee, CliqzUCrawl.LOG_KEY);
+      }
+
+    },
+    scrapeFurther: function(element) {
+      try {
+        var url = element.parentElement.parentElement.parentElement.parentElement.childNodes[0].children[0].attributes['href'].value;
+        var title = element.parentElement.parentElement.parentElement.parentElement.childNodes[0].children[0].textContent;
+        if (url==null || url==undefined || url=='') throw('Could not get URL')
+        return {'u': url, 't': title};
+      }
+      catch(ee) {
+        CliqzUtils.log('Exception scrapeFurther' + ee, CliqzUCrawl.LOG_KEY);
+        return null;
+      }
+    },
+    scrapeQuery: function(currURL, document) {
+
+      try {
+        var val = document.getElementById('ires').attributes['data-async-context'].value;
+        if (val.indexOf('query:') == 0) {
+           return decodeURIComponent(val.replace('query:','').trim()).trim();
+        }
+        else return null;
+
+      }
+      catch(ee) {
+        CliqzUtils.log('>>> Could not get query: ' + ee, CliqzUCrawl.LOG_KEY);
+        return null;
+
+      }
+
+      q = document.getElementById('ires').attributes['data-async-context'].value
+
+    },
+    scrape: function(currURL, document) {
+
+      CliqzUtils.log('scrape!', CliqzUCrawl.LOG_KEY);
+
+      var res = {};
+
+      res['qurl'] = ''+currURL;
+      res['q'] = CliqzUCrawl.scrapeQuery(currURL, document);
+      res['t'] = new Date().getTime();
+      res['r'] = {};
+
+      var a = document.getElementsByTagName('cite');
+      for(let i=0; i < a.length; i++) {
+
+        var cand_url = a[i].textContent;
+        var d = null;
+
+
+          if (cand_url.indexOf('...')!=-1 || cand_url.indexOf(' ')!=-1) {
+            // it's long URL or it contains spaces
+            var d = CliqzUCrawl.scrapeFurther(a[i]);
+
+          }
+          else {
+            if (cand_url.indexOf('/')!=-1) {
+              // it's a clean cand
+
+              var cand_url_clean = null;
+
+              if (cand_url.indexOf('http')!=0) {
+                cand_url_clean = 'http://' + cand_url;
+              }
+              else {
+                cand_url_clean = cand_url;
+              }
+
+              var d = CliqzUCrawl.scrapeFurther(a[i]);
+
+              if (d!=null && cand_url_clean!=d['u']) {
+                 CliqzUtils.log('>>> No match between urls  : ' + i + ' >> ' +  cand_url_clean + ' ' + JSON.stringify(d), CliqzUCrawl.LOG_KEY);
+              }
+
+            }
+            else {
+              // WTF is this?
+              CliqzUtils.log('>>> WTF this should not happen  : ' + i + ' >> ' +  cand_url, CliqzUCrawl.LOG_KEY);
+
+            }
+
+          }
+
+        if (d!=null) {
+          CliqzUtils.log('>>> GOOD : ' + i + ' >> ' +  d['u'], CliqzUCrawl.LOG_KEY);
+          res['r'][''+i] = {'u': d['u'], 't': d['t']};
+
+        }
+        else {
+          CliqzUtils.log('>>> BAD  : ' + i + ' >> ' +  cand_url, CliqzUCrawl.LOG_KEY);
+        }
+      }
+
+      CliqzUtils.log('>>> Scrape results: ' +  JSON.stringify(res,undefined,2), CliqzUCrawl.LOG_KEY);
+      return res;
+
+    },
     listener: {
         currURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
-
             CliqzUtils.log('location change!', CliqzUCrawl.LOG_KEY);
 
 
@@ -52,79 +152,58 @@ var CliqzUCrawl = {
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
+            //var topwin = _winmed.getMostRecentWindow("navigator:browser");
+
+            var currwin = CliqzUtils.getWindow();
+
+
+            CliqzUtils.log("???" + CliqzUtils.getWindowID(), CliqzUCrawl.LOG_KEY);
+
+
             CliqzUtils.log("???" + this.currentURL, CliqzUCrawl.LOG_KEY);
+            CliqzUtils.log("???2" + currwin.gBrowser.selectedBrowser.contentDocument.location, CliqzUCrawl.LOG_KEY);
+
+            this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
+
               CliqzUtils.log(">>>>>>> It's a query: " + this.currentURL, CliqzUCrawl.LOG_KEY);
 
+              currwin.setTimeout(function(currURLAtTime) {
+
+                // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
+                if (CliqzUCrawl) {
+
+                  try {
+                      CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
+
+                      // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
+                      var currURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
+                      if (''+currURLAtTime == ''+currURL) {
+                        var id_cont = CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
+                        CliqzUtils.log(">>>>>>> It's a query with id: " + id_cont, CliqzUCrawl.LOG_KEY);
+                        // let's hope that the content has been already loaded!!
+                        var document = currwin.gBrowser.selectedBrowser.contentDocument;
+                        CliqzUCrawl.scrape(currURL, document);
+                      }
+                  }
+                  catch(ee) {
+                    // silent fail
+                    CliqzUtils.log('Exception: ' + ee, CliqzUCrawl.LOG_KEY);
+                  }
+                }
+              }, CliqzUCrawl.WAIT_TIME, this.currURL);
+            }
+            else {
+              // NOT A QUERY,
+
+              if (CliqzUCrawl['v'][this.currURL] == null) {
+                CliqzUCrawl['v'][this.currURL] = 0;
+              }
+
+              //CliqzUCrawl['v'][''+this.currURL)] =
 
             }
-
-
-            /*
-
-            if (reref.test(this.currentURL)) { // this is a google ref
-                // action.redirect = true;
-                var m = this.currentURL.match(rerefurl);
-                if (m) {
-                    var dest_url = decodeURIComponent(m[1]);
-                    dest_url = dest_url.replace('http://', '').replace('https://', '').replace('www.', '');
-                    var found = false;
-                    for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
-                        var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '');
-                        if (dest_url == comp_url) {
-                            // now we have the same result
-                            var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
-                            CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
-                            CliqzAutocomplete.afterQueryCount = 0;
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        // we don't have the same result
-                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
-                    }
-                }
-            } else if (CliqzAutocomplete.afterQueryCount == 1) {
-                // some times the redict was not captured so if only one query was make, we still compare to cliqz result
-                // but we don't send anything if we can't find a match
-                for (var i=0;
-                    CliqzAutocomplete.lastResult &&
-                    i < CliqzAutocomplete.lastResult['_results'].length;
-                    i++) {
-                    var dest_url = this.currentURL.replace('http://', '').replace('https://', '').replace('www.', '');
-                    var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '')
-                    if (dest_url == comp_url) {
-                        var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
-                        CliqzLanguage.sendCompSignal('result_compare', false, true, resType, i);
-                    }
-                }
-            }
-
-
-
-            // now the language detection
-            CliqzLanguage.window.setTimeout(function(currURLAtTime) {
-                try {
-                    if(CliqzLanguage){ //might be called after the extension is disabled
-                        var currURL = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument.location;
-                        if (''+currURLAtTime == ''+currURL) {
-                            // the person has stayed at least READING_THRESHOLD at the URL, now let's try
-                            // to fetch the locale
-                            CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
-                            var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
-                                .getElementsByTagName('html').item(0).getAttribute('lang');
-                            if (locale) CliqzLanguage.addLocale(''+currURL,locale);
-                        }
-                    }
-               }
-               catch(ee) {
-                // silent fail
-                //CliqzUtils.log('Exception: ' + ee, CliqzLanguage.LOG_KEY);
-               }
-
-            }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
-            */
 
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
@@ -132,44 +211,23 @@ var CliqzUCrawl = {
     },
 
     // load from the about:config settings
-    init: function(window) {
-        CliqzUCrawl.window = window;
-        CliqzUtils.log('HELLO!!!!', CliqzUCrawl.LOG_KEY);
+    init: function() {
+        CliqzUtils.log('INIT UCRAWL', CliqzUCrawl.LOG_KEY);
 
-    },
-    // add locale, this is the function hook that will be called for every page load that
-    // stays more than 5 seconds active
-    addLocale: function(url, localeStr) {
-        /*
-        var locale = CliqzLanguage.normalizeLocale(localeStr);
+        if (CliqzUCrawl.state == null) {
+          CliqzUCrawl.state = {};
+          CliqzUtils.log('RESET STATE', CliqzUCrawl.LOG_KEY);
 
-        if (locale=='' || locale==undefined || locale==null) return;
-        if (url=='' || url==undefined || url==null) return;
-
-        if (CliqzLanguage.currentState[locale] != 'locale') {
-            // if it's the locale there is not need to do anything, we already have it
-
-            // extract domain from url, hash it and update the value
-            var url_hash = CliqzLanguage.hashCode(url.replace('http://','').replace('https://','').replace('://','').split('/')[0]) % 256;
-
-            CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY);
-
-            if (CliqzLanguage.currentState[locale]==null || CliqzLanguage.currentState[locale].indexOf(url_hash)==-1) {
-                if (CliqzLanguage.currentState[locale]==null) CliqzLanguage.currentState[locale] = [];
-                // does not exist
-                CliqzLanguage.currentState[locale].push(url_hash);
-                CliqzLanguage.saveCurrentState();
-            }
         }
-        */
+        else {
+          CliqzUtils.log('REUSE STATE', CliqzUCrawl.LOG_KEY);
+
+        }
+
 
     },
+    state: null,
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
-    },
-    // removes the country from the locale, for instance, de-de => de, en-US => en
-    normalizeLocale: function(str) {
-        if (str) return str.split(/-|_/)[0].toLowerCase();
-        else return srt;
-    },
+    }
 };

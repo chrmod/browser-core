@@ -41,6 +41,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
   'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
 
 
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -108,8 +109,8 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
+            CliqzUCrawl.init();
             window.gBrowser.addProgressListener(CliqzUCrawl.listener);
-            CliqzUCrawl.init(window);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
