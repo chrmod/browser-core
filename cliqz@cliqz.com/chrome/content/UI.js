@@ -9,11 +9,10 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search', 'entity-news', 'bitcoin'],
+                 'entity-search-1', 'entity-news-1', 'bitcoin', 'entity-banking-1'],
 
     VERTICALS = {
         'b': 'bundesliga',
-        'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
         'n': 'news'    ,
@@ -90,8 +89,6 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-
         handlePopupHeight(box);
     },
     results: function(res){
@@ -99,15 +96,6 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -188,10 +176,12 @@ var UI = {
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value) {
+    entitySearchKeyDown: function(event, value, element) {
       if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Google");
-        var google_url = "http://www.google.com/search?q=" + value
+        var provider_name = element.getAttribute("search-provider");
+        var search_url = element.getAttribute("search-url");
+        var search_engine = Services.search.getEngineByName(provider_name);
+        var google_url = search_url + value
         if (search_engine) {
           var google_url = search_engine.getSubmission(value).uri.spec
         }
@@ -199,27 +189,11 @@ var UI = {
         CLIQZ.Core.forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
+
+        var action_type = element.getAttribute("logg-action-type");
         var signal = {
           type: 'activity',
-          action: 'entity_search_google'
-        };
-        CliqzUtils.track(signal);
-      }
-    },
-    entityVideoKeyDown: function(event, value) {
-      if(event.keyCode==13) {
-        var search_engine = Services.search.getEngineByName("Youtube");
-        var google_url = "http://www.youtube.com/results?search_query=t" + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
-        event.preventDefault();
-        var signal = {
-          type: 'activity',
-          action: 'entity_search_google'
+          action: action_type
         };
         CliqzUtils.track(signal);
       }
@@ -408,7 +382,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
-    if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
@@ -453,8 +426,13 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
-
+                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                    r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
+                } else {
+                    // unexpected/unknown template
+                    r.invalid = true;
+                    r.dontCountAsResult = true;
                 }
             }
         } else {
@@ -474,7 +452,14 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
 
         }
+
+        // If one of the results is data.only = true Remove all others.
+        if (!r.invalid && r.data && r.data.only) {
+          res.results = [r];
+          return res;
+        }
     }
+
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });

@@ -23,9 +23,9 @@
                                              {{/if}}
                                              '>
       <div class='cliqz-bundesliga-column'>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.home.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="http://cdn.cliqz.com/extension/bundesliga/{{this.home.short}}.png" />
               <div class='cliqz-bundesliga-team-name'>{{this.home.short}} -</div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.away.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="http://cdn.cliqz.com/extension/bundesliga/{{this.away.short}}.png" />
               <div class='cliqz-bundesliga-team-name'>{{this.away.short}}</div>
       </div>
 
@@ -78,9 +78,9 @@
                                              {{/if}}
                                              '>
       <div class='cliqz-bundesliga-column'>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.home.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="http://cdn.cliqz.com/extension/bundesliga/{{this.home.short}}.png" />
               <div class='cliqz-bundesliga-team-name'>{{this.home.short}} -</div>
-              <img class='cliqz-bundesliga-team-logo' src="chrome://cliqzres/content/skin/bundesliga/{{this.away.short}}.png" />
+              <img class='cliqz-bundesliga-team-logo' src="http://cdn.cliqz.com/extension/bundesliga/{{this.away.short}}.png" />
               <div class='cliqz-bundesliga-team-name'>{{this.away.short}}</div>
       </div>
 

@@ -23,9 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
@@ -146,13 +143,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if (oldResults[0].hasOwnProperty("override")) {
                         newResults[0].override = oldResults[0].override;
                     }
-                }
-
-                // If one of the results is data.only = true Remove all others.
-                // Including instant results.
-                if (newResults && newResults.length > 0 &&
-                    newResults[0].data && newResults[0].data.only) {
-                  cleaned = [];
                 }
 
                 return cleaned.concat(newResults);
@@ -352,7 +342,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-                       this.cliqzResults && this.cliqzWeather) { // all results are ready
+                       this.cliqzResults) { // all results are ready
                         /// Push full result
 
                         CliqzUtils.clearTimeout(this.resultsTimer);
@@ -380,7 +370,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-                        this.cliqzWeather= null;
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -411,7 +400,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
-                        results = json.result;
+                        results = json.result || [];
                         country = json.country;
                         if(json.extra && json.extra.results && json.extra.results.length >0)
                             this.cliqzResultsExtra =
@@ -448,11 +437,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
                 }
             },
-            // handles weather queries
-            cliqzWeatherCallback: function(res, q) {
-                this.cliqzWeather = res;
-                this.pushResults(q);
-            },
             cliqzBundesligaCallback: function(res, q) {
                 this.cliqzBundesliga = res;
                 this.pushResults(q);
@@ -471,7 +455,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.mixedResults,
-                            this.cliqzWeather,
                             this.cliqzBundesliga,
                             maxResults
                     );
@@ -516,7 +499,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
-                this.cliqzWeather = null;
                 this.cliqzBundesliga = null;
                 this.suggestionsRecieved = false;
 
@@ -529,8 +511,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     history: null,
                     backend: null,
                     mixed: null,
-                    all: null,
-                    weather: null,
+                    all: null
                 };
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -551,7 +532,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
 
-                this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
 
                 if(searchString.trim().length){
@@ -559,12 +539,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
 
-                    // Fetch weather and bundesliga only if search contains trigger
-                    if(CliqzWeather.isWeatherSearch(searchString)){
-                        CliqzWeather.get(searchString, this.cliqzWeatherCallback);
-                    } else {
-                        this.cliqzWeather = [];
-                    }
+                    // Fetch  bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
                     } else {
@@ -578,7 +553,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
-                    this.cliqzWeather = [];
                     this.cliqzBundesliga = [];
                 }
 

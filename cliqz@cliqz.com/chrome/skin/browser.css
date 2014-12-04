@@ -49,7 +49,7 @@
 
 #cliqz-navigation-message {
     font-style: italic;
-    color: #999999;
+    color: #eeeeee;
 }
 /*
 .cliqz-footer-engines:hover #cliqz-engines-box {
@@ -198,6 +198,10 @@
 
 .cliqz-result-item-box {
     border-bottom: 1px solid #CCC;
+}
+
+.cliqz-result-item-box [url]{
+    cursor: pointer;
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -1067,6 +1071,8 @@
 
 #entity-search-box-icon {
   background-color: #3E86FC;
+  width: 30px;
+  height: 30px;
 }
 
 #entity-search-box-input {
@@ -1083,6 +1089,10 @@
   height: 90px;
   border-radius: 5px;
   margin-right: 5px;
+}
+
+.entity-search-app-image {
+  height: 50px;
 }
 
 .entity-search-container-app-text {
@@ -1130,6 +1140,7 @@
 .entity-news-story-image img {
   width: 80px;
   height: 50px;
+  background-color: #dddddd;
 }
 
 .entity-news-story-description {
@@ -1147,6 +1158,9 @@
   overflow: hidden;
 }
 
+.entity-news-story:hover .entity-news-story-title {
+    text-decoration: underline;
+}
 .entity-news-story-time {
   color: #c92b35;
   text-overflow: ellipsis;
