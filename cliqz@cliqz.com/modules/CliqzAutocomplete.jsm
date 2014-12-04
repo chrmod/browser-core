@@ -304,6 +304,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // Add base domain if not in list
                         if (results[0].base != true) {
                             var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
+                            if (!title) return;
                             res.results.unshift({
                                 title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
                                 url: baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)))

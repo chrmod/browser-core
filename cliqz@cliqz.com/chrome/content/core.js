@@ -376,12 +376,17 @@ CLIQZ.Core = CLIQZ.Core || {
 
         let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
-
+        
         // Remove protocol and 'www.' from first results
         //firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            urlBar.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+            var clean = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+            if (urlBar.value.indexOf("://") != -1 ) {
+                urlBar.value = urlBar.value.substr(0, urlBar.value.indexOf("://")+3) + clean;
+            } else {
+                urlBar.value = clean;
+            }
         };
         
         //firstResult = firstResult.replace('www.', '');
@@ -416,7 +421,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
             pathLength = 0,
-            SYMBOLS = /,|-|\./g;
+            SYMBOLS = /,|\./g;
 
         if(cleanParts.length > 1){
             pathLength = ('/' + cleanParts.slice(1).join('/')).length;

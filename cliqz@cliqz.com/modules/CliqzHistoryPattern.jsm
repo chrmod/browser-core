@@ -24,9 +24,11 @@ var CliqzHistoryPattern = {
         var orig_query = query;
         query = CliqzHistoryPattern.generalizeUrl(query);
         // Ignore one character queries
-        if (CliqzHistoryPattern.generalizeUrl(query).length < 2) {
-            return
-        };
+        if (CliqzHistoryPattern.generalizeUrl(query).length < 2 ||
+            ("http://").indexOf(orig_query) != -1 ||
+            ("www.").indexOf(query) != -1) {
+            return;
+        }
 
         let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
         this.data = new Array();
@@ -262,6 +264,7 @@ var CliqzHistoryPattern = {
             }
             return query;
         }
+        if (urlbar.indexOf("://") != -1) return;
 
         var url = CliqzHistoryPattern.generalizeUrl(CliqzHistoryPattern.generalizeUrl(pattern['url'], true));
         var input = CliqzHistoryPattern.generalizeUrl(urlbar);
@@ -378,7 +381,7 @@ var CliqzHistoryPattern = {
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
             pathLength = 0,
-            SYMBOLS = /,|-|\./g;
+            SYMBOLS = /,|\./g;
         if (!skipCorrection) {
             if(cleanParts.length > 1){
                 pathLength = ('/' + cleanParts.slice(1).join('/')).length;
