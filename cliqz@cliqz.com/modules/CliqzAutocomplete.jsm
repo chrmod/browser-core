@@ -57,7 +57,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     spellCorr: {
         'on': false,
         'correctBack': {},
-        'override': false
+        'override': false,
+        'pushed': null
     },
     init: function(){
         CliqzUtils.init();
@@ -109,7 +110,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         CliqzAutocomplete.spellCorr = {
             'on': false,
             'correctBack': {},
-            'override': false
+            'override': false,
+            'pushed': null
         }
     },
     initProvider: function(){
@@ -506,7 +508,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // custom results
                 searchString = this.analyzeQuery(searchString);
-                if (!CliqzAutocomplete.spellCorr.override) {
+                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                if (!CliqzAutocomplete.spellCorr.override &&
+                    urlbar.selectionEnd == urlbar.selectionStart &&
+                    urlbar.selectionEnd == urlbar.value.length) {
                     var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
                     for (var c in correctBack) {
                         CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
@@ -581,6 +586,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzSuggestions = [searchString, this.wrongSearchString];
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
+                        urlbar.value = searchString;
                     } else {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }

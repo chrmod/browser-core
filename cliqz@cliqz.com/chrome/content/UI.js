@@ -182,11 +182,15 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
-                CliqzAutocomplete.resetSpellCorr();
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                };
             case RIGHT:
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
-                CliqzAutocomplete.resetSpellCorr();
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                }
                 return false;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -195,7 +199,9 @@ var UI = {
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
             case DEL:
-                CliqzAutocomplete.resetSpellCorr();
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                };
             default:
                 return false;
         }
@@ -674,8 +680,6 @@ function suggestionClick(ev){
                     action: 'correct_back'
                 }
                 CliqzAutocomplete.spellCorr.override = true;
-                CLIQZ.Core.urlbar.mInputField.focus();
-                CLIQZ.Core.urlbar.mInputField.setUserInput("");
                 // TODO: send some signal here
             }
         } else {
