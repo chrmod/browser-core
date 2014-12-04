@@ -477,6 +477,15 @@ function getResultPosition(el){
     }
 }
 
+function getResultType(el){
+    var type;
+    while (el){
+        if(type = el.getAttribute('type')) return type;
+        if(el.className == IC) return; //do not go higher than a result
+        el = el.parentElement;
+    }
+}
+
 function resultClick(ev){
     var el = ev.target,
         newTab = ev.metaKey ||
@@ -493,7 +502,7 @@ function resultClick(ev){
                     current_position: getResultPosition(el),
                     query_length: CliqzAutocomplete.lastSearch.length,
                     inner_link: el.className != IC, //link inside the result or the actual result
-                    position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                    position_type: CliqzUtils.encodeResultType(getResultType(el)),
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
@@ -955,6 +964,22 @@ function registerHelpers(){
             "*": lvalue * rvalue,
             "/": lvalue / rvalue,
             "%": lvalue % rvalue
+        }[operator];
+    });
+
+    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
+        console.log(lvalue, rvalue, operator,{
+            "|": lvalue | rvalue,
+            "&": lvalue & rvalue,
+            "^": lvalue ^ rvalue
+        }[operator] );
+
+        return {
+            "|": lvalue | rvalue,
+            "||": lvalue || rvalue,
+            "&": lvalue & rvalue,
+            "&&": lvalue & rvalue,
+            "^": lvalue ^ rvalue
         }[operator];
     });
 
