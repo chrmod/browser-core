@@ -35,6 +35,12 @@ $(document).ready(function() {
     CLIQZ.Core.popup = $('#search-dropdown')[0]
     CLIQZ.Core.popup.cliqzBox = $('#search-dropdown')[0];
     CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox);
+    CLIQZ.Core.urlbar = $('.input-box')[0];
+    CLIQZ.Core.urlbar.mInputField = $('.input-box')[0];
+
+      $(document).click(function(ev){
+        $('#search-dropdown').hide();
+      });
 
 });
 
@@ -60,9 +66,6 @@ function search(input){
 
 
 function reuseMeFromComponentsXML(_this){
-    console.log('sd');
-    console.log(_this);
-
     function unEscapeUrl(url){
       return Components.classes['@mozilla.org/intl/texttosuburi;1'].
                 getService(Components.interfaces.nsITextToSubURI).
@@ -70,7 +73,6 @@ function reuseMeFromComponentsXML(_this){
     }
 
     if(_this.matchCount > 0){
-        console.log("just a console log 1");
           var data = [],
             q = _this.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
             lastRes = CliqzAutocomplete.lastResult;
@@ -88,9 +90,11 @@ function reuseMeFromComponentsXML(_this){
           CLIQZ.UI.results({
             q: q,
             results: data,
-            width: '800'
+            width: CLIQZ.Core.urlbar.clientWidth
           });
           CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
+          CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
+          $('#search-dropdown').show();
       }
 }
 

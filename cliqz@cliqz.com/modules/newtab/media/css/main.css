@@ -282,6 +282,9 @@ body, html {
   width: 100%;
   padding: 0px;
   border-radius: 0 0 4px 4px;
+  position: absolute;
+  z-index: 1;
+  border: 1px solid #CCC;
 }
 #search-dropdown li.result {
   padding: 0 12px;
@@ -335,6 +338,11 @@ body, html {
 #search-dropdown .result-icon {
   display: inline-block;
   background-color: red;
+}
+
+#search-dropdown * {
+  box-sizing: unset;
+  font-family: "Helvetica",Helvetica,Arial,sans-serif !important;
 }
 
 #search-dropdown .result-data {
@@ -412,3 +420,6 @@ body, html {
   margin: 5px;
 }
 
+.input-box {
+    width: 100%;
+}
