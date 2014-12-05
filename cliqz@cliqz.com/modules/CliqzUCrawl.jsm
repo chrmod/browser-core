@@ -198,13 +198,11 @@ var CliqzUCrawl = {
             else {
               // NOT A QUERY,
 
-              if (CliqzUCrawl.state['v'][this.currURL] == null) {
-                CliqzUCrawl.state['v'][this.currURL] = {'a': 0, 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}};
-
-              }
-
-
-
+              //if ((''+this.currURL).indexOf('about:')!=0) {
+                if (CliqzUCrawl.state['v'][this.currURL] == null) {
+                  CliqzUCrawl.state['v'][this.currURL] = {'a': 0, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}};
+                }
+              //}
             }
 
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
@@ -213,31 +211,43 @@ var CliqzUCrawl = {
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzUCrawl.captureScrollPage);
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("select", CliqzUCrawl.captureSelectPage);
 
+            /*
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("unload", CliqzUCrawl.closing);
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("TabClose", CliqzUCrawl.closing);
+            */
+
 
 
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
+          CliqzUtils.log('state change: ' + aWebProgress, CliqzUCrawl.LOG_KEY);
         }
     },
     pacemaker: function() {
       var currwin = CliqzUtils.getWindow();
       var activeURL = CliqzUCrawl.currentURL();
 
+      //if ((''+activeURL).indexOf('about:')!=0) {
+
+        if ((CliqzUCrawl.counter - CliqzUCrawl.lastActive) < 5*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['a'] += 1;
+        }
+
+      //}
+
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 20 == 0) {
         CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
       }
 
-      if ((CliqzUCrawl.counter - CliqzUCrawl.lastActive) < 5*CliqzUCrawl.tmult) {
-        CliqzUCrawl.state['v'][activeURL]['a'] += 1;
-      }
 
       CliqzUCrawl.counter += 1;
 
     },
     currentURL: function() {
       var currURL = CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument.location;
-      return currURL;
+      if (currURL!=null || currURL!=undefined) return ''+currURL;
+      else return null;
     },
     pacemakerId: null,
     // load from the about:config settings
@@ -267,7 +277,10 @@ var CliqzUCrawl = {
         CliqzUtils.log('captureKeyPressPage', CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.lastEv['keypresspage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
-        CliqzUCrawl.state['v'][CliqzUCrawl.currentURL()]['e']['kp'] += 1;
+        var activeURL = CliqzUCrawl.currentURL();
+        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['kp'] += 1;
+        }
 
       }
     },
@@ -276,7 +289,10 @@ var CliqzUCrawl = {
         CliqzUtils.log('captureMouseMovePage', CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.lastEv['mousemovepage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
-        CliqzUCrawl.state['v'][CliqzUCrawl.currentURL()]['e']['mm'] += 1;
+        var activeURL = CliqzUCrawl.currentURL();
+        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['mm'] += 1;
+        }
       }
     },
     captureMouseClickPage: function(ev) {
@@ -286,7 +302,10 @@ var CliqzUCrawl = {
         CliqzUtils.log('captureMouseClickPage', CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.lastEv['mouseclickpage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
-        CliqzUCrawl.state['v'][CliqzUCrawl.currentURL()]['e']['md'] += 1;
+        var activeURL = CliqzUCrawl.currentURL();
+        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['md'] += 1;
+        }
 
       }
     },
@@ -295,7 +314,11 @@ var CliqzUCrawl = {
         CliqzUtils.log('captureScrollPage', CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.lastEv['scrollpage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
-        CliqzUCrawl.state['v'][CliqzUCrawl.currentURL()]['e']['sc'] += 1;
+        var activeURL = CliqzUCrawl.currentURL();
+        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['sc'] += 1;
+        }
+
       }
     },
     captureSelectPage: function(ev) {
@@ -303,7 +326,10 @@ var CliqzUCrawl = {
         CliqzUtils.log('captureSelectPage', CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.lastEv['selectpage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
-        CliqzUCrawl.state['v'][CliqzUCrawl.currentURL()]['e']['se'] += 1;
+        var activeURL = CliqzUCrawl.currentURL();
+        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['se'] += 1;
+        }
       }
     },
     counter: 0,
@@ -312,13 +338,44 @@ var CliqzUCrawl = {
     lastEv: {},
     lastActive: null,
     lastActiveAll: null,
+    closing1: function(ev) {
+      CliqzUtils.log('PRE CLOSING1', CliqzUCrawl.LOG_KEY);
+      /*
+
+      CliqzUtils.log('PRE CLOSING: ' + CliqzUCrawl.currentURL(), CliqzUCrawl.LOG_KEY);
+
+      if (ev.target.location.href !== 'chrome://browser/content/browser.xul') return;
+
+      if (CliqzUCrawl['v'][ev.target.location.href] != null) {
+        CliqzUtils.log('CLOSING: ' + ev.target.location.href, CliqzUCrawl.LOG_KEY);
+      }
+      */
+
+    },
+    closingTab: function(ev) {
+      var activeURL = CliqzUCrawl.currentURL();
+
+      CliqzUtils.log('PRE CLOSING: ' + activeURL, CliqzUCrawl.LOG_KEY);
+
+      if (CliqzUCrawl.state['v'][activeURL] != null) {
+
+        CliqzUCrawl.state['v'][activeURL]['tout'] = new Date().getTime();
+        CliqzUCrawl.state['v'][activeURL]['url'] = activeURL;
+        CliqzUCrawl.state['m'].push(CliqzUtils.clone(CliqzUCrawl.state['v'][activeURL]));
+        //CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][activeURL]);
+        delete CliqzUCrawl.state['v'][activeURL];
+        //CliqzUCrawl.state['v'][activeURL] = null;
+
+      }
+
+
+    },
     init: function(window) {
         CliqzUtils.log('INIT UCRAWL', CliqzUCrawl.LOG_KEY);
 
         if (CliqzUCrawl.state == null) {
           CliqzUCrawl.state = {};
           CliqzUtils.log('RESET STATE', CliqzUCrawl.LOG_KEY);
-
 
         }
         else {
@@ -331,14 +388,16 @@ var CliqzUCrawl = {
 
         }
 
-
         window.addEventListener("keypress", CliqzUCrawl.captureKeyPress);
         window.addEventListener("mousemove", CliqzUCrawl.captureMouseMove);
         window.addEventListener("mousedown", CliqzUCrawl.captureMouseClick);
 
+        window.addEventListener("unload", CliqzUCrawl.closing1, false);
+        window.addEventListener("TabClose", CliqzUCrawl.closingTab, false);
+
 
     },
-    state: {'v': {}},
+    state: {'v': {}, 'm': []},
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     }
