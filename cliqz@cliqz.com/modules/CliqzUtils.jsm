@@ -259,7 +259,7 @@ var CliqzUtils = {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
+      //CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
     }
 
     var urlDetails = {
@@ -394,7 +394,7 @@ var CliqzUtils = {
     return type; //fallback to style - it should never happen
   },
   isPrivateResultType: function(type) {
-    return type == ['H'] || type == ['B'] || type == ['T'];
+    return type[0] == 'H' || type[0] == 'B' || type[0] == 'T';
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){

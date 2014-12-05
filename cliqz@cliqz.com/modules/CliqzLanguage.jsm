@@ -108,7 +108,7 @@ var CliqzLanguage = {
                         if (''+currURLAtTime == ''+currURL) {
                             // the person has stayed at least READING_THRESHOLD at the URL, now let's try
                             // to fetch the locale
-                            CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
+                            // CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
                             var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
                                 .getElementsByTagName('html').item(0).getAttribute('lang');
                             if (locale) CliqzLanguage.addLocale(''+currURL,locale);

@@ -31,7 +31,7 @@ var CliqzSniffer = {
                 var res = {url: aChannel.URI.spec,
                            status: aExtraStringData.split(" ")[1]}
                 if (Math.floor(res.status / 100) !=  2) {
-                    CliqzUtils.log(JSON.stringify(res), "httpData")
+                    // CliqzUtils.log(JSON.stringify(res), "httpData")
                     // Now that we see a 404, let's compare to the cliqz results we provided
                     for (var i=0;
                         CliqzAutocomplete.lastResult &&

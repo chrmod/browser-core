@@ -84,9 +84,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }catch(e){}
     },
     getResultsOrder: function(results){
-        CliqzUtils.getWindow().console.log(results);
         return results.map(function(r){
-            return CliqzUtils.encodeResultType(r.style);
+            return CliqzUtils.encodeResultType(r.style || r.type);
         });
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
@@ -95,6 +94,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         this._searchString = searchString;
         this._searchResult = searchResult;
         this._defaultIndex = defaultIndex;
+        this.latency = {
+            cliqz: null,
+            history: null,
+            backend: null,
+            mixed: null,
+            all: null
+        };
     },
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
     CliqzResults: function(){},
@@ -105,7 +111,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             _defaultIndex: 0,
             _errorDescription: '',
             _results: [],
-
             // only one result based on history
             instant: false,
 
@@ -176,11 +181,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var now = (new Date()).getTime();
 
                 this.historyResults = result;
-                this.latency.history = now - this.startTime;
+                this.mixedResults.latency.history = now - this.startTime;
                 CliqzTimings.add("search_history", (now - this.startTime));
 
-                CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
-                               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
+                //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
+                //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
 
                 // Choose an instant result if we have all history results (timeout)
                 // and we haven't already chosen one
@@ -274,24 +279,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 else
                     return false;
             },
-            addCalculatorSignal: function(action) {
-                var calcAnswer = null;
-
-                if(this.customResults && this.customResults.length > 0 &&
-                        this.customResults[0].style == Result.CLIQZE &&
-                        this.customResults[0].data.template == 'calculator'){
-                    calcAnswer = this.customResults[0].data.answer;
-                }
-                if (calcAnswer == null && this.suggestedCalcResult == null){
-                    return;
-                }
-                action.suggestions_recived =  this.suggestionsRecieved;
-                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
-                action.suggested = this.suggestedCalcResult != null;
-                action.calculator = calcAnswer != null;
-                this.suggestionsRecieved = false;
-                this.suggestedCalcResult = null;
-            },
             sendResultsSignal: function(results, instant, popup, country) {
                 if(results.length > 1)debugger;
                 var action = {
@@ -302,11 +289,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     instant: instant ? true : false,
                     popup: popup ? true : false,
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
-                    latency_cliqz: this.latency.cliqz,
-                    latency_history: this.latency.history,
-                    latency_backend: this.latency.backend,
-                    latency_mixed: this.latency.mixed,
-                    latency_all: this.latency.all,
+                    latency_cliqz: this.mixedResults.latency.cliqz,
+                    latency_history: this.mixedResults.latency.history,
+                    latency_backend: this.mixedResults.latency.backend,
+                    latency_mixed: this.mixedResults.latency.mixed,
+                    latency_all: this.mixedResults.latency.all,
                     version: 1
                 };
                 if(country)
@@ -355,13 +342,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.mixedResults.addResults(this.mixResults());
                         this.mixedResults.instant = false;
 
-                        this.latency.mixed = (new Date()).getTime() - this.startTime;
+                        this.mixedResults.latency.mixed = (new Date()).getTime() - this.startTime;
 
                         this.listener.onSearchResult(this, this.mixedResults);
 
-                        this.latency.all = (new Date()).getTime() - this.startTime;
+                        this.mixedResults.latency.all = (new Date()).getTime() - this.startTime;
 
-                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
+                        //this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -376,16 +363,16 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
 
-                        this.latency.mixed = (new Date()).getTime() - this.startTime;
+                        this.mixedResults.latency.mixed = (new Date()).getTime() - this.startTime;
 
                         this.mixedResults.instant = true;
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
-                        this.latency.all = (new Date()).getTime() - this.startTime;
+                        this.mixedResults.latency.all = (new Date()).getTime() - this.startTime;
 
                         //instant result, no country info yet
-                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
+                        //this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
                     } else {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
                     }
@@ -394,7 +381,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    this.latency.backend = (new Date()).getTime() - this.startTime;
+                    this.mixedResults.latency.backend = (new Date()).getTime() - this.startTime;
                     var results = [];
                     var country = "";
 
@@ -408,7 +395,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         if(json.extra && json.extra.results && json.extra.results.length >0)
                             this.cliqzResultsExtra =
                                 json.extra.results.map(Result.cliqzExtra);
-                        this.latency.cliqz = json.duration;
+                        this.mixedResults.latency.cliqz = json.duration;
                     }
                     this.cliqzResults = results.filter(function(r){
                         // filter results with no or empty url
@@ -422,7 +409,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             cliqzSuggestionFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
                     var response = JSON.parse(req.response);
-                    this.suggestedCalcResult = null;
+                    this.mixedResults.suggestedCalcResult = null;
 
 
                     if(this.startTime)
@@ -431,10 +418,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
                     if(q.trim().indexOf("=") != 0 && response.length >1 &&
                             response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
-                        this.suggestedCalcResult = response[1].shift().replace("=", "").trim();
+                        this.mixedResults.suggestedCalcResult = response[1].shift().replace("=", "").trim();
                     }
 
-                    this.suggestionsRecieved = true;
+                    this.mixedResults.suggestionsRecieved = true;
                     this.cliqzSuggestions = response[1];
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
@@ -503,19 +490,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
-                this.suggestionsRecieved = false;
+
 
                 this.startTime = (new Date()).getTime();
                 this.listener = listener;
                 this.searchString = searchString;
                 this.searchStringSuggest = null;
-                this.latency = {
-                    cliqz: null,
-                    history: null,
-                    backend: null,
-                    mixed: null,
-                    all: null
-                };
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
                         this.searchString,
@@ -523,7 +503,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         -2, // blocks autocomplete
                         '');
 
+                this.mixedResults.suggestionsRecieved = false;
+                this.mixedResults.customResults = this.customResults;
+
                 if(this.customResults && this.customResults.length > 0){
+                    this.mixedResults.customResults = this.customResults;
                     this.mixedResults.addResults(this.customResults);
                     this.pushResults(this.searchString);
                 }
