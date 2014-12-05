@@ -109,7 +109,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
-            CliqzUCrawl.init();
+            CliqzUCrawl.init(window);
             window.gBrowser.addProgressListener(CliqzUCrawl.listener);
         }
 

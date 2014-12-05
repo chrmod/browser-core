@@ -567,6 +567,9 @@ var CliqzUtils = {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
   },
+  setInterval: function(func, timeout, param) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+  },
   setTimeout: function(func, timeout, param) {
     return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
   },

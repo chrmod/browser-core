@@ -165,10 +165,9 @@ var CliqzUCrawl = {
 
             this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
+
+
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
-
-              CliqzUtils.log(">>>>>>> It's a query: " + this.currentURL, CliqzUCrawl.LOG_KEY);
-
               currwin.setTimeout(function(currURLAtTime) {
 
                 // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
@@ -197,26 +196,92 @@ var CliqzUCrawl = {
             else {
               // NOT A QUERY,
 
-              if (CliqzUCrawl['v'][this.currURL] == null) {
-                CliqzUCrawl['v'][this.currURL] = 0;
+              if (CliqzUCrawl.state['v'][this.currURL] == null) {
+                CliqzUCrawl.state['v'][this.currURL] = 0;
               }
 
-              //CliqzUCrawl['v'][''+this.currURL)] =
 
             }
+
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CliqzUCrawl.captureMouseMovePage);
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzUCrawl.captureScrollPage);
+
+
 
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
     },
+    pacemaker: function() {
+      var currwin = CliqzUtils.getWindow();
+      var activeURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
 
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
+        CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
+      }
+
+      CliqzUCrawl.counter =  CliqzUCrawl.counter + 1;
+
+    },
+    pacemakerId: null,
     // load from the about:config settings
-    init: function() {
+    captureKeyPress: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['keypress']|0)) > 1 * CliqzUCrawl.tmult || ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['keypresspage']|0)) > 1 * CliqzUCrawl.tmult)) {
+        CliqzUtils.log('captureKeyPressAll', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['keypress'] = CliqzUCrawl.counter;
+      }
+    },
+    captureMouseMove: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mousemove']|0)) > 1 * CliqzUCrawl.tmult || ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mousemovepage']|0)) > 1 * CliqzUCrawl.tmult)) {
+        CliqzUtils.log('captureMouseMoveAll', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['mousemove'] = CliqzUCrawl.counter;
+      }
+    },
+    captureMouseClick: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclick']|0)) > 1 * CliqzUCrawl.tmult || ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclickpage']|0)) > 1 * CliqzUCrawl.tmult)) {
+        CliqzUtils.log('captureMouseClickAll', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['mouseclick'] = CliqzUCrawl.counter;
+      }
+    },
+    captureKeyPressPage: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['keypresspage']|0)) > 1 * CliqzUCrawl.tmult) {
+        CliqzUtils.log('captureKeyPressPage', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['keypresspage'] = CliqzUCrawl.counter;
+      }
+    },
+    captureMouseMovePage: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mousemovepage']|0)) > 1 * CliqzUCrawl.tmult) {
+        CliqzUtils.log('captureMouseMovePage', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['mousemovepage'] = CliqzUCrawl.counter;
+      }
+    },
+    captureMouseClickPage: function(ev) {
+      CliqzUtils.log('captureMouseClickPage>> ' + CliqzUCrawl.counter + ' ' + ev.target  + ' ' + JSON.stringify(CliqzUCrawl.lastEv), CliqzUCrawl.LOG_KEY);
+
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclickpage']|0)) > 1 * CliqzUCrawl.tmult) {
+        CliqzUtils.log('captureMouseClickPage', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['mouseclickpage'] = CliqzUCrawl.counter;
+      }
+    },
+    captureScrollPage: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['scrollpage']|0)) > 1 * CliqzUCrawl.tmult) {
+        CliqzUtils.log('captureScrollPage', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['scrollpage'] = CliqzUCrawl.counter;
+      }
+    },
+    counter: 0,
+    tmult: 4,
+    tpace: 250,
+    lastEv: {},
+    init: function(window) {
         CliqzUtils.log('INIT UCRAWL', CliqzUCrawl.LOG_KEY);
 
         if (CliqzUCrawl.state == null) {
           CliqzUCrawl.state = {};
           CliqzUtils.log('RESET STATE', CliqzUCrawl.LOG_KEY);
+
 
         }
         else {
@@ -224,9 +289,19 @@ var CliqzUCrawl = {
 
         }
 
+        if (CliqzUCrawl.pacemakerId==null) {
+          CliqzUCrawl.pacemakerId = CliqzUtils.setInterval(CliqzUCrawl.pacemaker, CliqzUCrawl.tpace, null);
+
+        }
+
+        /*
+        window.addEventListener("keypress", CliqzUCrawl.captureKeyPress);
+        window.addEventListener("mousemove", CliqzUCrawl.captureMouseMove);
+        window.addEventListener("mousedown", CliqzUCrawl.captureMouseClick);
+        */
 
     },
-    state: null,
+    state: {'v': {}},
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     }
