@@ -144,8 +144,7 @@ var UI = {
                 gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
                     wrong: suggestions[1]
                 });
-                CliqzUtils.log('q: ' + q + '  ' + 'value: ' + CLIQZ.Core.urlbar.value, 'spellcorr')
-                CLIQZ.Core.urlbar.mInputField.setUserInput(suggestions[0]);
+
             } else {
                 gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
                     // do not show a suggestion is it is exactly the query
@@ -201,7 +200,29 @@ var UI = {
             case DEL:
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
-                };
+                    // correct back the last word if it was changed
+                    var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
+                    var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
+                    CliqzUtils.log(JSON.stringify(words), 'spellcorr');
+                    CliqzUtils.log(JSON.stringify(wrongWords), 'spellcorr');
+                    CliqzUtils.log(words[words.length-1].length, 'spellcorr');
+                    if (words[words.length-1].length == 0 && words[words.length-2] != wrongWords[wrongWords.length-2]) {
+                        CliqzUtils.log('hi', 'spellcorr');
+                        words[words.length-2] = wrongWords[wrongWords.length-2];
+                        CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
+                        var signal = {
+                            type: 'activity',
+                            action: 'del-correct-back'
+                        };
+                        CliqzUtils.track(signal);
+                    }
+                } else {
+                    var signal = {
+                        type: 'activity',
+                        action: 'keystrok-del'
+                    };
+                    CliqzUtils.track(signal);
+                }
             default:
                 return false;
         }
@@ -678,16 +699,16 @@ function suggestionClick(ev){
                 var action = {
                     type: 'activity',
                     action: 'correct_back'
-                }
+                };
+                CliqzUtils.track(action);
                 CliqzAutocomplete.spellCorr.override = true;
-                // TODO: send some signal here
             }
         } else {
             var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
         }
         if(suggestionVal){
             CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
+            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal.trim());
 
             var action = {
                 type: 'activity',
