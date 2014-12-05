@@ -21,17 +21,14 @@ var CliqzSpellCheck = {
             if (words[i] == "") continue;
             if (words[i] in CliqzAutocomplete.spellCorrectionDict) {
                 var correct = CliqzAutocomplete.spellCorrectionDict[words[i]];
-                CliqzUtils.log(correct + " " + words[i] + " " + i + " " + words.length, "spellcorr");
-                CliqzUtils.log(correct.slice(0, words[i].length), 'spellcorr');
                 if (correct.length > words[i].length &&
                     correct.slice(0, words[i].length) == words[i] &&
                     i == words.length - 1) continue;
                 if (correct.length < words[i].length &&
                     words[i].slice(0, correct.length) == correct &&
                     i == words.length - 1) continue;
-                if (i == words.length - 1 && words[i].length <= 4)
+                if (i == words.length - 1 && words[i].length <= 10)  // long enough to correct the last word
                     continue
-                CliqzUtils.log("replace", "spellcorr");
                 correctBack[correct] = words[i]
                 words[i] = correct;
             }

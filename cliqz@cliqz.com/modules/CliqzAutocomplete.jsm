@@ -348,6 +348,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
+                CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
                     return;
@@ -572,7 +573,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
 
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
-                
+
+                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
@@ -581,12 +583,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.suggestionsRecieved = true;
                         // change the wrong string to the real wrong string
                         for (var p in CliqzAutocomplete.spellCorr.correctBack) {
-                            this.wrongSearchString = this.wrongSearchString.replace(p, CliqzAutocomplete.spellCorr.correctBack[p]);
+                            if (this.wrongSearchString.indexOf(CliqzAutocomplete.spellCorr.correctBack[p]) == -1) {
+                                this.wrongSearchString = this.wrongSearchString.replace(p, CliqzAutocomplete.spellCorr.correctBack[p]);
+                            }
                         }
                         this.cliqzSuggestions = [searchString, this.wrongSearchString];
                         CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
-                        urlbar.value = searchString;
+                        urlbar.mInputField.value = searchString;
                     } else {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
