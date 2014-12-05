@@ -34,6 +34,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
+  'chrome://cliqzmodules/content/CliqzSniffer.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -46,6 +49,7 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
+        CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
         CLIQZ.UI.init();
 
@@ -104,10 +108,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.whoAmI(true); //startup
         CliqzUtils.log('Initialized', 'CORE');
-
-        //try to 'heat up' the connection
-        CliqzUtils.getCliqzResults(' ');
-        CliqzUtils.getSuggestions(' ');
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;
@@ -178,6 +178,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
         CliqzAutocomplete.destroy();
+        CliqzSniffer.destroy();
 
         // remove listners
         if ('gBrowser' in window) {
@@ -194,6 +195,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
+            delete window.CliqzSniffer;
         }
     },
     restart: function(soft){
@@ -217,6 +219,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.track(action);
     },
     urlbarfocus: function() {
+        //try to 'heat up' the connection
+        CliqzUtils.pingCliqzResults();
+
         CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
@@ -270,7 +275,7 @@ CLIQZ.Core = CLIQZ.Core || {
             // wait for search component initialization
             if(Services.search.init != null){
                 Services.search.init(function(){
-                    CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
+                    if(CLIQZ) CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
                 });
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
@@ -312,7 +317,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var UNINSTALL_PREF = 'uninstallVersion',
             lastUninstallVersion = CliqzUtils.getPref(UNINSTALL_PREF, '');
 
-        if(lastUninstallVersion != currentVersion){
+        if(currentVersion && lastUninstallVersion != currentVersion){
             CliqzUtils.setPref(UNINSTALL_PREF, currentVersion);
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
@@ -340,27 +345,41 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar,
+        let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
         // Remove protocol and 'www.' from first results
-        if(firstResult.indexOf('://') !== -1){
-           firstResult = firstResult.split('://')[1];
-        }
-        firstResult = firstResult.replace('www.', '');
+        firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
 
-        // Remove protocol and 'www.' from typed query
-        var query = urlBar.value;
-        if(query.indexOf('://') !== -1){
-           query = query.split('://')[1];
-        }
-        query = query.replace('www.', '');
+        // try to update misspelings like ',' or '-'
+        var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
+
+        // Remove protocol from typed query
+        var query = CliqzUtils.cleanUrlProtocol(cleanedUrlBar, true);
 
         // Then add the matching part to the end of the current typed query and set is as selected.
         if(query && firstResult.indexOf(query) === 0) {
-            urlBar.mInputField.value = urlBar.value + firstResult.substr(query.length);
+            urlBar.mInputField.value = cleanedUrlBar + firstResult.substr(query.length);
             urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
+    },
+    cleanUrlBarValue: function(val){
+        var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
+            host = cleanParts[0],
+            pathLength = 0,
+            SYMBOLS = /,|-|\./g;
+
+        if(cleanParts.length > 1){
+            pathLength = ('/' + cleanParts.slice(1).join('/')).length;
+        }
+        if(host.indexOf('www') == 0 && host.length > 4){
+            // only fix symbols in host
+            if(SYMBOLS.test(host[3]) && host[4] != ' ')
+                // replace only issues in the host name, not ever in the path
+                return val.substr(0, val.length - pathLength).replace(SYMBOLS, '.') +
+                       (pathLength? val.substr(-pathLength): '');
+        }
+        return val;
     },
     // redirects a tab in which oldUrl is loaded to newUrl
     openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
@@ -373,7 +392,6 @@ CLIQZ.Core = CLIQZ.Core || {
         // heavy hearch
         CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     },
-
     getQuerySession: function() {
         return _querySession;
     }

@@ -7,10 +7,12 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text', 'generic', 'custom', 'clustering', 'series', 'calculator'],
+var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
+                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'entity-search-1', 'entity-news-1', 'weather', 'bitcoin'],
+
     VERTICALS = {
         'b': 'bundesliga',
-        'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
         'n': 'news'    ,
@@ -121,6 +123,9 @@ var UI = {
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+
+        // set the width
+        gCliqzBox.style.width = (res.width +1) + 'px';
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -172,12 +177,60 @@ var UI = {
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
                 return false;
-            break;
+            case KeyEvent.DOM_VK_HOME:
+                // set the caret at the beginning of the text box
+                ev.originalTarget.setSelectionRange(0, 0);
+                // return true to prevent the default action
+                // on linux the default action will autocomplete to the url of the first result
+                return true;
+            default:
+                return false;
         }
+    },
+    entitySearchKeyDown: function(event, value, element) {
+      if(event.keyCode==13) {
+        var provider_name = element.getAttribute("search-provider");
+        var search_url = element.getAttribute("search-url");
+        var search_engine = Services.search.getEngineByName(provider_name);
+        var google_url = search_url + value
+        if (search_engine) {
+          var google_url = search_engine.getSubmission(value).uri.spec
+        }
+        openUILink(google_url);
+        CLIQZ.Core.forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+        event.preventDefault();
 
-
-    }
+        var action_type = element.getAttribute("logg-action-type");
+        var signal = {
+          type: 'activity',
+          action: action_type
+        };
+        CliqzUtils.track(signal);
+      }
+    },
+    closeResults: closeResults
 };
+
+
+var forceCloseResults = false;
+function closeResults(event, force) {
+    if($("[dont-close=true]", gCliqzBox) == null) return;
+
+    if (forceCloseResults || force) {
+        forceCloseResults = false;
+        return;
+    }
+
+    event.preventDefault();
+    setTimeout(function(){
+      var newActive = document.activeElement;
+      if (newActive.getAttribute("dont-close") != "true") {
+        forceCloseResults = true;
+        CLIQZ.Core.popup.hidePopup();
+      }
+    }, 0);
+}
 
 // hide elements in a context folowing a priority (0-lowest)
 //
@@ -304,6 +357,7 @@ function constructImage(data){
                 height = 67;
                 ratio = 214/317;
                 break;
+            case 'people': //fallthough
             case 'person':
                 ratio = 1;
                 break;
@@ -339,7 +393,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
-    if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
@@ -375,6 +428,7 @@ function getTags(fullTitle){
     return [title, tags.split(",").sort()]
 }
 
+var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
@@ -383,15 +437,20 @@ function enhanceResults(res){
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
-
+                    r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                    r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
+                } else {
+                    // unexpected/unknown template
+                    r.invalid = true;
+                    r.dontCountAsResult = true;
                 }
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = generateLogoClass(r.urlDetails);
             r.image = constructImage(r.data);
-            r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -400,15 +459,23 @@ function enhanceResults(res){
                 r.debug = null;
 
             //extract tags from title
-            if(r.type.indexOf('tag') == 0)
+            if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
 
         }
+
+        // If one of the results is data.only = true Remove all others.
+        if (!r.invalid && r.data && r.data.only) {
+          res.results = [r];
+          return res;
+        }
     }
+
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    res.results = first.concat(last);
+    res.results = first;
+    res.results = res.results.concat(last);
     return res;
 }
 
@@ -452,23 +519,22 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-            if(CliqzUtils.getPref('sessionLogging', false)){
-                var query = CLIQZ.Core.urlbar.value;
-                var queryAutocompleted = null;
-                if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            var query = CLIQZ.Core.urlbar.value;
+            var queryAutocompleted = null;
+            if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+            {
+                var first = gCliqzBox.resultsBox.children[0];
+                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
                 {
-                    var first = gCliqzBox.resultsBox.children[0];
-                    if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
-                    {
-                        queryAutocompleted = query;
-                    }
-                    query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+                    queryAutocompleted = query;
                 }
-                CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-                    CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+                query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
             }
+            CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+                CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
             CLIQZ.Core.openLink(url, newTab);
+            if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
             // copy calculator answer to clipboard
@@ -679,7 +745,7 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
-                CLIQZ.Core.urlbar.value = firstUrl;
+                CLIQZ.Core.urlbar.value = CliqzUtils.cleanMozillaActions(firstUrl);
             }
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
@@ -941,37 +1007,6 @@ function registerHelpers(){
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
     });
-
-    var AD = RegExp('sale|download|bestellen|gratis|kostenlos|outlet|last minute', 'i');
-    Handlebars.registerHelper('cliqz-ad', function(idx, type, q) {
-        if(CliqzUtils.getPref("showAdResults", -1) == -1 ||
-            idx!=0 || type == 'cliqz-extra') return '';
-        if(AD.test(q)){
-            CliqzUtils.setPref("showAdResults", 2);
-            CliqzUtils.track({type:'ab', action:'ad_result'});
-            return 'ad';
-        }
-        return '';
-    });
-
-    Handlebars.registerHelper('cliqz-premium', function(idx, q) {
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
-            CliqzUtils.track({type:'ab', action:'premium_result'});
-            return new Handlebars.SafeString(UI.tpl.generic({
-                title: CliqzUtils.getLocalizedString('cliqzPremiumTitle'),
-                text: '',
-                width: CLIQZ.Core.urlbar.clientWidth - 100,
-                data: { description: CliqzUtils.getLocalizedString('cliqzPremiumDesc') }
-            }));
-        } else return '';
-    });
-
-    Handlebars.registerHelper('is-cliqz-premium', function(idx, q) {
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
-            return true
-        } else return false;
-    });
-
 }
 
 ctx.CLIQZ = ctx.CLIQZ || {};

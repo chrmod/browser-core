@@ -14,6 +14,7 @@
        <constructor>
         <![CDATA[
           this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
+          this.setAttribute("onpopuphiding", "CLIQZ.UI.closeResults(event)");
           CLIQZ.UI.main(this.cliqzBox);
         ]]>
       </constructor>
@@ -77,10 +78,10 @@
               CLIQZ.UI.results({
                 q: q,
                 results: data,
-                width: CLIQZ.Core.urlbar.clientWidth - 100
+                width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(data[0].url);
+              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
             }
           ]]>
         </body>

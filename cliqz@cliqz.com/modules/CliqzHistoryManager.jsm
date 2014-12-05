@@ -37,10 +37,12 @@ var CliqzHistoryManager = {
                 }
             )
             .then(function() {
-                callback({
-                    size: historysize,
-                    days: CliqzUtils.getDay() - history
-                });
+                if(CliqzUtils){
+                    callback({
+                        size: historysize,
+                        days: CliqzUtils.getDay() - history
+                    });
+                }
             });
     },
 	PlacesInterestsStorage: {
