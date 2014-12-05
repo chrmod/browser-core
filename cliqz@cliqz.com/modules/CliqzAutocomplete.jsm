@@ -50,6 +50,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastQueryTime: null,
     lastDisplayTime: null,
     lastFocusTime: null,
+    country: '',
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -104,6 +105,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             _defaultIndex: 0,
             _errorDescription: '',
             _results: [],
+
+            // only one result based on history
+            instant: false,
 
             get searchString() { return this._searchString; },
             get searchResult() { return this._searchResult; },
@@ -349,15 +353,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.clearTimeout(this.historyTimer);
 
                         this.mixedResults.addResults(this.mixResults());
+                        this.mixedResults.instant = false;
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
                         this.listener.onSearchResult(this, this.mixedResults);
 
                         this.latency.all = (new Date()).getTime() - this.startTime;
-
-                        if(this.cliqzResults)
-                            var country = this.cliqzCountry;
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
@@ -376,6 +378,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
+                        this.mixedResults.instant = true;
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
@@ -401,7 +404,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
                         results = json.result || [];
-                        country = json.country;
+                        CliqzAutocomplete.country = json.country;
                         if(json.extra && json.extra.results && json.extra.results.length >0)
                             this.cliqzResultsExtra =
                                 json.extra.results.map(Result.cliqzExtra);

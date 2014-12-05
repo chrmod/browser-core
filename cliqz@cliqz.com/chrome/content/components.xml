@@ -74,10 +74,10 @@
                     data: lastRes && lastRes.getDataAt(i),
                   });
               }
-
               CLIQZ.UI.results({
                 q: q,
                 results: data,
+                instant: lastRes && lastRes.instant,
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);

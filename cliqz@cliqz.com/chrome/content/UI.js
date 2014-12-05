@@ -110,11 +110,13 @@ var UI = {
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
+        // set the width
+        gCliqzBox.style.width = (res.width +1) + 'px';
+
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
-        // set the width
-        gCliqzBox.style.width = (res.width +1) + 'px';
+        setTimeout(sendResultsSignal, 0, enhanced, res.instant);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -201,6 +203,37 @@ var UI = {
     closeResults: closeResults
 };
 
+
+function sendResultsSignal(results, instant){
+    var action = {
+        type: 'activity',
+        action: 'results',
+        query_length: CliqzAutocomplete.lastSearch.length,
+        result_order: CliqzAutocomplete.getResultsOrder(results),
+        instant: instant ? true : false,
+        popup: popup ? true : false,
+        clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
+        latency_cliqz: this.latency.cliqz,
+        latency_history: this.latency.history,
+        latency_backend: this.latency.backend,
+        latency_mixed: this.latency.mixed,
+        latency_all: this.latency.all,
+        version: 1
+    };
+    if(country)
+        action.country = country;
+
+    if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
+        action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
+    }
+    // keep a track of if the popup was open for last result
+    CliqzAutocomplete.lastPopupOpen = popup;
+    if (results.length > 0) {
+        CliqzAutocomplete.lastDisplayTime = (new Date()).getTime();
+    }
+    this.addCalculatorSignal(action);
+    CliqzUtils.track(action);
+}
 
 var forceCloseResults = false;
 function closeResults(event, force) {
