@@ -326,7 +326,7 @@ function constructImage(data){
     // image search layout 
     
     // HEIGHTS = [];
-    var IMAGES_MARGIN = 2;
+    var IMAGES_MARGIN = 6;
     var IMAGES_LINES = 1;
     function getheight(images, width) {
         width -= IMAGES_MARGIN * images.length; //images  margin
@@ -354,7 +354,7 @@ function constructImage(data){
 
         // Collecting sub-pixel error
         var error = estim_width - parseInt(verif_width)
-        console.log('estimation error:' + error);
+        //console.log('estimation error:' + error);
 
         if (error>0) {
             //var int_error = parseInt(Math.abs(Math.ceil(error)));
@@ -394,13 +394,14 @@ function constructImage(data){
                 var size = CLIQZ.Core.urlbar.clientWidth - 15;
                 var n = 0;
                 var images = r.data.results;
-                console.log('global width: '+ size);
+                //console.log('global width: '+ size);
                     //+', images nbr: '+images.length)
                 w: while ((images.length > 0) && (n<IMAGES_LINES)){
                     var i = 1;
                     while ((i < images.length + 1) && (n<IMAGES_LINES)){
                         var slice = images.slice(0, i);
                         var h = getheight(slice, size);
+                        //console.log('height: '+h);
                         if (h < max_height) {
                             setheight(slice, h);
                             //res.results[k].data.results = slice
@@ -413,6 +414,7 @@ function constructImage(data){
                         i++;
                     }
                     setheight(slice, Math.min(max_height, h));
+                    tmp.push.apply(tmp, slice);
                     n++;
                     break;
                 }
