@@ -32,6 +32,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
+  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -50,6 +53,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastQueryTime: null,
     lastDisplayTime: null,
     lastFocusTime: null,
+    spellCorrectionDict: {},
+    spellCorr: {
+        'on': false,
+        'correctBack': {},
+        'override': false,
+        'pushed': null
+    },
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -96,6 +106,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
     CliqzResults: function(){},
+    resetSpellCorr: function() {
+        CliqzAutocomplete.spellCorr = {
+            'on': false,
+            'correctBack': {},
+            'override': false,
+            'pushed': null
+        }
+    },
     initProvider: function(){
         CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
             _searchString: '',
@@ -330,6 +348,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
+                CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
                     return;
@@ -418,7 +437,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var response = JSON.parse(req.response);
                     this.suggestedCalcResult = null;
 
-
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
@@ -491,7 +509,30 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // custom results
                 searchString = this.analyzeQuery(searchString);
-
+                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                if (!CliqzAutocomplete.spellCorr.override &&
+                    urlbar.selectionEnd == urlbar.selectionStart &&
+                    urlbar.selectionEnd == urlbar.value.length) {
+                    var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
+                    for (var c in correctBack) {
+                        CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
+                    }
+                } else {
+                    // user don't want spell correction
+                    var newSearchString = searchString;
+                }
+                this.wrongSearchString = searchString;
+                if (newSearchString != searchString) {
+                    // the local spell checker kicks in
+                    var action = {
+                        type: 'activity',
+                        action: 'spell_correction',
+                        current_length: searchString.length
+                    }
+                    CliqzUtils.track(action);
+                    CliqzAutocomplete.spellCorr.on = true;
+                    searchString = newSearchString;
+                }
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
@@ -533,11 +574,27 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
 
+                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-
+                    // if spell correction, no suggestions
+                    if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+                        this.suggestionsRecieved = true;
+                        // change the wrong string to the real wrong string
+                        for (var p in CliqzAutocomplete.spellCorr.correctBack) {
+                            if (this.wrongSearchString.indexOf(CliqzAutocomplete.spellCorr.correctBack[p]) == -1) {
+                                this.wrongSearchString = this.wrongSearchString.replace(p, CliqzAutocomplete.spellCorr.correctBack[p]);
+                            }
+                        }
+                        this.cliqzSuggestions = [searchString, this.wrongSearchString];
+                        CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
+                        urlbar.mInputField.value = searchString;
+                    } else {
+                        CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    }
+                    
                     // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
@@ -553,6 +610,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzBundesliga = [];
+                    CliqzAutocomplete.resetSpellCorr();
                 }
 
                 // trigger history search
