@@ -406,6 +406,14 @@ $SWITCH
             for(let i=0; i<urls.length;i++) {
                 var url = urls[i]['value'];
                 var title = urls[i]['comment'];
+                if ($drop_url_parameters) {
+                    var param_index = url.indexOf("?");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
+                if ($drop_url_fragment) {
+                    var param_index = url.indexOf("#");
+                    if (param_index != -1) url = url.slice(0, param_index);
+                }
 
                 var urlDetails = CliqzUtils.getDetailsFromUrl(url),
                     domain = urlDetails.host,
@@ -420,12 +428,12 @@ $SWITCH
                 if (vpath[vpath.length-1]=='') vpath=vpath.slice(0,vpath.length-1);
                 if (vpath[0]=='') vpath=vpath.slice(1,vpath.length);
 
-                CliqzUtils.log(JSON.stringify([url, path, vpath]), CliqzClusterHistory.LOG_KEY);
+                CliqzClusterHistory.log(JSON.stringify([url, path, vpath]));
 
 $RULES
             }
 
-            CliqzUtils.log(JSON.stringify(template), CliqzClusterHistory.LOG_KEY);
+            CliqzClusterHistory.log(JSON.stringify(template));
             return template;
         }
     }""")
@@ -611,6 +619,14 @@ $RULE_BODY
             in program['fix_controls'])
         if 'home' not in ret:
             ret['home'] = ret['url']
+        if 'drop_url_parameters' not in ret:
+            ret['drop_url_parameters'] = 'true';
+        if 'drop_url_fragment' not in ret:
+            ret['drop_url_fragment'] = 'true';
+
+        # Ehhh... so that we output false, not False...
+        ret['drop_url_parameters'] = str(ret['drop_url_parameters']).lower()
+        ret['drop_url_fragment'] = str(ret['drop_url_fragment']).lower()
 
         control_index = 0
         rules = []

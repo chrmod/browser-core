@@ -1,4 +1,9 @@
 'use strict';
+/*
+ * This module acts as a result factory
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Result'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -7,12 +12,20 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+// returns the super type of a result - type to be consider for UI creation
+function getSuperType(result){
+    if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
+        return result.snippet.rich_data.type
+    }
+    return null;
+}
+
 var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZI: 'cliqz-images',
-    CLIQZW: 'cliqz-weather',
+    //CLIQZW: 'cliqz-weather',
     CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
@@ -44,20 +57,18 @@ var Result = {
         ]
     },
 	generic: function(style, value, image, comment, label, query, data){
-        //try to show host if no comment(page title) is provided
-        if(style !== Result.CLIQZS       // is not a suggestion
-           && style.indexOf(Result.CLIQZC) === -1       // is not a custom search
+        //try to show host name if no title (comment) is provided
+        if(style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
            && CliqzUtils.isCompleteUrl(value)){       // looks like an url
-            let host = CliqzUtils.getDetailsFromUrl(value).host
-            if(host){
-                comment = host;
+            var host = CliqzUtils.getDetailsFromUrl(value).name;
+            if(host && host.length>0){
+                comment = host[0].toUpperCase() + host.slice(1);
             }
         }
         if(!comment){
             comment = value;
         }
-
         var item = {
             style: style,
             val: value,
@@ -70,7 +81,8 @@ var Result = {
         return item;
     },
     cliqz: function(result){
-        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(result.source);
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source);
+        var debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
         if(result.snippet){
             return Result.generic(
                 resStyle, //style
@@ -78,11 +90,11 @@ var Result = {
                 null, //image -> favico
                 result.snippet.title,
                 null, //label
-                result.source + ' ' + result.q + ' ' + result.confidence, //query
+                debugInfo, //query
                 Result.getData(result)
             );
         } else {
-            return Result.generic(resStyle, result.url);
+            return Result.generic(resStyle, result.url, null, null, null, debugInfo);
         }
     },
     cliqzExtra: function(result){
@@ -105,7 +117,7 @@ var Result = {
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
         // Bing Filters
@@ -113,7 +125,7 @@ var Result = {
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
         // Yahoo filters
@@ -125,7 +137,7 @@ var Result = {
            ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {
-            CliqzUtils.log("Discarding result page from history: " + url)
+            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
             return false;
         }
 
@@ -133,17 +145,15 @@ var Result = {
     },
     // rich data and image
     getData: function(result){
+        //TODO: rethink the whole image filtering
         if(!result.snippet)
             return;
 
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
                 richData: result.snippet.rich_data
-            };
-
-        var ogt;
-        if(result.snippet && result.snippet.og)
-            ogt = result.snippet.og.type;
+            },
+            source = getSuperType(result) || result.source;
 
         resp.type = "other";
         for(var type in Result.RULES){
@@ -157,7 +167,7 @@ var Result = {
                            result.snippet.og.type == rule.ogtypes[ogtype])
                                 resp.type = type;
 
-                var verticals = result.source.split(',');
+                var verticals = source.split(',');
                 for(var v in verticals){
                     if(verticals[v].trim() == rule.vertical)
                         resp.type = type;
@@ -166,7 +176,11 @@ var Result = {
 
 
         resp.description = result.snippet.desc || result.snippet.snippet;
-        if(resp.type != 'other')
+
+        var ogT = result.snippet && result.snippet.og? result.snippet.og.type: null,
+            imgT = result.snippet && result.snippet.image? result.snippet.image.type: null;
+
+        if(resp.type != 'other' || ogT == 'cliqz' || imgT == 'cliqz')
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||
                          Result.getOgImage(result.snippet.og)
         }

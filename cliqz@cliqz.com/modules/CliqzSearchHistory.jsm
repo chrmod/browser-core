@@ -1,3 +1,10 @@
+'use strict';
+/*
+ * This module keeps track of the last queries made in a tab and shows
+ * them when appropiate
+ *
+ */
+
 
 // TODO: The "Letzte eingabe" button needs a better architecture
 // What we do now is a bit hacky. Because we need to track the state of many
@@ -25,6 +32,8 @@ var CliqzSearchHistory = {
         var gBrowser = window.gBrowser;
         this.windows[window_id] = {};
 
+        var targetPosition = window.CLIQZ.Core.urlbar.mInputField.parentElement;
+
         // Set urlbar for current window
         this.windows[window_id].urlbar = document.getElementById('urlbar');
         // Initialize per-tab history for window
@@ -32,7 +41,7 @@ var CliqzSearchHistory = {
         // Create container element
         this.windows[window_id].searchHistoryContainer = document.createElement('hbox');
         this.windows[window_id].searchHistoryContainer.className = 'hidden'; // Initially hide the container
-        element.parentNode.insertBefore(this.windows[window_id].searchHistoryContainer, element);
+        targetPosition.insertBefore(this.windows[window_id].searchHistoryContainer, targetPosition.firstChild);
 
         // Add last search button to container
         this.windows[window_id].lastSearchElement = document.createElement('hbox');
@@ -41,26 +50,12 @@ var CliqzSearchHistory = {
                                                 this.returnToLastSearch.bind(this));
         this.windows[window_id].searchHistoryContainer.appendChild(this.windows[window_id].lastSearchElement)
 
-        // Add search history dropdown arrow button to container
-        var searcHistoryDropdown = document.createElement('button');
-        searcHistoryDropdown.setAttribute('type','panel');
-        searcHistoryDropdown.className = 'cliqz-urlbar-Last-search-dropdown-arrow';
-        this.windows[window_id].searchHistoryContainer.appendChild(searcHistoryDropdown)
-
-        // Add panel with search history results to dropdown button
-        this.windows[window_id].searchHistoryPanel = document.createElement('panel');
-        this.windows[window_id].searchHistoryPanel.className = 'cliqz-urlbar-Last-search-dropdown';
-        searcHistoryDropdown.appendChild(this.windows[window_id].searchHistoryPanel);
-
         return this.windows[window_id].searchHistoryContainer;
     },
 
     /* Puts the query in the dropdown and opens it. */
     returnToLastSearch: function (ev) {
-        var window = CliqzUtils.getWindow();
         var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
 
         this.windows[window_id].urlbar.mInputField.focus();
         this.windows[window_id].urlbar.mInputField.setUserInput(ev.target.query);
@@ -73,40 +68,10 @@ var CliqzSearchHistory = {
         CliqzUtils.track(action);
     },
 
-    /* Add query to the last searches list. */
-    addToLastSearches: function(newSearch) {
-      var window = CliqzUtils.getWindow();
-      var window_id = CliqzUtils.getWindowID();
-      var document = window.document;
-      var gBrowser = window.gBrowser;
-
-      // If the query already existis in the list skip it
-      var existing = this.windows[window_id].searchHistoryPanel.children;
-      for (var i=0; i<existing.length; i++) {
-        if (newSearch == existing[i].innerHTML)
-          return;
-      }
-      // If the list gets longer than 7 drop first element
-      if (this.windows[window_id].searchHistoryPanel.children.length > 7)
-        this.windows[window_id].searchHistoryPanel.removeChild(this.windows[window_id].searchHistoryPanel.lastChild);
-
-      var newSearchElement = document.createElement('hbox');
-      newSearchElement.textContent = newSearch;
-      newSearchElement.tooltipText = newSearch;
-      newSearchElement.query = newSearch;
-      newSearchElement.className = 'cliqz-urlbar-Last-search-list';
-      newSearchElement.addEventListener('click', this.returnToLastSearch.bind(this));
-      this.windows[window_id].searchHistoryPanel.insertBefore(
-        newSearchElement,
-        this.windows[window_id].searchHistoryPanel.firstChild
-      );
-    },
-
     /* */
     lastQuery: function(){
         var gBrowser = CliqzUtils.getWindow().gBrowser,
             win = this.windows[CliqzUtils.getWindowID()];
-
         if(win && win.urlbar){
             var val = win.urlbar.value.trim(),
                 lastQ = CliqzAutocomplete.lastSearch.trim();
@@ -114,7 +79,6 @@ var CliqzSearchHistory = {
             if(lastQ && val && !CliqzUtils.isUrl(lastQ) && (val == lastQ || !this.isAutocomplete(val, lastQ) )){
                 this.showLastQuery(lastQ);
                 win.lastQueryInTab[gBrowser.selectedTab.linkedPanel] = lastQ;
-                this.addToLastSearches(lastQ);
             } else {
                 // remove last query if the user ended his search session
                 if(CliqzUtils.isUrl(lastQ))
@@ -131,15 +95,13 @@ var CliqzSearchHistory = {
     },
 
     showLastQuery: function(q){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var window_id = CliqzUtils.getWindowID(),
+            lq = this.windows[window_id].lastSearchElement;
 
         this.windows[window_id].searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
-        this.windows[window_id].lastSearchElement.textContent = q;
-        this.windows[window_id].lastSearchElement.tooltipText = q;
-        this.windows[window_id].lastSearchElement.query = q;
+        lq.textContent = q;
+        lq.tooltipText = q;
+        lq.query = q;
     },
 
     tabChanged: function(ev){

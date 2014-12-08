@@ -1,5 +1,11 @@
 'use strict';
 
+/*
+ * This module clusters(groups) episodes from a series and
+ * tries to guess the next episode
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['CliqzClusterSeries'];
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -7,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 function log(msg){
-  CliqzUtils.log(msg, 'Series Guessing');
+  CliqzUtils.log(msg, 'CliqzClusterSeries');
 }
 
 function zfill(number, size) {

@@ -1,13 +1,17 @@
 'use strict';
+/*
+ * This module handles the loading and the unloading of the extension
+ * It injects all the needed scripts into the chrome context
+ *
+ */
+
 var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-
 Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
-  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Cu.import('chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -29,13 +33,11 @@ var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'session': '',
-        'messageUpdate': '0', // last update message timestamp
-        'messageInterval': 60 * 60 * 1e3, // interval between messages - 1H
         'showQueryDebug': false, // show query debug information next to results
         'showDebugLogs': false, // show debug logs in console
         'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send any tracking signals
-        'inPrivateWindows': true, // enables extension in private mode
+//      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
         Cu.import('resource://gre/modules/Services.jsm');
@@ -127,14 +129,17 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
+        //Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzImages.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSniffer.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -259,8 +264,10 @@ var Extension = {
         // localization mechanism might take a while to load.
         // TODO: find better sollution
         CliqzUtils.setTimeout(function(){
-            shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
-            shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+            if(CliqzUtils){
+                shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
+                shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
+            }
         }, 2000);
 
         shareButton.addEventListener('command', function(ev) {
@@ -361,7 +368,7 @@ var Extension = {
           'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
         };
 
-        var location = CliqzUtils.getPref('config_location', 'DE');
+        var location = CliqzUtils.getPref('config_location', 'DE').toUpperCase();
         // Append current location to Automatic string
         languages[''].lang += ' (' + languages[location].lang + ')';
 

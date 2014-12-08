@@ -18,6 +18,11 @@
 		<div class='cliqz-result-title-box overflow'>
 			{{ emphasis title text 2 false }}
 		</div>
+		{{#if debug}}
+			<span class='cliqz-result-debug overflow'>
+				<span>{{ debug }}</span>
+			</span>
+		{{/if}}
 		<div class='cliqz-result-url-box overflow'>
 			{{#with data.richData}}
 			<span class='cliqz-result-url-host
@@ -33,9 +38,11 @@
 			</span>
 			{{/with}}
 		</div>
+
 		<div class='cliqz-result-description'>
 			{{ emphasis data.description text 2 true }}
 		</div>
+
 		{{#if data.richData.additional_sources}}
 			<div class='cliqz-hq-links'>
 			{{#each data.richData.additional_sources}}
