@@ -247,6 +247,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1016_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                CliqzAutocomplete.spellCorrectionDict = {};
                 break;
             default:
                 rule_executed = false;
