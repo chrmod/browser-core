@@ -212,14 +212,14 @@ var UI = {
                         CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
                         var signal = {
                             type: 'activity',
-                            action: 'del-correct-back'
+                            action: 'del_correct_back'
                         };
                         CliqzUtils.track(signal);
                     }
                 } else {
                     var signal = {
                         type: 'activity',
-                        action: 'keystrok-del'
+                        action: 'keystroke_del'
                     };
                     CliqzUtils.track(signal);
                 }
