@@ -12,7 +12,10 @@
     overflow: hidden;
     line-height: 20px;
 }
-
+.bold-underscore {
+    font-weight: bold;
+    text-decoration: underline;
+}
 .cliqz-suggestion {
     padding: 1px 5px 0px 5px;
     display: inline-block;
