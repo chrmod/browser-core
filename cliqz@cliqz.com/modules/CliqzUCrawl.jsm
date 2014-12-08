@@ -16,14 +16,45 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-//var _winmed = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+var nsIAO = Components.interfaces.nsIHttpActivityObserver;
+var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
+//var _winmed = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 var CliqzUCrawl = {
     WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
+    httpCache: {},
+    cleanHttpCache: function() {
+      CliqzUtils.log('Cleaning HTTP cache', CliqzUCrawl.LOG_KEY);
+      for(var key in CliqzUCrawl.httpCache) {
+        if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 30*CliqzUCrawl.tmult) {
+          delete CliqzUCrawl.httpCache[key];
+        }
+      }
+    },
+    httpObserver: {
+        // check the non 2xx page and report if this is one of the cliqz result
+        observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
+          if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
+              var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
+              var url = aChannel.URI.spec;
+              var status = aExtraStringData.split(" ")[1];
+              CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter};
+              //CliqzUtils.log('HTTP observer: ' + aExtraStringData, CliqzUCrawl.LOG_KEY);
+          }
+        }
+    },
+    linkCache: {},
+    cleanLinkCache: function() {
+      CliqzUtils.log('Cleaning Link cache', CliqzUCrawl.LOG_KEY);
+      for(var key in CliqzUCrawl.linkCache) {
+        if ((CliqzUCrawl.counter - CliqzUCrawl.linkCache[key]['time']) > 30*CliqzUCrawl.tmult) {
+          delete CliqzUCrawl.linkCache[key];
+        }
+      }
+    },
     generateId: function(document) {
-
       try {
         var id = '';
         var text = document.getElementsByTagName('body')[0].textContent;
@@ -31,14 +62,12 @@ var CliqzUCrawl = {
         for(let i=0;i<rpos.length;i++) {
           id = id + text[rpos[i]%text.length];
         }
-
         if (id==null || id=='') throw('could not figure out the id of the page');
         else return id
       }
       catch(ee) {
         CliqzUtils.log('Exception: Could not get id of content' + ee, CliqzUCrawl.LOG_KEY);
       }
-
     },
     scrapeFurther: function(element) {
       try {
@@ -53,21 +82,18 @@ var CliqzUCrawl = {
       }
     },
     scrapeQuery: function(currURL, document) {
-
       try {
         var val = document.getElementById('ires').attributes['data-async-context'].value;
         if (val.indexOf('query:') == 0) {
            return decodeURIComponent(val.replace('query:','').trim()).trim();
         }
         else return null;
-
       }
       catch(ee) {
         CliqzUtils.log('>>> Could not get query: ' + ee, CliqzUCrawl.LOG_KEY);
         return null;
 
       }
-
       q = document.getElementById('ires').attributes['data-async-context'].value
 
     },
@@ -123,12 +149,12 @@ var CliqzUCrawl = {
           }
 
         if (d!=null) {
-          CliqzUtils.log('>>> GOOD : ' + i + ' >> ' +  d['u'], CliqzUCrawl.LOG_KEY);
+          //CliqzUtils.log('>>> GOOD : ' + i + ' >> ' +  d['u'], CliqzUCrawl.LOG_KEY);
           res['r'][''+i] = {'u': d['u'], 't': d['t']};
 
         }
         else {
-          CliqzUtils.log('>>> BAD  : ' + i + ' >> ' +  cand_url, CliqzUCrawl.LOG_KEY);
+          //CliqzUtils.log('>>> BAD  : ' + i + ' >> ' +  cand_url, CliqzUCrawl.LOG_KEY);
         }
       }
 
@@ -136,8 +162,25 @@ var CliqzUCrawl = {
       return res;
 
     },
+    getParameterByName: function(url, name)  {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(url.search);
+      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    },
+    getEmbeddedURL: function(targetURL) {
+
+      var ihttps = targetURL.lastIndexOf('https%3A%2F%2F')
+      var ihttp = targetURL.lastIndexOf('http%3A%2F%2F')
+      if (ihttps>0 || ihttp>0) {
+        // contains either http or https not ont he query string, very suspicious
+        return CliqzUCrawl.getParameterByName(targetURL, 'url');
+
+      }
+      else return null;
+    },
     listener: {
-        currURL: undefined,
+        tmpURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
@@ -145,41 +188,39 @@ var CliqzUCrawl = {
 
             // New location, means a page loaded on the top window, visible tab
 
-            if (aURI.spec == this.currentURL) return;
-            this.currentURL = aURI.spec;
+            if (aURI.spec == this.tmpURL) return;
+            this.tmpURL = aURI.spec;
 
             // here we check if user ignored our results and went to google and landed on the same url
             var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
-
             var currwin = CliqzUtils.getWindow();
 
-            CliqzUtils.log("???" + this.currentURL, CliqzUCrawl.LOG_KEY);
-            this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
+            //this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             CliqzUCrawl.lastActive = CliqzUCrawl.counter;
             CliqzUCrawl.lastActiveAll = CliqzUCrawl.counter;
 
+            var activeURL = CliqzUCrawl.currentURL();
 
-            if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
+            if (requery.test(activeURL) && !reref.test(activeURL)) {
               currwin.setTimeout(function(currURLAtTime) {
 
                 // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
                 if (CliqzUCrawl) {
-
                   try {
-                      CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
 
                       // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
-                      var currURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
-                      if (''+currURLAtTime == ''+currURL) {
+                      //var currURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
+
+                      var activeURL = CliqzUCrawl.currentURL();
+
+                      if (currURLAtTime == activeURL) {
                         var id_cont = CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
-                        CliqzUtils.log(">>>>>>> It's a query with id: " + id_cont, CliqzUCrawl.LOG_KEY);
-                        // let's hope that the content has been already loaded!!
                         var document = currwin.gBrowser.selectedBrowser.contentDocument;
-                        CliqzUCrawl.scrape(currURL, document);
+                        CliqzUCrawl.scrape(activeURL, document);
                       }
                   }
                   catch(ee) {
@@ -187,47 +228,54 @@ var CliqzUCrawl = {
                     CliqzUtils.log('Exception: ' + ee, CliqzUCrawl.LOG_KEY);
                   }
                 }
-              }, CliqzUCrawl.WAIT_TIME, this.currURL);
+              }, CliqzUCrawl.WAIT_TIME, activeURL);
             }
-            else {
-              // NOT A QUERY,
 
-              if ((''+this.currURL).indexOf('about:')!=0) {
-                if (CliqzUCrawl.state['v'][this.currURL] == null) {
-                  CliqzUCrawl.state['v'][this.currURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}};
+            if (activeURL.indexOf('about:')!=0) {
+              if (CliqzUCrawl.state['v'][activeURL] == null) {
+                var status = null;
+
+                if (CliqzUCrawl.httpCache[activeURL]!=null) {
+                  status = CliqzUCrawl.httpCache[activeURL]['status'];
                 }
 
-                currwin.setTimeout(function(currWin, currURL) {
+                var referral = null;
+                if (CliqzUCrawl.linkCache[activeURL] != null) {
+                  referral = CliqzUCrawl.linkCache[activeURL]['s'];
+                }
 
-                  var len_html = null;
-                  var len_text = null;
-                  var title = null;
-                  var numlinks = null;
-
-                  // Extract info about the page, title, length of the page, number of links, hash signature,
-                  // 404, soft-404, you name it
-                  //
-
-
-                  try {
-                    var cd = currWin.gBrowser.selectedBrowser.contentDocument;
-
-                    len_html = cd.documentElement.innerHTML.length;
-                    len_text = cd.documentElement.textContent.length;
-
-                    title = cd.getElementsByTagName('title')[0].textContent;
-                    numlinks = cd.getElementsByTagName('a').length;
-
-                  } catch(ee) {
-                    CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzUCrawl.LOG_KEY);
-                  }
-
-                  if (CliqzUCrawl.state['v'][currURL] != null) {
-                    CliqzUCrawl.state['v'][currURL]['x'] = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks,};
-                  }
-
-                }, CliqzUCrawl.WAIT_TIME, currwin, this.currURL);
+                CliqzUCrawl.state['v'][activeURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'r': referral};
               }
+
+              currwin.setTimeout(function(currWin, currURL) {
+
+                var len_html = null;
+                var len_text = null;
+                var title = null;
+                var numlinks = null;
+
+                // Extract info about the page, title, length of the page, number of links, hash signature,
+                // 404, soft-404, you name it
+                //
+
+                try {
+                  var cd = currWin.gBrowser.selectedBrowser.contentDocument;
+
+                  len_html = cd.documentElement.innerHTML.length;
+                  len_text = cd.documentElement.textContent.length;
+
+                  title = cd.getElementsByTagName('title')[0].textContent;
+                  numlinks = cd.getElementsByTagName('a').length;
+
+                } catch(ee) {
+                  CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzUCrawl.LOG_KEY);
+                }
+
+                if (CliqzUCrawl.state['v'][currURL] != null) {
+                  CliqzUCrawl.state['v'][currURL]['x'] = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks};
+                }
+
+              }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
 
             }
 
@@ -247,7 +295,7 @@ var CliqzUCrawl = {
       var currwin = CliqzUtils.getWindow();
       var activeURL = CliqzUCrawl.currentURL();
 
-      if ((''+activeURL).indexOf('about:')!=0) {
+      if ((activeURL).indexOf('about:')!=0) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.lastActive) < 5*CliqzUCrawl.tmult) {
           // if there has been an event on the last 5 seconds, if not do no count, the user must
           // be doing something else,
@@ -274,6 +322,7 @@ var CliqzUCrawl = {
               CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
               delete CliqzUCrawl.state['v'][url];
 
+
             }
             else {
               // stil opened, do nothing
@@ -290,14 +339,17 @@ var CliqzUCrawl = {
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.getAllOpenPages(), undefined, 2), CliqzUCrawl.LOG_KEY);
 
+        CliqzUCrawl.cleanHttpCache();
+
       }
 
       CliqzUCrawl.counter += 1;
 
     },
     currentURL: function() {
-      var currURL = CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument.location;
-      if (currURL!=null || currURL!=undefined) return ''+currURL;
+      var currURL = ''+CliqzUtils.getWindow().gBrowser.selectedBrowser.contentDocument.location;
+      currURL = decodeURIComponent(currURL.trim());
+      if (currURL!=null || currURL!=undefined) return currURL;
       else return null;
     },
     pacemakerId: null,
@@ -347,7 +399,26 @@ var CliqzUCrawl = {
       }
     },
     captureMouseClickPage: function(ev) {
-      CliqzUtils.log('captureMouseClickPage>> ' + CliqzUCrawl.counter + ' ' + ev.target  + ' ' + JSON.stringify(CliqzUCrawl.lastEv), CliqzUCrawl.LOG_KEY);
+
+      // if the target is a link of type hash it does not work, it will create a new page without referral
+      //
+      if (ev.target.href!=null || ev.target.href!=undefined) {
+
+        var targetURL = decodeURIComponent(ev.target.href);
+
+        var embURL = CliqzUCrawl.getEmbeddedURL(targetURL);
+        if (embURL!=null) targetURL = embURL;
+
+        CliqzUtils.log('captureMouseClickPage>> ' + CliqzUCrawl.counter + ' ' + targetURL  + ' : ' + ev.target + ' :: ' + ev.target.value  + ' >>' + JSON.stringify(CliqzUCrawl.lastEv), CliqzUCrawl.LOG_KEY);
+
+        var activeURL = CliqzUCrawl.currentURL();
+
+        if (CliqzUCrawl.state['v'][activeURL]!=null) {
+          CliqzUCrawl.state['v'][activeURL]['c'].push({'l': ''+targetURL, 't': CliqzUCrawl.counter});
+          CliqzUCrawl.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzUCrawl.counter};
+        }
+      }
+
 
       if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclickpage']|0)) > 1 * CliqzUCrawl.tmult) {
         CliqzUtils.log('captureMouseClickPage', CliqzUCrawl.LOG_KEY);
@@ -415,6 +486,7 @@ var CliqzUCrawl = {
           CliqzUCrawl.state = {};
           CliqzUtils.log('Window1: ' + win_id, CliqzUCrawl.LOG_KEY);
 
+
         }
         else {
 
@@ -439,6 +511,16 @@ var CliqzUCrawl = {
         if (CliqzUCrawl.pacemakerId==null) {
           CliqzUCrawl.pacemakerId = CliqzUtils.setInterval(CliqzUCrawl.pacemaker, CliqzUCrawl.tpace, null);
         }
+
+
+        var activityDistributor = Components.classes["@mozilla.org/network/http-activity-distributor;1"]
+                                    .getService(Components.interfaces.nsIHttpActivityDistributor);
+
+
+        CliqzUtils.log('Window1: ' + activityDistributor, CliqzUCrawl.LOG_KEY);
+        activityDistributor.addObserver(CliqzUCrawl.httpObserver);
+
+
 
 
     },
