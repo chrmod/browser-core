@@ -102,6 +102,9 @@ var Result = {
         }
     },
     cliqzExtra: function(result){
+        result.data = result.data || {};
+        result.data.subtype = parseInt(Math.random() * 10);
+
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value

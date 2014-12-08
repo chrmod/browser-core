@@ -37,12 +37,13 @@ var CliqzSniffer = {
                         CliqzAutocomplete.lastResult &&
                         i < CliqzAutocomplete.lastResult._results.length;
                         i++) {
-                        if (res.url == CliqzAutocomplete.lastResult._results[i].val) {
+                        var r = CliqzAutocomplete.lastResult._results[i];
+                        if (res.url == r.val) {
                             var action = {
                                 type: "performance",
                                 action: "response",
                                 response_code: res.status,
-                                result_type: CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult._results[i].style),
+                                result_type: CliqzUtils.encodeResultType(r.style || r.type),
                                 version: 1
                             }
                             CliqzUtils.track(action);

@@ -373,7 +373,12 @@ var CliqzUtils = {
     var flag = 'forceCountry';
     return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
-  encodeResultType: function(type){
+  encodeResultElementType: function(el){
+    return CliqzUtils.encodeResultElementType(el);
+  },
+  encodeResultType: function(type, subtype){
+    var ret = type;
+
     if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-bundesliga') return ['b'];
@@ -391,7 +396,7 @@ var CliqzUtils = {
     // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
-    return type; //fallback to style - it should never happen
+    return type + subtype;
   },
   isPrivateResultType: function(type) {
     return type[0] == 'H' || type[0] == 'B' || type[0] == 'T';

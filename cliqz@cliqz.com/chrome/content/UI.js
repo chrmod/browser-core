@@ -547,7 +547,7 @@ function resultClick(ev){
                     current_position: getResultPosition(el),
                     query_length: CliqzAutocomplete.lastSearch.length,
                     inner_link: el.className != IC, //link inside the result or the actual result
-                    position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                    position_type: CliqzUtils.encodeResultElementType(el),
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
@@ -568,7 +568,7 @@ function resultClick(ev){
             if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
             {
                 var first = gCliqzBox.resultsBox.children[0];
-                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultElementType(first)))
                 {
                     queryAutocompleted = query;
                 }
@@ -740,7 +740,7 @@ function onEnter(ev, item){
     if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
     {
         var first = gCliqzBox.resultsBox.children[0];
-        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultElementType(first)))
         {
             queryAutocompleted = query;
         }
@@ -749,7 +749,7 @@ function onEnter(ev, item){
 
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
+        action.position_type = CliqzUtils.encodeResultElementType(item);
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -785,7 +785,7 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
-            action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
+            action.source = CliqzUtils.encodeResultElementType(first);
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
@@ -855,7 +855,7 @@ function trackArrowNavigation(el){
         current_position: el ? el.getAttribute('idx') : -1,
     };
     if(el){
-        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
+        action.position_type = CliqzUtils.encodeResultElementType(el);
         action.search = CliqzUtils.isSearch(el.getAttribute('url'));
     }
     CliqzUtils.track(action);
