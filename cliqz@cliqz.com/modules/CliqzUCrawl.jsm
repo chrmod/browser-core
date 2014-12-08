@@ -143,6 +143,7 @@ var CliqzUCrawl = {
         onLocationChange: function(aProgress, aRequest, aURI) {
             CliqzUtils.log('location change!', CliqzUCrawl.LOG_KEY);
 
+            // New location, means a page loaded on the top window, visible tab
 
             if (aURI.spec == this.currentURL) return;
             this.currentURL = aURI.spec;
@@ -152,17 +153,10 @@ var CliqzUCrawl = {
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
-            //var topwin = _winmed.getMostRecentWindow("navigator:browser");
 
             var currwin = CliqzUtils.getWindow();
 
-
-            CliqzUtils.log("???" + CliqzUtils.getWindowID(), CliqzUCrawl.LOG_KEY);
-
-
             CliqzUtils.log("???" + this.currentURL, CliqzUCrawl.LOG_KEY);
-            CliqzUtils.log("???2" + currwin.gBrowser.selectedBrowser.contentDocument.location, CliqzUCrawl.LOG_KEY);
-
             this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             CliqzUCrawl.lastActive = CliqzUCrawl.counter;
@@ -198,48 +192,105 @@ var CliqzUCrawl = {
             else {
               // NOT A QUERY,
 
-              //if ((''+this.currURL).indexOf('about:')!=0) {
+              if ((''+this.currURL).indexOf('about:')!=0) {
                 if (CliqzUCrawl.state['v'][this.currURL] == null) {
-                  CliqzUCrawl.state['v'][this.currURL] = {'a': 0, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}};
+                  CliqzUCrawl.state['v'][this.currURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}};
                 }
-              //}
+
+                currwin.setTimeout(function(currWin, currURL) {
+
+                  var len_html = null;
+                  var len_text = null;
+                  var title = null;
+                  var numlinks = null;
+
+                  // Extract info about the page, title, length of the page, number of links, hash signature,
+                  // 404, soft-404, you name it
+                  //
+
+
+                  try {
+                    var cd = currWin.gBrowser.selectedBrowser.contentDocument;
+
+                    len_html = cd.documentElement.innerHTML.length;
+                    len_text = cd.documentElement.textContent.length;
+
+                    title = cd.getElementsByTagName('title')[0].textContent;
+                    numlinks = cd.getElementsByTagName('a').length;
+
+                  } catch(ee) {
+                    CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzUCrawl.LOG_KEY);
+                  }
+
+                  if (CliqzUCrawl.state['v'][currURL] != null) {
+                    CliqzUCrawl.state['v'][currURL]['x'] = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks,};
+                  }
+
+                }, CliqzUCrawl.WAIT_TIME, currwin, this.currURL);
+              }
+
             }
 
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CliqzUCrawl.captureMouseMovePage);
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
             currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzUCrawl.captureScrollPage);
-            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("select", CliqzUCrawl.captureSelectPage);
-
-            /*
-            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("unload", CliqzUCrawl.closing);
-            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("TabClose", CliqzUCrawl.closing);
-            */
-
+            currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CliqzUCrawl.captureCopyPage);
 
 
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-          CliqzUtils.log('state change: ' + aWebProgress, CliqzUCrawl.LOG_KEY);
+          //CliqzUtils.log('state change: ' + aWebProgress, CliqzUCrawl.LOG_KEY);
         }
     },
     pacemaker: function() {
       var currwin = CliqzUtils.getWindow();
       var activeURL = CliqzUCrawl.currentURL();
 
-      //if ((''+activeURL).indexOf('about:')!=0) {
-
+      if ((''+activeURL).indexOf('about:')!=0) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.lastActive) < 5*CliqzUCrawl.tmult) {
+          // if there has been an event on the last 5 seconds, if not do no count, the user must
+          // be doing something else,
+          //
           CliqzUCrawl.state['v'][activeURL]['a'] += 1;
         }
+      }
 
-      //}
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 1 == 0) {
+
+        var openPages = CliqzUCrawl.getAllOpenPages();
+
+        var tt = new Date().getTime();
+
+        for (var url in CliqzUCrawl.state['v']) {
+          if (CliqzUCrawl.state['v'].hasOwnProperty(url)) {
+
+            if (openPages.indexOf(url)==-1) {
+              // not opened
+
+              CliqzUCrawl.state['v'][url]['tend'] = tt;
+              CliqzUCrawl.state['v'][url]['url'] = url;
+
+              CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
+              delete CliqzUCrawl.state['v'][url];
+
+            }
+            else {
+              // stil opened, do nothing
+
+            }
+
+          }
+        }
+
+      }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 20 == 0) {
         CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
-      }
+        CliqzUtils.log(JSON.stringify(CliqzUCrawl.getAllOpenPages(), undefined, 2), CliqzUCrawl.LOG_KEY);
 
+      }
 
       CliqzUCrawl.counter += 1;
 
@@ -278,7 +329,7 @@ var CliqzUCrawl = {
         CliqzUCrawl.lastEv['keypresspage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
         var activeURL = CliqzUCrawl.currentURL();
-        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+        if (CliqzUCrawl.state['v'][activeURL]!=null && CliqzUCrawl.state['v'][activeURL]['a'] > 1*CliqzUCrawl.tmult) {
           CliqzUCrawl.state['v'][activeURL]['e']['kp'] += 1;
         }
 
@@ -290,7 +341,7 @@ var CliqzUCrawl = {
         CliqzUCrawl.lastEv['mousemovepage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
         var activeURL = CliqzUCrawl.currentURL();
-        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+        if (CliqzUCrawl.state['v'][activeURL]!=null && CliqzUCrawl.state['v'][activeURL]['a'] > 1*CliqzUCrawl.tmult) {
           CliqzUCrawl.state['v'][activeURL]['e']['mm'] += 1;
         }
       }
@@ -303,7 +354,7 @@ var CliqzUCrawl = {
         CliqzUCrawl.lastEv['mouseclickpage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
         var activeURL = CliqzUCrawl.currentURL();
-        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+        if (CliqzUCrawl.state['v'][activeURL]!=null && CliqzUCrawl.state['v'][activeURL]['a'] > 1*CliqzUCrawl.tmult) {
           CliqzUCrawl.state['v'][activeURL]['e']['md'] += 1;
         }
 
@@ -315,20 +366,20 @@ var CliqzUCrawl = {
         CliqzUCrawl.lastEv['scrollpage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
         var activeURL = CliqzUCrawl.currentURL();
-        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
+        if (CliqzUCrawl.state['v'][activeURL]!=null && CliqzUCrawl.state['v'][activeURL]['a'] > 1*CliqzUCrawl.tmult) {
           CliqzUCrawl.state['v'][activeURL]['e']['sc'] += 1;
         }
 
       }
     },
-    captureSelectPage: function(ev) {
-      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['selectpage']|0)) > 1 * CliqzUCrawl.tmult) {
-        CliqzUtils.log('captureSelectPage', CliqzUCrawl.LOG_KEY);
-        CliqzUCrawl.lastEv['selectpage'] = CliqzUCrawl.counter;
+    captureCopyPage: function(ev) {
+      if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['copypage']|0)) > 1 * CliqzUCrawl.tmult) {
+        CliqzUtils.log('captureCopyPage', CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.lastEv['copypage'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActive = CliqzUCrawl.counter;
         var activeURL = CliqzUCrawl.currentURL();
-        if (CliqzUCrawl.state['v']['a'] > 1*CliqzUCrawl.tmult) {
-          CliqzUCrawl.state['v'][activeURL]['e']['se'] += 1;
+        if (CliqzUCrawl.state['v'][activeURL]!=null && CliqzUCrawl.state['v'][activeURL]['a'] > 1*CliqzUCrawl.tmult) {
+          CliqzUCrawl.state['v'][activeURL]['e']['cp'] += 1;
         }
       }
     },
@@ -338,62 +389,56 @@ var CliqzUCrawl = {
     lastEv: {},
     lastActive: null,
     lastActiveAll: null,
-    closing1: function(ev) {
-      CliqzUtils.log('PRE CLOSING1', CliqzUCrawl.LOG_KEY);
-      /*
-
-      CliqzUtils.log('PRE CLOSING: ' + CliqzUCrawl.currentURL(), CliqzUCrawl.LOG_KEY);
-
-      if (ev.target.location.href !== 'chrome://browser/content/browser.xul') return;
-
-      if (CliqzUCrawl['v'][ev.target.location.href] != null) {
-        CliqzUtils.log('CLOSING: ' + ev.target.location.href, CliqzUCrawl.LOG_KEY);
+    getAllOpenPages: function() {
+      var res = [];
+      for (var j = 0; j < CliqzUCrawl.windowsRef.length; j++) {
+        var gBrowser = CliqzUCrawl.windowsRef[j].gBrowser;
+        var numTabs = gBrowser.tabContainer.childNodes.length;
+        for (var i = 0; i < numTabs; i++) {
+          var currentTab = gBrowser.tabContainer.childNodes[i];
+          var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+          var currURL=''+currentBrowser.contentDocument.location;
+          if (currURL.indexOf('about:')!=0) {
+            res.push(currURL);
+          }
+        }
       }
-      */
-
+      return res;
     },
-    closingTab: function(ev) {
-      var activeURL = CliqzUCrawl.currentURL();
-
-      CliqzUtils.log('PRE CLOSING: ' + activeURL, CliqzUCrawl.LOG_KEY);
-
-      if (CliqzUCrawl.state['v'][activeURL] != null) {
-
-        CliqzUCrawl.state['v'][activeURL]['tout'] = new Date().getTime();
-        CliqzUCrawl.state['v'][activeURL]['url'] = activeURL;
-        CliqzUCrawl.state['m'].push(CliqzUtils.clone(CliqzUCrawl.state['v'][activeURL]));
-        //CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][activeURL]);
-        delete CliqzUCrawl.state['v'][activeURL];
-        //CliqzUCrawl.state['v'][activeURL] = null;
-
-      }
-
-
-    },
+    windowsRef: [],
+    windowsMem: {},
     init: function(window) {
-        CliqzUtils.log('INIT UCRAWL', CliqzUCrawl.LOG_KEY);
+
+        var win_id = CliqzUtils.getWindowID()
 
         if (CliqzUCrawl.state == null) {
           CliqzUCrawl.state = {};
-          CliqzUtils.log('RESET STATE', CliqzUCrawl.LOG_KEY);
+          CliqzUtils.log('Window1: ' + win_id, CliqzUCrawl.LOG_KEY);
 
         }
         else {
-          CliqzUtils.log('REUSE STATE', CliqzUCrawl.LOG_KEY);
 
+          var util = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+          var win_id = util.outerWindowID;
+
+          if (CliqzUCrawl.windowsMem[win_id] == null) {
+            CliqzUCrawl.windowsMem[win_id] = window;
+            CliqzUCrawl.windowsRef.push(window);
+          }
+
+        }
+
+        var util = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+        var win_id = util.outerWindowID;
+
+        if (CliqzUCrawl.windowsMem[win_id] == null) {
+          CliqzUCrawl.windowsMem[win_id] = window;
+          CliqzUCrawl.windowsRef.push(window);
         }
 
         if (CliqzUCrawl.pacemakerId==null) {
           CliqzUCrawl.pacemakerId = CliqzUtils.setInterval(CliqzUCrawl.pacemaker, CliqzUCrawl.tpace, null);
-
         }
-
-        window.addEventListener("keypress", CliqzUCrawl.captureKeyPress);
-        window.addEventListener("mousemove", CliqzUCrawl.captureMouseMove);
-        window.addEventListener("mousedown", CliqzUCrawl.captureMouseClick);
-
-        window.addEventListener("unload", CliqzUCrawl.closing1, false);
-        window.addEventListener("TabClose", CliqzUCrawl.closingTab, false);
 
 
     },
