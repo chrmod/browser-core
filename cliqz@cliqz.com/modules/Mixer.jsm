@@ -192,10 +192,6 @@ var Mixer = {
         if(imagesResults && imagesResults.length > 0)
             results = imagesResults.concat(results);
 
-        // // add external weather API results
-        // if(weatherResults && weatherResults.length > 0)
-        //     results = weatherResults.concat(results);
-
         // add external bundesliga API results
         if(bundesligaResults && bundesligaResults.length > 0)
             results = bundesligaResults.concat(results);

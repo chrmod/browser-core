@@ -25,7 +25,6 @@ var Result = {
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZI: 'cliqz-images',
-    //CLIQZW: 'cliqz-weather',
     CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',

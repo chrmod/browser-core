@@ -341,10 +341,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var now = (new Date()).getTime();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
-// <<<<<<< HEAD
-//                         this.historyResults && this.cliqzResults && this.cliqzWeather && this.cliqzImages /*|| // all results are ready
-//                         this.cliqzResults && this.cliqzWeather && now > this.startTime + CliqzAutocomplete.HISTORY_TIMEOUT*/) { // 100ms timeout for history
-// =======
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
                        this.cliqzResults && this.cliqzImages) { // all results are ready
                         /// Push full result
@@ -374,8 +370,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-
-                        //this.cliqzWeather= null;
                         this.cliqzImages= null;
                         return;
                     } else if(this.isHistoryReady()) {
@@ -466,7 +460,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra,
                             this.mixedResults,
                             this.cliqzImages,
-                            // this.cliqzWeather,
                             this.cliqzBundesliga,
                             maxResults
                     );
@@ -546,22 +539,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults = this.pushResults.bind(this);
 
                 this.cliqzImagesCallback = this.cliqzImagesCallback.bind(this);
-                //this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
 
                 if(searchString.trim().length){
                     // start fetching results and suggestions
-
-                    // var im_search_obj = CliqzImages.isImagesSearch(searchString)
-                    // if (im_search_obj.flag){
-                    //     // CliqzUtils.getSuggestions(im_search_obj.query, this.cliqzSuggestionFetcher);
-                    //     CliqzImages.get(im_search_obj.query, this.cliqzImagesCallback);
-                    // }
-                    // else {
-                    //     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-                    // }
 
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
 
@@ -570,13 +553,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
 
-
-                    // // Fetch weather and bundesliga only if search contains trigger
-                    // if(CliqzWeather.isWeatherSearch(searchString)){
-                    //     CliqzWeather.get(searchString, this.cliqzWeatherCallback);
-                    // } else {
-                    //     this.cliqzWeather = [];
-                    // }
                     // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
@@ -591,7 +567,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
-                    //this.cliqzWeather = [];
                     this.cliqzImages = [];
                     this.cliqzBundesliga = [];
                 }
