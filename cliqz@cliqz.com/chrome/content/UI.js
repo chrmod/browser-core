@@ -218,7 +218,7 @@ function sendResultsSignal(results, instant){
         latency_history: CliqzAutocomplete.lastResult.latency.history,
         latency_backend: CliqzAutocomplete.lastResult.latency.backend,
         latency_mixed: CliqzAutocomplete.lastResult.latency.mixed,
-        latency_all: CliqzAutocomplete.lastResult.latency.all,
+        latency_all: (new Date()).getTime() - CliqzAutocomplete.lastResult.startTime,
         version: 1
     };
     if(CliqzAutocomplete.lastResult.country)
