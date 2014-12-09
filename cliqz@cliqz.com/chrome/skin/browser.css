@@ -1207,12 +1207,12 @@
 
 .entity-video-group {
   display: inline-block;
+  vertical-align: top;
   width: 100px;
   margin-right: 10px;
 }
 
-.entity-video-thumbnail {
-  overflow: hidden;
+.entity-video-thumbnail img {
   width: 100px;
   height: 60px;
 }
