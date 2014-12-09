@@ -22,6 +22,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 //var _winmed = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 var CliqzUCrawl = {
+    VERSION: 0.1,
     WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
     httpCache: {},
@@ -73,6 +74,7 @@ var CliqzUCrawl = {
           if (CliqzUCrawl.httpCache[key]['location']==url) {
             res.push(key);
           }
+
         }
       }
       if (res.length==0) return null;
@@ -186,20 +188,35 @@ var CliqzUCrawl = {
       return res;
 
     },
+    getParametersQS: function(url) {
+      var res = {};
+      var KeysValues = url.split(/[\?&]+/);
+      for (var i = 0; i < KeysValues.length; i++) {
+        var kv = KeysValues[i].split("=");
+        if (kv.length==2) res[kv[0]] = kv[1];
+      }
+      return res;
+    },
     getParameterByName: function(url, name)  {
+      /*
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(url.search);
-      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+      var results = regex.exec(url.search);
+
+      return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+      */
     },
     getEmbeddedURL: function(targetURL) {
 
-      var ihttps = targetURL.lastIndexOf('https%3A%2F%2F')
-      var ihttp = targetURL.lastIndexOf('http%3A%2F%2F')
+      var ihttps = targetURL.lastIndexOf('https://')
+      var ihttp = targetURL.lastIndexOf('http://')
       if (ihttps>0 || ihttp>0) {
+        //CliqzUtils.log('>>> JOSEP: ' +  targetURL + ' ::: ' + JSON.stringify(CliqzUCrawl.getParametersQS(targetURL), undefined, 2), CliqzUCrawl.LOG_KEY);
         // contains either http or https not ont he query string, very suspicious
-        return CliqzUCrawl.getParameterByName(targetURL, 'url');
-
+        var parqs = CliqzUCrawl.getParametersQS(targetURL);
+        if (parqs['url']) {
+          return decodeURIComponent(parqs['url']);
+        }
       }
       else return null;
     },
@@ -268,10 +285,12 @@ var CliqzUCrawl = {
                   referral = CliqzUCrawl.linkCache[activeURL]['s'];
                 }
 
-                CliqzUCrawl.state['v'][activeURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red': CliqzUCrawl.getRedirects(activeURL)};
+                CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red': CliqzUCrawl.getRedirects(activeURL)};
 
-
-
+              }
+              else {
+                // wops, it exists on the active page, probably it comes from a back button
+                CliqzUCrawl.state['v'][activeURL]['tend'] = null;
               }
 
               currwin.setTimeout(function(currWin, currURL) {
@@ -347,19 +366,31 @@ var CliqzUCrawl = {
             if (openPages.indexOf(url)==-1) {
               // not opened
 
-              CliqzUCrawl.state['v'][url]['tend'] = tt;
-              CliqzUCrawl.state['v'][url]['url'] = url;
+              if (CliqzUCrawl.state['v'][url]['tend']==null) {
+                CliqzUCrawl.state['v'][url]['tend'] = tt;
+              }
 
-              CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
-              delete CliqzUCrawl.state['v'][url];
+              if ((tt - CliqzUCrawl.state['v'][url]['tend']) > 5*60*1000) {
+                // move to "dead pages" after 5 minutes
+                CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
+                delete CliqzUCrawl.state['v'][url];
+              }
 
 
             }
             else {
-              // stil opened, do nothing
+              // stil opened, do nothing.
+              if ((tt - CliqzUCrawl.state['v'][url]['tin']) > 20*60*1000) {
+                // unless it was opened more than 20 minutes ago, if so, let's move it to dead pages
+
+                CliqzUCrawl.state['v'][url]['tend'] = null;
+                CliqzUCrawl.state['v'][url]['too_long'] = true;
+                CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
+                delete CliqzUCrawl.state['v'][url];
+
+              }
 
             }
-
           }
         }
 
@@ -468,7 +499,6 @@ var CliqzUCrawl = {
           CliqzUCrawl.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzUCrawl.counter};
         }
       }
-
 
       if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclickpage']|0)) > 1 * CliqzUCrawl.tmult) {
         CliqzUtils.log('captureMouseClickPage', CliqzUCrawl.LOG_KEY);
