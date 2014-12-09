@@ -2,7 +2,7 @@
 	{{#unless invalid}}
 		<div class='cliqz-result-item-box'
 			type='{{ type }}'
-			subtype='{{ data.subtype }}'
+			kind='{{ data.kind }}'
 			url='{{ url }}'
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'

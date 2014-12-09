@@ -49,8 +49,9 @@ var CliqzLanguage = {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
+            if (aURI.spec == this.currentURL ||
+                !CliqzAutocomplete.lastResult) return;
 
-            if (aURI.spec == this.currentURL) return;
             this.currentURL = aURI.spec;
 
             // here we check if user ignored our results and went to google and landed on the same url
@@ -90,10 +91,7 @@ var CliqzLanguage = {
             } else if (CliqzAutocomplete.afterQueryCount == 1) {
                 // some times the redict was not captured so if only one query was make, we still compare to cliqz result
                 // but we don't send anything if we can't find a match
-                for (var i=0;
-                    CliqzAutocomplete.lastResult &&
-                    i < LR.length;
-                    i++) {
+                for (var i=0; i < LR.length; i++) {
                     var dest_url = CliqzUtils.cleanUrlProtocol(this.currentURL, true);
                     var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                     if (dest_url == comp_url) {
