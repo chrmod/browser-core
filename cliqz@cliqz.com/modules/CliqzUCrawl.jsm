@@ -38,10 +38,21 @@ var CliqzUCrawl = {
         observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
           if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
               var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
-              var url = aChannel.URI.spec;
+              var url = decodeURIComponent(aChannel.URI.spec);
               var status = aExtraStringData.split(" ")[1];
-              CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter};
-              //CliqzUtils.log('HTTP observer: ' + aExtraStringData, CliqzUCrawl.LOG_KEY);
+              var loc = null;
+              if (status=='301') {
+                var l = aExtraStringData.split("\n");
+                for(var i=0;i<l.length;i++) {
+                  if (l[i].indexOf('Location: ') == 0) {
+                    loc = decodeURIComponent(l[i].split(" ")[1].trim());
+                  }
+                }
+              }
+              CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+              if (loc!=null) {
+                CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
+              }
           }
         }
     },
@@ -53,6 +64,19 @@ var CliqzUCrawl = {
           delete CliqzUCrawl.linkCache[key];
         }
       }
+    },
+    getRedirects: function(url) {
+      var res = []
+      for(var key in CliqzUCrawl.httpCache) {
+        //CliqzUtils.log('OOO' + JSON.stringify(CliqzUCrawl.httpCache[key], undefined, 2) + ' ' + url, CliqzUCrawl.LOG_KEY);
+        if (CliqzUCrawl.httpCache[key]['location']!=null && CliqzUCrawl.httpCache[key]['status']=='301') {
+          if (CliqzUCrawl.httpCache[key]['location']==url) {
+            res.push(key);
+          }
+        }
+      }
+      if (res.length==0) return null;
+      else return res;
     },
     generateId: function(document) {
       try {
@@ -244,7 +268,10 @@ var CliqzUCrawl = {
                   referral = CliqzUCrawl.linkCache[activeURL]['s'];
                 }
 
-                CliqzUCrawl.state['v'][activeURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'r': referral};
+                CliqzUCrawl.state['v'][activeURL] = {'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red': CliqzUCrawl.getRedirects(activeURL)};
+
+
+
               }
 
               currwin.setTimeout(function(currWin, currURL) {
@@ -300,7 +327,11 @@ var CliqzUCrawl = {
           // if there has been an event on the last 5 seconds, if not do no count, the user must
           // be doing something else,
           //
-          CliqzUCrawl.state['v'][activeURL]['a'] += 1;
+          try {
+            CliqzUCrawl.state['v'][activeURL]['a'] += 1;
+          } catch(ee) {
+            CliqzUtils.log('Error! activeURL not found: ' + activeURL, CliqzUCrawl.LOG_KEY);
+          }
         }
       }
 
@@ -398,13 +429,32 @@ var CliqzUCrawl = {
         }
       }
     },
+    getURLFromEvent: function(ev) {
+
+      try {
+        if (ev.target.href!=null || ev.target.href!=undefined) {
+          return decodeURIComponent(''+ev.target.href);
+        }
+        else {
+          if (ev.target.parentNode.href!=null || ev.target.parentNode.href!=undefined) {
+            return decodeURIComponent(''+ev.target.parentNode.href);
+          }
+        }
+      }
+      catch(ee) {
+         CliqzUtils.log('Error in getURLFromEvent: ' + ee, CliqzUCrawl.LOG_KEY);
+      }
+
+      return null;
+    },
     captureMouseClickPage: function(ev) {
 
       // if the target is a link of type hash it does not work, it will create a new page without referral
       //
-      if (ev.target.href!=null || ev.target.href!=undefined) {
 
-        var targetURL = decodeURIComponent(ev.target.href);
+      var targetURL = CliqzUCrawl.getURLFromEvent(ev);
+
+      if (targetURL!=null) {
 
         var embURL = CliqzUCrawl.getEmbeddedURL(targetURL);
         if (embURL!=null) targetURL = embURL;
@@ -470,7 +520,7 @@ var CliqzUCrawl = {
           var currentBrowser = gBrowser.getBrowserForTab(currentTab);
           var currURL=''+currentBrowser.contentDocument.location;
           if (currURL.indexOf('about:')!=0) {
-            res.push(currURL);
+            res.push(decodeURIComponent(currURL));
           }
         }
       }
@@ -485,7 +535,6 @@ var CliqzUCrawl = {
         if (CliqzUCrawl.state == null) {
           CliqzUCrawl.state = {};
           CliqzUtils.log('Window1: ' + win_id, CliqzUCrawl.LOG_KEY);
-
 
         }
         else {
