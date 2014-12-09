@@ -19,7 +19,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
-//var _winmed = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
 
 var CliqzUCrawl = {
     VERSION: 0.1,
@@ -261,7 +260,11 @@ var CliqzUCrawl = {
                       if (currURLAtTime == activeURL) {
                         var id_cont = CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
                         var document = currwin.gBrowser.selectedBrowser.contentDocument;
-                        CliqzUCrawl.scrape(activeURL, document);
+                        var rq = CliqzUCrawl.scrape(activeURL, document);
+
+                        if (rq!=null) {
+                          CliqzUCrawl.track({'type': 'safe', 'action': 'query', 'payload': rq});
+                        }
                       }
                   }
                   catch(ee) {
@@ -400,9 +403,19 @@ var CliqzUCrawl = {
         CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
         CliqzUtils.log(JSON.stringify(CliqzUCrawl.getAllOpenPages(), undefined, 2), CliqzUCrawl.LOG_KEY);
-
         CliqzUCrawl.cleanHttpCache();
+      }
 
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
+        var ll = CliqzUCrawl.state['m'].length;
+        if (ll > 0) {
+          var v = CliqzUCrawl.state['m'].slice(0, ll);
+          CliqzUCrawl.state['m'] = CliqzUCrawl.state['m'].slice(ll, CliqzUCrawl.state['m'].length);
+
+          for(var i=0;i<v.length;i++) {
+            CliqzUCrawl.track({'type': 'safe', 'action': 'page', 'payload': v[i]});
+          }
+        }
       }
 
       CliqzUCrawl.counter += 1;
@@ -599,12 +612,65 @@ var CliqzUCrawl = {
         CliqzUtils.log('Window1: ' + activityDistributor, CliqzUCrawl.LOG_KEY);
         activityDistributor.addObserver(CliqzUCrawl.httpObserver);
 
-
-
-
     },
     state: {'v': {}, 'm': []},
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
-    }
+    },
+    // ****************************
+    // TRACK, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
+    // ****************************
+    trk: [],
+    trkTimer: null,
+    track: function(msg, instantPush) {
+      if (!CliqzUCrawl) return; //might be called after the module gets unloaded
+      if (CliqzUtils.cliqzPrefs.getBoolPref('dnt')) return;
+
+      msg.ts = (new Date()).getTime();
+
+      CliqzUCrawl.trk.push(msg);
+      CliqzUtils.clearTimeout(CliqzUCrawl.trkTimer);
+      if(instantPush || CliqzUCrawl.trk.length % 100 == 0){
+        CliqzUCrawl.pushTrack();
+      } else {
+        CliqzUCrawl.trkTimer = CliqzUtils.setTimeout(CliqzUCrawl.pushTrack, 60000);
+      }
+    },
+    _track_req: null,
+    _track_sending: [],
+    _track_start: undefined,
+    TRACK_MAX_SIZE: 500,
+    pushTrack: function() {
+      if(CliqzUCrawl._track_req) return;
+
+      // put current data aside in case of failure
+      CliqzUCrawl._track_sending = CliqzUCrawl.trk.slice(0);
+      CliqzUCrawl.trk = [];
+      CliqzUCrawl._track_start = (new Date()).getTime();
+
+      CliqzUtils.log('push tracking data: ' + CliqzUCrawl._track_sending.length + ' elements', "CliqzUCrawl.pushTrack");
+      CliqzUCrawl._track_req = CliqzUtils.httpPost(CliqzUtils.UCRAWL, CliqzUCrawl.pushTrackCallback, JSON.stringify(CliqzUCrawl._track_sending), CliqzUCrawl.pushTrackError);
+    },
+    pushTrackCallback: function(req){
+      try {
+        var response = JSON.parse(req.response);
+        CliqzUCrawl._track_sending = [];
+        CliqzUCrawl._track_req = null;
+      } catch(e){}
+    },
+    pushTrackError: function(req){
+      // pushTrack failed, put data back in queue to be sent again later
+      CliqzUtils.log('push tracking failed: ' + CliqzUCrawl._track_sending.length + ' elements', "CliqzUCrawl.pushTrack");
+      CliqzUCrawl.trk = CliqzUCrawl._track_sending.concat(CliqzUCrawl.trk);
+
+      // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
+      var slice_pos = CliqzUCrawl.trk.length - CliqzUCrawl.TRACK_MAX_SIZE + 100;
+      if(slice_pos > 0){
+        CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUCrawl.pushTrack");
+        CliqzUCrawl.trk = CliqzUCrawl.trk.slice(slice_pos);
+      }
+
+      CliqzUCrawl._track_sending = [];
+      CliqzUCrawl._track_req = null;
+    },
 };

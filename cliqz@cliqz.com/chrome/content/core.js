@@ -204,6 +204,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzSniffer;
+            delete window.CliqzUCrawl;
         }
     },
     restart: function(soft){
