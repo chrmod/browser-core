@@ -36,7 +36,7 @@ var CliqzHistoryPattern = {
         this.SQL
             ._execute(
                 Services.storage.openDatabase(file),
-                "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+ 
+                "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits "+
                 "inner join ( "+
                     "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > "+CliqzHistoryPattern.timeFrame+" and "+
                     "(visits.url like '%"+this.escapeSQL(query)+"%' or visits.last_query like '%"+this.escapeSQL(query)+"%' or urltitles.title like '%"+this.escapeSQL(query)+"%') "+
@@ -94,7 +94,8 @@ var CliqzHistoryPattern = {
                     filteredResults: function() {
                         var tmp = new Array();
                         for (var key in this.results) {
-                            if (CliqzHistoryPattern.domainFromUrl(this.results[key]['url'], false) == this.top_domain) {
+                            if (CliqzHistoryPattern.domainFromUrl(this.results[key]['url'], false) == this.top_domain &&
+                                this.results[key]['title']) {
                                 tmp.push(this.results[key]);
                             };
                         }
@@ -129,7 +130,7 @@ var CliqzHistoryPattern = {
     },
     sortPatterns: function (desc,key) {
          return function(a,b){
-           return desc ? ~~(key ? a[key]<b[key] : a < b) 
+           return desc ? ~~(key ? a[key]<b[key] : a < b)
                        : ~~(key ? a[key] > b[key] : a > b);
           };
     },
@@ -156,7 +157,7 @@ var CliqzHistoryPattern = {
         var baseUrl = patterns[0]['url'];
         baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl,true);
         if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
-        baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)));   
+        baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)));
 
         for (var i = 0; i < patterns.length; i++) {
             var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i]['url'],true);
@@ -174,7 +175,7 @@ var CliqzHistoryPattern = {
             patterns[0]['debug'] = 'Replaced by base domain';
             newPatterns.push(basePattern);
         };
-        
+
         for(var key in patterns) {
             if (patterns[key] != basePattern) newPatterns.push(patterns[key]);
         }
@@ -194,7 +195,7 @@ var CliqzHistoryPattern = {
             for (var j=i+1; j<session.length; j++) {
                 var end = this.simplifyUrl(session[j].url);
                 if (!end) continue;
-                str += " -> " + end; 
+                str += " -> " + end;
 
                 if (start != end) {
                     this.updatePattern(session[j], str);
@@ -215,7 +216,7 @@ var CliqzHistoryPattern = {
             this.pattern[path]["cnt"] += 1;
             this.pattern[path]["query"].push(CliqzHistoryPattern.generalizeUrl(session.query,true));
         }
-        
+
     },
     simplifyUrl: function(url) {
         // Ignore Google redirect urls
@@ -234,7 +235,7 @@ var CliqzHistoryPattern = {
         } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) == 0) {
             var q = url.substring(url.indexOf("q=")).split("&")[0];
             if (q != "q=") {
-                return "https://www.bing.com/search?" + q; 
+                return "https://www.bing.com/search?" + q;
             } else {
                 return url;
             }
@@ -272,10 +273,10 @@ var CliqzHistoryPattern = {
         if (pattern['title']) {
             shortTitle = pattern['title'].split(' ')[0];
         }
-        var shortUrl = pattern['url'].length > 80 ? (pattern['url'].substring(0,80)+"...") : pattern['url']
+        var shortUrl = pattern['url'].length > 50 ? (pattern['url'].substring(0,50)+"...") : pattern['url']
         var autocomplete = false, highlight = false, selectionStart = 0, urlbarCompleted = "";
         var queryMatch = matchQuery(pattern['query']);
-        
+
 
         // Url
         if (url.indexOf(input) == 0 && url != input) {
@@ -311,7 +312,7 @@ var CliqzHistoryPattern = {
         var title1 = pattern[1].title.split(" ").reverse();
         var title2 = pattern[2].title.split(" ").reverse();
         var wordCount = 0;
-        for(; wordCount<title1.length && wordCount<title2.length && 
+        for(; wordCount<title1.length && wordCount<title2.length &&
             title1[wordCount] == title2[wordCount]; wordCount++);
         CliqzUtils.log(title1.slice(0, wordCount));
         for(var i=3; i < pattern.length && i < 5; i++) {
@@ -394,7 +395,7 @@ var CliqzHistoryPattern = {
                            (pathLength? val.substr(-pathLength): '');
             }
         };
-        
+
         url = CliqzUtils.cleanUrlProtocol(val, true);
         if (url[url.length-1] == '/') {
             url = url.substring(0, url.length-1);
@@ -436,7 +437,7 @@ var CliqzHistoryPattern = {
     escapeSQL: function(str) {
         return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
         switch (char) {
-            case "'": 
+            case "'":
                 return "''";
             default:
                 return char;

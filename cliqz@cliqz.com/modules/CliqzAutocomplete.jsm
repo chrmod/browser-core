@@ -298,7 +298,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var instantResults = new Array();
                     // Cluster patterns, at least base url + two patterns
-                    if (results.length > 2) {
+                    if (results.length > 2 ||
+                        (results[0].base != true && results.length == 2)) {
                         var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url, true);
                         if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];  
                         // Add base domain if not in list
@@ -327,11 +328,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // Add result urls
                         var titleStrip = CliqzHistoryPattern.stripTitle(results);
                         for(var i=1; i<results.length; i++) {
-                            if (!results[i]['title']) continue;
+                            var newTitle = results[i].title.replace(titleStrip, "");
                             instant.data.urls.push( {
                                 href: results[i].url,
-                                link: CliqzUtils.cleanUrlProtocol(results[i].url, true),
-                                title: results[i].title.replace(titleStrip, ""),
+                                link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[i].url), true),
+                                title: newTitle.length > 0 ? newTitle : results[i].title,
                             });
                             if (instant.data.urls.length > 3) {
                                 break;
