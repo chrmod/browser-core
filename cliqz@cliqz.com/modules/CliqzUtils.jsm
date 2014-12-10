@@ -46,7 +46,8 @@ var VERTICAL_ENCODINGS = {
     'bm': 'm'
 };
 
-var end_point = 'https://newbeta.cliqz.com' // https://webbeta.cliqz.com
+var end_point = 'http://54.160.105.244:8080' //'https://newbeta.cliqz.com' // https://webbeta.cliqz.com
+
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
