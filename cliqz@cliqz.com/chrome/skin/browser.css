@@ -12,7 +12,10 @@
     overflow: hidden;
     line-height: 20px;
 }
-
+.bold-underscore {
+    font-weight: bold;
+    text-decoration: underline;
+}
 .cliqz-suggestion {
     padding: 1px 5px 0px 5px;
     display: inline-block;
@@ -1290,12 +1293,12 @@
 
 .entity-video-group {
   display: inline-block;
+  vertical-align: top;
   width: 100px;
   margin-right: 10px;
 }
 
-.entity-video-thumbnail {
-  overflow: hidden;
+.entity-video-thumbnail img {
   width: 100px;
   height: 60px;
 }
