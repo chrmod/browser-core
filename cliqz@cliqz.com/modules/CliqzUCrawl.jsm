@@ -26,6 +26,7 @@ var CliqzUCrawl = {
     LOG_KEY: 'CliqzUCrawl',
     debug: true,
     httpCache: {},
+    queryCache: {},
     cleanHttpCache: function() {
       for(var key in CliqzUCrawl.httpCache) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 30*CliqzUCrawl.tmult) {
@@ -97,8 +98,8 @@ var CliqzUCrawl = {
       try {
         var url = element.parentElement.parentElement.parentElement.parentElement.childNodes[0].children[0].attributes['href'].value;
         var title = element.parentElement.parentElement.parentElement.parentElement.childNodes[0].children[0].textContent;
-        if (url==null || url==undefined || url=='') throw('Could not get URL')
-        return {'u': url, 't': title};
+        if (url==null || url==undefined || url=='') throw('Could not get URL');
+        return {'u':  decodeURIComponent(url), 't': title};
       }
       catch(ee) {
         if (CliqzUCrawl.debug) {
@@ -135,10 +136,8 @@ var CliqzUCrawl = {
 
       var a = document.getElementsByTagName('cite');
       for(let i=0; i < a.length; i++) {
-
         var cand_url = a[i].textContent;
         var d = null;
-
 
           if (cand_url.indexOf('...')!=-1 || cand_url.indexOf(' ')!=-1) {
             // it's long URL or it contains spaces
@@ -157,6 +156,8 @@ var CliqzUCrawl = {
               else {
                 cand_url_clean = cand_url;
               }
+
+              cand_url_clean = decodeURIComponent(cand_url_clean);
 
               var d = CliqzUCrawl.scrapeFurther(a[i]);
 
@@ -269,8 +270,10 @@ var CliqzUCrawl = {
                             var rq = CliqzUCrawl.scrape(activeURL, document);
 
                             if (rq!=null) {
+                              CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q']};
                               CliqzUCrawl.track({'type': 'safe', 'action': 'query', 'payload': rq});
                             }
+
                           }
                       }
                       catch(ee) {
@@ -292,11 +295,23 @@ var CliqzUCrawl = {
                 }
 
                 var referral = null;
+                var qreferral = null;
                 if (CliqzUCrawl.linkCache[activeURL] != null) {
                   referral = CliqzUCrawl.linkCache[activeURL]['s'];
                 }
 
-                CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(), 'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red': CliqzUCrawl.getRedirects(activeURL)};
+                CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
+                        'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
+                        'red': CliqzUCrawl.getRedirects(activeURL)};
+
+                if (referral) {
+                  // if there is a good referral, we must inherit the query if there is one
+                  if (CliqzUCrawl.state['v'][referral] && CliqzUCrawl.state['v'][referral]['qr']) {
+                    CliqzUCrawl.state['v'][activeURL]['qr'] = {}
+                    CliqzUCrawl.state['v'][activeURL]['qr']['q'] = CliqzUCrawl.state['v'][referral]['qr']['q'];
+                    CliqzUCrawl.state['v'][activeURL]['qr']['d'] = CliqzUCrawl.state['v'][referral]['qr']['d']+1;
+                  }
+                }
 
                 currwin.setTimeout(function(currWin, currURL) {
 
@@ -328,13 +343,13 @@ var CliqzUCrawl = {
                     CliqzUCrawl.state['v'][currURL]['x'] = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks};
                   }
 
-                }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
+                  if (CliqzUCrawl.queryCache[currURL]) {
+                    CliqzUCrawl.state['v'][currURL]['qr'] = CliqzUCrawl.queryCache[currURL];
 
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CliqzUCrawl.captureMouseMovePage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzUCrawl.captureScrollPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CliqzUCrawl.captureCopyPage);
+                  }
+
+
+                }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
 
 
               }
@@ -344,9 +359,14 @@ var CliqzUCrawl = {
                 CliqzUCrawl.state['v'][activeURL]['tend'] = null;
               }
 
+              // they need to be loaded upon each onlocation, not only the first time
+              currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
+              currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CliqzUCrawl.captureMouseMovePage);
+              currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
+              currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CliqzUCrawl.captureScrollPage);
+              currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CliqzUCrawl.captureCopyPage);
+
             }
-
-
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
           //CliqzUtils.log('state change: ' + aWebProgress, CliqzUCrawl.LOG_KEY);
@@ -420,7 +440,7 @@ var CliqzUCrawl = {
 
       }
 
-      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 20 == 0) {
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
         if (CliqzUCrawl.debug) {
           CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
           CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
@@ -605,6 +625,15 @@ var CliqzUCrawl = {
         if (CliqzUCrawl.state['v'][activeURL]!=null) {
           CliqzUCrawl.state['v'][activeURL]['c'].push({'l': ''+targetURL, 't': CliqzUCrawl.counter});
           CliqzUCrawl.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzUCrawl.counter};
+
+          /*
+          if (CliqzUCrawl.state['v'][activeURL]['qr']) {
+            CliqzUCrawl.linkCache[targetURL]['qr'] = {}
+            CliqzUCrawl.linkCache[targetURL]['qr']['q'] = CliqzUCrawl.state['v'][activeURL]['qr']['q'];
+            CliqzUCrawl.linkCache[targetURL]['qr']['d'] = CliqzUCrawl.state['v'][activeURL]['qr']['d']+1;
+          }
+          */
+
         }
       }
 
