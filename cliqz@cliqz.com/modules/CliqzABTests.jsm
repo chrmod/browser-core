@@ -215,7 +215,6 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1009_A":
                 CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
-                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
                 break;
             case "1010_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
