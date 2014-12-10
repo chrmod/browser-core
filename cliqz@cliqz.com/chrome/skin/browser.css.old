@@ -133,7 +133,6 @@
 .cliqz-result-left-box {
     width: 30px;
     text-align: center;
-    visibility: hidden;
 }
 
 .cliqz-image {
@@ -159,19 +158,16 @@
 
 .cliqz-result-mid-box {
     overflow: hidden;
-    color: rgba(0,0,0,0.54);
 }
 
 .cliqz-result-right-box {
-    visibility: hidden;
 }
 
 .cliqz-result-title-box {
     font-size: 12pt;
     font-weight: 500;
     padding-bottom: 3px;
-    display: inline-block;
-    color: rgba(0,0,0,0.87);;
+    display: inline-block;;
 }
 
 .cliqz-result-url-box {
@@ -181,14 +177,11 @@
 }
 
 .cliqz-result-url-host {
-    /*color: #006666;*/
-    color: rgba(46,125,50,0.84);
+    color: #006666;
 }
 
 .cliqz-result-url-path {
-    /*color: #cccccc;*/
-    /*color: rgba(64,64,0,0.87);*/
-    color: rgba(192,192,192,0.87);
+    color: #cccccc;
 }
 
 .cliqz-result-url-ssl {
@@ -204,7 +197,7 @@
 }
 
 .cliqz-result-item-box {
-    border-bottom: 1px solid #E0E0E0;
+    border-bottom: 1px solid #CCC;
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -515,12 +508,12 @@
     overflow: hidden;
     display: table-cell;
     vertical-align: middle;
-    color: rgba(255,255,255,0.94);
+    color: white;
     width: 64px;
     height: 64px;
     line-height: 64px;
     font-size: 22pt;
-    margin-left:30px;
+    margin-left:20px;
     margin-top:12px;
     background: #BFBFBF;
     -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -536,8 +529,7 @@
     height:44px;
     line-height: 44px;
     background: #F5F5F5;
-    /*color: #424242;*/
-    color: rgba(0,0,0,0.87);
+    color: #424242;
     font-size: 16px;
     text-decoration: bold;
     -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -550,7 +542,7 @@
     overflow:hidden;
     position:absolute;
     top:0;
-    left:120px;
+    left:100px;
     right: 20px;
     word-wrap: break-word;
     white-space: nowrap;
@@ -566,7 +558,7 @@
 
 .cliqz-pattern-title-link {
     display:inline-block;
-    color:rgba(0,0,0,0.54);
+    color:#9E9E9E;
     overflow:hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -580,19 +572,19 @@
 
 .cliqz-pattern-entry-title {
     font-size: 13px;
-    margin-left: 40px;
+    margin-left: 20px;
     display:inline-block;
     text-decoration: underline;
-    color: rgba(46,125,50,0.84);
+    color: #2E7D32;
     overflow: hidden;
     max-width: 40%;
 }
 .cliqz-pattern-entry-link {
     font-size: 13px;
-    color:rgba(127,127,127,0.54);
+    color: #BDBDBD;
     font-weight: normal;
     text-decoration: none;
-    padding-left: 40px;
+    padding-left: 25px;
     max-width: 40%;
     overflow: hidden;
     display:inline-block;
@@ -675,7 +667,7 @@
 
 /* news */
 .cliqz-news-ago-line {
-    color: rgba(244,67,54,0.84);
+    color: red;
     font-weight: bold;
 }
 
