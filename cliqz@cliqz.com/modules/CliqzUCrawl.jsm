@@ -38,23 +38,30 @@ var CliqzUCrawl = {
         // check the non 2xx page and report if this is one of the cliqz result
         observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
           if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
-              var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
-              var url = decodeURIComponent(aChannel.URI.spec);
-              var status = aExtraStringData.split(" ")[1];
-              var loc = null;
-              if (status=='301') {
-                var l = aExtraStringData.split("\n");
-                for(var i=0;i<l.length;i++) {
-                  if (l[i].indexOf('Location: ') == 0) {
-                    loc = decodeURIComponent(l[i].split(" ")[1].trim());
+
+              try {
+                var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
+
+                var url = decodeURIComponent(aChannel.URI.spec);
+
+                var status = aExtraStringData.split(" ")[1];
+                var loc = null;
+                if (status=='301') {
+                  var l = aExtraStringData.split("\n");
+                  for(var i=0;i<l.length;i++) {
+                    if (l[i].indexOf('Location: ') == 0) {
+                      loc = decodeURIComponent(l[i].split(" ")[1].trim());
+                    }
                   }
                 }
-              }
-              CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
-              if (loc!=null) {
-                if (CliqzUCrawl.debug) {
-                  CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
+                CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+                if (loc!=null) {
+                  if (CliqzUCrawl.debug) {
+                    CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
+                  }
                 }
+              } catch(ee) {
+                return;
               }
           }
         }
@@ -301,7 +308,7 @@ var CliqzUCrawl = {
                 }
 
                 CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                        'e': {'se': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
+                        'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
                         'red': CliqzUCrawl.getRedirects(activeURL)};
 
                 if (referral) {
