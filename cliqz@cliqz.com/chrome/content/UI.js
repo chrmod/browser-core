@@ -9,7 +9,8 @@
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'weather', 'bitcoin'],
+                 'entity-search-1', 'entity-news-1', 'weather', 'bitcoin',
+                 'images'],
 
     VERTICALS = {
         'i': 'images',
@@ -97,9 +98,11 @@ var UI = {
     results: function(res){
         if (!gCliqzBox)
             return;
-        
+
         var enhanced = enhanceResults(res);
         process_images_result(res, 110); // applies images layout
+        // console.log('process_images_result');
+        // console.log(res.results[0].data);
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -387,8 +390,11 @@ function constructImage(data){
     return null;
 }
 
-    // image search layout 
-    
+
+
+
+    // image search layout
+
     // HEIGHTS = [];
     var IMAGES_MARGIN = 6;
     var IMAGES_LINES = 1;
@@ -397,7 +403,7 @@ function constructImage(data){
         var h = 0;
         for (var i = 0; i < images.length; ++i) {
             // console.log('width (getheight): '+images[i].image_width)
-            h += images[i].image_width / images[i].image_height 
+            h += images[i].image_width / images[i].image_height
         }
         return width / h;
     }
@@ -449,16 +455,60 @@ function constructImage(data){
         setheight(images, getheight(images, width));
     }
 
+
+    // function process_images_result(res, max_height) {
+    //     var tmp = []
+    //     for(var k=0; k<res.results.length; k++){
+    //         var r = res.results[k];
+    //         if (getPartial(r.type) == 'images') {
+    //             // console.log(r.data.results[0]);
+    //             var size = CLIQZ.Core.urlbar.clientWidth - 15;
+    //             var n = 0;
+    //             var images = r.data.results;
+    //             //console.log('global width: '+ size);
+    //                 //+', images nbr: '+images.length)
+    //             w: while ((images.length > 0) && (n<IMAGES_LINES)){
+    //                 var i = 1;
+    //                 while ((i < images.length + 1) && (n<IMAGES_LINES)){
+    //                     var slice = images.slice(0, i);
+    //                     var h = getheight(slice, size);
+    //                     //console.log('height: '+h);
+    //                     if (h < max_height) {
+    //                         setheight(slice, h);
+    //                         //res.results[k].data.results = slice
+    //                         tmp.push.apply(tmp, slice);
+    //                         // console.log('height: '+h);
+    //                         n++;
+    //                         images = images.slice(i);
+    //                         continue w;
+    //                     }
+    //                     i++;
+    //                 }
+    //                 setheight(slice, Math.min(max_height, h));
+    //                 tmp.push.apply(tmp, slice);
+    //                 n++;
+    //                 break;
+    //             }
+    //             res.results[k].data.results = tmp
+    //             // console.log(r.data.results);
+    //             // console.log('lines: '+n); // should be 1
+    //             }
+    //         }
+
+    //     }
+
+
+
     function process_images_result(res, max_height) {
         var tmp = []
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
-            if (getPartial(r.type) == 'images') {
-                // console.log(r.data.results[0]);
+            if (r.vertical == 'images' && r.data.template == 'images') {
+                console.log(r.data);
                 var size = CLIQZ.Core.urlbar.clientWidth - 15;
                 var n = 0;
-                var images = r.data.results;
-                //console.log('global width: '+ size);
+                var images = r.data.items;
+                console.log('global width: '+ size);
                     //+', images nbr: '+images.length)
                 w: while ((images.length > 0) && (n<IMAGES_LINES)){
                     var i = 1;
@@ -483,12 +533,19 @@ function constructImage(data){
                     break;
                 }
                 res.results[k].data.results = tmp
+
                 // console.log(r.data.results);
                 // console.log('lines: '+n); // should be 1
                 }
             }
 
         }
+
+
+
+
+
+
 
     // end image-search layout
 
@@ -541,6 +598,8 @@ function getTags(fullTitle){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+
+    console.log(res);
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
@@ -560,17 +619,11 @@ function enhanceResults(res){
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = generateLogoClass(r.urlDetails);
-// <<<<<<< HEAD
-//             if (getPartial(r.type) != 'images'){
-//                 r.image = constructImage(r.data);
-//                 r.width = res.width - (r.image && r.image.src ? r.image.width + 14 : 0);
-//                 }
-// =======
+
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
                  r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
-//>>>>>>> d9d3e8628a61b7d98c24027d3be8b0f4ed79b939
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -639,12 +692,6 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
-// <<<<<<< HEAD
-//             if(url != '-'){
-//                 if(newTab) gBrowser.addTab(url);
-//                 else openUILink(url);
-//             }
-// =======
             var query = CLIQZ.Core.urlbar.value;
             var queryAutocompleted = null;
             if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
@@ -661,7 +708,7 @@ function resultClick(ev){
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
-// >>>>>>> d9d3e8628a61b7d98c24027d3be8b0f4ed79b939
+
             break;
         } else if (el.getAttribute('cliqz-action')) {
             // copy calculator answer to clipboard

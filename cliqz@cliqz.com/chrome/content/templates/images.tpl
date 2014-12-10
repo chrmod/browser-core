@@ -1,11 +1,10 @@
     <div id="cliqz-images-results" class='cliqz-images'>
-        {{#each data.results}}
+        {{#each data.items}}
         <div class='cliqz-image-item'
-             style='width:{{width}}px; height:{{height}}px;' 
-             type="image" url="{{ ref_url }}">
+             style='width:{{width}}px; height:{{height}}px;'
+             type="image"> <!-- url="{{ ref_url }}" -->
 
-                <img class="cliqz-image-clear" src="{{thumb_url}}"
-                     id="{{im_url}}"
+               <img class="cliqz-image-clear" src="{{thumb_url}}"
                      width="{{width}}"
                      height="{{height}}"
                      />
@@ -24,10 +23,11 @@
                 <!--      height="{{height}}" -->
                 <!--      /> -->
                 <!-- {{/if}} -->
-              
-                <div class="cliqz-image-hilight" style='width:{{width}}px; max-width:{{width}}px;'>
-                  {{orig_image_width}} x {{orig_image_height}} - {{domain}}
-                </div>
+
+                <!-- <div class="cliqz-image-hilight" style='width:{{width}}px; max-width:{{width}}px;'> -->
+                <!--   {{orig_image_width}} x {{orig_image_height}}  -->
+
+                <!-- </div> -->
 
                 <div class="cliqz-image-report" style='width:53px;max-width:{{width}}px;'>
                     <img src="chrome://cliqzres/content/skin/small_18.png"
@@ -38,5 +38,5 @@
                          type='icon-image' extra='image-report-broken -- {{im_url}}' url='-' />
                 </div>
 
-        </div>{{/each}}</div>
-
+        </div>{{/each}}
+</div>

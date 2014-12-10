@@ -368,6 +368,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyTimer = null;
                         this.cliqzResults = null;
                         this.cliqzResultsExtra = null;
+                        //this.cliqzResultsImage = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.cliqzImages= null;
@@ -401,9 +402,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         var json = JSON.parse(req.response);
                         results = json.result || [];
                         country = json.country;
-                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                        this.cliqzResultsExtra = []
+
+                        if(json.images && json.images.results && json.images.results.length >0)
                             this.cliqzResultsExtra =
-                                json.extra.results.map(Result.cliqzExtra);
+                                json.images.results.map(Result.cliqzExtra);
+
+                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                            this.cliqzResultsExtra.concat(
+                                json.extra.results.map(Result.cliqzExtra));
+
+
+
                         this.latency.cliqz = json.duration;
                     }
                     this.cliqzResults = results.filter(function(r){
@@ -458,6 +468,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
+                            //this.cliqzResultsImages,
                             this.mixedResults,
                             this.cliqzImages,
                             this.cliqzBundesliga,
@@ -502,6 +513,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
+                //this.cliqzResultsImage = null;
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
@@ -558,12 +570,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
                     } else {
                         this.cliqzBundesliga = [];
+                        this.cliqzImages = [];
                     }
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
+                    //this.cliqzResultsImages = [];
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
