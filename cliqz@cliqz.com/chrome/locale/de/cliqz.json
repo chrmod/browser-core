@@ -295,5 +295,8 @@
     },
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
+    },
+    "spell_correction": {
+      "message":"Meintest Du wirklich "
     }
 }

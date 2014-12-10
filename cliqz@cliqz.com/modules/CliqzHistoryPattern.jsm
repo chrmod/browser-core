@@ -21,6 +21,7 @@ var CliqzHistoryPattern = {
     pattern: null,
     colors: null,
     detectPattern: function(query, callback) {
+      CliqzUtils.log(query, "PATTERN");
         var orig_query = query;
         query = CliqzHistoryPattern.generalizeUrl(query);
         // Ignore one character queries

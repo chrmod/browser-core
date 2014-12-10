@@ -23,9 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
   'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzWeather',
-  'chrome://cliqzmodules/content/CliqzWeather.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
@@ -40,6 +37,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
+  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -60,6 +61,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastDisplayTime: null,
     lastFocusTime: null,
     highlightFirstElement: false,
+    spellCorrectionDict: {},
+    spellCorr: {
+        'on': false,
+        'correctBack': {},
+        'override': false,
+        'pushed': null
+    },
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -106,6 +114,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     // SOURCE: http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
     CliqzResults: function(){},
+    resetSpellCorr: function() {
+        CliqzAutocomplete.spellCorr = {
+            'on': false,
+            'correctBack': {},
+            'override': false,
+            'pushed': null
+        }
+    },
     initProvider: function(){
         CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
             _searchString: '',
@@ -301,7 +317,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     if (results.length > 2 ||
                         (results[0].base != true && results.length == 2)) {
                         var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url, true);
-                        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];  
+                        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
                         // Add base domain if not in list
                         if (results[0].base != true) {
                             var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
@@ -351,10 +367,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             };
                         }
                     }
-                    
+
                     this.mixedResults.addResults(instantResults);
                     this.pushResults(this.searchString);
-                };        
+                };
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
@@ -417,6 +433,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
+                CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
                     return;
@@ -426,7 +443,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-                       this.cliqzResults && this.cliqzWeather) { // all results are ready
+                       this.cliqzResults) { // all results are ready
                         /// Push full result
 
                         CliqzUtils.clearTimeout(this.resultsTimer);
@@ -446,7 +463,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
                         CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.mixedResults);
-                
+
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
@@ -456,7 +473,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-                        this.cliqzWeather= null;
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -508,7 +524,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var response = JSON.parse(req.response);
                     this.suggestedCalcResult = null;
 
-
                     if(this.startTime)
                         CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
 
@@ -523,11 +538,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
                     this.sendSuggestionsSignal(this.cliqzSuggestions);
                 }
-            },
-            // handles weather queries
-            cliqzWeatherCallback: function(res, q) {
-                this.cliqzWeather = res;
-                this.pushResults(q);
             },
             cliqzBundesligaCallback: function(res, q) {
                 this.cliqzBundesliga = res;
@@ -547,7 +557,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.mixedResults,
-                            this.cliqzWeather,
                             this.cliqzBundesliga,
                             maxResults
                     );
@@ -587,14 +596,36 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // custom results
                 searchString = this.analyzeQuery(searchString);
-
+                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                if (!CliqzAutocomplete.spellCorr.override &&
+                    urlbar.selectionEnd == urlbar.selectionStart &&
+                    urlbar.selectionEnd == urlbar.value.length) {
+                    var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
+                    for (var c in correctBack) {
+                        CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
+                    }
+                } else {
+                    // user don't want spell correction
+                    var newSearchString = searchString;
+                }
+                this.wrongSearchString = searchString;
+                if (newSearchString != searchString) {
+                    // the local spell checker kicks in
+                    var action = {
+                        type: 'activity',
+                        action: 'spell_correction',
+                        current_length: searchString.length
+                    }
+                    CliqzUtils.track(action);
+                    CliqzAutocomplete.spellCorr.on = true;
+                    searchString = newSearchString;
+                }
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
-                this.cliqzWeather = null;
                 this.cliqzBundesliga = null;
                 this.suggestionsRecieved = false;
 
@@ -608,7 +639,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     backend: null,
                     mixed: null,
                     all: null,
-                    weather: null,
                 };
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -629,24 +659,33 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
 
-                this.cliqzWeatherCallback = this.cliqzWeatherCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
+                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
-                    CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
-
+                    // if spell correction, no suggestions
+                    if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+                        this.suggestionsRecieved = true;
+                        // change the wrong string to the real wrong string
+                        for (var p in CliqzAutocomplete.spellCorr.correctBack) {
+                            if (this.wrongSearchString.indexOf(CliqzAutocomplete.spellCorr.correctBack[p]) == -1) {
+                                this.wrongSearchString = this.wrongSearchString.replace(p, CliqzAutocomplete.spellCorr.correctBack[p]);
+                            }
+                        }
+                        this.cliqzSuggestions = [searchString, this.wrongSearchString];
+                        CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
+                        CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
+                        urlbar.mInputField.value = searchString;
+                    } else {
+                        CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                    }
                     // begin history pattern search
                     CliqzHistoryPattern.detectPattern(searchString, this.historyPatternCallback);
 
-                    // Fetch weather and bundesliga only if search contains trigger
-                    if(CliqzWeather.isWeatherSearch(searchString)){
-                        CliqzWeather.get(searchString, this.cliqzWeatherCallback);
-                    } else {
-                        this.cliqzWeather = [];
-                    }
+                    // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
                     } else {
@@ -660,8 +699,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
-                    this.cliqzWeather = [];
                     this.cliqzBundesliga = [];
+                    CliqzAutocomplete.resetSpellCorr();
                 }
 
                 // trigger history search

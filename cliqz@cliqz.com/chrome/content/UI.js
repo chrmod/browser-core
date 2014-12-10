@@ -11,12 +11,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
-                 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'bitcoin'],
+                'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
+                'entity-search-1', 'entity-news-1', 'entity-video', 'weather',
+                'bitcoin', 'spellcheck'],
 
     VERTICALS = {
         'b': 'bundesliga',
-        'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
         'n': 'news'    ,
@@ -40,7 +40,9 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96
+    IMAGE_WIDTH = 96,
+    DEL = 46,
+    BACKSPACE = 8
     ;
 
 var UI = {
@@ -145,15 +147,22 @@ var UI = {
             result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
+        CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
         if (!gCliqzBox)
             return;
-
         if(suggestions){
-            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                // do not show a suggestion is it is exactly the query
-                suggestions: suggestions.filter(function(s){ return s != q; }),
-                q:q
-            });
+            if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
+                    wrong: suggestions[1]
+                });
+
+            } else {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                    // do not show a suggestion is it is exactly the query
+                    suggestions: suggestions.filter(function(s){ return s != q; }),
+                    q:q
+                });
+            }
         } else {
             gCliqzBox.suggestionBox.innerHTML = '';
         }
@@ -183,9 +192,15 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                };
             case RIGHT:
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                }
                 return false;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -193,8 +208,33 @@ var UI = {
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
-            case 8://BACKSPACE
-            case 46://DELETE
+            case BACKSPACE:
+            case DEL:
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                    // correct back the last word if it was changed
+                    var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
+                    var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
+                    CliqzUtils.log(JSON.stringify(words), 'spellcorr');
+                    CliqzUtils.log(JSON.stringify(wrongWords), 'spellcorr');
+                    CliqzUtils.log(words[words.length-1].length, 'spellcorr');
+                    if (words[words.length-1].length == 0 && words[words.length-2] != wrongWords[wrongWords.length-2]) {
+                        CliqzUtils.log('hi', 'spellcorr');
+                        words[words.length-2] = wrongWords[wrongWords.length-2];
+                        CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
+                        var signal = {
+                            type: 'activity',
+                            action: 'del_correct_back'
+                        };
+                        CliqzUtils.track(signal);
+                    }
+                } else {
+                    var signal = {
+                        type: 'activity',
+                        action: 'keystroke_del'
+                    };
+                    CliqzUtils.track(signal);
+                }
                 UI.preventFirstElementHighlight = true;
                 clearResultSelection();
                 return false;
@@ -419,7 +459,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-bundesliga') return 'bundesliga';
-    if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-pattern') return 'pattern';
     if(type === 'cliqz-series') return 'series';
@@ -682,10 +721,20 @@ function suggestionNavigation(ev){
 function suggestionClick(ev){
     if(ev && ev.target){
         var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
-        if(suggestionVal){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
 
+        //spell corrector
+        if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+            var extra = ev.target.getAttribute('extra') || ev.target.parentNode.getAttribute('extra');
+            if (extra=='wrong') {
+                // user don't like our suggestion
+                var action = {
+                    type: 'activity',
+                    action: 'correct_back'
+                };
+                CliqzUtils.track(action);
+                CliqzAutocomplete.spellCorr.override = true;
+            }
+        } else { // regular query suggestion
             var action = {
                 type: 'activity',
                 action: 'suggestion_click',
@@ -696,6 +745,11 @@ function suggestionClick(ev){
             };
 
             CliqzUtils.track(action);
+        }
+
+        if(suggestionVal){
+            CLIQZ.Core.urlbar.mInputField.focus();
+            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal.trim());
         }
     }
 }
@@ -777,7 +831,7 @@ function onEnter(ev, item){
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(query);
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
-            
+
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
