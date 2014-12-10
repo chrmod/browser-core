@@ -100,9 +100,8 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        process_images_result(res, 110); // applies images layout
-        // console.log('process_images_result');
-        // console.log(res.results[0].data);
+        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
+
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
             gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
@@ -393,9 +392,8 @@ function constructImage(data){
 
 
 
-    // image search layout
+    // Cliqz Images Search Layout
 
-    // HEIGHTS = [];
     var IMAGES_MARGIN = 6;
     var IMAGES_LINES = 1;
     function getheight(images, width) {
@@ -409,7 +407,6 @@ function constructImage(data){
     }
 
     function setheight(images, height) {
-        // HEIGHTS.push(height);
         var verif_width = 0;
         var estim_width = 0;
         for (var i = 0; i < images.length; ++i) {
@@ -441,14 +438,13 @@ function constructImage(data){
             }
         }
 
+        // Sanity check (Test)
         // var verify = 0;
         // for (var i = 0; i < images.length; ++i) {
         //    var width_float = height * images[i].image_width /images[i].image_height;
         //    verify += (images[i].width + IMAGES_MARGIN);
         // }
         // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
-
-
     }
 
     function resize(images, width) {
@@ -456,60 +452,17 @@ function constructImage(data){
     }
 
 
-    // function process_images_result(res, max_height) {
-    //     var tmp = []
-    //     for(var k=0; k<res.results.length; k++){
-    //         var r = res.results[k];
-    //         if (getPartial(r.type) == 'images') {
-    //             // console.log(r.data.results[0]);
-    //             var size = CLIQZ.Core.urlbar.clientWidth - 15;
-    //             var n = 0;
-    //             var images = r.data.results;
-    //             //console.log('global width: '+ size);
-    //                 //+', images nbr: '+images.length)
-    //             w: while ((images.length > 0) && (n<IMAGES_LINES)){
-    //                 var i = 1;
-    //                 while ((i < images.length + 1) && (n<IMAGES_LINES)){
-    //                     var slice = images.slice(0, i);
-    //                     var h = getheight(slice, size);
-    //                     //console.log('height: '+h);
-    //                     if (h < max_height) {
-    //                         setheight(slice, h);
-    //                         //res.results[k].data.results = slice
-    //                         tmp.push.apply(tmp, slice);
-    //                         // console.log('height: '+h);
-    //                         n++;
-    //                         images = images.slice(i);
-    //                         continue w;
-    //                     }
-    //                     i++;
-    //                 }
-    //                 setheight(slice, Math.min(max_height, h));
-    //                 tmp.push.apply(tmp, slice);
-    //                 n++;
-    //                 break;
-    //             }
-    //             res.results[k].data.results = tmp
-    //             // console.log(r.data.results);
-    //             // console.log('lines: '+n); // should be 1
-    //             }
-    //         }
-
-    //     }
-
-
-
     function process_images_result(res, max_height) {
+        // Processing images to fit with max_height and
         var tmp = []
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
             if (r.vertical == 'images' && r.data.template == 'images') {
-                console.log(r.data);
                 var size = CLIQZ.Core.urlbar.clientWidth - 15;
                 var n = 0;
                 var images = r.data.items;
-                console.log('global width: '+ size);
-                    //+', images nbr: '+images.length)
+                // console.log('global width: '+ size + ', verif: '+ res.width
+                //     +', images nbr: '+images.length) // TODO Define which is the better src for width f(time, scroll_bar_styles)
                 w: while ((images.length > 0) && (n<IMAGES_LINES)){
                     var i = 1;
                     while ((i < images.length + 1) && (n<IMAGES_LINES)){
@@ -533,25 +486,14 @@ function constructImage(data){
                     break;
                 }
                 res.results[k].data.results = tmp
-
-                // console.log(r.data.results);
                 // console.log('lines: '+n); // should be 1
                 }
             }
 
         }
 
-
-
-
-
-
-
     // end image-search layout
 
-    // function report_image() {
-    //     window.alert('--- report image');
-    // }
 //loops though al the source and returns the first one with custom snippet
 function getFirstVertical(type){
     while(type && !VERTICALS[type[0]])type = type.substr(1);
@@ -599,7 +541,6 @@ function getTags(fullTitle){
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
 
-    console.log(res);
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){

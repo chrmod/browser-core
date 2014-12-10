@@ -29,9 +29,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-  'chrome://cliqzmodules/content/CliqzImages.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
@@ -342,7 +339,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
-                       this.cliqzResults && this.cliqzImages) { // all results are ready
+                       this.cliqzResults) { // all results are ready
                         /// Push full result
 
                         CliqzUtils.clearTimeout(this.resultsTimer);
@@ -368,10 +365,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyTimer = null;
                         this.cliqzResults = null;
                         this.cliqzResultsExtra = null;
-                        //this.cliqzResultsImage = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-                        this.cliqzImages= null;
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -450,10 +445,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzBundesliga = res;
                 this.pushResults(q);
             },
-            cliqzImagesCallback: function(res, q) {
-                this.cliqzImages = res;
-                this.pushResults(q);
-            },
 
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
@@ -468,9 +459,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
-                            //this.cliqzResultsImages,
                             this.mixedResults,
-                            this.cliqzImages,
                             this.cliqzBundesliga,
                             maxResults
                     );
@@ -513,12 +502,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
-                //this.cliqzResultsImage = null;
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.cliqzSuggestions = null;
-                this.cliqzImages = null;
                 this.cliqzBundesliga = null;
                 this.suggestionsRecieved = false;
 
@@ -549,8 +536,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
-
-                this.cliqzImagesCallback = this.cliqzImagesCallback.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
@@ -560,9 +545,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
 
-                    if (CliqzImages.isImagesSearch(searchString)){
-                         CliqzImages.get(searchString, this.cliqzImagesCallback);
-                    }
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
 
                     // Fetch bundesliga only if search contains trigger
@@ -570,18 +552,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
                     } else {
                         this.cliqzBundesliga = [];
-                        this.cliqzImages = [];
                     }
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    //this.cliqzResultsImages = [];
                     this.cliqzCountry = "";
                     this.cliqzSuggestions = [];
                     this.customResults = [];
-                    this.cliqzImages = [];
                     this.cliqzBundesliga = [];
                 }
 
