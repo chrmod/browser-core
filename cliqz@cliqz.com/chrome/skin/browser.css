@@ -190,14 +190,14 @@
 }
 
 .cliqz-result-type {
-    height: 35px;
-    width: 5px;
-    /* border-radius: 50%; */
+    height: 9px;
+    width: 9px;
+    border-radius: 50%;
     display: inline-block;
 }
 
 .cliqz-result-item-box {
-    border-bottom: 0px solid #CCC; /* to have  1px should be in an inner div to this  */
+    border-bottom: 1px solid #CCC; /* to have  1px should be in an inner div to this  */
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
