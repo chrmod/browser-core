@@ -187,7 +187,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.destroy();
         CliqzSniffer.destroy();
 
-        // remove listners
+
+        // remove listeners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeProgressListener(CliqzUCrawl.listener);
@@ -204,7 +205,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzSniffer;
-            delete window.CliqzUCrawl;
+            //delete window.CliqzUCrawl;
         }
     },
     restart: function(soft){

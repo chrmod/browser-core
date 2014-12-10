@@ -55,7 +55,7 @@ var CliqzUtils = {
   RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
-  UCRAWL:                'https://safe-browsing.cliqz.com',
+  SAFE_BROWSING:         'https://safe-browsing.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
   UPDATE_URL:            'chrome://cliqz/content/update.html',
   TUTORIAL_URL:          'chrome://cliqz/content/offboarding.html',
