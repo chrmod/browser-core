@@ -566,6 +566,10 @@ function resultClick(ev){
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
+            // Stop click event propagation
+            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
+              break;
+            }
             // copy calculator answer to clipboard
             if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
                 const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
