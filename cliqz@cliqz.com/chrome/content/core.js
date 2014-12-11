@@ -57,10 +57,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
-        var css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.elem.push(css);
-        css = CliqzUtils.addStylesheetToDoc(document,'chrome://cliqzres/content/skin/logo.css');
-        CLIQZ.Core.elem.push(css);
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
@@ -112,6 +111,12 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.whoAmI(true); //startup
         CliqzUtils.log('Initialized', 'CORE');
+    },
+    addCSS: function(doc, path){
+        //add this element into 'elem' to be sure we remove it at extension shutdown
+        CLIQZ.Core.elem.push(
+            CliqzUtils.addStylesheetToDoc(doc, path)
+        );
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;

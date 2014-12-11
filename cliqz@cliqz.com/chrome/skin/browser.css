@@ -52,7 +52,7 @@
 
 #cliqz-navigation-message {
     font-style: italic;
-    color: #999999;
+    color: #eeeeee;
 }
 /*
 .cliqz-footer-engines:hover #cliqz-engines-box {
@@ -201,6 +201,10 @@
 
 .cliqz-result-item-box {
     border-bottom: 1px solid #CCC; /* to have  1px should be in an inner div to this  */
+}
+
+.cliqz-result-item-box [url]{
+    cursor: pointer;
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -1208,6 +1212,7 @@
 .entity-news-story-image img {
   width: 80px;
   height: 50px;
+  background-color: #dddddd;
 }
 
 .entity-news-story-description {
@@ -1225,6 +1230,9 @@
   overflow: hidden;
 }
 
+.entity-news-story:hover .entity-news-story-title {
+    text-decoration: underline;
+}
 .entity-news-story-time {
   color: #c92b35;
   text-overflow: ellipsis;

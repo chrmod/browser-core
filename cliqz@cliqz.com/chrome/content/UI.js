@@ -9,9 +9,8 @@
 
 var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'entity-video', 'weather',
+                 'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
                  'bitcoin', 'spellcheck'],
-
     VERTICALS = {
         'b': 'bundesliga',
         's': 'shopping',
@@ -91,8 +90,6 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-
         handlePopupHeight(box);
     },
     results: function(res){
@@ -101,17 +98,7 @@ var UI = {
 
         var enhanced = enhanceResults(res);
         process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
-
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
-
+        
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -691,6 +678,10 @@ function resultClick(ev){
 
             break;
         } else if (el.getAttribute('cliqz-action')) {
+            // Stop click event propagation
+            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
+              break;
+            }
             // copy calculator answer to clipboard
             if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
                 const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
