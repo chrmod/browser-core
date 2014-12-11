@@ -17,6 +17,11 @@
             <div class='cliqz-pattern-element'> {{ link }}</div>
           {{/each}}
         </div>
+        <div class='cliqz-pattern-entry-date'>
+          {{#each data.urls}}
+            <div class='cliqz-pattern-element'> {{ vdate }}</div>
+          {{/each}}
+        </div>
       </div>
     </div>
   </div>

@@ -314,58 +314,50 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var instantResults = new Array();
                     // Cluster patterns, at least base url + two patterns
-                    if (results.length > 2 ||
-                        (results[0].base != true && results.length == 2)) {
-                        var baseUrl = CliqzHistoryPattern.generalizeUrl(results[0].url, true);
-                        if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
-                        // Add base domain if not in list
-                        if (results[0].base != true) {
-                            var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
-                            if (!title) return;
-                            res.results.unshift({
-                                title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
-                                url: baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl,false)))
-                            });
-                            results.unshift(res.results[0]);
-                        };
-                        // Create instant result
-                        var instant = Result.generic("cliqz-pattern",results[0].url, null, results[0].title, null, this.searchString);
-                        instant.comment += " (pattern cluster)!";
-                        var title = CliqzUtils.cleanUrlProtocol(results[0].url, true);
-                        if (title[title.length-1] == '/') title = title.substring(0, title.length-1);
-                        instant.data = {
-                            title: results[0].title,
-                            url: title,
-                            urls: [],
-                            color: CliqzHistoryPattern.colors[baseUrl],
-                            darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
-                            letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1)
-                        };
-                        // Add result urls
-                        var titleStrip = CliqzHistoryPattern.stripTitle(results);
-                        for(var i=1; i<results.length; i++) {
-                            var newTitle = results[i].title.replace(titleStrip, "");
-                            instant.data.urls.push( {
-                                href: results[i].url,
-                                link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[i].url), true),
-                                title: newTitle.length > 0 ? newTitle : results[i].title,
-                            });
-                            if (instant.data.urls.length > 3) {
-                                break;
-                            };
-                        }
-                        instantResults.push(instant);
-                    // No clustering, return two entries
+                    if (results.length > 1 ||
+                        (results[0].base != true && results.length == 1)) {
+                      var baseUrl = CliqzHistoryPattern.addBaseDomain(res.results, results[0]);
+                      results = res.filteredResults();
+                      CliqzUtils.log(CliqzHistoryPattern.autocompleteTerm(res.query, results[0]).autocomplete, "TEST");
+                      if (results.length == 2 /*&& CliqzHistoryPattern.autocompleteTerm(res.query, results[1]).autocomplete == true*/) {
+                        results[0].url = results[1].url;
+                      }
+                      // Create instant result
+                      var instant = Result.generic("cliqz-pattern",results[0].url, null, results[0].title, null, this.searchString);
+                      instant.comment += " (pattern cluster)!";
+                      var titleUrl = CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[0].url), true);
+                      if (titleUrl[titleUrl.length-1] == '/') titleUrl = titleUrl.substring(0, titleUrl.length-1);
+                      instant.data = {
+                          title: results[0].title,
+                          url: titleUrl,
+                          urls: [],
+                          color: CliqzHistoryPattern.colors[baseUrl],
+                          darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
+                          letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1)
+                      };
+                      // Add result urls
+                      var titleStrip = CliqzHistoryPattern.stripTitle(results);
+                      for(var i=1; i<results.length; i++) {
+                          var newTitle = results[i].title.replace(titleStrip, "");
+                          instant.data.urls.push( {
+                              href: results[i].url,
+                              link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[i].url), true),
+                              vdate: CliqzHistoryPattern.formatDate(results[i].date),
+                              title: newTitle.length > 0 ? newTitle : results[i].title,
+                          });
+                          if (instant.data.urls.length > 3) {
+                              break;
+                          };
+                      }
+                      instantResults.push(instant);
+                    } else if (results[0].base == true && results.length == 1) {
+                      var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
+                      instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
+                      instantResults.push(instant);
+                      CliqzAutocomplete.lastPattern.results = [CliqzAutocomplete.lastPattern.results[0]];
+                    // No clustering
                     } else {
-                        results = res.results;
-                        for(var key in results) {
-                            var instant = Result.generic("favicon",results[key].url, null, results[key].title, null, this.searchString);
-                            instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
-                            instantResults.push(instant);
-                            if (instantResults.length > 1) {
-                                break;
-                            };
-                        }
+                      CliqzAutocomplete.lastPattern = null;
                     }
 
                     this.mixedResults.addResults(instantResults);

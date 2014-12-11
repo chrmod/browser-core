@@ -131,6 +131,9 @@ CLIQZ.Core = CLIQZ.Core || {
                 };
                 CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
                 CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+                if(newPanel != curPanel) {
+                  CliqzHistory.addHistoryEntry(null, curPanel);
+                }
             }, false);
         }
 
@@ -382,7 +385,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
-        
+
         // Remove protocol and 'www.' from first results
         //firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
         // try to update misspelings like ',' or '-'
@@ -394,28 +397,38 @@ CLIQZ.Core = CLIQZ.Core || {
                 urlBar.value = clean;
             }
         };
-        
+
         //firstResult = firstResult.replace('www.', '');
         var lastPattern = CliqzAutocomplete.lastPattern;
-        
+        var results = lastPattern ? lastPattern.filteredResults() : [];
+        var looseAutocomplete = true;
 
         // Use first entry if there are no patterns
-        if (lastPattern && lastPattern.results.length == 0) {
-            lastPattern.results[0] = new Array();
-            lastPattern.results[0]['url'] = firstResult;
-            lastPattern.results[0]['title'] = firstTitle;
-            lastPattern.results[0]['query'] = [];
-        };
+        if (results.length == 0) {
+            results[0] = new Array();
+            results[0]['url'] = firstResult;
+            results[0]['title'] = firstTitle;
+            results[0]['query'] = [];
+            looseAutocomplete = false;
+        }
+        if (results.length == 2) {
+            results.shift();
+        }
+        if (!CliqzUtils.isUrl(results[0]['url'])) return;
 
         if (lastPattern && lastPattern.query == urlBar.value) {
-            var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, lastPattern.results[0]);
+            var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
             if (autocomplete.autocomplete) {
                 urlBar.value = autocomplete.urlbar;
                 urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
-            };
+            }
 
             // Highlight first entry in dropdown
             if (autocomplete.highlight) {
+                if (urlBar.value.length > 80) {
+                  urlBar.value = urlBar.value.substr(0,80) + "...";
+                  urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+                }
                 CliqzAutocomplete.highlightFirstElement = true;
                 CLIQZ.UI.selectFirstElement();
             } else {

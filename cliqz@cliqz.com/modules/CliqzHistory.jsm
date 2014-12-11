@@ -26,8 +26,8 @@ var CliqzHistory = {
             // Skip if already saved or on any about: pages
             if (url.substring(0,6) == "about:" || CliqzHistory.getTabData(panel, "url") == url) {
                 return;
-            }             
-            
+            }
+
             if (!CliqzHistory.getTabData(panel, "type")) {
                 CliqzHistory.setTabData(panel, "type", "link");
             };
@@ -36,7 +36,7 @@ var CliqzHistory = {
                 CliqzHistory.setTabData(panel, "queryDate", new Date().getTime());
                 CliqzHistory.setTabData(panel, "type", "bookmark");
             };
-            CliqzHistory.setTabData(panel, 'url', url);         
+            CliqzHistory.setTabData(panel, 'url', url);
             CliqzHistory.addHistoryEntry(aBrowser);
             CliqzHistory.setTabData(panel, 'type', "link");
         },
@@ -53,51 +53,61 @@ var CliqzHistory = {
             } else if (title != CliqzHistory.getTabData(panel, "title")) {
                 CliqzHistory.setTitle(url, title);
                 CliqzHistory.setTabData(panel, 'title', title);
-           }; 
+           };
         },
         onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
             //CliqzHistory.listener.onStateChange(aBrowser, aWebProgress, aRequest, null, aStatus);
         }
     },
-    addHistoryEntry: function(browser) {
-        var tab = CliqzHistory.getTabForContentWindow(browser.contentWindow);
-        var panel = tab.linkedPanel;
-        var title = browser.contentDocument.title || "";
-        var url = CliqzHistory.getTabData(panel, 'url');    
-        var type = CliqzHistory.getTabData(panel, 'type');
-        var query = CliqzHistory.getTabData(panel, 'query');
-        var queryDate = CliqzHistory.getTabData(panel, 'queryDate'); 
-        var now = new Date().getTime();
-        CliqzUtils.log(panel+query,"PANEL");
-        if (!url ||
-            (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google" && type != "bookmark")) {
-            return;
-        }      
-
-        if (!query) {
-            query = "";
-        }
-        if (!queryDate) {
-            queryDate = now;
-        }
-        CliqzHistory.setTitle(url, title);
-        if (type == "typed") {
-            if (query.indexOf('://') == -1) {
-                query = "http://" + query;
+    addHistoryEntry: function(browser, customPanel) {
+        if (browser) {
+            var tab = CliqzHistory.getTabForContentWindow(browser.contentWindow);
+            var panel = tab.linkedPanel;
+            var title = browser.contentDocument.title || "";
+            var url = CliqzHistory.getTabData(panel, 'url');
+            var type = CliqzHistory.getTabData(panel, 'type');
+            var query = CliqzHistory.getTabData(panel, 'query');
+            var queryDate = CliqzHistory.getTabData(panel, 'queryDate');
+            var now = new Date().getTime();
+            CliqzUtils.log(panel+query,"PANEL");
+            if (!url ||
+                (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google" && type != "bookmark")) {
+                return;
             }
+
+            if (!query) {
+                query = "";
+            }
+            if (!queryDate) {
+                queryDate = now;
+            }
+            CliqzHistory.setTitle(url, title);
+            if (type == "typed") {
+                if (query.indexOf('://') == -1) {
+                    query = "http://" + query;
+                }
+                CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
+                    VALUES ('"+CliqzHistory.escapeSQL(query)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
+                type = "link";
+                now += 1;
+            }
+
+            // Insert history entry
             CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
-                VALUES ('"+CliqzHistory.escapeSQL(query)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
-            type = "link";
-            now += 1;
+              VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
+        } else if(customPanel) {
+            var url = CliqzHistory.getTabData(customPanel, 'url');
+            var type = "link";
+            var query = CliqzHistory.getTabData(customPanel, 'query');
+            var queryDate = CliqzHistory.getTabData(customPanel, 'queryDate');
+            var now = new Date().getTime();
+            CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
+              VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
         }
-        
-        // Insert history entry
-        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
-                VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
     },
     setTitle: function(url, title) {
         var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '"+CliqzHistory.escapeSQL(url)+"'");
-        if (res == 0) {         
+        if (res == 0) {
             CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
                 VALUES ('"+CliqzHistory.escapeSQL(url)+"','"+CliqzHistory.escapeSQL(title)+"')");
         } else {
@@ -204,7 +214,7 @@ var CliqzHistory = {
     escapeSQL: function(str) {
         return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
         switch (char) {
-            case "'": 
+            case "'":
                 return "''";
             default:
                 return char;

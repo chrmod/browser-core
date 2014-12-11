@@ -507,7 +507,7 @@
     width: 72px;
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 72px 72px;   
+    background-size: 72px 72px;
 }
 
 .cliqz-pattern-circle {
@@ -591,15 +591,27 @@
     max-width: 40%;
 }
 .cliqz-pattern-entry-link {
-    font-size: 13px;
-    color:rgba(127,127,127,0.54);
-    font-weight: normal;
-    text-decoration: none;
-    padding-left: 40px;
-    max-width: 40%;
-    overflow: hidden;
-    display:inline-block;
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 30%;
+  overflow: hidden;
+  display:inline-block;
 }
+
+.cliqz-pattern-entry-date {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 10%;
+  overflow: hidden;
+  display:inline-block;
+}
+
 .cliqz-pattern-element {
     line-height: 20px;
     text-overflow: ellipsis;
