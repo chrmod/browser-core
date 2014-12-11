@@ -13,7 +13,6 @@ var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty'
                  'bitcoin', 'spellcheck'],
 
     VERTICALS = {
-        'i': 'images',
         'b': 'bundesliga',
         's': 'shopping',
         'g': 'gaming'  ,
@@ -101,7 +100,7 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        process_images_result(res, 100); // Images-layout for Cliqz-Images-Search
+        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
 
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
@@ -434,7 +433,7 @@ function constructImage(data){
 
     // Cliqz Images Search Layout
 
-    var IMAGES_MARGIN = 6;
+    var IMAGES_MARGIN = 4;
     var IMAGES_LINES = 1;
     function getheight(images, width) {
         width -= IMAGES_MARGIN * images.length; //images  margin
