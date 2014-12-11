@@ -551,7 +551,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     history: null,
                     backend: null,
                     mixed: null,
-                    all: null,
+                    all: null
                 };
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -578,6 +578,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;
@@ -594,7 +595,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
-                    
+
+
                     // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
                         CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
