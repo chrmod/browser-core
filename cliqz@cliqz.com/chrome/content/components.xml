@@ -59,7 +59,7 @@
                         unEscapeURIForUI('UTF-8', url)
             }
 
-            if(this.mInput && this._matchCount > 0){
+            if(this._matchCount > 0 && this.mInput){
               var data = [],
                 ctrl = this.mInput.controller,
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),

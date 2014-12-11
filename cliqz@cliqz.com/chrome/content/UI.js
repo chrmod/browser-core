@@ -11,9 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
-                'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
-                'entity-search-1', 'entity-news-1', 'entity-video', 'weather',
-                'bitcoin', 'spellcheck'],
+                  'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
+                  'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
+                  'bitcoin', 'spellcheck'],
 
     VERTICALS = {
         'b': 'bundesliga',
@@ -96,12 +96,10 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-
-        var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
+        /*var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
         queryDebugLink.addEventListener('click', function(ev){
             openUILink("chrome://cliqz/content/debugquery.html")
-        });
+        });*/
 
         handlePopupHeight(box);
     },
@@ -110,15 +108,6 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -264,8 +253,6 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
-
-
     },
     selectFirstElement: function() {
         if (!UI.preventFirstElementHighlight) {

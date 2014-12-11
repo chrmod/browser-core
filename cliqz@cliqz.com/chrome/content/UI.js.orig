@@ -12,14 +12,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 
 var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
 <<<<<<< HEAD
-                 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'bitcoin'],
+                'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
+                'entity-search-1', 'entity-news-1', 'entity-video', 'weather',
+                'bitcoin', 'spellcheck'],
+
 =======
                  'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'entity-video', 'weather',
+                 'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
                  'bitcoin', 'spellcheck'],
->>>>>>> 82015ec3d8b16919ed771e45e6ee8b9eb0baa28f
-
+>>>>>>> 74a5fb3c4b1ba97a5095859b5c02dd01bd7af351
     VERTICALS = {
         'b': 'bundesliga',
         's': 'shopping',
@@ -46,7 +47,8 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
     IMAGE_WIDTH = 96,
-    DEL = 8
+    DEL = 46,
+    BACKSPACE = 8
     ;
 
 var UI = {
@@ -100,6 +102,7 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
+<<<<<<< HEAD
         gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
 
         var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
@@ -107,6 +110,8 @@ var UI = {
             openUILink("chrome://cliqz/content/debugquery.html")
         });
 
+=======
+>>>>>>> 74a5fb3c4b1ba97a5095859b5c02dd01bd7af351
         handlePopupHeight(box);
     },
     results: function(res){
@@ -114,15 +119,6 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -212,13 +208,7 @@ var UI = {
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
-<<<<<<< HEAD
-            case 8://BACKSPACE
-            case 46://DELETE
-                UI.preventFirstElementHighlight = true;
-                clearResultSelection();
-                return false;
-=======
+            case BACKSPACE:
             case DEL:
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
@@ -245,7 +235,9 @@ var UI = {
                     };
                     CliqzUtils.track(signal);
                 }
->>>>>>> 82015ec3d8b16919ed771e45e6ee8b9eb0baa28f
+                UI.preventFirstElementHighlight = true;
+                clearResultSelection();
+                return false;
             default:
                 UI.preventFirstElementHighlight = false;
                 return false;
@@ -839,7 +831,7 @@ function onEnter(ev, item){
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(query);
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
-            
+
             action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
             if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)

@@ -191,9 +191,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
-                // XXX temporary for HistoryPattern
-                    //return;
-
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
@@ -630,7 +627,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     history: null,
                     backend: null,
                     mixed: null,
-                    all: null,
+                    all: null
                 };
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
@@ -658,6 +655,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(searchString.trim().length){
                     // start fetching results and suggestions
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
+
                     // if spell correction, no suggestions
                     if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
                         this.suggestionsRecieved = true;
