@@ -21,12 +21,13 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.1',
+    VERSION: '0.2',
     WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     queryCache: {},
+    privateCache: {},
     cleanHttpCache: function() {
       for(var key in CliqzUCrawl.httpCache) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 30*CliqzUCrawl.tmult) {
@@ -86,10 +87,17 @@ var CliqzUCrawl = {
       if (res.length==0) return null;
       else return res;
     },
-    generateId: function(document) {
+    generateHashId: function(text) {
+
+      //CliqzUtils.log('QQQ: ' + text.length + ' >> ' + text, CliqzUCrawl.LOG_KEY);
+      CliqzUtils.log('QQQ: ' + text.length, CliqzUCrawl.LOG_KEY);
+
       try {
         var id = '';
-        var text = document.getElementsByTagName('body')[0].textContent;
+        //var text = document.getElementsByTagName('body')[0].textContent;
+        //CliqzUtils.log('QQQ: ' + document.documentElement.innerHTML);
+        //var text = document.documentElement.innerHTML;
+
         var rpos = [102, 901, 15234, 212344, 909091, 234, 98924, 2304, 502002, 23455, 8289, 288345, 23429, 99852, 3453452, 2452234569964, 454353345, 6345245, 26563, 235235, 60993546, 546562, 565566];
         for(let i=0;i<rpos.length;i++) {
           id = id + text[rpos[i]%text.length];
@@ -173,7 +181,6 @@ var CliqzUCrawl = {
                   CliqzUtils.log('>>> No match between urls  : ' + i + ' >> ' +  cand_url_clean + ' ' + JSON.stringify(d), CliqzUCrawl.LOG_KEY);
                 }
               }
-
             }
             else {
               // WTF is this?
@@ -181,7 +188,6 @@ var CliqzUCrawl = {
                 CliqzUtils.log('>>> WTF this should not happen  : ' + i + ' >> ' +  cand_url, CliqzUCrawl.LOG_KEY);
               }
             }
-
           }
 
         if (d!=null) {
@@ -231,6 +237,29 @@ var CliqzUCrawl = {
       }
       else return null;
     },
+    doubleFetch: function(url, pageHashId) {
+      if (CliqzUCrawl.debug) {
+        CliqzUtils.log("doubleFetch for: " + url + " " + pageHashId, CliqzUCrawl.LOG_KEY);
+      }
+      CliqzUtils.httpGet(url, function(req) {
+        // success
+        if (CliqzUCrawl.debug) {
+          CliqzUtils.log("success on doubleFetch!", CliqzUCrawl.LOG_KEY);
+          CliqzUtils.log("success: " + pageHashId == newPageHashId);
+        }
+      },
+      function(req) {
+        // failure
+        if (CliqzUCrawl.debug) {
+          CliqzUtils.log("failure on doubleFetch!", CliqzUCrawl.LOG_KEY);
+        }
+        if (CliqzUCrawl.state['v'][url]) {
+          CliqzUCrawl.state['v'][url]['private'] = true;
+        }
+        CliqzUCrawl.privateCache[url] = true;
+      },
+      5000);
+    },
     listener: {
         tmpURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
@@ -272,7 +301,6 @@ var CliqzUCrawl = {
                           var activeURL = CliqzUCrawl.currentURL();
 
                           if (currURLAtTime == activeURL) {
-                            var id_cont = CliqzUCrawl.generateId(currwin.gBrowser.selectedBrowser.contentDocument);
                             var document = currwin.gBrowser.selectedBrowser.contentDocument;
                             var rq = CliqzUCrawl.scrape(activeURL, document);
 
@@ -340,6 +368,11 @@ var CliqzUCrawl = {
                     title = cd.getElementsByTagName('title')[0].textContent;
                     numlinks = cd.getElementsByTagName('a').length;
 
+                    // Avoid the doubleFetching of the visible page, it can cause session invalidation on certain
+                    // picky sites like lacaixa.es
+                    //
+                    // CliqzUCrawl.doubleFetch(currURL, CliqzUCrawl.generateHashId(''+cd.documentElement.outerHTML));
+
                   } catch(ee) {
                     if (CliqzUCrawl.debug) {
                       CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzUCrawl.LOG_KEY);
@@ -355,9 +388,7 @@ var CliqzUCrawl = {
 
                   }
 
-
                 }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
-
 
               }
               else {
@@ -399,8 +430,7 @@ var CliqzUCrawl = {
             CliqzUCrawl.state['v'][activeURL]['a'] += 1;
           } catch(ee) {
             if (CliqzUCrawl.debug) {
-              //ZZZ FIXME
-              CliqzUtils.log('Error! activeURL not found: ' + activeURL, CliqzUCrawl.LOG_KEY);
+              CliqzUtils.log('Not an error, activeURL not found in state, it was removed already: ' + activeURL, CliqzUCrawl.LOG_KEY);
             }
           }
         }
@@ -409,7 +439,6 @@ var CliqzUCrawl = {
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 1 == 0) {
 
         var openPages = CliqzUCrawl.getAllOpenPages();
-
         var tt = new Date().getTime();
 
         for (var url in CliqzUCrawl.state['v']) {
