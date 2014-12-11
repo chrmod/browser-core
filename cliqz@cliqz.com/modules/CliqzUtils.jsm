@@ -46,16 +46,14 @@ var VERTICAL_ENCODINGS = {
     'bm': 'm'
 };
 
-var end_point = 'http://54.160.105.244:8080' //'https://newbeta.cliqz.com' // https://webbeta.cliqz.com
-
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      end_point + '/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG:  end_point + '/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: end_point + '/ping',
-  CONFIG_PROVIDER:       end_point + '/api/v1/config',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
   UPDATE_URL:            'chrome://cliqz/content/update.html',
