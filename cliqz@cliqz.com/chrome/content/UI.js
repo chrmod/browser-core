@@ -101,7 +101,7 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
+        process_images_result(res, 100); // Images-layout for Cliqz-Images-Search
 
         //try to update reference if it doesnt exist
         if(!gCliqzBox.messageBox)
@@ -525,7 +525,7 @@ function constructImage(data){
                     n++;
                     break;
                 }
-                res.results[k].data.results = tmp
+                res.results[k].data.items = tmp
                 // console.log('lines: '+n); // should be 1
                 }
             }
