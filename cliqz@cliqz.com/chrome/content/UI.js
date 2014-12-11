@@ -519,6 +519,11 @@ function resultClick(ev){
             }
             CliqzUtils.track(action);
 
+            // CliqzUCrawl wants to know if you click on a Cliqz results
+            if (CliqzUCrawl && CliqzUCrawl.queryCache) {
+              CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 0, 'q': CliqzAutocomplete.lastSearch , 't': 'cl'};
+            }
+
             var query = CLIQZ.Core.urlbar.value;
             var queryAutocompleted = null;
             if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)

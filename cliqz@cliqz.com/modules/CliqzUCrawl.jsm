@@ -21,7 +21,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.2',
+    VERSION: '0.3',
     WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
     debug: false,
@@ -88,16 +88,11 @@ var CliqzUCrawl = {
       else return res;
     },
     generateHashId: function(text) {
-
-      //CliqzUtils.log('QQQ: ' + text.length + ' >> ' + text, CliqzUCrawl.LOG_KEY);
-      CliqzUtils.log('QQQ: ' + text.length, CliqzUCrawl.LOG_KEY);
-
       try {
         var id = '';
         //var text = document.getElementsByTagName('body')[0].textContent;
         //CliqzUtils.log('QQQ: ' + document.documentElement.innerHTML);
         //var text = document.documentElement.innerHTML;
-
         var rpos = [102, 901, 15234, 212344, 909091, 234, 98924, 2304, 502002, 23455, 8289, 288345, 23429, 99852, 3453452, 2452234569964, 454353345, 6345245, 26563, 235235, 60993546, 546562, 565566];
         for(let i=0;i<rpos.length;i++) {
           id = id + text[rpos[i]%text.length];
@@ -287,7 +282,7 @@ var CliqzUCrawl = {
             if (activeURL.indexOf('about:')!=0) {
               if (CliqzUCrawl.state['v'][activeURL] == null) {
 
-                ////
+                //// if it was a Google query
                 if (requery.test(activeURL) && !reref.test(activeURL)) {
                   currwin.setTimeout(function(currURLAtTime) {
 
@@ -305,7 +300,7 @@ var CliqzUCrawl = {
                             var rq = CliqzUCrawl.scrape(activeURL, document);
 
                             if (rq!=null) {
-                              CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q']};
+                              CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
                               CliqzUCrawl.track({'type': 'safe', 'action': 'query', 'payload': rq});
                             }
 
@@ -320,8 +315,6 @@ var CliqzUCrawl = {
                     }
                   }, CliqzUCrawl.WAIT_TIME, activeURL);
                 }
-
-                ////
 
                 var status = null;
 
@@ -344,6 +337,7 @@ var CliqzUCrawl = {
                   if (CliqzUCrawl.state['v'][referral] && CliqzUCrawl.state['v'][referral]['qr']) {
                     CliqzUCrawl.state['v'][activeURL]['qr'] = {}
                     CliqzUCrawl.state['v'][activeURL]['qr']['q'] = CliqzUCrawl.state['v'][referral]['qr']['q'];
+                    CliqzUCrawl.state['v'][activeURL]['qr']['t'] = CliqzUCrawl.state['v'][referral]['qr']['t'];
                     CliqzUCrawl.state['v'][activeURL]['qr']['d'] = CliqzUCrawl.state['v'][referral]['qr']['d']+1;
                   }
                 }
@@ -589,7 +583,9 @@ var CliqzUCrawl = {
     },
     captureMouseClick: function(ev) {
       if ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclick']|0)) > 1 * CliqzUCrawl.tmult && ((CliqzUCrawl.counter - (CliqzUCrawl.lastEv['mouseclickpage']|0)) > 1 * CliqzUCrawl.tmult)) {
-        CliqzUtils.log('captureMouseClickAll', CliqzUCrawl.LOG_KEY);
+        if (CliqzUCrawl.debug) {
+          CliqzUtils.log('captureMouseClickAll', CliqzUCrawl.LOG_KEY);
+        }
         CliqzUCrawl.lastEv['mouseclick'] = CliqzUCrawl.counter;
         CliqzUCrawl.lastActiveAll = CliqzUCrawl.counter;
       }
