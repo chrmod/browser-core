@@ -399,6 +399,7 @@ var CliqzUCrawl = {
             CliqzUCrawl.state['v'][activeURL]['a'] += 1;
           } catch(ee) {
             if (CliqzUCrawl.debug) {
+              //ZZZ FIXME
               CliqzUtils.log('Error! activeURL not found: ' + activeURL, CliqzUCrawl.LOG_KEY);
             }
           }
