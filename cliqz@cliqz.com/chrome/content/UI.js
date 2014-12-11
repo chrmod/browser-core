@@ -7,7 +7,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
+var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
                  'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
                  'bitcoin', 'spellcheck'],
@@ -97,7 +97,8 @@ var UI = {
             return;
 
         var enhanced = enhanceResults(res);
-
+        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
+        
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -414,6 +415,111 @@ function constructImage(data){
     return null;
 }
 
+
+
+
+    // Cliqz Images Search Layout
+
+    var IMAGES_MARGIN = 4;
+    var IMAGES_LINES = 1;
+    function getheight(images, width) {
+        width -= IMAGES_MARGIN * images.length; //images  margin
+        var h = 0;
+        for (var i = 0; i < images.length; ++i) {
+            // console.log('width (getheight): '+images[i].image_width)
+            h += images[i].image_width / images[i].image_height
+        }
+        return width / h;
+    }
+
+    function setheight(images, height) {
+        var verif_width = 0;
+        var estim_width = 0;
+        for (var i = 0; i < images.length; ++i) {
+           var width_float = height * images[i].image_width /images[i].image_height;
+            verif_width += ( IMAGES_MARGIN + width_float);
+            images[i].width = parseInt(width_float);
+            estim_width +=  ( IMAGES_MARGIN + images[i].width);
+            images[i].height = parseInt(height);
+            // console.log('width (new): ' + images[i].width +
+            //             ', height (new): ' + images[i].height);
+        }
+
+        // Collecting sub-pixel error
+        var error = estim_width - parseInt(verif_width)
+        //console.log('estimation error:' + error);
+
+        if (error>0) {
+            //var int_error = parseInt(Math.abs(Math.ceil(error)));
+            // distribute the error on first images each take 1px
+            for (var i = 0; i < error; ++i) {
+                images[i].width -= 1;
+            }
+        }
+        else {
+            error=Math.abs(error)
+            //var int_error = parseInt(Math.abs(Math.floor(error)));
+            for (var i = 0; i < error; ++i) {
+                images[i].width += 1;
+            }
+        }
+
+        // Sanity check (Test)
+        // var verify = 0;
+        // for (var i = 0; i < images.length; ++i) {
+        //    var width_float = height * images[i].image_width /images[i].image_height;
+        //    verify += (images[i].width + IMAGES_MARGIN);
+        // }
+        // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
+    }
+
+    function resize(images, width) {
+        setheight(images, getheight(images, width));
+    }
+
+
+    function process_images_result(res, max_height) {
+        // Processing images to fit with max_height and
+        var tmp = []
+        for(var k=0; k<res.results.length; k++){
+            var r = res.results[k];
+            if (r.vertical == 'images' && r.data.template == 'images') {
+                var size = CLIQZ.Core.urlbar.clientWidth - 15;
+                var n = 0;
+                var images = r.data.items;
+                // console.log('global width: '+ size + ', verif: '+ res.width
+                //     +', images nbr: '+images.length) // TODO Define which is the better src for width f(time, scroll_bar_styles)
+                w: while ((images.length > 0) && (n<IMAGES_LINES)){
+                    var i = 1;
+                    while ((i < images.length + 1) && (n<IMAGES_LINES)){
+                        var slice = images.slice(0, i);
+                        var h = getheight(slice, size);
+                        //console.log('height: '+h);
+                        if (h < max_height) {
+                            setheight(slice, h);
+                            //res.results[k].data.results = slice
+                            tmp.push.apply(tmp, slice);
+                            // console.log('height: '+h);
+                            n++;
+                            images = images.slice(i);
+                            continue w;
+                        }
+                        i++;
+                    }
+                    setheight(slice, Math.min(max_height, h));
+                    tmp.push.apply(tmp, slice);
+                    n++;
+                    break;
+                }
+                res.results[k].data.items = tmp
+                // console.log('lines: '+n); // should be 1
+                }
+            }
+
+        }
+
+    // end image-search layout
+
 //loops though al the source and returns the first one with custom snippet
 function getFirstVertical(type){
     while(type && !VERTICALS[type[0]])type = type.substr(1);
@@ -421,6 +527,7 @@ function getFirstVertical(type){
 }
 
 function getPartial(type){
+    if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
@@ -459,6 +566,7 @@ function getTags(fullTitle){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
@@ -478,8 +586,11 @@ function enhanceResults(res){
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = generateLogoClass(r.urlDetails);
-            r.image = constructImage(r.data);
-            r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+
+             if (getPartial(r.type) != 'images'){
+                 r.image = constructImage(r.data);
+                 r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                }
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -564,6 +675,7 @@ function resultClick(ev){
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
+
             break;
         } else if (el.getAttribute('cliqz-action')) {
             // Stop click event propagation

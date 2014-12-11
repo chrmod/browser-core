@@ -410,17 +410,24 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.latency.backend = (new Date()).getTime() - this.startTime;
                     var results = [];
                     var country = "";
-
                     if(this.startTime)
                         CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
-
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
                         results = json.result || [];
                         country = json.country;
-                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                        this.cliqzResultsExtra = []
+
+                        if(json.images && json.images.results && json.images.results.length >0)
                             this.cliqzResultsExtra =
-                                json.extra.results.map(Result.cliqzExtra);
+                                json.images.results.map(Result.cliqzExtra);
+
+                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                            this.cliqzResultsExtra.concat(
+                                json.extra.results.map(Result.cliqzExtra));
+
+
+
                         this.latency.cliqz = json.duration;
                     }
                     this.cliqzResults = results.filter(function(r){
@@ -456,6 +463,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzBundesliga = res;
                 this.pushResults(q);
             },
+
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -571,7 +579,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
-
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
