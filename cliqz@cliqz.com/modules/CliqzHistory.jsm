@@ -12,6 +12,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var CliqzHistory = {
     prefExpire: (60*60*24*1000), // 24 hours
@@ -60,7 +62,8 @@ var CliqzHistory = {
         }
     },
     addHistoryEntry: function(browser, customPanel) {
-        if (browser) {
+        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+        if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow()) && browser) {
             var tab = CliqzHistory.getTabForContentWindow(browser.contentWindow);
             var panel = tab.linkedPanel;
             var title = browser.contentDocument.title || "";
@@ -95,7 +98,7 @@ var CliqzHistory = {
             // Insert history entry
             CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date,"+type+")\
               VALUES ('"+CliqzHistory.escapeSQL(url)+"', "+now+",'"+CliqzHistory.escapeSQL(query)+"',"+queryDate+",1)");
-        } else if(customPanel) {
+        } else if(!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow()) && customPanel) {
             var url = CliqzHistory.getTabData(customPanel, 'url');
             var type = "link";
             var query = CliqzHistory.getTabData(customPanel, 'query');
@@ -176,6 +179,38 @@ var CliqzHistory = {
         )";
         CliqzHistory.SQL(visits);
         CliqzHistory.SQL(titles);
+    },
+    deleteVisit: function(url) {
+      CliqzHistory.SQL("delete from visits where url = '"+CliqzHistory.escapeSQL(url)+"'");
+      CliqzHistory.SQL("delete from urltitles where url = '"+CliqzHistory.escapeSQL(url)+"'");
+    },
+    deleteTimeFrame: function() {
+      CliqzHistoryPattern.historyTimeFrame(function(min,max) {
+        CliqzHistory.SQL("delete from visits where visit_date < " + min);
+        CliqzHistory.SQL("delete from visits where visit_date > " + max);
+      });
+    },
+    clearHistory: function() {
+      CliqzHistory.SQL("delete from visits");
+      CliqzHistory.SQL("delete from urltitles");
+    },
+    historyObserver: {
+      onBeginUpdateBatch: function() {},
+      onEndUpdateBatch: function() {
+        CliqzHistory.deleteTimeFrame();
+      },
+      onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
+      onTitleChanged: function(aURI, aPageTitle) {},
+      onBeforeDeleteURI: function(aURI) {},
+      onDeleteURI: function(aURI) {
+        CliqzHistory.deleteVisit(aURI.spec);
+      },
+      onClearHistory: function() {
+        CliqzHistory.clearHistory();
+      },
+      onPageChanged: function(aURI, aWhat, aValue) {},
+      onDeleteVisits: function() {},
+      QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
     },
     getTabForContentWindow: function (window) {
       let browser;

@@ -96,10 +96,10 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        /*var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
+        var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
         queryDebugLink.addEventListener('click', function(ev){
             openUILink("chrome://cliqz/content/debugquery.html")
-        });*/
+        });
 
         handlePopupHeight(box);
     },

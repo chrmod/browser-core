@@ -136,7 +136,7 @@
 .cliqz-result-left-box {
     width: 30px;
     text-align: center;
-    visibility: hidden;
+    /*visibility: hidden;*/
 }
 
 .cliqz-image {
@@ -166,7 +166,7 @@
 }
 
 .cliqz-result-right-box {
-    visibility: hidden;
+    /*visibility: hidden;*/
 }
 
 .cliqz-result-title-box {

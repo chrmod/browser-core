@@ -81,6 +81,7 @@ var CliqzHistoryPattern = {
 
                 // Filter patterns with end urls that don't match query
                 var filteredPatterns = CliqzHistoryPattern.filterPatterns(groupedPatterns,orig_query).sort(CliqzHistoryPattern.sortPatterns(true,'cnt'));
+                filteredPatterns = CliqzHistoryPattern.removeSameTitle(filteredPatterns);
 
                 // Set autocomplete to base domain (if in found patterns)
                 if (filteredPatterns.length > 0) {
@@ -178,6 +179,19 @@ var CliqzHistoryPattern = {
           }
         }
         return newPatterns;
+    },
+    removeSameTitle: function(patterns) {
+      var newPatterns = [];
+      var titles = [];
+      for(var key in patterns) {
+        var pattern = patterns[key];
+        var title = pattern['title'];
+        if (titles[title] != true) {
+          newPatterns.push(pattern);
+          titles[title] = true;
+        }
+      }
+      return newPatterns;
     },
     adjustBaseDomain: function(patterns, query) {
         var basePattern = null;
@@ -339,14 +353,13 @@ var CliqzHistoryPattern = {
             autocomplete = true;
             highlight = true;
             urlbarCompleted = urlbar + shortTitle.substring(shortTitle.toLowerCase().indexOf(input)+input.length) + " - " + url;
-        } else if(url.indexOf("/") != -1 && input.indexOf(" ") != -1 && loose) {
-          autocomplete = true;
-          highlight = true;
+        } else if(url.indexOf("/") != -1 && input.trim().indexOf(" ") != -1 &&
+          input[input.length-1] != " " && loose) {
           if (pattern['title'].indexOf(input)) {
             var words = pattern['title'].split(" ");
             var queryEnd = input.split(" ")[input.split(" ").length-1].toLowerCase();
             for(var key in words) {
-              if (words[key].toLowerCase().indexOf(queryEnd) != -1) {
+              if (words[key].toLowerCase().indexOf(queryEnd) == 0) {
                 var word = words[key];
                 break;
               }
@@ -354,8 +367,12 @@ var CliqzHistoryPattern = {
           }
           if (word) {
             urlbarCompleted = urlbar + word.substr(word.toLowerCase().indexOf(queryEnd)+queryEnd.length) + " - " + url;
+            autocomplete = true;
+            highlight = true;
           } else {
-            urlbarCompleted = urlbar + " - " + url;
+            //urlbarCompleted = urlbar + " - " + url;
+            autocomplete = false;
+            highlight = false;
           }
         }
         if (autocomplete) {
@@ -476,7 +493,8 @@ var CliqzHistoryPattern = {
         return "right now";
       }
       if (diff < 60) {
-        return diff+"s ago";
+        //return diff+"s ago";
+        return "right now";
       }
       if (diff < 3600) {
         return parseInt(diff/60)+"m ago";
@@ -485,6 +503,27 @@ var CliqzHistoryPattern = {
         return parseInt(diff/3600)+"h ago";
       }
       return "";
+    },
+    historyTimeFrame: function(callback) {
+      Cu.import('resource://gre/modules/PlacesUtils.jsm');
+      let history = new Array();
+      var min, max;
+      this.SQL
+      ._execute(
+        PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
+        "SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places",
+        ["min_date", "max_date"],
+        function(result) {
+          try {
+            min = parseInt(result['min_date']/1000);
+            max = parseInt(result['max_date']/1000);
+          }
+          catch(ex) {}
+        }
+      )
+      .then(function() {
+        callback(min,max);
+      });
     },
     domainFromUrl: function(url, subdomain) {
         url = url.replace("www.", "");

@@ -58,6 +58,12 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
+        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+        if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow())) {
+          var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+          hs.addObserver(CliqzHistory.historyObserver, false);
+        }
+
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
         CliqzHistory.initDB();
