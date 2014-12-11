@@ -521,7 +521,7 @@ function resultClick(ev){
 
             // CliqzUCrawl wants to know if you click on a Cliqz results
             if (CliqzUCrawl && CliqzUCrawl.queryCache) {
-              CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 0, 'q': CliqzAutocomplete.lastSearch , 't': 'cl'};
+              CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl'};
             }
 
             var query = CLIQZ.Core.urlbar.value;

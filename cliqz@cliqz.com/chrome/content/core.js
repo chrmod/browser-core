@@ -4,6 +4,7 @@
  *  - it is injected into each browser window
  *  - loads all the additional modules needed
  *  - changes the default search provider
+ *  - changes the default search provider
  *  - ovverides the default UI
  *
  */
@@ -39,7 +40,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
   'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-
 
 
 var CLIQZ = CLIQZ || {};
@@ -205,7 +205,6 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzSniffer;
-            //delete window.CliqzUCrawl;
         }
     },
     restart: function(soft){

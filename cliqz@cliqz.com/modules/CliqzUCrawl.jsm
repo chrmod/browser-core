@@ -91,7 +91,6 @@ var CliqzUCrawl = {
       try {
         var id = '';
         //var text = document.getElementsByTagName('body')[0].textContent;
-        //CliqzUtils.log('QQQ: ' + document.documentElement.innerHTML);
         //var text = document.documentElement.innerHTML;
         var rpos = [102, 901, 15234, 212344, 909091, 234, 98924, 2304, 502002, 23455, 8289, 288345, 23429, 99852, 3453452, 2452234569964, 454353345, 6345245, 26563, 235235, 60993546, 546562, 565566];
         for(let i=0;i<rpos.length;i++) {
@@ -405,17 +404,9 @@ var CliqzUCrawl = {
         }
     },
     pacemaker: function() {
-      var currwin = CliqzUtils.getWindow();
       var activeURL = CliqzUCrawl.currentURL();
 
-      if (!activeURL) {
-        // This is a super hack!!!
-        CliqzUtils.log('Pacemaker destroy', CliqzUCrawl.LOG_KEY);
-        CliqzUCrawl.destroy();
-        return;
-      }
-
-      if ((activeURL).indexOf('about:')!=0) {
+      if (activeURL && (activeURL).indexOf('about:')!=0) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.lastActive) < 5*CliqzUCrawl.tmult) {
           // if there has been an event on the last 5 seconds, if not do no count, the user must
           // be doing something else,
@@ -428,6 +419,10 @@ var CliqzUCrawl = {
             }
           }
         }
+      }
+
+      if ((activeURL==null) && ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0)) {
+        CliqzUCrawl.pushAllData();
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 1 == 0) {
@@ -450,7 +445,6 @@ var CliqzUCrawl = {
                 CliqzUCrawl.state['m'].push(CliqzUCrawl.state['v'][url]);
                 delete CliqzUCrawl.state['v'][url];
               }
-
 
             }
             else {
@@ -495,27 +489,8 @@ var CliqzUCrawl = {
       CliqzUCrawl.counter += 1;
 
     },
-    destroy: function() {
-      CliqzUtils.log('destroy', CliqzUCrawl.LOG_KEY);
-      CliqzUtils.clearTimeout(CliqzUCrawl.pacemakerId);
-
+    pushAllData: function() {
       var tt = new Date().getTime();
-
-      /*
-      var res = [];
-      var currwin = CliqzUtils.getWindow();
-      var gBrowser = currwin.gBrowser;
-      var numTabs = gBrowser.tabContainer.childNodes.length;
-      for (var i=0; i<numTabs; i++) {
-        var currentTab = gBrowser.tabContainer.childNodes[i];
-        var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-        var currURL=''+currentBrowser.contentDocument.location;
-        if (currURL.indexOf('about:')!=0) {
-          res.push(decodeURIComponent(currURL));
-        }
-      }
-      */
-
       var res = [];
       for (var url in CliqzUCrawl.state['v']) {
         if (CliqzUCrawl.state['v'][url]) res.push(url);
@@ -543,11 +518,15 @@ var CliqzUCrawl = {
         for(var i=0;i<v.length;i++) {
           CliqzUCrawl.track({'type': 'safe', 'action': 'page', 'payload': v[i]});
         }
+        // do a instant push on whatever is left on the track
+        CliqzUCrawl.pushTrack();
+
       }
-
-      // do a instant push on whatever is left on the track
-      CliqzUCrawl.pushTrack();
-
+    },
+    destroy: function() {
+      CliqzUtils.log('destroy', CliqzUCrawl.LOG_KEY);
+      CliqzUCrawl.pushAllData();
+      CliqzUtils.clearTimeout(CliqzUCrawl.pacemakerId);
       CliqzUtils.log('end_destroy', CliqzUCrawl.LOG_KEY);
 
     },
@@ -718,21 +697,26 @@ var CliqzUCrawl = {
     lastActiveAll: null,
     getAllOpenPages: function() {
       var res = [];
-      for (var j = 0; j < CliqzUCrawl.windowsRef.length; j++) {
-        var gBrowser = CliqzUCrawl.windowsRef[j].gBrowser;
-        if (gBrowser.tabContainer) {
-          var numTabs = gBrowser.tabContainer.childNodes.length;
-          for (var i=0; i<numTabs; i++) {
-            var currentTab = gBrowser.tabContainer.childNodes[i];
-            var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-            var currURL=''+currentBrowser.contentDocument.location;
-            if (currURL.indexOf('about:')!=0) {
-              res.push(decodeURIComponent(currURL));
+      try {
+        for (var j = 0; j < CliqzUCrawl.windowsRef.length; j++) {
+          var gBrowser = CliqzUCrawl.windowsRef[j].gBrowser;
+          if (gBrowser.tabContainer) {
+            var numTabs = gBrowser.tabContainer.childNodes.length;
+            for (var i=0; i<numTabs; i++) {
+              var currentTab = gBrowser.tabContainer.childNodes[i];
+              var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+              var currURL=''+currentBrowser.contentDocument.location;
+              if (currURL.indexOf('about:')!=0) {
+                res.push(decodeURIComponent(currURL));
+              }
             }
           }
         }
+        return res;
       }
-      return res;
+      catch(ee) {
+        return [];
+      }
     },
     windowsRef: [],
     windowsMem: {},
