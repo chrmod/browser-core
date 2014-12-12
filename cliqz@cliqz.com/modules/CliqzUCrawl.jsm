@@ -9,6 +9,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzUCrawl'];
 
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
+
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
@@ -20,11 +23,18 @@ var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
+/*
+http://stackoverflow.com/questions/9171590/how-to-parse-a-xml-string-in-a-firefox-addon-using-add-on-sdk
+
+var {Cc, Ci} = require("chrome");
+var parser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
+*/
+
 var CliqzUCrawl = {
     VERSION: '0.3',
     WAIT_TIME: 1000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: false,
+    debug: true,
     httpCache: {},
     queryCache: {},
     privateCache: {},
@@ -366,6 +376,10 @@ var CliqzUCrawl = {
                     //
                     // CliqzUCrawl.doubleFetch(currURL, CliqzUCrawl.generateHashId(''+cd.documentElement.outerHTML));
 
+                    var is_private = CliqzUCrawl.isPrivateURL(currURL);
+                    CliqzUtils.log("PRIVATE: " + is_private, CliqzUCrawl.LOG_KEY);
+
+
                   } catch(ee) {
                     if (CliqzUCrawl.debug) {
                       CliqzUtils.log("Error fetching title and length of page: " + ee, CliqzUCrawl.LOG_KEY);
@@ -379,6 +393,10 @@ var CliqzUCrawl = {
                   if (CliqzUCrawl.queryCache[currURL]) {
                     CliqzUCrawl.state['v'][currURL]['qr'] = CliqzUCrawl.queryCache[currURL];
 
+                  }
+
+                  if (CliqzUCrawl.state['v'][currURL] != null) {
+                    CliqzUCrawl.addURLtoDB(currURL, CliqzUCrawl.state['v'][currURL]['ref'], JSON.stringify(CliqzUCrawl.state['v'][currURL]['x']));
                   }
 
                 }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
@@ -721,6 +739,7 @@ var CliqzUCrawl = {
     windowsRef: [],
     windowsMem: {},
     init: function(window) {
+        CliqzUCrawl.initDB();
 
         var win_id = CliqzUtils.getWindowID()
 
@@ -821,4 +840,182 @@ var CliqzUCrawl = {
       CliqzUCrawl._track_sending = [];
       CliqzUCrawl._track_req = null;
     },
+    // ************************ Database ***********************
+    // Stolen from modules/CliqzHistory
+    // *********************************************************
+    initDB: function() {
+      CliqzUtils.log('SQL: ' +  FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists(), CliqzUCrawl.LOG_KEY);
+
+      if ( FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists() ) {return};
+      var ucrawl = "create table ucrawl(\
+          url VARCHAR(255) PRIMARY KEY NOT NULL,\
+          ref VARCHAR(255),\
+          last_visit INTEGER,\
+          first_visit INTEGER,\
+          hash VARCHAR(1024), \
+          private BOOLEAN DEFAULT 0,\
+          checked BOOLEAN DEFAULT 0 \
+          )";
+      CliqzUCrawl.SQL(ucrawl);
+    },
+    SQL: function (sql) {
+      //
+      // https://developer.mozilla.org/en-US/docs/Storage
+      //
+      let file = FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]);
+      CliqzUtils.log('SQL statement: ' + sql, CliqzUCrawl.LOG_KEY);
+
+      var dbConn = Services.storage.openDatabase(file);
+
+      CliqzUtils.log('SQL statement: ' + sql, CliqzUCrawl.LOG_KEY);
+
+      var statement = dbConn.createStatement(sql);
+
+      var result = new Array();
+      try {
+          while (statement.executeStep()) {
+              CliqzUtils.log('statement: ' + statement.row.url, CliqzUCrawl.LOG_KEY);
+              result.push(statement.row.url);
+          }
+      }
+      finally {
+          statement.reset();
+          //return result;
+      }
+
+
+      return result;
+
+
+    },
+    escapeSQL: function(str) {
+        return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
+        switch (char) {
+            case "'":
+                return "''";
+            default:
+                return char;
+            /*case "\0":
+                return "\\0";
+            case "\x08":
+                return "\\b";
+            case "\x09":
+                return "\\t";
+            case "\x1a":
+                return "\\z";
+            case "\n":
+                return "\\n";
+            case "\r":
+                return "\\r";
+            case "\"":
+            case "'":
+            case "\\":
+            case "%":
+                return "\\"+char; */
+            }
+        });
+    },
+    auxSameDomain: function(ur1, url2) {
+      var d1 = URL(url1).hostname.replace('www.','');
+      var d2 = URL(url2).hostname.replace('www.','');
+      return d1==d2;
+    },
+    privateState: function(url) {
+      // returns 1 is private (because of checked, of because the referrer is private)
+      // returns 0 if public
+      // returns -1 if not checked yet, handled as public in this cases,
+
+      var res = CliqzUCrawl.SQL("SELECT * FROM ucrawl WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
+      if (res.length==1) {
+        if (res[0].checked==1) {
+          return res[0].private;
+        }
+        else {
+          // we must check for the referral, if exists,
+          if (res[0].ref!=null && res[0].ref!='' && res[0].ref!=undefined && res[0].ref!='null') {
+            if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
+              return CliqzUCrawl.privateState(ref);
+            }
+            else return -1;
+          }
+          else {
+            return -1;
+          }
+        }
+      }
+      else return null;
+    },
+    suspiciousURL: function(url) {
+
+      // FIXME
+      return false;
+
+      try {
+        var u1 = URL(url);
+      }
+      catch(ee if ee instanceof TypeError) {
+        // url is not a valid url
+        return true;
+      }
+
+      if ([80, 443].indexOf(u1.port) == -1) {
+        // not a standard port
+        return true;
+      }
+
+      if (u1.username!='' || u1.password!='') {
+        // contains http pass
+        return true;
+      }
+
+      var h = u1.hostname.replace(/\./g,'');
+      if (''+parseInt(h) == h) {
+        // hostname is an ip address
+        return true;
+      }
+
+      // More to come
+
+      return false;
+    },
+    addURLtoDB: function(url, ref, hashid_string) {
+      var tt = new Date().getTime();
+      var res = CliqzUCrawl.SQL("SELECT * FROM ucrawl WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
+      if (res.length == 0) {
+        // we never seen it, let's add it
+
+        if (CliqzUCrawl.suspiciousURL(url)) {
+          // if the url looks private already add it already as checked and private
+          CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
+            ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(ref) + "'," + tt + "," + tt + ",'" + hashid_string + "',1,1)");
+        }
+        else {
+          CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
+            ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(ref) + "'," + tt + "," + tt + ",'" + hashid_string + "',0,0)");
+        }
+      }
+      else {
+        // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
+        if (res[0].checked==0) {
+          CliqzUCrawl.SQL("UPDATE ucrawl SET last_visit = " + tt + " WHERE url = ' + '"+CliqzUCrawl.escapeSQL(url)+"'");
+        }
+      }
+    },
+    setAsPrivate(url) {
+      CliqzUCrawl.SQL("UPDATE ucrawl SET checked = 1, private = 1 WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
+
+    },
+    setAsPublic(url) {
+      CliqzUCrawl.SQL("UPDATE ucrawl SET checked = 1, private = 0 WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
+    },
+    listOfUnchecked(cap, sec_old) {
+      var tt = new Date().getTime();
+      var res = CliqzUCrawl.SQL("SELECT url FROM ucrawl WHERE checked = 1 and last_visit < " + (tt - sec_old*1000) + ";");
+
+      //var r = [];
+      //for(var i=0;i<res.length;i++) r.push(res[i].getResultByName('url'));
+      //return r.slice(0, cap);
+      return res;
+    }
+
 };
