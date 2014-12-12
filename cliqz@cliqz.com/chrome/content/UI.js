@@ -117,7 +117,7 @@ var UI = {
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
-        sendResultsSignal(currentResults.results, res.instant);
+        sendResultsSignal(currentResults.results, res.isInstant);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -205,13 +205,13 @@ var UI = {
 };
 
 
-function sendResultsSignal(results, instant){
+function sendResultsSignal(results, isInstant){
     var action = {
         type: 'activity',
         action: 'results',
         query_length: CliqzAutocomplete.lastSearch.length,
         result_order: results.map(function(r){ return r.data.kind; }),
-        instant: instant ? true : false,
+        instant: isInstant ? true : false,
         popup: CliqzAutocomplete.isPopupOpen ? true : false,
         clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
         latency_cliqz: CliqzAutocomplete.lastResult.latency.cliqz,

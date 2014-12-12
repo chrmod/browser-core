@@ -77,7 +77,7 @@
               CLIQZ.UI.results({
                 q: q,
                 results: data,
-                instant: lastRes && lastRes.instant,
+                isInstant: lastRes && lastRes.isInstant,
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);

@@ -112,7 +112,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             _errorDescription: '',
             _results: [],
             // only one result based on history
-            instant: false,
+            isInstant: false,
 
             get searchString() { return this._searchString; },
             get searchResult() { return this._searchResult; },
@@ -261,7 +261,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             comment = this.historyResults.getCommentAt(candidate_idx),
                             label = this.historyResults.getLabelAt(candidate_idx);
 
-                        var instant = Result.generic(style, value, image, comment, label, this.searchString, null);
+                        var instant = Result.generic(style, value, image, comment, label, this.searchString);
                         instant.comment += " (instant history domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
@@ -309,7 +309,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.clearTimeout(this.historyTimer);
 
                         this.mixedResults.addResults(this.mixResults());
-                        this.mixedResults.instant = false;
+                        this.mixedResults.isInstant = false;
 
                         this.mixedResults.latency.mixed = (new Date()).getTime() - this.mixedResults.startTime;
 
@@ -330,7 +330,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.mixedResults.latency.mixed = (new Date()).getTime() - this.mixedResults.startTime;
 
-                        this.mixedResults.instant = true;
+                        this.mixedResults.isInstant = true;
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
