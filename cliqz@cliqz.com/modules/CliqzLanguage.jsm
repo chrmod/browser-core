@@ -39,7 +39,8 @@ var CliqzLanguage = {
             popup: CliqzAutocomplete.lastPopupOpen,
             same_result: same_result,
             result_type: result_type,
-            result_position: result_position
+            result_position: result_position,
+            v: 1
         };
         CliqzUtils.track(action)
     },

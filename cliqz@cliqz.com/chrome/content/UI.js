@@ -219,7 +219,7 @@ function sendResultsSignal(results, instant){
         latency_backend: CliqzAutocomplete.lastResult.latency.backend,
         latency_mixed: CliqzAutocomplete.lastResult.latency.mixed,
         latency_all: (new Date()).getTime() - CliqzAutocomplete.lastResult.startTime,
-        version: 1
+        v: 1
     };
     if(CliqzAutocomplete.lastResult.country)
         action.country = CliqzAutocomplete.lastResult.country;
@@ -564,7 +564,7 @@ function resultClick(ev){
                     reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
                     display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
                     result_order: currentResults.results.map(function(r){ return r.data.kind; }),
-                    version: 1
+                    v: 1
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -741,7 +741,7 @@ function onEnter(ev, item){
             display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
             result_order: currentResults.results.map(function(r){ return r.data.kind; }),
-            version: 1
+            v: 1
         };
 
     var query = inputValue;

@@ -44,7 +44,7 @@ var CliqzSniffer = {
                                 action: "response",
                                 response_code: res.status,
                                 result_type: CliqzUtils.encodeResultType(r.style || r.type),
-                                version: 1
+                                v: 1
                             }
                             CliqzUtils.track(action);
                         }
