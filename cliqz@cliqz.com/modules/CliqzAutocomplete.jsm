@@ -423,7 +423,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                                 json.images.results.map(Result.cliqzExtra);
 
                         if(json.extra && json.extra.results && json.extra.results.length >0)
-                            this.cliqzResultsExtra.concat(
+                            this.cliqzResultsExtra = this.cliqzResultsExtra.concat(
                                 json.extra.results.map(Result.cliqzExtra));
 
 

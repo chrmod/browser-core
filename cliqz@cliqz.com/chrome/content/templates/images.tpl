@@ -1,4 +1,4 @@
-<div id="cliqz-images-results" class='cliqz-images'>
+<div class='cliqz-images'>
     {{#each data.items}}
         <div class='cliqz-image-item'
              style='width:{{width}}px; height:{{height}}px;'

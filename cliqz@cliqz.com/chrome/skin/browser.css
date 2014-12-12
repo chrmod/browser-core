@@ -200,7 +200,15 @@
 }
 
 .cliqz-result-item-box {
-    border-bottom: 1px solid #CCC; /* to have  1px should be in an inner div to this  */
+    border-bottom: 1px solid #CCC;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"] {
+    border-bottom: 0px;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"][selected="true"] {
+    background-color: white;
 }
 
 .cliqz-result-item-box [url]{

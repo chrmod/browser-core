@@ -488,7 +488,7 @@ function constructImage(data){
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
             if (r.vertical == 'images' && r.data.template == 'images') {
-                var size = CLIQZ.Core.urlbar.clientWidth - 15;
+                var size = CLIQZ.Core.urlbar.clientWidth - (CliqzUtils.isWindows(window)?20:15);
                 var n = 0;
                 var images = r.data.items;
                 // console.log('global width: '+ size + ', verif: '+ res.width

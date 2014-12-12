@@ -718,8 +718,8 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(){
-    return window.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(win){
+    return win.navigator.userAgent.indexOf('Win') != -1;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
