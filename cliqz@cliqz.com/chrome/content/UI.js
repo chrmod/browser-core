@@ -956,10 +956,10 @@ function onEnter(ev, item){
 
         action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
-            action.position_type = 'inbar_url';
+            action.position_type = ['inbar_url'];
             action.search = CliqzUtils.isSearch(inputValue);
         }
-        else action.position_type = 'inbar_query';
+        else action.position_type = ['inbar_query'];
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted && gCliqzBox){
             var first = gCliqzBox.resultsBox.children[0],
