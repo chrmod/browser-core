@@ -84,7 +84,6 @@ var Result = {
             query: query,
             data: data
         };
-
         return item;
     },
     cliqz: function(result){
@@ -107,9 +106,6 @@ var Result = {
         }
     },
     cliqzExtra: function(result){
-        result.data = result.data || {};
-        result.data.subtype = parseInt(Math.random() * 10);
-
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value
@@ -118,7 +114,7 @@ var Result = {
             null, //label
             result.q, //query
             result.data,
-            result.kind || 'test'
+            result.subType
         );
     },
     // check if a result should be kept in final result list

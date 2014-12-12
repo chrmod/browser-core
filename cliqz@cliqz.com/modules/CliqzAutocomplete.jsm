@@ -247,7 +247,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     let dataHost = CliqzUtils.getDetailsFromUrl(data.url).host.toLowerCase();
                     let override = candidate_idx != -1 && candidate_url.indexOf(dataHost) == -1;
                     let instant_cluster = Result.generic(
-                            style, data.url || '', null, '', '', '', data, 'instant');
+                            style, data.url || '', null, '', '', '', data);
                     instant_cluster.override = override;
 
                     //this.historyResults.removeValueAt(candidate_idx, false);
@@ -261,7 +261,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             comment = this.historyResults.getCommentAt(candidate_idx),
                             label = this.historyResults.getLabelAt(candidate_idx);
 
-                        var instant = Result.generic(style, value, image, comment, label, this.searchString, null, 'instant');
+                        var instant = Result.generic(style, value, image, comment, label, this.searchString, null);
                         instant.comment += " (instant history domain)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
@@ -363,10 +363,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return r.url != undefined && r.url != '';
                     });
 
-                    this.cliqzResults = results.map(function(r){
-                        r.subType = Math.random();
-                        return r;
-                    });
                     this.cliqzCountry = country;
                 }
                 this.pushResults(q);
