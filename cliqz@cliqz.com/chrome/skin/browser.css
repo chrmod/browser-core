@@ -12,7 +12,10 @@
     overflow: hidden;
     line-height: 20px;
 }
-
+.bold-underscore {
+    font-weight: bold;
+    text-decoration: underline;
+}
 .cliqz-suggestion {
     padding: 1px 5px 0px 5px;
     display: inline-block;
@@ -198,6 +201,14 @@
 
 .cliqz-result-item-box {
     border-bottom: 1px solid #CCC;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"] {
+    border-bottom: 0px;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"][selected="true"] {
+    background-color: white;
 }
 
 .cliqz-result-item-box [url]{
@@ -796,6 +807,75 @@
 
 /* end shopping */
 
+
+/* images */
+
+.cliqz-images {
+    width:100%;
+    height:100%;
+    display: inline-block;
+    margin-left:auto;
+    margin-right:auto;
+    background: white;
+
+}
+
+.cliqz-image-item {
+    display: inline-block;
+    float: left;
+    position: relative;
+    margin:  0px 2px 0px 2px;
+    border-radius: 10px;
+}
+
+.cliqz-image-item img{
+    border-radius: 5px;
+}
+
+.cliqz-image-item:hover .cliqz-image-hilight {display: block;}
+
+
+.cliqz-image-hidden{
+    background-color: black;
+    filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
+    filter: blur(10px);
+}
+
+.cliqz-image-clear{
+}
+
+.cliqz-image-hilight{
+    display: none;
+    white-space: word-wrap;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(0,0,0,0.6);
+    position: relative;
+    font-family: Courier New;
+    font-size:10px;
+    top: -40%;
+    z-index: 1;
+}
+
+.cliqz-image-item > .cliqz-image-hilight:hover{
+    text-overflow:inherit;
+    overflow:visible;
+    display:hidden;
+}
+
+.cliqz-image-report{
+    white-space: word-wrap;
+    overflow: hidden;
+    position: relative;
+    top: -60%;
+    left:5px;
+    z-index: 5;
+    display: none;
+}
+
+/* end images */
+
 /* video */
 
 .cliqz-result-video-mid-box {
@@ -1212,12 +1292,12 @@
 
 .entity-video-group {
   display: inline-block;
+  vertical-align: top;
   width: 100px;
   margin-right: 10px;
 }
 
-.entity-video-thumbnail {
-  overflow: hidden;
+.entity-video-thumbnail img {
   width: 100px;
   height: 60px;
 }

@@ -14,12 +14,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
                                   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 
-var EXPORTED_SYMBOLS = ['CliqzSniffer'];
+var EXPORTED_SYMBOLS = ['CliqzRedirect'];
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
-var CliqzSniffer = {
+var CliqzRedirect = {
     activityDistributor: Components.classes["@mozilla.org/network/http-activity-distributor;1"]
         .getService(Components.interfaces.nsIHttpActivityDistributor),
 
@@ -54,12 +54,12 @@ var CliqzSniffer = {
         }
     },
     addHttpObserver: function() {
-        CliqzSniffer.activityDistributor.addObserver(CliqzSniffer.httpObserver);
+        CliqzRedirect.activityDistributor.addObserver(CliqzRedirect.httpObserver);
     },
     removeHttpObserver: function() {
-        CliqzSniffer.activityDistributor.removeObserver(CliqzSniffer.httpObserver);
+        CliqzRedirect.activityDistributor.removeObserver(CliqzRedirect.httpObserver);
     },
     destroy: function() {
-        CliqzSniffer.removeHttpObserver();
+        CliqzRedirect.removeHttpObserver();
     }
 }

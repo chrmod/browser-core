@@ -50,10 +50,10 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
-  CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
   UPDATE_URL:            'chrome://cliqz/content/update.html',
@@ -393,8 +393,10 @@ var CliqzUtils = {
 
     return type; //should never happen
   },
+  //eg types: [ "H", "m" ], [ "H|instant", "X|11" ]
   isPrivateResultType: function(type) {
-    return type[0] == 'H' || type[0] == 'B' || type[0] == 'T';
+    var onlyType = type[0].split('|')[0];
+    return 'HBTCS'.indexOf(onlyType) != -1 && type.length == 1;
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
@@ -721,8 +723,8 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(){
-    return window.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(win){
+    return win.navigator.userAgent.indexOf('Win') != -1;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
