@@ -10,7 +10,8 @@
 var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                  'generic', 'custom', 'clustering', 'series', 'calculator',
                  'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
-                 'bitcoin', 'spellcheck'],
+                 'weather', 'bitcoin', 'spellcheck', 'adult'],
+
     VERTICALS = {
         'b': 'bundesliga',
         's': 'shopping',
@@ -98,7 +99,7 @@ var UI = {
 
         var enhanced = enhanceResults(res);
         process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
-        
+
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -238,6 +239,9 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
+    },
+    showAdultContent: function (el) {
+      console.log("yeah")
     },
     closeResults: closeResults
 };
@@ -711,6 +715,13 @@ function resultClick(ev){
                     break;
                 }
             }
+            /*
+             * Show adult content
+             */
+            if (el.getAttribute('cliqz-action') == 'show-adult-content') {
+              el.parentNode.className = "hidden";
+              break;
+            }
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1166,6 +1177,17 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    Handlebars.registerHelper('ifAdult', function(item, options) {
+      var selected = true;
+
+      if (selected) {
+        return options.fn(this);
+      }
+      else {
+        return options.inverse(this);
+      }
     });
 }
 

@@ -1,10 +1,5 @@
 <div class="entity-search-container">
-  <!--
-  <div class="entity-search-aktuell">
-    Aktuell: <span>Ebola</span> <span>Apple Inc.</span> <span>Police</span>
-             <span>Tropical cyclones</span> <span>Vladimir Putin</span>
-  </div>
-  -->
+  {{partial 'adult'}}
   <div>
     <div class="entity-search-box" style="border: 1px solid {{data.search_box_background_color}};">
       <img style="background-color: {{data.search_box_background_color}};" id="entity-search-box-icon" src="{{data.search_box_icon}}" />

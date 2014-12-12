@@ -1301,6 +1301,18 @@
 
 /* end entity zones */
 
+/* adult content */
+
+.cliqz-hide-divs-below ~ div {
+  display: none;
+}
+
+.cliqz-adult-show {
+  color: blue;
+}
+
+/* end adult content */
+
 /* custom */
 .cliqz-custom-text {
     color: #999999;
