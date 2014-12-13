@@ -376,8 +376,8 @@ var CliqzUCrawl = {
                     //
                     // CliqzUCrawl.doubleFetch(currURL, CliqzUCrawl.generateHashId(''+cd.documentElement.outerHTML));
 
-                    var is_private = CliqzUCrawl.isPrivateURL(currURL);
-                    CliqzUtils.log("PRIVATE: " + is_private, CliqzUCrawl.LOG_KEY);
+                    //var is_private = CliqzUCrawl.isPrivateURL(currURL);
+                    //CliqzUtils.log("PRIVATE: " + is_private, CliqzUCrawl.LOG_KEY);
 
 
                   } catch(ee) {
@@ -396,7 +396,7 @@ var CliqzUCrawl = {
                   }
 
                   if (CliqzUCrawl.state['v'][currURL] != null) {
-                    CliqzUCrawl.addURLtoDB(currURL, CliqzUCrawl.state['v'][currURL]['ref'], JSON.stringify(CliqzUCrawl.state['v'][currURL]['x']));
+                    CliqzUCrawl.addURLtoDB(currURL, CliqzUCrawl.state['v'][currURL]['ref'], CliqzUCrawl.state['v'][currURL]['x']);
                   }
 
                 }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
@@ -485,11 +485,15 @@ var CliqzUCrawl = {
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
         if (CliqzUCrawl.debug) {
-          CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL, CliqzUCrawl.LOG_KEY);
-          CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
-          CliqzUtils.log(JSON.stringify(CliqzUCrawl.getAllOpenPages(), undefined, 2), CliqzUCrawl.LOG_KEY);
+          CliqzUtils.log('Pacemaker: ' + CliqzUCrawl.counter/CliqzUCrawl.tmult + ' ' + activeURL + ' >> ' + CliqzUCrawl.state.id, CliqzUCrawl.LOG_KEY);
+          //CliqzUtils.log(JSON.stringify(CliqzUCrawl.state, undefined, 2), CliqzUCrawl.LOG_KEY);
+          //CliqzUtils.log(JSON.stringify(CliqzUCrawl.getAllOpenPages(), undefined, 2), CliqzUCrawl.LOG_KEY);
         }
         CliqzUCrawl.cleanHttpCache();
+      }
+
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (2*60) == 0) {
+        CliqzUCrawl.listOfUnchecked(10, 30, CliqzUCrawl.processUnchecks);
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
@@ -740,6 +744,7 @@ var CliqzUCrawl = {
     windowsMem: {},
     init: function(window) {
         CliqzUCrawl.initDB();
+        CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
 
         var win_id = CliqzUtils.getWindowID()
 
@@ -777,7 +782,7 @@ var CliqzUCrawl = {
         activityDistributor.addObserver(CliqzUCrawl.httpObserver);
 
     },
-    state: {'v': {}, 'm': []},
+    state: {'v': {}, 'm': [], '_id': Math.floor( Math.random() * 1000 ) },
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     },
@@ -857,7 +862,9 @@ var CliqzUCrawl = {
           checked BOOLEAN DEFAULT 0 \
           )";
       CliqzUCrawl.SQL(ucrawl);
+
     },
+    dbConn: null,
     SQL: function (sql) {
       //
       // https://developer.mozilla.org/en-US/docs/Storage
@@ -867,25 +874,18 @@ var CliqzUCrawl = {
 
       var dbConn = Services.storage.openDatabase(file);
 
-      CliqzUtils.log('SQL statement: ' + sql, CliqzUCrawl.LOG_KEY);
-
       var statement = dbConn.createStatement(sql);
 
       var result = new Array();
       try {
-          while (statement.executeStep()) {
-              CliqzUtils.log('statement: ' + statement.row.url, CliqzUCrawl.LOG_KEY);
-              result.push(statement.row.url);
+          while (statement.step()) {
+              result.push(statement.row);
           }
       }
       finally {
           statement.reset();
-          //return result;
+          return result;
       }
-
-
-      return result;
-
 
     },
     escapeSQL: function(str) {
@@ -978,28 +978,53 @@ var CliqzUCrawl = {
 
       return false;
     },
-    addURLtoDB: function(url, ref, hashid_string) {
+    addURLtoDB: function(url, ref, obj) {
       var tt = new Date().getTime();
-      var res = CliqzUCrawl.SQL("SELECT * FROM ucrawl WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
-      if (res.length == 0) {
-        // we never seen it, let's add it
 
-        if (CliqzUCrawl.suspiciousURL(url)) {
-          // if the url looks private already add it already as checked and private
-          CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
-            ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(ref) + "'," + tt + "," + tt + ",'" + hashid_string + "',1,1)");
+      var sref = ref || '';
+      var sobj = JSON.stringify(obj || {});
+
+      //var res = CliqzUCrawl.SQL("SELECT * FROM ucrawl WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"';");
+
+      var stmt = CliqzUCrawl.dbConn.createStatement("SELECT url, checked FROM ucrawl WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"';");
+      var res = [];
+      stmt.executeAsync({
+        handleResult: function(aResultSet) {
+          for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+            res.push({'url': row.getResultByName("url"), 'checked': row.getResultByName("checked")});
+          }
+        },
+        handleError: function(aError) {
+          CliqzUtils.log("SQL error: " + aError.message, CliqzUCrawl.LOG_KEY);
+        },
+        handleCompletion: function(aReason) {
+          if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+            CliqzUtils.log("SQL canceled or aborted", CliqzUCrawl.LOG_KEY);
+          }
+          else {
+            if (res.length == 0) {
+              // we never seen it, let's add it
+
+              if (CliqzUCrawl.suspiciousURL(url)) {
+                // if the url looks private already add it already as checked and private
+                CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
+                  ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(sref) + "'," + tt + "," + tt + ",'" + sobj + "',1,1)");
+              }
+              else {
+                CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
+                  ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(sref) + "'," + tt + "," + tt + ",'" + sobj + "',0,0)");
+              }
+            }
+            else {
+              // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
+              if (res[0]['checked']==0) {
+                CliqzUCrawl.SQL("UPDATE ucrawl SET last_visit = " + tt + " WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
+              }
+            }
+          }
         }
-        else {
-          CliqzUCrawl.SQL("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES \
-            ('" +CliqzUCrawl.escapeSQL(url)+ "','" + CliqzUCrawl.escapeSQL(ref) + "'," + tt + "," + tt + ",'" + hashid_string + "',0,0)");
-        }
-      }
-      else {
-        // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
-        if (res[0].checked==0) {
-          CliqzUCrawl.SQL("UPDATE ucrawl SET last_visit = " + tt + " WHERE url = ' + '"+CliqzUCrawl.escapeSQL(url)+"'");
-        }
-      }
+      });
+
     },
     setAsPrivate(url) {
       CliqzUCrawl.SQL("UPDATE ucrawl SET checked = 1, private = 1 WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
@@ -1008,14 +1033,46 @@ var CliqzUCrawl = {
     setAsPublic(url) {
       CliqzUCrawl.SQL("UPDATE ucrawl SET checked = 1, private = 0 WHERE url = '"+CliqzUCrawl.escapeSQL(url)+"'");
     },
-    listOfUnchecked(cap, sec_old) {
+    listOfUnchecked(cap, sec_old, callback) {
       var tt = new Date().getTime();
-      var res = CliqzUCrawl.SQL("SELECT url FROM ucrawl WHERE checked = 1 and last_visit < " + (tt - sec_old*1000) + ";");
-
-      //var r = [];
-      //for(var i=0;i<res.length;i++) r.push(res[i].getResultByName('url'));
-      //return r.slice(0, cap);
-      return res;
+      var stmt = CliqzUCrawl.dbConn.createStatement("SELECT url FROM ucrawl WHERE checked = 0 and last_visit < " + (tt - sec_old*1000) + ";");
+      var res = [];
+      stmt.executeAsync({
+        handleResult: function(aResultSet) {
+          for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+            res.push(row.getResultByName("url"));
+          }
+        },
+        handleError: function(aError) {
+          CliqzUtils.log("SQL error: " + aError.message, CliqzUCrawl.LOG_KEY);
+        },
+        handleCompletion: function(aReason) {
+          if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+            CliqzUtils.log("SQL canceled or aborted", CliqzUCrawl.LOG_KEY);
+          }
+          else {
+            callback(res);
+          }
+        }
+      });
+    },
+    processUnchecks: function(listOfUncheckedUrls) {
+      for(var i=0;i<listOfUncheckedUrls.length;i++) {
+        var url = listOfUncheckedUrls[i];
+        CliqzUtils.log("Unchecked: " + url, CliqzUCrawl.LOG_KEY);
+      }
     }
 
+
 };
+
+
+/*
+
+urls that fuckup insert
+
+http://www.vilaweb.cat/opinio_contundent/4223691/marina-albiol-lobjectiu-atemptat-poble-veja-llum.html
+
+
+
+*/
