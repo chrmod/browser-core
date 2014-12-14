@@ -849,20 +849,26 @@ var CliqzUCrawl = {
     // *********************************************************
     initDB: function() {
       CliqzUtils.log('Exists DB?: ' +  FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists(), CliqzUCrawl.LOG_KEY);
-      if ( FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists() ) {return};
+      if ( FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists() ) {
+        if (CliqzUCrawl.dbConn==null) {
+          CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
+        }
+        return;
+      }
+      else {
+        CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
+        var ucrawl = "create table ucrawl(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            ref VARCHAR(255),\
+            last_visit INTEGER,\
+            first_visit INTEGER,\
+            hash VARCHAR(1024), \
+            private BOOLEAN DEFAULT 0,\
+            checked BOOLEAN DEFAULT 0 \
+            )";
 
-      CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
-      var ucrawl = "create table ucrawl(\
-          url VARCHAR(255) PRIMARY KEY NOT NULL,\
-          ref VARCHAR(255),\
-          last_visit INTEGER,\
-          first_visit INTEGER,\
-          hash VARCHAR(1024), \
-          private BOOLEAN DEFAULT 0,\
-          checked BOOLEAN DEFAULT 0 \
-          )";
-
-      CliqzUCrawl.dbConn.executeSimpleSQL(ucrawl);
+        CliqzUCrawl.dbConn.executeSimpleSQL(ucrawl);
+      }
 
     },
     dbConn: null,
