@@ -29,14 +29,21 @@ var CliqzUCrawl = {
     LOG_KEY: 'CliqzUCrawl',
     debug: true,
     httpCache: {},
+    httpCache401: {},
     queryCache: {},
     privateCache: {},
     cleanHttpCache: function() {
       for(var key in CliqzUCrawl.httpCache) {
-        if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 30*CliqzUCrawl.tmult) {
+        if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 60*CliqzUCrawl.tmult) {
           delete CliqzUCrawl.httpCache[key];
         }
       }
+      for(var key in CliqzUCrawl.httpCache401) {
+        if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache401[key]['time']) > 60*CliqzUCrawl.tmult) {
+          delete CliqzUCrawl.httpCache401[key];
+        }
+      }
+
     },
     httpObserver: {
         // check the non 2xx page and report if this is one of the cliqz result
@@ -45,11 +52,11 @@ var CliqzUCrawl = {
 
               try {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
-
                 var url = decodeURIComponent(aChannel.URI.spec);
 
                 var status = aExtraStringData.split(" ")[1];
                 var loc = null;
+
                 if (status=='301') {
                   var l = aExtraStringData.split("\n");
                   for(var i=0;i<l.length;i++) {
@@ -58,12 +65,25 @@ var CliqzUCrawl = {
                     }
                   }
                 }
-                CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
-                if (loc!=null) {
-                  if (CliqzUCrawl.debug) {
-                    CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
+                else {
+                  if (status=='401') {
+                    if (CliqzUCrawl.debug) {
+                      CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' 401!!! ', CliqzUCrawl.LOG_KEY);
+                    }
                   }
                 }
+
+                CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+
+                if (status=='401') {
+                  CliqzUCrawl.httpCache401[url] = {'time': CliqzUCrawl.counter};
+                }
+
+                //if (loc!=null) {
+                //  if (CliqzUCrawl.debug) {
+                //    CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
+                //  }
+                //}
               } catch(ee) {
                 return;
               }
@@ -238,47 +258,79 @@ var CliqzUCrawl = {
       if (CliqzUCrawl.debug) {
         CliqzUtils.log("doubleFetch for: " + url, CliqzUCrawl.LOG_KEY);
       }
-      CliqzUtils.httpGet(url, function(req) {
-        // success
-        if (CliqzUCrawl.debug) {
-          CliqzUtils.log("success on doubleFetch!", CliqzUCrawl.LOG_KEY);
+
+      var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+      //req.open('GET', url, true, 'user', 'pwd');
+      req.open('GET', url, true);
+      req.overrideMimeType('text/html');
+      //req.setRequestHeader('WWW-Authenticate', 'None');
+
+      // CliqzUCrawl.doubleFetch('https://golf.cliqz.com/dashboard/#KPIs_BM',{})
+
+      req.onreadystatechange= function() {
+        CliqzUtils.log("on ready state change!! " + req.readyState, CliqzUCrawl.LOG_KEY);
+
+        if (req.readyState==2) {
+          // received the headers
+          var a=1;
+          a=1;
         }
 
-        var document = Services.appShell.hiddenDOMWindow.document;
-        var doc = document.implementation.createHTMLDocument("example");
-        doc.documentElement.innerHTML = req.responseText;
-        var x = CliqzUCrawl.getPageData(doc);
-
-        CliqzUCrawl.setAsPublic(url);
-        CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'xaft': x, 'xbef': hash}});
-
-
       },
-      function(req) {
-        // failure
-        if (CliqzUCrawl.debug) CliqzUtils.log("failure on doubleFetch!", CliqzUCrawl.LOG_KEY);
+      req.onload = function(){
+        if(req.status != 200 && req.status != 0 /* local files */){
+          req.onerror();
+        }
+        else {
+          if (CliqzUCrawl.debug) {
+            CliqzUtils.log("success on doubleFetch!", CliqzUCrawl.LOG_KEY);
+          }
 
+          var document = Services.appShell.hiddenDOMWindow.document;
+          var doc = document.implementation.createHTMLDocument("example");
+          doc.documentElement.innerHTML = req.responseText;
+          var x = CliqzUCrawl.getPageData(doc);
+
+          CliqzUCrawl.setAsPublic(url);
+          CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'xaft': x, 'xbef': hash}});
+        }
+      }
+      req.onerror = function() {
+        if (CliqzUCrawl.debug) CliqzUtils.log("failure on doubleFetch! " + req.status, CliqzUCrawl.LOG_KEY);
         CliqzUCrawl.setAsPrivate(url);
-        CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'error': 'could not get page on double fetch'}});
+        CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'error': 'could not get page on double fetch', 'st': req.status}});
+      }
+      req.ontimeout = function(){
+        req.onerror();
+      }
 
-      },
-      10000);
+      req.timeout = 10000;
+      req.send(null);
+
     },
     getPageData: function(cd) {
 
-      var len_html = cd.documentElement.innerHTML.length;
-      var len_text = cd.documentElement.textContent.length;
+      var len_html = null;
+      var len_text = null;
+      var title = null;
+      var numlinks = null;
+      var inputs = null;
+      var inputs_nh = null;
+      var forms = null;
 
-      var title = cd.getElementsByTagName('title')[0].textContent;
-      var numlinks = cd.getElementsByTagName('a').length;
+      try { len_html = cd.documentElement.innerHTML.length; } catch(ee) {}
+      try { len_text = cd.documentElement.textContent.length; } catch(ee) {}
+      try { title = cd.getElementsByTagName('title')[0].textContent; } catch(ee) {}
+      try { numlinks = cd.getElementsByTagName('a').length; } catch(ee) {}
+      try {
+        inputs = cd.getElementsByTagName('input') || [];
+        inputs_nh = 0;
+        for(var i=0;i<inputs.length;i++) if (inputs[i]['type'] && inputs[i]['type']!='hidden') inputs_nh+=1;
+      } catch(ee) {}
 
-      var inputs = cd.getElementsByTagName('input') || [];
-      var inputs_nh = 0;
-      for(var i=0;i<inputs.length;i++) if (inputs[i]['type'] && inputs[i]['type']!='hidden') inputs_nh+=1;
+      try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
-      var forms = cd.getElementsByTagName('form');
-
-      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': inputs.length, 'ninh': inputs_nh, 'nf': forms.length};
+      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length};
 
       return x;
     },
@@ -498,7 +550,7 @@ var CliqzUCrawl = {
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (1*60) == 0) {
-        CliqzUCrawl.listOfUnchecked(3, 30, CliqzUCrawl.processUnchecks);
+        CliqzUCrawl.listOfUnchecked(3, 60*60, CliqzUCrawl.processUnchecks);
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
@@ -867,7 +919,8 @@ var CliqzUCrawl = {
             ref VARCHAR(255),\
             last_visit INTEGER,\
             first_visit INTEGER,\
-            hash VARCHAR(1024), \
+            hash VARCHAR(2048), \
+            reason VARCHAR(256), \
             private BOOLEAN DEFAULT 0,\
             checked BOOLEAN DEFAULT 0 \
             )";
@@ -1022,7 +1075,7 @@ var CliqzUCrawl = {
             if (res.length == 0) {
               // we never seen it, let's add it
 
-              var st = CliqzUCrawl.dbConn.createStatement("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, private, checked) VALUES (:url, :ref, :last_visit, :first_visit, :hash, :private, :checked)");
+              var st = CliqzUCrawl.dbConn.createStatement("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, reason, private, checked) VALUES (:url, :ref, :last_visit, :first_visit, :hash, :reason, :private, :checked)");
               st.params.url = url;
               st.params.ref = ref;
               st.params.last_visit = tt;
@@ -1033,10 +1086,23 @@ var CliqzUCrawl = {
                 // if the url looks private already add it already as checked and private
                 st.params.checked = 1;
                 st.params.private = 1;
+                st.params.reason = 'susp. url';
+                CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'r': 'susp. url'}});
               }
               else {
-                st.params.checked = 0;
-                st.params.private = 0;
+
+                if (CliqzUCrawl.httpCache401[url]) {
+                  st.params.checked = 1;
+                  st.params.private = 1;
+                  st.params.reason = '401';
+                  CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'r': '401'}});
+
+                }
+                else {
+                  st.params.checked = 0;
+                  st.params.private = 0;
+                  st.params.reason = '';
+                }
               }
               while (st.executeStep()) {};
 
