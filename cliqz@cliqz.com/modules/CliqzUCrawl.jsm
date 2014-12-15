@@ -23,16 +23,9 @@ var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
-/*
-http://stackoverflow.com/questions/9171590/how-to-parse-a-xml-string-in-a-firefox-addon-using-add-on-sdk
-
-var {Cc, Ci} = require("chrome");
-var parser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
-*/
-
 var CliqzUCrawl = {
-    VERSION: '0.3',
-    WAIT_TIME: 1000,
+    VERSION: '0.01',
+    WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
     debug: true,
     httpCache: {},
@@ -241,28 +234,53 @@ var CliqzUCrawl = {
       }
       else return null;
     },
-    doubleFetch: function(url, pageHashId) {
+    doubleFetch: function(url, hash) {
       if (CliqzUCrawl.debug) {
-        CliqzUtils.log("doubleFetch for: " + url + " " + pageHashId, CliqzUCrawl.LOG_KEY);
+        CliqzUtils.log("doubleFetch for: " + url, CliqzUCrawl.LOG_KEY);
       }
       CliqzUtils.httpGet(url, function(req) {
         // success
         if (CliqzUCrawl.debug) {
           CliqzUtils.log("success on doubleFetch!", CliqzUCrawl.LOG_KEY);
-          CliqzUtils.log("success: " + pageHashId == newPageHashId);
         }
+
+        var document = Services.appShell.hiddenDOMWindow.document;
+        var doc = document.implementation.createHTMLDocument("example");
+        doc.documentElement.innerHTML = req.responseText;
+        var x = CliqzUCrawl.getPageData(doc);
+
+        CliqzUCrawl.setAsPublic(url);
+        CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'xaft': x, 'xbef': hash}});
+
+
       },
       function(req) {
         // failure
-        if (CliqzUCrawl.debug) {
-          CliqzUtils.log("failure on doubleFetch!", CliqzUCrawl.LOG_KEY);
-        }
-        if (CliqzUCrawl.state['v'][url]) {
-          CliqzUCrawl.state['v'][url]['private'] = true;
-        }
-        CliqzUCrawl.privateCache[url] = true;
+        if (CliqzUCrawl.debug) CliqzUtils.log("failure on doubleFetch!", CliqzUCrawl.LOG_KEY);
+
+        CliqzUCrawl.setAsPrivate(url);
+        CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'error': 'could not get page on double fetch'}});
+
       },
-      5000);
+      10000);
+    },
+    getPageData: function(cd) {
+
+      var len_html = cd.documentElement.innerHTML.length;
+      var len_text = cd.documentElement.textContent.length;
+
+      var title = cd.getElementsByTagName('title')[0].textContent;
+      var numlinks = cd.getElementsByTagName('a').length;
+
+      var inputs = cd.getElementsByTagName('input') || [];
+      var inputs_nh = 0;
+      for(var i=0;i<inputs.length;i++) if (inputs[i]['type'] && inputs[i]['type']!='hidden') inputs_nh+=1;
+
+      var forms = cd.getElementsByTagName('form');
+
+      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': inputs.length, 'ninh': inputs_nh, 'nf': forms.length};
+
+      return x;
     },
     listener: {
         tmpURL: undefined,
@@ -365,20 +383,19 @@ var CliqzUCrawl = {
                   try {
                     var cd = currWin.gBrowser.selectedBrowser.contentDocument;
 
-                    len_html = cd.documentElement.innerHTML.length;
-                    len_text = cd.documentElement.textContent.length;
+                    var x = CliqzUCrawl.getPageData(cd);
 
-                    title = cd.getElementsByTagName('title')[0].textContent;
-                    numlinks = cd.getElementsByTagName('a').length;
+                    if (CliqzUCrawl.state['v'][currURL] != null) {
+                      CliqzUCrawl.state['v'][currURL]['x'] = x;
+                    }
 
-                    // Avoid the doubleFetching of the visible page, it can cause session invalidation on certain
-                    // picky sites like lacaixa.es
-                    //
-                    // CliqzUCrawl.doubleFetch(currURL, CliqzUCrawl.generateHashId(''+cd.documentElement.outerHTML));
+                    if (CliqzUCrawl.queryCache[currURL]) {
+                      CliqzUCrawl.state['v'][currURL]['qr'] = CliqzUCrawl.queryCache[currURL];
+                    }
 
-                    //var is_private = CliqzUCrawl.isPrivateURL(currURL);
-                    //CliqzUtils.log("PRIVATE: " + is_private, CliqzUCrawl.LOG_KEY);
-
+                    if (CliqzUCrawl.state['v'][currURL] != null) {
+                      CliqzUCrawl.addURLtoDB(currURL, CliqzUCrawl.state['v'][currURL]['ref'], CliqzUCrawl.state['v'][currURL]['x']);
+                    }
 
                   } catch(ee) {
                     if (CliqzUCrawl.debug) {
@@ -386,18 +403,6 @@ var CliqzUCrawl = {
                     }
                   }
 
-                  if (CliqzUCrawl.state['v'][currURL] != null) {
-                    CliqzUCrawl.state['v'][currURL]['x'] = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks};
-                  }
-
-                  if (CliqzUCrawl.queryCache[currURL]) {
-                    CliqzUCrawl.state['v'][currURL]['qr'] = CliqzUCrawl.queryCache[currURL];
-
-                  }
-
-                  if (CliqzUCrawl.state['v'][currURL] != null) {
-                    CliqzUCrawl.addURLtoDB(currURL, CliqzUCrawl.state['v'][currURL]['ref'], CliqzUCrawl.state['v'][currURL]['x']);
-                  }
 
                 }, CliqzUCrawl.WAIT_TIME, currwin, activeURL);
 
@@ -433,7 +438,7 @@ var CliqzUCrawl = {
             CliqzUCrawl.state['v'][activeURL]['a'] += 1;
           } catch(ee) {
             if (CliqzUCrawl.debug) {
-              CliqzUtils.log('Not an error, activeURL not found in state, it was removed already: ' + activeURL, CliqzUCrawl.LOG_KEY);
+              //CliqzUtils.log('Not an error, activeURL not found in state, it was removed already: ' + activeURL, CliqzUCrawl.LOG_KEY);
             }
           }
         }
@@ -492,8 +497,8 @@ var CliqzUCrawl = {
         CliqzUCrawl.cleanHttpCache();
       }
 
-      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (2*60) == 0) {
-        CliqzUCrawl.listOfUnchecked(10, 30, CliqzUCrawl.processUnchecks);
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (1*60) == 0) {
+        CliqzUCrawl.listOfUnchecked(3, 30, CliqzUCrawl.processUnchecks);
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
@@ -873,8 +878,8 @@ var CliqzUCrawl = {
     },
     dbConn: null,
     auxSameDomain: function(ur1, url2) {
-      var d1 = URL(url1).hostname.replace('www.','');
-      var d2 = URL(url2).hostname.replace('www.','');
+      var d1 = CliqzUCrawl.parseURL(url1).hostname.replace('www.','');
+      var d2 = CliqzUCrawl.parseURL(url2).hostname.replace('www.','');
       return d1==d2;
     },
     privateState: function(url) {
@@ -908,18 +913,70 @@ var CliqzUCrawl = {
       }
       else return null;
     },
+    parseHostname: function(hostname) {
+      var o = {'hostname': null, 'username': '', 'password': '', 'port': null};
+
+      var h = hostname;
+      var v = hostname.split('@');
+      if (v.length > 1) {
+        var w = v[0].split(':');
+        o['username'] = w[0];
+        o['password'] = w[1];
+        h = v[1];
+      }
+
+      v = h.split(':');
+      if (v.length > 1) {
+        o['hostname'] = v[0];
+        o['port'] = parseInt(v[1]);
+      }
+      else {
+        o['hostname'] = v[0];
+        o['port'] = 80;
+      }
+
+      return o;
+    },
+    parseURL: function(url) {
+      // username, password, port, path, query_string, hostname, protocol
+
+      var o = {};
+
+      var v = url.split('://');
+      if (v.length >= 1) {
+
+        o['protocol'] = v[0];
+        var s = v.slice(1, v.length).join('://');
+        v = s.split('/');
+
+        var oh = CliqzUCrawl.parseHostname(v[0]);
+        o['hostname'] = oh['hostname'];
+        o['port'] = oh['port'];
+        o['username'] = oh['username'];
+        o['password'] = oh['password'];
+        o['path'] = '/';
+        o['query_string'] = null;
+
+        if (v.length>1) {
+          s = v.splice(1, v.length).join('/');
+          v = s.split('?')
+          o['path'] = '/' + v[0];
+          if (v.length>1) {
+            o['query_string'] = v.splice(1, v.length).join('?');
+          }
+        }
+      }
+      else {
+        return null;
+      }
+
+      return o;
+
+
+    },
     suspiciousURL: function(url) {
 
-      // FIXME
-      return false;
-
-      try {
-        var u1 = URL(url);
-      }
-      catch(ee if ee instanceof TypeError) {
-        // url is not a valid url
-        return true;
-      }
+      var u1 = CliqzUCrawl.parseURL(url);
 
       if ([80, 443].indexOf(u1.port) == -1) {
         // not a standard port
@@ -996,7 +1053,6 @@ var CliqzUCrawl = {
           }
         }
       });
-
     },
     setAsPrivate(url) {
       var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET checked = :checked, private = :private WHERE url = :url");
@@ -1014,7 +1070,7 @@ var CliqzUCrawl = {
     },
     listOfUnchecked(cap, sec_old, callback) {
       var tt = new Date().getTime();
-      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url FROM ucrawl WHERE checked = :checked and last_visit < :last_visit;");
+      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM ucrawl WHERE checked = :checked and last_visit < :last_visit;");
       stmt.params.last_visit = (tt - sec_old*1000);
       stmt.params.checked = 0;
 
@@ -1022,7 +1078,7 @@ var CliqzUCrawl = {
       stmt.executeAsync({
         handleResult: function(aResultSet) {
           for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-            res.push(row.getResultByName("url"));
+            res.push([row.getResultByName("url"), JSON.parse(row.getResultByName("hash"))]);
           }
         },
         handleError: function(aError) {
@@ -1033,26 +1089,17 @@ var CliqzUCrawl = {
             CliqzUtils.log("SQL canceled or aborted", CliqzUCrawl.LOG_KEY);
           }
           else {
-            callback(res);
+            callback(res.splice(0,cap));
           }
         }
       });
     },
     processUnchecks: function(listOfUncheckedUrls) {
       for(var i=0;i<listOfUncheckedUrls.length;i++) {
-        var url = listOfUncheckedUrls[i];
-        CliqzUtils.log("Unchecked: " + url, CliqzUCrawl.LOG_KEY);
+        var url = listOfUncheckedUrls[i][0];
+        var hash = listOfUncheckedUrls[i][1];
+        CliqzUCrawl.doubleFetch(url, hash);
       }
     }
 };
 
-
-/*
-
-urls that fuckup insert
-
-http://www.vilaweb.cat/opinio_contundent/4223691/marina-albiol-lobjectiu-atemptat-poble-veja-llum.html
-
-
-
-*/
