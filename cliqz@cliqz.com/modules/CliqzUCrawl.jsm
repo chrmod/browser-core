@@ -45,18 +45,40 @@ var CliqzUCrawl = {
       }
 
     },
+    getHeaders: function(strData) {
+      var o = {};
+      o['status'] = strData.split(" ")[1];
+
+      var l = strData.split("\n");
+      for(var i=0;i<l.length;i++) {
+        if (l[i].indexOf('Location: ') == 0) {
+          o['loc'] = decodeURIComponent(l[i].split(" ")[1].trim());
+        }
+        if (l[i].indexOf('WWW-Authenticate: ') == 0) {
+          var tmp = l[i].split(" ");
+          var tmp = tmp.slice(1, tmp.length).join(" ");
+          o['auth'] = tmp;
+        }
+      }
+
+      return o;
+    },
     httpObserver: {
         // check the non 2xx page and report if this is one of the cliqz result
         observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
-          if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
+          //if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
 
               try {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
                 var url = decodeURIComponent(aChannel.URI.spec);
 
-                var status = aExtraStringData.split(" ")[1];
-                var loc = null;
+                var ho = CliqzUtils.getHeaders(aExtraStringData);
 
+                var status = ho['status'];
+                var loc = ho['loc'];
+                var httpauth = ho['auth'];
+
+                /*
                 if (status=='301') {
                   var l = aExtraStringData.split("\n");
                   for(var i=0;i<l.length;i++) {
@@ -68,26 +90,29 @@ var CliqzUCrawl = {
                 else {
                   if (status=='401') {
                     if (CliqzUCrawl.debug) {
-                      CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' 401!!! ', CliqzUCrawl.LOG_KEY);
+                      CliqzUtils.log('HTTP observer 401: ' + aExtraStringData + ' 401!!! ', CliqzUCrawl.LOG_KEY);
                     }
                   }
                 }
+                */
 
-                CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+                if (status=='301') {
+                  CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+                }
 
                 if (status=='401') {
                   CliqzUCrawl.httpCache401[url] = {'time': CliqzUCrawl.counter};
                 }
 
-                //if (loc!=null) {
-                //  if (CliqzUCrawl.debug) {
-                //    CliqzUtils.log('HTTP observer: ' + aExtraStringData + ' ' + JSON.stringify(CliqzUCrawl.httpCache[url], undefined, 2), CliqzUCrawl.LOG_KEY);
-                //  }
-                //}
+                if (httpauth) {
+                  CliqzUtils.log('HTTPAUTH!!! : ' + httpauth, CliqzUCrawl.LOG_KEY);
+                }
+
+
               } catch(ee) {
                 return;
               }
-          }
+          //}
         }
     },
     linkCache: {},
@@ -260,23 +285,41 @@ var CliqzUCrawl = {
       }
 
       var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-      //req.open('GET', url, true, 'user', 'pwd');
+
+      // hack to modify,
+      //
+      // http://stackoverflow.com/questions/6132755/retrieve-and-modify-content-of-an-xmlhttprequest
+
+      /*
+      var oldOpen = XMLHttpRequest.prototype.open;
+      // overwrite open with our own function
+      XMLHttpRequest.prototype.open = function(method, url, async, user, pass) {
+        // intercept readyState changes
+        this.addEventListener("readystatechange", function() {
+            // your code goes here...
+            CliqzUtils.log('HELLO: ' + this.readyState + ' ' + this.status, CliqzUCrawl.LOG_KEY);
+            CliqzUtils.log('>>>: ' + this.getAllResponseHeaders(), CliqzUCrawl.LOG_KEY);
+            var ho = CliqzUCrawl.getHeaders(this.getAllResponseHeaders());
+            //if (ho['auth']) {
+
+            CliqzUtils.log('>>>: ' + JSON.stringify(ho, undefined, 2), CliqzUCrawl.LOG_KEY);
+
+            //if (ho['auth']) {
+            //  req.abort();
+            //}
+
+        }, false);
+        // finally call the original open method
+        oldOpen.call(this, method, url, async, user, pass);
+      };
+      */
+
+      //req.open('GET', url, true, ' ', null);
       req.open('GET', url, true);
       req.overrideMimeType('text/html');
-      //req.setRequestHeader('WWW-Authenticate', 'None');
+      // thank God to standard: http://www.w3.org/TR/XMLHttpRequest/
+      req.setRequestHeader("Authorization", "true");
 
-      // CliqzUCrawl.doubleFetch('https://golf.cliqz.com/dashboard/#KPIs_BM',{})
-
-      req.onreadystatechange= function() {
-        CliqzUtils.log("on ready state change!! " + req.readyState, CliqzUCrawl.LOG_KEY);
-
-        if (req.readyState==2) {
-          // received the headers
-          var a=1;
-          a=1;
-        }
-
-      },
       req.onload = function(){
         if(req.status != 200 && req.status != 0 /* local files */){
           req.onerror();
@@ -357,6 +400,8 @@ var CliqzUCrawl = {
             CliqzUCrawl.lastActiveAll = CliqzUCrawl.counter;
 
             var activeURL = CliqzUCrawl.currentURL();
+
+            CliqzUtils.log('ACTIVEURL!!!!: ' + activeURL, CliqzUCrawl.LOG_KEY);
 
             if (activeURL.indexOf('about:')!=0) {
               if (CliqzUCrawl.state['v'][activeURL] == null) {
@@ -500,6 +545,13 @@ var CliqzUCrawl = {
         CliqzUCrawl.pushAllData();
       }
 
+      /*
+      if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
+        CliqzUCrawl.doubleFetch('https://golf.cliqz.com/dashboard/#KPIs_BM', function() {});
+      }
+      */
+
+
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 1 == 0) {
 
         var openPages = CliqzUCrawl.getAllOpenPages();
@@ -550,7 +602,8 @@ var CliqzUCrawl = {
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (1*60) == 0) {
-        CliqzUCrawl.listOfUnchecked(3, 60*60, CliqzUCrawl.processUnchecks);
+        // every minute
+        CliqzUCrawl.listOfUnchecked(1, 3600, CliqzUCrawl.processUnchecks);
       }
 
       if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % 10 == 0) {
@@ -801,7 +854,6 @@ var CliqzUCrawl = {
     windowsMem: {},
     init: function(window) {
         CliqzUCrawl.initDB();
-
         var win_id = CliqzUtils.getWindowID()
 
         if (CliqzUCrawl.state == null) {
@@ -930,12 +982,12 @@ var CliqzUCrawl = {
 
     },
     dbConn: null,
-    auxSameDomain: function(ur1, url2) {
+    auxSameDomain: function(url1, url2) {
       var d1 = CliqzUCrawl.parseURL(url1).hostname.replace('www.','');
       var d2 = CliqzUCrawl.parseURL(url2).hostname.replace('www.','');
       return d1==d2;
     },
-    privateState: function(url) {
+    isPrivate: function(url, callback) {
       // returns 1 is private (because of checked, of because the referrer is private)
       // returns 0 if public
       // returns -1 if not checked yet, handled as public in this cases,
@@ -943,28 +995,44 @@ var CliqzUCrawl = {
       var res = [];
       var st = CliqzUCrawl.dbConn.createStatement("SELECT * FROM ucrawl WHERE url = :url");
       st.params.url = url;
-      while (statement.executeStep()) {
-        res.push(st.row);
-      }
 
-      if (res.length==1) {
-        if (res[0].checked==1) {
-          return res[0].private;
-        }
-        else {
-          // we must check for the referral, if exists,
-          if (res[0].ref!=null && res[0].ref!='' && res[0].ref!=undefined && res[0].ref!='null') {
-            if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
-              return CliqzUCrawl.privateState(ref);
-            }
-            else return -1;
+      // CliqzUCrawl.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
+      var res = [];
+      st.executeAsync({
+        handleResult: function(aResultSet) {
+          for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+            res.push({"url": row.getResultByName("url"), "ref": row.getResultByName("ref"), "private": row.getResultByName("private"), "checked": row.getResultByName("private")});
+          }
+        },
+        handleError: function(aError) {
+          CliqzUtils.log("SQL error: " + aError.message, CliqzUCrawl.LOG_KEY);
+          callback(true);
+        },
+        handleCompletion: function(aReason) {
+          if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+            CliqzUtils.log("SQL canceled or aborted", CliqzUCrawl.LOG_KEY);
+            callback(true);
           }
           else {
-            return -1;
+            if (res.length == 1) {
+              if (res[0].ref!='' && res[0].ref!=null) {
+                if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
+                  CliqzUCrawl.isPrivate(res[0].ref, function(priv) {
+                    callback(priv);
+                  });
+                }
+                else callback(false);
+              }
+              else {
+                callback(false);
+              }
+            }
+            else {
+              callback(true);
+            }
           }
         }
-      }
-      else return null;
+      });
     },
     parseHostname: function(hostname) {
       var o = {'hostname': null, 'username': '', 'password': '', 'port': null};
@@ -1164,7 +1232,22 @@ var CliqzUCrawl = {
       for(var i=0;i<listOfUncheckedUrls.length;i++) {
         var url = listOfUncheckedUrls[i][0];
         var hash = listOfUncheckedUrls[i][1];
-        CliqzUCrawl.doubleFetch(url, hash);
+
+        CliqzUCrawl.isPrivate(url, function(isPrivate) {
+          if (isPrivate) {
+            var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
+            st.params.url = url;
+            st.params.checked = 1;
+            st.params.private = 1;
+            st.params.reason = 'priv. st.';
+            while (st.executeStep()) {};
+            CliqzUCrawl.track({'type': 'safe', 'action': 'doublefetch', 'payload': {'url': url, 'r': 'prov. st.'}});
+          }
+          else {
+            CliqzUCrawl.doubleFetch(url, hash);
+          }
+
+        })
       }
     }
 };
