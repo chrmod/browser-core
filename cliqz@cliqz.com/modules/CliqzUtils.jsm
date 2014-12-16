@@ -50,10 +50,10 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
-  CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
   SAFE_BROWSING:         'https://safe-browsing.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
@@ -392,7 +392,7 @@ var CliqzUtils = {
     return type; //fallback to style - it should never happen
   },
   isPrivateResultType: function(type) {
-    return type == 'H' || type == 'B' || type == 'T';
+    return type == 'H' || type == 'B' || type == 'T' || type == 'C' || type == 'S';
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
@@ -721,8 +721,8 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(){
-    return window.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(win){
+    return win.navigator.userAgent.indexOf('Win') != -1;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']

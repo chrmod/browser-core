@@ -146,6 +146,9 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
                 CliqzUtils.setPref("customResultsProviderLog", payload.log);
                 break;
+            case "1016_A":
+                CliqzUtils.setPref("localSpellCheck", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -212,7 +215,6 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1009_A":
                 CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
-                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
                 break;
             case "1010_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
@@ -242,10 +244,13 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
+            case "1016_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                CliqzAutocomplete.spellCorrectionDict = {};
+                break;
             default:
                 rule_executed = false;
         }
-
         if(rule_executed) {
             var action = {
                 type: 'abtest',
