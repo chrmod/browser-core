@@ -220,6 +220,8 @@ var CliqzUtils = {
     return url;
   },
   cleanUrlProtocol: function(url, cleanWWW){
+    if(!url) return '';
+
     var protocolPos = url.indexOf('://');
 
     // removes protocol http(s), ftp, ...
