@@ -7,10 +7,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-                 'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
-                 'bitcoin', 'spellcheck'],
+var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
         'b': 'bundesliga',
         's': 'shopping',
@@ -130,8 +127,6 @@ var UI = {
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
-
-        sendResultsSignal(currentResults.results, res.isInstant);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -256,59 +251,6 @@ var UI = {
     },
     closeResults: closeResults
 };
-
-
-function sendResultsSignal(results, isInstant){
-    var action = {
-        type: 'activity',
-        action: 'results',
-        query_length: CliqzAutocomplete.lastSearch.length,
-        result_order: results.map(function(r){ return r.data.kind; }),
-        instant: isInstant ? true : false,
-        popup: CliqzAutocomplete.isPopupOpen ? true : false,
-        clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
-        latency_cliqz: CliqzAutocomplete.lastResult.latency.cliqz,
-        latency_history: CliqzAutocomplete.lastResult.latency.history,
-        latency_backend: CliqzAutocomplete.lastResult.latency.backend,
-        latency_mixed: CliqzAutocomplete.lastResult.latency.mixed,
-        latency_all: CliqzAutocomplete.lastResult.startTime? (new Date()).getTime() - CliqzAutocomplete.lastResult.startTime : null,
-        v: 1
-    };
-    if(CliqzAutocomplete.lastResult.country)
-        action.country = CliqzAutocomplete.lastResult.country;
-
-    if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
-        action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
-    }
-    // keep a track of if the popup was open for last result
-    CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
-    if (results.length > 0) {
-        CliqzAutocomplete.lastDisplayTime = (new Date()).getTime();
-    }
-    //this.addCalculatorSignal(action);
-    CliqzUtils.track(action);
-}
-
-function addCalculatorSignal(action) {
-    var calcAnswer = null,
-        LR = CliqzAutocomplete.lastResult,
-        cResults = LR.customResults;
-
-    if(cResults && cResults.length > 0 &&
-            cResults[0].style == Result.CLIQZE &&
-            cResults[0].data.template == 'calculator'){
-        calcAnswer = cResults[0].data.answer;
-    }
-    if (calcAnswer == null && LR.suggestedCalcResult == null){
-        return;
-    }
-    action.suggestions_recived =  LR.suggestionsRecieved;
-    action.same_results = CliqzCalculator.isSame(calcAnswer, LR.suggestedCalcResult);
-    action.suggested = LR.suggestedCalcResult != null;
-    action.calculator = calcAnswer != null;
-    LR.suggestionsRecieved = false;
-    LR.suggestedCalcResult = null;
-}
 
 var forceCloseResults = false;
 function closeResults(event, force) {
@@ -645,7 +587,7 @@ function enhanceResults(res){
                     r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
-                    // unexpected/unknown template
+                    // double safety - to be removed
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
@@ -669,12 +611,6 @@ function enhanceResults(res){
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
 
-        }
-
-        // If one of the results is data.only = true Remove all others.
-        if (!r.invalid && r.data && r.data.only) {
-          res.results = [r];
-          return res;
         }
     }
 

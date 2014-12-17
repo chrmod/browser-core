@@ -213,7 +213,8 @@ var Mixer = {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
                             //message: CliqzUtils.getLocalizedString('noResultMessage')
-                        }
+                        },
+                        subType: JSON.stringify({empty:true})
                     }
                 )
             );
