@@ -112,8 +112,11 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
-            CliqzUCrawl.init(window);
-            window.gBrowser.addProgressListener(CliqzUCrawl.listener);
+
+            if(CliqzUtils.getPref("safeBrowsing", false)){
+                CliqzUCrawl.init(window);
+                window.gBrowser.addProgressListener(CliqzUCrawl.listener);
+            }
         }
 
         CLIQZ.Core.whoAmI(true); //startup

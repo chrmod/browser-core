@@ -149,6 +149,9 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
+            case "1017_A":
+                CliqzUtils.setPref("safeBrowsing", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -247,6 +250,9 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
                 CliqzAutocomplete.spellCorrectionDict = {};
+                break;
+            case "1017_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 break;
             default:
                 rule_executed = false;
