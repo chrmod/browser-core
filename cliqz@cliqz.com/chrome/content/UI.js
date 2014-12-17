@@ -271,7 +271,7 @@ function sendResultsSignal(results, isInstant){
         latency_history: CliqzAutocomplete.lastResult.latency.history,
         latency_backend: CliqzAutocomplete.lastResult.latency.backend,
         latency_mixed: CliqzAutocomplete.lastResult.latency.mixed,
-        latency_all: (new Date()).getTime() - CliqzAutocomplete.lastResult.startTime,
+        latency_all: CliqzAutocomplete.lastResult.startTime? (new Date()).getTime() - CliqzAutocomplete.lastResult.startTime : null,
         v: 1
     };
     if(CliqzAutocomplete.lastResult.country)
@@ -923,7 +923,7 @@ function onEnter(ev, item){
             reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
             display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
-            result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+            result_order: currentResults? currentResults.results.map(function(r){ return r.data.kind; }): '',
             v: 1
         };
 
