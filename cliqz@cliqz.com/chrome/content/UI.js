@@ -7,10 +7,7 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-                 'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
-                 'bitcoin', 'spellcheck'],
+var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
         'b': 'bundesliga',
         's': 'shopping',
@@ -37,6 +34,7 @@ var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty'
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
     IMAGE_WIDTH = 96,
+    currentResults,
     DEL = 8
     ;
 
@@ -108,7 +106,7 @@ var UI = {
         if (!gCliqzBox)
             return;
 
-        var enhanced = enhanceResults(res);
+        currentResults = enhanceResults(res);
         process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
 
         //try to recreate main container if it doesnt exist
@@ -119,16 +117,16 @@ var UI = {
             }
         }
         if(gCliqzBox.resultsBox)
-            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
-        // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
-
         // set the width
         gCliqzBox.style.width = (res.width +1) + 'px';
+
+        // try to find and hide misaligned elemets - eg - weather
+        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -138,7 +136,7 @@ var UI = {
             result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
-        CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
+        //CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
         if (!gCliqzBox)
             return;
         if(suggestions){
@@ -253,7 +251,6 @@ var UI = {
     },
     closeResults: closeResults
 };
-
 
 var forceCloseResults = false;
 function closeResults(event, force) {
@@ -590,7 +587,7 @@ function enhanceResults(res){
                     r.logo = generateLogoClass(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
-                    // unexpected/unknown template
+                    // double safety - to be removed
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
@@ -615,12 +612,6 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
 
         }
-
-        // If one of the results is data.only = true Remove all others.
-        if (!r.invalid && r.data && r.data.only) {
-          res.results = [r];
-          return res;
-        }
     }
 
     //prioritize extra (fun-vertical) results
@@ -632,9 +623,17 @@ function enhanceResults(res){
 }
 
 function getResultPosition(el){
-    var idx;
+    return getResultOrChildAttr(el, 'idx');
+}
+
+function getResultKind(el){
+    return getResultOrChildAttr(el, 'kind').split(',');
+}
+
+function getResultOrChildAttr(el, attr){
+    var ret;
     while (el){
-        if(idx = el.getAttribute('idx')) return idx;
+        if(ret = el.getAttribute(attr)) return ret;
         if(el.className == IC) return; //do not go higher than a result
         el = el.parentElement;
     }
@@ -656,14 +655,15 @@ function resultClick(ev){
                     current_position: getResultPosition(el),
                     query_length: CliqzAutocomplete.lastSearch.length,
                     inner_link: el.className != IC, //link inside the result or the actual result
-                    position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                    position_type: getResultKind(el),
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
                     reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
                     display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-                    result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+                    result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+                    v: 1
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -676,7 +676,7 @@ function resultClick(ev){
             if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
             {
                 var first = gCliqzBox.resultsBox.children[0];
-                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
                 {
                     queryAutocompleted = query;
                 }
@@ -859,7 +859,8 @@ function onEnter(ev, item){
             reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
             display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
-            result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+            result_order: currentResults? currentResults.results.map(function(r){ return r.data.kind; }): '',
+            v: 1
         };
 
     var query = inputValue;
@@ -867,7 +868,7 @@ function onEnter(ev, item){
     if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
     {
         var first = gCliqzBox.resultsBox.children[0];
-        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+        if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
         {
             queryAutocompleted = query;
         }
@@ -876,7 +877,7 @@ function onEnter(ev, item){
 
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
+        action.position_type = getResultKind(item);
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -903,17 +904,17 @@ function onEnter(ev, item){
 
         action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
-            action.position_type = 'inbar_url';
+            action.position_type = ['inbar_url'];
             action.search = CliqzUtils.isSearch(inputValue);
         }
-        else action.position_type = 'inbar_query';
+        else action.position_type = ['inbar_query'];
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted && gCliqzBox){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
-            action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
-            if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
+            action.source = getResultKind(first);
+            if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
@@ -982,11 +983,12 @@ function trackArrowNavigation(el){
         current_position: el ? el.getAttribute('idx') : -1,
     };
     if(el){
-        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
+        action.position_type = getResultKind(el);
         action.search = CliqzUtils.isSearch(el.getAttribute('url'));
     }
     CliqzUtils.track(action);
 }
+
 var AGO_CEILINGS=[
     [0            , '',                , 1],
     [120          , 'ago1Minute' , 1],
@@ -1040,6 +1042,10 @@ function registerHelpers(){
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);
+    });
+
+    Handlebars.registerHelper('log', function(value, key) {
+        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
