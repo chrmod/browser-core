@@ -1162,21 +1162,21 @@ var CliqzUCrawl = {
         }
       });
     },
-    setAsPrivate(url) {
+    setAsPrivate: function(url) {
       var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
       st.params.url = url;
       st.params.checked = 1;
       st.params.private = 1;
       while (st.executeStep()) {};
     },
-    setAsPublic(url) {
+    setAsPublic: function(url) {
       var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
       st.params.url = url;
       st.params.checked = 1;
       st.params.private = 0;
       while (st.executeStep()) {};
     },
-    listOfUnchecked(cap, sec_old, callback) {
+    listOfUnchecked: function(cap, sec_old, callback) {
       var tt = new Date().getTime();
       var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
       stmt.params.last_visit = (tt - sec_old*1000);
