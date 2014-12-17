@@ -8,7 +8,7 @@
 (function(ctx) {
 
 var TEMPLATES = ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-                 'generic', 'custom', 'clustering', 'series', 'calculator',
+                 'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
                  'entity-search-1', 'entity-news-1', 'entity-banking-1', 'entity-video',
                  'bitcoin', 'spellcheck'],
     VERTICALS = {
@@ -74,7 +74,7 @@ var UI = {
         //check if loading is done
         if(!UI.tpl.main)return;
 
-        box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
+        box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
 
@@ -92,6 +92,18 @@ var UI = {
         gCliqzBox.enginesBox = enginesBox;
 
         handlePopupHeight(box);
+
+        // wait for the search engine to initialize
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService
+        // FF16+
+        if(Services.search.init != null){
+            Services.search.init(function(){
+                gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
+            });
+        }
+        else {
+            gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
+        }
     },
     results: function(res){
         if (!gCliqzBox)
@@ -191,7 +203,7 @@ var UI = {
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
             case DEL:
-                if (CliqzAutocomplete.spellCorr.on) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
