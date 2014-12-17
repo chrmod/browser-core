@@ -635,7 +635,6 @@ var CliqzUCrawl = {
       CliqzUCrawl.pushAllData();
       CliqzUtils.clearTimeout(CliqzUCrawl.pacemakerId);
       CliqzUtils.log('end_destroy', CliqzUCrawl.LOG_KEY);
-
     },
     currentURL: function() {
       var currwin = CliqzUtils.getWindow();
@@ -932,16 +931,16 @@ var CliqzUCrawl = {
     // Stolen from modules/CliqzHistory
     // *********************************************************
     initDB: function() {
-      CliqzUtils.log('Exists DB?: ' +  FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists(), CliqzUCrawl.LOG_KEY);
-      if ( FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]).exists() ) {
+      CliqzUtils.log('Exists DB?: ' +  FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists(), CliqzUCrawl.LOG_KEY);
+      if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
         if (CliqzUCrawl.dbConn==null) {
-          CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
+          CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
         }
         return;
       }
       else {
-        CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbucrawl"]));
-        var ucrawl = "create table ucrawl(\
+        CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
+        var usafe = "create table usafe(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
             ref VARCHAR(255),\
             last_visit INTEGER,\
@@ -952,7 +951,7 @@ var CliqzUCrawl = {
             checked BOOLEAN DEFAULT 0 \
             )";
 
-        CliqzUCrawl.dbConn.executeSimpleSQL(ucrawl);
+        CliqzUCrawl.dbConn.executeSimpleSQL(usafe);
       }
 
     },
@@ -968,7 +967,7 @@ var CliqzUCrawl = {
       // returns -1 if not checked yet, handled as public in this cases,
 
       var res = [];
-      var st = CliqzUCrawl.dbConn.createStatement("SELECT * FROM ucrawl WHERE url = :url");
+      var st = CliqzUCrawl.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
       st.params.url = url;
 
       // CliqzUCrawl.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
@@ -1097,7 +1096,7 @@ var CliqzUCrawl = {
     addURLtoDB: function(url, ref, obj) {
       var tt = new Date().getTime();
 
-      var stmt = CliqzUCrawl.dbConn.createStatement("SELECT url, checked FROM ucrawl WHERE url = :url");
+      var stmt = CliqzUCrawl.dbConn.createStatement("SELECT url, checked FROM usafe WHERE url = :url");
       stmt.params.url = url;
 
       var res = [];
@@ -1118,7 +1117,7 @@ var CliqzUCrawl = {
             if (res.length == 0) {
               // we never seen it, let's add it
 
-              var st = CliqzUCrawl.dbConn.createStatement("INSERT INTO ucrawl (url,ref,last_visit,first_visit, hash, reason, private, checked) VALUES (:url, :ref, :last_visit, :first_visit, :hash, :reason, :private, :checked)");
+              var st = CliqzUCrawl.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, hash, reason, private, checked) VALUES (:url, :ref, :last_visit, :first_visit, :hash, :reason, :private, :checked)");
               st.params.url = url;
               st.params.ref = ref;
               st.params.last_visit = tt;
@@ -1153,7 +1152,7 @@ var CliqzUCrawl = {
             else {
               // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
               if (res[0]['checked']==0) {
-                var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET last_visit = :last_visit WHERE url = :url");
+                var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit WHERE url = :url");
                 st.params.url = url;
                 st.params.last_visit = tt;
                 while (st.executeStep()) {};
@@ -1164,14 +1163,14 @@ var CliqzUCrawl = {
       });
     },
     setAsPrivate(url) {
-      var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET checked = :checked, private = :private WHERE url = :url");
+      var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
       st.params.url = url;
       st.params.checked = 1;
       st.params.private = 1;
       while (st.executeStep()) {};
     },
     setAsPublic(url) {
-      var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET checked = :checked, private = :private WHERE url = :url");
+      var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
       st.params.url = url;
       st.params.checked = 1;
       st.params.private = 0;
@@ -1179,7 +1178,7 @@ var CliqzUCrawl = {
     },
     listOfUnchecked(cap, sec_old, callback) {
       var tt = new Date().getTime();
-      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM ucrawl WHERE checked = :checked and last_visit < :last_visit;");
+      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
       stmt.params.last_visit = (tt - sec_old*1000);
       stmt.params.checked = 0;
 
@@ -1210,7 +1209,7 @@ var CliqzUCrawl = {
 
         CliqzUCrawl.isPrivate(url, function(isPrivate) {
           if (isPrivate) {
-            var st = CliqzUCrawl.dbConn.createStatement("UPDATE ucrawl SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
+            var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
             st.params.url = url;
             st.params.checked = 1;
             st.params.private = 1;
@@ -1224,6 +1223,9 @@ var CliqzUCrawl = {
 
         })
       }
-    }
+    },
+    outOfABTest: function() {
+      CliqzUCrawl.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+    },
 };
 
