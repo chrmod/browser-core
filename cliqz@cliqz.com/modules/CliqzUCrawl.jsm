@@ -24,10 +24,10 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.01',
+    VERSION: '0.02',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -78,24 +78,6 @@ var CliqzUCrawl = {
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
 
-                /*
-                if (status=='301') {
-                  var l = aExtraStringData.split("\n");
-                  for(var i=0;i<l.length;i++) {
-                    if (l[i].indexOf('Location: ') == 0) {
-                      loc = decodeURIComponent(l[i].split(" ")[1].trim());
-                    }
-                  }
-                }
-                else {
-                  if (status=='401') {
-                    if (CliqzUCrawl.debug) {
-                      CliqzUtils.log('HTTP observer 401: ' + aExtraStringData + ' 401!!! ', CliqzUCrawl.LOG_KEY);
-                    }
-                  }
-                }
-                */
-
                 if (status=='301') {
                   CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
                 }
@@ -103,11 +85,6 @@ var CliqzUCrawl = {
                 if (status=='401') {
                   CliqzUCrawl.httpCache401[url] = {'time': CliqzUCrawl.counter};
                 }
-
-                if (httpauth) {
-                  CliqzUtils.log('HTTPAUTH!!! : ' + httpauth, CliqzUCrawl.LOG_KEY);
-                }
-
 
               } catch(ee) {
                 return;
@@ -400,8 +377,6 @@ var CliqzUCrawl = {
             CliqzUCrawl.lastActiveAll = CliqzUCrawl.counter;
 
             var activeURL = CliqzUCrawl.currentURL();
-
-            CliqzUtils.log('ACTIVEURL!!!!: ' + activeURL, CliqzUCrawl.LOG_KEY);
 
             if (activeURL.indexOf('about:')!=0) {
               if (CliqzUCrawl.state['v'][activeURL] == null) {
