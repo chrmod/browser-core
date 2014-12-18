@@ -19,7 +19,7 @@ var CliqzSpellCheck = {
         var correctBack = {}
         for (var i = 0; i < words.length; i++) {
             if (words[i] == "") continue;
-            if (words[i] in CliqzAutocomplete.spellCorrectionDict) {
+            if (CliqzAutocomplete.spellCorrectionDict.hasOwnProperty(words[i])) {
                 var correct = CliqzAutocomplete.spellCorrectionDict[words[i]];
                 if (correct.length > words[i].length &&
                     correct.slice(0, words[i].length) == words[i] &&
