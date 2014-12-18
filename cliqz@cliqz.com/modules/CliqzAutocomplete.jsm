@@ -194,6 +194,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
+                CliqzHistoryPattern.addFirefoxHistory(result);
                 var now = (new Date()).getTime();
 
                 this.historyResults = result;
@@ -298,64 +299,41 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyPatternCallback: function(res) {
                 if (res.query == this.searchString) {
                     CliqzAutocomplete.lastPattern = res;
-                    var results = res.filteredResults();//res.results;
-                    CliqzUtils.log("All patterns found:", "CliqzHistoryPattern result");
-                    for(var key in results) {
-                        CliqzUtils.log(results[key]['path'] + ": " + results[key]['cnt'], "CliqzHistoryPattern result");
-                        CliqzUtils.log("==>" + results[key]['url'] + ", " + results[key]['title'], "CliqzHistoryPattern result");
-                    }
+                    var results = res.filteredResults();
 
                     if(this.mixedResults.matchCount > 0) return;
 
                     if(results.length < 1) return;
-
                     var instantResults = new Array();
                     // Cluster patterns, at least base url + two patterns
-                    if (results.length > 1 ||
+                    /*if (results.length > 1 ||
                         (results[0].base != true && results.length == 1)) {
-                      var baseUrl = CliqzHistoryPattern.addBaseDomain(res.results, results[0]);
-                      results = res.filteredResults();
-                      CliqzUtils.log(CliqzHistoryPattern.autocompleteTerm(res.query, results[0]).autocomplete, "TEST");
-                      if (results.length == 2 /*&& CliqzHistoryPattern.autocompleteTerm(res.query, results[1]).autocomplete == true*/) {
-                        results[0].url = results[1].url;
-                      }
+
+                      if (!res.cluster) {
+                        results = res.filteredResults();
+                        if (results.length == 2) {
+                          results[0].url = results[1].url;
+                        }
+                      }*/
                       // Create instant result
-                      var instant = Result.generic("cliqz-pattern",results[0].url, null, results[0].title, null, this.searchString);
-                      instant.comment += " (pattern cluster)!";
-                      var titleUrl = CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[0].url), true);
-                      if (titleUrl[titleUrl.length-1] == '/') titleUrl = titleUrl.substring(0, titleUrl.length-1);
-                      instant.data = {
-                          title: results[0].title,
-                          url: titleUrl,
-                          urls: [],
-                          color: CliqzHistoryPattern.colors[baseUrl],
-                          darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
-                          letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1)
-                      };
-                      // Add result urls
-                      var titleStrip = CliqzHistoryPattern.stripTitle(results);
-                      for(var i=1; i<results.length; i++) {
-                          var newTitle = results[i].title.replace(titleStrip, "");
-                          instant.data.urls.push( {
-                              href: results[i].url,
-                              link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[i].url), true),
-                              vdate: CliqzHistoryPattern.formatDate(results[i].date),
-                              title: newTitle.length > 0 ? newTitle : results[i].title,
-                          });
-                          if (instant.data.urls.length > 3) {
-                              break;
-                          };
+                      if(res.cluster) {
+                        res.results = CliqzHistoryPattern.adjustBaseDomain(results, res.query);
+                        results = res.filteredResults();
                       }
+                      var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
                       instantResults.push(instant);
-                    } else if (results[0].base == true && results.length == 1) {
+
+                    // Only base domain -> no cluster
+                    /*} else if (results[0].base == true && results.length == 1) {
                       var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
                       instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
                       instantResults.push(instant);
                       CliqzAutocomplete.lastPattern.results = [CliqzAutocomplete.lastPattern.results[0]];
+
                     // No clustering
                     } else {
                       CliqzAutocomplete.lastPattern = null;
-                    }
+                    }*/
 
                     this.mixedResults.addResults(instantResults);
                     this.pushResults(this.searchString);
@@ -673,7 +651,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
                     // begin history pattern search
-                    CliqzHistoryPattern.detectPattern(searchString, this.historyPatternCallback);
+                    CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
+                    CliqzHistoryPattern.detectPattern(searchString);
 
                     // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {

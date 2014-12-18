@@ -784,7 +784,8 @@ function onEnter(ev, item){
         CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
         if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
-        };
+            url = CliqzAutocomplete.lastAutocomplete;
+        }
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,

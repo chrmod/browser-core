@@ -60,8 +60,11 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
         if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow())) {
-          var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-          hs.addObserver(CliqzHistory.historyObserver, false);
+          try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            hs.addObserver(CliqzHistory.historyObserver, false);
+          } catch(e) {}
+
         }
 
         CliqzRedirect.addHttpObserver();
@@ -136,9 +139,9 @@ CLIQZ.Core = CLIQZ.Core || {
                 };
                 CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
                 CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
-                if(newPanel != curPanel) {
+                /*if(newPanel != curPanel) {
                   CliqzHistory.addHistoryEntry(null, curPanel);
-                }
+                }*/
             }, false);
         }
 
@@ -415,38 +418,42 @@ CLIQZ.Core = CLIQZ.Core || {
         var looseAutocomplete = true;
 
         // Use first entry if there are no patterns
-        if (results.length == 0) {
-            results[0] = new Array();
+        if (results.length == 0 || lastPattern.query != urlBar.value) {
+            results[0] = [];
             results[0]['url'] = firstResult;
             results[0]['title'] = firstTitle;
             results[0]['query'] = [];
-            looseAutocomplete = false;
+            //looseAutocomplete = false;
         }
-        if (results.length == 2) {
+        /*if (results.length == 2 && results[0].base != true && lastPattern.cluster) {
             results.shift();
-        }
+        }*/
         if (!CliqzUtils.isUrl(results[0]['url'])) return;
-
-        if (lastPattern && lastPattern.query == urlBar.value) {
-            var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
-            if (autocomplete.autocomplete) {
-                urlBar.value = autocomplete.urlbar;
-                urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
-            }
-
-            // Highlight first entry in dropdown
-            if (autocomplete.highlight) {
-                if (urlBar.value.length > 80) {
-                  urlBar.value = urlBar.value.substr(0,80) + "...";
-                  urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
-                }
-                CliqzAutocomplete.highlightFirstElement = true;
-                CLIQZ.UI.selectFirstElement();
-            } else {
-                CLIQZ.UI.clearSelection();
-            }
+        CliqzUtils.log(results[0].url, "test");
+        var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
+        if (lastPattern.cluster && !autocomplete.autocomplete) {
+          results.shift();
+          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
+          CliqzUtils.log(results[0].url, "test");
         }
-    },
+        if (autocomplete.autocomplete) {
+            urlBar.value = autocomplete.urlbar;
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            CliqzAutocomplete.lastAutocomplete = autocomplete.url;
+        }
+
+        // Highlight first entry in dropdown
+        if (autocomplete.highlight) {
+            if (urlBar.value.length > 80) {
+              urlBar.value = urlBar.value.substr(0,80) + "...";
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            }
+            CliqzAutocomplete.highlightFirstElement = true;
+            CLIQZ.UI.selectFirstElement();
+        } else {
+            CLIQZ.UI.clearSelection();
+        }
+},
     cleanUrlBarValue: function(val){
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],

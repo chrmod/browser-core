@@ -535,6 +535,31 @@
     box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
+.cliqz-pattern-logo {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: white;
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  background-size: 44px 44px;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
 .cliqz-pattern-title-container {
     position:absolute;
     left:0px;
@@ -557,7 +582,7 @@
     overflow:hidden;
     position:absolute;
     top:0;
-    left:120px;
+    left:125px;
     right: 20px;
     word-wrap: break-word;
     white-space: nowrap;
@@ -587,7 +612,7 @@
 
 .cliqz-pattern-entry-title {
     font-size: 13px;
-    margin-left: 40px;
+    margin-left: 5px;
     display:inline-block;
     text-decoration: underline;
     color: rgba(46,125,50,0.84);
@@ -616,14 +641,27 @@
   display:inline-block;
 }
 
+.cliqz-pattern-entry-favicons {
+  padding-left: 40px;
+  max-width: 16px;
+  overflow: hidden;
+  display:inline-block;
+}
+
 .cliqz-pattern-element {
     line-height: 20px;
+    height: 22px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
-.cliqz-pattern-icon {
-
+.cliqz-pattern-favicon {
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
+  background-size: 16px 16px;
 }
 
 /* END pattern */
