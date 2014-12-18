@@ -637,6 +637,7 @@ function getResultOrChildAttr(el, attr){
         if(el.className == IC) return; //do not go higher than a result
         el = el.parentElement;
     }
+    return '';
 }
 
 function resultClick(ev){
