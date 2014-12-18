@@ -2,10 +2,10 @@
 
   <div class="entity-news-title">
     Derzeit aktuell auf
-    <span class="" type="X" extra="entity-news-spiegel.de" url="http://www.spiegel.de">
-      spiegel.de
+    <span class="" type="X" extra="entity-news-{{domain}}" url="{{url}}">
+      {{data.domain}}
     </span>
-    <img src="http://cdnlogos.cliqz.com/spiegel.de.png" />
+    <img class="cliqz-logo {{ logo }}" />
   </div>
   <div class="entity-news-stories">
     {{#each data.news}}
