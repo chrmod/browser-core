@@ -1096,6 +1096,12 @@ var CliqzUCrawl = {
     addURLtoDB: function(url, ref, obj) {
       var tt = new Date().getTime();
 
+      var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
+      var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
+      // CliqzUtils.log("URL?? " + url + " " + requery.test(url) + " " + reref.test(url), CliqzUCrawl.LOG_KEY);
+
+      if (requery.test(url) || reref.test(url)) return;
+
       var stmt = CliqzUCrawl.dbConn.createStatement("SELECT url, checked FROM usafe WHERE url = :url");
       stmt.params.url = url;
 
