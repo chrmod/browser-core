@@ -400,6 +400,9 @@ CLIQZ.Core = CLIQZ.Core || {
         let urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
+        if ("www.".indexOf(urlBar.value) != -1) {
+          return;
+        }
         // Remove protocol and 'www.' from first results
         //firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
         // try to update misspelings like ',' or '-'
@@ -431,7 +434,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (!CliqzUtils.isUrl(results[0]['url'])) return;
         CliqzUtils.log(results[0].url, "test");
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
-        if (lastPattern.cluster && !autocomplete.autocomplete) {
+        if (lastPattern && lastPattern.cluster && !autocomplete.autocomplete) {
           results.shift();
           autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
           CliqzUtils.log(results[0].url, "test");

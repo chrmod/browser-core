@@ -45,6 +45,7 @@ var CliqzHistoryPattern = {
       return;
     }
     query = query.split(" ")[0];
+
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     this.data = new Array();
     this.pattern = new Array();
@@ -178,12 +179,13 @@ var CliqzHistoryPattern = {
     }
   },
   preparePatterns: function(patterns, query) {
+    var orig_query = query;
+    query = query.replace("www.", "");
     patterns = CliqzHistoryPattern.removeSameTitle(patterns);
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query);
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
     patterns = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
-
-    var res = CliqzHistoryPattern.generateResult(patterns, query, false);
+    var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false);
 
     if (share[1] > 0.5 && res.filteredResults().length > 1) {
       CliqzHistoryPattern.addBaseDomain(patterns, patterns[0]);
