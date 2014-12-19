@@ -141,7 +141,7 @@ var ResultProviders = {
         var start = components[0],
             end = components[components.length-1];
 
-        if(MAPPING[start]){
+        if(MAPPING.hasOwnProperty(start)){
             var uq = q.substring(start.length + 1);
             return {
                 updatedQ  : uq,
@@ -149,7 +149,7 @@ var ResultProviders = {
                 queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
                 engineCode: ResultProviders.getEngineCode(MAPPING[start])
             };
-        } else if(MAPPING[end]) {
+        } else if(MAPPING.hasOwnProperty(end)) {
             var uq = q.substring(0, q.length - end.length - 1);
             return {
                 updatedQ  : uq,
