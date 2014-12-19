@@ -1148,6 +1148,22 @@ function registerHelpers(){
         }[operator];
     });
 
+    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
+        console.log(lvalue, rvalue, operator,{
+            "|": lvalue | rvalue,
+            "&": lvalue & rvalue,
+            "^": lvalue ^ rvalue
+        }[operator] );
+
+        return {
+            "|": lvalue | rvalue,
+            "||": lvalue || rvalue,
+            "&": lvalue & rvalue,
+            "&&": lvalue & rvalue,
+            "^": lvalue ^ rvalue
+        }[operator];
+    });
+
     Handlebars.registerHelper('twitter_image_id', function(title) {
         // Because we have different colored twitter images we want to "randomly"
         // match them with users that don't have a picture
