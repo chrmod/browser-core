@@ -1149,12 +1149,6 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
-        console.log(lvalue, rvalue, operator,{
-            "|": lvalue | rvalue,
-            "&": lvalue & rvalue,
-            "^": lvalue ^ rvalue
-        }[operator] );
-
         return {
             "|": lvalue | rvalue,
             "||": lvalue || rvalue,

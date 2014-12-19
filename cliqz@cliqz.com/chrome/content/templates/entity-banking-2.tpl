@@ -35,7 +35,9 @@
         </div>
         <div class="entity-banking-meta cf overflow">
            <strong>{{ name }}</strong> ·
-           <b>SWIFT/BIC</b>: <span>{{ swift-bic }}</span> ·
+           {{#if swift-bic }}
+             <b>SWIFT/BIC</b>: <span>{{ swift-bic }}</span> ·
+           {{/if }}
            <b>Support </b>: <span>{{ tel }}</span> ·
            <span class="link"
                  url="mailto:{{ email }}"
