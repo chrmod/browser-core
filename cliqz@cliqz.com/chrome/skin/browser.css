@@ -711,6 +711,41 @@
 
 /* end qaa */
 
+/*  EZ celeb */
+
+.cliqz-celeb {
+    height: 130px;
+}
+
+.cliqz-celeb-info {
+    float: left;
+}
+
+.cliqz-celeb-name {
+    font-size: 24px;
+    color: blue;
+}
+
+.cliqz-celeb-images {
+    width: 260px;
+    height: 130px;
+    float: right;
+    overflow: hidden;
+}
+
+.cliqz-celeb-image {
+    background-color: white;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    width: 60px;
+    height: 60px;
+    display: inline-block;
+    background-color: red;
+}
+
+/* end EZ celeb */
+
 /* people */
 .people-box {
     font-size: 12pt;
