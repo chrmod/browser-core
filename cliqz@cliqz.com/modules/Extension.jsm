@@ -233,10 +233,10 @@ var Extension = {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', BTN_ID);
         button.setAttribute('type', 'menu-button');
-        button.setAttribute('label', 'Cliqz');
-        button.setAttribute('tooltiptext', 'Cliqz');
+        button.setAttribute('label', 'CLIQZ');
+        button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
+        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.png)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');
@@ -255,8 +255,8 @@ var Extension = {
         //share btn
         let shareButton = win.document.createElement('toolbarbutton');
         shareButton.setAttribute('id', SHARE_BTN_ID);
-        shareButton.setAttribute('label', 'Cliqz Share');
-        shareButton.setAttribute('tooltiptext', 'Cliqz Share');
+        shareButton.setAttribute('label', 'CLIQZ Share');
+        shareButton.setAttribute('tooltiptext', 'CLIQZ Share');
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
@@ -272,8 +272,8 @@ var Extension = {
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via cliqz: ' + doc.title) +
-                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via CLIQZ: ' + doc.title) +
+                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n CLIQZ Beta - http://cliqz.com');
             } catch(e){}
         }, false);
 
