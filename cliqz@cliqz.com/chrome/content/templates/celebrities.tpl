@@ -1,5 +1,9 @@
 <div class='cliqz-celeb'>
 	{{#with data}}
+        <div class='cliqz-celeb-picture'
+        	 style="background-image: url({{image}});">
+	    </div>
+
 		<div class='cliqz-celeb-info'>
 		 	<div class='cliqz-celeb-name'>{{name}}</div>
 		 	<div class='cliqz-celeb-'>{{bday}}</div>
