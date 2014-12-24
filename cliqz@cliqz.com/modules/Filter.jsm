@@ -41,10 +41,34 @@ var Filter = {
         if (max_by_domain==-1) max_by_domain = results.length;
         if (max_by_domain_title==-1) max_by_domain_title = results.length;
 
-        for (let i = 0; i<results.length; i++) {
-            //log("TITLE: "+ JSON.stringify(results[i]));
-            //the title is in results[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
-            var w = Filter.extractKeys(Filter.cleanMozillaActions(results[i].val), results[i].comment);
+        // protocol deduplication -> http/https urls -> https always wins
+        var protocol_deduplicated = []
+        for (var i = 0; i<results.length-1; i++) {
+            var found = false,
+                urlA = results[i].val;
+
+            if(urlA.indexOf('https') == 0) return; //already https -> continue
+
+            for (var j = 1; j<results.length; j++) {
+                var urlB = results[j].val;
+
+                if(urlB.indexOf('https') != 0) continue;
+
+                if(urlA.substr(4) == urlB.substr(5)){ //strip http from first result and https from 2nd result
+                    protocol_deduplicated.push(results[j]);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                protocol_deduplicated.push(results[i]);
+        }
+
+        // real deduplication
+        for (var i = 0; i<protocol_deduplicated.length; i++) {
+            //log("TITLE: "+ JSON.stringify(protocol_deduplicated[i]));
+            //the title is in protocol_deduplicated[i].comment) but it also contains debug information, i.e. (Cache: hell), be careful
+            var w = Filter.extractKeys(Filter.cleanMozillaActions(protocol_deduplicated[i].val), protocol_deduplicated[i].comment);
             var by_domain = w[0];
             var by_domain_path = w[1];
             var by_domain_title = w[2];
@@ -56,11 +80,11 @@ var Filter = {
             if ((memo_domain[by_domain] <= max_by_domain) &&
                 (memo_domain_path[by_domain_path] <= (PATH_EXCEPTIONS[by_domain] || max_by_domain_path)) &&
                 (memo_domain_title[by_domain_title] <= max_by_domain_title)) {
-                deduplicated_results.push(results[i]);
-                //log("keep: " + results[i].val)
+                deduplicated_results.push(protocol_deduplicated[i]);
+                //log("keep: " + protocol_deduplicated[i].val)
             }
             else {
-                //log("remove: " + results[i].val)
+                //log("remove: " + protocol_deduplicated[i].val)
             }
 
         }
