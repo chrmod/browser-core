@@ -17,7 +17,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-    'chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
+    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
 var BTN_ID = 'cliqz-button',
     SHARE_BTN_ID = 'cliqz-share-button',
@@ -79,7 +79,7 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
-                CliqzNewTab.setDefaultPage();
+                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }

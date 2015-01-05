@@ -38,7 +38,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSniffer',
   'chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-  'chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
+  'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
@@ -57,7 +57,6 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CliqzSniffer.addHttpObserver();
         CliqzUtils.init(window);
-        console.log(window);
         CliqzNewTab.init(window);
         CLIQZ.UI.init();
 

@@ -285,6 +285,8 @@ body, html {
   position: absolute;
   z-index: 1;
   border: 1px solid #CCC;
+    background-color:white;
+    color:black;
 }
 #search-dropdown li.result {
   padding: 0 12px;
@@ -373,7 +375,7 @@ body, html {
 }
 
 .options-container {
-  display: none;
+    display: none;
   position: absolute;
   z-index: 1;
   right: 20px;
@@ -394,6 +396,7 @@ body, html {
   right: 39px;
   top: -8px;
 }
+
 
 .option {
   display: inline-block !important;
