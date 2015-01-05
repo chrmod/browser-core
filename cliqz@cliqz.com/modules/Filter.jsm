@@ -42,20 +42,25 @@ var Filter = {
         if (max_by_domain_title==-1) max_by_domain_title = results.length;
 
         // protocol deduplication -> http/https urls -> https always wins
-        var protocol_deduplicated = []
+        var protocol_deduplicated = [], used_results = {};
         for (var i = 0; i<results.length-1; i++) {
             var found = false,
                 urlA = results[i].val;
 
-            if(urlA.indexOf('https') == 0) return; //already https -> continue
+            if(used_results[i]) continue;
+            if(urlA.indexOf('https') == 0) { //already https -> continue
+                protocol_deduplicated.push(results[i]);
+                continue;
+            }
 
-            for (var j = 1; j<results.length; j++) {
+            for (var j = i + 1; j<results.length; j++) {
                 var urlB = results[j].val;
 
                 if(urlB.indexOf('https') != 0) continue;
 
                 if(urlA.substr(4) == urlB.substr(5)){ //strip http from first result and https from 2nd result
                     protocol_deduplicated.push(results[j]);
+                    used_results[j] = true;
                     found = true;
                     break;
                 }

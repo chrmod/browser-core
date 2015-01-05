@@ -25,8 +25,6 @@ function assertArrayEqual(a, b){
     }
 }
 
-//function assert
-
 // replaces ',' and '-' in the urlbar if it can be autocompleted and if it contains 'www'
 function testUrlBarCleaner() {
     var data = {
@@ -94,9 +92,6 @@ function testFilter() {
         // change to expected format
         input = input.map(function(r){ return {val: r}; })
         expected = expected.map(function(r){ return {val: r}; })
-
-        alert(JSON.stringify(Filter.deduplicate(input, -1, 1, 1)));
-
         assertArrayEqual(Filter.deduplicate(input, -1, 1, 1), expected);
     }
 }
