@@ -1,9 +1,9 @@
 {
     "whatIsCliqz":{
-        "message": "cliqz, c'est quoi?"
+        "message": "CLIQZ, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
+        "message": "CLIQZ, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
     },
     "settings":{
         "message": "Paramètres"
@@ -18,7 +18,7 @@
         "message": "Pays de recherche"
     },
     "btnShare":{
-        "message": "Partager avec cliqz"
+        "message": "Partager avec CLIQZ"
     },
     "urlBarLastSearch":{
         "message":"↵  "

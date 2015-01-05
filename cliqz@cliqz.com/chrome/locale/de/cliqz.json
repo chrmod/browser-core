@@ -1,9 +1,9 @@
 {
     "whatIsCliqz":{
-        "message": "Was ist cliqz?"
+        "message": "Was ist CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+        "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
         "message": "Einstellung"
@@ -18,7 +18,7 @@
         "message": "Regionale Ergebnisse"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
     },
     "urlBarLastSearch":{
         "message":"↵  "
