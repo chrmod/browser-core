@@ -18,34 +18,34 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
     lang = CliqzUtils.getLanguage(win),
     results = [
         {
-            title : 'FAQ',
-            url   : 'http://beta.cliqz.com/faq_' + lang + '.html',
-            type  : 'cliqz-results sources-o'
+            title : CliqzUtils.getLocalizedString('offRes_Cliqz'),
+            url   : CliqzUtils.getLocalizedString('offRes_Cliqz_URL'),
+            type  : 'cliqz-results sources-o',
+            data  : { kind: 'o' }
         },
         {
-            title : CliqzUtils.getLocalizedString('btnPrivacy'),
-            url   : 'http://beta.cliqz.com/datenschutz_' + lang + '.html',
-            type  : 'cliqz-results sources-o'
+            title : CliqzUtils.getLocalizedString('offRes_AboutCliqz'),
+            url   : CliqzUtils.getLocalizedString('offRes_AboutCliqz_URL'),
+            type  : 'cliqz-results sources-o',
+            data  : { kind: 'o' }
         },
         {
-            title : 'Team',
-            url   : 'http://cliqz.com/company/team',
-            type  : 'cliqz-results sources-o'
+            title : CliqzUtils.getLocalizedString('offRes_Privacy'),
+            url   : CliqzUtils.getLocalizedString('offRes_Privacy_URL'),
+            type  : 'cliqz-results sources-o',
+            data  : { kind: 'o' }
         },
         {
-            title : 'Values',
-            url   : 'http://cliqz.com/company/values',
-            type  : 'cliqz-results sources-o'
+            title : CliqzUtils.getLocalizedString('offRes_Support'),
+            url   : CliqzUtils.getLocalizedString('offRes_Support_URL'),
+            type  : 'cliqz-results sources-o',
+            data  : { kind: 'o' }
         },
         {
-            title : 'Impressum',
-            url   : 'http://cliqz.com/company/impressum',
-            type  : 'cliqz-results sources-o'
-        },
-        {
-            title : 'Cliqz',
-            url   : 'http://beta.cliqz.com',
-            type  : 'cliqz-results sources-o'
+            title : CliqzUtils.getLocalizedString('offRes_Team'),
+            url   : CliqzUtils.getLocalizedString('offRes_Team_URL'),
+            type  : 'cliqz-results sources-o',
+            data  : { kind: 'o' }
         }
     ];
 
@@ -127,7 +127,7 @@ function messageType(to){
                 win.CLIQZ.UI.suggestions(['cliqz'], 'cl');
                 win.CLIQZ.UI.results({
                     results: results,
-                    width: win.CLIQZ.Core.urlbar.clientWidth - 100
+                    width: win.CLIQZ.Core.urlbar.clientWidth
                 });
                 CliqzUtils.setTimeout(function(){
                     urlBar.value = fin;
