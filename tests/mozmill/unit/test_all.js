@@ -82,6 +82,51 @@ function testFilter() {
                     "https://www.facebook.com/",
                     "https://www.facebook.com/login.php"
                 ]
+            ],
+            // T3
+            [
+                [
+                    "ftp://ftp.xyz.com",
+                    "ftp://user:pass@ftp.xyz.com",
+                    "http://www.facebook.com/login.php",
+                    "https://www.facebook.com/login.php"
+                ],
+                [
+                    "ftp://ftp.xyz.com",
+                    "ftp://user:pass@ftp.xyz.com",
+                    "https://www.facebook.com/login.php"
+                ]
+            ],
+            // T4
+            [
+                [
+                    "http://192.168.1.1/",
+                    "https://192.168.1.1/",
+                    "http://192.168.1.1/",
+                ],
+                [
+                    "https://192.168.1.1/",
+                ]
+            ],
+            // T4
+            [
+                [
+                    "www.facebook.com/login.php",
+                    "facebook.com/login.php"
+                ],
+                [
+                    "www.facebook.com/login.php",
+                ]
+            ],
+            // T5
+            [
+                [
+                    "www.facebook.com",
+                    "www.facebook.com"
+                ],
+                [
+                    "www.facebook.com",
+                ]
             ]
         ];
 
