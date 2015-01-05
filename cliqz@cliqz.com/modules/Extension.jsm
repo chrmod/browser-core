@@ -287,7 +287,7 @@ var Extension = {
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
-
+        
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
@@ -326,27 +326,26 @@ var Extension = {
        
         var menuitem5 = doc.createElement('menuitem');
         menuitem5.setAttribute('id', 'cliqz_menuitem5');
-        menuitem5.setAttribute('label', CliqzUtils.getLocalizedString('btnShowCliqzNewTab'));
+        menuitem5.setAttribute('label',
+            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
+        );
         
-        //menuitem5.style.listStyleImage = CliqzNewTab()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
-        
-        menuitem5.style.color = CliqzNewTab.isCliqzNewTabShown()?'red':'';
+        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
         
         menuitem5.addEventListener('command', function(event) {
             var newvalue = !CliqzNewTab.isCliqzNewTabShown();
             
             CliqzNewTab.showCliqzNewTab(newvalue);
             
+            menuitem5.setAttribute('label',
+                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
+            );
             //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
-            menuitem5.style.color = newvalue?'red':'';
         }, false);
 
-        
-        
-        menupopup.appendChild(menuitem1);
-        menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem4);
-        menupopup.appendChild(menuitem5);
+        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
+            menupopup.appendChild(item);
+        });
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
