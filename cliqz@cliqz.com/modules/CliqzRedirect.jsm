@@ -31,18 +31,20 @@ var CliqzRedirect = {
                 var res = {url: aChannel.URI.spec,
                            status: aExtraStringData.split(" ")[1]}
                 if (Math.floor(res.status / 100) !=  2) {
-                    CliqzUtils.log(JSON.stringify(res), "httpData")
+                    // CliqzUtils.log(JSON.stringify(res), "httpData")
                     // Now that we see a 404, let's compare to the cliqz results we provided
                     for (var i=0;
                         CliqzAutocomplete.lastResult &&
                         i < CliqzAutocomplete.lastResult._results.length;
                         i++) {
-                        if (res.url == CliqzAutocomplete.lastResult._results[i].val) {
+                        var r = CliqzAutocomplete.lastResult._results[i];
+                        if (res.url == r.val) {
                             var action = {
                                 type: "performance",
                                 action: "response",
                                 response_code: res.status,
-                                result_type: CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult._results[i].style)
+                                result_type: CliqzUtils.encodeResultType(r.style || r.type),
+                                v: 1
                             }
                             CliqzUtils.track(action);
                         }

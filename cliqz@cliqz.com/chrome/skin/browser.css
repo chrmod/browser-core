@@ -46,7 +46,7 @@
     background-color: #eeeeee;
     background-size: 20px 14px;
     position: relative;
-    line-height: 16px;
+    height: 16px;
     cursor: ns-resize;
 }
 

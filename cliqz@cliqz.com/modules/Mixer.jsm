@@ -70,11 +70,11 @@ var Mixer = {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     st = CliqzUtils.combineSources(st, tempCliqzResult.style);
-
+                    var combinedKind = da.kind.concat(tempCliqzResult.data.kind);
                     co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
-
                     // create new instant entry to replace old one
-                    var newInstant = Result.generic(st, va, im, co, la, da);
+                    var newInstant = Result.generic(st, va, im, co, la, '', da);
+                    newInstant.data.kind = combinedKind;
                     mixed._results.splice(0);
                     mixed.addResults([newInstant]);
                 }
@@ -100,7 +100,7 @@ var Mixer = {
                     // combine sources
                     var tempResult = Result.cliqz(cliqz[i]);
                     tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
-
+                    tempResult.data.kind = CliqzUtils.encodeResultType(style).concat(tempResult.data.kind);;
                     //use the title from history/bookmark - might be manually changed - eg: for tag results
                     if(comment) tempResult.comment = comment;
 
@@ -213,7 +213,8 @@ var Mixer = {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
                             //message: CliqzUtils.getLocalizedString('noResultMessage')
-                        }
+                        },
+                        subType: JSON.stringify({empty:true})
                     }
                 )
             );
