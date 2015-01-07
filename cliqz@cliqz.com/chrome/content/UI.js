@@ -584,7 +584,7 @@ function enhanceResults(res){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                    r.logo = generateLogoClass(r.urlDetails);
+                    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
                     // double safety - to be removed
@@ -594,7 +594,7 @@ function enhanceResults(res){
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = generateLogoClass(r.urlDetails);
+            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);

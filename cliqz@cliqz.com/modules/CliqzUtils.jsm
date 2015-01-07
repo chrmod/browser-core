@@ -46,6 +46,10 @@ var VERTICAL_ENCODINGS = {
     'bm': 'm'
 };
 
+var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
+    LOGOS = ['amazon', 'ebay', 'facebook', 'google', 'twitter', 'yelp', 'youtube'],
+    BRAND_COLORS = {}, brand_loaded = false;
+
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
@@ -87,6 +91,15 @@ var CliqzUtils = {
         CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
 
+    if(!brand_loaded){
+      brand_loaded = true;
+      CliqzUtils.httpGet(
+        "http://cdn.cliqz.com/extension/core/colors.0.1.json",
+        function(req){
+          BRAND_COLORS = JSON.parse(req.response);
+        });
+    }
+
     if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
@@ -95,6 +108,27 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+  getLogoDetails: function(urlDetails){
+    var domain = urlDetails.domain, img,
+        color = BRAND_COLORS[urlDetails.host] ||  // sub.domain.tld
+                BRAND_COLORS[domain] ||  // domain.tld
+                BRAND_COLORS[urlDetails.name];    // domain
+    if(!color){
+      var signature = 0;
+      for(var i=0; i<urlDetails.host.length; i++) signature += urlDetails.host.charCodeAt(i);
+
+      color = COLOURS[signature%COLOURS.length];  // fallback - solid colour
+    }
+
+    if (LOGOS.indexOf(urlDetails.name) != -1){
+      img = 'url(http://cdn.cliqz.com/extension/core/logos/' + urlDetails.name + '.svg)';
+    }
+    return {
+      color: color,
+      text: domain[0].toUpperCase() + domain[1].toLowerCase(),
+      img: img
+    }
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -270,7 +304,7 @@ var CliqzUtils = {
 
     var urlDetails = {
               name: name,
-              domain: name + tld,
+              domain: name + '.' + tld,
               tld: tld,
               subdomains: subdomains,
               path: path,
