@@ -206,7 +206,11 @@ function renderHistory(links){
         template.find(".history-title").text(link.title);
         template.find(".history-url").text(link.url);
         
-        //SearchUtils.createIconFromUrl(template.find(".history-icon"),link.url);        
+        var logoinfo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(link.url));
+        var icon = template.find(".history-icon").css("background-color",logoinfo.color);
+
+        if (icon.img) icon.css("background-image","url(" + logoinfo.img + ")");
+        else icon.text(logoinfo.text);
     }
     
     shuffle(array);
