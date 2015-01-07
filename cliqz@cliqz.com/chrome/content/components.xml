@@ -59,7 +59,7 @@
                         unEscapeURIForUI('UTF-8', url)
             }
 
-            if(this.mInput && this._matchCount > 0){
+            if(this._matchCount > 0 && this.mInput){
               var data = [],
                 ctrl = this.mInput.controller,
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
@@ -74,10 +74,10 @@
                     data: lastRes && lastRes.getDataAt(i),
                   });
               }
-
               CLIQZ.UI.results({
                 q: q,
                 results: data,
+                isInstant: lastRes && lastRes.isInstant,
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);

@@ -24,11 +24,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 CliqzUtils.init();
 
 var Mixer = {
-	mix: function(q, history, cliqz, cliqzExtra, mixed, weatherResults, bundesligaResults, maxResults){
-		var results = [],
+    mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
+        var results = [],
             [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
-
-		/// 1) put each result into a bucket
+        // 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],
@@ -71,11 +70,11 @@ var Mixer = {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     st = CliqzUtils.combineSources(st, tempCliqzResult.style);
-
+                    var combinedKind = da.kind.concat(tempCliqzResult.data.kind);
                     co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
-
                     // create new instant entry to replace old one
-                    var newInstant = Result.generic(st, va, im, co, la, da);
+                    var newInstant = Result.generic(st, va, im, co, la, '', da);
+                    newInstant.data.kind = combinedKind;
                     mixed._results.splice(0);
                     mixed.addResults([newInstant]);
                 }
@@ -101,7 +100,7 @@ var Mixer = {
                     // combine sources
                     var tempResult = Result.cliqz(cliqz[i]);
                     tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
-
+                    tempResult.data.kind = CliqzUtils.encodeResultType(style).concat(tempResult.data.kind);;
                     //use the title from history/bookmark - might be manually changed - eg: for tag results
                     if(comment) tempResult.comment = comment;
 
@@ -189,10 +188,6 @@ var Mixer = {
             results.push(bucketHistoryOther[i]);
         }
 
-        // add external weather API results
-        if(weatherResults && weatherResults.length > 0)
-            results = weatherResults.concat(results);
-
         // add external bundesliga API results
         if(bundesligaResults && bundesligaResults.length > 0)
             results = bundesligaResults.concat(results);
@@ -218,12 +213,13 @@ var Mixer = {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
                             //message: CliqzUtils.getLocalizedString('noResultMessage')
-                        }
+                        },
+                        subType: JSON.stringify({empty:true})
                     }
                 )
             );
         }
 
         return results.slice(0, maxResults);
-	}
+    }
 }
