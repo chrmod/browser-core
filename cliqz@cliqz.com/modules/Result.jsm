@@ -12,6 +12,11 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+
+function log(msg){
+    //CliqzUtils.log(msg, 'Result.jsm');
+}
+
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
     if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
@@ -24,7 +29,6 @@ var Result = {
     CLIQZR: 'cliqz-results',
     CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
-    CLIQZW: 'cliqz-weather',
     CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
@@ -55,7 +59,7 @@ var Result = {
             { 'vertical': 'shopping'}
         ]
     },
-	generic: function(style, value, image, comment, label, query, data){
+	generic: function(style, value, image, comment, label, query, data, subtype){
         //try to show host name if no title (comment) is provided
         if(style.indexOf(Result.CLIQZC) === -1       // is not a custom search
            && (!comment || value == comment)   // no comment(page title) or comment is exactly the url
@@ -68,6 +72,10 @@ var Result = {
         if(!comment){
             comment = value;
         }
+
+        data = data || {};
+        data.kind = [CliqzUtils.encodeResultType(style) + (subtype? '|' + subtype : '')];
+
         var item = {
             style: style,
             val: value,
@@ -76,12 +84,12 @@ var Result = {
             query: query,
             data: data
         };
-
         return item;
     },
     cliqz: function(result){
-        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source);
-        var debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
+        var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source).join(''),
+            debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
+
         if(result.snippet){
             return Result.generic(
                 resStyle, //style
@@ -90,10 +98,11 @@ var Result = {
                 result.snippet.title,
                 null, //label
                 debugInfo, //query
-                Result.getData(result)
+                Result.getData(result),
+                result.subType
             );
         } else {
-            return Result.generic(resStyle, result.url, null, null, null, debugInfo);
+            return Result.generic(resStyle, result.url, null, null, null, debugInfo, null, result.subType);
         }
     },
     cliqzExtra: function(result){
@@ -104,7 +113,8 @@ var Result = {
             null,
             null, //label
             result.q, //query
-            result.data
+            result.data,
+            result.subType
         );
     },
     // check if a result should be kept in final result list
@@ -116,7 +126,7 @@ var Result = {
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
            (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
-            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
+            log("Discarding result page from history: " + url)
             return false;
         }
         // Bing Filters
@@ -124,7 +134,7 @@ var Result = {
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
-            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
+            log("Discarding result page from history: " + url)
             return false;
         }
         // Yahoo filters
@@ -136,7 +146,7 @@ var Result = {
            ((urlparts.subdomains.length == 1 && urlparts.subdomains[0].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[1].toLowerCase() == "search" && urlparts.path.indexOf("/search") == 0) ||
             (urlparts.subdomains.length == 2 && urlparts.subdomains[0].toLowerCase() == "r" && urlparts.subdomains[1].toLowerCase() == "search"))) {
-            CliqzUtils.log("Discarding result page from history: " + url, "Result.isValid")
+            log("Discarding result page from history: " + url)
             return false;
         }
 

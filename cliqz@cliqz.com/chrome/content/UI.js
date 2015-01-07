@@ -7,13 +7,9 @@
 
 (function(ctx) {
 
-var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
-                 'generic', 'custom', 'clustering', 'series', 'calculator',
-                 'entity-search-1', 'entity-news-1', 'bitcoin', 'entity-banking-1'],
-
+var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
         'b': 'bundesliga',
-        'w': 'weather' ,
         's': 'shopping',
         'g': 'gaming'  ,
         'n': 'news'    ,
@@ -37,7 +33,9 @@ var TEMPLATES = ['main', 'results', 'suggestions', 'emphasis', 'empty', 'text',
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
     IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96
+    IMAGE_WIDTH = 96,
+    currentResults,
+    DEL = 8
     ;
 
 var UI = {
@@ -73,7 +71,7 @@ var UI = {
         //check if loading is done
         if(!UI.tpl.main)return;
 
-        box.innerHTML = UI.tpl.main(ResultProviders.getSearchEngines());
+        box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
 
@@ -90,24 +88,26 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
         gCliqzBox.enginesBox = enginesBox;
 
-        gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message', box);
-
         handlePopupHeight(box);
+
+        // wait for the search engine to initialize
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService
+        // FF16+
+        if(Services.search.init != null){
+            Services.search.init(function(){
+                gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
+            });
+        }
+        else {
+            gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
+        }
     },
     results: function(res){
         if (!gCliqzBox)
             return;
 
-        var enhanced = enhanceResults(res);
-        //try to update reference if it doesnt exist
-        if(!gCliqzBox.messageBox)
-            gCliqzBox.messageBox = document.getElementById('cliqz-navigation-message');
-
-        if(gCliqzBox.messageBox){
-            var num = enhanced.results.filter(function(r){ return r.dontCountAsResult == undefined; }).length;
-            if(num != 0)gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('numResults').replace('{}', num);
-            else gCliqzBox.messageBox.textContent = CliqzUtils.getLocalizedString('noResults');
-        }
+        currentResults = enhanceResults(res);
+        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -117,16 +117,16 @@ var UI = {
             }
         }
         if(gCliqzBox.resultsBox)
-            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(enhanced);
+            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
-        // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
-
         // set the width
         gCliqzBox.style.width = (res.width +1) + 'px';
+
+        // try to find and hide misaligned elemets - eg - weather
+        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -136,15 +136,22 @@ var UI = {
             result.innerHTML = UI.tpl[template](data);
     },
     suggestions: function(suggestions, q){
+        //CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
         if (!gCliqzBox)
             return;
-
         if(suggestions){
-            gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                // do not show a suggestion is it is exactly the query
-                suggestions: suggestions.filter(function(s){ return s != q; }),
-                q:q
-            });
+            if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
+                    wrong: suggestions[1]
+                });
+
+            } else {
+                gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
+                    // do not show a suggestion is it is exactly the query
+                    suggestions: suggestions.filter(function(s){ return s != q; }),
+                    q:q
+                });
+            }
         } else {
             gCliqzBox.suggestionBox.innerHTML = '';
         }
@@ -174,9 +181,15 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                };
             case RIGHT:
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                }
                 return false;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -184,6 +197,32 @@ var UI = {
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
+            case DEL:
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                    CliqzAutocomplete.spellCorr.override = true
+                    // correct back the last word if it was changed
+                    var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
+                    var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
+                    CliqzUtils.log(JSON.stringify(words), 'spellcorr');
+                    CliqzUtils.log(JSON.stringify(wrongWords), 'spellcorr');
+                    CliqzUtils.log(words[words.length-1].length, 'spellcorr');
+                    if (words[words.length-1].length == 0 && words[words.length-2] != wrongWords[wrongWords.length-2]) {
+                        CliqzUtils.log('hi', 'spellcorr');
+                        words[words.length-2] = wrongWords[wrongWords.length-2];
+                        CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
+                        var signal = {
+                            type: 'activity',
+                            action: 'del_correct_back'
+                        };
+                        CliqzUtils.track(signal);
+                    }
+                } else {
+                    var signal = {
+                        type: 'activity',
+                        action: 'keystroke_del'
+                    };
+                    CliqzUtils.track(signal);
+                }
             default:
                 return false;
         }
@@ -212,7 +251,6 @@ var UI = {
     },
     closeResults: closeResults
 };
-
 
 var forceCloseResults = false;
 function closeResults(event, force) {
@@ -386,6 +424,111 @@ function constructImage(data){
     return null;
 }
 
+
+
+
+    // Cliqz Images Search Layout
+
+    var IMAGES_MARGIN = 4;
+    var IMAGES_LINES = 1;
+    function getheight(images, width) {
+        width -= IMAGES_MARGIN * images.length; //images  margin
+        var h = 0;
+        for (var i = 0; i < images.length; ++i) {
+            // console.log('width (getheight): '+images[i].image_width)
+            h += images[i].image_width / images[i].image_height
+        }
+        return width / h;
+    }
+
+    function setheight(images, height) {
+        var verif_width = 0;
+        var estim_width = 0;
+        for (var i = 0; i < images.length; ++i) {
+           var width_float = height * images[i].image_width /images[i].image_height;
+            verif_width += ( IMAGES_MARGIN + width_float);
+            images[i].width = parseInt(width_float);
+            estim_width +=  ( IMAGES_MARGIN + images[i].width);
+            images[i].height = parseInt(height);
+            // console.log('width (new): ' + images[i].width +
+            //             ', height (new): ' + images[i].height);
+        }
+
+        // Collecting sub-pixel error
+        var error = estim_width - parseInt(verif_width)
+        //console.log('estimation error:' + error);
+
+        if (error>0) {
+            //var int_error = parseInt(Math.abs(Math.ceil(error)));
+            // distribute the error on first images each take 1px
+            for (var i = 0; i < error; ++i) {
+                images[i].width -= 1;
+            }
+        }
+        else {
+            error=Math.abs(error)
+            //var int_error = parseInt(Math.abs(Math.floor(error)));
+            for (var i = 0; i < error; ++i) {
+                images[i].width += 1;
+            }
+        }
+
+        // Sanity check (Test)
+        // var verify = 0;
+        // for (var i = 0; i < images.length; ++i) {
+        //    var width_float = height * images[i].image_width /images[i].image_height;
+        //    verify += (images[i].width + IMAGES_MARGIN);
+        // }
+        // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
+    }
+
+    function resize(images, width) {
+        setheight(images, getheight(images, width));
+    }
+
+
+    function process_images_result(res, max_height) {
+        // Processing images to fit with max_height and
+        var tmp = []
+        for(var k=0; k<res.results.length; k++){
+            var r = res.results[k];
+            if (r.vertical == 'images' && r.data.template == 'images') {
+                var size = CLIQZ.Core.urlbar.clientWidth - (CliqzUtils.isWindows(window)?20:15);
+                var n = 0;
+                var images = r.data.items;
+                // console.log('global width: '+ size + ', verif: '+ res.width
+                //     +', images nbr: '+images.length) // TODO Define which is the better src for width f(time, scroll_bar_styles)
+                w: while ((images.length > 0) && (n<IMAGES_LINES)){
+                    var i = 1;
+                    while ((i < images.length + 1) && (n<IMAGES_LINES)){
+                        var slice = images.slice(0, i);
+                        var h = getheight(slice, size);
+                        //console.log('height: '+h);
+                        if (h < max_height) {
+                            setheight(slice, h);
+                            //res.results[k].data.results = slice
+                            tmp.push.apply(tmp, slice);
+                            // console.log('height: '+h);
+                            n++;
+                            images = images.slice(i);
+                            continue w;
+                        }
+                        i++;
+                    }
+                    setheight(slice, Math.min(max_height, h));
+                    tmp.push.apply(tmp, slice);
+                    n++;
+                    break;
+                }
+                res.results[k].data.items = tmp
+                // console.log('lines: '+n); // should be 1
+                }
+            }
+
+        }
+
+    // end image-search layout
+
 //loops though al the source and returns the first one with custom snippet
 function getFirstVertical(type){
     while(type && !VERTICALS[type[0]])type = type.substr(1);
@@ -393,8 +536,8 @@ function getFirstVertical(type){
 }
 
 function getPartial(type){
+    if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
-    if(type === 'cliqz-weather') return 'weather';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
@@ -432,6 +575,7 @@ function getTags(fullTitle){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
@@ -440,19 +584,22 @@ function enhanceResults(res){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                    r.logo = generateLogoClass(r.urlDetails);
+                    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
-                    // unexpected/unknown template
+                    // double safety - to be removed
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = generateLogoClass(r.urlDetails);
-            r.image = constructImage(r.data);
-            r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+
+             if (getPartial(r.type) != 'images'){
+                 r.image = constructImage(r.data);
+                 r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                }
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
@@ -465,12 +612,6 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
 
         }
-
-        // If one of the results is data.only = true Remove all others.
-        if (!r.invalid && r.data && r.data.only) {
-          res.results = [r];
-          return res;
-        }
     }
 
     //prioritize extra (fun-vertical) results
@@ -482,12 +623,21 @@ function enhanceResults(res){
 }
 
 function getResultPosition(el){
-    var idx;
+    return getResultOrChildAttr(el, 'idx');
+}
+
+function getResultKind(el){
+    return getResultOrChildAttr(el, 'kind').split(',');
+}
+
+function getResultOrChildAttr(el, attr){
+    var ret;
     while (el){
-        if(idx = el.getAttribute('idx')) return idx;
+        if(ret = el.getAttribute(attr)) return ret;
         if(el.className == IC) return; //do not go higher than a result
         el = el.parentElement;
     }
+    return '';
 }
 
 function resultClick(ev){
@@ -506,14 +656,15 @@ function resultClick(ev){
                     current_position: getResultPosition(el),
                     query_length: CliqzAutocomplete.lastSearch.length,
                     inner_link: el.className != IC, //link inside the result or the actual result
-                    position_type: CliqzUtils.encodeResultType(el.getAttribute('type')),
+                    position_type: getResultKind(el),
                     extra: el.getAttribute('extra'), //extra data about the link
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
                     reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
                     display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-                    result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+                    result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+                    v: 1
                 };
 
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
@@ -526,7 +677,7 @@ function resultClick(ev){
             if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
             {
                 var first = gCliqzBox.resultsBox.children[0];
-                if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+                if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
                 {
                     queryAutocompleted = query;
                 }
@@ -537,8 +688,13 @@ function resultClick(ev){
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
+
             break;
         } else if (el.getAttribute('cliqz-action')) {
+            // Stop click event propagation
+            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
+              break;
+            }
             // copy calculator answer to clipboard
             if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
                 const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
@@ -654,10 +810,20 @@ function suggestionNavigation(ev){
 function suggestionClick(ev){
     if(ev && ev.target){
         var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
-        if(suggestionVal){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal);
 
+        //spell corrector
+        if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
+            var extra = ev.target.getAttribute('extra') || ev.target.parentNode.getAttribute('extra');
+            if (extra=='wrong') {
+                // user don't like our suggestion
+                var action = {
+                    type: 'activity',
+                    action: 'correct_back'
+                };
+                CliqzUtils.track(action);
+                CliqzAutocomplete.spellCorr.override = true;
+            }
+        } else { // regular query suggestion
             var action = {
                 type: 'activity',
                 action: 'suggestion_click',
@@ -668,6 +834,11 @@ function suggestionClick(ev){
             };
 
             CliqzUtils.track(action);
+        }
+
+        if(suggestionVal){
+            CLIQZ.Core.urlbar.mInputField.focus();
+            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal.trim());
         }
     }
 }
@@ -689,7 +860,8 @@ function onEnter(ev, item){
             reaction_time: currentTime - CliqzAutocomplete.lastQueryTime,
             display_time: CliqzAutocomplete.lastDisplayTime ? currentTime - CliqzAutocomplete.lastDisplayTime : null,
             urlbar_time: CliqzAutocomplete.lastFocusTime ? currentTime - CliqzAutocomplete.lastFocusTime: null,
-            result_order: lr ? CliqzAutocomplete.getResultsOrder(lr._results) : '',
+            result_order: currentResults? currentResults.results.map(function(r){ return r.data.kind; }): '',
+            v: 1
         };
 
     var query = inputValue;
@@ -697,7 +869,7 @@ function onEnter(ev, item){
     if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
     {
         var first = gCliqzBox.resultsBox.children[0];
-        if (!CliqzUtils.isPrivateResultType(CliqzUtils.encodeResultType(first.getAttribute('type'))))
+        if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
         {
             queryAutocompleted = query;
         }
@@ -706,7 +878,7 @@ function onEnter(ev, item){
 
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
-        action.position_type = CliqzUtils.encodeResultType(item.getAttribute('type'));
+        action.position_type = getResultKind(item);
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -733,17 +905,17 @@ function onEnter(ev, item){
 
         action.current_position = -1;
         if(CliqzUtils.isUrl(inputValue)){
-            action.position_type = 'inbar_url';
+            action.position_type = ['inbar_url'];
             action.search = CliqzUtils.isSearch(inputValue);
         }
-        else action.position_type = 'inbar_query';
+        else action.position_type = ['inbar_query'];
         action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
         if(action.autocompleted && gCliqzBox){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
 
-            action.source = CliqzUtils.encodeResultType(first.getAttribute('type'));
-            if (action.source == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
+            action.source = getResultKind(first);
+            if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
             if(firstUrl.indexOf(inputValue) != -1){
@@ -812,11 +984,12 @@ function trackArrowNavigation(el){
         current_position: el ? el.getAttribute('idx') : -1,
     };
     if(el){
-        action.position_type = CliqzUtils.encodeResultType(el.getAttribute('type'));
+        action.position_type = getResultKind(el);
         action.search = CliqzUtils.isSearch(el.getAttribute('url'));
     }
     CliqzUtils.track(action);
 }
+
 var AGO_CEILINGS=[
     [0            , '',                , 1],
     [120          , 'ago1Minute' , 1],
@@ -870,6 +1043,10 @@ function registerHelpers(){
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);
+    });
+
+    Handlebars.registerHelper('log', function(value, key) {
+        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
@@ -968,6 +1145,16 @@ function registerHelpers(){
             "*": lvalue * rvalue,
             "/": lvalue / rvalue,
             "%": lvalue % rvalue
+        }[operator];
+    });
+
+    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
+        return {
+            "|": lvalue | rvalue,
+            "||": lvalue || rvalue,
+            "&": lvalue & rvalue,
+            "&&": lvalue & rvalue,
+            "^": lvalue ^ rvalue
         }[operator];
     });
 
