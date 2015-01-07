@@ -5,8 +5,9 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 // this module is default for new tab in FF and provides with top links
 Components.utils.import("resource://gre/modules/NewTabUtils.jsm");
 
-$(function(){    
-    var serverurl = "http://chrome-backgrounds.cliqz.com";
+$(function(){
+    var serverurl = "http://chrome-backgrounds.cliqz.com",
+        googlebarurl = "http://cdn.cliqz.com/extension/newtab/google-bar/";
     
     $("#search").attr("placeholder",CliqzUtils.getWindow().document.getElementById("urlbar").placeholder);
     
@@ -17,10 +18,31 @@ $(function(){
         dataType: "json",
         crossDomain: true,
         success: function(data) {
+            // set image
             if (data["status"] == "ok") $(".background").css("background-image", "url(" + serverurl + data.url + ")");
+            
+            // get & render history
+            setTimeout(function(){
+                NewTabUtils.links.populateCache(() => {
+                    renderHistory(NewTabUtils.links.getLinks());
+                });
+            },200);
         },
         error: function() {}
     });
+    
+    // fill options
+    [
+        { name: "Gmail", url: "https://mail.google.com/", img: "gmail.png" },
+        { name: "Calendar", url: "https://www.google.com/calendar/", img: "calendar.png" },
+        { name: "News", url: "https://news.google.de/", img: "news.png" },
+        { name: "Maps", url: "https://maps.google.de/", img: "maps.png" },
+        { name: "Youtube", url: "https://www.youtube.de/", img: "youtube.png" }
+    ].forEach(function(item){
+        $("<a class='option' style='background-image:url(" + googlebarurl + item.img + ")'>").attr("href",item.url)
+                                                                                             .html(item.name)
+                                                                                             .appendTo(".options-container")
+    })
     
     $(".options-btn").click(function(event){
         if ($(".options-container.active").length) {
@@ -44,10 +66,6 @@ $(function(){
         event.stopPropagation();
     });
 
-    // get & render history
-    NewTabUtils.links.populateCache(() => {
-        renderHistory(NewTabUtils.links.getLinks());
-    });
     CLIQZ.UI.init();
     CLIQZ.Core.popup = $('#search-dropdown')[0]
     CLIQZ.Core.popup.cliqzBox = $('#search-dropdown')[0];
@@ -71,12 +89,6 @@ $(function(){
             if (active.length) active[0].setAttribute("selected","false");
             next[0].setAttribute("selected","true");
         }
-        
-        /*var top = next.position().top;
-        
-        console.log(top,next.height(),next.parent().scrollTop());
-        
-        if (top + next.height() > next.parent().scrollTop()) next.parent().scrollTop(top + next.height());*/
     };
     
     searchinput.keypress(function(event){
@@ -194,7 +206,7 @@ function renderHistory(links){
         template.find(".history-title").text(link.title);
         template.find(".history-url").text(link.url);
         
-        SearchUtils.createIconFromUrl(template.find(".history-icon"),link.url);        
+        //SearchUtils.createIconFromUrl(template.find(".history-icon"),link.url);        
     }
     
     shuffle(array);

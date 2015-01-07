@@ -3,57 +3,45 @@
     <head>
         <meta charset="UTF-8">
         <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css' />
-        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen" />
-        <link href="css/main.css" rel="stylesheet" media="screen" />
-        <link href="css/animate.css" rel="stylesheet" media="screen" />
-
+        <link href="newtab.css" rel="stylesheet" media="screen" />
         <link href="chrome://cliqzres/content/skin/browser.css" rel="stylesheet" media="screen" />
-
         <link href="chrome://cliqzres/content/skin/logo.css" rel="stylesheet" media="screen" />
     </head>
     <body>
         <div class="options-btn"></div>
-        <div class="options-container">
-            <a class="option" style="background-image:url(images/google/gmail.png)" href="https://mail.google.com/">Gmail</a>
-            <a class="option" style="background-image:url(images/google/calendar.png)" href="https://www.google.com/calendar/">Calendar</a>
-            <a class="option" style="background-image:url(images/google/news.png)" href="https://news.google.de/">News</a>
-            <a class="option" style="background-image:url(images/google/maps.png)" href="https://maps.google.de/">Maps</a>
-            <a class="option" style="background-image:url(images/google/youtube.png)" href="https://www.youtube.de/">Youtube</a>
-        </div>
+        <div class="options-container"></div>
 
         <div class="white-cover" style="height: 100%">
             <div class="background">
                 <div class="container search-container">
                     <div class="row">
-                        <div class="col-sm-10 col-sm-offset-1">
-                            <div class="search-box">
-                                <input id="search" autocomplete="off" class='input-box'/>
-
-                                <div role="menu" aria-labelledby="search" style="display: none;" id="search-dropdown"></div>
-                            </div>
-
-                            <a href="/" class="hidden mostvisited" id="history-row-template" selectable="selectable">
-                                <div class="history-row">
-                                    <div class='history-icon cliqz-icon'></div>
-                                    <div class='history-desc'>
-                                        <div class='history-title ellipsis'></div>
-                                        <div class='history-url ellipsis'></div>
-                                    </div>
-                                    <br style="clear:both" />
-                                </div>
-                            </a>
-                            <div class="history-lis" id="history-lis"></div>
+                        <div class="search-box">
+                            <input id="search" autocomplete="off" class='input-box'/>
+                            <div role="menu" aria-labelledby="search" style="display: none;" id="search-dropdown"></div>
                         </div>
+
+                        <a href="/" class="hidden mostvisited" id="history-row-template" selectable="selectable">
+                            <div class="history-row">
+                                <div class='history-icon cliqz-icon'></div>
+                                <div class='history-desc'>
+                                    <div class='history-title ellipsis'></div>
+                                    <div class='history-url ellipsis'></div>
+                                </div>
+                                <br style="clear:both" />
+                            </div>
+                        </a>
+                        <div class="history-lis" id="history-lis"></div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <link href="http://cdn.cliqz.com/libs/animate/animate.css" rel="stylesheet" media="screen" />
 
-        <script src="js/jquery-2.1.1.min.js"></script>
+        <script src="http://cdn.cliqz.com/libs/jquery/jquery-2.1.1.min.js"></script>
         <script src="chrome://cliqz/content/core.js"></script>
         <script src="chrome://cliqz/content/UI.js"></script>
         <script src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
-        <script src="js/utils.js"></script>
-        <script src="js/main.js"></script>
+        <script src="newtab.js"></script>
     </body>
 </html>
