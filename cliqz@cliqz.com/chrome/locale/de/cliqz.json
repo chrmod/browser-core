@@ -89,32 +89,17 @@
     "offRes_Cliqz":{
         "message":"CLIQZ"
     },
-    "offRes_Cliqz_URL":{
-        "message":"https://beta.cliqz.com/de/"
-    },
     "offRes_AboutCliqz":{
         "message":"CLIQZ - über uns"
-    },
-    "offRes_AboutCliqz_URL":{
-        "message":"https://beta.cliqz.com/de/ueber-cliqz/"
     },
     "offRes_Privacy":{
         "message":"CLIQZ - Datenschutz"
     },
-    "offRes_Privacy_URL":{
-        "message":"https://beta.cliqz.com/de/datenschutz/"
-    },
     "offRes_Support":{
         "message":"CLIQZ - Support"
     },
-    "offRes_Support_URL":{
-        "message":"https://beta.cliqz.com/de/support/"
-    },
     "offRes_Team":{
         "message":"CLIQZ - Team"
-    },
-    "offRes_Team_URL":{
-        "message":"https://beta.cliqz.com/de/team/"
     },
     "offTitle":{
         "message":"die neue Art, durch’s Web zu navigieren"

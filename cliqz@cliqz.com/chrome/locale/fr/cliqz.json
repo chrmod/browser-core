@@ -89,32 +89,17 @@
     "offRes_Cliqz":{
         "message":"CLIQZ"
     },
-    "offRes_Cliqz_URL":{
-        "message":"https://beta.cliqz.com/fr/"
-    },
     "offRes_AboutCliqz":{
         "message":"CLIQZ - a propos"
-    },
-    "offRes_AboutCliqz_URL":{
-        "message":"https://beta.cliqz.com/fr/a-propos-de-cliqz/"
     },
     "offRes_Privacy":{
         "message":"CLIQZ - confidentialité"
     },
-    "offRes_Privacy_URL":{
-        "message":"https://beta.cliqz.com/fr/confidentialite/"
-    },
     "offRes_Support":{
         "message":"CLIQZ - support"
     },
-    "offRes_Support_URL":{
-        "message":"https://beta.cliqz.com/fr/support/"
-    },
     "offRes_Team":{
         "message":"CLIQZ - team"
-    },
-    "offRes_Team_URL":{
-        "message":"https://beta.cliqz.com/fr/team/"
     },
     "offTitle":{
         "message":"le nouveau moyen pour surfer sereinement."

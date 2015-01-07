@@ -89,32 +89,17 @@
     "offRes_Cliqz":{
         "message":"CLIQZ"
     },
-    "offRes_Cliqz_URL":{
-        "message":"https://beta.cliqz.com/"
-    },
     "offRes_AboutCliqz":{
         "message":"CLIQZ - About us"
-    },
-    "offRes_AboutCliqz_URL":{
-        "message":"https://beta.cliqz.com/about-cliqz/"
     },
     "offRes_Privacy":{
         "message":"CLIQZ - Privacy"
     },
-    "offRes_Privacy_URL":{
-        "message":"https://beta.cliqz.com/privacy/"
-    },
     "offRes_Support":{
         "message":"CLIQZ - Support"
     },
-    "offRes_Support_URL":{
-        "message":"https://beta.cliqz.com/support/"
-    },
     "offRes_Team":{
         "message":"CLIQZ - Team"
-    },
-    "offRes_Team_URL":{
-        "message":"https://beta.cliqz.com/team/"
     },
     "offTitle":{
         "message":"the new way to navigate the web"
