@@ -196,6 +196,8 @@
     height: 9px;
     width: 9px;
     border-radius: 50%;
+    /* height: 50px; */
+    /* width: 5px; */
     display: inline-block;
 }
 
@@ -850,11 +852,11 @@
     overflow: hidden;
     /* text-overflow: ellipsis; */
     color: rgba(255, 255, 255, 1);
-    background-color: rgba(0,0,0,0.6);
-    position: relative;
+    background-color: rgba(0,0,0,0.65);
+    position: absolute;
     font-family: Courier New;
     font-size:10px;
-    top: -40%;
+    bottom: +10px;
     z-index: 1;
 }
 
