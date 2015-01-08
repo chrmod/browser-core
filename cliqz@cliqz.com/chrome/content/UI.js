@@ -9,21 +9,21 @@
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
-        'b': 'bundesliga',
-        's': 'shopping',
-        'g': 'gaming'  ,
-        'n': 'news'    ,
-        'p': 'people'  ,
-        'v': 'video'   ,
-        'h': 'hq'      ,
-        'q': 'qaa'     ,
-        'k': 'science' ,
-        'l': 'dictionary'
+        //'b': 'bundesliga',
+        //'s': 'shopping',
+        //'g': 'gaming'  ,
+        //'n': 'news'    ,
+        //'p': 'people'  ,
+        //'v': 'video'   ,
+        //'h': 'hq'      ,
+        //'q': 'qaa'     ,
+        //'k': 'science' ,
+        //'l': 'dictionary'
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
-    IC = 'cliqz-result-item-box', // result item class
+    IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
@@ -32,8 +32,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
-    IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96,
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
     currentResults,
     DEL = 8
     ;

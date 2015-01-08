@@ -99,12 +99,6 @@
 
 /* results */
 
-#cliqz-results {
-    min-height: 61px;
-    max-height: 300px;
-    overflow-y: scroll;
-}
-
 .cliqz-result-tags {
     float: right;
     padding-right: 0px !important;
@@ -242,7 +236,7 @@
 }
 
 .cliqz-result-generic {
-   padding: 10px 0;
+   padding: 7px 0;
 }
 
 .cliqz-logo {

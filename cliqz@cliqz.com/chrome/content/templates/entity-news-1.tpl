@@ -10,7 +10,7 @@
   <div class="entity-news-stories">
     {{#each data.news}}
       <div class="entity-news-story {{#if @last}} entity-news-story-last {{/if}}"
-           url="{{ this.url }}" type="X" extra="entity-news-story">
+           url="{{ this.url }}" type="X" extra="entity-news-story-{{ @index }}">
         <div class="entity-news-story-image">
           <img src="{{ this.thumbnail }}" />
         </div>
