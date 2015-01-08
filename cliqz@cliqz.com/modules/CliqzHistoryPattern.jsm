@@ -693,11 +693,13 @@ var CliqzHistoryPattern = {
     // Cluster to one domain
     if (res.cluster == true) {
       var baseUrl = CliqzHistoryPattern.addBaseDomain(res.results, results[0]);
-      var instant = Result.generic("cliqz-pattern", results[0].url, null, results[0].title, null, searchString);
+      var instant = Result.generic("cliqz-pattern", results[0].url, null, results[0].title, null, searchString, null, null);
       instant.comment += " (pattern cluster)!";
       var titleUrl = CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[0].url), true);
       if (titleUrl[titleUrl.length - 1] == '/') titleUrl = titleUrl.substring(0, titleUrl.length - 1);
+      var kind = instant.data.kind;
       instant.data = {
+        kind: kind,
         title: results[0].title,
         url: titleUrl,
         urlVisibility: results.length > 2 ? "visible" : "hidden",
