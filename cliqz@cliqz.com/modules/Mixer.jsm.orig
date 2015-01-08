@@ -27,6 +27,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 CliqzUtils.init();
 
 var Mixer = {
+<<<<<<< HEAD
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
 		var results = [];
     if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
@@ -36,6 +37,12 @@ var Mixer = {
     }
 
 		/// 1) put each result into a bucket
+=======
+    mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
+        var results = [],
+            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+        // 1) put each result into a bucket
+>>>>>>> 8ea52e8c091ed8a562e47f4cc7a6ff8e09466104
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],

@@ -64,6 +64,10 @@ var CliqzUtils = {
   PREF_INT:              64,
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
+  TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
+               'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
+               'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
+               'bitcoin', 'spellcheck'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -216,6 +220,8 @@ var CliqzUtils = {
     return url;
   },
   cleanUrlProtocol: function(url, cleanWWW){
+    if(!url) return '';
+
     var protocolPos = url.indexOf('://');
 
     // removes protocol http(s), ftp, ...
@@ -259,7 +265,7 @@ var CliqzUtils = {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
+      //CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
     }
 
     var urlDetails = {
@@ -374,24 +380,29 @@ var CliqzUtils = {
     return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeResultType: function(type){
-    if(type.indexOf('action') !== -1) return 'T';
+    if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-bundesliga') return 'b';
-    else if(type === 'cliqz-cluster' || type == 'cliqz-pattern') return 'C';
-    else if(type === 'cliqz-extra') return 'X';
-    else if(type === 'cliqz-series') return 'S';
-    else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
+    else if(type === 'cliqz-bundesliga') return ['b'];
+    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
+    else if(type === 'cliqz-extra') return ['X'];
+    else if(type === 'cliqz-series') return ['S'];
+
+    else if(type.indexOf('bookmark') == 0 ||
+            type.indexOf('tag') == 0) return ['B'].concat(CliqzUtils.encodeCliqzResultType(type));
+
     else if(type.indexOf('favicon') == 0 ||
-            type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-suggestions') return 'S';
-    // cliqz type = "cliqz-custom sources-XXXXX"
+            type.indexOf('history') == 0) return ['H'].concat(CliqzUtils.encodeCliqzResultType(type));
+
+    else if(type === 'cliqz-suggestions') return ['S'];
+    // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
-    return type; //fallback to style - it should never happen
+    return type; //should never happen
   },
+  //eg types: [ "H", "m" ], [ "H|instant", "X|11" ]
   isPrivateResultType: function(type) {
-    return type == 'H' || type == 'B' || type == 'T' || type == 'C' || type == 'S';
+    var onlyType = type[0].split('|')[0];
+    return 'HBTCS'.indexOf(onlyType) != -1 && type.length == 1;
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
@@ -399,7 +410,7 @@ var CliqzUtils = {
     if(pos != -1)
       return CliqzUtils.encodeSources(type.substr(pos+8));
     else
-      return ""
+      return [];
   },
   _querySession: '',
   _querySeq: 0,
@@ -420,7 +431,7 @@ var CliqzUtils = {
           return 'd'
         else
           return VERTICAL_ENCODINGS[s] || s;
-      }).join('');
+      });
   },
   combineSources: function(internal, cliqz){
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
@@ -718,8 +729,8 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(){
-    return window.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(win){
+    return win.navigator.userAgent.indexOf('Win') != -1;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']

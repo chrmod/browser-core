@@ -33,19 +33,16 @@ var INIT_KEY = 'newProvidersAdded',
     },
     CUSTOM = {
         '#fee': {
-            url: 'http://beta.cliqz.com/feedback'
+            url: 'https://beta.cliqz.com/support/'
         },
         '#team': {
-            url: 'http://cliqz.com/company/team'
+            url: 'https://beta.cliqz.com/team/'
         },
         '#cliqz': {
-            url: 'http://beta.cliqz.com/'
-        },
-        '#values': {
-            url: 'http://cliqz.com/company/values'
+            url: 'https://beta.cliqz.com/'
         },
         '#join': {
-            url: 'https://codility.com/honeypot/Cliqz-Jobs'
+            url: 'https://beta.cliqz.com/jobs/'
         }
     },
     ENGINE_CODES = ['google images', 'google maps', 'google', 'yahoo', 'bing', 'wikipedia', 'amazon', 'ebay', 'leo']
@@ -141,7 +138,7 @@ var ResultProviders = {
         var start = components[0],
             end = components[components.length-1];
 
-        if(MAPPING[start]){
+        if(MAPPING.hasOwnProperty(start)){
             var uq = q.substring(start.length + 1);
             return {
                 updatedQ  : uq,
@@ -149,7 +146,7 @@ var ResultProviders = {
                 queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
                 engineCode: ResultProviders.getEngineCode(MAPPING[start])
             };
-        } else if(MAPPING[end]) {
+        } else if(MAPPING.hasOwnProperty(end)) {
             var uq = q.substring(0, q.length - end.length - 1);
             return {
                 updatedQ  : uq,
