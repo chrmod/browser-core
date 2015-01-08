@@ -212,6 +212,7 @@ var Mixer = {
                         {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
+                            only: true
                             //message: CliqzUtils.getLocalizedString('noResultMessage')
                         },
                         subType: JSON.stringify({empty:true})

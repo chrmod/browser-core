@@ -19,7 +19,7 @@
 		{{/if}}
 		</div>
 	{{/if}}
-	<div class='cqz-result-center'>
+	<div class='cqz-result-center cqz-vert-center'>
 		<div class='cqz-result-title overflow'>
 			{{ title }}
 		</div>
