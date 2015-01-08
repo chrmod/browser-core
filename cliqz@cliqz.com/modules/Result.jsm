@@ -110,7 +110,7 @@ var Result = {
             Result.CLIQZE, //style
             result.url, //value
             null, //image -> favico
-            null,
+            result.data.title,
             null, //label
             result.q, //query
             result.data,

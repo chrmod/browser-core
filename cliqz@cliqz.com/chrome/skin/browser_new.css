@@ -19,13 +19,8 @@
 
 /* end browser*/
 
-
 #cliqz-results {
     height: 270px;
-}
-
-.cqz-generic {
-
 }
 
 .cqz-result-h1 {
@@ -48,7 +43,8 @@
 	border-bottom: 1px solid #CCC;
 }
 
-.cqz-result-box:before {
+.cqz-result-box:before,
+.cqz-result-selected {
 	content: "";
 	background-color: green;
 	position: absolute;
@@ -75,7 +71,7 @@
 }
 
 .cqz-result-debug {
-	position: absolute;
+	float: right;
 	font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
     color: #aaa;
 }
@@ -172,6 +168,56 @@
 .cqz-result-text {
 	text-align: center;
 	width: 100%;
+}
+/* EZ banking */
+.cqz-ez-banking-box {
+	float: left;
+	margin-top: 12px;
+	padding-top: 7px;
+}
+
+.cqz-ez-banking-btn {
+	border-radius: 4px;
+	cursor: pointer;
+	text-align: center;
+	margin: 5px auto;
+	width: 50px;
+	background-color: #91D130;
+	color: white;
+	font-size: 16px;
+	padding: 6px 10px;
+}
+
+.cqz-ez-banking-opt {
+	background-color: #efefef;
+	width: 92px;
+	background-size: 55px 55px;
+	background-repeat: no-repeat;
+	margin-left: 10px;
+	background-position: 50% -4px;
+	text-align: center;
+	padding: 45px 0 5px 0;
+	border-radius: 4px;
+	color: #323232
+}
+
+
+
+/* EZ end banking */
+
+.cqz-type {
+	padding-left: 30px;
+}
+
+.cqz-result-type {
+	width: 90px;
+	background-color: #178DEA;
+	color: white;
+	text-align: center;
+	transform: rotate(-90deg);
+	position: absolute;
+	top: 36px;
+	left: -38px;
 }
 
 .cqz-vert-center {
