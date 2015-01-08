@@ -313,5 +313,8 @@
     },
     "spell_correction": {
       "message":"Meintest Du wirklich "
+    },
+    "history_results": {
+      "message":"Ergebnisse aus Ihrem Verlauf"
     }
 }

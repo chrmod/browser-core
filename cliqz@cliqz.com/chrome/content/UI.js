@@ -658,7 +658,7 @@ function getResultOrChildAttr(el, attr){
     var ret;
     while (el){
         if(ret = el.getAttribute(attr)) return ret;
-        if(el.className == IC) return; //do not go higher than a result
+        if(el.className == IC) return ''; //do not go higher than a result
         el = el.parentElement;
     }
     return '';

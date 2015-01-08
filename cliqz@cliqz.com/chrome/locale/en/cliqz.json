@@ -307,5 +307,8 @@
     },
     "spell_correction": {
       "message":"Did you really mean "
+    },
+    "history_results": {
+      "message":"Results from your history"
     }
 }
