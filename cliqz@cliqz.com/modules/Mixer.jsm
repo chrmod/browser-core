@@ -21,13 +21,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 CliqzUtils.init();
 
 var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
-		var results = [],
-           [is_clustered, history_trans] = [false, history];
-           //[is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+		var results = [];
+    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+      var [is_clustered, history_trans] = [false, history];
+    } else {
+      var [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+    }
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],

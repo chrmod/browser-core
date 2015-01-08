@@ -194,7 +194,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
-                CliqzHistoryPattern.addFirefoxHistory(result);
+
                 var now = (new Date()).getTime();
 
                 this.historyResults = result;
@@ -208,7 +208,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    //this.instantResult(search, result);
+                    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                      CliqzHistoryPattern.addFirefoxHistory(result);
+                    } else {
+                      this.instantResult(search, result);
+                    }
                 }
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
@@ -297,47 +301,32 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return false;
             },
             historyPatternCallback: function(res) {
-                if (res.query == this.searchString) {
-                    CliqzAutocomplete.lastPattern = res;
-                    var results = res.filteredResults();
+                if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                  CliqzAutocomplete.lastPattern = res;
+                  var results = res.filteredResults();
 
-                    if(this.mixedResults.matchCount > 0) return;
+                  if(this.mixedResults.matchCount > 0) return;
 
-                    if(results.length < 1) return;
-                    var instantResults = new Array();
-                    // Cluster patterns, at least base url + two patterns
-                    /*if (results.length > 1 ||
-                        (results[0].base != true && results.length == 1)) {
+                  if(results.length < 1) return;
+                  var instantResults = new Array();
+                  // Create instant result
+                  if(res.cluster) {
+                    res.results = CliqzHistoryPattern.adjustBaseDomain(results, res.query);
+                    results = res.filteredResults();
+                  }
+                  var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
+                  instantResults.push(instant);
 
-                      if (!res.cluster) {
-                        results = res.filteredResults();
-                        if (results.length == 2) {
-                          results[0].url = results[1].url;
-                        }
-                      }*/
-                      // Create instant result
-                      if(res.cluster) {
-                        res.results = CliqzHistoryPattern.adjustBaseDomain(results, res.query);
-                        results = res.filteredResults();
-                      }
-                      var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
-                      instantResults.push(instant);
+                  var latency = 0;
+                  if (CliqzHistoryPattern.latencies[res.query]) {
+                    latency = CliqzHistoryPattern.latencies[res.query].endP -
+                              CliqzHistoryPattern.latencies[res.query].startP;
+                  }
+                  this.latency.patterns = latency;
 
-                    // Only base domain -> no cluster
-                    /*} else if (results[0].base == true && results.length == 1) {
-                      var instant = Result.generic("favicon",results[0].url, null, results[0].title, null, this.searchString);
-                      instant.comment += " (instant history pattern " + (results[key]['debug'] || results[key]['cnt']) + ")!";
-                      instantResults.push(instant);
-                      CliqzAutocomplete.lastPattern.results = [CliqzAutocomplete.lastPattern.results[0]];
-
-                    // No clustering
-                    } else {
-                      CliqzAutocomplete.lastPattern = null;
-                    }*/
-
-                    this.mixedResults.addResults(instantResults);
-                    this.pushResults(this.searchString);
-                };
+                  this.mixedResults.addResults(instantResults);
+                  this.pushResults(this.searchString);
+                }
             },
             addCalculatorSignal: function(action) {
                 var calcAnswer = null;
@@ -368,6 +357,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                     latency_cliqz: this.latency.cliqz,
                     latency_history: this.latency.history,
+                    latency_patterns: this.latency.patterns,
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
                     latency_all: this.latency.all,
@@ -603,6 +593,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.latency = {
                     cliqz: null,
                     history: null,
+                    patterns: null,
                     backend: null,
                     mixed: null,
                     all: null

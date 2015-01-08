@@ -432,7 +432,7 @@ CLIQZ.Core = CLIQZ.Core || {
             results.shift();
         }*/
         if (!CliqzUtils.isUrl(results[0]['url'])) return;
-        CliqzUtils.log(results[0].url, "test");
+
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], looseAutocomplete);
         if (lastPattern && lastPattern.cluster && !autocomplete.autocomplete) {
           results.shift();
