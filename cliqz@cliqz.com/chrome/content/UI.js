@@ -745,7 +745,7 @@ function setResultSelection(el, scroll, scrollTop){
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
         el.setAttribute('selected', 'true');
-        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + 37) + 'px';
+        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
         $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
 
         if(scroll){

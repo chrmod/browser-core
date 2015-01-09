@@ -214,12 +214,12 @@
 /* EZ news */
 .cqz-ez-news-title {
 	font-size: 20px;
-	background-size: 20px;
+	background-size: 23px;
 	background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg);
 	background-repeat: no-repeat;
 	background-position: right;
 	display: inline-block;
-	padding-right: 30px;
+	padding-right: 39px;
 	margin-bottom: 16px;
 }
 
