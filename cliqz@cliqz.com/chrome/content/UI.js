@@ -169,6 +169,7 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    if(nextEl.className == 'cqz-result-selected') return true;
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
                 }
@@ -741,8 +742,12 @@ function clearResultSelection(){
 
 function setResultSelection(el, scroll, scrollTop){
     clearResultSelection();
+    $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
         el.setAttribute('selected', 'true');
+        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + 37) + 'px';
+        $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
+
         if(scroll){
             var rBox = gCliqzBox.resultsBox,
                 firstOffset = rBox.children[0].offsetTop;

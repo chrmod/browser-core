@@ -7,7 +7,10 @@
     {{#with data}}
         <div class="cqz-ez-banking-box">
             <div>{{ name}}</div>
-            <div class="cqz-ez-banking-btn">Login</div>
+            <div
+                class="cqz-ez-btn"
+                style="background-color: #91D130"
+                >Login</div>
         </div>
         {{#each links }}
             <div class="cqz-ez-banking-box cqz-ez-banking-opt"

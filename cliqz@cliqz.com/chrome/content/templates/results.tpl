@@ -11,3 +11,4 @@
 		</div>
 	{{/unless}}
 {{/each}}
+<div class='cqz-result-selected'></div>
