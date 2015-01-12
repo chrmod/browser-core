@@ -43,7 +43,7 @@ var Filter = {
 
         // protocol deduplication -> http/https urls -> https always wins
         var protocol_deduplicated = [], used_results = {};
-        for (var i = 0; i<results.length-1; i++) {
+        for (var i = 0; i<results.length; i++) {
             var found = false,
                 urlA = results[i].val;
 

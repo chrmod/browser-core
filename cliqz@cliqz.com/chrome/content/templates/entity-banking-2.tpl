@@ -1,3 +1,40 @@
+<div class='cqz-result-h3 cqz-type'>
+    {{#if debug}}
+        <div class='cqz-result-debug'>{{ debug }}</div>
+    {{/if}}
+    <div class='cqz-result-type'>BANKING</div>
+
+    {{#with data}}
+        <div class="cqz-ez-banking-box">
+            <div>{{ name}}</div>
+            <div
+                class="cqz-ez-btn"
+                style="background-color: #91D130"
+                >Login</div>
+        </div>
+        {{#each links }}
+            <div class="cqz-ez-banking-box cqz-ez-banking-opt"
+                 url="{{ url }}"
+                 extra="shortcut{{ @index }}"
+                 style="background-image: url({{ icon }});">
+                {{ title }}
+            </div>
+        {{/each}}
+    {{/with}}
+
+    {{#with logo}}
+        <div class='cqz-result-logo'
+             style='background-color: {{ color }};
+             {{#if img }}
+                    background-image: {{ img }};'>
+             {{ else }}
+             '>{{ text }}
+             {{/if }}
+         </div>
+    {{/with}}
+</div>
+
+<!--
 <div class="entity-banking-container cf" >
     {{#with data}}
         <div class="entity-banking-call2action cf">
@@ -47,3 +84,4 @@
     {{/with}}
     <div class="entity-banking-logo cliqz-logo {{ logo }}"></div>
 </div>
+-->

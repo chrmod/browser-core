@@ -9,21 +9,21 @@
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
-        'b': 'bundesliga',
-        's': 'shopping',
-        'g': 'gaming'  ,
-        'n': 'news'    ,
-        'p': 'people'  ,
-        'v': 'video'   ,
-        'h': 'hq'      ,
-        'q': 'qaa'     ,
-        'k': 'science' ,
-        'l': 'dictionary'
+        //'b': 'bundesliga',
+        //'s': 'shopping',
+        //'g': 'gaming'  ,
+        //'n': 'news'    ,
+        //'p': 'people'  ,
+        //'v': 'video'   ,
+        //'h': 'hq'      ,
+        //'q': 'qaa'     ,
+        //'k': 'science' ,
+        //'l': 'dictionary'
     },
     PARTIALS = ['url'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
-    IC = 'cliqz-result-item-box', // result item class
+    IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
@@ -32,8 +32,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
-    IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96,
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
     currentResults,
     DEL = 8
     ;
@@ -169,6 +169,7 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    if(nextEl.className == 'cqz-result-selected') return true;
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
                 }
@@ -591,7 +592,7 @@ function enhanceResults(res){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                    r.logo = generateLogoClass(r.urlDetails);
+                    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
                     // double safety - to be removed
@@ -601,7 +602,7 @@ function enhanceResults(res){
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = generateLogoClass(r.urlDetails);
+            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
@@ -755,8 +756,12 @@ function clearResultSelection(){
 
 function setResultSelection(el, scroll, scrollTop){
     clearResultSelection();
+    $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
         el.setAttribute('selected', 'true');
+        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
+
         if(scroll){
             var rBox = gCliqzBox.resultsBox,
                 firstOffset = rBox.children[0].offsetTop;
