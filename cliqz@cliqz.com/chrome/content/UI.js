@@ -699,10 +699,15 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             if (action.position_type == 'C' && action.current_position == 0) {
-                var results = CliqzAutocomplete.lastPattern.filteredResults();
+                var results = currentResults.results[0].data.urls;
+                var index = 0;
                 for(var key in results) {
-                  if (results[key].url == url) {
-                    var index = parseInt(key);
+                  if (results[key].href == url) {
+                    index = results.indexOf(results[key]);
+                    if (currentResults.results[0].data.cluster === true) {
+                      index += 1;
+                    }
+                    break;
                   }
                 }
                 action.extra = {

@@ -710,7 +710,8 @@ var CliqzHistoryPattern = {
         darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
         letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1),
         favicon: faviconDisabled,
-        logoClass: "cliqz-pattern-circle"
+        logoClass: "cliqz-pattern-circle",
+        cluster: true
       };
       // Add result urls
       var titleStrip = CliqzHistoryPattern.stripTitle(results);
@@ -743,7 +744,8 @@ var CliqzHistoryPattern = {
         darkColor: CliqzHistoryPattern.darkenColor("#bfbfbf"),
         letters: "",
         favicon: faviconEnabled,
-        logoClass: "cliqz-pattern-logo"
+        logoClass: "cliqz-pattern-logo",
+        cluster: false
       };
       for (var i = 0; i < results.length; i++) {
         var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
