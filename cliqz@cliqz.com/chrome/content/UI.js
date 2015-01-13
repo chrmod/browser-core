@@ -978,10 +978,6 @@ function onEnter(ev, item){
             //    CLIQZ.Core.urlbar.value = firstUrl;
             //}
 
-            // Check for instant history auto completion
-            //if (inputValue.search(/-\ .*\/\/.*/i) != -1) {
-            //    CLIQZ.Core.urlbar.value = firstUrl;
-            //};
             CLIQZ.Core.urlbar.value = CliqzAutocomplete.lastAutocomplete;
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
