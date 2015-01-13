@@ -332,7 +332,6 @@ var CliqzHistoryPattern = {
     var match = null;
     // Return match with most occurences
     for (var key in scores) {
-      CliqzUtils.log(key + ": " + scores[key], "TEST");
       if (scores[key] > maxScore) {
         maxScore = scores[key];
         match = key;
@@ -790,6 +789,12 @@ var CliqzHistoryPattern = {
   },
   // Extract base domain from url
   domainFromUrl: function(url, subdomain) {
+    if (url.indexOf("://") !== -1) {
+      url = url.substr(url.indexOf("://")+3);
+      if (url.split("/").length > 1) {
+        url = url.substring(0, url.lastIndexOf("/"));
+      }
+    }
     url = url.replace("www.", "");
 
     function parseUri(str) {
