@@ -149,18 +149,26 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
-            case "1090_A": break;
-            case "1090_B":
+            case "1019_A":
+                CliqzUtils.setPref("newHistory", false);
+                break;
+            case "1019_B":
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
                 break;
-            case "1091_A": break;
-            case "1091_B":
+            case "1020_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+            case "1020_B":
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_cluster");
                 break;
-            case "1092_A": break;
-            case "1092_B":
+            case "1021_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
+            case "1021_B":
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "cliqz");
                 break;
@@ -263,18 +271,12 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
                 CliqzAutocomplete.spellCorrectionDict = {};
                 break;
-            case "1090_A":
-            case "1090_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
-                CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
-                break;
-            case "1091_A":
-            case "1091_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
-                CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
-                break;
-            case "1092_A":
-            case "1092_B":
+            case "1019_A":
+            case "1019_B":
+            case "1020_A":
+            case "1020_B":
+            case "1021_A":
+            case "1021_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
                 CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
                 break;

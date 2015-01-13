@@ -267,7 +267,7 @@ var UI = {
     selectFirstElement: function() {
         if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
-        };
+        }
     },
     clearSelection: function() {
         clearResultSelection();
@@ -694,6 +694,17 @@ function resultClick(ev){
             if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) {
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
+            if (action.position_type == 'C' && action.current_position == 0) {
+                var results = CliqzAutocomplete.lastPattern.filteredResults();
+                for(var key in results) {
+                  if (results[key].url == url) {
+                    var index = parseInt(key);
+                  }
+                }
+                action.extra = {
+                    index: index
+               };
+            }
             CliqzUtils.track(action);
 
             var query = CLIQZ.Core.urlbar.value;
@@ -914,6 +925,11 @@ function onEnter(ev, item){
         if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
             CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
             url = CliqzAutocomplete.lastAutocomplete;
+            //action.autocompleted = true;
+            action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+            action.source = action.position_type;
+            action.current_position = -1;
+            action.position_type = ['inbar_url'];
         }
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
@@ -942,8 +958,9 @@ function onEnter(ev, item){
             action.search = CliqzUtils.isSearch(inputValue);
         }
         else action.position_type = ['inbar_query'];
-        action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
-        if(action.autocompleted && gCliqzBox){
+        //action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
+        if(CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && gCliqzBox){
+          action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(query);
@@ -961,7 +978,7 @@ function onEnter(ev, item){
             //if (inputValue.search(/-\ .*\/\/.*/i) != -1) {
             //    CLIQZ.Core.urlbar.value = firstUrl;
             //};
-
+            CLIQZ.Core.urlbar.value = CliqzAutocomplete.lastAutocomplete;
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {

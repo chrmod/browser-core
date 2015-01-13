@@ -12,7 +12,10 @@
     overflow: hidden;
     line-height: 20px;
 }
-
+.bold-underscore {
+    font-weight: bold;
+    text-decoration: underline;
+}
 .cliqz-suggestion {
     padding: 1px 5px 0px 5px;
     display: inline-block;
@@ -43,13 +46,13 @@
     background-color: #eeeeee;
     background-size: 20px 14px;
     position: relative;
-    line-height: 16px;
+    height: 16px;
     cursor: ns-resize;
 }
 
 #cliqz-navigation-message {
     font-style: italic;
-    color: #999999;
+    color: #eeeeee;
 }
 /*
 .cliqz-footer-engines:hover #cliqz-engines-box {
@@ -133,6 +136,7 @@
 .cliqz-result-left-box {
     width: 30px;
     text-align: center;
+    /*visibility: hidden;*/
 }
 
 .cliqz-image {
@@ -158,16 +162,19 @@
 
 .cliqz-result-mid-box {
     overflow: hidden;
+    color: rgba(0,0,0,0.54);
 }
 
 .cliqz-result-right-box {
+    /*visibility: hidden;*/
 }
 
 .cliqz-result-title-box {
     font-size: 12pt;
     font-weight: 500;
     padding-bottom: 3px;
-    display: inline-block;;
+    display: inline-block;
+    color: rgba(0,0,0,0.87);;
 }
 
 .cliqz-result-url-box {
@@ -177,11 +184,14 @@
 }
 
 .cliqz-result-url-host {
-    color: #006666;
+    /*color: #006666;*/
+    color: rgba(46,125,50,0.84);
 }
 
 .cliqz-result-url-path {
-    color: #cccccc;
+    /*color: #cccccc;*/
+    /*color: rgba(64,64,0,0.87);*/
+    color: rgba(192,192,192,0.87);
 }
 
 .cliqz-result-url-ssl {
@@ -197,7 +207,19 @@
 }
 
 .cliqz-result-item-box {
-    border-bottom: 1px solid #CCC;
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"] {
+    border-bottom: 0px;
+}
+
+.cliqz-result-item-box[type="cliqz-extra"][selected="true"] {
+    background-color: white;
+}
+
+.cliqz-result-item-box [url]{
+    cursor: pointer;
 }
 
 .cliqz-result-item-box[type^="cliqz-results sources-"] .cliqz-result-type {
@@ -497,7 +519,7 @@
     width: 72px;
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 72px 72px;   
+    background-size: 72px 72px;
 }
 
 .cliqz-pattern-circle {
@@ -508,17 +530,42 @@
     overflow: hidden;
     display: table-cell;
     vertical-align: middle;
-    color: white;
+    color: rgba(255,255,255,0.94);
     width: 64px;
     height: 64px;
     line-height: 64px;
     font-size: 22pt;
-    margin-left:20px;
+    margin-left:30px;
     margin-top:12px;
     background: #BFBFBF;
     -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
     box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.cliqz-pattern-logo {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: white;
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  background-size: 44px 44px;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
 }
 
 .cliqz-pattern-title-container {
@@ -529,7 +576,8 @@
     height:44px;
     line-height: 44px;
     background: #F5F5F5;
-    color: #424242;
+    /*color: #424242;*/
+    color: rgba(0,0,0,0.87);
     font-size: 16px;
     text-decoration: bold;
     -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
@@ -542,7 +590,7 @@
     overflow:hidden;
     position:absolute;
     top:0;
-    left:100px;
+    left:125px;
     right: 20px;
     word-wrap: break-word;
     white-space: nowrap;
@@ -558,7 +606,7 @@
 
 .cliqz-pattern-title-link {
     display:inline-block;
-    color:#9E9E9E;
+    color:rgba(0,0,0,0.54);
     overflow:hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -572,31 +620,56 @@
 
 .cliqz-pattern-entry-title {
     font-size: 13px;
-    margin-left: 20px;
+    margin-left: 5px;
     display:inline-block;
     text-decoration: underline;
-    color: #2E7D32;
+    color: rgba(46,125,50,0.84);
     overflow: hidden;
     max-width: 40%;
 }
 .cliqz-pattern-entry-link {
-    font-size: 13px;
-    color: #BDBDBD;
-    font-weight: normal;
-    text-decoration: none;
-    padding-left: 25px;
-    max-width: 40%;
-    overflow: hidden;
-    display:inline-block;
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 30%;
+  overflow: hidden;
+  display:inline-block;
 }
+
+.cliqz-pattern-entry-date {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 10%;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-entry-favicons {
+  padding-left: 40px;
+  max-width: 16px;
+  overflow: hidden;
+  display:inline-block;
+}
+
 .cliqz-pattern-element {
     line-height: 20px;
+    height: 22px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
-.cliqz-pattern-icon {
-
+.cliqz-pattern-favicon {
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
+  background-size: 16px 16px;
 }
 
 /* END pattern */
@@ -667,7 +740,7 @@
 
 /* news */
 .cliqz-news-ago-line {
-    color: red;
+    color: rgba(244,67,54,0.84);
     font-weight: bold;
 }
 
@@ -910,6 +983,75 @@
 }
 
 /* end shopping */
+
+
+/* images */
+
+.cliqz-images {
+    width:100%;
+    height:100%;
+    display: inline-block;
+    margin-left:auto;
+    margin-right:auto;
+    background: white;
+
+}
+
+.cliqz-image-item {
+    display: inline-block;
+    float: left;
+    position: relative;
+    margin:  0px 2px 0px 2px;
+    border-radius: 10px;
+}
+
+.cliqz-image-item img{
+    border-radius: 5px;
+}
+
+.cliqz-image-item:hover .cliqz-image-hilight {display: block;}
+
+
+.cliqz-image-hidden{
+    background-color: black;
+    filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
+    filter: blur(10px);
+}
+
+.cliqz-image-clear{
+}
+
+.cliqz-image-hilight{
+    display: none;
+    white-space: word-wrap;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(0,0,0,0.6);
+    position: relative;
+    font-family: Courier New;
+    font-size:10px;
+    top: -40%;
+    z-index: 1;
+}
+
+.cliqz-image-item > .cliqz-image-hilight:hover{
+    text-overflow:inherit;
+    overflow:visible;
+    display:hidden;
+}
+
+.cliqz-image-report{
+    white-space: word-wrap;
+    overflow: hidden;
+    position: relative;
+    top: -60%;
+    left:5px;
+    z-index: 5;
+    display: none;
+}
+
+/* end images */
 
 /* video */
 
@@ -1255,6 +1397,7 @@
 .entity-news-story-image img {
   width: 80px;
   height: 50px;
+  background-color: #dddddd;
 }
 
 .entity-news-story-description {
@@ -1272,6 +1415,9 @@
   overflow: hidden;
 }
 
+.entity-news-story:hover .entity-news-story-title {
+    text-decoration: underline;
+}
 .entity-news-story-time {
   color: #c92b35;
   text-overflow: ellipsis;
@@ -1323,12 +1469,12 @@
 
 .entity-video-group {
   display: inline-block;
+  vertical-align: top;
   width: 100px;
   margin-right: 10px;
 }
 
-.entity-video-thumbnail {
-  overflow: hidden;
+.entity-video-thumbnail img {
   width: 100px;
   height: 60px;
 }

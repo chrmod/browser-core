@@ -329,10 +329,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                   if(results.length < 1) return;
                   var instantResults = new Array();
                   // Create instant result
-                  if(res.cluster) {
-                    res.results = CliqzHistoryPattern.adjustBaseDomain(results, res.query);
-                    results = res.filteredResults();
-                  }
                   var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
                   instantResults.push(instant);
 
@@ -673,6 +669,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_all: this.startTime? (new Date()).getTime() - this.startTime : null,
                     v: 1
                 };
+                if (CliqzAutocomplete.lastAutocompleteType) {
+                  action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                }
                 if(country)
                     action.country = country;
 
