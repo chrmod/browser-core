@@ -175,9 +175,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     }
 
                     // If one of the results is data.only = true Remove all others.
-                    if (!r.invalid && r.data && r.data.only) {
-                      return [r];
-                    }
+                    // TODO - CHECK this with the new UI
+                    //if (!r.invalid && r.data && r.data.only) {
+                    //  return [r];
+                    //}
 
                     ret.push(r);
                 }

@@ -73,6 +73,12 @@
                     text: q,
                     data: lastRes && lastRes.getDataAt(i),
                   });
+
+                  //TODO: very ugly
+                  if(ctrl.getStyleAt(i) == 'cliqz-extra' && data){
+                    if(data.template == 'entity-search-1')i++;
+                    else i+=2;
+                  }
               }
               CLIQZ.UI.results({
                 q: q,

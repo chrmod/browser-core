@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 cqz-result-padding">
-  <div class="cqz-ez-news-title">
+  <div class="cqz-ez-title cqz-ez-news-title">
       {{data.domain}}
   </div>
   <div>
@@ -31,14 +31,5 @@
       </div>
     {{/each}}
   </div>
-  {{#with logo}}
-      <div class='cqz-result-logo cqz-vert-center'
-           style='background-color: {{ color }};
-           {{#if img }}
-                  background-image: {{ img }};'>
-           {{ else }}
-           '>{{ text }}
-           {{/if }}
-       </div>
-  {{/with}}
+  {{> logo}}
 </div>
