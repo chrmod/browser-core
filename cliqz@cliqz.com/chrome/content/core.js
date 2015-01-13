@@ -64,7 +64,6 @@ CLIQZ.Core = CLIQZ.Core || {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
           } catch(e) {}
-
         }
 
         CliqzRedirect.addHttpObserver();
@@ -139,9 +138,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 };
                 CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
                 CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
-                /*if(newPanel != curPanel) {
-                  CliqzHistory.addHistoryEntry(null, curPanel);
-                }*/
             }, false);
         }
 
