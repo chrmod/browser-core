@@ -2,7 +2,7 @@
   <div class="cqz-ez-title cqz-ez-news-title">
       {{data.domain}}
   </div>
-  <div>
+  <div class='cqz-ez-btns'>
       {{#each data.categories}}
         <span
           class="cqz-ez-btn"

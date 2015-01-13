@@ -192,13 +192,13 @@
 
 /* EZ generic */
 .cqz-ez-title {
-	font-size: 20px;
-	background-size: 23px;
+	font-size: 18px;
+	background-size: 20px;
 	background-repeat: no-repeat;
 	background-position: right;
 	display: inline-block;
-	padding-right: 39px;
-	margin-bottom: 16px;
+	padding-right: 30px;
+	margin-bottom: 8px;
 }
 
 /* end EZ generic */
@@ -299,30 +299,30 @@
 
 .cqz-ez-search-box {
   border: 1px solid #3E86FC;
-  width: 485px;
-  height: 30px;
-  margin-bottom: 5px;
+  max-width: 434px;
+  height: 20px;
+  margin-bottom: 15px;
   background-color: white;
 }
 
 .cqz-ez-search-box-icon {
   background-color: #3E86FC;
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
 }
 
 .cqz-ez-search-box-input {
   vertical-align: top;
-  font-size: 20px;
-  width: 440px;
-  height: 28px;
+  font-size: 14px;
+  width: 408px;
+  height: 18px;
   border: none;
 }
 
 .cqz-ez-search-app {
     display: inline-block;
-    width: 90px;
-    height: 90px;
+    width: 80px;
+    height: 80px;
     border-radius: 5px;
     margin-right: 5px;
     background-position: center 20%;
@@ -335,6 +335,10 @@
 }
 
 /* EZ search end */
+
+.cqz-ez-btns {
+	margin-top: 7px;
+}
 
 .cqz-ez-btn {
 	border-radius: 4px;
@@ -364,7 +368,7 @@
 }
 
 .cqz-result-padding {
-	padding: 10px 20px;
+	padding: 17.5px 22px;
 	box-sizing: border-box;
 }
 

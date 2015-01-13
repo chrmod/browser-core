@@ -65,7 +65,7 @@
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
                 lastRes = CliqzAutocomplete.lastResult;
 
-              for(var i=0; i<this._matchCount && i<3; i++) {
+              for(var i=0; i<this._matchCount; i++) {
                   data.push({
                     title: ctrl.getCommentAt(i),
                     url: unEscapeUrl(ctrl.getValueAt(i)),
@@ -73,12 +73,6 @@
                     text: q,
                     data: lastRes && lastRes.getDataAt(i),
                   });
-
-                  //TODO: very ugly
-                  if(ctrl.getStyleAt(i) == 'cliqz-extra' && data){
-                    if(data.template == 'entity-search-1')i++;
-                    else i+=2;
-                  }
               }
               CLIQZ.UI.results({
                 q: q,

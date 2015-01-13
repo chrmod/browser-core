@@ -618,8 +618,19 @@ function enhanceResults(res){
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    res.results = first;
-    res.results = res.results.concat(last);
+    var all = first.concat(last);
+
+    // TODO: very ugly
+    // getMax 3 results height
+    res.results = []
+    console.log(all)
+    for(var i=0; i<all.length, i<3; i++){
+        res.results.push(all[i])
+        if(all[i].type == 'cliqz-extra' && all[i].data){
+            if(all[i].data.template == 'entity-search-1')i++;
+            else i+=2;
+        }
+    }
     return res;
 }
 
