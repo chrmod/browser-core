@@ -212,16 +212,25 @@
 
 .cqz-ez-banking-opt {
 	background-color: #efefef;
-	width: 92px;
-	background-size: 55px 55px;
+	width: 130px;
+	background-size: 85px 85px;
 	background-repeat: no-repeat;
 	margin-left: 10px;
 	background-position: 50% -4px;
 	text-align: center;
-	padding: 45px 0 5px 0;
+	padding: 91px 0 5px 0;
 	border-radius: 4px;
-	color: #323232
+	color: #323232;
 }
+
+.cqz-ez-banking-elems {
+
+}
+
+.cqz-ez-banking-title {
+	background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg);
+}
+
 /* EZ end banking */
 
 
@@ -345,26 +354,10 @@
 	cursor: pointer;
 	text-align: center;
 	margin: 5px auto;
-	width: 50px;
 	color: white;
 	font-size: 16px;
-	padding: 6px 10px;
+	padding: 10px 15px;
 	margin-right: 10px;
-}
-
-.cqz-type {
-	padding-left: 30px;
-}
-
-.cqz-result-type {
-	width: 90px;
-	background-color: #178DEA;
-	color: white;
-	text-align: center;
-	transform: rotate(-90deg);
-	position: absolute;
-	top: 36px;
-	left: -38px;
 }
 
 .cqz-result-padding {

@@ -623,11 +623,11 @@ function enhanceResults(res){
     // TODO: very ugly
     // getMax 3 results height
     res.results = []
-    console.log(all)
-    for(var i=0; i<all.length, i<3; i++){
+    for(var i=0; i<all.length && i<3; i++){
         res.results.push(all[i])
         if(all[i].type == 'cliqz-extra' && all[i].data){
-            if(all[i].data.template == 'entity-search-1')i++;
+            if(all[i].data.template == 'entity-search-1' ||
+               all[i].data.template == 'entity-banking-2')i++;
             else i+=2;
         }
     }
