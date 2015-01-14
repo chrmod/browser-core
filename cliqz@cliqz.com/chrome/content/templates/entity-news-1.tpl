@@ -20,7 +20,7 @@
         <div class="entity-news-story-image"
           style="background-image: url({{ this.thumbnail }})">
         </div>
-        <div class="entity-news-story-description">
+        <div class="entity-news-story-description cqz-vert-center">
           <div class="entity-news-story-title">
             {{ this.title }}
           </div>
