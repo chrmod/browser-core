@@ -10,7 +10,7 @@ program:
         -
             type: control
             title: Sitemap_Youtube_Popular
-            url: http://www.youtube.com/channel/UCK274iXLZhs8MFGLsncOyZQ
+            url: http://www.youtube.com/channel/UCF0pVplsI8R5kcAqgtoRqoA
         -
             type: control
             title: Sitemap_Youtube_Subscriptions
@@ -191,7 +191,7 @@ program:
             label: Sitemap_Amazon_Shops
             title: title::re:(?:^[Aa]mazon.com.*?:\s*)?(.+)
             cond: /gp/aag/re:(seller|merchant)=/
-# Disable ebay for now, it is not very useful because it only have support for shops, 
+# Disable ebay for now, it is not very useful because it only have support for shops,
 # which is broken.
 #    Ebay.de:
 #        summary: Sitemap_Summary
@@ -388,3 +388,48 @@ program:
             label: Sitemap_Wikipedia_Articles
             cond: /wiki/{item}//
             title: title::re:(.+?)(?:\s+\S\s+Wikip.dia.*)
+    New York Times:
+        summary: Sitemap_Summary
+        url: nytimes.com
+        home: http://www.nytimes.com/
+        rules:
+        -
+            type: topic
+            label: Sections
+            cond: (/pages/{item}/) or (/pages/{item}/*/) or (/pages/{item}/*/*/)
+            title: title::re:(.+)(?:.+-.*Times.*)
+        -
+            type: topic
+            label: Articles
+            cond: /re:\d\d\d\d/re:\d\d/re:\d\d/*/
+            title: title::re:(.+)(?:.+-.*Times.*)
+    Reddit:
+        summary: Sitemap_Summary
+        url: reddit.com
+        home: http://www.reddit.com/
+        rules:
+        -
+            type: control
+            title: My Subreddits
+            cond: /subreddits/mine//
+        -
+            type: control
+            title: Inbox
+            cond: /message/inbox//
+        -
+            type: control
+            title: Overview
+            cond: /user/{item}//
+        -
+            type: control
+            title: Saved
+            cond: /user/{item}/saved//
+        -
+            type: control
+            title: Random Subbreddit
+            url: http://www.reddit.com/r/random/
+        -
+            type: topic
+            label: Subreddits
+            cond: /r/{item}//
+            title: title::re:(.*)
