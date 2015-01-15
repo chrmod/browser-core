@@ -979,9 +979,6 @@ function onEnter(ev, item){
             if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
-            //if(firstUrl.indexOf(inputValue) != -1){
-            //    CLIQZ.Core.urlbar.value = firstUrl;
-            //}
 
             CLIQZ.Core.urlbar.value = CliqzAutocomplete.lastAutocomplete;
             CliqzUtils.trackResult(query, queryAutocompleted, index,
