@@ -1,37 +1,34 @@
-<div class='cqz-result-h3 cqz-type'>
+<div class='cqz-result-h2 cqz-result-padding'>
     {{#if debug}}
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
-    <div class='cqz-result-type'>BANKING</div>
-
     {{#with data}}
-        <div class="cqz-ez-banking-box">
-            <div>{{ name}}</div>
-            <div
-                class="cqz-ez-btn"
-                style="background-color: #91D130"
-                >Login</div>
+        <div class="cqz-ez-title cqz-ez-banking-title">
+          {{name}}
         </div>
-        {{#each links }}
-            <div class="cqz-ez-banking-box cqz-ez-banking-opt"
-                 url="{{ url }}"
-                 extra="shortcut{{ @index }}"
-                 style="background-image: url({{ icon }});">
-                {{ title }}
+        <div class="cqz-ez-banking-elems">
+            <div class="cqz-ez-banking-box">
+                <div
+                    class="cqz-ez-btn"
+                    style="background-color: #91d131"
+                    >Login</div>
+                <div
+                    class="cqz-ez-btn"
+                    style="background-color: #50b1a2"
+                    >Find Branch</div>
             </div>
-        {{/each}}
+            {{#each links }}
+                <div class="cqz-ez-banking-box cqz-ez-banking-opt"
+                     url="{{ url }}"
+                     extra="shortcut{{ @index }}"
+                     style="background-image: url({{ icon }});">
+                    {{ title }}
+                </div>
+            {{/each}}
+        </div>
     {{/with}}
 
-    {{#with logo}}
-        <div class='cqz-result-logo'
-             style='background-color: {{ color }};
-             {{#if img }}
-                    background-image: {{ img }};'>
-             {{ else }}
-             '>{{ text }}
-             {{/if }}
-         </div>
-    {{/with}}
+    {{> logo}}
 </div>
 
 <!--
