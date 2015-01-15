@@ -125,7 +125,7 @@ var CliqzUtils = {
     }
     return {
       color: color,
-      text: domain[0].toUpperCase() + domain[1].toLowerCase(),
+      text: domain ? domain[0].toUpperCase() + domain[1].toLowerCase():'',
       img: img
     }
   },
@@ -303,7 +303,7 @@ var CliqzUtils = {
 
     var urlDetails = {
               name: name,
-              domain: name + '.' + tld,
+              domain: tld ? name + '.' + tld: '',
               tld: tld,
               subdomains: subdomains,
               path: path,

@@ -1,6 +1,6 @@
 {{#each results}}
 	{{#unless invalid}}
-		<div class='cliqz-result-item-box'
+		<div class='cqz-result-box'
 			type='{{ type }}'
 			kind='{{ data.kind }}'
 			url='{{ url }}'
@@ -11,3 +11,4 @@
 		</div>
 	{{/unless}}
 {{/each}}
+<div class='cqz-result-selected'></div>
