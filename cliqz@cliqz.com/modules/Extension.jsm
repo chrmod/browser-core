@@ -139,6 +139,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryDebug.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();

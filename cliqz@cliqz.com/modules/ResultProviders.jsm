@@ -33,19 +33,16 @@ var INIT_KEY = 'newProvidersAdded',
     },
     CUSTOM = {
         '#fee': {
-            url: 'http://beta.cliqz.com/feedback'
+            url: 'https://beta.cliqz.com/support/'
         },
         '#team': {
-            url: 'http://cliqz.com/company/team'
+            url: 'https://beta.cliqz.com/team/'
         },
         '#cliqz': {
-            url: 'http://beta.cliqz.com/'
-        },
-        '#values': {
-            url: 'http://cliqz.com/company/values'
+            url: 'https://beta.cliqz.com/'
         },
         '#join': {
-            url: 'https://codility.com/honeypot/Cliqz-Jobs'
+            url: 'https://beta.cliqz.com/jobs/'
         }
     },
     ENGINE_CODES = ['google images', 'google maps', 'google', 'yahoo', 'bing', 'wikipedia', 'amazon', 'ebay', 'leo']
