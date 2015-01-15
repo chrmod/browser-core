@@ -301,5 +301,14 @@
     },
     "spell_correction": {
       "message":"Meintest Du wirklich "
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
+    },
+    "history_results": {
+      "message":"Ergebnisse aus Ihrem Verlauf"
     }
 }

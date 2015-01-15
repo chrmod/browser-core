@@ -50,7 +50,7 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=', //'http://54.160.104.109/mixer?q=', //
+  RESULTS_PROVIDER:      'http://54.160.104.109/mixer?q=', //'https://newbeta.cliqz.com/api/v1/results?q=', //
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
@@ -65,9 +65,9 @@ var CliqzUtils = {
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-               'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
+               'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
-               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ'],
+               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -383,7 +383,7 @@ var CliqzUtils = {
     if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-bundesliga') return ['b'];
-    else if(type === 'cliqz-cluster') return ['C'];
+    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
     else if(type === 'cliqz-extra') return ['X'];
     else if(type === 'cliqz-series') return ['S'];
 

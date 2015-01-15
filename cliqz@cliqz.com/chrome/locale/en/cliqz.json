@@ -295,5 +295,14 @@
     },
     "spell_correction": {
       "message":"Did you really mean "
+    },
+    "age": {
+        "message": "Age"
+    },
+    "nationality": {
+        "message": "Nationality"
+    },
+    "history_results": {
+      "message":"Results from your history"
     }
 }

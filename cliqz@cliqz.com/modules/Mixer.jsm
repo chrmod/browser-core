@@ -21,13 +21,21 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 CliqzUtils.init();
 
 var Mixer = {
-    mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
-        var results = [],
-            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
-        // 1) put each result into a bucket
+	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
+		var results = [];
+    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+      var [is_clustered, history_trans] = [false, history];
+    } else {
+      var [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+    }
+
+		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],
@@ -66,7 +74,7 @@ var Mixer = {
 
                 // do this for all types except clustering for now
                 // TODO: find a way to report where all clustered values come from
-                if(st != 'cliqz-cluster' && st != 'cliqz-series') {
+                if(st != 'cliqz-cluster' && st != 'cliqz-series' && st != 'cliqz-pattern') {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     st = CliqzUtils.combineSources(st, tempCliqzResult.style);
