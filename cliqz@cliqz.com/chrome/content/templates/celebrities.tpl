@@ -1,22 +1,28 @@
 <div class='cliqz-celeb'>
 	{{#with data}}
-        <div class='cliqz-celeb-picture'
-        	 style="background-image: url({{image}});">
-	    </div>
+	<div class='cqz-celeb-images'>
+         {{#each images}}
+            <img src='{{this}}' class='cqz-celeb-image' />
+         {{/each}}
+    </div>
+    <div class='cqz-celeb-who'>
+    	{{name}}
+    	<span>({{ocupation}})</span>
+    </div>
+	<div class='cqz-celeb-social-box'>
+         {{#each social}}
+            <img
+            	src='{{img}}'
+            	url='{{url}}'
+            	class='cqz-celeb-social' />
+         {{/each}}
+    </div>
+    <div>{{local 'age'}}: {{birth_date}}</div>
+    <div>{{local 'nationality'}}: {{nationality}}</div>
+    {{/with}}
 
-		<div class='cliqz-celeb-info'>
-		 	<div class='cliqz-celeb-name'>{{name}}</div>
-		 	<div class='cliqz-celeb-'>{{bday}}</div>
-		 	<div class='cliqz-celeb-'></div>
-	 	</div>
-
-		<div class='cliqz-celeb-images'>
-		    {{#each items}}
-		        <div class='cliqz-celeb-image'
-		        	 style="background-image: url({{thumb_url}});">
-		        </div>
-		    {{/each}}
-		</div>
-	{{/with}}
-	<br style="clear:both"/>
+    <div class='cqz-celeb-logo'
+         style='background-color: #ccc;'>
+         W
+    </div>
 </div>
