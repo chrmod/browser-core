@@ -23,12 +23,15 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
   background-size: cover;
   background-position: center center;
 }
-.search-container { padding-top: 100px; margin: 0 auto; }
+.search-container { padding-top: 100px; margin: 0 auto; overflow: hidden; }
 @media (min-width: 768px) { .search-container { width: 750px; } }
 @media (min-width: 992px) { .search-container { width: 970px; } }
 @media (min-width: 1200px) { .search-container { width: 1170px; } }
 
 /* history */
+.history-lis {
+    margin-bottom: 5px;
+}
 .history-lis a {
     display: block;
 }
@@ -73,6 +76,12 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
 .history-url {
     color: gray;
     font-size: 11px;
+}
+.history-lis a:hover .history-url.blurred, .history-lis a .history-url.hovered {
+    display: none;
+}
+.history-lis a .history-url.blurred, .history-lis a:hover .history-url.hovered {
+    display: block;
 }
 .cliqz-icon {
     width: 35px;

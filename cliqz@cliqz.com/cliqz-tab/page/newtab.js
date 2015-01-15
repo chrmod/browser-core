@@ -40,6 +40,7 @@ $(function(){
         { name: "Youtube", url: "https://www.youtube.de/", img: "youtube.png" }
     ].forEach(function(item){
         $("<a class='option' style='background-image:url(" + googlebarurl + item.img + ")'>").attr("href",item.url)
+                                                                                             .attr("target","_top")
                                                                                              .html(item.name)
                                                                                              .appendTo(".options-container")
     })
@@ -204,13 +205,18 @@ function renderHistory(links){
         template.attr("number",i).attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo("#history-lis").css("visibility","hidden");
 
         template.find(".history-title").text(link.title);
-        template.find(".history-url").text(link.url);
         
-        var logoinfo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(link.url));
-        var icon = template.find(".history-icon").css("background-color",logoinfo.color);
+        var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
+            logoinfo = CliqzUtils.getLogoDetails(urlinfo),
+            icon = template.find(".history-icon").css("background-color",logoinfo.color);
 
+        console.log(urlinfo);
+        
         if (icon.img) icon.css("background-image","url(" + logoinfo.img + ")");
         else icon.text(logoinfo.text);
+        
+        template.find(".history-url.blurred").text(urlinfo.host);
+        template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
     }
     
     shuffle(array);
