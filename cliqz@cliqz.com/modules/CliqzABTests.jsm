@@ -154,6 +154,28 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1017_A":
                 CliqzUtils.setPref("safeBrowsing", true);
+            case "1019_A":
+                CliqzUtils.setPref("newHistory", false);
+                break;
+            case "1019_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+            case "1020_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+            case "1020_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
+            case "1021_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
+            case "1021_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "cliqz");
                 break;
             default:
                 rule_executed = false;
@@ -257,6 +279,14 @@ var CliqzABTests = CliqzABTests || {
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 CliqzUCrawl.outOfABTest();
+            case "1019_A":
+            case "1019_B":
+            case "1020_A":
+            case "1020_B":
+            case "1021_A":
+            case "1021_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
                 break;
             default:
                 rule_executed = false;

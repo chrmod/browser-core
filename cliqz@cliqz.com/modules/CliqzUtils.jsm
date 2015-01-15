@@ -66,9 +66,9 @@ var CliqzUtils = {
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-               'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
+               'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
-               'bitcoin', 'spellcheck'],
+               'bitcoin', 'spellcheck', 'celebrities'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -384,7 +384,7 @@ var CliqzUtils = {
     if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-bundesliga') return ['b'];
-    else if(type === 'cliqz-cluster') return ['C'];
+    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
     else if(type === 'cliqz-extra') return ['X'];
     else if(type === 'cliqz-series') return ['S'];
 
