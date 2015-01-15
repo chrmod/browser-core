@@ -417,50 +417,64 @@
  height: 180px;
 }
 
+
+.EZ-weather-title {
+   background-color: white;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+.EZ-weather_icon{
+   height: 26px;
+   width: 26px;
+   margin-left: 15px;
+   margin-top: 13px;
+   background-color: white;
+}
+
 .EZ-weather-city {
   background-color: white;
   font-size: 18px;
-  font-weight: 400;
   color: #333333;
-  padding-top: 14px;
-  padding-bottom: 20px;
-  padding-left: 0px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 0px;
+  margin-top: 12.5px;
+  margin-bottom: 18px;
+  float: left;
+   overflow: hidden;
+   text-overflow: ellipsis;
 }
+
 
 .EZ-weather-container {
  float:left;
- width: 70px;
- margin-top: 0px;
- margin-right: 37px;
+ width: 60px;
+ margin-right: 25px;
  background-color: white;
 }
 
 .EZ-weather-date {
-  font-size: 16px;
+  font-size: 14px;
   color: #333333;
   text-align: center;
   overflow: hidden;
-  margin-top: 0px;
-  background-color: white;
-  line-height: 100%;
+  padding-top: 1px;
+  padding-bottom: 2px;
+  line-height: 130%;
 }
 
 .EZ-weather-img {
   background-repeat: no-repeat;
   background-position: center center;
   background-color: white;
-  background-size: 54px 74px;
-  height: 76px;
+  background-size: 54px 73px;
+  height: 73px;
 }
 
 .EZ-weather-temp {
-  font-size:16px;
+  font-size:14px;
   color: #333333;
   text-align:center;
+  padding-top: 4px;
   padding-bottom: 16px;
   background-color: white;
   line-height: 100%
