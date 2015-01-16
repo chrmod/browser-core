@@ -277,6 +277,7 @@
   font-size: 16px;
   max-height: 2em;
   overflow: hidden;
+  line-height: 1em;
 }
 
 .entity-news-story:hover .entity-news-story-title {
