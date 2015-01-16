@@ -422,6 +422,13 @@ CLIQZ.Core = CLIQZ.Core || {
           results.shift();
           autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
         }
+
+        // If new style autocomplete and it is not enabled, ignore the autocomplete
+        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+            CLIQZ.UI.clearSelection();
+            return;
+        }
+
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
