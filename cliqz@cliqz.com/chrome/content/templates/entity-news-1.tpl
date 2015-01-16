@@ -2,17 +2,6 @@
   <div class="cqz-ez-title cqz-ez-news-title">
       {{data.domain}}
   </div>
-  <div class='cqz-ez-btns'>
-      {{#each data.categories}}
-        <span
-          class="cqz-ez-btn"
-          style="background-color: #EFEFEF; color: black"
-          url="{{ this.url }}"
-          extra="entity-news-category-{{ @index }}">
-          {{ this.title }}
-        </span>
-      {{/each}}
-  </div>
   <div class="entity-news-stories">
     {{#each data.news}}
       <div class="entity-news-story"
@@ -30,6 +19,17 @@
         </div>
       </div>
     {{/each}}
+  </div>
+  <div class='cqz-ez-btns'>
+      {{#each data.categories}}
+        <span
+          class="cqz-ez-btn"
+          style="background-color: #EFEFEF; color: black"
+          url="{{ this.url }}"
+          extra="entity-news-category-{{ @index }}">
+          {{ this.title }}
+        </span>
+      {{/each}}
   </div>
   {{> logo}}
 </div>

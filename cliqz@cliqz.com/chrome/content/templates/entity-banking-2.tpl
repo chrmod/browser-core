@@ -11,10 +11,12 @@
                 <div
                     class="cqz-ez-btn"
                     style="background-color: #91d131"
+                    url="aa"
                     >Login</div>
                 <div
                     class="cqz-ez-btn"
                     style="background-color: #50b1a2"
+                    url="aa"
                     >Find Branch</div>
             </div>
             {{#each links }}

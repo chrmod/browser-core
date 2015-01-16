@@ -26,14 +26,18 @@
 
 .cqz-result-h1 {
 	height: 272px;
+	font-size: 14px;
+
 }
 
 .cqz-result-h2 {
 	height: 181px;
+	font-size: 14px;
 }
 
 .cqz-result-h3 {
 	height: 90px;
+	font-size: 14px;
 }
 
 .cqz-result-box {
@@ -61,7 +65,7 @@
 */
 
 .cqz-result-selected {
-	background-color: green;
+	background-color: #eaeaea;
 	border-radius: 0 3px 0 0;
 	position: absolute;
 	height: 16px;
@@ -198,7 +202,7 @@
 	background-position: right;
 	display: inline-block;
 	padding-right: 30px;
-	margin-bottom: 5px;
+	margin-bottom: 1px;
 }
 
 /* end EZ generic */
@@ -211,21 +215,21 @@
 
 .cqz-ez-banking-opt {
 	background-color: #efefef;
-	width: 130px;
-	height: 110px;
-	background-size: 85px 85px;
+	width: 110px;
+	height: 100px;
+	background-size: 60px auto;
 	background-repeat: no-repeat;
-	margin-left: 10px;
-	background-position: 50% -4px;
+	margin-left: 8px;
+	background-position: 50% calc(70% - 20px);
 	text-align: center;
 	box-sizing: border-box;
-	padding-top: 80px;
-	border-radius: 6px;
+	padding-top: 74px;
+	border-radius: 3px;
 	color: #323232;
 }
 
 .cqz-ez-banking-elems {
-
+	margin-top: 10px;
 }
 
 .cqz-ez-banking-title {
@@ -262,13 +266,13 @@
 }
 
 .entity-news-story {
-  padding: 4px 0;
+  padding: 2px 0;
   position: relative;
 }
 
 .entity-news-story-description {
   vertical-align: top;
-  padding: 0 0 0 14px;
+  padding: 0 0 0 12px;
 }
 
 .entity-news-story-title {
@@ -285,7 +289,8 @@
 }
 .entity-news-story-time {
     color: #aaaaaa;
-	font-size: 13px
+	font-size: 12px;
+	padding-top: 4px;
 }
 
 .entity-news-story-image {
@@ -310,10 +315,11 @@
 
 .cqz-ez-search-box {
   border: 1px solid #3E86FC;
-  max-width: 400px;
+  max-width: 371px;
   height: 20px;
   margin: 5px 0 15px 0px;
   background-color: white;
+  border-radius: 0 3px 3px 0;
 }
 
 .cqz-ez-search-box-icon {
@@ -326,7 +332,7 @@
 .cqz-ez-search-box-input {
   vertical-align: top;
   font-size: 14px;
-  width: 378px;
+  width: 347px;
   height: 18px;
   border: none;
 }
@@ -335,35 +341,49 @@
     display: inline-block;
     width: 80px;
     height: 80px;
-    border-radius: 6px;
-    margin-right: 5px;
+    border-radius: 3px;
+    margin-right: 4px;
     background-position: center 20%;
     background-repeat: no-repeat;
     text-align: center;
-    padding-top: 60px;
+    padding-top: 56px;
     box-sizing: border-box;
     color: white;
-    background-size: 45px;
+    background-size: 35px auto;
 }
 
 /* EZ search end */
 
 .cqz-ez-btns {
-	margin: 7px 0 10px 0;
+	margin: 14px 0 10px 0;
 }
 
 .cqz-ez-btn {
-	border-radius: 6px;
+	border-radius: 3px;
 	cursor: pointer;
 	color: white;
 	font-size: 14px;
-	padding: 7px 10px;
-	margin: 0 10px 10px 0;
+	padding: 6px 10px 5px 10px;
+	margin: 0 4px 8px 0;
+}
+
+.cqz-result-box *[url]:hover {
+	opacity: 0.85;
+}
+
+.cqz-result-box *[url] {
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
 }
 
 .cqz-result-padding {
 	padding: 17.5px 22px;
 	box-sizing: border-box;
+}
+
+.cqz-result-box .cqz-result-padding {
+	padding-top: 15px;
 }
 
 .cqz-vert-center {
