@@ -40,6 +40,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+  'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
+var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
+var Services = Services || CliqzUtils.getWindow().Services;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -54,6 +60,7 @@ CLIQZ.Core = CLIQZ.Core || {
     init: function(){
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
+        CliqzNewTab.init(window);
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -357,7 +364,7 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar, r,
+        var urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
 
         // Remove protocol and 'www.' from first results
