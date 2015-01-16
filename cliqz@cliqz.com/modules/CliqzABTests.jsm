@@ -299,6 +299,7 @@ var CliqzABTests = CliqzABTests || {
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
+                break;
             case "1019_A":
             case "1019_B":
             case "1020_A":
