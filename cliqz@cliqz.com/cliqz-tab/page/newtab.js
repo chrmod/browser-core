@@ -5,6 +5,14 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 // this module is default for new tab in FF and provides with top links
 Components.utils.import("resource://gre/modules/NewTabUtils.jsm");
 
+var openUILink = function(value){
+    if (CliqzUtils.isUrl(value)) {
+        if (value.indexOf("http://") == -1 && value.indexOf("https://") == -1) window.top.location.href = "http://" + value;
+        else window.top.location.href = value;
+    }
+    else window.top.location.href = Services.search.currentEngine.getSubmission(value).uri.spec; 
+}
+
 $(function(){
     var serverurl = "http://chrome-backgrounds.cliqz.com",
         googlebarurl = "http://cdn.cliqz.com/extension/newtab/google-bar/";
@@ -66,52 +74,54 @@ $(function(){
         
         event.stopPropagation();
     });
-
-    CLIQZ.UI.init();
-    CLIQZ.Core.popup = $('#search-dropdown')[0]
-    CLIQZ.Core.popup.cliqzBox = $('#search-dropdown')[0];
-    CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox);
-    CLIQZ.Core.urlbar = $('.input-box')[0];
-    CLIQZ.Core.urlbar.mInputField = $('.input-box')[0];
-
+    
     $(document).click(function(ev){
         $('#search-dropdown').hide();
     });
     
-    var searchinput = $("#search");
-
-    var changeSelected = function(up){
-        var active = $(".cliqz-result-item-box[selected='true']"), next;
-        
-        if (!active.length) next = $(".cliqz-result-item-box:first")
-        else next = up?active.prev():active.next();
-        
-        if (next.length) {
-            if (active.length) active[0].setAttribute("selected","false");
-            next[0].setAttribute("selected","true");
-        }
-    };
+    CLIQZ.UI.init();
+    CLIQZ.Core.popup = $('#search-dropdown')[0]
+    CLIQZ.Core.popup.closePopup = function(){}
+    CLIQZ.Core.popup.hidePopup = function(){}
+    CLIQZ.Core.popup.cliqzBox = $('#search-dropdown')[0];
+    CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox);
+    CLIQZ.Core.urlbar = $('.input-box')[0];
+    CLIQZ.Core.urlbar.mInputField = $('.input-box')[0];
     
-    searchinput.keypress(function(event){
-        switch(event.keyCode){
-            case 38: changeSelected(true); break;
-            case 40: changeSelected(false); break;
-            default: return true;
-        }
-
-        return false;
-    });
+    var searchinput = $("#search").keydown(CLIQZ.Core.urlbarkeydown),
+        TAB = 9,
+        ENTER = 13,
+        LEFT = 37,
+        UP = 38,
+        RIGHT = 39,
+        DOWN = 40,
+        BACKSPACE = 8,
+        DEL = 46;
     
-    searchinput.keyup(function(event){
-        switch(event.keyCode){
-            case 13: window.top.location.href = Services.search.currentEngine.getSubmission(this.value).uri.spec; break;
-            case 37: case 38: case 39: case 40: break;
-            case 8: case 46: search(this,true); break;
+    searchinput.keydown(function(event){
+        if (event.keyCode == ENTER) $(this).css("color","white")
+    })
+    .keyup(function(event){
+        switch(event.keyCode) {
+            case UP: case DOWN: case TAB: case LEFT: case RIGHT: case KeyEvent.DOM_VK_HOME: break;
+            case ENTER:
+                if (typeof($("#search-dropdown [selected='true']").attr("idx")) == "undefined") openUILink(this.value)
+                
+                 $("#search-dropdown").hide()
+                 CLIQZ.Core.popup.popupOpen = false
+                
+                break;
+            case DEL: case BACKSPACE: search(this,false); break;
             default: search(this,false);
         }
     });
     
     searchinput.focus(function(){ search(this,false) });
+    
+    $(window).resize(function(){
+        $("#search-dropdown").hide()
+        CLIQZ.Core.popup.popupOpen = false
+    })
 });
 
 var CliqzResults = {
@@ -136,8 +146,11 @@ function search(input,skipAutoFill){
 function reuseMeFromComponentsXML(_this,skipAutoFill){
     if ($("#search").val() == "") {
         $('#search-dropdown').hide();
+        CLIQZ.Core.popup.popupOpen = false
         return;
     }
+
+    CLIQZ.Core.popup.popupOpen = true
     
     function unEscapeUrl(url){
       return Components.classes['@mozilla.org/intl/texttosuburi;1'].
@@ -167,8 +180,6 @@ function reuseMeFromComponentsXML(_this,skipAutoFill){
           });
           CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
           if (!skipAutoFill) CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
-        
-            $(".cliqz-result-item-box").unbind("click").click(function(){ window.top.location.href = $(this).attr("url") });
         
           $('#search-dropdown').show();
       }
@@ -209,8 +220,6 @@ function renderHistory(links){
         var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
             logoinfo = CliqzUtils.getLogoDetails(urlinfo),
             icon = template.find(".history-icon").css("background-color",logoinfo.color);
-
-        console.log(urlinfo);
         
         if (icon.img) icon.css("background-image","url(" + logoinfo.img + ")");
         else icon.text(logoinfo.text);

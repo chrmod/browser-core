@@ -102,26 +102,36 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
 #search {
     width: 100%;
     height: 30px;
-    border: 0;
+    border: 1px solid #cccccc;
     padding: 0 15px;
     font-family: "Lato", sans-serif;
     font-weight: 300;
-    font-size: 16px;
+    font-size: 14px;
     outline: 0;
 }
+
+/* webkit */
+::-webkit-input-placeholder { color: #777; font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; }
+/* Firefox 19+ */
+::-moz-placeholder          { color: #777;  font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; }
+/* Firefox 18- */
+:-moz-placeholder           { color: #777; font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; }
+
 #search-dropdown {
-    width: 100%;
-    padding: 0px;
-    border-radius: 0 0 4px 4px;
+    padding: 0;
     position: absolute;
     z-index: 1;
-    border: 1px solid #CCC;
     background-color:white;
     color:black;
+    overflow: hidden;
+    border: 1px solid #cccccc;
+    margin-top: 2px;
+    border-bottom: 0;
 }
-#cliqz-suggestion-box {
-    box-sizing: unset;
+#search-dropdown, #search-dropdown * {
+    box-sizing: content-box;   
 }
+
 .result[selected="selected"] {
     color: #262626;
     text-decoration: none;
