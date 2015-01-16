@@ -149,14 +149,14 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
-            
+
             case "1018_A":
                 CliqzUtils.setPref("disableSeriesCluster", false);
                 break;
             case "1018_B":
                 CliqzUtils.setPref("disableSeriesCluster", true);
                 break;
-            
+
             case "1019_A":
                 CliqzUtils.setPref("newHistory", false);
                 break;
@@ -164,7 +164,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
                 break;
-            
+
             case "1020_A":
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
@@ -173,7 +173,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_cluster");
                 break;
-            
+
             case "1021_A":
                 CliqzUtils.setPref("newHistory", true);
                 CliqzUtils.setPref("newHistoryType", "firefox_cluster");
@@ -291,6 +291,7 @@ var CliqzABTests = CliqzABTests || {
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
+                break;
             case "1019_A":
             case "1019_B":
             case "1020_A":
