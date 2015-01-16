@@ -74,7 +74,7 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-
+        
         resultsBox.addEventListener('click', resultClick);
 
         box.addEventListener('mousemove', resultMove);
@@ -158,6 +158,7 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
+        
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
@@ -558,7 +559,11 @@ function getPartial(type){
 
 // debug message are at the end of the title like this: "title (debug)!"
 function getDebugMsg(fullTitle){
-    var r = fullTitle.match(/^(.+) \((.+)\)!$/)
+    // regex matches two parts:
+    // 1) the title, can be anything ([\s\S] is more inclusive than '.' as it includes newline)
+    // followed by:
+    // 2) a debug string like this " (debug)!"
+    var r = fullTitle.match(/^([\s\S]+) \((.*)\)!$/)
     if(r && r.length >= 3)
         return [r[1], r[2]]
     else
@@ -901,8 +906,7 @@ function onEnter(ev, item){
         }
         CLIQZ.Core.openLink(url, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
-            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
-
+        CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestion = gCliqzBox && $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);

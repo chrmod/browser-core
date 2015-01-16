@@ -20,7 +20,7 @@
 /* end browser*/
 
 #cliqz-results {
-    height: 270px;
+    height: 272px;
     position: relative;
 }
 
@@ -46,6 +46,10 @@
 	font-family: Lato, Helvetica, sans-serif;
 	color: #333333;
 	border-bottom: 1px solid #CCC;
+}
+
+.cqz-result-box:nth-child(3) {
+	border-bottom: 0;
 }
 
 /*

@@ -1,15 +1,21 @@
 {
     "whatIsCliqz":{
-        "message": "What is cliqz?"
+        "message": "What is CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "What is cliqz? <-- try it yourself, eg: 'weather new york'"
+        "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
     "settings":{
         "message": "Settings"
     },
     "btnPrivacy":{
         "message": "Privacy Policy"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Disable Newtab"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Enable Newtab"
     },
     "btnDefaultSearchEngine":{
         "message": "Default Search Engine"
@@ -18,7 +24,7 @@
         "message": "Local Results"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -85,6 +91,21 @@
     },
     "agoXYears":{
         "message":"{} years ago"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - About us"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Privacy"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
     },
     "offTitle":{
         "message":"the new way to navigate the web"

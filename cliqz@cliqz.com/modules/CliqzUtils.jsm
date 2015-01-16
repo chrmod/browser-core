@@ -9,7 +9,6 @@
  *  Browser helpers
  *  ...
  */
-
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -850,7 +849,8 @@ var CliqzUtils = {
     }
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+      
     return urlbar.value.length == 0;
   },
   /** Modify the user's Firefox preferences -- always do a backup! */
