@@ -656,7 +656,8 @@ function enhanceResults(res){
         res.results.push(all[i])
         if(all[i].type == 'cliqz-extra' && all[i].data){
             if(all[i].data.template == 'entity-search-1' ||
-               all[i].data.template == 'entity-banking-2')i++;
+               all[i].data.template == 'entity-banking-2'||
+               all[i].data.template == 'celebrities')i++;
             else i+=2;
         }
     }
