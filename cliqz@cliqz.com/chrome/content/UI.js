@@ -1296,8 +1296,9 @@ function registerHelpers(){
     Handlebars.registerHelper('ifAdult', function(results) {
       var classes = '';
       var adult_results = false;
+      console.log(results)
       for(var i = 0; i < results.length; i++) {
-        if (results[i].type == 'cliqz-extra')
+        if (results[i].data.adult == true)
           adult_results = true;
       }
 

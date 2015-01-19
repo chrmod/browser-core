@@ -1,5 +1,4 @@
 <div class="entity-search-container">
-  {{partial 'adult'}}
   <div>
     <div class="entity-search-box" style="border: 1px solid {{data.search_box_background_color}};">
       <img style="background-color: {{data.search_box_background_color}};" id="entity-search-box-icon" src="{{data.search_box_icon}}" />
