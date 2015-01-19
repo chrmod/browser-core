@@ -46,7 +46,7 @@ var VERTICAL_ENCODINGS = {
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
-    LOGOS = ['amazon', 'ebay', 'facebook', 'google', 'twitter', 'yelp', 'youtube'],
+    LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
     BRAND_COLORS = {}, brand_loaded = false;
 
 var CliqzUtils = {
@@ -850,7 +850,7 @@ var CliqzUtils = {
   },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
-      
+
     return urlbar.value.length == 0;
   },
   /** Modify the user's Firefox preferences -- always do a backup! */
