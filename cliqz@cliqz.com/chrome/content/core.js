@@ -453,7 +453,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
             pathLength = 0,
-            SYMBOLS = /,|-|\./g;
+            SYMBOLS = /,|\./g;
 
         if(cleanParts.length > 1){
             pathLength = ('/' + cleanParts.slice(1).join('/')).length;
