@@ -20,7 +20,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url'],
+    PARTIALS = ['url', 'adult'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -249,9 +249,6 @@ var UI = {
         };
         CliqzUtils.track(signal);
       }
-    },
-    showAdultContent: function (el) {
-      console.log("yeah")
     },
     closeResults: closeResults
 };
@@ -738,7 +735,11 @@ function resultClick(ev){
             if (el.getAttribute('cliqz-action') == 'show-adult-content') {
               el.parentNode.className = "hidden";
               break;
-            }
+            };
+            if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
+              el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1216,15 +1217,28 @@ function registerHelpers(){
         return width - reduction;
     });
 
-    Handlebars.registerHelper('ifAdult', function(item, options) {
-      var selected = true;
+    // Checks if result contains adult content
+    Handlebars.registerHelper('ifAdult', function(results) {
+      var classes = '';
+      var adult_results = false;
+      for(var i = 0; i < results.length; i++) {
+        if (results[i].type == 'cliqz-extra')
+          adult_results = true;
+      }
 
-      if (selected) {
-        return options.fn(this);
+      var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+
+      if (adult_results && current_level == 'moderate') {
+        classes = 'cqz-adult-bar';
+      } else if (adult_results && current_level == 'liberal') {
+        classes = 'hidden';
+      } else if (adult_results && current_level == 'conservative') {
+        classes = 'cqz-adult-bar hidden';
+      } else {
+        classes = 'hidden';
       }
-      else {
-        return options.inverse(this);
-      }
+
+      return classes;
     });
 }
 

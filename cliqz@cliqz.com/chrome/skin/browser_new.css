@@ -284,6 +284,56 @@
 }
 /* EZ news end */
 
+/* Adult content */
+
+.cqz-adult-bar {
+  position: absolute;
+  left:0px;
+  right:0px;
+  bottom: 0;
+  font-size: 14px;
+  z-index: 1000;
+  padding: 10px;
+}
+
+.cqz-adult-bar img {
+  height: 16px;
+}
+
+.cqz-adult-inline-alert {
+  display: inline;
+  color: #c3043e;
+  vertical-align: middle;
+}
+
+.cqz-adult-inline {
+  margin: 0 5px;
+  display: inline;
+  vertical-align: middle;
+}
+
+.cqz-adult-bar ~ div {
+  display: none;
+}
+
+.cqz-adult-show {
+  margin: 0 5px;
+  cursor: pointer;
+  color: white;
+  background-color: #abc8e2;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.cqz-adult-options {
+  margin: 0 5px;
+  cursor: pointer;
+  background-color: #eaeaea;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* End audlt content */
 
 .cqz-ez-btn {
 	border-radius: 4px;
