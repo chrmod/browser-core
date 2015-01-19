@@ -99,6 +99,15 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
+        /* THUY NOTE:
+        *       mozzilar - special way:
+        *          + autocompletepopup --- (we set)  ---> PopupAutoCompleteRichResult
+        *          + PopupAutoCompleteRichResult : see browser.css (at the top)
+        *          + meaning: FF uses autocompletepopup to set the popup window,
+        *          which in this case: (see PopupAutoCompleteRichResult in browser.css): points to
+        *          components.xml#autocomplete-rich-result-popup-cliqz
+        *
+        * */
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
