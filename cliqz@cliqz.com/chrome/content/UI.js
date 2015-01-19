@@ -730,10 +730,11 @@ function resultClick(ev){
             CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                 CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             CliqzHistory.updateQuery(query);
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
+
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
 
             break;
         } else if (el.getAttribute('cliqz-action')) {
@@ -930,9 +931,9 @@ function onEnter(ev, item){
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         CliqzHistory.updateQuery(query);
-        CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+        CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
         if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
             url = CliqzAutocomplete.lastAutocomplete;
             //action.autocompleted = true;
             action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
@@ -973,7 +974,7 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(query);
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
 
             action.source = getResultKind(first);
             if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
@@ -986,10 +987,10 @@ function onEnter(ev, item){
         } else {
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.updateQuery(inputValue);
-                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "typed");
+                CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "typed");
             } else {
                 CliqzHistory.updateQuery(query);
-                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "google");
+                CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "google");
             }
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
