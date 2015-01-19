@@ -252,23 +252,26 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     for(let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
-                        let label = this.historyResults.getLabelAt(i);
-                        let urlparts = CliqzUtils.getDetailsFromUrl(label);
+                        let url = this.historyResults.getLabelAt(i);
+                        let url_noprotocol = url.replace('http://','').replace('https://','');
+
+                        let urlparts = CliqzUtils.getDetailsFromUrl(url);
 
                         // check if it should not be filtered, and matches the url
-                        if(Result.isValid(label, urlparts) &&
-                           label.toLowerCase().indexOf(searchString) != -1) {
+                        if(Result.isValid(url, urlparts) &&
+                           url_noprotocol.toLowerCase().indexOf(searchString) != -1) {
 
                             if(candidate_idx == -1) {
                                 // first entry
-                                CliqzUtils.log("first instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
+                                CliqzUtils.log("first instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
-                                candidate_url = label;
-                            } else if(candidate_url.indexOf(label) != -1) {
+                                candidate_url = url;
+                            } else if(candidate_url.indexOf(url_noprotocol) != -1 &&
+                                      candidate_url != url) {
                                 // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
+                                CliqzUtils.log("found shorter instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
-                                candidate_url = label;
+                                candidate_url = url;
                             }
                         }
                     }
@@ -306,7 +309,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
-                        //
                     }
                     this.pushResults(result.searchString);
                 }
@@ -385,7 +387,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.mixedResults);
+                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.unfilteredResults, this.mixedResults);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -396,6 +398,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
+                        this.unfilteredResults = null;
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -482,7 +485,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             mixResults: function() {
                 var maxResults = prefs.getIntPref('maxRichResults');
 
-                var results = Mixer.mix(
+                var resultsTemp = Mixer.mix(
                             this.searchString,
                             this.historyResults,
                             this.cliqzResults,
@@ -491,6 +494,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzBundesliga,
                             maxResults
                     );
+
+                var results = resultsTemp[0];
+                this.unfilteredResults = resultsTemp[1];
 
                 CliqzAutocomplete.afterQueryCount = 0;
 
@@ -562,6 +568,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
+                this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
 
