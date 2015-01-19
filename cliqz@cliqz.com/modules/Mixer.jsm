@@ -85,6 +85,10 @@ var Mixer = {
                     newInstant.data.kind = combinedKind;
                     mixed._results.splice(0);
                     mixed.addResults([newInstant]);
+
+                    // remove from cliqz result list
+                    cliqz.splice(i, 1);
+                    break;
                 }
             }
         }
@@ -200,7 +204,8 @@ var Mixer = {
         if(bundesligaResults && bundesligaResults.length > 0)
             results = bundesligaResults.concat(results);
 
-        results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
+        var unfiltered = mixed._results.concat(results);
+        results = Filter.deduplicate(unfiltered, -1, 1, 1);
 
         results = results.slice(mixed._results.length);
 
@@ -228,6 +233,6 @@ var Mixer = {
             );
         }
 
-        return results.slice(0, maxResults);
+        return [results.slice(0, maxResults), unfiltered];
     }
 }

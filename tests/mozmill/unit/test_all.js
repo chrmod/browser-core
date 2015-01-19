@@ -37,10 +37,10 @@ function testUrlBarCleaner() {
         'http://www.faceboook,com':'http://www.faceboook.com',
         'http://faceboook,com':'http://faceboook,com', // do not clean if no www detected
         'www,faceboook.com':'www.faceboook.com',
-        'www.faceboook-com':'www.faceboook.com',
+        'www.faceboook-com':'www.faceboook-com',
         'www.faceboook,com':'www.faceboook.com',
         'www,faceboook,com':'www.faceboook.com',
-        'www-faceboook,com':'www.faceboook.com',
+        'www-faceboook,com':'www-faceboook,com',
         '192.168.1.1':'192.168.1.1',
         '192,168,1.1':'192,168,1.1',
         'http://192,168,1.1':'http://192,168,1.1'

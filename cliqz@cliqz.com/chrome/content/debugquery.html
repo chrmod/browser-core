@@ -64,12 +64,14 @@ body {
     function showQuery(n) {
         if(CliqzQueryDebug.results.length > n) {
             var mixed = CliqzQueryDebug.results[n].mixed;
+            var unfiltered = CliqzQueryDebug.results[n].unfiltered;
             var history = CliqzQueryDebug.results[n].history;
             var cliqz = CliqzQueryDebug.results[n].cliqz;
 
             $("#query_head").text("Query (" + (-query_num) + ")");
             $("#query_text").text(" " + CliqzQueryDebug.results[n].query);
             showResultTableMixed(mixed);
+            showResultTableUnfiltered(unfiltered);
             showResultTableHistory(history);
             showResultTableCliqz(cliqz);
         }
@@ -96,6 +98,17 @@ body {
             $("#resultTableMixed").append("</tr>");
         };    
         $("#resultTableMixed").append("</table>");    
+    }
+
+    function showResultTableUnfiltered(data) {
+        $("#resultTableUnfiltered").html("");
+        $("#resultTableUnfiltered").append("<th>Unfiltered</th>");
+        for (var i = 0; i < data.length; i++) {
+            $("#resultTableUnfiltered").append("<tr>");
+            $("#resultTableUnfiltered tr").last().append("<td>" + JSON.stringify(data[i]) + "</td>");
+            $("#resultTableUnfiltered").append("</tr>");
+        };    
+        $("#resultTableUnfiltered").append("</table>");    
     }
 
     function showResultTableHistory(data) {
@@ -145,6 +158,7 @@ body {
     </div>
     <div id='resultWrapper'>
     <table id="resultTableMixed" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    <table id="resultTableUnfiltered" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
     <table id="resultTableHistory" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
     <table id="resultTableCliqz" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
     </div>
