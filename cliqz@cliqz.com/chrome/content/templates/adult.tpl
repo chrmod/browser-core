@@ -1,4 +1,5 @@
-<div class="{{ifAdult results}}">
+{{#if (ifAdult results)}}
+<div class="cqz-adult-bar">
   <img class="cqz-adult-inline" src="http://cdn.cliqz.com/extension/adultfilter/red-alert.svg" alt="" />
   <div class="cqz-adult-inline-alert">
     Some adult content has been hidden.
@@ -16,3 +17,4 @@
     Options
   </div>
 </div>
+{{/if}}

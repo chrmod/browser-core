@@ -55,10 +55,6 @@
 	border-bottom: 1px solid #CCC;
 }
 
-.cqz-result-box:nth-child(3) {
-	border-bottom: 0;
-}
-
 /*
 .cqz-result-box:before {
 	content: "";
