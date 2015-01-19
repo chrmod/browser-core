@@ -1,6 +1,6 @@
 <div class="cqz-result-h1 cqz-result-padding">
   <div class="cqz-ez-title cqz-ez-news-title">
-      {{data.domain}}
+      {{data.name}}
   </div>
   <div class="entity-news-stories">
     {{#each data.news}}

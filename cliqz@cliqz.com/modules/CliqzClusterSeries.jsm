@@ -394,6 +394,9 @@ var CliqzClusterSeries = {
     //              /(.*s)(\d{1,2})(_?ep?)(\d{1,2})(.*)/,
     //              /(.*[-_\/])(\d{1,2})(x)(\d{1,2})([-_\.].*)/];
 
+    if(CliqzUtils.getPref("disableSeriesCluster", false))
+        return;
+
     var domains = {};
     var domains2 = {};
     for(let i=0; i<urls.length; i++) {
