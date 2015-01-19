@@ -65,7 +65,7 @@
                 q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
                 lastRes = CliqzAutocomplete.lastResult;
 
-              for(var i=0; i<this._matchCount && i<3; i++) {
+              for(var i=0; i<this._matchCount; i++) {
                   data.push({
                     title: ctrl.getCommentAt(i),
                     url: unEscapeUrl(ctrl.getValueAt(i)),
@@ -81,11 +81,13 @@
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
+              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url), data[0].title);
             }
           ]]>
         </body>
       </method>
     </implementation>
   </binding>
+
+
 </bindings>

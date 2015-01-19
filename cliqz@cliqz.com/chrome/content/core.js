@@ -19,8 +19,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -40,6 +46,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+  'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
+var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
+var Services = Services || CliqzUtils.getWindow().Services;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -52,8 +64,20 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
+        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+        if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
+          try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            hs.addObserver(CliqzHistory.historyObserver, false);
+          } catch(e) {}
+        }
+
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
+        CliqzNewTab.init(window);
+        CliqzHistory.initDB();
+        CliqzHistoryPattern.preloadColors();
+
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -75,6 +99,15 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
+        /* THUY NOTE:
+        *       mozzilar - special way:
+        *          + autocompletepopup --- (we set)  ---> PopupAutoCompleteRichResult
+        *          + PopupAutoCompleteRichResult : see browser.css (at the top)
+        *          + meaning: FF uses autocompletepopup to set the popup window,
+        *          which in this case: (see PopupAutoCompleteRichResult in browser.css): points to
+        *          components.xml#autocomplete-rich-result-popup-cliqz
+        *
+        * */
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
@@ -108,6 +141,22 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
+            window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
+            window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
+                var tabs = window.gBrowser.tabs;
+                var curPanel = window.gBrowser.selectedTab.linkedPanel;
+                var maxId = -1, newPanel = "";
+                for (var i = 0; i < tabs.length; i++) {
+                    var id = tabs.item(i).linkedPanel.split("-");
+                    id = parseInt(id[id.length-1]);
+                    if (id > maxId) {
+                        newPanel = tabs.item(i).linkedPanel;
+                        maxId = id;
+                    };
+                };
+                CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
+                CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+            }, false);
         }
 
         CLIQZ.Core.whoAmI(true); //startup
@@ -303,8 +352,8 @@ CLIQZ.Core = CLIQZ.Core || {
                         type: 'environment',
                         agent: navigator.userAgent,
                         language: navigator.language,
-                        width: CliqzUtils.getWindow().document.width,
-                        height: CliqzUtils.getWindow().document.height,
+                        width: window.document.width,
+                        height: window.document.height,
                         version: beVersion,
                         history_days: history.days,
                         history_urls: history.size,
@@ -350,36 +399,79 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult){
+    autocompleteQuery: function(firstResult, firstTitle){
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
            CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
+            if (CliqzAutocomplete.highlightFirstElement) {
+                CLIQZ.UI.selectFirstElement();
+            }
+            CliqzAutocomplete.highlightFirstElement = false;
+            return;
+        }
+        CliqzAutocomplete.highlightFirstElement = false;
+
+        var urlBar = CLIQZ.Core.urlbar, r,
+            endPoint = urlBar.value.length;
+        var lastPattern = CliqzAutocomplete.lastPattern;
+        var results = lastPattern ? lastPattern.filteredResults() : [];
+
+        // try to update misspelings like ',' or '-'
+        if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
+            var clean = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+            if (urlBar.value.indexOf("://") != -1 ) {
+                urlBar.value = urlBar.value.substr(0, urlBar.value.indexOf("://")+3) + clean;
+            } else {
+                urlBar.value = clean;
+            }
+        }
+        // Use first entry if there are no patterns
+        if (results.length === 0 || lastPattern.query != urlBar.value) {
+            results[0] = [];
+            results[0].url = firstResult;
+            results[0].title = firstTitle;
+            results[0].query = [];
+        }
+        if (!CliqzUtils.isUrl(results[0].url)) return;
+
+        // Detect autocomplete
+        var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        if (lastPattern && lastPattern.cluster && !autocomplete.autocomplete) {
+          results.shift();
+          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        }
+
+        // If new style autocomplete and it is not enabled, ignore the autocomplete
+        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+            CLIQZ.UI.clearSelection();
             return;
         }
 
-        let urlBar = CLIQZ.Core.urlbar, r,
-            endPoint = urlBar.value.length;
+        // Apply autocomplete
+        CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
+        if (autocomplete.autocomplete) {
+            urlBar.value = autocomplete.urlbar;
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
-        // Remove protocol and 'www.' from first results
-        firstResult = CliqzUtils.cleanUrlProtocol(firstResult, true);
-
-        // try to update misspelings like ',' or '-'
-        var cleanedUrlBar = CLIQZ.Core.cleanUrlBarValue(urlBar.value);
-
-        // Remove protocol from typed query
-        var query = CliqzUtils.cleanUrlProtocol(cleanedUrlBar, true);
-
-        // Then add the matching part to the end of the current typed query and set is as selected.
-        if(query && firstResult.indexOf(query) === 0) {
-            urlBar.mInputField.value = cleanedUrlBar + firstResult.substr(query.length);
-            urlBar.setSelectionRange(endPoint, urlBar.value.length);
         }
-    },
+        // Highlight first entry in dropdown
+        if (autocomplete.highlight) {
+            if (urlBar.value.length > 80) {
+              urlBar.value = urlBar.value.substr(0,80) + "...";
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            }
+            CliqzAutocomplete.highlightFirstElement = true;
+            CLIQZ.UI.selectFirstElement();
+        } else {
+            CLIQZ.UI.clearSelection();
+        }
+},
     cleanUrlBarValue: function(val){
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
             pathLength = 0,
-            SYMBOLS = /,|-|\./g;
+            SYMBOLS = /,|\./g;
 
         if(cleanParts.length > 1){
             pathLength = ('/' + cleanParts.slice(1).join('/')).length;

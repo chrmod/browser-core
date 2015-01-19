@@ -20,20 +20,24 @@
 /* end browser*/
 
 #cliqz-results {
-    height: 270px;
+    height: 272px;
     position: relative;
 }
 
 .cqz-result-h1 {
 	height: 272px;
+	font-size: 14px;
+
 }
 
 .cqz-result-h2 {
 	height: 181px;
+	font-size: 14px;
 }
 
 .cqz-result-h3 {
 	height: 90px;
+	font-size: 14px;
 }
 
 .cqz-result-box {
@@ -42,6 +46,10 @@
 	font-family: Lato, Helvetica, sans-serif;
 	color: #333333;
 	border-bottom: 1px solid #CCC;
+}
+
+.cqz-result-box:nth-child(3) {
+	border-bottom: 0;
 }
 
 /*
@@ -61,7 +69,7 @@
 */
 
 .cqz-result-selected {
-	background-color: green;
+	background-color: #eaeaea;
 	border-radius: 0 3px 0 0;
 	position: absolute;
 	height: 16px;
@@ -189,38 +197,55 @@
 	text-align: center;
 	width: 100%;
 }
+
+/* EZ generic */
+.cqz-ez-title {
+	font-size: 18px;
+	background-size: 18px;
+	background-repeat: no-repeat;
+	background-position: right;
+	display: inline-block;
+	padding-right: 30px;
+	margin-bottom: 1px;
+}
+
+/* end EZ generic */
+
 /* EZ banking */
 .cqz-ez-banking-box {
 	float: left;
 	margin-top: 12px;
-	padding-top: 7px;
 }
 
 .cqz-ez-banking-opt {
 	background-color: #efefef;
-	width: 92px;
-	background-size: 55px 55px;
+	width: 110px;
+	height: 100px;
+	background-size: 60px auto;
 	background-repeat: no-repeat;
-	margin-left: 10px;
-	background-position: 50% -4px;
+	margin-left: 8px;
+	background-position: 50% calc(70% - 20px);
 	text-align: center;
-	padding: 45px 0 5px 0;
-	border-radius: 4px;
-	color: #323232
+	box-sizing: border-box;
+	padding-top: 74px;
+	border-radius: 3px;
+	color: #323232;
 }
+
+.cqz-ez-banking-elems {
+	margin-top: 10px;
+}
+
+.cqz-ez-banking-title {
+	background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg);
+}
+
 /* EZ end banking */
 
 
 /* EZ news */
 .cqz-ez-news-title {
-	font-size: 20px;
-	background-size: 23px;
 	background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg);
-	background-repeat: no-repeat;
-	background-position: right;
-	display: inline-block;
-	padding-right: 39px;
-	margin-bottom: 16px;
 }
 
 
@@ -241,23 +266,26 @@
 }
 
 .entity-news-stories {
-	margin-top: 12px;
+	margin-top: 6px;
 }
 
 .entity-news-story {
-  padding: 3px 0;
+  padding: 2px 0;
   position: relative;
 }
 
 .entity-news-story-description {
   vertical-align: top;
-  padding: 0 0 0 5px;
+  padding: 0 0 0 12px;
 }
 
 .entity-news-story-title {
   color: #333333;
   max-width: 550px;
-  font-size: 16px
+  font-size: 16px;
+  max-height: 2em;
+  overflow: hidden;
+  line-height: 1em;
 }
 
 .entity-news-story:hover .entity-news-story-title {
@@ -265,9 +293,8 @@
 }
 .entity-news-story-time {
     color: #aaaaaa;
-	position: absolute;
-	bottom: 6px;
-	font-size: 13px
+	font-size: 12px;
+	padding-top: 4px;
 }
 
 .entity-news-story-image {
@@ -335,36 +362,82 @@
 
 /* End audlt content */
 
+/* EZ search */
+.cqz-ez-search-title {
+	background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg);
+}
+
+.cqz-ez-search-box {
+  border: 1px solid #3E86FC;
+  max-width: 371px;
+  height: 20px;
+  margin: 5px 0 15px 0px;
+  background-color: white;
+  border-radius: 0 3px 3px 0;
+}
+
+.cqz-ez-search-box-icon {
+  background-color: #3E86FC;
+  width: 20px;
+  height: 20px;
+  float: right;
+}
+
+.cqz-ez-search-box-input {
+  vertical-align: top;
+  font-size: 14px;
+  width: 347px;
+  height: 18px;
+  border: none;
+}
+
+.cqz-ez-search-app {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    border-radius: 3px;
+    margin-right: 4px;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    text-align: center;
+    padding-top: 56px;
+    box-sizing: border-box;
+    color: white;
+    background-size: 35px auto;
+}
+
+/* EZ search end */
+
+.cqz-ez-btns {
+	margin: 14px 0 10px 0;
+}
+
 .cqz-ez-btn {
-	border-radius: 4px;
+	border-radius: 3px;
 	cursor: pointer;
-	text-align: center;
-	margin: 5px auto;
-	width: 50px;
 	color: white;
-	font-size: 16px;
-	padding: 6px 10px;
-	margin-right: 10px;
+	font-size: 14px;
+	padding: 6px 10px 5px 10px;
+	margin: 0 4px 8px 0;
 }
 
-.cqz-type {
-	padding-left: 30px;
+.cqz-result-box *[url]:hover {
+	opacity: 0.85;
 }
 
-.cqz-result-type {
-	width: 90px;
-	background-color: #178DEA;
-	color: white;
-	text-align: center;
-	transform: rotate(-90deg);
-	position: absolute;
-	top: 36px;
-	left: -38px;
+.cqz-result-box *[url] {
+	-webkit-transition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	-o-transition: all 0.3s ease;
 }
 
 .cqz-result-padding {
-	padding: 10px 20px;
+	padding: 17.5px 22px;
 	box-sizing: border-box;
+}
+
+.cqz-result-box .cqz-result-padding {
+	padding-top: 15px;
 }
 
 .cqz-vert-center {

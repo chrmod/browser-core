@@ -311,7 +311,171 @@
 
 /* End last search history */
 
-/* weather */
+/* airlinesEZ.tmp --- thuy@cliqz.com - 15Jan2015 */
+
+.EZ-airlines-bigcontainer{
+  margin-left: 22px;
+  background-color: white;
+  height: 180px;
+  font-size: 14px;
+}
+
+.EZ-airlines-bigcontainer [url] {
+  cursor: pointer;
+}
+
+.EZ-airlines-title {
+   background-color: white;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+.EZ-airlines-name {
+   background-color: white;
+   margin-top: 17.5px;
+   margin-bottom: 31px;
+   font-size: 18px;
+   line-height: 80%;
+   color: #333333;
+   float: left;
+}
+
+.EZ-airlines-name_icon{
+   height: 26px;
+   width: 26px;
+   margin-left: 15px;
+   margin-top: 13px;
+   background-color: white;
+}
+
+.EZ-airlines-firstTile{
+   width: 100px;
+   height: 100px;
+   margin-bottom: 17.5px;
+   margin-right: 12px;
+   background-color: white;
+   text-indent: 8px;
+   float: left;
+}
+
+.EZ-airlines-firstTile-smallTile{
+   width: 100px;
+   height: 28px;
+   border-radius: 3px;
+   color: white;
+}
+
+.EZ-airlines-firstTile-smallTile_padding{
+   height: 8px;
+}
+
+.EZ-airlines-center-vertical_text{
+   position: relative;
+   top: 50%;
+   transform: translateY(-50%);
+   line-height: 100%;
+}
+
+.EZ-airlines-Tiles{
+   width: 110px;
+   height: 100px;
+   margin-bottom: 17.5px;
+   margin-right: 8px;
+   border-radius: 3px;
+   background-color: #efefef;
+   text-align: center;
+   float: left;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   overflow: hidden;
+}
+
+.EZ-airlines-Tiles_icon{
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 50% 50%;
+  height: 71px;
+}
+
+.EZ-airlines-Tiles_text{
+   padding-bottom: 12px;
+}
+
+/*--- END airlinesEZ----*/
+
+/* weatherEZ.tpl --- thuy@cliqz.com - 15Jan2015 */
+.EZ-weather-bigcontainer{
+ padding-left: 22px;
+ background-color: white;
+ height: 180px;
+}
+
+
+.EZ-weather-title {
+   background-color: white;
+   overflow: hidden;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+}
+
+.EZ-weather_icon{
+   height: 26px;
+   width: 26px;
+   margin-left: 15px;
+   margin-top: 13px;
+   background-color: white;
+}
+
+.EZ-weather-city {
+  background-color: white;
+  font-size: 18px;
+  color: #333333;
+  margin-top: 12.5px;
+  margin-bottom: 18px;
+  float: left;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+
+
+.EZ-weather-container {
+ float:left;
+ width: 60px;
+ margin-right: 25px;
+ background-color: white;
+}
+
+.EZ-weather-date {
+  font-size: 14px;
+  color: #333333;
+  text-align: center;
+  overflow: hidden;
+  padding-top: 1px;
+  padding-bottom: 2px;
+  line-height: 130%;
+}
+
+.EZ-weather-img {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: white;
+  background-size: 54px 73px;
+  height: 73px;
+}
+
+.EZ-weather-temp {
+  font-size:14px;
+  color: #333333;
+  text-align:center;
+  padding-top: 4px;
+  padding-bottom: 16px;
+  background-color: white;
+  line-height: 100%
+}
+/*---- END weatherEZ ---- */
+
+/* weather ---- old, used by weather.tpl*/
 .cliqz-weather-left-box {
     padding-top: 10px;
     margin-right: 20px;
@@ -613,6 +777,175 @@
 }
 /* end news */
 
+/* pattern */
+
+.cliqz-pattern {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+}
+
+.cliqz-pattern-logo {
+  float: left;
+  height: 72px;
+  width: 72px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 72px 72px;
+}
+
+.cliqz-pattern-circle {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: #BFBFBF;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.cliqz-pattern-logo {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: white;
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  background-size: 44px 44px;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.cliqz-pattern-title-container {
+  position:absolute;
+  left:0px;
+  right:0px;
+  top:0px;
+  height:44px;
+  line-height: 44px;
+  background: #F5F5F5;
+  /*color: #424242;*/
+  color: black;
+  font-size: 16px;
+  text-decoration: bold;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  white-space:nowrap;
+}
+
+.cliqz-pattern-title-text-container {
+  overflow:hidden;
+  position:absolute;
+  top:0;
+  left:125px;
+  right: 20px;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
+
+.cliqz-pattern-title-text {
+  max-width:70%;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display:inline-block;
+}
+
+.cliqz-pattern-title-link {
+  display:inline-block;
+  color:rgba(0,0,0,0.54);
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 15px;
+}
+
+.cliqz-pattern-entries {
+  white-space: nowrap;
+  overflow:hidden;
+}
+
+.cliqz-pattern-entry-title {
+  font-size: 13px;
+  margin-left: 5px;
+  display:inline-block;
+  text-decoration: none;
+  color: #800080;
+  overflow: hidden;
+  max-width: 40%;
+}
+.cliqz-pattern-entry-link {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 30%;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-entry-date {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 10%;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-entry-favicons {
+  padding-left: 40px;
+  max-width: 16px;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-element {
+  line-height: 20px;
+  height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cliqz-pattern-favicon {
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
+  background-size: 16px 16px;
+}
+
+/* END pattern */
+
 /* hq */
 .cliqz-hq-language {
     color: gray;
@@ -704,6 +1037,54 @@
 }
 
 /* end qaa */
+
+/*  EZ celeb */
+
+.cliqz-celeb {
+    padding: 17.5px 22px;
+    font-size: 14px;
+    position: relative;
+    border-bottom: 1px solid #ccc
+}
+
+.cqz-celeb-images {
+    height: 60px;
+    overflow: hidden;
+}
+
+.cqz-celeb-image {
+    height: 60px;
+    margin-right: 8px;
+    border-radius: 6px;
+}
+
+.cqz-celeb-who {
+    font-size: 18px;
+    margin: 8px 0px;
+}
+.cqz-celeb-who span {
+    color: #ccc;
+}
+
+.cqz-celeb-social {
+    height: 15px;
+    margin-bottom: 8px;
+    margin-right: 8px;
+}
+
+.cqz-celeb-logo {
+    background-color: #ccc;
+    border-radius: 50%;
+    position: absolute;
+    height: 80px;
+    width: 80px;
+    line-height: 80px;
+    font-size: 40px;
+    text-align: center;
+    bottom: 22px;
+    right: 22px;
+}
+/* end EZ celeb */
 
 /* people */
 .people-box {
@@ -1135,50 +1516,20 @@
   color: #717171;
 }
 
-.entity-search-box {
-  border: 1px solid #3E86FC;
-  width: 485px;
-  height: 30px;
-  margin-bottom: 15px;
-  background-color: white;
-}
 
-#entity-search-box-icon {
-  background-color: #3E86FC;
-  width: 30px;
-  height: 30px;
-}
-
-#entity-search-box-input {
-  vertical-align: top;
-  font-size: 20px;
-  width: 440px;
-  height: 28px;
-  border: none;
-}
 
 .entity-search-container-app {
-  display: inline-block;
-  width: 90px;
-  height: 90px;
-  border-radius: 5px;
-  margin-right: 5px;
-}
-
-.entity-search-app-image {
-  height: 50px;
-}
-
-.entity-search-container-app-text {
-  color: white;
-  padding: 5px 0;
-  border-bottom-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-
-.entity-search-container-app div {
-  margin-top: 15px;
-  text-align: center;
+    display: inline-block;
+    width: 90px;
+    height: 90px;
+    border-radius: 5px;
+    margin-right: 5px;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    text-align: center;
+    padding-top: 60px;
+    box-sizing: border-box;
+    color: white;
 }
 
 .entity-video-search-box {

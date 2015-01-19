@@ -11,6 +11,12 @@
     "btnPrivacy":{
         "message": "Privacy Policy"
     },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Disable Newtab"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Enable Newtab"
+    },
     "btnDefaultSearchEngine":{
         "message": "Default Search Engine"
     },
@@ -307,5 +313,14 @@
     },
     "result_filter": {
       "message":"Result filter"
+    },
+    "age": {
+        "message": "Age"
+    },
+    "nationality": {
+        "message": "Nationality"
+    },
+    "history_results": {
+      "message":"Results from your history"
     }
 }
