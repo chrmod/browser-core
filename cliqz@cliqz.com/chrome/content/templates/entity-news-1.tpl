@@ -1,35 +1,35 @@
-<div class="entity-search-container">
-
-  <div class="entity-news-title">
-    Derzeit aktuell auf
-    <span class="" type="X" extra="entity-news-{{domain}}" url="{{url}}">
+<div class="cqz-result-h1 cqz-result-padding">
+  <div class="cqz-ez-title cqz-ez-news-title">
       {{data.domain}}
-    </span>
-    <img class="cliqz-logo {{ logo }}" />
   </div>
   <div class="entity-news-stories">
     {{#each data.news}}
-      <div class="entity-news-story {{#if @last}} entity-news-story-last {{/if}}"
-           url="{{ this.url }}" type="X" extra="entity-news-story">
-        <div class="entity-news-story-image">
-          <img src="{{ this.thumbnail }}" />
+      <div class="entity-news-story"
+           url="{{ this.url }}" type="X" extra="entity-news-story-{{ @index }}">
+        <div class="entity-news-story-image"
+          style="background-image: url({{ this.thumbnail }})">
         </div>
-        <div class="entity-news-story-description">
+        <div class="entity-news-story-description cqz-vert-center">
           <div class="entity-news-story-title">
             {{ this.title }}
           </div>
           <div class="entity-news-story-time">
             {{ this.time }}
-            <span class="entity-news-story-description-text"> {{ this.description }} </span>
           </div>
         </div>
       </div>
     {{/each}}
   </div>
-
-  <div class="entity-news-categories">
+  <div class='cqz-ez-btns'>
       {{#each data.categories}}
-        <span url="{{ this.url }}" type="X" extra="entity-news-category">{{ this.title }}</span>
+        <span
+          class="cqz-ez-btn"
+          style="background-color: #EFEFEF; color: black"
+          url="{{ this.url }}"
+          extra="entity-news-category-{{ @index }}">
+          {{ this.title }}
+        </span>
       {{/each}}
   </div>
+  {{> logo}}
 </div>

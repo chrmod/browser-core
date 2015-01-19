@@ -11,6 +11,12 @@
     "btnPrivacy":{
         "message": "Datenschutz"
     },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab deaktivieren"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab aktivieren"
+    },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
     },

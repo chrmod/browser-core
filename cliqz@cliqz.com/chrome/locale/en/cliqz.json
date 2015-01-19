@@ -11,6 +11,12 @@
     "btnPrivacy":{
         "message": "Privacy Policy"
     },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Disable Newtab"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Enable Newtab"
+    },
     "btnDefaultSearchEngine":{
         "message": "Default Search Engine"
     },

@@ -12,21 +12,21 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     VERTICALS = {
-        'b': 'bundesliga',
-        's': 'shopping',
-        'g': 'gaming'  ,
-        'n': 'news'    ,
-        'p': 'people'  ,
-        'v': 'video'   ,
-        'h': 'hq'      ,
-        'q': 'qaa'     ,
-        'k': 'science' ,
-        'l': 'dictionary'
+        //'b': 'bundesliga',
+        //'s': 'shopping',
+        //'g': 'gaming'  ,
+        //'n': 'news'    ,
+        //'p': 'people'  ,
+        //'v': 'video'   ,
+        //'h': 'hq'      ,
+        //'q': 'qaa'     ,
+        //'k': 'science' ,
+        //'l': 'dictionary'
     },
-    PARTIALS = ['url'],
+    PARTIALS = ['url', 'logo'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
-    IC = 'cliqz-result-item-box', // result item class
+    IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
     TAB = 9,
     ENTER = 13,
@@ -35,10 +35,10 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
-    IMAGE_HEIGHT = 54,
-    IMAGE_WIDTH = 96,
     DEL = 46,
     BACKSPACE = 8,
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
     currentResults
     ;
 
@@ -79,7 +79,7 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-
+        
         resultsBox.addEventListener('click', resultClick);
 
         box.addEventListener('mousemove', resultMove);
@@ -168,6 +168,7 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
+        
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
@@ -179,6 +180,7 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    if(nextEl.className == 'cqz-result-selected') return true;
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
                 }
@@ -612,7 +614,7 @@ function enhanceResults(res){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-                    r.logo = generateLogoClass(r.urlDetails);
+                    r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
                     if(r.vertical == 'text')r.dontCountAsResult = true;
                 } else {
                     // double safety - to be removed
@@ -622,7 +624,7 @@ function enhanceResults(res){
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
-            r.logo = generateLogoClass(r.urlDetails);
+            r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
@@ -645,8 +647,19 @@ function enhanceResults(res){
     //prioritize extra (fun-vertical) results
     var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    res.results = first;
-    res.results = res.results.concat(last);
+    var all = first.concat(last);
+
+    // TODO: very ugly
+    // getMax 3 results height
+    res.results = []
+    for(var i=0; i<all.length && i<3; i++){
+        res.results.push(all[i])
+        if(all[i].type == 'cliqz-extra' && all[i].data){
+            if(all[i].data.template == 'entity-search-1' ||
+               all[i].data.template == 'entity-banking-2')i++;
+            else i+=2;
+        }
+    }
     return res;
 }
 
@@ -788,8 +801,12 @@ function clearResultSelection(){
 
 function setResultSelection(el, scroll, scrollTop){
     clearResultSelection();
+    $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
         el.setAttribute('selected', 'true');
+        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
+
         if(scroll){
             var rBox = gCliqzBox.resultsBox,
                 firstOffset = rBox.children[0].offsetTop;
@@ -944,8 +961,7 @@ function onEnter(ev, item){
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
-            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
-
+        CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestion = gCliqzBox && $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);

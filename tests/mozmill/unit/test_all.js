@@ -108,7 +108,7 @@ function testFilter() {
                     "https://192.168.1.1/",
                 ]
             ],
-            // T4
+            // T5
             [
                 [
                     "www.facebook.com/login.php",
@@ -118,7 +118,7 @@ function testFilter() {
                     "www.facebook.com/login.php",
                 ]
             ],
-            // T5
+            // T6
             [
                 [
                     "www.facebook.com",
@@ -126,6 +126,40 @@ function testFilter() {
                 ],
                 [
                     "www.facebook.com",
+                ]
+            ],
+            // T7
+            [
+                [
+                    "http://www.inflammable.com/",
+                    "https://www.inflammable.com/",
+                    "http://chemistry.about.com/od/firecombustionchemistry/f/What-Is-The-Difference-Between-Flammable-And-Inflammable.htm"
+                ],
+                [
+                    "https://www.inflammable.com/",
+                    "http://chemistry.about.com/od/firecombustionchemistry/f/What-Is-The-Difference-Between-Flammable-And-Inflammable.htm"
+                ]
+            ],
+            // T8
+            [
+                [
+                     "https://www.xing.com/net/treffpunktfremdsprachen/ich-suche-sprachkurs-seminar-coaching-sprachenevent-sprachentandem-sprachenstammtisch-465652/gesucht-one-week-crash-kurs-englisch-sprachhotel-36536093",
+                     "http://www.sn-online.de/Nachrichten/Hannover/Uebersicht/Auslaender-haben-in-Hannover-keine-Chance-auf-Sprachkurs",
+                     "http://ebookee.org/dl/PONS-Power-Sprachkurs-russisch-als-Fremdsprache"
+                ],
+                [
+                     "https://www.xing.com/net/treffpunktfremdsprachen/ich-suche-sprachkurs-seminar-coaching-sprachenevent-sprachentandem-sprachenstammtisch-465652/gesucht-one-week-crash-kurs-englisch-sprachhotel-36536093",
+                     "http://www.sn-online.de/Nachrichten/Hannover/Uebersicht/Auslaender-haben-in-Hannover-keine-Chance-auf-Sprachkurs",
+                     "http://ebookee.org/dl/PONS-Power-Sprachkurs-russisch-als-Fremdsprache"
+                ]
+            ],
+            // T9
+            [
+                [
+                    "http://www.rc-network.de/forum/showthread.php/186973-MPX-FUNJET-motor-Kontronik-480-31-Kira-FUN"
+                ],
+                [
+                    "http://www.rc-network.de/forum/showthread.php/186973-MPX-FUNJET-motor-Kontronik-480-31-Kira-FUN"
                 ]
             ]
         ];

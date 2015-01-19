@@ -46,6 +46,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+  'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
+var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
+var Services = Services || CliqzUtils.getWindow().Services;
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -70,10 +76,12 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
         CliqzHistoryPattern.preloadColors();
+        CliqzNewTab.init(window);
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
@@ -402,7 +410,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         CliqzAutocomplete.highlightFirstElement = false;
 
-        let urlBar = CLIQZ.Core.urlbar, r,
+        var urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
         var lastPattern = CliqzAutocomplete.lastPattern;
         var results = lastPattern ? lastPattern.filteredResults() : [];

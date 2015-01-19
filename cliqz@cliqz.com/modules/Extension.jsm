@@ -16,6 +16,9 @@ Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
 var BTN_ID = 'cliqz-button',
     SHARE_BTN_ID = 'cliqz-share-button',
     SEARCH_BAR_ID = 'search-container',
@@ -76,6 +79,7 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
+                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -137,6 +141,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
+        Cu.unload('chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
@@ -284,7 +289,7 @@ var Extension = {
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
-
+        
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
@@ -320,11 +325,29 @@ var Extension = {
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
+       
+        var menuitem5 = doc.createElement('menuitem');
+        menuitem5.setAttribute('id', 'cliqz_menuitem5');
+        menuitem5.setAttribute('label',
+            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
+        );
+        
+        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+        
+        menuitem5.addEventListener('command', function(event) {
+            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
+            
+            CliqzNewTab.showCliqzNewTab(newvalue);
+            
+            menuitem5.setAttribute('label',
+                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
+            );
+            //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+        }, false);
 
-
-        menupopup.appendChild(menuitem1);
-        menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem4);
+        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
+            menupopup.appendChild(item);
+        });
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
