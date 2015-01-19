@@ -23,7 +23,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo'],
+    PARTIALS = ['url', 'adult', 'logo'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -785,6 +785,17 @@ function resultClick(ev){
                     break;
                 }
             }
+            /*
+             * Show adult content
+             */
+            if (el.getAttribute('cliqz-action') == 'show-adult-content') {
+              el.parentNode.className = "hidden";
+              break;
+            };
+            if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
+              el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1280,6 +1291,31 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    // Checks if result contains adult content
+    Handlebars.registerHelper('ifAdult', function(results) {
+      var classes = '';
+      var adult_results = false;
+      console.log(results)
+      for(var i = 0; i < results.length; i++) {
+        if (results[i].data.adult == true)
+          adult_results = true;
+      }
+
+      var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+
+      if (adult_results && current_level == 'moderate') {
+        classes = 'cqz-adult-bar';
+      } else if (adult_results && current_level == 'liberal') {
+        classes = 'hidden';
+      } else if (adult_results && current_level == 'conservative') {
+        classes = 'cqz-adult-bar hidden';
+      } else {
+        classes = 'hidden';
+      }
+
+      return classes;
     });
 }
 

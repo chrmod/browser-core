@@ -1,3 +1,4 @@
+{{>adult this}}
 {{#each results}}
 	{{#unless invalid}}
 		<div class='cqz-result-box'
