@@ -12,11 +12,12 @@ var CliqzQueryDebug = CliqzQueryDebug || {
     results: [],
     MAX_PREV: 20,
 
-    recordResults: function(query, cliqz, history, mixed) {
+    recordResults: function(query, cliqz, history, unfiltered, mixed) {
         var r = {
             'query': query,
             'cliqz': cliqz,
             'history': history,
+            'unfiltered': unfiltered,
             'mixed': mixed
         };
 

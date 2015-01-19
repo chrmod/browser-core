@@ -59,7 +59,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
     init: function(){
         Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
-        if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow())) {
+        if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
@@ -343,8 +343,8 @@ CLIQZ.Core = CLIQZ.Core || {
                         type: 'environment',
                         agent: navigator.userAgent,
                         language: navigator.language,
-                        width: CliqzUtils.getWindow().document.width,
-                        height: CliqzUtils.getWindow().document.height,
+                        width: window.document.width,
+                        height: window.document.height,
                         version: beVersion,
                         history_days: history.days,
                         history_urls: history.size,
@@ -431,6 +431,13 @@ CLIQZ.Core = CLIQZ.Core || {
           results.shift();
           autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
         }
+
+        // If new style autocomplete and it is not enabled, ignore the autocomplete
+        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+            CLIQZ.UI.clearSelection();
+            return;
+        }
+
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
@@ -455,7 +462,7 @@ CLIQZ.Core = CLIQZ.Core || {
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
             pathLength = 0,
-            SYMBOLS = /,|-|\./g;
+            SYMBOLS = /,|\./g;
 
         if(cleanParts.length > 1){
             pathLength = ('/' + cleanParts.slice(1).join('/')).length;
