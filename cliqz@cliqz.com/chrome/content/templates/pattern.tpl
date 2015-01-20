@@ -1,25 +1,26 @@
 <div class='cliqz-pattern cqz-result-h2'>
   <div class='cliqz-pattern-logo'></div>
-  <div class='cqz-result-title overflow cliqz-pattern-title' style='color: #2f2f2f;'>
+  <div class='cqz-result-title overflow cliqz-pattern-title' style='color: rgba(0,0,0,0.72)'>
     {{ data.title }}
   </div>
+  <div class="cliqz-pattern-document-icon"></div>
+  <br clear='both' />
   <div style="width:{{ width }}px;">
     <div style="position:relative;overflow:hidden;">
-      <div class='.cqz-result-box cliqz-pattern-entries'>
-        <div class='cliqz-pattern-entry-favicons'>
+      <div class='.cqz-result-box cliqz-pattern-result-container'>
+        <div class='cliqz-pattern-favicons'>
           {{#each data.urls}}
-          <div class='cliqz-pattern-favicon' style='background-image: url({{ favicon }}'></div>
+          <div class='cliqz-pattern-favicon-element' style='background-image: url({{ favicon }}'></div>
           {{/each}}
         </div>
-        <div class='cliqz-pattern-entry-title' style="margin-left: 5px">
+        <div class='cliqz-pattern-results'>
           {{#each data.urls}}
-          <div class='cliqz-pattern-element' url='{{href}}' type='' extra=''>
-            <span style='cursor: pointer;color: #800080;'
-                  onmouseover="this.children[0].innerHTML='{{link}}'"
-                  onmouseout="this.children[0].innerHTML='{{domain}}'">{{ title }}
-              <span class='cliqz-pattern-entry-link'>{{ domain }}</span>
-              </span>
-            </div>
+          <div class='cliqz-pattern-element' url='{{href}}' type='' extra=''
+            onmouseover="this.children[1].innerHTML='{{link}}'"
+            onmouseout="this.children[1].innerHTML='{{domain}}'">
+              <div class='cliqz-pattern-element-title'>{{ title }}</div>
+              <span class='cliqz-pattern-element-link'>{{ domain }}</span>
+          </div>
           {{/each}}
         </div>
       </div>

@@ -165,7 +165,7 @@ var CliqzHistoryPattern = {
         var pattern = [];
         pattern.url = result.getValueAt(i);
         if (pattern.url.indexOf("moz-action:") === 0) {
-          continue;
+          pattern.url = pattern.url.substr(pattern.url.indexOf("://"));
         }
         pattern.title = result.getCommentAt(i);
         if (pattern.title.length > 0 && pattern.url.length > 0) {
@@ -360,11 +360,14 @@ var CliqzHistoryPattern = {
       baseUrl = CliqzHistoryPattern.generalizeUrl(patterns[0].url, true);
     }
 
-    if (!commonDomain) {
+    if (commonDomain && false /* disabled, enable to push most common domain pattern to top,
+      e.g. spiegel.de/wirtschaft instead of just spiegel.de
+      Only makes sense when also enabling autocomplete for title/query
+       */) {
+      baseUrl = commonDomain;
+    } else {
       if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
       baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl, false)));
-    } else {
-      baseUrl = commonDomain;
     }
     for (var i = 0; i < patterns.length; i++) {
       var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i].url, true);
@@ -689,7 +692,12 @@ var CliqzHistoryPattern = {
     return CliqzUtils.getLocalizedString("agoXDays").replace('{}', parseInt(diff / (3600 * 24)));
   },
   createInstantResult: function(res, results, searchString) {
-    var instant = Result.generic("cliqz-pattern", results[0].url, null, results[0].title, null, searchString);
+    if (results.length == 1) {
+      var type = 'cliqz-results';
+    } else {
+      var type = 'cliqz-pattern';
+    }
+    var instant = Result.generic(type, results[0].url, null, results[0].title, null, searchString);
     instant.comment += " (pattern cluster)!";
     var kind = instant.data.kind;
     instant.data = {
@@ -713,7 +721,7 @@ var CliqzHistoryPattern = {
         link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
         domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
         vdate: CliqzHistoryPattern.formatDate(results[i].date),
-        title: results[i].title.length > 60 ? results[i].title.substring(0,60)+"..." : results[i].title,
+        title: results[i].title,
         favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain
       });
       if (instant.data.urls.length > 4) {
