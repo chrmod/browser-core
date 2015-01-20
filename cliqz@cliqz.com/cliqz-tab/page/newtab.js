@@ -75,6 +75,10 @@ $(function(){
         event.stopPropagation();
     });
     
+    $('#search-dropdown').click(function(ev){
+        ev.stopPropagation();
+    });
+    
     $(document).click(function(ev){
         $('#search-dropdown').hide();
     });
