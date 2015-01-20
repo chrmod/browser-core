@@ -9,10 +9,6 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -41,7 +37,14 @@ var Extension = {
 //      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
+        Extension.unloadModules();
+
+        Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
+
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         this.track = CliqzUtils.track;
@@ -120,7 +123,7 @@ var Extension = {
     },
     unloadModules: function(){
         //unload all cliqz modules
-        Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -137,12 +140,20 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzUCrawl.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryDebug.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+
+        // Remove this observer here to correct bug in 0.5.57
+        // - if you don't do this, the extension will crash on upgrade to a new version
+        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
+
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();

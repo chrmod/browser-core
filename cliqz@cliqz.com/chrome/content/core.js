@@ -237,8 +237,14 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeProgressListener(CliqzUCrawl.listener);
+            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
 
         if(!soft){
             delete window.CliqzUtils;
