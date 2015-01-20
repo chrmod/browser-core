@@ -555,6 +555,10 @@
   font-size: 15px;
 }
 
+.cliqz-pattern-element[selected="true"] {
+  /*background:black;*/
+}
+
 .cliqz-pattern-element-title {
   color: #9C27B0;
   color:rgba(128,0,128,0.60);

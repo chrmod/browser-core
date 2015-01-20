@@ -181,6 +181,10 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element")[0];
+                    if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
+                      nextEl = nextEl.nextElementSibling;
+                    }
                     if(nextEl.className == 'cqz-result-selected') return true;
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
@@ -811,20 +815,39 @@ function resultClick(ev){
 }
 
 function getResultSelection(){
-    return $('.' + IC + '[selected="true"]', gCliqzBox);
+    var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
+    if (selectedHistory) return selectedHistory;
+    else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
     var el = getResultSelection();
     el && el.removeAttribute('selected');
+    // Reset history entries to domain name
+    var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+    for(var i=0; i<history.length; i++) {
+      history[i].children[1].innerHTML = history[i].getAttribute("domain");
+    }
 }
 
 function setResultSelection(el, scroll, scrollTop){
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
+        // History selection
+        var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+        if (el.getAttribute("kind") == "C" && !scrollTop) el = history[0];
+        else if(el.getAttribute("kind") == "C" && scrollTop) el = history[history.length-1];
+
         el.setAttribute('selected', 'true');
-        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        if (el.className == 'cliqz-pattern-element') {
+          $('.cqz-result-selected', gCliqzBox).style.top = (44 + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+          // Show full url for highlighted entry
+          el.children[1].textContent = el.getAttribute("shortUrl");
+        } else {
+          $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        }
+
         $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
 
         if(scroll){
