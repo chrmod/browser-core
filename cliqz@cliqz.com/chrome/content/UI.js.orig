@@ -35,11 +35,18 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
-    IMAGE_HEIGHT = 64,
-    IMAGE_WIDTH = 114,
+<<<<<<< HEAD
+    IMAGE_HEIGHT = 54,
+    IMAGE_WIDTH = 96,
     DEL = 46,
     BACKSPACE = 8,
     currentResults
+=======
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
+    currentResults,
+    DEL = 8
+>>>>>>> 2e6054324816f8e088050a02520ef0c2a64f3ac3
     ;
 
 var UI = {
