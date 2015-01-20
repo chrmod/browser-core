@@ -438,8 +438,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                                 json.images.results.map(Result.cliqzExtra);
 
                         if(json.extra && json.extra.results && json.extra.results.length >0)
-                            this.cliqzResultsExtra = this.cliqzResultsExtra.concat(
-                                json.extra.results.map(Result.cliqzExtra));
+                            //this.cliqzResultsExtra = this.cliqzResultsExtra.concat(
+                            //    json.extra.results.map(Result.cliqzExtra));
+                            // we do not show both images and EZones. EZones have priority
+                            this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
 
                         this.latency.cliqz = json.duration;
                     }

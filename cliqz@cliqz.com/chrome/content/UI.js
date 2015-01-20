@@ -656,7 +656,9 @@ function enhanceResults(res){
         res.results.push(all[i])
         if(all[i].type == 'cliqz-extra' && all[i].data){
             if(all[i].data.template == 'entity-search-1' ||
-               all[i].data.template == 'entity-banking-2')i++;
+               all[i].data.template == 'entity-banking-2'||
+               all[i].data.template == 'celebrities'||
+               all[i].data.template == 'weatherEZ')i++;
             else i+=2;
         }
     }
@@ -1305,12 +1307,16 @@ function registerHelpers(){
       var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
 
       if (adult_results && current_level == 'moderate') {
+        return true;
         classes = 'cqz-adult-bar';
       } else if (adult_results && current_level == 'liberal') {
+        return false;
         classes = 'hidden';
       } else if (adult_results && current_level == 'conservative') {
+        return false;
         classes = 'cqz-adult-bar hidden';
       } else {
+        return false;
         classes = 'hidden';
       }
 
