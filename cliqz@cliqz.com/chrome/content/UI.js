@@ -46,6 +46,7 @@ var UI = {
     tpl: {},
     showDebug: false,
     preventFirstElementHighlight: false,
+    lastInput: 0,
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -168,7 +169,7 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
-
+        UI.lastInput = (new Date()).getTime();
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
@@ -266,7 +267,6 @@ var UI = {
         CliqzUtils.track(signal);
       }
     },
-    lastInput: 0,
     selectFirstElement: function() {
       setTimeout(function() {
         var time = (new Date()).getTime();
