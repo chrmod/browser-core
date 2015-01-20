@@ -266,10 +266,16 @@ var UI = {
         CliqzUtils.track(signal);
       }
     },
+    lastInput: 0,
     selectFirstElement: function() {
-        if (!UI.preventFirstElementHighlight) {
+      setTimeout(function() {
+        var time = (new Date()).getTime();
+        if(time - UI.lastInput > 400) {
+          if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+          }
         }
+      },400);
     },
     clearSelection: function() {
         clearResultSelection();
@@ -661,6 +667,7 @@ function enhanceResults(res){
                all[i].data.template == 'weatherEZ')i++;
             else i+=2;
         }
+        if(all[i].data && all[i].data.template == "history-pattern")i++;
     }
     return res;
 }

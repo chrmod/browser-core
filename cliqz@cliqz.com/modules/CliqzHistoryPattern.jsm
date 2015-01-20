@@ -23,10 +23,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
 
-var DATA_SOURCE = CliqzUtils.getPref("newHistoryType");
+var DATA_SOURCE = "firefox_no_cluster"/*CliqzUtils.getPref("newHistoryType")*/;
 
 var CliqzHistoryPattern = {
-  PATTERN_DETECTION_ENABLED: CliqzUtils.getPref("newHistory"),
+  PATTERN_DETECTION_ENABLED: true/*CliqzUtils.getPref("newHistory")*/,
   timeFrame: (new Date).getTime() - 60 * 60 * 24 * 7 * 1000, // Go back one week in cliqz history
   data: null,
   pattern: null,
@@ -164,8 +164,11 @@ var CliqzHistoryPattern = {
       for (var i = 0; i < result.matchCount; i++) {
         var pattern = [];
         pattern.url = result.getValueAt(i);
-        if (pattern.url.indexOf("moz-action:") === 0) {
-          pattern.url = pattern.url.substr(pattern.url.indexOf("://"));
+        CliqzUtils.log(pattern.url);
+        if (pattern.url.indexOf("moz-action:switchtab") === 0) {
+          pattern.url = pattern.url.substr(pattern.url.indexOf(',')+1);
+        } else if (pattern.url.indexOf("moz-action:") === 0) {
+          continue;
         }
         pattern.title = result.getCommentAt(i);
         if (pattern.title.length > 0 && pattern.url.length > 0) {
@@ -703,11 +706,9 @@ var CliqzHistoryPattern = {
     instant.data = {
       title: CliqzUtils.getLocalizedString("history_results"),
       kind: kind,
-      url: "",
       urls: [],
-      letters: "",
-      logoClass: "cliqz-pattern-logo",
-      cluster: false
+      cluster: false,
+      template: "history-pattern"
     };
     for (var i = 0; i < results.length; i++) {
       var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
