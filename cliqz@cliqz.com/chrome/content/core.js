@@ -74,6 +74,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
