@@ -9,6 +9,7 @@
  */
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -64,8 +65,12 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
+<<<<<<< HEAD
+        if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow())) {
+=======
         Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
         if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
+>>>>>>> 9886e4e19282e5dbb6dc0dbd4569e2b40273b15d
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
@@ -76,7 +81,12 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzNewTab.init(window);
         CliqzHistory.initDB();
+<<<<<<< HEAD
         //CliqzHistoryPattern.preloadColors();
+=======
+        CliqzHistoryPattern.preloadColors();
+
+>>>>>>> 9886e4e19282e5dbb6dc0dbd4569e2b40273b15d
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 

@@ -23,7 +23,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo'],
+    PARTIALS = ['url', 'adult', 'logo'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -168,6 +168,7 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
+
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
@@ -742,10 +743,11 @@ function resultClick(ev){
             CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
                 CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
             CliqzHistory.updateQuery(query);
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
 
             CLIQZ.Core.openLink(url, newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
+
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
 
             break;
         } else if (el.getAttribute('cliqz-action')) {
@@ -782,6 +784,17 @@ function resultClick(ev){
                     break;
                 }
             }
+            /*
+             * Show adult content
+             */
+            if (el.getAttribute('cliqz-action') == 'show-adult-content') {
+              el.parentNode.className = "hidden";
+              break;
+            };
+            if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
+              el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -946,9 +959,9 @@ function onEnter(ev, item){
             action.Ctype = CliqzUtils.getClusteringDomain(url)
         }
         CliqzHistory.updateQuery(query);
-        CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "result");
+        CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
         if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
             url = CliqzAutocomplete.lastAutocomplete;
             //action.autocompleted = true;
             action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
@@ -959,8 +972,7 @@ function onEnter(ev, item){
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
-            CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
-
+        CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
         var suggestion = gCliqzBox && $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
@@ -989,7 +1001,7 @@ function onEnter(ev, item){
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
             CliqzHistory.updateQuery(query);
-            CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
+            CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
 
             action.source = getResultKind(first);
             if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
@@ -1002,10 +1014,10 @@ function onEnter(ev, item){
         } else {
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.updateQuery(inputValue);
-                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "typed");
+                CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "typed");
             } else {
                 CliqzHistory.updateQuery(query);
-                CliqzHistory.setTabData(CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel, "type", "google");
+                CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "google");
             }
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
@@ -1278,6 +1290,31 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    // Checks if result contains adult content
+    Handlebars.registerHelper('ifAdult', function(results) {
+      var classes = '';
+      var adult_results = false;
+      console.log(results)
+      for(var i = 0; i < results.length; i++) {
+        if (results[i].data.adult == true)
+          adult_results = true;
+      }
+
+      var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+
+      if (adult_results && current_level == 'moderate') {
+        classes = 'cqz-adult-bar';
+      } else if (adult_results && current_level == 'liberal') {
+        classes = 'hidden';
+      } else if (adult_results && current_level == 'conservative') {
+        classes = 'cqz-adult-bar hidden';
+      } else {
+        classes = 'hidden';
+      }
+
+      return classes;
     });
 }
 

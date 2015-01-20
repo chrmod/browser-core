@@ -11,6 +11,12 @@
     "btnPrivacy":{
         "message": "Datenschutz"
     },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab deaktivieren"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab aktivieren"
+    },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
     },
@@ -301,6 +307,24 @@
     },
     "spell_correction": {
       "message":"Meintest Du wirklich "
+    },
+    "result_filter_conservative": {
+      "message":"Konservativ"
+    },
+    "result_filter_moderate": {
+      "message":"Mittelmäßig"
+    },
+    "result_filter_liberal": {
+      "message":"Liberal"
+    },
+    "result_filter": {
+      "message":"Ergebnisfilter"
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
     },
     "history_results": {
       "message":"Besuchte Webseiten"

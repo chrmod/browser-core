@@ -16,6 +16,9 @@ Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
 var BTN_ID = 'cliqz-button',
     SHARE_BTN_ID = 'cliqz-share-button',
     SEARCH_BAR_ID = 'search-container',
@@ -76,6 +79,7 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
+                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -137,6 +141,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
+        Cu.unload('chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
@@ -284,7 +289,7 @@ var Extension = {
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
-
+        
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
@@ -320,21 +325,41 @@ var Extension = {
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
+       
+        var menuitem5 = doc.createElement('menuitem');
+        menuitem5.setAttribute('id', 'cliqz_menuitem5');
+        menuitem5.setAttribute('label',
+            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
+        );
+        
+        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+        
+        menuitem5.addEventListener('command', function(event) {
+            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
+            
+            CliqzNewTab.showCliqzNewTab(newvalue);
+            
+            menuitem5.setAttribute('label',
+                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
+            );
+            //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+        }, false);
 
-
-        menupopup.appendChild(menuitem1);
-        menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem4);
+        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
+            menupopup.appendChild(item);
+        });
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
         if(Services.search.init != null){
             Services.search.init(function(){
                 menupopup.appendChild(Extension.createSearchOptions(doc));
+                menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                 menupopup.appendChild(Extension.createLanguageOptions(doc));
             });
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
+            menupopup.appendChild(Extension.createAdultFilterOptions(doc));
             menupopup.appendChild(Extension.createLanguageOptions(doc));
         }
     },
@@ -430,6 +455,45 @@ var Extension = {
 
         return menu;
     },
+    createAdultFilterOptions: function(doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
+
+        var filter_levels = {'conservative':
+                               {name: CliqzUtils.getLocalizedString('result_filter_conservative'),
+                                selected: false},
+                             'moderate':
+                               {name: CliqzUtils.getLocalizedString('result_filter_moderate'),
+                                selected: false},
+                             'liberal':
+                               {name: CliqzUtils.getLocalizedString('result_filter_liberal'),
+                                selected: false}};
+
+        var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+        filter_levels[current_level].selected = true;
+
+        for(var level in filter_levels) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', filter_levels[level].name);
+          item.setAttribute('class', 'menuitem-iconic');
+
+          if(filter_levels[level].selected){
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+
+          item.filter_level = new String(level);
+          item.addEventListener('command', function(event) {
+            CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
+            timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+          }, false);
+
+          menupopup.appendChild(item);
+        };
+        menu.appendChild(menupopup);
+        return menu;
+    },
     refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -441,9 +505,13 @@ var Extension = {
                 if(btn && btn.children && btn.children.cliqz_menupopup){
                     var languageOptions = btn.children.cliqz_menupopup.lastChild;
                     languageOptions.parentNode.removeChild(languageOptions);
+                    var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                    adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
                     searchOptions.parentNode.removeChild(searchOptions);
+
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
+                    btn.children.cliqz_menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                     btn.children.cliqz_menupopup.appendChild(Extension.createLanguageOptions(doc));
                 }
             } catch(e){}
