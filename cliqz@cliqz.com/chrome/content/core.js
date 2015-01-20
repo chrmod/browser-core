@@ -25,8 +25,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -58,8 +58,26 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
-        if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
+        // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
+        var listners = window.gBrowser.mTabsProgressListeners;
+        for(var i=0; i<listners.length; i++){
+            var l = listners[i];
+            if(l["QueryInterface"] &&
+               l["onLocationChange"] &&
+               l["onStateChange"] &&
+               l["onStatusChange"]){
+
+                //if this listner matches the signature of CliqzHistory - remove it
+                window.gBrowser.removeTabsProgressListener(l);
+                break;
+            }
+        }
+        // end TEMP fix
+
+        XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+            'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
+        if (!CliqzUtils.isPrivate(window)) {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
