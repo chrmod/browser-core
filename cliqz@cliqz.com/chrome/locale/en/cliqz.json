@@ -301,5 +301,26 @@
     },
     "spell_correction": {
       "message":"Did you really mean "
+    },
+    "result_filter_conservative": {
+      "message":"Conservative"
+    },
+    "result_filter_moderate": {
+      "message":"Moderate"
+    },
+    "result_filter_liberal": {
+      "message":"Liberal"
+    },
+    "result_filter": {
+      "message":"Result filter"
+    },
+    "age": {
+        "message": "Age"
+    },
+    "nationality": {
+        "message": "Nationality"
+    },
+    "history_results": {
+      "message":"Results from your history"
     }
 }

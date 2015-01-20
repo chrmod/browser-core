@@ -46,14 +46,14 @@ var VERTICAL_ENCODINGS = {
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
-    LOGOS = ['amazon', 'ebay', 'facebook', 'google', 'twitter', 'yelp', 'youtube'],
+    LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
     BRAND_COLORS = {}, brand_loaded = false;
 
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=', //'http://54.160.104.109/mixer?q='
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
@@ -68,9 +68,9 @@ var CliqzUtils = {
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-               'engines', 'generic', 'custom', 'clustering', 'series', 'calculator',
+               'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
-               'bitcoin', 'spellcheck'],
+               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -416,7 +416,7 @@ var CliqzUtils = {
     if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-bundesliga') return ['b'];
-    else if(type === 'cliqz-cluster') return ['C'];
+    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
     else if(type === 'cliqz-extra') return ['X'];
     else if(type === 'cliqz-series') return ['S'];
 
@@ -850,7 +850,7 @@ var CliqzUtils = {
   },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
-      
+
     return urlbar.value.length == 0;
   },
   /** Modify the user's Firefox preferences -- always do a backup! */

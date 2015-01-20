@@ -1,20 +1,22 @@
-<div class="entity-search-container">
-  <!--
-  <div class="entity-search-aktuell">
-    Aktuell: <span>Ebola</span> <span>Apple Inc.</span> <span>Police</span>
-             <span>Tropical cyclones</span> <span>Vladimir Putin</span>
-  </div>
-  -->
-  <div>
-    <div class="entity-search-box" style="border: 1px solid {{data.search_box_background_color}};">
-      <img style="background-color: {{data.search_box_background_color}};" id="entity-search-box-icon" src="{{data.search_box_icon}}" />
-      <input dont-close="true" type="text" id="entity-search-box-input"
-      cliqz-action="stop-click-event-propagation"
-      search-url="{{data.search_url}}" search-provider="{{data.search_provider}}"
-      logg-action-type="{{data.logg_action_type}}"
-      onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value, this)"/>
+<div class="cqz-result-h1 entity-search-container">
+    <div>
+      <div class="cqz-ez-search-box"
+           style="border: 1px solid {{data.search_box_background_color}};"
+           >
+        <img
+          style="background-color: {{data.search_box_background_color}};"
+          class="cqz-ez-search-box-icon"
+          src="{{data.search_box_icon}}" />
+        <input
+          dont-close="true" type="text" class="cqz-ez-search-box-input"
+          cliqz-action="stop-click-event-propagation"
+          search-url="{{data.search_url}}"
+          search-provider="{{data.search_provider}}"
+          logg-action-type="{{data.logg_action_type}}"
+          onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value, this)"
+        />
+      </div>
     </div>
-  </div>
   <div class="entity-video-category">
     Popular videos
   </div>

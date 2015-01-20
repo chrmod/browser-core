@@ -144,6 +144,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryDebug.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -352,10 +354,12 @@ var Extension = {
         if(Services.search.init != null){
             Services.search.init(function(){
                 menupopup.appendChild(Extension.createSearchOptions(doc));
+                menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                 menupopup.appendChild(Extension.createLanguageOptions(doc));
             });
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
+            menupopup.appendChild(Extension.createAdultFilterOptions(doc));
             menupopup.appendChild(Extension.createLanguageOptions(doc));
         }
     },
@@ -451,6 +455,45 @@ var Extension = {
 
         return menu;
     },
+    createAdultFilterOptions: function(doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
+
+        var filter_levels = {'conservative':
+                               {name: CliqzUtils.getLocalizedString('result_filter_conservative'),
+                                selected: false},
+                             'moderate':
+                               {name: CliqzUtils.getLocalizedString('result_filter_moderate'),
+                                selected: false},
+                             'liberal':
+                               {name: CliqzUtils.getLocalizedString('result_filter_liberal'),
+                                selected: false}};
+
+        var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+        filter_levels[current_level].selected = true;
+
+        for(var level in filter_levels) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', filter_levels[level].name);
+          item.setAttribute('class', 'menuitem-iconic');
+
+          if(filter_levels[level].selected){
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+
+          item.filter_level = new String(level);
+          item.addEventListener('command', function(event) {
+            CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
+            timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+          }, false);
+
+          menupopup.appendChild(item);
+        };
+        menu.appendChild(menupopup);
+        return menu;
+    },
     refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -462,9 +505,13 @@ var Extension = {
                 if(btn && btn.children && btn.children.cliqz_menupopup){
                     var languageOptions = btn.children.cliqz_menupopup.lastChild;
                     languageOptions.parentNode.removeChild(languageOptions);
+                    var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                    adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
                     searchOptions.parentNode.removeChild(searchOptions);
+
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
+                    btn.children.cliqz_menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                     btn.children.cliqz_menupopup.appendChild(Extension.createLanguageOptions(doc));
                 }
             } catch(e){}

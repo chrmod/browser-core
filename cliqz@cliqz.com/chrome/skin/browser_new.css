@@ -10,6 +10,13 @@
     src: url("fonts/Lato-Bold.ttf");
 }
 
+@font-face
+{
+    font-family: "Lato Light";
+    src: url("fonts/Lato-Light.ttf");
+}
+
+
 /* BROWSER */
 #urlbar[focused="true"] {
 	/*box-shadow: 0px 0px 0px black !important;*/
@@ -48,10 +55,6 @@
 	border-bottom: 1px solid #CCC;
 }
 
-.cqz-result-box:nth-child(3) {
-	border-bottom: 0;
-}
-
 /*
 .cqz-result-box:before {
 	content: "";
@@ -69,7 +72,7 @@
 */
 
 .cqz-result-selected {
-	background-color: #eaeaea;
+	background-color: #cccccc;
 	border-radius: 0 3px 0 0;
 	position: absolute;
 	height: 16px;
@@ -311,6 +314,56 @@
 }
 /* EZ news end */
 
+/* Adult content */
+
+.cqz-adult-bar {
+  position: absolute;
+  left:0px;
+  right:0px;
+  bottom: 0;
+  font-size: 14px;
+  z-index: 1000;
+  padding: 10px;
+}
+
+.cqz-adult-bar img {
+  height: 16px;
+}
+
+.cqz-adult-inline-alert {
+  display: inline;
+  color: #c3043e;
+  vertical-align: middle;
+}
+
+.cqz-adult-inline {
+  margin: 0 5px;
+  display: inline;
+  vertical-align: middle;
+}
+
+.cqz-adult-bar ~ div {
+  display: none;
+}
+
+.cqz-adult-show {
+  margin: 0 5px;
+  cursor: pointer;
+  color: white;
+  background-color: #abc8e2;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.cqz-adult-options {
+  margin: 0 5px;
+  cursor: pointer;
+  background-color: #eaeaea;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* End audlt content */
 
 /* EZ search */
 .cqz-ez-search-title {
@@ -357,6 +410,59 @@
 }
 
 /* EZ search end */
+
+
+/*  EZ celeb */
+
+.cliqz-celeb {
+    padding: 17.5px 22px;
+    font-size: 14px;
+    position: relative;
+    border-bottom: 1px solid #ccc
+}
+
+.cliqz-celeb .cqz-result-logo {
+	margin-top: 40px;
+}
+
+.cqz-celeb-images {
+    height: 60px;
+    overflow: hidden;
+}
+
+.cqz-celeb-image {
+    height: 60px;
+    margin-right: 6px;
+    border-radius: 6px;
+}
+
+.cqz-celeb-who {
+    font-size: 18px;
+    margin: 3px 0px 5px 0px;
+}
+.cqz-celeb-who span {
+    color: #ccc;
+}
+
+.cqz-celeb-social {
+    height: 15px;
+    margin-bottom: 1px;
+    margin-right: 8px;
+}
+
+.cqz-celeb-logo {
+    background-color: #ccc;
+    border-radius: 50%;
+    position: absolute;
+    height: 80px;
+    width: 80px;
+    line-height: 80px;
+    font-size: 40px;
+    text-align: center;
+    bottom: 22px;
+    right: 22px;
+}
+/* end EZ celeb */
 
 .cqz-ez-btns {
 	margin: 14px 0 10px 0;
