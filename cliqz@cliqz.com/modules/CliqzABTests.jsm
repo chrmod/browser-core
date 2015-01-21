@@ -155,6 +155,44 @@ var CliqzABTests = CliqzABTests || {
             case "1017_A":
                 CliqzUtils.setPref("safeBrowsing", true);
                 break;
+            case "1018_A":
+                CliqzUtils.setPref("disableSeriesCluster", false);
+                break;
+            case "1018_B":
+                CliqzUtils.setPref("disableSeriesCluster", true);
+                break;
+            case "1019_A":
+                CliqzUtils.setPref("newHistory", false);
+                break;
+            case "1019_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+
+            case "1020_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+            case "1020_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
+
+            case "1021_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
+            case "1021_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "cliqz");
+
+            case "1022_A":
+                CliqzUtils.setPref("newAutocomplete", false);
+                break;
+            case "1022_B":
+                CliqzUtils.setPref("newAutocomplete", true);
+                break;
+
             default:
                 rule_executed = false;
         }
@@ -254,10 +292,28 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
                 CliqzAutocomplete.spellCorrectionDict = {};
                 break;
+
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 CliqzUCrawl.outOfABTest();
+            case "1018_A":
+            case "1018_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
                 break;
+            case "1019_A":
+            case "1019_B":
+            case "1020_A":
+            case "1020_B":
+            case "1021_A":
+            case "1021_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
+                break;
+            case "1022_A":
+            case "1022_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newAutocomplete");
+                break;
+
             default:
                 rule_executed = false;
         }

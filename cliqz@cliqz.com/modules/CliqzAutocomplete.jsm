@@ -29,8 +29,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzQueryDebug',
+  'chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
@@ -44,6 +50,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
     HISTORY_TIMEOUT: 200,
+    lastPattern: null,
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
@@ -53,6 +60,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastQueryTime: null,
     lastDisplayTime: null,
     lastFocusTime: null,
+    highlightFirstElement: false,
     spellCorrectionDict: {},
     spellCorr: {
         'on': false,
@@ -205,6 +213,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
+
                 var now = (new Date()).getTime();
 
                 this.historyResults = result;
@@ -218,7 +227,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    this.instantResult(search, result);
+                    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                      CliqzHistoryPattern.addFirefoxHistory(result);
+                    } else {
+                      this.instantResult(search, result);
+                    }
                 }
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
@@ -239,23 +252,26 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     for(let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
-                        let label = this.historyResults.getLabelAt(i);
-                        let urlparts = CliqzUtils.getDetailsFromUrl(label);
+                        let url = this.historyResults.getLabelAt(i);
+                        let url_noprotocol = url.replace('http://','').replace('https://','');
+
+                        let urlparts = CliqzUtils.getDetailsFromUrl(url);
 
                         // check if it should not be filtered, and matches the url
-                        if(Result.isValid(label, urlparts) &&
-                           label.toLowerCase().indexOf(searchString) != -1) {
+                        if(Result.isValid(url, urlparts) &&
+                           url_noprotocol.toLowerCase().indexOf(searchString) != -1) {
 
                             if(candidate_idx == -1) {
                                 // first entry
-                                CliqzUtils.log("first instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
+                                CliqzUtils.log("first instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
-                                candidate_url = label;
-                            } else if(candidate_url.indexOf(label) != -1) {
+                                candidate_url = url;
+                            } else if(candidate_url.indexOf(url_noprotocol) != -1 &&
+                                      candidate_url != url) {
                                 // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter instant candidate: " + label, CliqzAutocomplete.LOG_KEY)
+                                CliqzUtils.log("found shorter instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
                                 candidate_idx = i;
-                                candidate_url = label;
+                                candidate_url = url;
                             }
                         }
                     }
@@ -293,7 +309,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.historyResults.removeValueAt(candidate_idx, false);
                         this.mixedResults.addResults([instant]);
-                        //
                     }
                     this.pushResults(result.searchString);
                 }
@@ -305,6 +320,30 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return true;
                 else
                     return false;
+            },
+            historyPatternCallback: function(res) {
+                if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+                  CliqzAutocomplete.lastPattern = res;
+                  var results = res.filteredResults();
+
+                  if(this.mixedResults.matchCount > 0) return;
+
+                  if(results.length < 1) return;
+                  var instantResults = new Array();
+                  // Create instant result
+                  var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
+                  instantResults.push(instant);
+
+                  var latency = 0;
+                  if (CliqzHistoryPattern.latencies[res.query]) {
+                    latency = CliqzHistoryPattern.latencies[res.query].endP -
+                              CliqzHistoryPattern.latencies[res.query].startP;
+                  }
+                  this.latency.patterns = latency;
+
+                  this.mixedResults.addResults(instantResults);
+                  this.pushResults(this.searchString);
+                }
             },
             sendSuggestionsSignal: function(suggestions) {
                 var action = {
@@ -348,6 +387,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
+                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.unfilteredResults, this.mixedResults);
+
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
@@ -357,6 +398,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
+                        this.unfilteredResults = null;
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -443,7 +485,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             mixResults: function() {
                 var maxResults = prefs.getIntPref('maxRichResults');
 
-                var results = Mixer.mix(
+                var resultsTemp = Mixer.mix(
                             this.searchString,
                             this.historyResults,
                             this.cliqzResults,
@@ -452,6 +494,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzBundesliga,
                             maxResults
                     );
+
+                var results = resultsTemp[0];
+                this.unfilteredResults = resultsTemp[1];
 
                 CliqzAutocomplete.afterQueryCount = 0;
 
@@ -523,6 +568,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
+                this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
 
@@ -553,6 +599,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
+                this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
@@ -575,7 +622,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
-
+                    // begin history pattern search
+                    CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
+                    CliqzHistoryPattern.detectPattern(searchString);
 
                     // Fetch bundesliga only if search contains trigger
                     if(CliqzBundesliga.isBundesligaSearch(searchString)) {
@@ -621,11 +670,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                     latency_cliqz: this.latency.cliqz,
                     latency_history: this.latency.history,
+                    latency_patterns: this.latency.patterns,
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
                     latency_all: this.startTime? (new Date()).getTime() - this.startTime : null,
                     v: 1
                 };
+                if (CliqzAutocomplete.lastAutocompleteType) {
+                  action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                }
                 if(country)
                     action.country = country;
 

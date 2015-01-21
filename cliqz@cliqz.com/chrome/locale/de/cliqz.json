@@ -1,9 +1,9 @@
 {
     "whatIsCliqz":{
-        "message": "Was ist cliqz?"
+        "message": "Was ist CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+        "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
         "message": "Einstellung"
@@ -18,7 +18,7 @@
         "message": "Regionale Ergebnisse"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -85,6 +85,21 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - über uns"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Datenschutz"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
     },
     "offTitle":{
         "message":"die neue Art, durch’s Web zu navigieren"
@@ -286,5 +301,14 @@
     },
     "spell_correction": {
       "message":"Meintest Du wirklich "
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
+    },
+    "history_results": {
+      "message":"Ergebnisse aus Ihrem Verlauf"
     }
 }

@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cliqz - History Debug</title>
+
+    <style type="text/css">
+    body {
+        font-size: 11pt;
+    }
+    th {
+        background: #aaa;
+    }
+    td {
+        background: #eee;
+    }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    Components.utils.import('chrome://cliqzmodules/content/CliqzHistoryDebug.jsm');
+    Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+
+    $(document).ready(function() {
+        $("#searchInput").bind("keypress", {}, keypressInSearchInput);     
+    });
+
+    function keypressInSearchInput(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        if (code == 13) { // Enter keycode                        
+            e.preventDefault();
+            startSearch();
+        }
+    };
+
+    function historySearch(searchTerm) {
+        CliqzHistoryDebug.getHistoryFirefox(searchTerm, function(history){
+            showResultTableFirefox(history);
+        });
+        CliqzHistoryDebug.getHistoryCliqz(searchTerm, function(history){
+            showResultTableCliqz(history);
+        });
+    }
+
+    function startSearch() {    
+        historySearch($("#searchInput").val());
+    }
+
+    function showResultTableFirefox(data) {
+        $("#resultTableFirefox").html("");
+        $("#resultTableFirefox").append("<th>Provider</th>");
+        $("#resultTableFirefox").append("<th>Title</th>");
+        $("#resultTableFirefox").append("<th>URL</th>");
+        $("#resultTableFirefox").append("<th>Count</th>");
+        $("#resultTableFirefox").append("<th>Typed</th>");
+        $("#resultTableFirefox").append("<th>Frecency</th>");
+        $("#resultTableFirefox").append("<th>Last Visit</th>");
+        for (var i = 0; i < data.length; i++) {
+            $("#resultTableFirefox").append("<tr>");
+            $("#resultTableFirefox tr").last().append("<td>Firefox</td>");
+            $("#resultTableFirefox tr").last().append("<td>" + data[i].title + "</td>");
+            $("#resultTableFirefox tr").last().append("<td><a href='" + data[i].url + "'>" + data[i].url + "</a></td>");
+            $("#resultTableFirefox tr").last().append("<td>" + data[i].visit_count + "</td>");
+            $("#resultTableFirefox tr").last().append("<td>" + data[i].typed + "</td>");
+            $("#resultTableFirefox tr").last().append("<td>" + data[i].frecency + "</td>");
+            var date = new Date(data[i].last_visit_date/1000);
+            $("#resultTableFirefox tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
+            $("#resultTableFirefox").append("</tr>");
+        };    
+        $("#resultTableFirefox").append("</table>");    
+    }
+
+    function showResultTableCliqz(data) {
+        $("#resultTableCliqz").html("");
+        $("#resultTableCliqz").append("<th>Provider</th>");
+        $("#resultTableCliqz").append("<th>Title</th>");
+        $("#resultTableCliqz").append("<th>URL</th>");
+        $("#resultTableCliqz").append("<th>Typed</th>");
+        $("#resultTableCliqz").append("<th>Link</th>");
+        $("#resultTableCliqz").append("<th>Result</th>");
+        $("#resultTableCliqz").append("<th>Autocomplete</th>");
+        $("#resultTableCliqz").append("<th>Google</th>");
+        $("#resultTableCliqz").append("<th>Bookmark</th>");
+        $("#resultTableCliqz").append("<th>Query</th>");
+        $("#resultTableCliqz").append("<th>LastQuery Date</th>");
+        for (var i = 0; i < data.length; i++) {
+            $("#resultTableCliqz").append("<tr>");
+            $("#resultTableCliqz tr").last().append("<td>cliqz</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].title + "</td>");
+            $("#resultTableCliqz tr").last().append("<td><a href='" + data[i].url + "'>" + data[i].url + "</a></td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].typed + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].link + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].result + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].autocomplete + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].google + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].bookmark + "</td>");
+            $("#resultTableCliqz tr").last().append("<td>" + data[i].last_query + "</td>");
+            var date = new Date(data[i].last_query_date);
+            $("#resultTableCliqz tr").last().append("<td>" + date.toLocaleDateString() + "<br>" + date.toLocaleTimeString() + "</td>");
+            $("#resultTableCliqz").append("</tr>");
+        };    
+        $("#resultTableCliqz").append("</table>");    
+    }
+    </script>
+</head>
+<body>
+    <h1>Search Debug</h1>
+    <p><input type="text" id='searchInput'><input type="submit" value="Search" onclick='startSearch()'></p>
+    <div id='resultWrapper'>
+    <table id="resultTableFirefox" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    <table id="resultTableCliqz" border="0" cellspacing="1" cellpadding="4" bordercolor="white"></table>
+    </div>
+</body>
+</html>
