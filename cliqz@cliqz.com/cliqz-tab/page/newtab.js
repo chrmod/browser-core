@@ -207,10 +207,23 @@ function shuffle(array) {
   return array;
 }
 
-function pin(item,link,index){ console.log(arguments)
-    NewTabUtils.pinnedLinks.pin(link,index);
-    $(item).addClass("pinned")
-}
+var HistoryController = {
+    pin: function(item,link,index){
+        NewTabUtils.pinnedLinks.pin(item,link,index);
+        $(item).addClass("pinned")
+    },
+    isPinned: function(link) {
+        return NewTabUtils.pinnedLinks.isPinned(link)
+    },
+    unpin: function(item,link){
+        NewTabUtils.pinnedLinks.unpin(item,link);
+        $(item).removeClass("pinned")
+    },
+    hide: function(link){
+        NewTabUtils.blockedLinks.block(link)
+    }
+};
+
 
 function renderHistory(links){
     var amount = Math.min(links.length,10), array = [], list = $("#history-lis");
@@ -226,11 +239,11 @@ function renderHistory(links){
         template[0].link = link;
         template.find(".history-title").text(link.title);
         
-        if (NewTabUtils.pinnedLinks.isPinned(link)) template.addClass("pinned");
+        if (HistoryController.isPinned(link)) template.addClass("pinned");
         
         (function(link){
             template.find(".close").click(function(e){
-                NewTabUtils.blockedLinks.block(link);
+                HistoryController.hide(link);
                 e.preventDefault();
                 e.stopPropagation();
                 window.location.reload();
@@ -254,10 +267,10 @@ function renderHistory(links){
             for (var i = e.oldIndex;i > e.newIndex;i--) {
                 var owner = list.children().eq(i)[0]
                 
-                if (NewTabUtils.pinnedLinks.isPinned(owner.link)) pin(owner,owner.link,i);
+                if (HistoryController.isPinned(owner.link)) history.pin(owner,owner.link,i);
             }
             
-            pin(e.item,e.item.link,e.newIndex)
+            HistoryController.pin(e.item,e.item.link,e.newIndex)
         }
     });
     
