@@ -74,9 +74,9 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
-        CliqzHistory.initDB();
-        CliqzHistoryPattern.preloadColors();
         CliqzNewTab.init(window);
+        CliqzHistory.initDB();
+        //CliqzHistoryPattern.preloadColors();
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 

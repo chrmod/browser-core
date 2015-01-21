@@ -308,6 +308,18 @@
     "spell_correction": {
       "message":"Meintest Du wirklich "
     },
+    "result_filter_conservative": {
+      "message":"Konservativ"
+    },
+    "result_filter_moderate": {
+      "message":"Mittelmäßig"
+    },
+    "result_filter_liberal": {
+      "message":"Liberal"
+    },
+    "result_filter": {
+      "message":"Ergebnisfilter"
+    },
     "age": {
         "message": "Alter"
     },
@@ -315,6 +327,6 @@
         "message": "Nationalität"
     },
     "history_results": {
-      "message":"Ergebnisse aus Ihrem Verlauf"
+      "message":"Besuchte Webseiten"
     }
 }

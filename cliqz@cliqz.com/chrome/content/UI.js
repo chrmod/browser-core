@@ -23,7 +23,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo'],
+    PARTIALS = ['url', 'adult', 'logo'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -35,6 +35,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     RIGHT = 39,
     DOWN = 40,
     KEYS = [TAB, ENTER, UP, DOWN],
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
     IMAGE_HEIGHT = 64,
@@ -46,6 +48,7 @@ var UI = {
     tpl: {},
     showDebug: false,
     preventFirstElementHighlight: false,
+    lastInput: 0,
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -79,7 +82,7 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-        
+
         resultsBox.addEventListener('click', resultClick);
 
         box.addEventListener('mousemove', resultMove);
@@ -168,7 +171,7 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
-        
+        UI.lastInput = (new Date()).getTime();
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
@@ -267,9 +270,14 @@ var UI = {
       }
     },
     selectFirstElement: function() {
-        if (!UI.preventFirstElementHighlight) {
+      setTimeout(function() {
+        var time = (new Date()).getTime();
+        if(time - UI.lastInput > 400) {
+          if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+          }
         }
+      },400);
     },
     clearSelection: function() {
         clearResultSelection();
@@ -656,9 +664,12 @@ function enhanceResults(res){
         res.results.push(all[i])
         if(all[i].type == 'cliqz-extra' && all[i].data){
             if(all[i].data.template == 'entity-search-1' ||
-               all[i].data.template == 'entity-banking-2')i++;
+               all[i].data.template == 'entity-banking-2'||
+               all[i].data.template == 'celebrities'||
+               all[i].data.template == 'weatherEZ')i++;
             else i+=2;
         }
+        if(all[i].data && all[i].data.template == "history-pattern")i++;
     }
     return res;
 }
@@ -784,6 +795,17 @@ function resultClick(ev){
                     break;
                 }
             }
+            /*
+             * Show adult content
+             */
+            if (el.getAttribute('cliqz-action') == 'show-adult-content') {
+              el.parentNode.className = "hidden";
+              break;
+            };
+            if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
+              el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1279,6 +1301,35 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    // Checks if result contains adult content
+    Handlebars.registerHelper('ifAdult', function(results) {
+      var classes = '';
+      var adult_results = false;
+      console.log(results)
+      for(var i = 0; i < results.length; i++) {
+        if (results[i].data.adult == true)
+          adult_results = true;
+      }
+
+      var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+
+      if (adult_results && current_level == 'moderate') {
+        return true;
+        classes = 'cqz-adult-bar';
+      } else if (adult_results && current_level == 'liberal') {
+        return false;
+        classes = 'hidden';
+      } else if (adult_results && current_level == 'conservative') {
+        return false;
+        classes = 'cqz-adult-bar hidden';
+      } else {
+        return false;
+        classes = 'hidden';
+      }
+
+      return classes;
     });
 }
 

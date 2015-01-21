@@ -20,9 +20,5 @@
     <div>{{local 'age'}}: {{birth_date}}</div>
     <div>{{local 'nationality'}}: {{nationality}}</div>
     {{/with}}
-
-    <div class='cqz-celeb-logo'
-         style='background-color: #ccc;'>
-         W
-    </div>
+    {{>logo}}
 </div>
