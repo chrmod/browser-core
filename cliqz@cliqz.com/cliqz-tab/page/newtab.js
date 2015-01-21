@@ -14,8 +14,7 @@ var openUILink = function(value){
 }
 
 $(function(){
-    var serverurl = "http://chrome-backgrounds.cliqz.com",
-        googlebarurl = "http://cdn.cliqz.com/extension/newtab/google-bar/";
+    var serverurl = "http://chrome-backgrounds.cliqz.com";
     
     $("#search").attr("placeholder",CliqzUtils.getWindow().document.getElementById("urlbar").placeholder);
     
@@ -37,42 +36,6 @@ $(function(){
             },200);
         },
         error: function() {}
-    });
-    
-    // fill options
-    [
-        { name: "Gmail", url: "https://mail.google.com/", img: "gmail.png" },
-        { name: "Calendar", url: "https://www.google.com/calendar/", img: "calendar.png" },
-        { name: "News", url: "https://news.google.de/", img: "news.png" },
-        { name: "Maps", url: "https://maps.google.de/", img: "maps.png" },
-        { name: "Youtube", url: "https://www.youtube.de/", img: "youtube.png" }
-    ].forEach(function(item){
-        $("<a class='option' style='background-image:url(" + googlebarurl + item.img + ")'>").attr("href",item.url)
-                                                                                             .attr("target","_top")
-                                                                                             .html(item.name)
-                                                                                             .appendTo(".options-container")
-    })
-    
-    $(".options-btn").click(function(event){
-        if ($(".options-container.active").length) {
-            var effect = "flipOutY";
-            
-            $(".options-container").addClass(effect + " animated")
-                                   .removeClass("active")    
-                                   .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                $(this).removeClass(effect + " animated").hide();
-            });            
-        }
-        else {
-            var effect = "flipInY";
-            
-            $(".options-container").show().addClass(effect + " animated active")
-                                   .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                $(this).removeClass(effect + " animated");
-            });
-        }
-        
-        event.stopPropagation();
     });
     
     $('#search-dropdown').click(function(ev){
