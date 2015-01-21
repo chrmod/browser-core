@@ -233,7 +233,7 @@
 .cqz-ez-generic-opt {
   background-color: #efefef;
   min-width: 110px;
-  max-width: 200px;
+  max-width: 150px;
   height: 100px;
   background-size: 60px auto;
   background-repeat: no-repeat;
@@ -241,7 +241,7 @@
   background-position: 50% calc(70% - 20px);
   text-align: center;
   box-sizing: border-box;
-  padding-top: 74px;
+  padding: 74px 7px 0 7px;
   border-radius: 3px;
   color: #323232;
 }
@@ -513,6 +513,7 @@
 	font-size: 14px;
 	padding: 6px 10px 5px 10px;
 	margin: 0 4px 8px 0;
+  max-width: 150px;
 }
 
 .cqz-result-box *[url]:hover {
