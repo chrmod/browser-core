@@ -60,6 +60,23 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
     padding: 15px 10px;
     background-color: white;
     box-sizing: border-box;
+    position: relative;
+}
+a.pinned .history-row {
+    border: 3px solid red
+}
+.history-row .close {
+    position: absolute;
+    right: 5px;
+    top: 0px;
+    display: none;
+    font-size: 20px;
+}
+.history-row:hover .close {
+    display: block;
+}
+.history-row .close:hover {
+    color: red;
 }
 .history-icon {
     float: left;
