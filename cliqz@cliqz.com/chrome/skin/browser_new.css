@@ -546,3 +546,98 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+
+/* history */
+.cliqz-pattern {
+  padding-left: 22px;
+}
+
+.cliqz-pattern-result-container {
+  white-space: nowrap;
+  overflow:hidden;
+}
+
+.cliqz-pattern-document-icon {
+  margin-top: 17px;
+  height: 18.3px;
+  width: 15px;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: 0px 0px;
+  background-size: 15px 18.3px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+.cliqz-pattern-title {
+  padding-top: 15px;
+  padding-bottom: 10px;
+  float: left;
+}
+
+.cliqz-pattern-results {
+  margin-left: 5px;
+  display:inline-block;
+  text-decoration: none;
+  color:rgba(127,127,127,0.54);
+  overflow: hidden;
+  width: 85%;
+  cursor: pointer;
+}
+
+.cliqz-pattern-element {
+  line-height: 20px;
+  height: 25px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 15px;
+}
+
+.cliqz-pattern-element-title {
+  color: #9C27B0;
+  color:rgba(128,0,128,0.60);
+  max-width: 70%;
+  overflow: hidden;
+  float: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cliqz-pattern-element-link {
+  margin-left: 8px;
+  color:rgba(127,127,127,0.72);
+  text-decoration: none;
+}
+
+.cliqz-pattern-favicons {
+  max-width: 16px;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-favicon-element {
+  float:left;
+  height: 25px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
+  background-size: 16px 16px;
+}
+
+.cliqz-pattern-logo {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  margin-right: 18px;
+  position: absolute;
+  right: 0px;
+  top: 63px;
+  background: #efefef;
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-repeat: no-repeat;
+  background-position: 11px 11px;
+  background-size: 32px 32px;
+}
+
+/* END history */

@@ -76,8 +76,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzNewTab.init(window);
         CliqzHistory.initDB();
-        CliqzHistoryPattern.preloadColors();
-
+        //CliqzHistoryPattern.preloadColors();
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 

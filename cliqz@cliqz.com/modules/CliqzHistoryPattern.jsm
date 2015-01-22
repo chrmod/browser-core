@@ -23,10 +23,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
 
-var DATA_SOURCE = CliqzUtils.getPref("newHistoryType");
+var DATA_SOURCE = "firefox_no_cluster"/*CliqzUtils.getPref("newHistoryType")*/;
 
 var CliqzHistoryPattern = {
-  PATTERN_DETECTION_ENABLED: CliqzUtils.getPref("newHistory"),
+  PATTERN_DETECTION_ENABLED: true/*CliqzUtils.getPref("newHistory")*/,
   timeFrame: (new Date).getTime() - 60 * 60 * 24 * 7 * 1000, // Go back one week in cliqz history
   data: null,
   pattern: null,
@@ -164,7 +164,10 @@ var CliqzHistoryPattern = {
       for (var i = 0; i < result.matchCount; i++) {
         var pattern = [];
         pattern.url = result.getValueAt(i);
-        if (pattern.url.indexOf("moz-action:") === 0) {
+        CliqzUtils.log(pattern.url);
+        if (pattern.url.indexOf("moz-action:switchtab") === 0) {
+          pattern.url = pattern.url.substr(pattern.url.indexOf(',')+1);
+        } else if (pattern.url.indexOf("moz-action:") === 0) {
           continue;
         }
         pattern.title = result.getCommentAt(i);
@@ -360,11 +363,14 @@ var CliqzHistoryPattern = {
       baseUrl = CliqzHistoryPattern.generalizeUrl(patterns[0].url, true);
     }
 
-    if (!commonDomain) {
+    if (commonDomain && false /* disabled, enable to push most common domain pattern to top,
+      e.g. spiegel.de/wirtschaft instead of just spiegel.de
+      Only makes sense when also enabling autocomplete for title/query
+       */) {
+      baseUrl = commonDomain;
+    } else {
       if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
       baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl, false)));
-    } else {
-      baseUrl = commonDomain;
     }
     for (var i = 0; i < patterns.length; i++) {
       var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i].url, true);
@@ -689,85 +695,42 @@ var CliqzHistoryPattern = {
     return CliqzUtils.getLocalizedString("agoXDays").replace('{}', parseInt(diff / (3600 * 24)));
   },
   createInstantResult: function(res, results, searchString) {
-    var faviconEnabled = "5", // Pixel offsets
-      faviconDisabled = "-19";
-
-    // Cluster to one domain
-    if (res.cluster === true) {
-      var baseUrl = CliqzHistoryPattern.addBaseDomain(res.results, results[0]);
-      var instant = Result.generic("cliqz-pattern", results[0].url, null, results[0].title, null, searchString);
-      instant.comment += " (pattern cluster)!";
-      var titleUrl = CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(results[0].url), true);
-      if (titleUrl[titleUrl.length - 1] == '/') titleUrl = titleUrl.substring(0, titleUrl.length - 1);
-      var kind = instant.data.kind;
-      instant.data = {
-        kind: kind,
-        title: results[0].title,
-        url: titleUrl,
-        urlVisibility: results.length > 2 ? "visible" : "hidden",
-        urls: [],
-        color: CliqzHistoryPattern.colors[baseUrl],
-        darkColor: CliqzHistoryPattern.darkenColor(CliqzHistoryPattern.colors[baseUrl]),
-        letters: CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(0).toUpperCase() + CliqzHistoryPattern.domainFromUrl(baseUrl, false).charAt(1),
-        favicon: faviconDisabled,
-        logoClass: "cliqz-pattern-circle",
-        cluster: true
-      };
-      // Add result urls
-      var titleStrip = CliqzHistoryPattern.stripTitle(results);
-      for (var i = 1; i < results.length; i++) {
-        var newTitle = results[i].title.replace(titleStrip, "");
-        var url = results[i].url;
-        if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
-        instant.data.urls.push({
-          href: results[i].url,
-          link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
-          vdate: CliqzHistoryPattern.formatDate(results[i].date),
-          title: newTitle.length > 0 ? newTitle : results[i].title,
-        });
-        if (instant.data.urls.length > 3) {
-          break;
-        }
-      }
-      return instant;
-    // Show complete history
+    if (results.length == 1) {
+      var type = 'cliqz-results';
     } else {
-      var instant = Result.generic("cliqz-pattern", results[0].url, null, results[0].title, null, searchString);
-      instant.comment += " (pattern cluster)!";
-      var kind = instant.data.kind;
-      instant.data = {
-        title: CliqzUtils.getLocalizedString("history_results"),
-        kind: kind,
-        url: "",
-        urls: [],
-        //color: "#bfbfbf",
-        darkColor: CliqzHistoryPattern.darkenColor("#bfbfbf"),
-        letters: "",
-        favicon: faviconEnabled,
-        logoClass: "cliqz-pattern-logo",
-        cluster: false
-      };
-      for (var i = 0; i < results.length; i++) {
-        var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
-        if (domain.indexOf("/") != -1) {
-          domain = domain.split('/')[0];
-        }
-        var url = results[i].url;
-        if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
-        instant.data.urls.push({
-          href: results[i].url,
-          link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
-          vdate: CliqzHistoryPattern.formatDate(results[i].date),
-          title: results[i].title,
-          favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain
-        });
-        if (instant.data.urls.length > 3) {
-          break;
-        }
-      }
-      res.shown = instant.data.urls.length;
-      return instant;
+      var type = 'cliqz-pattern';
     }
+    var instant = Result.generic(type, results[0].url, null, results[0].title, null, searchString);
+    instant.comment += " (pattern cluster)!";
+    var kind = instant.data.kind;
+    instant.data = {
+      title: CliqzUtils.getLocalizedString("history_results"),
+      kind: kind,
+      urls: [],
+      cluster: false,
+      template: "history-pattern"
+    };
+    for (var i = 0; i < results.length; i++) {
+      var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
+      if (domain.indexOf("/") != -1) {
+        domain = domain.split('/')[0];
+      }
+      var url = results[i].url;
+      if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
+      instant.data.urls.push({
+        href: results[i].url,
+        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
+        domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
+        vdate: CliqzHistoryPattern.formatDate(results[i].date),
+        title: results[i].title,
+        favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain
+      });
+      if (instant.data.urls.length > 4) {
+        break;
+      }
+    }
+    res.shown = instant.data.urls.length;
+    return instant;
   },
   // Extract earliest and latest entry of Firefox history
   historyTimeFrame: function(callback) {
