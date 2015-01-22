@@ -15,9 +15,7 @@
         </div>
         <div class='cliqz-pattern-results'>
           {{#each data.urls}}
-          <div class='cliqz-pattern-element' url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' type='' extra=''
-            onmouseover="this.children[1].textContent='{{link}}'"
-            onmouseout="this.children[1].textContent='{{domain}}'">
+          <div class='cliqz-pattern-element' url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' type='' extra=''>
               <div class='cliqz-pattern-element-title'>{{ title }}</div>
               <span class='cliqz-pattern-element-link'>{{ domain }}</span>
           </div>

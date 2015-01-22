@@ -272,6 +272,8 @@ var UI = {
       }
     },
     selectFirstElement: function() {
+      // Timeout to wait for user to finish keyboard input
+      // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInput > 400) {
@@ -694,6 +696,20 @@ function getResultOrChildAttr(el, attr){
     return '';
 }
 
+function urlIndexInHistory(url, urlList) {
+    var index = 0;
+    for(var key in urlList) {
+      if (urlList[key].href == url) {
+        index = urlList.indexOf(urlList[key]);
+        if (currentResults.results[0].data.cluster === true) {
+          index += 1;
+        }
+        break;
+      }
+    }
+    return index;
+}
+
 function resultClick(ev){
     var el = ev.target,
         newTab = ev.metaKey ||
@@ -725,19 +741,8 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             if (action.position_type == 'C' && action.current_position == 0) {
-                var results = currentResults.results[0].data.urls;
-                var index = 0;
-                for(var key in results) {
-                  if (results[key].href == url) {
-                    index = results.indexOf(results[key]);
-                    if (currentResults.results[0].data.cluster === true) {
-                      index += 1;
-                    }
-                    break;
-                  }
-                }
                 action.extra = {
-                    index: index
+                    index: urlIndexInHistory(url, currentResults.results[0].data.urls)
                };
             }
             CliqzUtils.track(action);
@@ -826,7 +831,7 @@ function clearResultSelection(){
     // Reset history entries to domain name
     var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
     for(var i=0; i<history.length; i++) {
-      history[i].children[1].innerHTML = history[i].getAttribute("domain");
+      history[i].children[1].textContent = history[i].getAttribute("domain");
     }
 }
 
@@ -843,7 +848,9 @@ function setResultSelection(el, scroll, scrollTop){
         if (el.className == 'cliqz-pattern-element') {
           $('.cqz-result-selected', gCliqzBox).style.top = (44 + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
-          el.children[1].textContent = el.getAttribute("shortUrl");
+          setTimeout(function() {
+            el.children[1].textContent = el.getAttribute("shortUrl");
+          },150);
         } else {
           $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
         }
@@ -865,12 +872,18 @@ function setResultSelection(el, scroll, scrollTop){
 }
 
 var lastMoveTime = Date.now();
+var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-        while (el && el.className != IC) {
+        while (el && el.className != IC && el.className != "cliqz-pattern-element") {
             el = el.parentElement;
         }
+        // History Cluster -> only hover entries, not the whole area
+        if (el.getAttribute("kind") == "C" || el == lastHover) {
+            return;
+        }
+        lastHover = el;
         clearResultSelection();
         setResultSelection(el, false);
         lastMoveTime = Date.now();
@@ -1000,6 +1013,13 @@ function onEnter(ev, item){
             action.source = action.position_type;
             action.current_position = -1;
             action.position_type = ['inbar_url'];
+        }
+        // History logging
+        if (action.position_type == 'C') {
+          action.current_position = 0;
+          action.extra = {
+            index: urlIndexInHistory(url, currentResults.results[0].data.urls)
+          };
         }
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
