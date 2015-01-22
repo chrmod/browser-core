@@ -848,9 +848,7 @@ function setResultSelection(el, scroll, scrollTop){
         if (el.className == 'cliqz-pattern-element') {
           $('.cqz-result-selected', gCliqzBox).style.top = (44 + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
-          setTimeout(function() {
-            el.children[1].textContent = el.getAttribute("shortUrl");
-          },150);
+          el.children[1].textContent = el.getAttribute("shortUrl");
         } else {
           $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
         }
