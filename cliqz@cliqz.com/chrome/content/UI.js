@@ -197,16 +197,25 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
-                };
+              var urlbar = CLIQZ.Core.urlbar;
+              if (urlbar.selectionStart !== urlbar.selectionEnd) {
+                CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart, urlbar.selectionStart);
+              } else {
+                CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart-1, urlbar.selectionStart-1);
+              }
+              return true;
             case RIGHT:
-                // close drop down to avoid firefox autocompletion
-                CLIQZ.Core.popup.closePopup();
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
-                }
-                return false;
+              var urlbar = CLIQZ.Core.urlbar;
+              if (urlbar.selectionStart !== urlbar.selectionEnd) {
+                CLIQZ.Core.urlbar.value = urlbar.value;
+                CLIQZ.Core.urlbar.setSelectionRange(urlbar.value.length, urlbar.value.length);
+              } else {
+                CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
+              }
+              /*if (CliqzAutocomplete.spellCorr.on) {
+              CliqzAutocomplete.spellCorr.override = true
+              }*/
+              return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
                 ev.originalTarget.setSelectionRange(0, 0);
@@ -290,6 +299,12 @@ var UI = {
 
 var forceCloseResults = false;
 function closeResults(event, force) {
+    // Remove autocomplete from urlbar
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart &&
+        CLIQZ.Core.urlbar.selectionStart !== 0) {
+        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
+
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {
