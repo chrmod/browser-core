@@ -664,10 +664,10 @@ function enhanceResults(res){
             if(all[i].data.template == 'entity-search-1' ||
                all[i].data.template == 'entity-banking-2'||
                all[i].data.template == 'celebrities'||
-               all[i].data.template == 'weatherEZ')i++;
+               all[i].data.template == 'weatherEZ' ||
+               all[i].data.template == "history-pattern")i++;
             else i+=2;
         }
-        if(all[i].data && all[i].data.template == "history-pattern")i++;
     }
     return res;
 }
