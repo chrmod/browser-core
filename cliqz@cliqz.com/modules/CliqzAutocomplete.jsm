@@ -336,8 +336,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                   var latency = 0;
                   if (CliqzHistoryPattern.latencies[res.query]) {
-                    latency = CliqzHistoryPattern.latencies[res.query].endP -
-                              CliqzHistoryPattern.latencies[res.query].startP;
+                    latency = (new Date()).getTime() -
+                              CliqzHistoryPattern.latencies[res.query];
                   }
                   this.latency.patterns = latency;
 

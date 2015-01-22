@@ -41,8 +41,7 @@ var CliqzHistoryPattern = {
       return;
     }
     var orig_query = query;
-    CliqzHistoryPattern.latencies[orig_query] = [];
-    CliqzHistoryPattern.latencies[orig_query].startP = (new Date).getTime();
+    CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
     // Ignore one character queries and www/http
     //if (("http://").indexOf(orig_query) != -1 ||
@@ -124,9 +123,6 @@ var CliqzHistoryPattern = {
         } else {
           CliqzHistoryPattern.noResultQuery = null;
         }
-        // Save time for latency
-        CliqzHistoryPattern.latencies[orig_query].endP = (new Date).getTime();
-        var diff = CliqzHistoryPattern.latencies[orig_query].endP - CliqzHistoryPattern.latencies[orig_query].startP;
 
         CliqzHistoryPattern.historyCallback(res);
       });
@@ -184,7 +180,7 @@ var CliqzHistoryPattern = {
   preparePatterns: function(patterns, query) {
     var baseUrl, orig_query = query;
     if (query.indexOf("://") != -1) query = query.substr(query.indexOf("://")+3);
-    query = query.replace("www.", "");
+    query = query.toLowerCase().replace("www.", "");
     // Filter patterns that don't match search
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query);
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
