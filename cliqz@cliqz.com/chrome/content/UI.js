@@ -181,7 +181,6 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
-                    var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element")[0];
                     if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
                       nextEl = nextEl.nextElementSibling;
                     }
