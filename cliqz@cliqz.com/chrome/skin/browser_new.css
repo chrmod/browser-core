@@ -90,6 +90,9 @@
 	left: -8px;
 }
 
+.cqz-result-box[selected="true"] {
+	/*background-color: #eefafe;*/
+}
 /*
 .cqz-result-box[selected="true"]:before {
 	left: -8px;
@@ -551,10 +554,6 @@
   white-space: nowrap;
   overflow: hidden;
   font-size: 15px;
-}
-
-.cliqz-pattern-element[selected="true"] {
-  /*background:black;*/
 }
 
 .cliqz-pattern-element-title {
