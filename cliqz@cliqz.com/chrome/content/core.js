@@ -425,11 +425,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
             var clean = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
-            if (urlBar.value.indexOf("://") != -1 ) {
-                urlBar.value = urlBar.value.substr(0, urlBar.value.indexOf("://")+3) + clean;
-            } else {
-                urlBar.value = clean;
-            }
+            urlBar.value = clean;
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value) {

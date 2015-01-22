@@ -191,15 +191,17 @@ var UI = {
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
-                };
             case RIGHT:
+                var urlbar = CLIQZ.Core.urlbar.value;
+                var start = CLIQZ.Core.urlbar.selectionStart;
                 // close drop down to avoid firefox autocompletion
                 CLIQZ.Core.popup.closePopup();
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
+                // Restore autocomplete value
+                CLIQZ.Core.urlbar.value = urlbar;
+                if(ev.keyCode == LEFT) CLIQZ.Core.urlbar.setSelectionRange(start, start);
                 return false;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -277,6 +279,11 @@ var UI = {
 
 var forceCloseResults = false;
 function closeResults(event, force) {
+    // Remove autocomplete from urlbar
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart &&
+      CLIQZ.Core.urlbar.selectionStart !== 0) {
+        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {
