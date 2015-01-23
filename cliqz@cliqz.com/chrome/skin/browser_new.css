@@ -113,6 +113,7 @@
 	padding: 0px 20px;
 	display: inline-block;
 	overflow: hidden;
+  cursor:pointer;
 }
 
 /* visited result - history, bookmark, ...*/
