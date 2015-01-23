@@ -70,7 +70,7 @@ var CliqzUtils = {
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
-               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities'],
+               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities', 'entity-generic'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
