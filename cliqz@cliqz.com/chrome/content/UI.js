@@ -1165,6 +1165,11 @@ function registerHelpers(){
         return '';
     });
 
+    Handlebars.registerHelper('sec_to_duration', function(seconds) {
+        var s = parseInt(seconds);
+        return Math.floor(s/60) + ':' + (s%60);
+    });
+
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });

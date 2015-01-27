@@ -69,7 +69,7 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:    null,
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
-               'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
+               'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video-1',
                'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities', 'entity-generic'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']

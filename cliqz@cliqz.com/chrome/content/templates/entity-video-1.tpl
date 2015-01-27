@@ -19,7 +19,7 @@
            url="{{ this.link }}" type="X" extra="entity-video-story-{{ @index }}">
         <div class="entity-video-story-image"
           style="background-image: url({{ this.thumbnail }})">
-
+               <span> {{ sec_to_duration duration}}</span>
         </div>
         <div class="entity-video-story-description cqz-vert-center">
           <div class="entity-video-story-title">

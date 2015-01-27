@@ -38,7 +38,7 @@
 }
 
 .cqz-result-h2 {
-	height: 101px;
+	height: 201px;
 	font-size: 14px;
 }
 
@@ -416,6 +416,17 @@
   height: 54px;
   background-size: cover;
   background-position: center;
+  position: relative;
+}
+
+.entity-video-story-image span {
+  background-color: black;
+  color: white;
+  bottom: 0px;
+  position: absolute;
+  right: 0px;
+  font-size: 12px;
+  padding: 5px;
 }
 
 .entity-video-story-description {
