@@ -663,18 +663,12 @@ function enhanceResults(res){
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
     var all = first.concat(last);
 
-    // TODO: very ugly
     // getMax 3 results height
-    res.results = []
+    res.results = [];
     for(var i=0; i<all.length && i<3; i++){
-        res.results.push(all[i])
+        res.results.push(all[i]);
         if(all[i].type == 'cliqz-extra' && all[i].data){
-            if(all[i].data.template == 'entity-search-1' ||
-               all[i].data.template == 'entity-banking-2'||
-               all[i].data.template == 'celebrities'||
-               all[i].data.template == 'weatherEZ' ||
-               all[i].data.template == "history-pattern")i++;
-            else i+=2;
+            i += (TEMPLATES[all[i].data.template]-1);
         }
     }
 

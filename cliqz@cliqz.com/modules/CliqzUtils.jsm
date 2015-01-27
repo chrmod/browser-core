@@ -67,10 +67,10 @@ var CliqzUtils = {
   PREF_INT:              64,
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
-  TEMPLATES: {'main': 1, 'results': 1,'images': 1,'suggestions': 1,'emphasis': 1,'empty': 1,
-              'text': 1,'engines': 1,'generic': 1,'custom': 1,'clustering': 1,'pattern': 1,
-              'series': 1,'calculator': 1, 'spellcheck': 1, 'bitcoin': 1, 'time': 1,
-              'entity-search-1': 2, 'entity-banking-2': 2, 'airlinesEZ': 2, 'weatherEZ': 2, 'celebrities': 2,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+              'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+              'spellcheck': 1, 'time': 1,
+              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern': 2, 'weatherEZ': 2,
               'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
