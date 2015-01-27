@@ -289,12 +289,12 @@ var UI = {
       // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
-        if(time - UI.lastInputTime > 400) {
+        if(time - UI.lastInputTime > 300) {
           if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
           }
         }
-      },400);
+      },300);
     },
     clearSelection: function() {
         clearResultSelection();
