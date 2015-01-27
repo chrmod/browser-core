@@ -316,8 +316,6 @@
 .EZ-airlines-bigcontainer{
   margin-left: 22px;
   background-color: white;
-  height: 180px;
-  font-size: 14px;
   position: relative;
 }
 
@@ -409,7 +407,6 @@
 .EZ-weather-bigcontainer{
  padding-left: 22px;
  background-color: white;
- height: 180px;
 }
 
 

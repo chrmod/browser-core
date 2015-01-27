@@ -50,11 +50,14 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInput: 0,
     init: function(){
-        TEMPLATES.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                UI.tpl[tpl] = Handlebars.compile(res.response);
+
+        Object.keys(TEMPLATES).forEach(function(tpl_name){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
+                UI.tpl[tpl_name] = Handlebars.compile(res.response);
+
             });
         });
+
         for(var v in VERTICALS){
             (function(vName){
                 CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
@@ -444,7 +447,7 @@ function constructImage(data){
         }
         // only show the image if the ratio is between 0.4 and 2.5
         if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
-            var image = { src: img.src }
+            var image = { src: img.src };
             if(ratio > 0) {
                 image.backgroundSize = height * ratio;
                 image.width = height * ratio ;
@@ -620,10 +623,9 @@ function enhanceResults(res){
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
-            debugger;
             var d = r.data;
             if(d){
-                if(d.template && TEMPLATES.indexOf(d.template) != -1){
+                if(d.template && TEMPLATES.hasOwnProperty(d.template)){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
                     r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
@@ -1093,7 +1095,6 @@ function onEnter(ev, item){
 }
 
 function enginesClick(ev){
-    console.log("THUY +++ in enginesCliqz");
     var engineName;
     if(engineName = ev && ev.target && ev.target.getAttribute('engine')){
         var engine;

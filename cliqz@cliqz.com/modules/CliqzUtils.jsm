@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',//'http://54.144.123.129/mixer?q=', //
+  RESULTS_PROVIDER:      'http://54.144.123.129/mixer?q=', //'https://newbeta.cliqz.com/api/v1/results?q=',//
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
@@ -67,11 +67,11 @@ var CliqzUtils = {
   PREF_INT:              64,
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
-  TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
-               'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
-               'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video-1',
-               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities', 'entity-generic',
-               'noResult', 'time'],
+  TEMPLATES: {'main': 1, 'results': 1,'images': 1,'suggestions': 1,'emphasis': 1,'empty': 1,
+              'text': 1,'engines': 1,'generic': 1,'custom': 1,'clustering': 1,'pattern': 1,
+              'series': 1,'calculator': 1, 'spellcheck': 1, 'bitcoin': 1, 'time': 1,
+              'entity-search-1': 2, 'entity-banking-2': 2, 'airlinesEZ': 2, 'weatherEZ': 2, 'celebrities': 2,
+              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),

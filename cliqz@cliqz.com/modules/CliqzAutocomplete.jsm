@@ -175,7 +175,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var r = merged[i];
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
-                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
+                            if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
                                 // unexpected/unknown template
                                 continue;
                             }

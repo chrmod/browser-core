@@ -25,7 +25,6 @@
 }
 
 /* end browser*/
-
 #cliqz-results {
     height: 302px;
     position: relative;
@@ -734,13 +733,6 @@
 /* END history */
 
 /*  noResult  thuy@cliqz.com*/
-
-.EZ-noResult-bigcontainer{
- background-color: white;
- height: 270px;
- font-size: 14px;
-}
-
 .EZ-noResult-title {
   background-color: white;
   text-overflow: ellipsis;

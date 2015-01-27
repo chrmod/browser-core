@@ -1,4 +1,4 @@
-<div class="EZ-airlines-bigcontainer">
+<div class="cqz-result-h2 EZ-airlines-bigcontainer">
 {{#with data}}
 
   <div class='EZ-airlines-title'>
