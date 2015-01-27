@@ -205,11 +205,11 @@
 /* EZ generic */
 .cqz-ez-title {
 	font-size: 18px;
-	background-size: 18px;
+	background-size: 16px;
 	background-repeat: no-repeat;
 	background-position: right;
 	display: inline-block;
-	padding-right: 30px;
+	padding-right: 25px;
 	margin-bottom: 1px;
   height: 18px;
 }
@@ -361,7 +361,7 @@
 
 /* EZ video */
 .cqz-ez-video-title {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/video/icon.svg);
+  background-image: url(http://cdn.cliqz.com/extension/EZ/video/y_search.png);
 }
 
 
