@@ -188,6 +188,7 @@ var UI = {
                 return onEnter(ev, sel);
             break;
             case TAB:
+                clearResultSelection();
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
