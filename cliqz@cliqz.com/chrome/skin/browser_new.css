@@ -27,23 +27,23 @@
 /* end browser*/
 
 #cliqz-results {
-    height: 272px;
+    height: 302px;
     position: relative;
 }
 
 .cqz-result-h1 {
-	height: 272px;
+	height: 302px;
 	font-size: 14px;
 
 }
 
 .cqz-result-h2 {
-	height: 181px;
+	height: 201px;
 	font-size: 14px;
 }
 
 .cqz-result-h3 {
-	height: 90px;
+	height: 100px;
 	font-size: 14px;
 }
 
@@ -211,6 +211,45 @@
 	display: inline-block;
 	padding-right: 30px;
 	margin-bottom: 1px;
+  height: 18px;
+}
+
+.cqz-ez-generic-box {
+  float: left;
+  margin-top: 12px;
+}
+
+/* default btn colours */
+.cqz-ez-generic-box .cqz-ez-btn:nth-of-type(1) {
+  background-color: #5ea3f9;
+}
+
+.cqz-ez-generic-box .cqz-ez-btn:nth-of-type(2) {
+  background-color: #2fc4fc;
+}
+
+.cqz-ez-generic-box .cqz-ez-btn:nth-of-type(3) {
+  background-color: #abc8e2;
+}
+
+.cqz-ez-generic-opt {
+  background-color: #efefef;
+  min-width: 110px;
+  max-width: 150px;
+  height: 100px;
+  background-size: 60px auto;
+  background-repeat: no-repeat;
+  margin-left: 8px;
+  background-position: 50% calc(70% - 20px);
+  text-align: center;
+  box-sizing: border-box;
+  padding: 74px 7px 0 7px;
+  border-radius: 3px;
+  color: #323232;
+}
+
+.cqz-ez-generic-elems {
+  margin-top: 10px;
 }
 
 /* end EZ generic */
@@ -219,6 +258,10 @@
 .cqz-ez-banking-box {
 	float: left;
 	margin-top: 12px;
+}
+
+.cqz-ez-banking-box .cqz-ez-btn {
+  margin-bottom: 5px;
 }
 
 .cqz-ez-banking-opt {
@@ -314,6 +357,87 @@
   display: inline-block;
 }
 /* EZ news end */
+
+
+/* EZ video */
+.cqz-ez-video-title {
+  background-image: url(http://cdn.cliqz.com/extension/EZ/video/icon.svg);
+}
+
+
+.entity-video-title {
+  color: #414141;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.entity-video-title span {
+  color: #1759a4;
+}
+
+.entity-video-title img {
+  float: right;
+  width: 48px;
+  margin: -5px -5px 0 0;
+}
+
+.entity-video-stories {
+}
+
+.entity-video-story {
+  position: relative;
+  height: 54px;
+  margin-bottom: 9px;
+}
+
+.entity-video-story-description {
+  vertical-align: top;
+  padding: 0 0 0 9px;
+}
+
+.entity-video-story-title {
+  color: #333333;
+  max-width: 550px;
+  font-size: 16px;
+  max-height: 2em;
+  overflow: hidden;
+  line-height: 1em;
+}
+
+.entity-video-story:hover .entity-video-story-title {
+    text-decoration: underline;
+}
+.entity-video-story-time {
+    color: #aaaaaa;
+  font-size: 12px;
+  padding-top: 9px;
+}
+
+.entity-video-story-image {
+  display: inline-block;
+  background-color: #dddddd;
+  width: 86px;
+  height: 54px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.entity-video-story-image span {
+  background-color: black;
+  color: white;
+  bottom: 0px;
+  position: absolute;
+  right: 0px;
+  font-size: 12px;
+  padding: 5px;
+}
+
+.entity-video-story-description {
+  display: inline-block;
+}
+/* EZ video end */
+
 
 /* Adult content */
 
@@ -466,7 +590,11 @@
 /* end EZ celeb */
 
 .cqz-ez-btns {
-	margin: 14px 0 10px 0;
+	margin: 18px 0 18px 0;
+}
+
+.cqz-ez-btns .cqz-ez-btn {
+  display: inline-block;
 }
 
 .cqz-ez-btn {
@@ -474,8 +602,9 @@
 	cursor: pointer;
 	color: white;
 	font-size: 14px;
-	padding: 6px 10px 5px 10px;
-	margin: 0 4px 8px 0;
+	padding: 8px 10px 7px 10px;
+	margin: 0 4px 0 0;
+  max-width: 150px;
 }
 
 .cqz-result-box *[url]:hover {
@@ -489,7 +618,7 @@
 }
 
 .cqz-result-padding {
-	padding: 17.5px 22px;
+	padding: 18px 22px;
 	box-sizing: border-box;
 }
 

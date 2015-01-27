@@ -3,21 +3,22 @@
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
     {{#with data}}
-        <div class="cqz-ez-title cqz-ez-banking-title">
+        <div class="cqz-ez-title cqz-ez-generic-title cqz-ez-banking-title"
+             style="background-image: url({{icon}})">
           {{name}}
         </div>
-        <div class="cqz-ez-banking-elems">
-            <div class="cqz-ez-banking-box">
-                {{#each buttons }}
+        <div class="cqz-ez-generic-elems">
+            <div class="cqz-ez-generic-box">
+                {{#each actions }}
                     <div
-                        class="cqz-ez-btn"
-                        style="background-color: {{color}}"
+                        class="cqz-ez-btn overflow"
+                        style="background-color: {{ color }}"
                         url="{{url}}"
-                        >{{title}}</div>
+                        >{{ title }}</div>
                 {{/each}}
             </div>
             {{#each links }}
-                <div class="cqz-ez-banking-box cqz-ez-banking-opt"
+                <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
                      extra="shortcut{{ @index }}"
                      style="background-image: url({{ icon }});">

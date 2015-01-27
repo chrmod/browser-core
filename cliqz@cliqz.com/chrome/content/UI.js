@@ -669,10 +669,10 @@ function enhanceResults(res){
             if(all[i].data.template == 'entity-search-1' ||
                all[i].data.template == 'entity-banking-2'||
                all[i].data.template == 'celebrities'||
-               all[i].data.template == 'weatherEZ')i++;
+               all[i].data.template == 'weatherEZ' ||
+               all[i].data.template == "history-pattern")i++;
             else i+=2;
         }
-        if(all[i].data && all[i].data.template == "history-pattern")i++;
     }
     return res;
 }
@@ -1165,6 +1165,11 @@ function registerHelpers(){
         return '';
     });
 
+    Handlebars.registerHelper('sec_to_duration', function(seconds) {
+        var s = parseInt(seconds);
+        return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
+    });
+
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
@@ -1184,6 +1189,16 @@ function registerHelpers(){
     Handlebars.registerHelper('local', function(key, v1, v2 ) {
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
+
+    Handlebars.registerHelper('local_number', function(val) {
+        try {
+            return parseFloat(val).toLocaleString();
+        } catch(e) {
+            return val
+        }
+    });
+
+
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);
