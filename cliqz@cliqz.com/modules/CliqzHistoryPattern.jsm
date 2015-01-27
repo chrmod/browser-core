@@ -223,6 +223,7 @@ var CliqzHistoryPattern = {
     if (patterns && !res.cluster && baseUrl && baseUrl.indexOf(query) === 0) {
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
     }
+    res.results = CliqzHistoryPattern.removeDuplicates(res.results);
     return res;
   },
 
@@ -503,7 +504,7 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if ("www.".indexOf(urlbar) != -1 || "http://".indexOf(urlbar) != -1)
+    if (urlbar == "www." || urlbar == "http://")
       return {};
     if (urlbar.indexOf("http://") == 0)
       urlbar = urlbar.substr(urlbar.indexOf("://")+3);
