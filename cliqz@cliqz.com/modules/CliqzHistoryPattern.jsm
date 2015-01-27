@@ -160,7 +160,8 @@ var CliqzHistoryPattern = {
           pattern.title = CliqzHistoryPattern.domainFromUrl(pattern.url, false);
           pattern.title = pattern.title[0].toUpperCase() + pattern.title.substr(1);
         }
-        if (pattern.title.length > 0 && pattern.url.length > 0) {
+        if (pattern.title.length > 0 && pattern.url.length > 0 &&
+          CliqzHistoryPattern.simplifyUrl(pattern.url) != null) {
           patterns.push(pattern);
         }
       }

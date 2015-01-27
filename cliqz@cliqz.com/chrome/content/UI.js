@@ -1034,6 +1034,7 @@ function onEnter(ev, item){
           };
         }
 
+        CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
         CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
