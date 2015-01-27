@@ -25,8 +25,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -64,8 +64,26 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
-        if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
+        // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
+        var listners = window.gBrowser.mTabsProgressListeners;
+        for(var i=0; i<listners.length; i++){
+            var l = listners[i];
+            if(l["QueryInterface"] &&
+               l["onLocationChange"] &&
+               l["onStateChange"] &&
+               l["onStatusChange"]){
+
+                //if this listner matches the signature of CliqzHistory - remove it
+                window.gBrowser.removeTabsProgressListener(l);
+                break;
+            }
+        }
+        // end TEMP fix
+
+        XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+            'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
+        if (!CliqzUtils.isPrivate(window)) {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
@@ -98,15 +116,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
-        /* THUY NOTE:
-        *       mozzilar - special way:
-        *          + autocompletepopup --- (we set)  ---> PopupAutoCompleteRichResult
-        *          + PopupAutoCompleteRichResult : see browser.css (at the top)
-        *          + meaning: FF uses autocompletepopup to set the popup window,
-        *          which in this case: (see PopupAutoCompleteRichResult in browser.css): points to
-        *          components.xml#autocomplete-rich-result-popup-cliqz
-        *
-        * */
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
@@ -241,8 +250,14 @@ CLIQZ.Core = CLIQZ.Core || {
         // remove listners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
+            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
 
         if(!soft){
             delete window.CliqzUtils;

@@ -962,7 +962,8 @@ function suggestionClick(ev){
 
 function onEnter(ev, item){
     var index = item ? item.getAttribute('idx'): -1,
-        inputValue = CLIQZ.Core.urlbar.value,
+        urlBar = CLIQZ.Core.urlbar,
+        inputValue = urlBar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
         currentTime = (new Date()).getTime(),
@@ -983,14 +984,14 @@ function onEnter(ev, item){
 
     var query = inputValue;
     var queryAutocompleted = null;
-    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
+    if (urlBar.selectionStart != 0 && urlBar.selectionEnd !== urlBar.selectionStart)
     {
         var first = gCliqzBox.resultsBox.children[0];
         if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
         {
             queryAutocompleted = query;
         }
-        query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+        query = query.substr(0, urlBar.selectionStart);
     }
 
     if(popupOpen && index != -1){
@@ -1002,7 +1003,7 @@ function onEnter(ev, item){
         }
         CliqzHistory.updateQuery(query);
         CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
-        if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && index == 0) {
+        if (urlBar.selectionStart != 0 && urlBar.selectionEnd !== urlBar.selectionStart && index == 0) {
             CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "autocomplete");
             url = CliqzAutocomplete.lastAutocomplete;
             //action.autocompleted = true;
@@ -1019,7 +1020,7 @@ function onEnter(ev, item){
           };
         }
 
-        CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
+        CLIQZ.Core.openLink(url || urlBar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
         CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
     } else { //enter while on urlbar and no result selected
@@ -1027,7 +1028,7 @@ function onEnter(ev, item){
         var suggestion = gCliqzBox && $('.cliqz-suggestion[selected="true"]', gCliqzBox.suggestionBox);
 
         if(popupOpen && suggestion){
-            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestion.getAttribute('val'));
+            urlBar.mInputField.setUserInput(suggestion.getAttribute('val'));
             action = {
                 type: 'activity',
                 action: 'suggestion_enter',
@@ -1044,8 +1045,8 @@ function onEnter(ev, item){
             action.search = CliqzUtils.isSearch(inputValue);
         }
         else action.position_type = ['inbar_query'];
-        //action.autocompleted = CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart;
-        if(CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart && gCliqzBox){
+        //action.autocompleted = urlBar.selectionEnd !== urlBar.selectionStart;
+        if(urlBar.selectionStart != 0 &&urlBar.selectionEnd !== urlBar.selectionStart && gCliqzBox){
           action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
             var first = gCliqzBox.resultsBox.children[0],
                 firstUrl = first.getAttribute('url');
@@ -1057,7 +1058,7 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
 
-            CLIQZ.Core.urlbar.value = CliqzAutocomplete.lastAutocomplete;
+            urlBar.value = CliqzAutocomplete.lastAutocomplete;
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
@@ -1070,12 +1071,12 @@ function onEnter(ev, item){
             }
             var customQuery = ResultProviders.isCustomQuery(inputValue);
             if(customQuery){
-                CLIQZ.Core.urlbar.value = customQuery.queryURI;
+                urlBar.value = customQuery.queryURI;
             }
             var url = CliqzUtils.isUrl(inputValue) ? inputValue : null;
             CliqzUtils.trackResult(query, queryAutocompleted, index, url);
         }
-        if (CLIQZ.Core.urlbar.value.length > 0)
+        if (urlBar.value.length > 0)
             CliqzUtils.track(action);
 
         CLIQZ.Core.triggerLastQ = true;
@@ -1209,13 +1210,12 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
-        if(!text || !q || q.length < (minQueryLength || 2)) return text;
-
-
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
-        if(cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
+        if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
+
+        if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
             tokens = q.toLowerCase().split(/\s+/),
