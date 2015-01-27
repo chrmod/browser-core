@@ -10,7 +10,10 @@
         {{/if}}
         </div>
     {{/if}}
-    <div class='cqz-result-center cqz-vert-center '>
+    <div class='cqz-result-center cqz-vert-center'
+         {{#if image.src}}
+            style="width: calc(60% - 120px)"
+         {{/if}}>
         <div class='cqz-result-title overflow'>
             {{ title }}
         </div>
