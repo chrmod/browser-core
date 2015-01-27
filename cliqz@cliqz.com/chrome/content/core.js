@@ -392,8 +392,11 @@ CLIQZ.Core = CLIQZ.Core || {
         if(newTab) gBrowser.addTab(url);
         else {
             //clean selected text to have a valid last Query
-            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
-                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+            //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+
+            // Set urlbar value to url immediately
+            CLIQZ.Core.urlbar.value = url;
             openUILink(url);
         }
     },

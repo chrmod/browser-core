@@ -187,7 +187,7 @@ var CliqzHistoryPattern = {
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query);
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
     // Remove patterns with same title
-    patterns = CliqzHistoryPattern.removeSameTitle(patterns);
+    patterns = CliqzHistoryPattern.removeDuplicates(patterns);
     // Move base domain to top
     [patterns, baseUrl] = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false);
@@ -300,15 +300,18 @@ var CliqzHistoryPattern = {
     }
     return newPatterns;
   },
-  removeSameTitle: function(patterns) {
+  removeDuplicates: function(patterns) {
     var newPatterns = [];
     var titles = [];
+    var urls = [];
     for (var key in patterns) {
       var pattern = patterns[key];
       var title = pattern.title;
-      if (titles[title] !== true) {
+      var url = CliqzHistoryPattern.generalizeUrl(pattern.url, true);
+      if (titles[title] !== true && urls[url] !== true) {
         newPatterns.push(pattern);
         titles[title] = true;
+        urls[url] = true;
       }
     }
     return newPatterns;

@@ -1071,8 +1071,8 @@ function onEnter(ev, item){
             if (action.source[0] == 'C' && CliqzUtils.getPref("logCluster", false)) {  // if this is a clustering result, we track the clustering domain
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
-
-            CLIQZ.Core.urlbar.value = CliqzAutocomplete.lastAutocomplete;
+            CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
+            CLIQZ.Core.openLink(CliqzAutocomplete.lastAutocomplete, false);
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
