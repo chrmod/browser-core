@@ -183,6 +183,9 @@ var UI = {
                 if(sel != gCliqzBox.resultsBox.lastElementChild){
                     var nextEl = sel && sel.nextElementSibling;
                     nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
+                    if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
+                      nextEl = nextEl.nextElementSibling;
+                    }
                     if(nextEl.className == 'cqz-result-selected') return true;
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
@@ -270,6 +273,8 @@ var UI = {
       }
     },
     selectFirstElement: function() {
+      // Timeout to wait for user to finish keyboard input
+      // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInput > 400) {
@@ -665,11 +670,10 @@ function enhanceResults(res){
             if(all[i].data.template == 'entity-search-1' ||
                all[i].data.template == 'entity-banking-2'||
                all[i].data.template == 'celebrities'||
-               all[i].data.template == 'history-pattern'||
-               all[i].data.template == 'weatherEZ')i++;
+               all[i].data.template == 'weatherEZ' ||
+               all[i].data.template == "history-pattern")i++;
             else i+=2;
         }
-
     }
 
     return res;
@@ -691,6 +695,20 @@ function getResultOrChildAttr(el, attr){
         el = el.parentElement;
     }
     return '';
+}
+
+function urlIndexInHistory(url, urlList) {
+    var index = 0;
+    for(var key in urlList) {
+      if (urlList[key].href == url) {
+        index = urlList.indexOf(urlList[key]);
+        if (currentResults.results[0].data.cluster === true) {
+          index += 1;
+        }
+        break;
+      }
+    }
+    return index;
 }
 
 function resultClick(ev){
@@ -724,19 +742,8 @@ function resultClick(ev){
                 action.Ctype = CliqzUtils.getClusteringDomain(url)
             }
             if (action.position_type == 'C' && action.current_position == 0) {
-                var results = currentResults.results[0].data.urls;
-                var index = 0;
-                for(var key in results) {
-                  if (results[key].href == url) {
-                    index = results.indexOf(results[key]);
-                    if (currentResults.results[0].data.cluster === true) {
-                      index += 1;
-                    }
-                    break;
-                  }
-                }
                 action.extra = {
-                    index: index
+                    index: urlIndexInHistory(url, currentResults.results[0].data.urls)
                };
             }
             CliqzUtils.track(action);
@@ -818,20 +825,39 @@ function resultClick(ev){
 }
 
 function getResultSelection(){
-    return $('.' + IC + '[selected="true"]', gCliqzBox);
+    var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
+    if (selectedHistory) return selectedHistory;
+    else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
     var el = getResultSelection();
     el && el.removeAttribute('selected');
+    // Reset history entries to domain name
+    var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+    for(var i=0; i<history.length; i++) {
+      history[i].children[1].textContent = history[i].getAttribute("domain");
+    }
 }
 
 function setResultSelection(el, scroll, scrollTop){
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
+        // History selection
+        var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+        if (el.getAttribute("kind") == "C" && !scrollTop) el = history[0];
+        else if(el.getAttribute("kind") == "C" && scrollTop) el = history[history.length-1];
+
         el.setAttribute('selected', 'true');
-        $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        if (el.className == 'cliqz-pattern-element') {
+          $('.cqz-result-selected', gCliqzBox).style.top = (44 + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+          // Show full url for highlighted entry
+          el.children[1].textContent = el.getAttribute("shortUrl");
+        } else {
+          $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+        }
+
         $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
 
         if(scroll){
@@ -849,12 +875,18 @@ function setResultSelection(el, scroll, scrollTop){
 }
 
 var lastMoveTime = Date.now();
+var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-        while (el && el.className != IC) {
+        while (el && el.className != IC && el.className != "cliqz-pattern-element") {
             el = el.parentElement;
         }
+        // History Cluster -> only hover entries, not the whole area
+        if (el.getAttribute("kind") == "C" || el == lastHover) {
+            return;
+        }
+        lastHover = el;
         clearResultSelection();
         setResultSelection(el, false);
         lastMoveTime = Date.now();
@@ -985,6 +1017,13 @@ function onEnter(ev, item){
             action.source = action.position_type;
             action.current_position = -1;
             action.position_type = ['inbar_url'];
+        }
+        // History logging
+        if (action.position_type == 'C') {
+          action.current_position = 0;
+          action.extra = {
+            index: urlIndexInHistory(url, currentResults.results[0].data.urls)
+          };
         }
 
         CLIQZ.Core.openLink(url || CLIQZ.Core.urlbar.value, false);
@@ -1134,6 +1173,11 @@ function registerHelpers(){
         return '';
     });
 
+    Handlebars.registerHelper('sec_to_duration', function(seconds) {
+        var s = parseInt(seconds);
+        return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
+    });
+
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
@@ -1153,6 +1197,16 @@ function registerHelpers(){
     Handlebars.registerHelper('local', function(key, v1, v2 ) {
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
+
+    Handlebars.registerHelper('local_number', function(val) {
+        try {
+            return parseFloat(val).toLocaleString();
+        } catch(e) {
+            return val
+        }
+    });
+
+
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);

@@ -164,12 +164,7 @@ var CliqzHistoryPattern = {
       for (var i = 0; i < result.matchCount; i++) {
         var pattern = [];
         pattern.url = result.getValueAt(i);
-        CliqzUtils.log(pattern.url);
-        if (pattern.url.indexOf("moz-action:switchtab") === 0) {
-          pattern.url = pattern.url.substr(pattern.url.indexOf(',')+1);
-        } else if (pattern.url.indexOf("moz-action:") === 0) {
-          continue;
-        }
+        pattern.url = CliqzUtils.cleanMozillaActions(pattern.url);
         pattern.title = result.getCommentAt(i);
         if (pattern.title.length > 0 && pattern.url.length > 0) {
           patterns.push(pattern);
