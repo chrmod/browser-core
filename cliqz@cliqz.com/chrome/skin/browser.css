@@ -318,6 +318,7 @@
   background-color: white;
   height: 180px;
   font-size: 14px;
+  position: relative;
 }
 
 .EZ-airlines-bigcontainer [url] {

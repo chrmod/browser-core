@@ -4,7 +4,8 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>Cliqz Beta</em:name>
-		<em:version>0.5.48.1b202</em:version>
+		<em:version>0.5.44.1b336</em:version>
+
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>

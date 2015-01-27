@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'http://54.144.123.129/mixer?q=', // 'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',//'http://54.144.123.129/mixer?q=', //
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
@@ -70,7 +70,7 @@ var CliqzUtils = {
   TEMPLATES: ['main', 'results', 'images', 'suggestions', 'emphasis', 'empty', 'text',
                'engines', 'generic', 'custom', 'clustering', 'pattern', 'series', 'calculator',
                'entity-search-1', 'entity-news-1', 'entity-banking-2', 'entity-video',
-               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities'],
+               'bitcoin', 'spellcheck', 'airlinesEZ', 'weatherEZ', 'celebrities', 'noResult', 'time'],
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),

@@ -91,9 +91,9 @@ var UI = {
         var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
         suggestionBox.addEventListener('click', suggestionClick);
         gCliqzBox.suggestionBox = suggestionBox;
-
         var enginesBox = document.getElementById('cliqz-engines-box', box);
         enginesBox.addEventListener('click', enginesClick);
+
         gCliqzBox.enginesBox = enginesBox;
 
         var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
@@ -457,9 +457,6 @@ function constructImage(data){
     return null;
 }
 
-
-
-
     // Cliqz Images Search Layout
 
     var IMAGES_MARGIN = 4;
@@ -614,9 +611,11 @@ function getTags(fullTitle){
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
 
+
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
+            debugger;
             var d = r.data;
             if(d){
                 if(d.template && TEMPLATES.indexOf(d.template) != -1){
@@ -666,11 +665,13 @@ function enhanceResults(res){
             if(all[i].data.template == 'entity-search-1' ||
                all[i].data.template == 'entity-banking-2'||
                all[i].data.template == 'celebrities'||
+               all[i].data.template == 'history-pattern'||
                all[i].data.template == 'weatherEZ')i++;
             else i+=2;
         }
-        if(all[i].data && all[i].data.template == "history-pattern")i++;
+
     }
+
     return res;
 }
 
@@ -804,6 +805,10 @@ function resultClick(ev){
             };
             if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
               el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
+            if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
+              enginesClick(ev);
               break;
             };
         }
@@ -952,6 +957,7 @@ function onEnter(ev, item){
 
     var query = inputValue;
     var queryAutocompleted = null;
+
     if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
     {
         var first = gCliqzBox.resultsBox.children[0];
@@ -1048,6 +1054,7 @@ function onEnter(ev, item){
 }
 
 function enginesClick(ev){
+    console.log("THUY +++ in enginesCliqz");
     var engineName;
     if(engineName = ev && ev.target && ev.target.getAttribute('engine')){
         var engine;

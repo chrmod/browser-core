@@ -30,7 +30,8 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+        "message": {"H1": "we don't have great results this time.",
+                    "H2": "press enter to search on ..., or try one of these:."}
     },
     "noResultMessage":{
         "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
