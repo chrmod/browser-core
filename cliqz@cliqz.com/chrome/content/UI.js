@@ -957,6 +957,7 @@ function onEnter(ev, item){
             action.position_type = ['inbar_url'];
         }
 
+        CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || urlBar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
@@ -996,7 +997,9 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
 
-            urlBar.value = CliqzAutocomplete.lastAutocomplete;
+            CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
+            CLIQZ.Core.openLink(CliqzAutocomplete.lastAutocomplete, false);
+
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
