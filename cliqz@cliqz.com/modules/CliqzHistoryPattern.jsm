@@ -156,6 +156,10 @@ var CliqzHistoryPattern = {
         pattern.url = result.getValueAt(i);
         pattern.url = CliqzUtils.cleanMozillaActions(pattern.url);
         pattern.title = result.getCommentAt(i);
+        if (pattern.title.length == 0) {
+          pattern.title = CliqzHistoryPattern.domainFromUrl(pattern.url, false);
+          pattern.title = pattern.title[0].toUpperCase() + pattern.title.substr(1);
+        }
         if (pattern.title.length > 0 && pattern.url.length > 0) {
           patterns.push(pattern);
         }
@@ -166,7 +170,8 @@ var CliqzHistoryPattern = {
       CliqzHistoryPattern.firefoxHistory.res = res;
       CliqzHistoryPattern.firefoxHistory.query = query;
       // Callback when firefox is enabled or cliqz history found no results
-      if (DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "firefox_no_cluster" ||
+      if (query.length == 0 ||
+        DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "firefox_no_cluster" ||
         (DATA_SOURCE == "cliqz" && CliqzHistoryPattern.noResultQuery == query)) {
         CliqzHistoryPattern.historyCallback(res);
       }
@@ -488,9 +493,11 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if (urlbar.indexOf("://") != -1 ||
-      "www.".indexOf(urlbar) != -1)
+    if ("www.".indexOf(urlbar) != -1 || "http://".indexOf(urlbar) != -1)
       return {};
+    if (urlbar.indexOf("http://") == 0)
+      urlbar = urlbar.substr(urlbar.indexOf("://")+3);
+
     var type = null;
     var url = CliqzHistoryPattern.simplifyUrl(pattern.url);
     url = CliqzHistoryPattern.generalizeUrl(CliqzHistoryPattern.generalizeUrl(url, true));
