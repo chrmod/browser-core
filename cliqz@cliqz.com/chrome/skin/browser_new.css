@@ -120,6 +120,7 @@
 .cqz-result-title {
 	font-size: 18px;
 	color: #8a52a2;
+  width: 90%;
 }
 
 /* unvisited result - cliqz */
@@ -140,8 +141,9 @@
 
 .cqz-result-url {
 	color: #999999;
-	text-overflow: clip !important;
+	/*text-overflow: clip !important;*/
 	display: inline-block;
+  width: 90%;
 }
 
 .cqz-result-url-ssl {
@@ -185,12 +187,12 @@
 
 .cqz-image {
     display: inline-block;
-    width: 114px; /* 16 */
-    height: 64px; /* 9 */
-    background-size: contain;
+    width: 96px; /* 16 */
+    height: 54px; /* 9 */
+    background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    margin: 13px -4px 0px 22px;
+    margin: 23px -4px 0px 22px;
     position: relative;
 }
 
