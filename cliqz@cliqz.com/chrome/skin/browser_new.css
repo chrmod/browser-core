@@ -512,7 +512,7 @@
 
 /* history */
 .cliqz-pattern {
-  padding-left: 22px;
+  padding-left: 19px;
 }
 
 .cliqz-pattern-result-container {
@@ -520,7 +520,15 @@
   overflow:hidden;
 }
 
-.cliqz-pattern-document-icon {
+.cliqz-pattern-margin-h2 {
+
+}
+
+.cliqz-pattern-margin-h3 {
+  display: none;
+}
+
+.cliqz-pattern-document-icon-h2 {
   margin-top: 17px;
   height: 18.3px;
   width: 15px;
@@ -531,10 +539,20 @@
   display: inline-block;
 }
 
-.cliqz-pattern-title {
+.cliqz-pattern-document-icon-h3 {
+  visibility: hidden;
+  height: 0px;
+}
+
+.cliqz-pattern-title-h2 {
   padding-top: 15px;
   padding-bottom: 10px;
   float: left;
+}
+
+.cliqz-pattern-title-h3 {
+  visibility: hidden;
+  height: 12px;
 }
 
 .cliqz-pattern-results {
@@ -548,12 +566,9 @@
 }
 
 .cliqz-pattern-element {
-  line-height: 20px;
-  height: 25px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  font-size: 15px;
 }
 
 .cliqz-pattern-element-title {
@@ -565,6 +580,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.cliqz-pattern-element-h2 {
+  line-height: 20px;
+  height: 25px;
+  font-size: 15px;
+}
+
+.cliqz-pattern-element-h3 {
+  line-height: 22px;
+  height: 22px;
+  font-size: 14px;
+}
+
 
 .cliqz-pattern-element-link {
   margin-left: 8px;
@@ -578,12 +606,21 @@
   display:inline-block;
 }
 
-.cliqz-pattern-favicon-element {
+.cliqz-pattern-favicon-element-h2 {
   float:left;
   height: 25px;
   width: 16px;
   background-repeat: no-repeat;
   background-position: 0px 2px;
+  background-size: 16px 16px;
+}
+
+.cliqz-pattern-favicon-element-h3 {
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
   background-size: 16px 16px;
 }
 
@@ -594,12 +631,22 @@
   margin-right: 18px;
   position: absolute;
   right: 0px;
-  top: 63px;
   background: #efefef;
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
   background-repeat: no-repeat;
+}
+
+.cliqz-pattern-logo-h2 {
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  top: 63px;
   background-position: 11px 11px;
   background-size: 32px 32px;
+}
+
+.cliqz-pattern-logo-h3 {
+  background-image: url(chrome://cliqzres/content/skin/history_icon.png);
+  top: 18px;
+  background-position: 7px 7px;
+  background-size: 40px 40px;
 }
 
 /* END history */

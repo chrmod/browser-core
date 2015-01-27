@@ -27,6 +27,7 @@ var DATA_SOURCE = "firefox_no_cluster"/*CliqzUtils.getPref("newHistoryType")*/;
 
 var CliqzHistoryPattern = {
   PATTERN_DETECTION_ENABLED: true/*CliqzUtils.getPref("newHistory")*/,
+  HEIGHT: CliqzUtils.getPref("historySize") ? CliqzUtils.getPref("historySize") : "h3",
   timeFrame: (new Date).getTime() - 60 * 60 * 24 * 7 * 1000, // Go back one week in cliqz history
   data: null,
   pattern: null,
@@ -218,6 +219,7 @@ var CliqzHistoryPattern = {
     if (patterns && !res.cluster && baseUrl && baseUrl.indexOf(query) === 0) {
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
     }
+    res.results = CliqzHistoryPattern.removeDuplicates(res.results);
     return res;
   },
 
@@ -497,7 +499,7 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if ("www.".indexOf(urlbar) != -1 || "http://".indexOf(urlbar) != -1)
+    if (urlbar == "www." || urlbar == "http://")
       return {};
     if (urlbar.indexOf("http://") == 0)
       urlbar = urlbar.substr(urlbar.indexOf("://")+3);
@@ -709,7 +711,8 @@ var CliqzHistoryPattern = {
       kind: kind,
       urls: [],
       cluster: false,
-      template: "history-pattern"
+      template: "history-pattern",
+      height: CliqzHistoryPattern.HEIGHT
     };
     for (var i = 0; i < results.length; i++) {
       var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
@@ -724,9 +727,11 @@ var CliqzHistoryPattern = {
         domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
         vdate: CliqzHistoryPattern.formatDate(results[i].date),
         title: results[i].title,
-        favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain
+        favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain,
+        height: instant.data.height
       });
-      if (instant.data.urls.length > 4) {
+      if ((instant.data.urls.length > 4 && CliqzHistoryPattern.HEIGHT == "h2") ||
+        (instant.data.urls.length > 2 && CliqzHistoryPattern.HEIGHT == "h3")) {
         break;
       }
     }

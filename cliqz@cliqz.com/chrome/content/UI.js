@@ -46,7 +46,8 @@ var UI = {
     tpl: {},
     showDebug: false,
     preventFirstElementHighlight: false,
-    lastInput: 0,
+    lastInputTime: 0,
+    lastInput: "",
     init: function(){
         TEMPLATES.forEach(function(tpl){
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
@@ -169,11 +170,11 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection();
-        UI.lastInput = (new Date()).getTime();
+        UI.lastInputTime = (new Date()).getTime();
         switch(ev.keyCode) {
             case UP:
                 var nextEl = sel && sel.previousElementSibling;
-                setResultSelection(nextEl, true, true);
+                setResultSelection(nextEl, true, true, true);
                 trackArrowNavigation(nextEl);
                 return true;
             break;
@@ -185,12 +186,13 @@ var UI = {
                       nextEl = nextEl.nextElementSibling;
                     }
                     if(nextEl.className == 'cqz-result-selected') return true;
-                    setResultSelection(nextEl, true, false);
+                    setResultSelection(nextEl, true, false, true);
                     trackArrowNavigation(nextEl);
                 }
                 return true;
             break;
             case ENTER:
+                UI.lastInput = "";
                 return onEnter(ev, sel);
             break;
             case TAB:
@@ -224,6 +226,7 @@ var UI = {
                 return true;
             case BACKSPACE:
             case DEL:
+                UI.lastInput = "";
                 if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
@@ -253,7 +256,9 @@ var UI = {
                 clearResultSelection();
                 return false;
             default:
+                UI.lastInput = "";
                 UI.preventFirstElementHighlight = false;
+                clearResultSelection();
                 return false;
         }
     },
@@ -284,7 +289,7 @@ var UI = {
       // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
-        if(time - UI.lastInput > 400) {
+        if(time - UI.lastInputTime > 400) {
           if (!UI.preventFirstElementHighlight) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
           }
@@ -687,7 +692,7 @@ function enhanceResults(res){
                all[i].data.template == 'weatherEZ')i++;
             else i+=2;
         }
-        if(all[i].data && all[i].data.template == "history-pattern")i++;
+        if(all[i] && all[i].data && all[i].data.template == "history-pattern" && all[i].data.height == "h2")i += 1;
     }
     return res;
 }
@@ -842,14 +847,18 @@ function getResultSelection(){
 function clearResultSelection(){
     var el = getResultSelection();
     el && el.removeAttribute('selected');
-    // Reset history entries to domain name
-    var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
-    for(var i=0; i<history.length; i++) {
-      history[i].children[1].textContent = history[i].getAttribute("domain");
+    if(gCliqzBox) {
+      var selected = $('.cqz-result-selected', gCliqzBox);
+      selected && selected.removeAttribute('active');
+      // Reset history entries to domain name
+      var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+      for(var i=0; i<history.length; i++) {
+        history[i].children[1].textContent = history[i].getAttribute("domain");
+      }
     }
 }
 
-function setResultSelection(el, scroll, scrollTop){
+function setResultSelection(el, scroll, scrollTop, changeUrl){
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
@@ -860,7 +869,8 @@ function setResultSelection(el, scroll, scrollTop){
 
         el.setAttribute('selected', 'true');
         if (el.className == 'cliqz-pattern-element') {
-          $('.cqz-result-selected', gCliqzBox).style.top = (44 + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+          var offset = (el.getAttribute("height") == "h2") ? 44 : 13;
+          $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
           el.children[1].textContent = el.getAttribute("shortUrl");
         } else {
@@ -880,6 +890,19 @@ function setResultSelection(el, scroll, scrollTop){
                     (el.offsetTop - firstOffset) + el.offsetHeight))
                 el.scrollIntoView(false);
         }
+
+        if (UI.lastInput == "") {
+            if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
+                UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            } else {
+                UI.lastInput = CLIQZ.Core.urlbar.value;
+            }
+        }
+        if(changeUrl) {
+            CLIQZ.Core.urlbar.value = el.getAttribute("url");
+        }
+    } else if (changeUrl && UI.lastInput != "") {
+        CLIQZ.Core.urlbar.value = UI.lastInput;
     }
 }
 
