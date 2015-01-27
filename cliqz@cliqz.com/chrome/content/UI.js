@@ -1167,7 +1167,7 @@ function registerHelpers(){
 
     Handlebars.registerHelper('sec_to_duration', function(seconds) {
         var s = parseInt(seconds);
-        return Math.floor(s/60) + ':' + (s%60);
+        return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
@@ -1189,6 +1189,16 @@ function registerHelpers(){
     Handlebars.registerHelper('local', function(key, v1, v2 ) {
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
+
+    Handlebars.registerHelper('local_number', function(val) {
+        try {
+            return parseFloat(val).toLocaleString();
+        } catch(e) {
+            return val
+        }
+    });
+
+
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);

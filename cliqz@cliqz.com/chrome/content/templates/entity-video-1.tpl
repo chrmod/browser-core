@@ -26,7 +26,7 @@
             {{ this.title }}
           </div>
           <div class="entity-video-story-time">
-            {{ this.views }} views
+            {{ local_number this.views }} views
           </div>
         </div>
       </div>
