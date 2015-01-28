@@ -21,13 +21,21 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 CliqzUtils.init();
 
 var Mixer = {
-    mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
-        var results = [],
-            [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
-        // 1) put each result into a bucket
+	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
+		var results = [];
+    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+      var [is_clustered, history_trans] = [false, history];
+    } else {
+      var [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
+    }
+
+		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
             bucketHistoryOther = [],
             bucketCache = [],
@@ -66,17 +74,21 @@ var Mixer = {
 
                 // do this for all types except clustering for now
                 // TODO: find a way to report where all clustered values come from
-                if(st != 'cliqz-cluster' && st != 'cliqz-series') {
+                if(st != 'cliqz-cluster' && st != 'cliqz-series' && st != 'cliqz-pattern') {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     st = CliqzUtils.combineSources(st, tempCliqzResult.style);
-
+                    var combinedKind = da.kind.concat(tempCliqzResult.data.kind);
                     co = co.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
-
                     // create new instant entry to replace old one
-                    var newInstant = Result.generic(st, va, im, co, la, da);
+                    var newInstant = Result.generic(st, va, im, co, la, '', da);
+                    newInstant.data.kind = combinedKind;
                     mixed._results.splice(0);
                     mixed.addResults([newInstant]);
+
+                    // remove from cliqz result list
+                    cliqz.splice(i, 1);
+                    break;
                 }
             }
         }
@@ -100,7 +112,7 @@ var Mixer = {
                     // combine sources
                     var tempResult = Result.cliqz(cliqz[i]);
                     tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
-
+                    tempResult.data.kind = CliqzUtils.encodeResultType(style).concat(tempResult.data.kind);;
                     //use the title from history/bookmark - might be manually changed - eg: for tag results
                     if(comment) tempResult.comment = comment;
 
@@ -192,7 +204,8 @@ var Mixer = {
         if(bundesligaResults && bundesligaResults.length > 0)
             results = bundesligaResults.concat(results);
 
-        results = Filter.deduplicate(mixed._results.concat(results), -1, 1, 1);
+        var unfiltered = mixed._results.concat(results);
+        results = Filter.deduplicate(unfiltered, -1, 1, 1);
 
         results = results.slice(mixed._results.length);
 
@@ -213,12 +226,13 @@ var Mixer = {
                             template:'text',
                             title: CliqzUtils.getLocalizedString('noResultTitle'),
                             //message: CliqzUtils.getLocalizedString('noResultMessage')
-                        }
+                        },
+                        subType: JSON.stringify({empty:true})
                     }
                 )
             );
         }
 
-        return results.slice(0, maxResults);
+        return [results.slice(0, maxResults), unfiltered];
     }
 }

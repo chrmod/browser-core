@@ -74,14 +74,14 @@
                     data: lastRes && lastRes.getDataAt(i),
                   });
               }
-
               CLIQZ.UI.results({
                 q: q,
                 results: data,
+                isInstant: lastRes && lastRes.isInstant,
                 width: CLIQZ.Core.urlbar.clientWidth
               });
               CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
+              CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url), data[0].title);
             }
           ]]>
         </body>
