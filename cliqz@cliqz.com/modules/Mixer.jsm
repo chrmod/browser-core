@@ -223,10 +223,11 @@ var Mixer = {
         // add extra (fun search) results at the beginning
         if(cliqzExtra) results = cliqzExtra.concat(results);
 
-        // ----------- noResult Entityzone---------------- //
+        // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && mixed.matchCount == 0 && CliqzUtils.getPref('showNoResults')){
-            var path = "chrome://cliqzres/content/skin/noResult/";
-            var title_obj = CliqzUtils.getLocalizedString('noResultTitle'),
+            var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
+            var title = CliqzUtils.getLocalizedString('noResultTitle'),
+                msg = CliqzUtils.getLocalizedString('noResultMessage'),
                 current_search_engine = Services.search.currentEngine.name;
 
             var alternative_search_engines_data = [// default
@@ -251,9 +252,8 @@ var Mixer = {
                         data:
                         {
                             template:'noResult',
-                            text_line1: title_obj["H1"],
-                            text_line2: title_obj["H2"].replace("...", current_search_engine),
-                            //"search_engines": alternative_search_engines_data,
+                            text_line1: title,
+                            text_line2: msg.replace("...", current_search_engine),
                             "search_engines": alternative_search_engines_data,
                             "cliqz_logo": path+"EZ-no-results-cliqz.svg"
                         },

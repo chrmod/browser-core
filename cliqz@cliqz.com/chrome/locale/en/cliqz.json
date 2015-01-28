@@ -30,11 +30,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": {"H1": "we don't have great results this time.",
-                    "H2": "press enter to search on ..., or try one of these:."}
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"No results"

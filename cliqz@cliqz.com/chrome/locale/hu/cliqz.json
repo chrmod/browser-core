@@ -1,7 +1,9 @@
 {
     "noResultTitle":{
-        "message": {"H1": "we don't have great results this time.",
-                    "H2": "press enter to search on ..., or try one of these:."}
+        "message": "we don't have great results this time."
+    },
+    "noResultMessage":{
+        "message":"press enter to search on ..., or try one of these:."
     },
     "urlBarLastSearch":{
         "message":"↵  "

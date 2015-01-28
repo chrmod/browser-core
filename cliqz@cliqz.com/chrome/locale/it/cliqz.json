@@ -24,11 +24,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": {"H1": "we don't have great results this time.",
-                    "H2": "press enter to search on ..., or try one of these:."}
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Passa il mouse <b><i>più</i></b> in basso a destra e seleziona un altro motore di ricerca."
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"Nessun risultato"
