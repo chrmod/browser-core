@@ -5,10 +5,10 @@
      <span class="EZ-noResult-title-H2">{{text_line2}}</span>
   </div>
 
-  <div class="EZ-noResult-logos" id="EZ-noResult-logos" cliqz-action="alternative-search-engine">
+  <div class="EZ-noResult-logos" id="EZ-noResult-logos" >
      {{#each search_engines}}
-      <div class="EZ-noResult-one-logo" style="background-color:{{background-color}}" engine="{{name}}" engineCode="{{code}}">
-          <div style="background-image: url({{logo}})"></div>
+      <div class="EZ-noResult-one-logo" style="background-color:{{background-color}}" engine="{{name}}" engineCode="{{code}}" cliqz-action="alternative-search-engine">
+          <div style="background-image: url({{logo}})"> </div>
       </div>
      {{/each}}
   </div>
