@@ -302,8 +302,8 @@
 /* EZ news */
 .cqz-ez-news-title {
 	background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg);
+  margin-bottom: 18px;
 }
-
 
 .entity-news-title {
   color: #414141;
@@ -322,17 +322,17 @@
 }
 
 .entity-news-stories {
-	margin-top: 6px;
 }
 
 .entity-news-story {
-  padding: 2px 0;
   position: relative;
+  height: 54px;
+  margin-bottom: 9px;
 }
 
 .entity-news-story-description {
   vertical-align: top;
-  padding: 0 0 0 12px;
+  padding: 0 0 0 9px;
 }
 
 .entity-news-story-title {
@@ -348,23 +348,35 @@
     text-decoration: underline;
 }
 .entity-news-story-time {
-    color: #aaaaaa;
-	font-size: 12px;
-	padding-top: 4px;
+  color: #aaaaaa;
+  font-size: 12px;
+  padding-top: 9px;
 }
 
 .entity-news-story-image {
   display: inline-block;
   background-color: #dddddd;
-  width: 80px;
-  height: 50px;
+  width: 86px;
+  height: 54px;
   background-size: cover;
   background-position: center;
+  position: relative;
+}
+
+.entity-news-story-image span {
+  background-color: black;
+  color: white;
+  bottom: 0px;
+  position: absolute;
+  right: 0px;
+  font-size: 12px;
+  padding: 5px;
 }
 
 .entity-news-story-description {
   display: inline-block;
 }
+
 /* EZ news end */
 
 

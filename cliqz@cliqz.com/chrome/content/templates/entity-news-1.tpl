@@ -5,31 +5,20 @@
   <div class="entity-news-stories">
     {{#each data.news}}
       <div class="entity-news-story"
-           url="{{ this.url }}" type="X" extra="entry-{{ @index }}">
+           url="{{ url }}" type="X" extra="news-{{ @index }}">
         <div class="entity-news-story-image"
-          style="background-image: url({{ this.thumbnail }})">
+          style="background-image: url({{ thumbnail }})">
         </div>
         <div class="entity-news-story-description cqz-vert-center">
           <div class="entity-news-story-title">
-            {{ this.title }}
+            {{ title }}
           </div>
           <div class="entity-news-story-time">
-            {{ this.time }}
+            {{ time }}
           </div>
         </div>
       </div>
     {{/each}}
   </div>
-  <div class='cqz-ez-btns'>
-      {{#each data.categories}}
-        <span
-          class="cqz-ez-btn"
-          style="background-color: #EFEFEF; color: black"
-          url="{{ this.url }}"
-          extra="category-{{ @index }}">
-          {{ this.title }}
-        </span>
-      {{/each}}
-  </div>
-  {{> logo}}
+  {{> EZ-category }}
 </div>
