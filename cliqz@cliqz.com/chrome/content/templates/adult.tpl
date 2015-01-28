@@ -1,20 +1,22 @@
-{{#if (ifAdult results)}}
 <div class="cqz-adult-bar">
-  <img class="cqz-adult-inline" src="http://cdn.cliqz.com/extension/adultfilter/red-alert.svg" alt="" />
-  <div class="cqz-adult-inline-alert">
+  <div class="cqz-adult-alert">
     Some adult content has been hidden.
   </div>
-  <div class="cqz-adult-inline">
-    Show unfiltered results?
-  </div>
-  <div class="cqz-adult-inline cqz-adult-show" cliqz-action="show-adult-content">
-    Yes
-  </div>
-  <div class="cqz-adult-inline cqz-adult-show" cliqz-action="dont-show-adult-content">
-    No
-  </div>
-  <div class="cqz-adult-inline cqz-adult-options" cliqz-action="dont-show-adult-content">
-    Options
+
+  <div style="float:right" cliqz-action="adult">
+    <span> Show unfiltered results?</span>
+    <span class="cqz-adult-btn" state="yes">Yes</span>
+    <span class="cqz-adult-btn" state="no">No</span>
+    <span class="cqz-adult-btn cqz-adult-options-btn" state="options">
+          <div class='cqz-adult-options'>
+              {{#each adultConfig}}
+                  <div state='{{@key}}' selected='{{selected}}'>
+                    {{name}}
+                  </div>
+              {{/each}}
+          </div>
+          Options
+    </span>
+
   </div>
 </div>
-{{/if}}

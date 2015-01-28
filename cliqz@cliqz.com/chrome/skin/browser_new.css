@@ -34,7 +34,6 @@
 .cqz-result-h1 {
 	height: 302px;
 	font-size: 14px;
-
 }
 
 .cqz-result-h2 {
@@ -251,6 +250,7 @@
   background-position: 50% calc(70% - 20px);
   text-align: center;
   box-sizing: border-box;
+  -mox-box-sizing: border-box;
   padding: 74px 7px 0 7px;
   border-radius: 3px;
   color: #323232;
@@ -282,6 +282,7 @@
 	background-position: 50% calc(70% - 20px);
 	text-align: center;
 	box-sizing: border-box;
+  -mox-box-sizing: border-box;
 	padding-top: 74px;
 	border-radius: 3px;
 	color: #323232;
@@ -450,50 +451,87 @@
 /* Adult content */
 
 .cqz-adult-bar {
-  position: absolute;
-  left:0px;
-  right:0px;
-  bottom: 0;
   font-size: 14px;
-  z-index: 1000;
-  padding: 10px;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  -mox-box-sizing: border-box;
+  position: absolute;
+  bottom: -35px;
+  width: 100%;
 }
 
 .cqz-adult-bar img {
   height: 16px;
 }
 
-.cqz-adult-inline-alert {
-  display: inline;
+.cqz-adult-alert {
   color: #c3043e;
-  vertical-align: middle;
+  background-image: url(http://cdn.cliqz.com/extension/adultfilter/red-alert.svg);
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding-left: 20px;
+  padding: 2px 8px 2px 30px;
+  margin-top: 2px;
+  display: inline-block;
 }
 
-.cqz-adult-inline {
-  margin: 0 5px;
-  display: inline;
-  vertical-align: middle;
-}
-
-.cqz-adult-bar ~ div {
-  display: none;
-}
-
-.cqz-adult-show {
+.cqz-adult-btn {
   margin: 0 5px;
   cursor: pointer;
   color: white;
   background-color: #abc8e2;
-  border-radius: 4px;
-  padding: 4px;
+  border-radius: 3px;
+  padding: 4px 8px;
+  text-align: center;
+}
+
+.cqz-adult-options-btn {
+  background-color: #eaeaea;
+  color: black;
+  box-sizing: border-box;
+  -mox-box-sizing: border-box;
+  width: 115px;
+  display: inline-block;
+  margin-left: 20px;
+}
+
+.cqz-adult-options-btn:after {
+  content: "⌃";
+  top: 3px;
+  left: 15px;
+  position: relative;
+}
+
+
+.cqz-adult-options-btn:hover .cqz-adult-options {
+  display: inline-block;
 }
 
 .cqz-adult-options {
-  margin: 0 5px;
-  cursor: pointer;
-  background-color: #eaeaea;
-  border-radius: 4px;
-  padding: 4px;
+  display: none;
+  position: absolute;
+  bottom: 28px;
+  width: 113px;
+  text-align: left;
+  right: 15px;
+  border: 1px solid #eaeaea;
+  border-radius: 3px;
+  background-color: white;
+}
+
+.cqz-adult-options div {
+  padding: 3px 5px 3px 20px;
+}
+
+.cqz-adult-options div:hover {
+  background-color: #116cd6;
+  color: white;
+}
+
+.cqz-adult-options div[selected="true"] {
+  background-image: url(chrome://cliqzres/content/skin/checkmark.png);
+  background-position: 1px center;
+  background-repeat: no-repeat;
 }
 
 /* End audlt content */
@@ -538,6 +576,7 @@
     text-align: center;
     padding-top: 56px;
     box-sizing: border-box;
+    -mox-box-sizing: border-box;
     color: white;
     background-size: 35px auto;
 }
@@ -628,6 +667,7 @@
 .cqz-result-padding {
 	padding: 18px 22px;
 	box-sizing: border-box;
+  -mox-box-sizing: border-box;
 }
 
 .cqz-result-box .cqz-result-padding {

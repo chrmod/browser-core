@@ -18,7 +18,7 @@
 
   {{#each small_tiles}}
       <div class="EZ-airlines-Tiles" url="{{url}}">
-           <div class="EZ-airlines-Tiles_icon" 
+           <div class="EZ-airlines-Tiles_icon"
                    style="background-image: url({{icon}})">
             </div>
             <div class="EZ-airlines-Tiles_text">{{label}}</div>

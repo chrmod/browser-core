@@ -473,18 +473,7 @@ var Extension = {
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
 
-        var filter_levels = {'conservative':
-                               {name: CliqzUtils.getLocalizedString('result_filter_conservative'),
-                                selected: false},
-                             'moderate':
-                               {name: CliqzUtils.getLocalizedString('result_filter_moderate'),
-                                selected: false},
-                             'liberal':
-                               {name: CliqzUtils.getLocalizedString('result_filter_liberal'),
-                                selected: false}};
-
-        var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
-        filter_levels[current_level].selected = true;
+        var filter_levels = CliqzUtils.getAdultFilterState();
 
         for(var level in filter_levels) {
           var item = doc.createElement('menuitem');
