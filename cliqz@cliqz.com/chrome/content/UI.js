@@ -39,6 +39,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
+    IMAGE_HEIGHT = 64,
+    IMAGE_WIDTH = 114,
     currentResults
     ;
 
@@ -48,11 +50,14 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInput: 0,
     init: function(){
-        TEMPLATES.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                UI.tpl[tpl] = Handlebars.compile(res.response);
+
+        Object.keys(TEMPLATES).forEach(function(tpl_name){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
+                UI.tpl[tpl_name] = Handlebars.compile(res.response);
+
             });
         });
+
         for(var v in VERTICALS){
             (function(vName){
                 CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
@@ -89,9 +94,9 @@ var UI = {
         var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
         suggestionBox.addEventListener('click', suggestionClick);
         gCliqzBox.suggestionBox = suggestionBox;
-
         var enginesBox = document.getElementById('cliqz-engines-box', box);
         enginesBox.addEventListener('click', enginesClick);
+
         gCliqzBox.enginesBox = enginesBox;
 
         var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
@@ -442,7 +447,7 @@ function constructImage(data){
         }
         // only show the image if the ratio is between 0.4 and 2.5
         if(ratio == 0 || ratio > 0.4 && ratio < 2.5){
-            var image = { src: img.src }
+            var image = { src: img.src };
             if(ratio > 0) {
                 image.backgroundSize = height * ratio;
                 image.width = height * ratio ;
@@ -459,9 +464,6 @@ function constructImage(data){
     }
     return null;
 }
-
-
-
 
     // Cliqz Images Search Layout
 
@@ -617,12 +619,13 @@ function getTags(fullTitle){
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
 
+
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
         if(r.type == 'cliqz-extra'){
             var d = r.data;
             if(d){
-                if(d.template && TEMPLATES.indexOf(d.template) != -1){
+                if(d.template && TEMPLATES.hasOwnProperty(d.template)){
                     r.vertical = d.template;
                     r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
                     r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
@@ -660,20 +663,15 @@ function enhanceResults(res){
     var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
     var all = first.concat(last);
 
-    // TODO: very ugly
     // getMax 3 results height
-    res.results = []
+    res.results = [];
     for(var i=0; i<all.length && i<3; i++){
-        res.results.push(all[i])
+        res.results.push(all[i]);
         if(all[i].type == 'cliqz-extra' && all[i].data){
-            if(all[i].data.template == 'entity-search-1' ||
-               all[i].data.template == 'entity-banking-2'||
-               all[i].data.template == 'celebrities'||
-               all[i].data.template == 'weatherEZ' ||
-               all[i].data.template == "history-pattern")i++;
-            else i+=2;
+            i += (TEMPLATES[all[i].data.template]-1);
         }
     }
+
     return res;
 }
 
@@ -810,6 +808,14 @@ function resultClick(ev){
             };
             if (el.getAttribute('cliqz-action') == 'dont-show-adult-content') {
               el.parentNode.className = "cqz-adult-bar hidden";
+              break;
+            };
+            if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
+                console.log(el);
+                console.log(ev);
+                debugger;
+
+              enginesClick(ev);
               break;
             };
         }
@@ -1088,7 +1094,9 @@ function onEnter(ev, item){
 
 function enginesClick(ev){
     var engineName;
-    if(engineName = ev && ev.target && ev.target.getAttribute('engine')){
+    var el = ev.target;
+
+    if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
         var engine;
         if(engine = Services.search.getEngineByName(engineName)){
             var urlbar = CLIQZ.Core.urlbar,
