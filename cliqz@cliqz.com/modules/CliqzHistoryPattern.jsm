@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 var DATA_SOURCE = "firefox_no_cluster"/*CliqzUtils.getPref("newHistoryType")*/;
 
 var CliqzHistoryPattern = {
-  PATTERN_DETECTION_ENABLED: true/*CliqzUtils.getPref("newHistory")*/,
+  PATTERN_DETECTION_ENABLED: false/*CliqzUtils.getPref("newHistory")*/,
   timeFrame: (new Date).getTime() - 60 * 60 * 24 * 7 * 1000, // Go back one week in cliqz history
   data: null,
   pattern: null,
@@ -515,7 +515,7 @@ var CliqzHistoryPattern = {
     if (url.indexOf(input) === 0 && url != input) {
       autocomplete = true;
       highlight = true;
-      urlbarCompleted = urlbar + url.substring(url.indexOf(input) + input.length);
+      urlbarCompleted = urlbar + url.substring(url.indexOf(input) + input.length + 1);
       type = 'url';
     }
     // Query
