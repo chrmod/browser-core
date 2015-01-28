@@ -154,11 +154,11 @@
 .cqz-result-path {
 	visibility: hidden;
 }
-
+/*
 .cqz-result-url:hover .cqz-result-path {
 	visibility: visible;
 }
-
+*/
 .cqz-result-desc {
     margin-top: 2px;
 }
