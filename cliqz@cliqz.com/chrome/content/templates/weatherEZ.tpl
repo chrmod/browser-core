@@ -1,5 +1,5 @@
 {{#with data}}
-<div class="EZ-weather-bigcontainer">
+<div class="cqz-result-h2 EZ-weather-bigcontainer">
   <div class='EZ-weather-title'>
        <div class="EZ-weather-city">{{ returned_location }}</div>   
        <img  class="EZ-weather_icon" src="{{title_icon}}"/>

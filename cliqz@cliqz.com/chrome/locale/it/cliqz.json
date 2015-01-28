@@ -24,10 +24,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Non abbiamo risultati, ci dispiace.<br />Stiamo lavorando per migliorarci."
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Passa il mouse <b><i>più</i></b> in basso a destra e seleziona un altro motore di ricerca."
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"Nessun risultato"

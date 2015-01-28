@@ -25,7 +25,6 @@
 }
 
 /* end browser*/
-
 #cliqz-results {
     height: 302px;
     position: relative;
@@ -792,3 +791,105 @@
 }
 
 /* END history */
+
+/*  noResult  thuy@cliqz.com*/
+.EZ-noResult-title {
+  background-color: white;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  height: 93.5px;
+}
+
+.EZ-noResult-title-H1 {
+  position: relative;
+  background-color: white;
+  color: #333333;
+  font-size: 20px;
+  top: 54px;
+  line-height: 100%;
+}
+
+.EZ-noResult-title-H2 {
+  position: relative;
+  background-color: white;
+  color:#cccccc;
+  line-height: 100%;
+  top: 58px;
+}
+
+.EZ-noResult-logos {
+  height: 54px;
+  background-color: white;
+  margin-top: 25px;
+  text-align: center
+}
+
+.EZ-noResult-one-logo {
+	width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    margin-left:7.5px;
+    margin-right:7.5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.EZ-noResult-one-logo > div {
+    width: 34px;
+    height: 34px;
+    background-size: contain;
+    margin: 10px auto;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+
+.EZ-noResult-bottom-logo{
+     margin-top: 60px;
+     background-color:white;
+     height: 20px;
+     text-align: center
+}
+
+.EZ-noResult-Cliqz-logo{
+    height: 20px;
+}
+
+/* END noResult */
+
+/* TimeEZ thuy@cliqz.com */
+.EZ-time-bigcontainer{
+ padding-left: 0px;
+ background-color: white;
+ height: 90px;
+ text-align: center;
+}
+
+
+.EZ-time-location{
+ position: relative;
+ top: 17px;
+ font-size: 14px;
+ color: black;
+}
+
+.EZ-time-time{
+ padding-left: 5px;
+ position: relative;
+ top: 40%;
+ transform: translateY(-50%);
+ font-size: 20px;
+ color: black;
+ font-weight: 500;
+}
+
+.EZ-time-timezone{
+ padding-left: 5px;
+ position: relative;
+ top: 40%;
+ transform: translateY(-50%);
+ font-size: 14px;
+ color: silver;
+}
+/* END TimeEZ */
