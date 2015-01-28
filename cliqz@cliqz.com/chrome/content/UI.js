@@ -1248,8 +1248,13 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('sec_to_duration', function(seconds) {
-        var s = parseInt(seconds);
-        return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
+        if(!seconds)return null;
+        try {
+            var s = parseInt(seconds);
+            return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
+        } catch(e) {
+            return null;
+        }
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
@@ -1273,6 +1278,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('local_number', function(val) {
+        if(!val)return null;
         try {
             return parseFloat(val).toLocaleString();
         } catch(e) {
