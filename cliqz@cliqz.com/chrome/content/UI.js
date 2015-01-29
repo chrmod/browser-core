@@ -194,23 +194,26 @@ var UI = {
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
                 if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                  CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart, urlbar.selectionStart);
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart, urlbar.selectionStart);
                 } else {
-                  CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart-1, urlbar.selectionStart-1);
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart-1, urlbar.selectionStart-1);
+                }
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
                 }
                 return true;
             case RIGHT:
                 var urlbar = CLIQZ.Core.urlbar;
                 if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                  CLIQZ.Core.urlbar.value = urlbar.value;
-                  CLIQZ.Core.urlbar.setSelectionRange(urlbar.value.length, urlbar.value.length);
+                    CLIQZ.Core.urlbar.mInputField.value = urlbar.value;
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.value.length, urlbar.value.length);
                 } else {
-                  CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
                 }
-                //if (CliqzAutocomplete.spellCorr.on) {
-                //  CliqzAutocomplete.spellCorr.override = true
-                //}
-              return true;
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                }
+                return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
                 ev.originalTarget.setSelectionRange(0, 0);
