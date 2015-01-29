@@ -24,7 +24,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.02',
+    VERSION: '0.03',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
     debug: false,
@@ -167,6 +167,10 @@ var CliqzUCrawl = {
       res['q'] = CliqzUCrawl.scrapeQuery(currURL, document);
       res['t'] = new Date().getTime();
       res['r'] = {};
+      try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+      res['ctry'] = location;
+
+
 
       var a = document.getElementsByTagName('cite');
       for(let i=0; i < a.length; i++) {
@@ -337,6 +341,11 @@ var CliqzUCrawl = {
       var inputs = null;
       var inputs_nh = null;
       var forms = null;
+      var pg_l = null;
+      var metas = null;
+      var tag_html = null;
+      var iall =  'yes';
+      var all = null;
 
       try { len_html = cd.documentElement.innerHTML.length; } catch(ee) {}
       try { len_text = cd.documentElement.textContent.length; } catch(ee) {}
@@ -348,10 +357,46 @@ var CliqzUCrawl = {
         for(var i=0;i<inputs.length;i++) if (inputs[i]['type'] && inputs[i]['type']!='hidden') inputs_nh+=1;
       } catch(ee) {}
 
+      
+      try {
+      metas = cd.getElementsByTagName('meta');
+      for (i=0;i<metas.length;i++){if (metas[i].getAttribute("http-equiv") == "content-language" || metas[i].getAttribute("name") == "language")
+       { 
+         pg_l = metas[i].getAttribute("content"); 
+      }};
+
+      if (pg_l == null)
+      {
+       tag_html = cd.getElementsByTagName('html');
+       pg_l = tag_html[0].getAttribute("lang");
+      };  
+      }catch(ee){}
+
+      try {
+      metas = cd.getElementsByTagName('meta');
+      for (i=0;i<metas.length;i++){if (metas[i].getAttribute("name") == "robots")
+       { 
+         all = metas[i]['content'];
+         if(all.indexOf('noindex') > -1)
+         {
+           iall = 'no';
+        }
+        
+      }};
+ 
+      }catch(ee){};
+
+      try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){}
+      
       try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
-      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length};
 
+      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall };
+      CliqzUtils.log('testing:  ' + x.pagel);
+      CliqzUtils.log('testing ctry:  ' + x.ctry);
+      CliqzUtils.log('testing indexing:  ' + x.iall);
+      //CliqzUtils.log('testing:  ' + metas.length);
+      //CliqzUtils.log('testing:  ' + x.lh);
       return x;
     },
     listener: {
