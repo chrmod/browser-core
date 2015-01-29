@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',//'http://54.144.123.129/mixer?q=', 
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
@@ -848,6 +848,26 @@ var CliqzUtils = {
     for (var index = 0; index < domains.length; index++) {
       if (url.indexOf(domains[index]) > -1) return index;
     }
+  },
+  getAdultFilterState: function(){
+    var data = {
+      'conservative': {
+              name: CliqzUtils.getLocalizedString('result_filter_conservative'),
+              selected: false
+      },
+      'moderate': {
+              name: CliqzUtils.getLocalizedString('result_filter_moderate'),
+              selected: false
+      },
+      'liberal': {
+          name: CliqzUtils.getLocalizedString('result_filter_liberal'),
+          selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
+
+    return data;
   },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
