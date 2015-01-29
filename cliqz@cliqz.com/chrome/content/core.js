@@ -307,7 +307,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.setPref("showPremiumResults", 2);
         }
 
-        if(CLIQZ.Core.urlbar.value.trim().length > 0) {
+        if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
             var urlbar = CLIQZ.Core.urlbar.mInputField.value;
             var search = urlbar;
             if (CliqzUtils.isUrl(search)) {
