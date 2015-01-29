@@ -43,11 +43,6 @@ var CliqzHistoryPattern = {
     var orig_query = query;
     CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
-    // Ignore one character queries and www/http
-    //if (("http://").indexOf(orig_query) != -1 ||
-    //  ("www.").indexOf(query) != -1) {
-    //  return;
-    //}
     query = query.split(" ")[0];
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     this.data = [];
