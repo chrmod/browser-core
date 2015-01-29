@@ -227,19 +227,32 @@ var UI = {
                 return onEnter(ev, sel);
             break;
             case TAB:
+                clearResultSelection();
                 suggestionNavigation(ev);
                 return true;
             case LEFT:
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
-                };
-            case RIGHT:
-                // close drop down to avoid firefox autocompletion
-                CLIQZ.Core.popup.closePopup();
+                var urlbar = CLIQZ.Core.urlbar;
+                if (urlbar.selectionStart !== urlbar.selectionEnd) {
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart, urlbar.selectionStart);
+                } else {
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart-1, urlbar.selectionStart-1);
+                }
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
-                return false;
+                return true;
+            case RIGHT:
+                var urlbar = CLIQZ.Core.urlbar;
+                if (urlbar.selectionStart !== urlbar.selectionEnd) {
+                    CLIQZ.Core.urlbar.mInputField.value = urlbar.mInputField.value;
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
+                } else {
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
+                }
+                if (CliqzAutocomplete.spellCorr.on) {
+                    CliqzAutocomplete.spellCorr.override = true
+                }
+                return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
                 ev.originalTarget.setSelectionRange(0, 0);
@@ -329,6 +342,11 @@ function sessionEnd(){
 
 var forceCloseResults = false;
 function closeResults(event, force) {
+    // Remove autocomplete from urlbar
+    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart &&
+      CLIQZ.Core.urlbar.selectionStart !== 0) {
+        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    }
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {
@@ -1105,6 +1123,7 @@ function onEnter(ev, item){
           };
         }
 
+        CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || urlBar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
         CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
@@ -1143,7 +1162,9 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
 
-            urlBar.value = CliqzAutocomplete.lastAutocomplete;
+            urlbar.value = ""; // Force immediate change of urlbar
+            CLIQZ.Core.openLink(CliqzAutocomplete.lastAutocomplete, false);
+
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
