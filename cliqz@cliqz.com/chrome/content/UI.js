@@ -933,7 +933,8 @@ function setResultSelection(el, scroll, scrollTop){
           // Show full url for highlighted entry
           el.children[1].textContent = el.getAttribute("shortUrl");
         } else {
-          $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
+            var target = $('.cqz-ez-title', el) || el;
+            $('.cqz-result-selected', gCliqzBox).style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
         }
 
         $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
