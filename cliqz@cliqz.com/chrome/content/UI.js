@@ -205,8 +205,8 @@ var UI = {
             case RIGHT:
                 var urlbar = CLIQZ.Core.urlbar;
                 if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                    CLIQZ.Core.urlbar.mInputField.value = urlbar.value;
-                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.value.length, urlbar.value.length);
+                    CLIQZ.Core.urlbar.mInputField.value = urlbar.mInputField.value;
+                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
                 } else {
                     CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
                 }

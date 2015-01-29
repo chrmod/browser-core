@@ -455,7 +455,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
         }
@@ -463,7 +463,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (autocomplete.highlight) {
             if (urlBar.value.length > 80) {
               urlBar.value = urlBar.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             }
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();
