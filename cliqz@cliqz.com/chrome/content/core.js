@@ -427,7 +427,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            urlBar.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value) {
