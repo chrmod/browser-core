@@ -10,9 +10,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
-    //if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
-    //    CliqzUtils.setOurOwnPrefs();
-    //    TODO: to ABTest, for now
+    if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
+        CliqzUtils.setOurOwnPrefs();
+
 }
 
 function shutdown(aData, aReason) {
