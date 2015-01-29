@@ -454,7 +454,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
-            urlBar.value = autocomplete.urlbar;
+          CliqzUtils.log(autocomplete.urlbar, "URLBAR");
+            urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 

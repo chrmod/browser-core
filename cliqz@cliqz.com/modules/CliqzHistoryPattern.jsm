@@ -499,10 +499,9 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if (urlbar == "www." || urlbar == "http://")
+    if (urlbar == "www." || urlbar == "http://" || urlbar.substr(urlbar.indexOf("://")+3) == "www.")
       return {};
-    if (urlbar.indexOf("http://") == 0)
-      urlbar = urlbar.substr(urlbar.indexOf("://")+3);
+
     var type = null;
     var url = CliqzHistoryPattern.simplifyUrl(pattern.url);
     url = CliqzHistoryPattern.generalizeUrl(CliqzHistoryPattern.generalizeUrl(url, true));
