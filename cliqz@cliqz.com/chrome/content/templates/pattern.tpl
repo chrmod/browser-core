@@ -2,8 +2,9 @@
   <div class='cliqz-pattern-logo cliqz-pattern-logo-{{data.height}}'></div>
   <div class='cqz-result-title overflow cliqz-pattern-title-{{data.height}}' style='color: rgba(0,0,0,0.72)'>
     {{ data.title }}
+    <div class="cliqz-pattern-document-icon-{{data.height}}"></div>
   </div>
-  <div class="cliqz-pattern-document-icon-{{data.height}}"></div>
+
   <br clear='both' class='cliqz-pattern-margin-{{data.height}}' />
   <div style="width:{{ width }}px;">
     <div style="position:relative;overflow:hidden;">

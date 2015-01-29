@@ -499,10 +499,8 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if (urlbar == "www." || urlbar == "http://")
+    if (urlbar == "www." || urlbar == "http://" || urlbar.substr(urlbar.indexOf("://")+3) == "www.")
       return {};
-    if (urlbar.indexOf("http://") == 0)
-      urlbar = urlbar.substr(urlbar.indexOf("://")+3);
 
     var type = null;
     var url = CliqzHistoryPattern.simplifyUrl(pattern.url);
@@ -703,6 +701,7 @@ var CliqzHistoryPattern = {
     } else {
       var type = 'cliqz-pattern';
     }
+    if(CliqzHistoryPattern.HEIGHT == "h2") CliqzUtils.TEMPLATES["pattern"] = 2;
     var instant = Result.generic(type, results[0].url, null, results[0].title, null, searchString);
     instant.comment += " (pattern cluster)!";
     var kind = instant.data.kind;
@@ -711,7 +710,7 @@ var CliqzHistoryPattern = {
       kind: kind,
       urls: [],
       cluster: false,
-      template: "history-pattern",
+      template: "pattern",
       height: CliqzHistoryPattern.HEIGHT
     };
     for (var i = 0; i < results.length; i++) {

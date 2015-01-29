@@ -670,7 +670,9 @@
 }
 
 .cliqz-pattern-document-icon-h2 {
-  margin-top: 17px;
+  position: absolute;
+  bottom: 12px;
+  margin-left: 5px;
   height: 18.3px;
   width: 15px;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
@@ -686,14 +688,15 @@
 }
 
 .cliqz-pattern-title-h2 {
-  padding-top: 15px;
+  padding-top: 23px;
   padding-bottom: 10px;
   float: left;
+  position: relative;
 }
 
 .cliqz-pattern-title-h3 {
   visibility: hidden;
-  height: 12px;
+  height: 17px;
 }
 
 .cliqz-pattern-results {
@@ -778,7 +781,7 @@
 
 .cliqz-pattern-logo-h2 {
   background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 63px;
+  top: 73px;
   background-position: 11px 11px;
   background-size: 32px 32px;
 }

@@ -48,6 +48,7 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInputTime: 0,
     lastInput: "",
+    mouseOver: false,
     init: function(){
 
         Object.keys(TEMPLATES).forEach(function(tpl_name){
@@ -172,6 +173,7 @@ var UI = {
         }
     },
     keyDown: function(ev){
+        if(ev.keyCode != ENTER) UI.mouseOver = false;
         var sel = getResultSelection();
         UI.lastInputTime = (new Date()).getTime();
         switch(ev.keyCode) {
@@ -195,6 +197,7 @@ var UI = {
                 return true;
             break;
             case ENTER:
+                UI.mouseOver = false;
                 UI.lastInput = "";
                 return onEnter(ev, sel);
             break;
@@ -685,7 +688,7 @@ function enhanceResults(res){
     res.results = [];
     for(var i=0; i<all.length && i<3; i++){
         res.results.push(all[i]);
-        if(all[i].type == 'cliqz-extra' && all[i].data){
+        if((all[i].type == 'cliqz-extra' || all[i].type == 'cliqz-pattern') && all[i].data){
             i += (TEMPLATES[all[i].data.template]-1);
         }
     }
@@ -844,6 +847,7 @@ function resultClick(ev){
 
 function getResultSelection(){
     var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
+    if(UI.mouseOver) return null;
     if (selectedHistory) return selectedHistory;
     else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
 }
@@ -860,9 +864,10 @@ function clearResultSelection(){
         history[i].children[1].textContent = history[i].getAttribute("domain");
       }
     }
+    UI.mouseOver = false;
 }
 
-function setResultSelection(el, scroll, scrollTop, changeUrl){
+function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
@@ -873,7 +878,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl){
 
         el.setAttribute('selected', 'true');
         if (el.className == 'cliqz-pattern-element') {
-          var offset = (el.getAttribute("height") == "h2") ? 44 : 13;
+          var offset = (el.getAttribute("height") == "h2") ? 53 : 18;
           $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
           el.children[1].textContent = el.getAttribute("shortUrl");
@@ -905,6 +910,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl){
         if(changeUrl) {
             CLIQZ.Core.urlbar.value = el.getAttribute("url");
         }
+        UI.mouseOver = mouseOver;
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
     }
@@ -924,7 +930,7 @@ function resultMove(ev){
         }
         lastHover = el;
         clearResultSelection();
-        setResultSelection(el, false);
+        setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
     }
 }
@@ -1064,7 +1070,7 @@ function onEnter(ev, item){
 
         CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || urlBar.value, false);
-        
+
         CliqzUtils.trackResult(query, queryAutocompleted, index,
         CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
     } else { //enter while on urlbar and no result selected

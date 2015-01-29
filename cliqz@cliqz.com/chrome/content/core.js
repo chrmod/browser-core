@@ -435,7 +435,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            urlBar.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
+            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value) {
@@ -462,7 +462,7 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
-            urlBar.value = autocomplete.urlbar;
+            urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
