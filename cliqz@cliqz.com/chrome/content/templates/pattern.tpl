@@ -18,7 +18,7 @@
           {{#each data.urls}}
           <div class='cliqz-pattern-element' url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' height='{{height}}' type='' extra=''>
               <div class='cliqz-pattern-element-title cliqz-pattern-element-{{height}}'>{{ title }}</div>
-              <span class='cliqz-pattern-element-link cliqz-pattern-element-{{height}}'>{{ domain }}</span>
+              <span class='cliqz-pattern-element-link cliqz-pattern-element-{{height}}'>{{ link }}</span>
           </div>
           {{/each}}
         </div>

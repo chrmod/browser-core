@@ -705,7 +705,7 @@
   text-decoration: none;
   color:rgba(127,127,127,0.54);
   overflow: hidden;
-  width: 85%;
+  width: 75%;
   cursor: pointer;
 }
 
@@ -718,7 +718,7 @@
 .cliqz-pattern-element-title {
   color: #9C27B0;
   color:rgba(128,0,128,0.60);
-  max-width: 70%;
+  max-width: 50%;
   overflow: hidden;
   float: left;
   text-overflow: ellipsis;
@@ -788,7 +788,7 @@
 
 .cliqz-pattern-logo-h3 {
   background-image: url(chrome://cliqzres/content/skin/history_icon.png);
-  top: 18px;
+  top: 23px;
   background-position: 7px 7px;
   background-size: 40px 40px;
 }

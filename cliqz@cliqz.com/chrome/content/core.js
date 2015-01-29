@@ -307,8 +307,18 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.setPref("showPremiumResults", 2);
         }
 
-        //if(CLIQZ.Core.urlbar.value.trim().length > 0)
-        //    CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+        if(CLIQZ.Core.urlbar.value.trim().length > 0) {
+            var urlbar = CLIQZ.Core.urlbar.mInputField.value;
+            var search = urlbar;
+            if (CliqzUtils.isUrl(search)) {
+              search = search.replace("www.", "");
+                if(search.indexOf("://") != -1) search = search.substr(search.indexOf("://")+3);
+                if(search.indexOf("/") != -1) search = search.split("/")[0];
+            }
+            CLIQZ.Core.urlbar.mInputField.setUserInput(search);
+            CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+            CLIQZ.Core.urlbar.mInputField.value = urlbar;
+        }
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();
@@ -455,7 +465,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
-            CLIQZ.UI.clearSelection();
             return;
         }
 
@@ -463,7 +472,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
         }
@@ -471,12 +480,10 @@ CLIQZ.Core = CLIQZ.Core || {
         if (autocomplete.highlight) {
             if (urlBar.value.length > 80) {
               urlBar.value = urlBar.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             }
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();
-        } else {
-            CLIQZ.UI.clearSelection();
         }
 },
     cleanUrlBarValue: function(val){

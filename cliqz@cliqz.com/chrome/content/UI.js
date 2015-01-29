@@ -86,7 +86,7 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
 
-        resultsBox.addEventListener('click', resultClick);
+        resultsBox.addEventListener('mouseup', resultClick);
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
@@ -215,8 +215,8 @@ var UI = {
             case RIGHT:
               var urlbar = CLIQZ.Core.urlbar;
               if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                CLIQZ.Core.urlbar.value = urlbar.value;
-                CLIQZ.Core.urlbar.setSelectionRange(urlbar.value.length, urlbar.value.length);
+                CLIQZ.Core.urlbar.mInputField.value = urlbar.mInputField.value;
+                CLIQZ.Core.urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
               } else {
                 CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
               }
@@ -264,7 +264,7 @@ var UI = {
             default:
                 UI.lastInput = "";
                 UI.preventFirstElementHighlight = false;
-                clearResultSelection();
+                //clearResultSelection();
                 return false;
         }
     },
@@ -290,20 +290,19 @@ var UI = {
         CliqzUtils.track(signal);
       }
     },
+    animationEnd: 0,
     selectFirstElement: function() {
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight) {
+          if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
+            UI.animationEnd = (new Date()).getTime() + 330;
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
           }
         }
       },300);
-    },
-    clearSelection: function() {
-        clearResultSelection();
     },
     closeResults: closeResults
 };
@@ -730,10 +729,11 @@ function urlIndexInHistory(url, urlList) {
 
 function resultClick(ev){
     var el = ev.target,
-        newTab = ev.metaKey ||
+        newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-    while (el){
+
+    while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
                 lr = CliqzAutocomplete.lastResult,
@@ -859,10 +859,10 @@ function clearResultSelection(){
       var selected = $('.cqz-result-selected', gCliqzBox);
       selected && selected.removeAttribute('active');
       // Reset history entries to domain name
-      var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
+      /*var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
       for(var i=0; i<history.length; i++) {
         history[i].children[1].textContent = history[i].getAttribute("domain");
-      }
+      }*/
     }
     UI.mouseOver = false;
 }
@@ -881,7 +881,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
           var offset = (el.getAttribute("height") == "h2") ? 53 : 18;
           $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
-          el.children[1].textContent = el.getAttribute("shortUrl");
+          //el.children[1].textContent = el.getAttribute("shortUrl");
         } else {
           $('.cqz-result-selected', gCliqzBox).style.top = (el.offsetTop + el.offsetHeight/2 - 8) + 'px';
         }
