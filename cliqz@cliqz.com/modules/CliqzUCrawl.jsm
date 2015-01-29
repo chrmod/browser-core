@@ -392,11 +392,6 @@ var CliqzUCrawl = {
 
 
       var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall };
-      CliqzUtils.log('testing:  ' + x.pagel);
-      CliqzUtils.log('testing ctry:  ' + x.ctry);
-      CliqzUtils.log('testing indexing:  ' + x.iall);
-      //CliqzUtils.log('testing:  ' + metas.length);
-      //CliqzUtils.log('testing:  ' + x.lh);
       return x;
     },
     listener: {
