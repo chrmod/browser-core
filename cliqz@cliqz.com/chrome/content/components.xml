@@ -6,7 +6,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup" >
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false" height="272">
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false" height="302">
       <div xmlns="http://www.w3.org/1999/xhtml" anonid="cliqz-html-container"></div>
     </content>
 
@@ -88,6 +88,4 @@
       </method>
     </implementation>
   </binding>
-
-
 </bindings>

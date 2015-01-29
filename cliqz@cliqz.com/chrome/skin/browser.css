@@ -316,8 +316,7 @@
 .EZ-airlines-bigcontainer{
   margin-left: 22px;
   background-color: white;
-  height: 180px;
-  font-size: 14px;
+  position: relative;
 }
 
 .EZ-airlines-bigcontainer [url] {
@@ -404,11 +403,57 @@
 
 /*--- END airlinesEZ----*/
 
+/*weatherAlert thuy@cliqz.com (weatherAlert css = these css + weatherEZ css)*/
+
+
+.EZ-weather-alert{
+ height: 90px;
+}
+
+.EZ-weather-alert img{
+  height: 55px;
+  width: 55px;
+  margin-left: 22px;
+  margin-top: 17.5px;
+  float: left;
+  /*background-color: green;*/
+}
+
+.EZ-weather-alert-info{
+ color: white;
+ float: left;
+ margin-left: 33px;
+ width: calc(100% - 180px);
+}
+
+.EZ-weather-alert-info-Line1{
+ margin-top: 22px;
+ font-size: 25px;
+ line-height: 110%;
+ text-decoration: underline;
+ /*background-color: green*/
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.EZ-weather-alert-info-Line2{
+ line-height: 100%;
+/* background-color: silver;*/
+ font-size: 14px;
+ padding-top: 2px;
+ padding-bottom: 25px;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+
+}
+
 /* weatherEZ.tpl --- thuy@cliqz.com - 15Jan2015 */
 .EZ-weather-bigcontainer{
  padding-left: 22px;
  background-color: white;
- height: 180px;
+ clear: left;
 }
 
 

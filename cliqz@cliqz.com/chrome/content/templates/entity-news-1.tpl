@@ -5,7 +5,7 @@
   <div class="entity-news-stories">
     {{#each data.news}}
       <div class="entity-news-story"
-           url="{{ this.url }}" type="X" extra="entity-news-story-{{ @index }}">
+           url="{{ this.url }}" type="X" extra="entry-{{ @index }}">
         <div class="entity-news-story-image"
           style="background-image: url({{ this.thumbnail }})">
         </div>
@@ -26,7 +26,7 @@
           class="cqz-ez-btn"
           style="background-color: #EFEFEF; color: black"
           url="{{ this.url }}"
-          extra="entity-news-category-{{ @index }}">
+          extra="category-{{ @index }}">
           {{ this.title }}
         </span>
       {{/each}}
