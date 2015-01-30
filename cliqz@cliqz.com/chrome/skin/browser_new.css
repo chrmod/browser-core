@@ -246,15 +246,21 @@
  min-width: 130px;
  max-width: 150px;
  height: 132px;
- background-size: 60px auto;
- background-repeat: no-repeat;
  margin-left: 9px;
- background-position: 50% calc(70% - 28px);
  text-align: center;
  box-sizing: border-box;
- padding: 97px 7px 0 7px;
+ padding: 7px 7px 0 7px;
  border-radius: 3px;
  color: #323232;
+}
+
+.cqz-ez-generic-opt div {
+  background-repeat: no-repeat;
+  height: 65px;
+  width: 65px;
+  margin: 17px auto;
+  background-position: center;
+  background-size: contain;
 }
 
 .cqz-ez-generic-elems {
