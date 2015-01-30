@@ -259,6 +259,8 @@
 
 .cqz-ez-generic-elems {
  margin-top: 5px;
+ overflow: hidden;
+ height: 142px;
 }
 
 /* end EZ generic */
