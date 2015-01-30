@@ -9,7 +9,6 @@
  *  Browser helpers
  *  ...
  */
-
 Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -35,7 +34,6 @@ var VERTICAL_ENCODINGS = {
     'people':'p',
     'census':'c',
     'news':'n',
-    'weather':'w',
     'bundesliga':'b',
     'video':'v',
     'hq':'h',
@@ -47,14 +45,18 @@ var VERTICAL_ENCODINGS = {
     'bm': 'm'
 };
 
+var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
+    LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
+    BRAND_COLORS = {}, brand_loaded = false;
+
 var CliqzUtils = {
   LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                  'https://beta.cliqz.com',
   SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://webbeta.cliqz.com/api/v1/results?q=',
-  RESULTS_PROVIDER_LOG:  'https://webbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: 'https://webbeta.cliqz.com/ping',
-  CONFIG_PROVIDER:       'https://webbeta.cliqz.com/api/v1/config',
+  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
   LOG:                   'https://logging.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
   UPDATE_URL:            'chrome://cliqz/content/update.html',
@@ -65,6 +67,11 @@ var CliqzUtils = {
   PREF_INT:              64,
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+              'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+              'spellcheck': 1, 'time': 1,
+              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern': 2, 'weatherEZ': 2,
+              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3, 'weatherAlert': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -84,6 +91,15 @@ var CliqzUtils = {
         CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
 
+    if(!brand_loaded){
+      brand_loaded = true;
+      CliqzUtils.httpGet(
+        "http://cdn.cliqz.com/extension/core/colors.0.1.json",
+        function(req){
+          BRAND_COLORS = JSON.parse(req.response);
+        });
+    }
+
     if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
@@ -92,6 +108,27 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+  getLogoDetails: function(urlDetails){
+    var domain = urlDetails.domain, img,
+        color = BRAND_COLORS[urlDetails.host] ||  // sub.domain.tld
+                BRAND_COLORS[domain] ||  // domain.tld
+                BRAND_COLORS[urlDetails.name];    // domain
+    if(!color){
+      var signature = 0;
+      for(var i=0; i<urlDetails.host.length; i++) signature += urlDetails.host.charCodeAt(i);
+
+      color = COLOURS[signature%COLOURS.length];  // fallback - solid colour
+    }
+
+    if (LOGOS.indexOf(urlDetails.name) != -1){
+      img = 'url(http://cdn.cliqz.com/extension/core/logos/' + urlDetails.name + '.svg)';
+    }
+    return {
+      color: color,
+      text: domain ? domain[0].toUpperCase() + domain[1].toLowerCase():'',
+      img: img
+    }
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
@@ -217,6 +254,8 @@ var CliqzUtils = {
     return url;
   },
   cleanUrlProtocol: function(url, cleanWWW){
+    if(!url) return '';
+
     var protocolPos = url.indexOf('://');
 
     // removes protocol http(s), ftp, ...
@@ -260,12 +299,12 @@ var CliqzUtils = {
       //remove www if exists
       host = host.indexOf('www.') == 0 ? host.slice(4) : host;
     } catch(e){
-      CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
+      //CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
     }
 
     var urlDetails = {
               name: name,
-              domain: name + tld,
+              domain: tld ? name + '.' + tld: '',
               tld: tld,
               subdomains: subdomains,
               path: path,
@@ -375,25 +414,29 @@ var CliqzUtils = {
     return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeResultType: function(type){
-    if(type.indexOf('action') !== -1) return 'T';
+    if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-weather') return 'w';
-    else if(type === 'cliqz-bundesliga') return 'b';
-    else if(type === 'cliqz-cluster') return 'C';
-    else if(type === 'cliqz-extra') return 'X';
-    else if(type === 'cliqz-series') return 'S';
-    else if(type.indexOf('bookmark') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type.indexOf('tag') == 0) return 'B' + CliqzUtils.encodeCliqzResultType(type); // bookmarks with tags
+    else if(type === 'cliqz-bundesliga') return ['b'];
+    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
+    else if(type === 'cliqz-extra') return ['X'];
+    else if(type === 'cliqz-series') return ['S'];
+
+    else if(type.indexOf('bookmark') == 0 ||
+            type.indexOf('tag') == 0) return ['B'].concat(CliqzUtils.encodeCliqzResultType(type));
+
     else if(type.indexOf('favicon') == 0 ||
-            type.indexOf('history') == 0) return 'H' + CliqzUtils.encodeCliqzResultType(type);
-    else if(type === 'cliqz-suggestions') return 'S';
-    // cliqz type = "cliqz-custom sources-XXXXX"
+            type.indexOf('history') == 0) return ['H'].concat(CliqzUtils.encodeCliqzResultType(type));
+
+    else if(type === 'cliqz-suggestions') return ['S'];
+    // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
-    return type; //fallback to style - it should never happen
+    return type; //should never happen
   },
+  //eg types: [ "H", "m" ], [ "H|instant", "X|11" ]
   isPrivateResultType: function(type) {
-    return type == 'H' || type == 'B' || type == 'T';
+    var onlyType = type[0].split('|')[0];
+    return 'HBTCS'.indexOf(onlyType) != -1 && type.length == 1;
   },
   // cliqz type = "cliqz-results sources-XXXXX" or "favicon sources-XXXXX" if combined with history
   encodeCliqzResultType: function(type){
@@ -401,7 +444,7 @@ var CliqzUtils = {
     if(pos != -1)
       return CliqzUtils.encodeSources(type.substr(pos+8));
     else
-      return ""
+      return [];
   },
   _querySession: '',
   _querySeq: 0,
@@ -422,7 +465,7 @@ var CliqzUtils = {
           return 'd'
         else
           return VERTICAL_ENCODINGS[s] || s;
-      }).join('');
+      });
   },
   combineSources: function(internal, cliqz){
     var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
@@ -720,8 +763,8 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(){
-    return window.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(win){
+    return win.navigator.userAgent.indexOf('Win') != -1;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
@@ -806,8 +849,29 @@ var CliqzUtils = {
       if (url.indexOf(domains[index]) > -1) return index;
     }
   },
+  getAdultFilterState: function(){
+    var data = {
+      'conservative': {
+              name: CliqzUtils.getLocalizedString('result_filter_conservative'),
+              selected: false
+      },
+      'moderate': {
+              name: CliqzUtils.getLocalizedString('result_filter_moderate'),
+              selected: false
+      },
+      'liberal': {
+          name: CliqzUtils.getLocalizedString('result_filter_liberal'),
+          selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
+
+    return data;
+  },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+
     return urlbar.value.length == 0;
   },
   /** Modify the user's Firefox preferences -- always do a backup! */

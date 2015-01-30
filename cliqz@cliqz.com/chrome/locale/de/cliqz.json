@@ -1,15 +1,21 @@
 {
     "whatIsCliqz":{
-        "message": "Was ist cliqz?"
+        "message": "Was ist CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+        "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
         "message": "Einstellung"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab deaktivieren"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab aktivieren"
     },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
@@ -18,16 +24,16 @@
         "message": "Regionale Ergebnisse"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"Keine Ergebnisse"
@@ -85,6 +91,21 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - über uns"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Datenschutz"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
     },
     "offTitle":{
         "message":"die neue Art, durch’s Web zu navigieren"
@@ -283,5 +304,29 @@
     },
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
+    },
+    "spell_correction": {
+      "message":"Meintest Du wirklich "
+    },
+    "result_filter_conservative": {
+      "message":"Konservativ"
+    },
+    "result_filter_moderate": {
+      "message":"Mittelmäßig"
+    },
+    "result_filter_liberal": {
+      "message":"Liberal"
+    },
+    "result_filter": {
+      "message":"Ergebnisfilter"
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
+    },
+    "history_results": {
+      "message":"Besuchte Webseiten"
     }
 }

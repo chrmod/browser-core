@@ -9,12 +9,12 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzSniffer.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
+    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
 var BTN_ID = 'cliqz-button',
     SHARE_BTN_ID = 'cliqz-share-button',
@@ -40,7 +40,13 @@ var Extension = {
 //      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
+        Extension.unloadModules();
+
+        Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
+
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         this.track = CliqzUtils.track;
@@ -76,6 +82,7 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
+                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -119,7 +126,7 @@ var Extension = {
     },
     unloadModules: function(){
         //unload all cliqz modules
-        Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -132,13 +139,25 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzWeather.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSniffer.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+        Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
+        // Remove this observer here to correct bug in 0.5.57
+        // - if you don't do this, the extension will crash on upgrade to a new version
+        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
+
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -233,10 +252,10 @@ var Extension = {
         let button = win.document.createElement('toolbarbutton');
         button.setAttribute('id', BTN_ID);
         button.setAttribute('type', 'menu-button');
-        button.setAttribute('label', 'Cliqz');
-        button.setAttribute('tooltiptext', 'Cliqz');
+        button.setAttribute('label', 'CLIQZ');
+        button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.jpg)';
+        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.png)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');
@@ -255,8 +274,8 @@ var Extension = {
         //share btn
         let shareButton = win.document.createElement('toolbarbutton');
         shareButton.setAttribute('id', SHARE_BTN_ID);
-        shareButton.setAttribute('label', 'Cliqz Share');
-        shareButton.setAttribute('tooltiptext', 'Cliqz Share');
+        shareButton.setAttribute('label', 'CLIQZ Share');
+        shareButton.setAttribute('tooltiptext', 'CLIQZ Share');
         shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
         shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
 
@@ -272,8 +291,8 @@ var Extension = {
         shareButton.addEventListener('command', function(ev) {
             try{
                 var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via cliqz: ' + doc.title) +
-                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n Cliqz Beta - http://cliqz.com');
+                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via CLIQZ: ' + doc.title) +
+                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n CLIQZ Beta - http://cliqz.com');
             } catch(e){}
         }, false);
 
@@ -319,20 +338,40 @@ var Extension = {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
 
+        var menuitem5 = doc.createElement('menuitem');
+        menuitem5.setAttribute('id', 'cliqz_menuitem5');
+        menuitem5.setAttribute('label',
+            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
+        );
 
-        menupopup.appendChild(menuitem1);
-        menupopup.appendChild(menuitem2);
-        menupopup.appendChild(menuitem4);
+        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+
+        menuitem5.addEventListener('command', function(event) {
+            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
+
+            CliqzNewTab.showCliqzNewTab(newvalue);
+
+            menuitem5.setAttribute('label',
+                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
+            );
+            //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
+        }, false);
+
+        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
+            menupopup.appendChild(item);
+        });
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
         if(Services.search.init != null){
             Services.search.init(function(){
                 menupopup.appendChild(Extension.createSearchOptions(doc));
+                menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                 menupopup.appendChild(Extension.createLanguageOptions(doc));
             });
         } else {
             menupopup.appendChild(Extension.createSearchOptions(doc));
+            menupopup.appendChild(Extension.createAdultFilterOptions(doc));
             menupopup.appendChild(Extension.createLanguageOptions(doc));
         }
     },
@@ -428,6 +467,34 @@ var Extension = {
 
         return menu;
     },
+    createAdultFilterOptions: function(doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
+
+        var filter_levels = CliqzUtils.getAdultFilterState();
+
+        for(var level in filter_levels) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', filter_levels[level].name);
+          item.setAttribute('class', 'menuitem-iconic');
+
+          if(filter_levels[level].selected){
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+
+          item.filter_level = new String(level);
+          item.addEventListener('command', function(event) {
+            CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
+            timerRef = CliqzUtils.setTimeout(Extension.refreshButtons, 0);
+          }, false);
+
+          menupopup.appendChild(item);
+        };
+        menu.appendChild(menupopup);
+        return menu;
+    },
     refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -439,9 +506,13 @@ var Extension = {
                 if(btn && btn.children && btn.children.cliqz_menupopup){
                     var languageOptions = btn.children.cliqz_menupopup.lastChild;
                     languageOptions.parentNode.removeChild(languageOptions);
+                    var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                    adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
                     searchOptions.parentNode.removeChild(searchOptions);
+
                     btn.children.cliqz_menupopup.appendChild(Extension.createSearchOptions(doc));
+                    btn.children.cliqz_menupopup.appendChild(Extension.createAdultFilterOptions(doc));
                     btn.children.cliqz_menupopup.appendChild(Extension.createLanguageOptions(doc));
                 }
             } catch(e){}

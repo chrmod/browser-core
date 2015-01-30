@@ -74,78 +74,50 @@ var CliqzABTests = CliqzABTests || {
         // It is safe to remove them as soon as the test is over.
         var rule_executed = true
         switch(abtest) {
-            /* 1000: enable timing log signal */
-            case "1000_A":
-                CliqzUtils.setPref("logTimings", true);
+            case "1016_A":
+                CliqzUtils.setPref("localSpellCheck", true);
                 break;
 
-            case "1004_A":
-                // enable clustering + series
-                // History length: 12
-                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
-                urlbarPrefs.setIntPref("maxRichResults", 12)
-
-                CliqzUtils.setPref("abCluster", true);
+            case "1019_A":
+                CliqzUtils.setPref("newHistory", false);
+                break;
+            case "1019_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
                 break;
 
-            case "1004_B":
-                // enable clustering + series
-                // History length: 20
-                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
-                urlbarPrefs.setIntPref("maxRichResults", 30)
+            case "1020_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_no_cluster");
+                break;
+            case "1020_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
+                break;
 
-                CliqzUtils.setPref("abCluster", true);
+            case "1021_A":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "firefox_cluster");
                 break;
-            case "1005_B":
-                // log clustering site
-                CliqzUtils.setPref("logCluster", true);
+            case "1021_B":
+                CliqzUtils.setPref("newHistory", true);
+                CliqzUtils.setPref("newHistoryType", "cliqz");
+
+            case "1022_A":
+                CliqzUtils.setPref("newAutocomplete", false);
                 break;
-            case "1006_A":
-                // abort http connections if a new one appears
-                CliqzUtils.setPref("abortConnections", false);
+            case "1022_B":
+                CliqzUtils.setPref("newAutocomplete", true);
                 break;
-            case "1007_A":
-                // run history-based suggester experiment
-                CliqzUtils.setPref("historyExperiment", true);
+
+            case "1023_A":
+                CliqzUtils.setPref("localSpellCheck", false);
                 break;
-            case "1008_A":
-                CliqzUtils.setOurOwnPrefs();
+            case "1023_B":
+                CliqzUtils.setPref("localSpellCheck", true);
                 break;
-            case "1010_A":
-                // show no results message
-                CliqzUtils.setPref("showNoResults", true);
-                break;
-            case "1011_A":
-                CliqzUtils.setPref("showAdResults", 1);
-                break;
-            case "1012_A":
-                CliqzUtils.setPref("showPremiumResults", 1);
-                break;
-            case "1013_A":
-                CliqzUtils.setPref("sessionLogging", true);
-                break;
-            case "1014_A":
-                /*
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
-                CliqzUtils.setPref("customResultsProvider", payload.results);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
-                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
-                CliqzUtils.setPref("customResultsProviderLog", payload.log);
-                */
-                break;
-            case "1015_A":
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
-                CliqzUtils.setPref("customResultsProvider", payload.results);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
-                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
-                CliqzUtils.setPref("customResultsProviderLog", payload.log);
-                break;
+
+
             default:
                 rule_executed = false;
         }
@@ -208,11 +180,11 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
                 break;
             case "1008_A":
-                CliqzUtils.resetOriginalPrefs();
+                // Do not reset prefs, we want to keep them
+                //CliqzUtils.resetOriginalPrefs();
                 break;
             case "1009_A":
                 CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
-                CliqzUtils.RESULTS_PROVIDER = 'https://webbeta.cliqz.com/api/v1/results?q=';
                 break;
             case "1010_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
@@ -242,10 +214,35 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
+            case "1016_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                CliqzAutocomplete.spellCorrectionDict = {};
+                break;
+            case "1018_A":
+            case "1018_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
+                break;
+            case "1019_A":
+            case "1019_B":
+            case "1020_A":
+            case "1020_B":
+            case "1021_A":
+            case "1021_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistory");
+                CliqzUtils.cliqzPrefs.clearUserPref("newHistoryType");
+                break;
+            case "1022_A":
+            case "1022_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newAutocomplete");
+                break;
+            case "1023_A":
+            case "1023_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                break;
+
             default:
                 rule_executed = false;
         }
-
         if(rule_executed) {
             var action = {
                 type: 'abtest',

@@ -1,9 +1,9 @@
 {
     "whatIsCliqz":{
-        "message": "Cos'è cliqz?"
+        "message": "Cos'è CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Cos'è cliqz? <-- scoprilo digitando ad esempio: 'meteo roma'"
+        "message": "Cos'è CLIQZ? <-- scoprilo digitando ad esempio: 'meteo roma'"
     },
     "settings":{
         "message": "Impostazioni"
@@ -18,16 +18,16 @@
         "message": "Localizzazione dei risultati"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Non abbiamo risultati, ci dispiace.<br />Stiamo lavorando per migliorarci."
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Passa il mouse <b><i>più</i></b> in basso a destra e seleziona un altro motore di ricerca."
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"Nessun risultato"

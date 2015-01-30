@@ -27,6 +27,7 @@ def get_version(beta='True'):
     0.4.08.1b123)."""
 
     full_version = local("git describe --tags", capture=True)  # e.g. 0.4.08-2-gb4f9f56
+    # full_version = 'images'
     version_parts = full_version.split("-")
     version = version_parts[0]
     if beta == 'True':

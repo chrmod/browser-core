@@ -1,40 +1,32 @@
-<div class="entity-search-container">
-  <!--
-  <div class="entity-search-aktuell">
-    Aktuell: <span>Ebola</span> <span>Apple Inc.</span> <span>Police</span>
-             <span>Tropical cyclones</span> <span>Vladimir Putin</span>
-  </div>
-  -->
-  <div>
-    <div class="entity-search-box entity-video-search-box">
-      <img id="entity-search-box-icon" src="chrome://cliqzres/content/skin/entity_zones/y_search.png" />
-      <input dont-close="true" type="text" id="entity-search-box-input"
-       onkeydown="CLIQZ.UI.entityVideoKeyDown(event, this.value)"/>
+<div class="cqz-result-h1 entity-search-container">
+    <div>
+      <div class="cqz-ez-search-box"
+           style="border: 1px solid {{data.search_box_background_color}};"
+           >
+        <img
+          style="background-color: {{data.search_box_background_color}};"
+          class="cqz-ez-search-box-icon"
+          src="{{data.search_box_icon}}" />
+        <input
+          dont-close="true" type="text" class="cqz-ez-search-box-input"
+          cliqz-action="stop-click-event-propagation"
+          search-url="{{data.search_url}}"
+          search-provider="{{data.search_provider}}"
+          logg-action-type="{{data.logg_action_type}}"
+          onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value, this)"
+        />
+      </div>
     </div>
-  </div>
   <div class="entity-video-category">
     Popular videos
   </div>
   <div class="entity-video-indented">
+    {{#each data.trending}}
     <div class="entity-video-group"
-         url="https://mail.google.com/" type="X" extra="entity-search-google-gmail">
-      <div class="entity-video-thumbnail"><img src="https://i.ytimg.com/vi/_OBlgSz8sSM/1.jpg" /></div>
-      <div class="entity-video-title">Charlie bit my finger - again !</div>
+         url="{{this.link}}" type="X" extra="entity-search-google-gmail">
+      <div class="entity-video-thumbnail"><img src="{{this.thumbnail}}" /></div>
+      <div class="entity-video-title">{{this.title}}</div>
     </div>
-    <div class="entity-video-group"
-         url="https://www.google.com/calendar/" type="X" extra="entity-search-google-calendar">
-      <div class="entity-video-thumbnail"><img src="https://i.ytimg.com/vi/_OBlgSz8sSM/2.jpg" /></div>
-      <div class="entity-video-title">Charlie bit my finger - again !</div>
-    </div>
-    <div class="entity-video-group"
-         url="https://maps.google.de/" type="X" extra="entity-search-google-maps">
-      <div class="entity-video-thumbnail"><img src="https://i.ytimg.com/vi/_OBlgSz8sSM/3.jpg" /></div>
-      <div class="entity-video-title">Charlie bit my finger - again !</div>
-    </div>
-    <div class="entity-video-group"
-         url="https://maps.google.de/" type="X" extra="entity-search-google-maps">
-      <div class="entity-video-thumbnail"><img src="https://i.ytimg.com/vi/_OBlgSz8sSM/3.jpg" /></div>
-      <div class="entity-video-title">Charlie bit my finger - again !</div>
-    </div>
+    {{/each}}
   </div>
 </div>
