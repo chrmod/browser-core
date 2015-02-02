@@ -909,7 +909,7 @@
 /* END TimeEZ */
 
 .cqz-one-line {
-  white-space: nowrap;
+  height: 1em;
   overflow: hidden;
 }
 
