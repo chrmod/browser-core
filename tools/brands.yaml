@@ -48,7 +48,7 @@ brands:
             url: https://www.youtube.com/
             always_show: true
             match:  # group all urls that match this condition with the base URL
-                domain: www.youtube.com
+                domain: (?:www.)*youtube.com
                 path: ^/$
         -
             category: control # control is special category (it is shown first in a different format)
@@ -109,17 +109,6 @@ brands:
             match:
                 path: /watchvideos # redirect 
         -
-            category: Videos
-            title:
-                var: title
-                pattern: '(.+) - YouTube\s*'
-            match:
-                path: /watch
-                query: v=[^&]+
-            url:
-                query: v=[^&]+
-                fragment: ''
-        -
             category: Sitemap_Youtube_Channels
             title:
                 var: title
@@ -127,6 +116,7 @@ brands:
             match:
                 path: /(channel|user)/[A-Za-z0-9]+
             url:
+                scheme: 'https:'
                 path: '(/(channel|user)/[A-Za-z0-9]+)'
         -
             category: Sitemap_Youtube_Playlists
@@ -137,8 +127,20 @@ brands:
                 path: /playlist
                 query: list=[A-Za-z0-9]+
             url:
+                scheme: 'https'
                 query: list=[A-Za-z0-9]+
-
+        -
+            category: Videos
+            title:
+                var: title
+                pattern: '▶ *(.+) - YouTube\s*'
+            match:
+                path: /watch
+                query: v=[^&]+
+            url:
+                scheme: 'https:'
+                query: v=[^&]+
+                fragment: ''
     GitHub:
         summary: Sitemap_Summary
         match_domains:
@@ -166,7 +168,7 @@ brands:
                 pattern: '^/([A-Za-z0-9\-]+)/'
             title:
                 var: path
-                pattern: '^/[A-Za-z0-9\-]+/([A-Za-z0-9\-]+)'
+                pattern: '^/([A-Za-z0-9\-]+/[A-Za-z0-9\-]+)'
             match:
                 path: '^/[A-Za-z0-9\-]+/[A-Za-z0-9\-]+'
             url:

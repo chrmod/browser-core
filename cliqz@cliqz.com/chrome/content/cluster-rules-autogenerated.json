@@ -40,7 +40,7 @@
                     }, 
                     "title": {
                         "var": "path", 
-                        "pattern": "^/[A-Za-z0-9\\-]+/([A-Za-z0-9\\-]+)"
+                        "pattern": "^/([A-Za-z0-9\\-]+/[A-Za-z0-9\\-]+)"
                     }
                 }
             ], 
@@ -58,7 +58,7 @@
                     "always_show": true, 
                     "match": {
                         "path": "^/$", 
-                        "domain": "www.youtube.com"
+                        "domain": "(?:www.)*youtube.com"
                     }, 
                     "title": "YouTube"
                 }, 
@@ -141,24 +141,10 @@
                     }
                 }, 
                 {
-                    "category": "Videos", 
-                    "url": {
-                        "fragment": "", 
-                        "query": "v=[^&]+"
-                    }, 
-                    "match": {
-                        "path": "/watch", 
-                        "query": "v=[^&]+"
-                    }, 
-                    "title": {
-                        "var": "title", 
-                        "pattern": "(.+) - YouTube\\s*"
-                    }
-                }, 
-                {
                     "category": "Sitemap_Youtube_Channels", 
                     "url": {
-                        "path": "(/(channel|user)/[A-Za-z0-9]+)"
+                        "path": "(/(channel|user)/[A-Za-z0-9]+)", 
+                        "scheme": "https:"
                     }, 
                     "match": {
                         "path": "/(channel|user)/[A-Za-z0-9]+"
@@ -171,7 +157,8 @@
                 {
                     "category": "Sitemap_Youtube_Playlists", 
                     "url": {
-                        "query": "list=[A-Za-z0-9]+"
+                        "query": "list=[A-Za-z0-9]+", 
+                        "scheme": "https"
                     }, 
                     "match": {
                         "path": "/playlist", 
@@ -181,40 +168,21 @@
                         "var": "title", 
                         "pattern": "(.+) - YouTube\\s*"
                     }
-                }
-            ], 
-            "summary": "Sitemap_Summary"
-        }, 
-        "Google": {
-            "match_domains": [
-                ".*\\.google.com"
-            ], 
-            "rules": [
-                {
-                    "category": "base", 
-                    "url": "https://www.google.com/", 
-                    "always_show": true, 
-                    "match": {
-                        "path": "^/$", 
-                        "domain": "www.google.com"
-                    }, 
-                    "title": "Google"
                 }, 
                 {
-                    "category": "Services", 
+                    "category": "Videos", 
                     "url": {
                         "fragment": "", 
-                        "path": "/", 
-                        "domain": "(.+)\\.google\\.com", 
-                        "scheme": "https:", 
-                        "query": ""
+                        "query": "v=[^&]+", 
+                        "scheme": "https:"
                     }, 
                     "match": {
-                        "domain": ".+\\.google\\.com"
+                        "path": "/watch", 
+                        "query": "v=[^&]+"
                     }, 
                     "title": {
-                        "var": "domain", 
-                        "pattern": "(.+)\\.google\\.com"
+                        "var": "title", 
+                        "pattern": "\u25b6 *(.+) - YouTube\\s*"
                     }
                 }
             ], 

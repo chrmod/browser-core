@@ -35,12 +35,11 @@ var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
 		var results = [];
 
-
-    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-      var [is_clustered, history_trans] = [false, history];
-    } else {
-      var [is_clustered, history_trans] = CliqzClusterHistory.cluster(history, cliqz, q);
-    }
+        if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
+          var [history_trans, cluster_data] = [history, null];
+        } else {
+          var [history_trans, cluster_data] = CliqzClusterHistory.cluster(history, cliqz, q);
+        }
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
@@ -51,25 +50,8 @@ var Mixer = {
             bucketBookmark = [],
             bucketBookmarkCache = [];
 
-
-        if (is_clustered) {
-            let style = history_trans[0]['style'],
-                value = history_trans[0]['value'],
-                image = history_trans[0]['image'],
-                comment = history_trans[0]['data']['summary'],
-                label = history_trans[0]['label'],
-                // if is_cluster the object has additional data
-                data = history_trans[0]['data'];
-
-            bucketHistoryCluster.push(
-                    Result.generic(style, data.url || '', null, '', '', '', data));
-
-            // we have to delete the clustered result from history_trans so that
-            // we don't display it as history
-            history_trans = history_trans.slice(1);
-        }
-
         // Was instant history result also available as a cliqz result
+        // TODO: what about clustered history?
         for(let i in cliqz || []) {
             if(mixed.matchCount == 1 && cliqz[i].url == mixed.getLabelAt(0)) {
                 let st = mixed.getStyleAt(0),
@@ -215,12 +197,6 @@ var Mixer = {
         results = Filter.deduplicate(unfiltered, -1, 1, 1);
 
         results = results.slice(mixed._results.length);
-
-        // all bucketHistoryCluster, there can only be one, even though is's an array for consistency
-        if (bucketHistoryCluster.length > 0) {
-            bucketHistoryCluster[0].comment += " (clustering)!";
-            results.unshift(bucketHistoryCluster[0]);
-        }
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra) results = cliqzExtra.concat(results);
