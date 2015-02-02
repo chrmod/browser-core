@@ -15,18 +15,18 @@
             style="width: calc(60% - 120px)"
          {{/if}}>
         <div class='cqz-result-title overflow'>
-            {{ title }}
+            {{ emphasis title text 2 true }}
         </div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ urlDetails.host }}{{ urlDetails.path }}
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
         </div>
         {{#unless image.src}}
             <div class='cqz-result-desc overflow'>
-                {{ data.description }}
+                {{ emphasis data.description text 2 true }}
             </div>
         {{/unless}}
     </div>

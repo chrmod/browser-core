@@ -15,8 +15,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'b': 'bundesliga',
         //'s': 'shopping',
         //'g': 'gaming'  ,
-        //'n': 'news'    ,
-        //'p': 'people'  ,
+        'n': 'news'    ,
+        'p': 'people'  ,
         //'v': 'video'   ,
         //'h': 'hq'      ,
         //'q': 'qaa'     ,
@@ -884,7 +884,6 @@ function resultClick(ev){
             if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
                 console.log(el);
                 console.log(ev);
-                debugger;
 
               enginesClick(ev);
               break;
