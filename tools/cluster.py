@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+'''
+cluster.py
+Used to test how brand definition rules will cluster user's history.
+'''
+
+
 import sys
 import json
 import yaml
