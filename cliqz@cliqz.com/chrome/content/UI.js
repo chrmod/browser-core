@@ -813,7 +813,6 @@ function resultClick(ev){
             if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
                 console.log(el);
                 console.log(ev);
-                debugger;
 
               enginesClick(ev);
               break;
