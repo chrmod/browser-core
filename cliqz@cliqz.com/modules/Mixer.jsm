@@ -34,6 +34,8 @@ CliqzUtils.init();
 var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
 		var results = [];
+
+
     if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
       var [is_clustered, history_trans] = [false, history];
     } else {
