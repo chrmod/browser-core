@@ -67,11 +67,13 @@ var CliqzUtils = {
   PREF_INT:              64,
   PREF_BOOL:             128,
   PREFERRED_LANGUAGE:    null,
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
               'spellcheck': 1, 'time': 1,
               'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern': 2, 'weatherEZ': 2,
               'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3, 'weatherAlert': 3},
+
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -113,20 +115,49 @@ var CliqzUtils = {
     var domain = urlDetails.domain, img,
         color = BRAND_COLORS[urlDetails.host] ||  // sub.domain.tld
                 BRAND_COLORS[domain] ||  // domain.tld
-                BRAND_COLORS[urlDetails.name];    // domain
+                BRAND_COLORS[urlDetails.name],    // domain
+        localhost = urlDetails.name == "localhost",
+        isIP = urlDetails.name == "IP";
     if(!color){
       var signature = 0;
-      for(var i=0; i<urlDetails.host.length; i++) signature += urlDetails.host.charCodeAt(i);
+
+      if (localhost)
+        for(var i=0; i<urlDetails.name.length; i++) signature += urlDetails.name.charCodeAt(i);
+      else if (isIP)
+        for(var i=0; i<urlDetails.host.length; i++) signature += urlDetails.host.charCodeAt(i);
+      else
+        for(var i=0; i<urlDetails.domain.length; i++) signature += urlDetails.domain.charCodeAt(i);
+
 
       color = COLOURS[signature%COLOURS.length];  // fallback - solid colour
     }
 
-    if (LOGOS.indexOf(urlDetails.name) != -1){
+    if (localhost)
+      img = 'url(chrome://cliqzres/content/skin/localhost.png)';
+    else if (LOGOS.indexOf(urlDetails.name) != -1){
       img = 'url(http://cdn.cliqz.com/extension/core/logos/' + urlDetails.name + '.svg)';
     }
+    /*
+    if (CliqzUtils.isLocalhost(urlDetails.host)) {
+      // localhost
+    }
+    else if (CliqzUtils.isIPv4(urlDetails.host) || CliqzUtils.isIPv6(host)) {
+      //ip
+    }
+    */
+    domain = domain.replace(/\W+|_/g, "");
+
+    var display_text = "";
+    if (domain.length > 1)
+      display_text = domain[0].toUpperCase() + domain[1].toLowerCase();
+    else if (domain.length == 1)
+      display_text = domain;
+    else if (urlDetails.name == "IP")
+      display_text = urlDetails.name;
+
     return {
       color: color,
-      text: domain ? domain[0].toUpperCase() + domain[1].toLowerCase():'',
+      text: display_text,
       img: img
     }
   },
@@ -278,28 +309,59 @@ var CliqzUtils = {
         path = '',
         ssl = originalUrl.indexOf('https') == 0;
 
+
     url = CliqzUtils.cleanUrlProtocol(url, false);
     // extract only hostname
     var host = url.split('/')[0].toLowerCase();
-    // extract only path
     var path = url.replace(host,'');
 
-    try {
-      var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                                  .getService(Components.interfaces.nsIEffectiveTLDService);
+    // Parse Port number
+    var port = "";
+    var isIPv4 = CliqzUtils.isIPv4(host);
+    var isIPv6 = CliqzUtils.isIPv6(host);
 
-      var tld = eTLDService.getPublicSuffixFromHost(host);
 
-      // Get the domain name w/o subdomains and w/o TLD
-      var tld_with_prefix_dot = "." + tld;
-      var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
-      // Get subdomains
-      var name_tld = name + "." + tld;
-      var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
-      //remove www if exists
-      host = host.indexOf('www.') == 0 ? host.slice(4) : host;
-    } catch(e){
-      //CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
+    var indexOfColon = host.indexOf(":");
+    CliqzUtils.log(host, "URLDetails");
+    if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
+      [host, port] = [host.substr(0,indexOfColon), host.substr(indexOfColon+1)];
+    }
+    else if (isIPv6) {
+      // If an IPv6 address has a port number, it will be right after a closing bracket ] : format [ip_v6]:port
+      var endOfIP = host.indexOf(']:');
+      if (endOfIP >= 0) {
+        port = host.split(']:')[1];
+        host = host.split(']:')[0].replace('[','').replace(']','');
+      }
+    }
+
+    // extract only path
+
+
+    if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
+      try {
+        var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                                    .getService(Components.interfaces.nsIEffectiveTLDService);
+
+
+
+        var tld = eTLDService.getPublicSuffixFromHost(host);
+        // Get the domain name w/o subdomains and w/o TLD
+        var tld_with_prefix_dot = "." + tld;
+        var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
+        // Get subdomains
+        var name_tld = name + "." + tld;
+        var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+        //remove www if exists
+        host = host.indexOf('www.') == 0 ? host.slice(4) : host;
+      } catch(e){
+        name = "";
+        host = "";
+        //CliqzUtils.log('WARNING Failed for: ' + originalUrl, 'CliqzUtils.getDetailsFromUrl');
+      }
+    }
+    else {
+      name = CliqzUtils.isLocalhost(host) ? "localhost" : "IP";
     }
 
     var urlDetails = {
@@ -309,7 +371,8 @@ var CliqzUtils = {
               subdomains: subdomains,
               path: path,
               host: host,
-              ssl: ssl
+              ssl: ssl,
+              port: port
         };
 
     return urlDetails;
@@ -326,6 +389,43 @@ var CliqzUtils = {
     //step3 run the regex
     return CliqzUtils._isUrlRegExp.test(input);
   },
+
+
+  // Chechks if the given string is a valid IPv4 addres
+  isIPv4: function(input) {
+    var ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])"; // numbers 0 - 255
+    var ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part
+    + "([:]([0-9])+)?$"); // port number
+    return ipv4_regex.test(input);
+  },
+
+  isIPv6: function(input) {
+
+    // Currently using a simple regex for "what looks like an IPv6 address" for readability
+    var ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$")
+    return ipv6_regex.test(input);
+
+    /* A better (more precise) regex to validate IPV6 addresses from StackOverflow:
+    link: http://stackoverflow.com/questions/53497/regular-expression-that-matches-valid-ipv6-addresses
+
+    var ipv6_regex = new RegExp("(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:)"
+    + "{1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,"
+    + "4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a"
+    + "-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}"
+    + "|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+    + "|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))");
+    */
+  },
+
+  isLocalhost: function(host) {
+    if (host == "localhost") return true;
+    if (CliqzUtils.isIPv4(host) && host.substr(0,3) == "127") return true;
+    if (CliqzUtils.isIPv6(host) && host == "::1") return true;
+
+    return false;
+
+  },
+
   // checks if a value represents an url which is a seach engine
   isSearch: function(value){
     if(CliqzUtils.isUrl(value)){

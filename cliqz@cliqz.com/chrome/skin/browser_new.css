@@ -907,3 +907,28 @@
  color: silver;
 }
 /* END TimeEZ */
+
+/* EZ Currency */
+
+.EZ-currency {
+ margin-left: 18px
+}
+
+.EZ-currency-result {
+  color: #333333;
+  font-size:18px;
+  margin-top:14px;
+}
+
+.EZ-currency-rate {
+  color: #999999;
+  font-size:14px;
+  margin-top:10px;
+}
+
+.EZ-currency-disclaimer {
+  color: #999999;
+  font-size:12px;
+  margin-top:14px;
+}
+/* End EZ Currency */
