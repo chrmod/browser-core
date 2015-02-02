@@ -74,87 +74,8 @@ var CliqzABTests = CliqzABTests || {
         // It is safe to remove them as soon as the test is over.
         var rule_executed = true
         switch(abtest) {
-            /* 1000: enable timing log signal */
-            case "1000_A":
-                CliqzUtils.setPref("logTimings", true);
-                break;
-
-            case "1004_A":
-                // enable clustering + series
-                // History length: 12
-                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
-                urlbarPrefs.setIntPref("maxRichResults", 12)
-
-                CliqzUtils.setPref("abCluster", true);
-                break;
-
-            case "1004_B":
-                // enable clustering + series
-                // History length: 20
-                var urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                                  .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
-                CliqzUtils.setPref("old_maxRichResults", urlbarPrefs.getIntPref("maxRichResults"));
-                urlbarPrefs.setIntPref("maxRichResults", 30)
-
-                CliqzUtils.setPref("abCluster", true);
-                break;
-            case "1005_B":
-                // log clustering site
-                CliqzUtils.setPref("logCluster", true);
-                break;
-            case "1006_A":
-                // abort http connections if a new one appears
-                CliqzUtils.setPref("abortConnections", false);
-                break;
-            case "1007_A":
-                // run history-based suggester experiment
-                CliqzUtils.setPref("historyExperiment", true);
-                break;
-            case "1008_A":
-                CliqzUtils.setOurOwnPrefs();
-                break;
-            case "1010_A":
-                // show no results message
-                CliqzUtils.setPref("showNoResults", true);
-                break;
-            case "1011_A":
-                CliqzUtils.setPref("showAdResults", 1);
-                break;
-            case "1012_A":
-                CliqzUtils.setPref("showPremiumResults", 1);
-                break;
-            case "1013_A":
-                CliqzUtils.setPref("sessionLogging", true);
-                break;
-            case "1014_A":
-                /*
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
-                CliqzUtils.setPref("customResultsProvider", payload.results);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
-                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
-                CliqzUtils.setPref("customResultsProviderLog", payload.log);
-                */
-                break;
-            case "1015_A":
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER = payload.results;
-                CliqzUtils.setPref("customResultsProvider", payload.results);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = payload.ping;
-                CliqzUtils.setPref("customResultsProviderPing", payload.ping);
-                CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = payload.log;
-                CliqzUtils.setPref("customResultsProviderLog", payload.log);
-                break;
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
-                break;
-
-            case "1018_A":
-                CliqzUtils.setPref("disableSeriesCluster", false);
-                break;
-            case "1018_B":
-                CliqzUtils.setPref("disableSeriesCluster", true);
                 break;
 
             case "1019_A":
@@ -188,6 +109,14 @@ var CliqzABTests = CliqzABTests || {
             case "1022_B":
                 CliqzUtils.setPref("newAutocomplete", true);
                 break;
+
+            case "1023_A":
+                CliqzUtils.setPref("localSpellCheck", false);
+                break;
+            case "1023_B":
+                CliqzUtils.setPref("localSpellCheck", true);
+                break;
+
 
             default:
                 rule_executed = false;
@@ -251,7 +180,8 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("historyExperiment");
                 break;
             case "1008_A":
-                CliqzUtils.resetOriginalPrefs();
+                // Do not reset prefs, we want to keep them
+                //CliqzUtils.resetOriginalPrefs();
                 break;
             case "1009_A":
                 CliqzUtils.cliqzPrefs.clearUserPref('sessionExperiment');
@@ -304,6 +234,10 @@ var CliqzABTests = CliqzABTests || {
             case "1022_A":
             case "1022_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("newAutocomplete");
+                break;
+            case "1023_A":
+            case "1023_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
                 break;
 
             default:

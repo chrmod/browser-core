@@ -175,7 +175,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var r = merged[i];
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
-                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
+                            if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
                                 // unexpected/unknown template
                                 continue;
                             }
@@ -337,8 +337,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                   var latency = 0;
                   if (CliqzHistoryPattern.latencies[res.query]) {
-                    latency = CliqzHistoryPattern.latencies[res.query].endP -
-                              CliqzHistoryPattern.latencies[res.query].startP;
+                    latency = (new Date()).getTime() -
+                              CliqzHistoryPattern.latencies[res.query];
                   }
                   this.latency.patterns = latency;
 
@@ -603,6 +603,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+                CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
@@ -626,7 +627,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
                     // begin history pattern search
-                    CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
                     CliqzHistoryPattern.detectPattern(searchString);
 
                     // Fetch bundesliga only if search contains trigger

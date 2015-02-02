@@ -9,9 +9,6 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -43,7 +40,13 @@ var Extension = {
 //      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
+        Extension.unloadModules();
+
+        Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
+
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         this.track = CliqzUtils.track;
@@ -123,7 +126,7 @@ var Extension = {
     },
     unloadModules: function(){
         //unload all cliqz modules
-        Cu.unload('chrome://cliqzmodules/content/extern/Promise.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
         Cu.unload('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -140,12 +143,21 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
         Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/math.min.jsm');
-        Cu.unload('chrome://cliqzmodules/content/newtab/CliqzNewTab.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzSpellCheck.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryPattern.jsm');
-        Cu.unload('chrome://cliqzmodules/content/extern/CliqzHistoryDebug.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+        Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
+
+        // Remove this observer here to correct bug in 0.5.57
+        // - if you don't do this, the extension will crash on upgrade to a new version
+        // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            CliqzHistory && hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
+
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistory.jsm');
     },
     restart: function(){
         CliqzUtils.extensionRestart();
@@ -289,7 +301,7 @@ var Extension = {
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
-        
+
         var doc = win.document,
             lang = CliqzUtils.getLanguage(win);
 
@@ -325,20 +337,20 @@ var Extension = {
         menuitem4.addEventListener('command', function(event) {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
-       
+
         var menuitem5 = doc.createElement('menuitem');
         menuitem5.setAttribute('id', 'cliqz_menuitem5');
         menuitem5.setAttribute('label',
             CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
         );
-        
+
         //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
-        
+
         menuitem5.addEventListener('command', function(event) {
             var newvalue = !CliqzNewTab.isCliqzNewTabShown();
-            
+
             CliqzNewTab.showCliqzNewTab(newvalue);
-            
+
             menuitem5.setAttribute('label',
                 CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
             );
@@ -461,18 +473,7 @@ var Extension = {
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
 
-        var filter_levels = {'conservative':
-                               {name: CliqzUtils.getLocalizedString('result_filter_conservative'),
-                                selected: false},
-                             'moderate':
-                               {name: CliqzUtils.getLocalizedString('result_filter_moderate'),
-                                selected: false},
-                             'liberal':
-                               {name: CliqzUtils.getLocalizedString('result_filter_liberal'),
-                                selected: false}};
-
-        var current_level = CliqzUtils.getPref('adultContentFilter', 'moderate');
-        filter_levels[current_level].selected = true;
+        var filter_levels = CliqzUtils.getAdultFilterState();
 
         for(var level in filter_levels) {
           var item = doc.createElement('menuitem');

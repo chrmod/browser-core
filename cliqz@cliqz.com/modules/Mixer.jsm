@@ -7,6 +7,8 @@
 var EXPORTED_SYMBOLS = ['Mixer'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
+Components.utils.import('resource://gre/modules/Services.jsm');
+
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
@@ -24,11 +26,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
+    'chrome://cliqzmodules/content/ResultProviders.jsm');
+
 CliqzUtils.init();
 
 var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
 		var results = [];
+
+
     if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
       var [is_clustered, history_trans] = [false, history];
     } else {
@@ -217,16 +224,40 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra) results = cliqzExtra.concat(results);
-        if(results.length == 0 && mixed.matchCount == 0 && CliqzUtils.getPref('showNoResults')){
+
+        // ----------- noResult EntityZone---------------- //
+        if(results.length == 0 && mixed.matchCount == 0){
+            var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
+            var title = CliqzUtils.getLocalizedString('noResultTitle'),
+                msg = CliqzUtils.getLocalizedString('noResultMessage'),
+                current_search_engine = Services.search.currentEngine.name;
+
+            var alternative_search_engines_data = [// default
+                                {"name": "DuckDuckGo", "code": null, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
+                                {"name": "Bing", "code": null, "logo": path+"Bing.svg", "background-color": "#ffc802"},
+                                {"name": "Google", "code": null, "logo": path+"google.svg", "background-color": "#5ea3f9"},
+                                {"name": "Google Images", "code": null, "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
+                                {"name": "Google Maps", "code": null, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
+                            ],
+                alt_s_e;
+
+            for (var i = 0; i< alternative_search_engines_data.length; i++){
+                alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
+                if (typeof alt_s_e != 'undefined'){
+                    alternative_search_engines_data[i].code = alt_s_e.code;
+                }
+            }
+
             results.push(
                 Result.cliqzExtra(
                     {
                         data:
                         {
-                            template:'text',
-                            title: CliqzUtils.getLocalizedString('noResultTitle'),
-                            only: true
-                            //message: CliqzUtils.getLocalizedString('noResultMessage')
+                            template:'noResult',
+                            text_line1: title,
+                            text_line2: msg.replace("...", current_search_engine),
+                            "search_engines": alternative_search_engines_data,
+                            "cliqz_logo": path+"EZ-no-results-cliqz.svg"
                         },
                         subType: JSON.stringify({empty:true})
                     }

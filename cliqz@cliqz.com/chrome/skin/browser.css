@@ -316,8 +316,7 @@
 .EZ-airlines-bigcontainer{
   margin-left: 22px;
   background-color: white;
-  height: 180px;
-  font-size: 14px;
+  position: relative;
 }
 
 .EZ-airlines-bigcontainer [url] {
@@ -404,11 +403,57 @@
 
 /*--- END airlinesEZ----*/
 
+/*weatherAlert thuy@cliqz.com (weatherAlert css = these css + weatherEZ css)*/
+
+
+.EZ-weather-alert{
+ height: 90px;
+}
+
+.EZ-weather-alert img{
+  height: 55px;
+  width: 55px;
+  margin-left: 22px;
+  margin-top: 17.5px;
+  float: left;
+  /*background-color: green;*/
+}
+
+.EZ-weather-alert-info{
+ color: white;
+ float: left;
+ margin-left: 33px;
+ width: calc(100% - 180px);
+}
+
+.EZ-weather-alert-info-Line1{
+ margin-top: 22px;
+ font-size: 25px;
+ line-height: 110%;
+ text-decoration: underline;
+ /*background-color: green*/
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
+.EZ-weather-alert-info-Line2{
+ line-height: 100%;
+/* background-color: silver;*/
+ font-size: 14px;
+ padding-top: 2px;
+ padding-bottom: 25px;
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+
+}
+
 /* weatherEZ.tpl --- thuy@cliqz.com - 15Jan2015 */
 .EZ-weather-bigcontainer{
  padding-left: 22px;
  background-color: white;
- height: 180px;
+ clear: left;
 }
 
 
@@ -775,6 +820,175 @@
     white-space: normal;
 }
 /* end news */
+
+/* pattern */
+
+.cliqz-pattern {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+}
+
+.cliqz-pattern-logo {
+  float: left;
+  height: 72px;
+  width: 72px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 72px 72px;
+}
+
+.cliqz-pattern-circle {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: #BFBFBF;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.cliqz-pattern-logo {
+  float: left;
+  border-radius: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  overflow: hidden;
+  display: table-cell;
+  vertical-align: middle;
+  color: rgba(255,255,255,0.94);
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 22pt;
+  margin-left:30px;
+  margin-top:12px;
+  background: white;
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-repeat: no-repeat;
+  background-position: 10px 10px;
+  background-size: 44px 44px;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.cliqz-pattern-title-container {
+  position:absolute;
+  left:0px;
+  right:0px;
+  top:0px;
+  height:44px;
+  line-height: 44px;
+  background: #F5F5F5;
+  /*color: #424242;*/
+  color: black;
+  font-size: 16px;
+  text-decoration: bold;
+  -moz-box-shadow:    0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  box-shadow:         0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  white-space:nowrap;
+}
+
+.cliqz-pattern-title-text-container {
+  overflow:hidden;
+  position:absolute;
+  top:0;
+  left:125px;
+  right: 20px;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
+
+.cliqz-pattern-title-text {
+  max-width:70%;
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display:inline-block;
+}
+
+.cliqz-pattern-title-link {
+  display:inline-block;
+  color:rgba(0,0,0,0.54);
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 15px;
+}
+
+.cliqz-pattern-entries {
+  white-space: nowrap;
+  overflow:hidden;
+}
+
+.cliqz-pattern-entry-title {
+  font-size: 13px;
+  margin-left: 5px;
+  display:inline-block;
+  text-decoration: none;
+  color: #800080;
+  overflow: hidden;
+  max-width: 40%;
+}
+.cliqz-pattern-entry-link {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 30%;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-entry-date {
+  font-size: 13px;
+  color:rgba(127,127,127,0.54);
+  font-weight: normal;
+  text-decoration: none;
+  padding-left: 40px;
+  max-width: 20%;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-entry-favicons {
+  padding-left: 40px;
+  max-width: 16px;
+  overflow: hidden;
+  display:inline-block;
+}
+
+.cliqz-pattern-element {
+  line-height: 20px;
+  height: 22px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cliqz-pattern-favicon {
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 2px;
+  background-size: 16px 16px;
+}
+
+/* END pattern */
 
 /* hq */
 .cliqz-hq-language {
