@@ -326,6 +326,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
         }
         CliqzAutocomplete.lastFocusTime = null;
+        CLIQZ.UI.sessionEnd();
     },
     urlbarEvent: function(ev) {
         var action = {
@@ -406,9 +407,12 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.triggerLastQ = true;
         if(newTab) gBrowser.addTab(url);
         else {
-            //clean selected text to have a valid last Query
-            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
-                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+            //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+
+            // Set urlbar value to url immediately
+            CLIQZ.Core.urlbar.value = url;
+
             openUILink(url);
         }
     },
@@ -432,12 +436,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            var clean = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
-            if (urlBar.value.indexOf("://") != -1 ) {
-                urlBar.value = urlBar.value.substr(0, urlBar.value.indexOf("://")+3) + clean;
-            } else {
-                urlBar.value = clean;
-            }
+            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value) {
@@ -464,8 +463,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
-            urlBar.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            urlBar.mInputField.value = autocomplete.urlbar;
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
         }
@@ -473,7 +472,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (autocomplete.highlight) {
             if (urlBar.value.length > 80) {
               urlBar.value = urlBar.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             }
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();

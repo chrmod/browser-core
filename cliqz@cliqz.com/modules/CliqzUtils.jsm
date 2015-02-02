@@ -849,6 +849,26 @@ var CliqzUtils = {
       if (url.indexOf(domains[index]) > -1) return index;
     }
   },
+  getAdultFilterState: function(){
+    var data = {
+      'conservative': {
+              name: CliqzUtils.getLocalizedString('result_filter_conservative'),
+              selected: false
+      },
+      'moderate': {
+              name: CliqzUtils.getLocalizedString('result_filter_moderate'),
+              selected: false
+      },
+      'liberal': {
+          name: CliqzUtils.getLocalizedString('result_filter_liberal'),
+          selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
+
+    return data;
+  },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
 
