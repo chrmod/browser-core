@@ -608,9 +608,12 @@
 /*  EZ celeb */
 
 .cliqz-celeb {
-    padding: 17.5px 22px;
+    padding: 18px 22px;
     font-size: 14px;
+    height: 201px;
     position: relative;
+    box-sizing: border-box;
+    -mox-box-sizing: border-box;
     border-bottom: 1px solid #ccc
 }
 
