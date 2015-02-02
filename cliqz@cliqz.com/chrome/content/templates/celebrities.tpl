@@ -14,7 +14,8 @@
             <img
             	src='{{img}}'
             	url='{{url}}'
-            	class='cqz-celeb-social' />
+            	class='cqz-celeb-social'
+                extra='entry-{{ url }}' />
          {{/each}}
     </div>
     <div>{{local 'age'}}: {{birth_date}}</div>

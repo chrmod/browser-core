@@ -25,8 +25,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
-  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+//  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -64,8 +64,26 @@ CLIQZ.Core = CLIQZ.Core || {
     _updateAvailable: false,
 
     init: function(){
-        Components.utils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
-        if (!PrivateBrowsingUtils.isWindowPrivate(window)) {
+        // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
+        var listners = window.gBrowser.mTabsProgressListeners;
+        for(var i=0; i<listners.length; i++){
+            var l = listners[i];
+            if(l["QueryInterface"] &&
+               l["onLocationChange"] &&
+               l["onStateChange"] &&
+               l["onStatusChange"]){
+
+                //if this listner matches the signature of CliqzHistory - remove it
+                window.gBrowser.removeTabsProgressListener(l);
+                break;
+            }
+        }
+        // end TEMP fix
+
+        XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+            'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
+        if (!CliqzUtils.isPrivate(window)) {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
@@ -76,8 +94,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzNewTab.init(window);
         CliqzHistory.initDB();
-        CliqzHistoryPattern.preloadColors();
-
+        //CliqzHistoryPattern.preloadColors();
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -99,15 +116,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
-        /* THUY NOTE:
-        *       mozzilar - special way:
-        *          + autocompletepopup --- (we set)  ---> PopupAutoCompleteRichResult
-        *          + PopupAutoCompleteRichResult : see browser.css (at the top)
-        *          + meaning: FF uses autocompletepopup to set the popup window,
-        *          which in this case: (see PopupAutoCompleteRichResult in browser.css): points to
-        *          components.xml#autocomplete-rich-result-popup-cliqz
-        *
-        * */
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
@@ -124,8 +132,8 @@ CLIQZ.Core = CLIQZ.Core || {
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         // preferences
-        CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
-        CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
+        //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
+        //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
         CliqzAutocomplete.init();
 
@@ -234,7 +242,7 @@ CLIQZ.Core = CLIQZ.Core || {
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         // restore preferences
-        CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
+        //CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
         CliqzAutocomplete.destroy();
         CliqzRedirect.destroy();
@@ -242,8 +250,14 @@ CLIQZ.Core = CLIQZ.Core || {
         // remove listners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
+            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        try {
+            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            hs.removeObserver(CliqzHistory.historyObserver);
+        } catch(e) {}
 
         if(!soft){
             delete window.CliqzUtils;
@@ -312,6 +326,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
         }
         CliqzAutocomplete.lastFocusTime = null;
+        CLIQZ.UI.sessionEnd();
     },
     urlbarEvent: function(ev) {
         var action = {
@@ -392,9 +407,12 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.triggerLastQ = true;
         if(newTab) gBrowser.addTab(url);
         else {
-            //clean selected text to have a valid last Query
-            if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
-                CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+            //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+
+            // Set urlbar value to url immediately
+            CLIQZ.Core.urlbar.value = url;
+
             openUILink(url);
         }
     },
@@ -418,12 +436,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
-            var clean = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
-            if (urlBar.value.indexOf("://") != -1 ) {
-                urlBar.value = urlBar.value.substr(0, urlBar.value.indexOf("://")+3) + clean;
-            } else {
-                urlBar.value = clean;
-            }
+            urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value) {
@@ -450,8 +463,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
-            urlBar.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+            urlBar.mInputField.value = autocomplete.urlbar;
+            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.url;
 
         }
@@ -459,7 +472,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (autocomplete.highlight) {
             if (urlBar.value.length > 80) {
               urlBar.value = urlBar.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.value.length);
+              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             }
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();

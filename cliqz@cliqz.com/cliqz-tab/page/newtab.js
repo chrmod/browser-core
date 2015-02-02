@@ -211,6 +211,14 @@ function renderHistory(links){
                 e.stopPropagation();
                 window.location.reload();
             });
+            
+            template.find(".pin").click(function(e){ HistoryController.pin(link); });
+            template.find(".unpin").click(function(e){
+                HistoryController.unpin(link);
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.reload();
+            });
         })(link);
         
         var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
@@ -252,5 +260,34 @@ function renderHistory(links){
                 
             },i * 50);
         })(i);
+    }
+}
+
+function getLogo(url){
+    var base = getDomainBase(url),
+        checkRule = function(fulldomain,rule){
+            var address = fulldomain.lastIndexOf(base),
+                parseddomain = fulldomain.substr(0,address) + "#" + fulldomain.substr(address + base.length)
+
+            return parseddomain.indexOf(rule) != -1
+        }
+    
+    if (rules[base]) {
+        for (var i=0,imax=rules[base].length;i<imax;i++) {
+            var rule = rules[base][i]
+            
+            //r, b, l, t, c
+            if (checkRule(fulldomain,rule.r)) {
+                return {
+                    background: rule.b,
+                    logo: rule.l,
+                    text: rule.t,
+                    color: rule.c
+                }
+            }
+        }
+    }
+    else {
+        randomLogo();
     }
 }

@@ -1,4 +1,3 @@
-{{>adult this}}
 {{#each results}}
 	{{#unless invalid}}
 		<div class='cqz-result-box'
@@ -12,4 +11,7 @@
 		</div>
 	{{/unless}}
 {{/each}}
+{{#if showAdult}}
+	{{>adult}}
+{{/if}}
 <div class='cqz-result-selected'></div>

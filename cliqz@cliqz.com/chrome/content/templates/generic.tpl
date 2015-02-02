@@ -4,33 +4,29 @@
     {{/if}}
     {{#if image.src}}
         <div class="cqz-image" style="
-                    background-image: url({{ image.src }});
-                    {{#if image.height }}
-                        background-size: {{ image.backgroundSize }}px;
-                        width: {{ image.width }}px;
-                        height: {{ image.height }}px;
-                    {{/if}}
-                "
-        >
+                    background-image: url({{ image.src }});">
         {{#if image.text }}
             <p class='cqz-video-arrow'>{{ image.text }}</p>
         {{/if}}
         </div>
     {{/if}}
-    <div class='cqz-result-center cqz-vert-center'>
+    <div class='cqz-result-center cqz-vert-center'
+         {{#if image.src}}
+            style="width: calc(60% - 120px)"
+         {{/if}}>
         <div class='cqz-result-title overflow'>
-            {{ title }}
+            {{ emphasis title text 2 true }}
         </div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ urlDetails.host }}<span class='cqz-result-path'>{{ urlDetails.path }}</span>
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
         </div>
         {{#unless image.src}}
             <div class='cqz-result-desc overflow'>
-                {{ data.description }}
+                {{ emphasis data.description text 2 true }}
             </div>
         {{/unless}}
     </div>

@@ -30,10 +30,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Sorry, we don’t have any results yet.<br />We’re working on it."
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"No results"
@@ -321,6 +321,6 @@
         "message": "Nationality"
     },
     "history_results": {
-      "message":"Results from your history"
+      "message":"Visited Sites"
     }
 }
