@@ -907,3 +907,13 @@
  color: silver;
 }
 /* END TimeEZ */
+
+.cqz-one-line {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cqz-link {
+  color: #88baf8;
+  padding-right: 10px;
+}
