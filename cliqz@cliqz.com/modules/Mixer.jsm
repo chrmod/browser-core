@@ -226,7 +226,7 @@ var Mixer = {
         if(cliqzExtra) results = cliqzExtra.concat(results);
 
         // ----------- noResult EntityZone---------------- //
-        if(results.length == 0 && mixed.matchCount == 0 && CliqzUtils.getPref('showNoResults')){
+        if(results.length == 0 && mixed.matchCount == 0){
             var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
             var title = CliqzUtils.getLocalizedString('noResultTitle'),
                 msg = CliqzUtils.getLocalizedString('noResultMessage'),
