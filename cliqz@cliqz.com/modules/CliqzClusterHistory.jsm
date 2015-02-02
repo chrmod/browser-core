@@ -113,20 +113,20 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 break;
         }
 
-        // No rules, abort and continue history as normal
-        if (!rules) {
-            CliqzClusterHistory.log('No ruleset for domain: ' + maxDomain);
-            return [historyTrans, null];
-        }
-
         var threshold = CliqzUtils.getPref("domainClusterThreshold", 0.5)
-
         if (maxCounter < (history.matchCount * threshold)) {
             CliqzClusterHistory.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * threshold);
             return [historyTrans, null];
         }
 
-        var clusteredHistory = CliqzClusterHistory.collapse(maxDomain, rules, historyTransFiltered);
+        // No rules, abort and continue history as normal
+        var clusteredHistory;
+        if (!rules) {
+            CliqzClusterHistory.log('No ruleset for domain: ' + maxDomain);
+            clusteredHistory = CliqzClusterHistory.simpleCluster(maxDomain, historyTransFiltered);
+        } else {
+            clusteredHistory = CliqzClusterHistory.collapse(maxDomain, rules, historyTransFiltered);
+        }
 
         if (!clusteredHistory) {
             // the collapse failed, perhaps: too few data?, missing template, error?
@@ -134,14 +134,49 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [historyTrans, null];
 
-        } else if (clusteredHistory['urls'].length == 0) {
+        } else if (clusteredHistory['urls'].length < 4) {
             // no URLs related to the site were found
-            CliqzClusterHistory.log('History cannot be clustered, no related URLs');
+            CliqzClusterHistory.log('Clustering only found ' + clusteredHistory['urls'].length + 'related URLs, decided not to cluster.');
             return [historyTrans, null];
 
         } else {
             return [historyTransRemained, clusteredHistory];
         }
+    },
+    simpleCluster(domain, history) {
+        var num_slots = 6;
+
+        var urls = [];
+        for(let i = 0; i < history.length; i++) {
+            if(urls.length >= num_slots)
+                break;
+
+            // Remove empty titles
+            if(!history[i].title)
+                continue;
+            var url_parts = CliqzUtils.getDetailsFromUrl(history[i].url);
+            var new_entry = {
+                favicon: '',
+                href: history[i].url,
+                link: url_parts.host + url_parts.path,
+                domain: url_parts.host + url_parts.path,
+                title: history[i].title,
+                old_urls: [history[i].url],
+                category: "generic"
+            };
+            urls.push(new_entry);
+        }
+
+        var data = {
+            title: domain + "  - Your Top Hits",
+            url: "http://" + domain,
+            urls: urls,
+            control: [],
+            uncategorized: [],
+            excluded: []
+        };
+
+        return data;
     },
     match_url: function(cond, history) {
 
@@ -436,8 +471,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     var new_entry = {
                         favicon: '',
                         href: entry.url,
-                        link: url_parts.domain + url_parts.path,
-                        domain: url_parts.domain + url_parts.path,
+                        link: url_parts.host + url_parts.path,
+                        domain: url_parts.host + url_parts.path,
                         title: entry.title,
                         old_urls: entry.old_urls,
                         category: clean_categories[i].label
