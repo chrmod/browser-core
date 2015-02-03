@@ -958,7 +958,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         el.setAttribute('selected', 'true');
         if (el.className == 'cliqz-pattern-element') {
-          var offset = (el.getAttribute("height") == "h2") ? 53 : 18;
+          var offset = (el.getAttribute("height") == "h2") ? 53 : 43/* 3 URLs 18 */;
           $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
           // Show full url for highlighted entry
           //el.children[1].textContent = el.getAttribute("shortUrl");

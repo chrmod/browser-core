@@ -732,7 +732,9 @@
 }
 
 .cliqz-pattern-margin-h3 {
+  /* ENABLE FOR 3 URLS
   display: none;
+  */
 }
 
 .cliqz-pattern-document-icon-h2 {
@@ -749,8 +751,19 @@
 }
 
 .cliqz-pattern-document-icon-h3 {
+  /* ENABLE FOR 3 URLS
   visibility: hidden;
-  height: 0px;
+  height: 0px; */
+  position: absolute;
+  bottom: 10px;
+  margin-left: 10px;
+  height: 18.3px;
+  width: 15px;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: 0px 0px;
+  background-size: 15px 18.3px;
+  background-repeat: no-repeat;
+  display: inline-block;
 }
 
 .cliqz-pattern-title-h2 {
@@ -761,8 +774,14 @@
 }
 
 .cliqz-pattern-title-h3 {
+  /* ENABLE FOR 3 URLS
   visibility: hidden;
   height: 17px;
+  */
+  padding-top: 12px;
+  padding-bottom: 8px;
+  float: left;
+  position: relative;
 }
 
 .cliqz-pattern-results {
@@ -798,8 +817,13 @@
 }
 
 .cliqz-pattern-element-h3 {
+  /* ENABLE FOR 3 URLS
   line-height: 22px;
   height: 22px;
+  font-size: 14px;
+  */
+  line-height: 23px;
+  height: 23px;
   font-size: 14px;
 }
 
@@ -826,8 +850,15 @@
 }
 
 .cliqz-pattern-favicon-element-h3 {
+  /* ENABLE FOR 3 URLS
   float:left;
   height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
+  background-size: 16px 16px; */
+  float:left;
+  height: 23px;
   width: 16px;
   background-repeat: no-repeat;
   background-position: 0px 4px;
@@ -853,10 +884,16 @@
 }
 
 .cliqz-pattern-logo-h3 {
+  /* ENABLE FOR 3 URLS
   background-image: url(chrome://cliqzres/content/skin/history_icon.png);
   top: 23px;
   background-position: 7px 7px;
   background-size: 40px 40px;
+  */
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  top: 23px;
+  background-position: 11px 11px;
+  background-size: 32px 32px;
 }
 
 /* END history */

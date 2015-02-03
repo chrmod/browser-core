@@ -55,12 +55,12 @@ var CliqzHistoryPattern = {
         "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits " +
         "inner join ( " +
         "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > " + CliqzHistoryPattern.timeFrame + " and " +
-        "(visits.url like '%:param%' or visits.last_query like '%:param%' or urltitles.title like '%:param%') " +
+        "(visits.url like :param or visits.last_query like :param or urltitles.title like :param ) " +
         "group by visits.last_query_date " +
         ") as matches  " +
         "on visits.last_query_date = matches.last_query_date " +
         "left outer join urltitles on urltitles.url = visits.url order by visits.visit_date",
-        this.escapeSQL(query),
+        "%" + this.escapeSQL(query) + "%",
         ["sdate", "query", "url", "vdate", "title"],
         function(result) {
           try {
@@ -605,16 +605,20 @@ var CliqzHistoryPattern = {
   },
   SQL: {
     _execute: function PIS__execute(conn, sql, param, columns, onRow) {
-      var statement = conn.createAsyncStatement(sql),
+        var sqlStatement = conn.createAsyncStatement(sql);
+        if(param) {
+          sqlStatement.params.param = param;
+        }
+        var statement = sqlStatement,
         onThen, //called after the async operation is finalized
         promiseMock = {
           then: function(func) {
             onThen = func;
           }
         };
-      if(param) {
-        statement.params.param = param;
-      }
+        if(param) {
+          statement.params.param = param;
+        }
 
       statement.executeAsync({
         handleCompletion: function(reason) {
@@ -733,7 +737,7 @@ var CliqzHistoryPattern = {
         height: instant.data.height
       });
       if ((instant.data.urls.length > 4 && CliqzHistoryPattern.HEIGHT == "h2") ||
-        (instant.data.urls.length > 2 && CliqzHistoryPattern.HEIGHT == "h3")) {
+        (instant.data.urls.length > 1 && CliqzHistoryPattern.HEIGHT == "h3")) {
         break;
       }
     }
