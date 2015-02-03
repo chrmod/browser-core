@@ -20,8 +20,8 @@
             {{#each links }}
                 <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
-                     extra="shortcut{{ @index }}"
-                     style="background-image: url({{ icon }});">
+                     extra="shortcut{{ @index }}">
+                     <div style="background-image: url({{ icon }});"></div>
                     {{ title }}
                 </div>
             {{/each}}

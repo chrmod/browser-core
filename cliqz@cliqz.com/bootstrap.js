@@ -9,16 +9,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
-    //if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
-    //    CliqzUtils.setOurOwnPrefs();
-    //    TODO: to ABTest, for now
-    
+
     Cm.registerFactory(
         AboutURL.prototype.classID,
         AboutURL.prototype.classDescription,
         AboutURL.prototype.contractID,
         AboutURLFactory
     );
+
+    if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
+        CliqzUtils.setOurOwnPrefs();
 }
 
 function shutdown(aData, aReason) {
@@ -28,10 +28,10 @@ function shutdown(aData, aReason) {
     }
     if (aReason == ADDON_DISABLE) eventLog('addon_disable');
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
-    
+
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
-    
+
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 }
 
@@ -64,7 +64,7 @@ AboutURL.prototype = {
     newChannel: function(uri) {
         var ioService = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
         var html = "data:text/html,<!DOCTYPE html><html><head><meta charset=\"UTF-8\">" +
-                    "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>" + 
+                    "<style>* {margin:0;padding:0;width:100%;height:100%;overflow:hidden;border: 0}</style>" +
                     "</head><body><iframe src=\"" + CLIQZ_TAB_URL + "\"></iframe></body></html>";
 
         var securityManager = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(Ci.nsIScriptSecurityManager);

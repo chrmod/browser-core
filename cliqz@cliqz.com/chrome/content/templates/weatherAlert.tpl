@@ -5,7 +5,7 @@
               <img src="{{icon_url}}"/>
              <div class="EZ-weather-alert-info">
                 <div class="EZ-weather-alert-info-Line1">{{des}}</div>
-                <div class="EZ-weather-alert-info-Line2">Statement as of {{time}}</div>
+                <div class="EZ-weather-alert-info-Line2">{{time}}</div>
             </div>
         </div>
     {{/with}}
