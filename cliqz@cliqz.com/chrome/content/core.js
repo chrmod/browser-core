@@ -429,8 +429,7 @@ CLIQZ.Core = CLIQZ.Core || {
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle){
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
-           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
-           CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
+           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
             if (CliqzAutocomplete.highlightFirstElement) {
                 CLIQZ.UI.selectFirstElement();
             }
@@ -449,7 +448,8 @@ CLIQZ.Core = CLIQZ.Core || {
             urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
-        if (results.length === 0 || lastPattern.query != urlBar.value) {
+        if (results.length === 0 || lastPattern.query != urlBar.value ||
+            firstResult != results[0].url) {
             results[0] = [];
             results[0].url = firstResult;
             results[0].title = firstTitle;
