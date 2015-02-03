@@ -320,6 +320,7 @@
     "history_results": {
       "message":"Besuchte Webseiten"
     },
+
     "adultInfo": {
         "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
     },
@@ -343,5 +344,8 @@
     },
     "options": {
         "message": "Suchergebnisfilter"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
     }
 }
