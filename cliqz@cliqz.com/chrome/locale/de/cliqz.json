@@ -328,5 +328,8 @@
     },
     "history_results": {
       "message":"Besuchte Webseiten"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
     }
 }
