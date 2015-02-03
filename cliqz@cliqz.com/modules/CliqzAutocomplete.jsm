@@ -147,6 +147,29 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.setResultOrder(order);
             },
             resetUnusedResults: function(oldResults, newResults){
+
+                // filter out ununsed/unexpected results
+                var temp = [];
+                for(var i=0; i < newResults.length; i++){
+                    var r = newResults[i];
+                    if(r.style == 'cliqz-extra'){
+                        if(r.data){
+                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
+                                // unexpected/unknown template
+                                continue;
+                            }
+                        }
+                    }
+
+                    // If one of the results is data.only = true Remove all others.
+                    if (!r.invalid && r.data && r.data.only) {
+                      return [r];
+                    }
+
+                    temp.push(r);
+                }
+                newResults = temp;
+
                 // We always have at most 1 oldResult, since now we wait for the
                 // whole history to be fetched. Thus, the old code can be
                 // deleted; as well as this one, if we do not want to log
@@ -166,27 +189,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         newResults[0].override = oldResults[0].override;
                     }
                 }
-                // filter out ununsed/unexpected results
-                var ret=[], merged = cleaned.concat(newResults);
-                for(var i=0; i < merged.length; i++){
-                    var r = merged[i];
-                    if(r.style == 'cliqz-extra'){
-                        if(r.data){
-                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
-                                // unexpected/unknown template
-                                continue;
-                            }
-                        }
-                    }
 
-                    // If one of the results is data.only = true Remove all others.
-                    if (!r.invalid && r.data && r.data.only) {
-                      return [r];
-                    }
+                var merged = cleaned.concat(newResults);
 
-                    ret.push(r);
-                }
-                return ret;
+                return merged;
             }
         };
     },
