@@ -95,14 +95,25 @@ var CliqzHistory = {
           query = "http://" + query;
         }
         CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-                    VALUES ('" + CliqzHistory.escapeSQL(query) + "', " + now + ",'" + CliqzHistory.escapeSQL(query) + "'," + queryDate + ",1)");
+                    VALUES (:query, :now, :query, :queryDate, 1)",
+                    null, null, {
+                      query: CliqzHistory.escapeSQL(query),
+                      now: now,
+                      queryDate: queryDate
+                    });
         type = "link";
         now += 1;
       }
 
       // Insert history entry
       CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-              VALUES ('" + CliqzHistory.escapeSQL(url) + "', " + now + ",'" + CliqzHistory.escapeSQL(query) + "'," + queryDate + ",1)");
+              VALUES (:url, :now, :query, :queryDate, 1)",
+              null, null, {
+                url: CliqzHistory.escapeSQL(url),
+                query: CliqzHistory.escapeSQL(query),
+                now: now,
+                queryDate: queryDate
+              });
     } else if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow()) && customPanel) {
       var url = CliqzHistory.getTabData(customPanel, 'url');
       var type = "link";
@@ -110,18 +121,31 @@ var CliqzHistory = {
       var queryDate = CliqzHistory.getTabData(customPanel, 'queryDate');
       var now = new Date().getTime();
       CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-              VALUES ('" + CliqzHistory.escapeSQL(url) + "', " + now + ",'" + CliqzHistory.escapeSQL(query) + "'," + queryDate + ",1)");
+              VALUES (:url, :now, :query, :queryDate, 1)",
+              null, null, {
+                url: CliqzHistory.escapeSQL(url),
+                query: CliqzHistory.escapeSQL(query),
+                now: now,
+                queryDate: queryDate
+              });
     }
   },
   setTitle: function(url, title) {
-    CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '" + CliqzHistory.escapeSQL(url) + "'", null, function(res) {
+    CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = :url", null, function(res) {
       if (res === 0) {
         CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
-                  VALUES ('" + CliqzHistory.escapeSQL(url) + "','" + CliqzHistory.escapeSQL(title) + "')");
+                  VALUES (:url,:title)", null, null, {
+                    url: CliqzHistory.escapeSQL(url),
+                    title: CliqzHistory.escapeSQL(title)
+                  });
       } else {
-        CliqzHistory.SQL("UPDATE urltitles SET title='" + CliqzHistory.escapeSQL(title) + "'\
-                  WHERE url='" + CliqzHistory.escapeSQL(url) + "'");
+        CliqzHistory.SQL("UPDATE urltitles SET title=:title WHERE url=:url", null, null, {
+                    url: CliqzHistory.escapeSQL(url),
+                    title: CliqzHistory.escapeSQL(title)
+                  });
       }
+    }, {
+      url: CliqzHistory.escapeSQL(url)
     });
   },
   getTabData: function(panel, attr) {
@@ -146,10 +170,18 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, 'queryDate', date);
     }
   },
-  SQL: function(sql, onRow, callback) {
+  SQL: function(sql, onRow, callback, parameters) {
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     var dbConn = Services.storage.openDatabase(file);
     var statement = dbConn.createStatement(sql);
+    for(var key in parameters) {
+      statement.params[key] = parameters[key];
+    }
+    CliqzHistory._SQL(dbConn, statement, onRow, callback);
+  },
+  _SQL: function(dbConn, statement, onRow, callback) {
+
+    //var statement = dbConn.createStatement(sql);
 
     statement.executeAsync({
       onRow: onRow,
@@ -204,13 +236,21 @@ var CliqzHistory = {
     CliqzHistory.SQL(titles);
   },
   deleteVisit: function(url) {
-    CliqzHistory.SQL("delete from visits where url = '" + CliqzHistory.escapeSQL(url) + "'");
-    CliqzHistory.SQL("delete from urltitles where url = '" + CliqzHistory.escapeSQL(url) + "'");
+    CliqzHistory.SQL("delete from visits where url = :url", null, null, {
+      url: CliqzHistory.escapeSQL(url)
+    });
+    CliqzHistory.SQL("delete from urltitles where url = :url", null, null, {
+      url: CliqzHistory.escapeSQL(url)
+    });
   },
   deleteTimeFrame: function() {
     CliqzHistoryPattern.historyTimeFrame(function(min, max) {
-      CliqzHistory.SQL("delete from visits where visit_date < " + min);
-      CliqzHistory.SQL("delete from visits where visit_date > " + max);
+      CliqzHistory.SQL("delete from visits where visit_date < :min", null, null, {
+        min: min
+      });
+      CliqzHistory.SQL("delete from visits where visit_date > :max", null, null, {
+        max: max
+      });
     });
   },
   clearHistory: function() {
