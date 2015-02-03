@@ -13,6 +13,7 @@
                         class="cqz-ez-btn"
                         style="background-color: {{color}}"
                         url="{{url}}"
+                        arrow="false"
                         >{{title}}</div>
                 {{/each}}
             </div>

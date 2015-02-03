@@ -6,7 +6,9 @@
   <div class="entity-video-stories">
     {{#each data.items}}
       <div class="entity-video-story"
-           url="{{ link }}" type="X" extra="entity-video-story-{{ @index }}">
+           url="{{ link }}" type="X"
+           extra="entity-video-story-{{ @index }}"
+           arrow="false">
         <div class="entity-video-story-image"
           style="background-image: url({{ thumbnail }})">
            {{#if (sec_to_duration duration)}}

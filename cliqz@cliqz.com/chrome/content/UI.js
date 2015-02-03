@@ -203,21 +203,20 @@ var UI = {
     keyDown: function(ev){
         var sel = getResultSelection();
         UI.lastInput = (new Date()).getTime();
+
+        var allArrowable = $$('[arrow][url]', gCliqzBox),
+            pos = Array.prototype.slice.call(allArrowable).indexOf(sel);
+
         switch(ev.keyCode) {
             case UP:
-                var nextEl = sel && sel.previousElementSibling;
+                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
                 setResultSelection(nextEl, true, true);
                 trackArrowNavigation(nextEl);
                 return true;
             break;
             case DOWN:
-                if(sel != gCliqzBox.resultsBox.lastElementChild){
-                    var nextEl = sel && sel.nextElementSibling;
-                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
-                    if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
-                      nextEl = nextEl.nextElementSibling;
-                    }
-                    if(nextEl.className != 'cqz-result-box') return true;
+                if(pos != allArrowable.length - 1){
+                    var nextEl = allArrowable[pos+1];
                     setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
                 }
@@ -920,15 +919,15 @@ function handleAdultClick(ev){
 }
 
 function getResultSelection(){
-    var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
-    if (selectedHistory) return selectedHistory;
-    else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
+    return $('[arrow="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
     var el = getResultSelection();
-    el && el.removeAttribute('selected');
+    el && el.setAttribute('arrow', 'false');
+
     // Reset history entries to domain name
+    // Sven: not sure what this is for :)
     var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
     for(var i=0; i<history.length; i++) {
       history[i].children[1].textContent = history[i].getAttribute("domain");
@@ -936,6 +935,18 @@ function clearResultSelection(){
 }
 
 function setResultSelection(el, scroll, scrollTop){
+    clearResultSelection();
+    var arrow = $('.cqz-result-selected', gCliqzBox);
+    arrow.removeAttribute('active');
+    if(el){
+        el.setAttribute('arrow', 'true');
+        var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
+        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
+        arrow.setAttribute('active', 'true');
+    }
+
+    return;
+    //sven: do we still need this?
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){

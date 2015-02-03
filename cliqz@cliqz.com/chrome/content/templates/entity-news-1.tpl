@@ -5,7 +5,9 @@
   <div class="entity-news-stories">
     {{#each data.news}}
       <div class="entity-news-story"
-           url="{{ url }}" type="X" extra="news-{{ @index }}">
+           url="{{ url }}" type="X"
+           extra="news-{{ @index }}"
+           arrow="false">
         <div class="entity-news-story-image"
           style="background-image: url({{ thumbnail }})">
         </div>
