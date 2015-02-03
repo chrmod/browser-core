@@ -1391,6 +1391,7 @@ function registerHelpers(){
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
         if(!text || !q || q.length < (minQueryLength || 2)) return text;

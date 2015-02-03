@@ -735,12 +735,14 @@ var CliqzHistoryPattern = {
       }
       var url = results[i].url;
       if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
+      
       instant.data.urls.push({
         href: results[i].url,
         link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
         domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
         vdate: CliqzHistoryPattern.formatDate(results[i].date),
         title: results[i].title,
+        text: searchString,
         favicon: "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain,
         height: instant.data.height
       });
