@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 cqz-result-padding">
-  <div class="cqz-ez-title cqz-ez-video-title">
+  <div class="cqz-ez-title cqz-ez-video-title" selectable='true'>
       {{data.name}}
   </div>
   {{> EZ-category }}
@@ -15,7 +15,7 @@
                <span> {{ sec_to_duration duration}}</span>
            {{/if}}
         </div>
-        <div class="entity-video-story-description cqz-vert-center">
+        <div class="entity-video-story-description cqz-vert-center" selectable=''>
           <div class="entity-video-story-title">
             {{ title }}
           </div>

@@ -194,6 +194,10 @@
     position: relative;
 }
 
+.cqz-image-round {
+  border-radius: 3px;
+}
+
 .cqz-image>p {
     background-color: rgba(0, 0, 0, 0.6);
     color: white;
@@ -924,4 +928,11 @@
 .cqz-link {
   color: #88baf8;
   padding-right: 10px;
+}
+
+[arrow="true"] *[selectable]{
+  text-decoration: underline;
+}
+[arrow="true"][selectable]{
+  text-decoration: underline;
 }

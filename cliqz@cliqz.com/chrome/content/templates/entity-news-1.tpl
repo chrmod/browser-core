@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 cqz-result-padding">
-  <div class="cqz-ez-title cqz-ez-news-title">
+  <div class="cqz-ez-title cqz-ez-news-title" selectable='true'>
       {{data.name}}
   </div>
   <div class="entity-news-stories">
@@ -8,11 +8,11 @@
            url="{{ url }}" type="X"
            extra="news-{{ @index }}"
            arrow="false">
-        <div class="entity-news-story-image"
+        <div class="entity-news-story-image cqz-image-round"
           style="background-image: url({{ thumbnail }})">
         </div>
         <div class="entity-news-story-description cqz-vert-center">
-          <div class="entity-news-story-title">
+          <div class="entity-news-story-title" selectable=''>
             {{ title }}
           </div>
           <div class="entity-news-story-time">

@@ -4,7 +4,7 @@
         <span class='cqz-result-debug'>{{ debug }}</span>
     {{/if}}
     {{#if image.src}}
-        <div class="cqz-image" style="
+        <div class="cqz-image cqz-image-round" style="
                     background-image: url({{ image.src }});
                     width: 54px;">
         </div>
@@ -13,7 +13,7 @@
          {{#if image.src}}
             style="width: calc(60% - 60px)"
          {{/if}}>
-        <div class='cqz-result-title overflow'>
+        <div class='cqz-result-title overflow' selectable=''>
             {{ data.richData.full_name }}
         </div>
         <div class='cqz-result-url overflow
