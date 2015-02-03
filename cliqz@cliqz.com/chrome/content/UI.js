@@ -1192,7 +1192,7 @@ function onEnter(ev, item){
                 action.Ctype = CliqzUtils.getClusteringDomain(firstUrl)
             }
 
-            urlbar.value = ""; // Force immediate change of urlbar
+            urlBar.value = ""; // Force immediate change of urlbar
             CLIQZ.Core.openLink(CliqzAutocomplete.lastAutocomplete, false);
 
             CliqzUtils.trackResult(query, queryAutocompleted, index,

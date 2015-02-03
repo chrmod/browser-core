@@ -565,6 +565,13 @@ var CliqzHistoryPattern = {
       selectionStart = urlbar.toLowerCase().lastIndexOf(input) + input.length;
     }
 
+    // Adjust url to user protocol
+    if(urlbar.indexOf("://") != -1) {
+      var prot_user = urlbar.substr(0, urlbar.indexOf("://")+3);
+      var prot_auto = pattern.url.substr(0, pattern.url.indexOf("://")+3);
+      pattern.url = pattern.url.replace(prot_auto, prot_user);
+    }
+
     return {
       url: url,
       full_url: pattern.url,
