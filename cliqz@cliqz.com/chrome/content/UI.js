@@ -137,14 +137,14 @@ var UI = {
             data: lastRes && lastRes.getDataAt(i),
           });
       }
-      CLIQZ.UI.results({
+      var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
         isInstant: lastRes && lastRes.isInstant,
         width: CLIQZ.Core.urlbar.clientWidth
       });
       CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-      CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url), data[0].title);
+      CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
     results: function(res){
         if (!gCliqzBox)
@@ -171,6 +171,7 @@ var UI = {
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+        return currentResults;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -219,6 +220,7 @@ var UI = {
                       nextEl = nextEl.nextElementSibling;
                     }
                     if(nextEl.className == 'cqz-result-selected') return true;
+                    if(!nextEl.getAttribute("url")) return true;
                     setResultSelection(nextEl, true, false, true);
                     trackArrowNavigation(nextEl);
                 }
