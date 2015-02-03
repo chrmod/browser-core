@@ -82,6 +82,11 @@
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  -o-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .cqz-result-selected[active="true"] {
@@ -727,7 +732,7 @@
 
 /* history */
 .cliqz-pattern {
-  padding-left: 22px;
+  padding-left: 19px;
 }
 
 .cliqz-pattern-result-container {
@@ -735,8 +740,20 @@
   overflow:hidden;
 }
 
-.cliqz-pattern-document-icon {
-  margin-top: 17px;
+.cliqz-pattern-margin-h2 {
+
+}
+
+.cliqz-pattern-margin-h3 {
+  /* ENABLE FOR 3 URLS
+  display: none;
+  */
+}
+
+.cliqz-pattern-document-icon-h2 {
+  position: absolute;
+  bottom: 12px;
+  margin-left: 5px;
   height: 18.3px;
   width: 15px;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
@@ -746,10 +763,38 @@
   display: inline-block;
 }
 
-.cliqz-pattern-title {
-  padding-top: 15px;
+.cliqz-pattern-document-icon-h3 {
+  /* ENABLE FOR 3 URLS
+  visibility: hidden;
+  height: 0px; */
+  position: absolute;
+  bottom: 10px;
+  margin-left: 10px;
+  height: 18.3px;
+  width: 15px;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: 0px 0px;
+  background-size: 15px 18.3px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+.cliqz-pattern-title-h2 {
+  padding-top: 23px;
   padding-bottom: 10px;
   float: left;
+  position: relative;
+}
+
+.cliqz-pattern-title-h3 {
+  /* ENABLE FOR 3 URLS
+  visibility: hidden;
+  height: 17px;
+  */
+  padding-top: 12px;
+  padding-bottom: 8px;
+  float: left;
+  position: relative;
 }
 
 .cliqz-pattern-results {
@@ -758,32 +803,47 @@
   text-decoration: none;
   color:rgba(127,127,127,0.54);
   overflow: hidden;
-  width: 85%;
+  width: 75%;
   cursor: pointer;
 }
 
 .cliqz-pattern-element {
-  line-height: 20px;
-  height: 25px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  font-size: 15px;
 }
 
 .cliqz-pattern-element-title {
   color: #9C27B0;
   color:rgba(128,0,128,0.60);
-  max-width: 70%;
+  max-width: 50%;
   overflow: hidden;
   float: left;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.cliqz-pattern-element-h2 {
+  line-height: 20px;
+  height: 25px;
+  font-size: 15px;
+}
+
+.cliqz-pattern-element-h3 {
+  /* ENABLE FOR 3 URLS
+  line-height: 22px;
+  height: 22px;
+  font-size: 14px;
+  */
+  line-height: 23px;
+  height: 23px;
+  font-size: 14px;
+}
+
+
 .cliqz-pattern-element-link {
   margin-left: 8px;
-  color:rgba(127,127,127,0.72);
+  color: #999999;
   text-decoration: none;
 }
 
@@ -793,12 +853,28 @@
   display:inline-block;
 }
 
-.cliqz-pattern-favicon-element {
+.cliqz-pattern-favicon-element-h2 {
   float:left;
   height: 25px;
   width: 16px;
   background-repeat: no-repeat;
   background-position: 0px 2px;
+  background-size: 16px 16px;
+}
+
+.cliqz-pattern-favicon-element-h3 {
+  /* ENABLE FOR 3 URLS
+  float:left;
+  height: 22px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
+  background-size: 16px 16px; */
+  float:left;
+  height: 23px;
+  width: 16px;
+  background-repeat: no-repeat;
+  background-position: 0px 4px;
   background-size: 16px 16px;
 }
 
@@ -809,10 +885,26 @@
   margin-right: 18px;
   position: absolute;
   right: 0px;
-  top: 63px;
   background: #efefef;
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
   background-repeat: no-repeat;
+}
+
+.cliqz-pattern-logo-h2 {
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  top: 73px;
+  background-position: 11px 11px;
+  background-size: 32px 32px;
+}
+
+.cliqz-pattern-logo-h3 {
+  /* ENABLE FOR 3 URLS
+  background-image: url(chrome://cliqzres/content/skin/history_icon.png);
+  top: 23px;
+  background-position: 7px 7px;
+  background-size: 40px 40px;
+  */
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  top: 23px;
   background-position: 11px 11px;
   background-size: 32px 32px;
 }
