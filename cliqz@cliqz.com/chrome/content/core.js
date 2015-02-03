@@ -306,7 +306,6 @@ CLIQZ.Core = CLIQZ.Core || {
             //if test is active trigger it
             CliqzUtils.setPref("showPremiumResults", 2);
         }
-
         if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
             var urlbar = CLIQZ.Core.urlbar.mInputField.value;
             var search = urlbar;
@@ -475,6 +474,7 @@ CLIQZ.Core = CLIQZ.Core || {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
+            CLIQZ.UI.cursor = autocomplete.selectionStart;
 
         }
         // Highlight first entry in dropdown

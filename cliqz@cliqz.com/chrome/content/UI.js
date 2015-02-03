@@ -235,25 +235,11 @@ var UI = {
                 clearResultSelection();
                 suggestionNavigation(ev);
                 return true;
+            case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart, urlbar.selectionStart);
-                } else {
-                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart-1, urlbar.selectionStart-1);
-                }
-                if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
-                }
-                return true;
-            case RIGHT:
-                var urlbar = CLIQZ.Core.urlbar;
-                if (urlbar.selectionStart !== urlbar.selectionEnd) {
-                    CLIQZ.Core.urlbar.mInputField.value = urlbar.mInputField.value;
-                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
-                } else {
-                    CLIQZ.Core.urlbar.setSelectionRange(urlbar.selectionStart+1, urlbar.selectionStart+1);
-                }
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey);
+                CLIQZ.Core.urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
@@ -337,6 +323,53 @@ var UI = {
         }
       },300);
     },
+    cursor: 0,
+    getSelectionRange: function(key, curStart, curEnd, shift) {
+      var start = curStart, end = curEnd;
+      if (key == LEFT) {
+        if (shift) {
+          if (start != end && UI.cursor == end) {
+            end -= 1;
+            UI.cursor = end;
+          } else {
+            if(start >= 1) start -= 1;
+            UI.cursor = start;
+          }
+        // Default action
+        } else {
+          if (start != end) {
+            end = start;
+          } else {
+            start -= 1;
+            end = start;
+          }
+          UI.cursor = start;
+        }
+      } else if (key == RIGHT) {
+        if (shift) {
+          if (start != end && UI.cursor == start) {
+            start += 1;
+            UI.cursor = start;
+          } else {
+            if(end < CLIQZ.Core.urlbar.mInputField.value.length) end += 1;
+            UI.cursor = end;
+          }
+        // Default action
+        } else {
+          if (start != end) {
+            start = end;
+          } else {
+            start += 1;
+            end = start;
+          }
+          UI.cursor = end;
+        }
+      }
+      return {
+        selectionStart: start,
+        selectionEnd: end
+      };
+    },
     closeResults: closeResults,
     sessionEnd: sessionEnd,
 };
@@ -348,10 +381,11 @@ function sessionEnd(){
 
 var forceCloseResults = false;
 function closeResults(event, force) {
+    var urlbar = CLIQZ.Core.urlbar;
     // Remove autocomplete from urlbar
-    if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart &&
-        CLIQZ.Core.urlbar.selectionStart !== 0) {
-        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+    if (urlbar.selectionEnd !== urlbar.selectionStart &&
+        urlbar.selectionStart !== 0) {
+        urlbar.value = urlbar.value.substr(0, urlbar.selectionStart);
     }
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
