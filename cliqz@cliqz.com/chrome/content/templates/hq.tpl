@@ -22,7 +22,6 @@
 			{{#each data.richData.additional_sources}}
 				<span url='{{url}}'
 					 extra='sources{{ @index }}'
-					 type='{{ ../type }}'
 				     class='cqz-link'>
 					{{title}}
 				</span>

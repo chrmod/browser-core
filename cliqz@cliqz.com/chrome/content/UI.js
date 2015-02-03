@@ -204,7 +204,7 @@ var UI = {
         var sel = getResultSelection();
         UI.lastInput = (new Date()).getTime();
 
-        var allArrowable = $$('[arrow][url]', gCliqzBox),
+        var allArrowable = $$('[arrow]', gCliqzBox),
             pos = Array.prototype.slice.call(allArrowable).indexOf(sel);
 
         switch(ev.keyCode) {
@@ -940,8 +940,10 @@ function setResultSelection(el, scroll, scrollTop){
     var arrow = $('.cqz-result-selected', gCliqzBox);
     arrow.removeAttribute('active');
     if(el){
-        el.setAttribute('arrow', 'true');
+
         var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
+        target.setAttribute('arrow', 'true');
+
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
         arrow.setAttribute('active', 'true');
     }
@@ -987,13 +989,10 @@ var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-        while (el && el.className != IC && el.className != "cliqz-pattern-element") {
+        while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-        // History Cluster -> only hover entries, not the whole area
-        if (el && el.getAttribute("kind") == "C" || el == lastHover) {
-            return;
-        }
+
         lastHover = el;
         clearResultSelection();
         setResultSelection(el, false);
@@ -1249,7 +1248,8 @@ function trackArrowNavigation(el){
     };
     if(el){
         action.position_type = getResultKind(el);
-        action.search = CliqzUtils.isSearch(el.getAttribute('url'));
+        var url = getResultOrChildAttr(el, 'url');
+        action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.track(action);
 }

@@ -3,7 +3,7 @@
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
     {{#with data}}
-        <div class="cqz-ez-title cqz-ez-banking-title" selectable='true'>
+        <div class="cqz-ez-title cqz-ez-banking-title" selectable=''>
           {{name}}
         </div>
         <div class="cqz-ez-banking-elems">

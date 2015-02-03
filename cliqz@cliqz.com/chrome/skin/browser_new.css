@@ -695,9 +695,11 @@
 }
 
 .cqz-result-box *[url] {
+  /*
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
+  */
 }
 
 .cqz-result-padding {
@@ -926,7 +928,7 @@
 
 .cqz-link {
   color: #88baf8;
-  padding-right: 10px;
+  margin-right: 10px;
 }
 
 [arrow="true"] *[selectable]{

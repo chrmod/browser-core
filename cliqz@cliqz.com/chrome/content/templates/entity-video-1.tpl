@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 cqz-result-padding">
-  <div class="cqz-ez-title cqz-ez-video-title" selectable='true'>
+  <div class="cqz-ez-title cqz-ez-video-title" selectable=''>
       {{data.name}}
   </div>
   {{> EZ-category }}
