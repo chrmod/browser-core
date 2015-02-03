@@ -567,6 +567,7 @@ var CliqzHistoryPattern = {
 
     return {
       url: url,
+      full_url: pattern.url,
       autocomplete: autocomplete,
       urlbar: urlbarCompleted,
       selectionStart: selectionStart,

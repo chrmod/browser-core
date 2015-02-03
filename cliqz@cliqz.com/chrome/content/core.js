@@ -474,7 +474,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            CliqzAutocomplete.lastAutocomplete = autocomplete.url;
+            CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
 
         }
         // Highlight first entry in dropdown
