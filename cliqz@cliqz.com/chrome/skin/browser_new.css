@@ -217,6 +217,11 @@
  display: inline-block;
  padding-right: 32px;
  margin-bottom: 0;
+ cursor: pointer;
+}
+
+.cqz-ez-title:hover {
+  text-decoration: underline;
 }
 
 .cqz-ez-generic-box {
@@ -677,6 +682,9 @@
   line-height: 26px;
   margin: 0 0 9px 0;
   max-width: 150px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .cqz-result-box *[url]:hover {
