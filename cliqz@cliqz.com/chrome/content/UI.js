@@ -916,6 +916,7 @@ function handleAdultClick(ev){
                 //click on options btn
             }
     }
+    setTimeout(CliqzUtils.refreshButtons, 0);
 }
 
 function getResultSelection(){

@@ -520,7 +520,6 @@
   color: black;
   box-sizing: border-box;
   -mox-box-sizing: border-box;
-  width: 115px;
   display: inline-block;
   margin-left: 20px;
 }
@@ -528,7 +527,7 @@
 .cqz-adult-options-btn:after {
   content: "⌃";
   top: 3px;
-  left: 15px;
+  left: 3px;
   position: relative;
 }
 
