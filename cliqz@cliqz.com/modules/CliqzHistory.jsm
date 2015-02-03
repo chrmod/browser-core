@@ -114,14 +114,15 @@ var CliqzHistory = {
     }
   },
   setTitle: function(url, title) {
-    var res = CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '" + CliqzHistory.escapeSQL(url) + "'");
-    if (res === 0) {
-      CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
-                VALUES ('" + CliqzHistory.escapeSQL(url) + "','" + CliqzHistory.escapeSQL(title) + "')");
-    } else {
-      CliqzHistory.SQL("UPDATE urltitles SET title='" + CliqzHistory.escapeSQL(title) + "'\
-                WHERE url='" + CliqzHistory.escapeSQL(url) + "'");
-    }
+    CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = '" + CliqzHistory.escapeSQL(url) + "'", null, function(res) {
+      if (res === 0) {
+        CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
+                  VALUES ('" + CliqzHistory.escapeSQL(url) + "','" + CliqzHistory.escapeSQL(title) + "')");
+      } else {
+        CliqzHistory.SQL("UPDATE urltitles SET title='" + CliqzHistory.escapeSQL(title) + "'\
+                  WHERE url='" + CliqzHistory.escapeSQL(url) + "'");
+      }
+    });
   },
   getTabData: function(panel, attr) {
     if (!CliqzHistory.tabData[panel]) {
@@ -145,22 +146,38 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, 'queryDate', date);
     }
   },
-  SQL: function(sql, onRow) {
+  SQL: function(sql, onRow, callback) {
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     var dbConn = Services.storage.openDatabase(file);
     var statement = dbConn.createStatement(sql);
-    var resultCount = 0;
-    try {
-      while (statement.executeStep()) {
-        resultCount++;
-        if (onRow) {
-          onRow(statement.row);
+
+    statement.executeAsync({
+      onRow: onRow,
+      callback: callback,
+      handleResult: function(aResultSet) {
+        var resultCount = 0;
+        for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+          resultCount++;
+          if (this.onRow) {
+            this.onRow(statement.row);
+          }
+        }
+        if (this.callback) {
+          this.callback(resultCount);
+        }
+      },
+
+      handleError: function(aError) {
+        if (this.callback) {
+          this.callback(0);
+        }
+      },
+      handleCompletion: function(aReason) {
+        if (this.callback) {
+          this.callback(0);
         }
       }
-    } finally {
-      statement.reset();
-      return resultCount;
-    }
+    });
   },
   initDB: function() {
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
