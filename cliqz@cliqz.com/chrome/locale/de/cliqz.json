@@ -347,5 +347,8 @@
     },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
+    },
+    "views": {
+        "message": "Aufrufe"
     }
 }

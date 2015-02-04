@@ -17,7 +17,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'g': 'gaming'  ,
         'n': 'news'    ,
         'p': 'people'  ,
-        //'v': 'video'   ,
+        'v': 'video'   ,
         'h': 'hq'      ,
         //'q': 'qaa'     ,
         //'k': 'science' ,
