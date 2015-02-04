@@ -166,7 +166,7 @@
     /*margin-top: 2px;*/
 }
 
-/* 
+/*
     Common class for logo to be reused everywhere.
     Do not change this class if the properties are only dropdown-logo related!
     Change .cqz-result-logo instead
@@ -196,7 +196,7 @@
 	margin-right: 18px;
 	position: absolute;
 	right: 0px;
-    
+
     /* set the size of logo */
     font-size: 22px;
 }
@@ -710,7 +710,7 @@
 }
 
 .cqz-result-box *[url]:hover {
-	opacity: 0.85;
+	/*opacity: 0.85;*/
 }
 
 .cqz-result-box *[url] {
