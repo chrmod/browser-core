@@ -347,7 +347,10 @@
     "cliqz_jobs":{
         "message": "Jobs"
     },
-    "cliqz_privacy":{
+    "cliqz_privacy": {
         "message": "Datenschutz"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
     }
 }
