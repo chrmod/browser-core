@@ -32,6 +32,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 CliqzUtils.init();
 
 var Mixer = {
+    ezCache: {},
 	mix: function(q, history, cliqz, cliqzExtra, mixed, bundesligaResults, maxResults){
 		var results = [];
 
@@ -245,7 +246,23 @@ var Mixer = {
         }
 
         // add extra (fun search) results at the beginning
-        if(cliqzExtra) results = cliqzExtra.concat(results);
+        if(cliqzExtra) {
+            results = cliqzExtra.concat(results);
+
+            // find any entity zone in the results and cache them for later use
+            for(var i=0; i < results.length; i++){
+                var r = results[i];
+                if(r.style == 'cliqz-extra'){
+                    if(r.data && r.data.subType){
+                        var eztype = JSON.parse(r.data.subType).ez;
+                        if(eztype)
+                            Mixer.ezCache[eztype] = r;
+                    }
+                }
+            }
+
+            CliqzUtils.log("ezCache: " + JSON.stringify(Mixer.ezCache));
+        }
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && mixed.matchCount == 0){
