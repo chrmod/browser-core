@@ -215,7 +215,7 @@ var UI = {
             case DOWN:
                 if(pos != allArrowable.length - 1){
                     var nextEl = allArrowable[pos+1];
-                    setResultSelection(nextEl, true, false);
+                    setResultSelection(nextEl, true, false, true);
                     trackArrowNavigation(nextEl);
                 }
                 return true;
@@ -769,7 +769,7 @@ function enhanceResults(res){
         if(level == 'moderate' && adultMessage == 0){
             res.showAdult = true;
             res.adultConfig = CliqzUtils.getAdultFilterState();
-            CLIQZ.Core.popup.style.height = "336px";
+            CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
         }
     }
 
@@ -978,6 +978,23 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
+    }
+
+    // update the URL bar with the selected URL
+    if(el){
+        if (UI.lastInput == "") {
+            if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
+                UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            } else {
+                UI.lastInput = CLIQZ.Core.urlbar.value;
+            }
+        }
+        if(changeUrl) {
+            CLIQZ.Core.urlbar.value = el.getAttribute("url");
+        }
+        UI.mouseOver = mouseOver;
+    } else if (changeUrl && UI.lastInput != "") {
+        CLIQZ.Core.urlbar.value = UI.lastInput;
     }
 
     return;

@@ -177,11 +177,11 @@
     /* container size/shape */
     width: 2.5em;
     height: 2.5em;
-    padding: 0.5em;
+    padding: 0.37em;
     box-sizing: border-box;
     border-radius: 50%;
     /* text properties */
-    line-height: 1.45em;
+    line-height: 1.75em;
     text-align: center;
     font-weight: bold;
     color: white;
@@ -198,9 +198,8 @@
 	margin-right: 18px;
 	position: absolute;
 	right: 0px;
-
     /* set the size of logo */
-    font-size: 22px;
+    font-size: 26px;
 }
 
 .cqz-image {
@@ -487,12 +486,9 @@
 
 .cqz-adult-bar {
   font-size: 14px;
-  padding: 5px 10px;
-  box-sizing: border-box;
-  -mox-box-sizing: border-box;
+  padding: 4px 10px;
   position: relative;
   bottom:0px;
-  width: 100%;
 }
 
 .cqz-adult-bar img {
@@ -720,7 +716,7 @@
 .cqz-vert-center {
 	position: absolute;
 	top: 50%;
-	transform: translateY(-50%);
+	transform: translateY(-49%);
 }
 
 .overflow {
@@ -879,36 +875,9 @@
 }
 
 .cliqz-pattern-logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  margin-right: 18px;
-  position: absolute;
-  right: 0px;
-  background: #efefef;
-  background-repeat: no-repeat;
+    background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+    background-color: #efefef
 }
-
-.cliqz-pattern-logo-h2 {
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 73px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}
-
-.cliqz-pattern-logo-h3 {
-  /* ENABLE FOR 3 URLS
-  background-image: url(chrome://cliqzres/content/skin/history_icon.png);
-  top: 23px;
-  background-position: 7px 7px;
-  background-size: 40px 40px;
-  */
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 23px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}
-
 /* END history */
 
 /*  noResult  thuy@cliqz.com*/
