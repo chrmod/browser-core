@@ -13,7 +13,7 @@
                     <div
                         class="cqz-ez-btn overflow"
                         style="background-color: {{ color }}"
-                        url="{{url}}"
+                        url="{{url}}" arrow="false" selectable=''
                         >{{ title }}</div>
                 {{/each}}
             </div>

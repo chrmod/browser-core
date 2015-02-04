@@ -26,7 +26,7 @@ var CliqzRedirect = {
     httpObserver: {
         // check the non 2xx page and report if this is one of the cliqz result
         observeActivity: function(aHttpChannel, aActivityType, aActivitySubtype, aTimestamp, aExtraSizeData, aExtraStringData) {
-            if (aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
+            if (nsIAO && aActivityType == nsIAO.ACTIVITY_TYPE_HTTP_TRANSACTION && aActivitySubtype == nsIAO.ACTIVITY_SUBTYPE_RESPONSE_HEADER) {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
                 var res = {url: aChannel.URI.spec,
                            status: aExtraStringData.split(" ")[1]}

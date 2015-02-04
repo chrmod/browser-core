@@ -4,7 +4,7 @@
       class="cqz-ez-btn"
       style="background-color: #EFEFEF; color: black"
       url="{{ this.url }}"
-      extra="category-{{ @index }}">
+      extra="category-{{ @index }}" arrow="false" selectable=''>
       {{ this.title }}
     </div>
 {{/each}}

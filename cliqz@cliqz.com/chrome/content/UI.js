@@ -18,7 +18,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         'n': 'news'    ,
         'p': 'people'  ,
         //'v': 'video'   ,
-        //'h': 'hq'      ,
+        'h': 'hq'      ,
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -99,11 +99,6 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
 
         gCliqzBox.enginesBox = enginesBox;
-
-        var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
-        queryDebugLink.addEventListener('click', function(ev){
-            openUILink("chrome://cliqz/content/debugquery.html")
-        });
 
         handlePopupHeight(box);
 
@@ -203,25 +198,24 @@ var UI = {
     },
     keyDown: function(ev){
         if(ev.keyCode != ENTER) UI.mouseOver = false;
-        var sel = getResultSelection();
-        UI.lastInputTime = (new Date()).getTime();
+
+        var sel = getResultSelection(),
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
+            pos = allArrowable.indexOf(sel);
+
+        UI.lastInputTime = (new Date()).getTime()
+
         switch(ev.keyCode) {
             case UP:
-                var nextEl = sel && sel.previousElementSibling;
+                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
                 setResultSelection(nextEl, true, true, true);
                 trackArrowNavigation(nextEl);
                 return true;
             break;
             case DOWN:
-                if(sel != gCliqzBox.resultsBox.lastElementChild){
-                    var nextEl = sel && sel.nextElementSibling;
-                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
-                    if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
-                      nextEl = nextEl.nextElementSibling;
-                    }
-                    if(nextEl.className == 'cqz-result-selected') return true;
-                    if(!nextEl.getAttribute("url")) return true;
-                    setResultSelection(nextEl, true, false, true);
+                if(pos != allArrowable.length - 1){
+                    var nextEl = allArrowable[pos+1];
+                    setResultSelection(nextEl, true, false);
                     trackArrowNavigation(nextEl);
                 }
                 return true;
@@ -318,7 +312,7 @@ var UI = {
         if(time - UI.lastInputTime > 300) {
           if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+            setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
         }
       },300);
@@ -670,7 +664,7 @@ function getPartial(type){
     if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
-    if(type === 'cliqz-pattern') return 'pattern';
+    if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
@@ -783,7 +777,7 @@ function enhanceResults(res){
     res.results = [];
     for(var i=0; i<all.length && i<3; i++){
         res.results.push(all[i]);
-        if((all[i].type == 'cliqz-extra' || all[i].type == 'cliqz-pattern') && all[i].data){
+        if((all[i].type == 'cliqz-extra' || (all[i].type.indexOf('cliqz-pattern') == 0)) && all[i].data){
             i += (TEMPLATES[all[i].data.template]-1);
         }
     }
@@ -959,31 +953,35 @@ function handleAdultClick(ev){
                 //click on options btn
             }
     }
+    setTimeout(CliqzUtils.refreshButtons, 0);
 }
 
 function getResultSelection(){
-    var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
     if(UI.mouseOver) return null;
-    if (selectedHistory) return selectedHistory;
-    else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
+    return $('[arrow="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
     var el = getResultSelection();
-    el && el.removeAttribute('selected');
-    if(gCliqzBox) {
-      var selected = $('.cqz-result-selected', gCliqzBox);
-      selected && selected.removeAttribute('active');
-      // Reset history entries to domain name
-      /*var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
-      for(var i=0; i<history.length; i++) {
-        history[i].children[1].textContent = history[i].getAttribute("domain");
-      }*/
-    }
+    el && el.setAttribute('arrow', 'false');
     UI.mouseOver = false;
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+    clearResultSelection();
+    var arrow = $('.cqz-result-selected', gCliqzBox);
+    arrow.removeAttribute('active');
+    if(el){
+
+        var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
+        target.setAttribute('arrow', 'true');
+
+        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
+        arrow.setAttribute('active', 'true');
+    }
+
+    return;
+    //sven: do we still need this?
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
@@ -1038,13 +1036,10 @@ var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-        while (el && el.className != IC && el.className != "cliqz-pattern-element") {
+        while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-        // History Cluster -> only hover entries, not the whole area
-        if (el && el.getAttribute("kind") == "C" || el == lastHover) {
-            return;
-        }
+
         lastHover = el;
         clearResultSelection();
         setResultSelection(el, false, false, false, true);
@@ -1302,7 +1297,8 @@ function trackArrowNavigation(el){
     };
     if(el){
         action.position_type = getResultKind(el);
-        action.search = CliqzUtils.isSearch(el.getAttribute('url'));
+        var url = getResultOrChildAttr(el, 'url');
+        action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.track(action);
 }
@@ -1491,7 +1487,9 @@ function registerHelpers(){
             "||": lvalue || rvalue,
             "&": lvalue & rvalue,
             "&&": lvalue & rvalue,
-            "^": lvalue ^ rvalue
+            "^": lvalue ^ rvalue,
+            "is": lvalue == rvalue,
+            "starts_with": lvalue.indexOf(rvalue) == 0
         }[operator];
     });
 

@@ -23,10 +23,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
 
-var DATA_SOURCE = "firefox_no_cluster"/*CliqzUtils.getPref("newHistoryType")*/;
+var DATA_SOURCE = "firefox_no_cluster"; //CliqzUtils.getPref("newHistoryType");
 
 var CliqzHistoryPattern = {
-  PATTERN_DETECTION_ENABLED: true/*CliqzUtils.getPref("newHistory")*/,
+  PATTERN_DETECTION_ENABLED: CliqzUtils.getPref("newHistory"),
   HEIGHT: CliqzUtils.getPref("historySize") ? CliqzUtils.getPref("historySize") : "h3",
   timeFrame: (new Date).getTime() - 60 * 60 * 24 * 7 * 1000, // Go back one week in cliqz history
   data: null,
@@ -45,7 +45,6 @@ var CliqzHistoryPattern = {
     CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
     query = query.split(" ")[0];
-
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     this.data = [];
     this.pattern = [];
@@ -109,8 +108,8 @@ var CliqzHistoryPattern = {
             finalPatterns.push(groupedPatterns[key]);
           }
         }
-
         var res = CliqzHistoryPattern.preparePatterns(finalPatterns, orig_query);
+
         // Use Firefox history as fallback
         if (res.filteredResults().length === 0 && CliqzHistoryPattern.firefoxHistory.query == orig_query) {
           res = CliqzHistoryPattern.firefoxHistory.res;
@@ -161,6 +160,7 @@ var CliqzHistoryPattern = {
           pattern.title = CliqzHistoryPattern.domainFromUrl(pattern.url, false);
           pattern.title = pattern.title[0].toUpperCase() + pattern.title.substr(1);
         }
+
         if (pattern.title.length > 0 && pattern.url.length > 0 &&
           CliqzHistoryPattern.simplifyUrl(pattern.url) != null) {
           patterns.push(pattern);
@@ -184,7 +184,6 @@ var CliqzHistoryPattern = {
     var baseUrl, orig_query = query;
     if (query.indexOf("://") != -1) query = query.substr(query.indexOf("://")+3);
     query = query.toLowerCase().replace("www.", "");
-
     // Filter patterns that don't match search
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query);
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
@@ -215,6 +214,7 @@ var CliqzHistoryPattern = {
         return this.results;
       };
     }
+
     // Add base domain if not clustered
     if (patterns && !res.cluster && baseUrl && baseUrl.indexOf(query) === 0) {
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
@@ -361,6 +361,7 @@ var CliqzHistoryPattern = {
         break;
       }
     }
+
     if (!baseUrl) {
       baseUrl = CliqzHistoryPattern.generalizeUrl(patterns[0].url, true);
     }
@@ -370,8 +371,9 @@ var CliqzHistoryPattern = {
     } else {
       if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
       // Ignore subdomain
-      //baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl, false)))
+      //baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl, false)));
     }
+
     for (var i = 0; i < patterns.length; i++) {
       var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i].url, true);
       if (baseUrl == pUrl ||
@@ -541,7 +543,7 @@ var CliqzHistoryPattern = {
     } else if (input.trim().indexOf(" ") != -1 &&
       input[input.length - 1] != " " && loose && urlbar.indexOf("www.") != 0) {
       var queryEnd = input.split(" ")[input.split(" ").length - 1].toLowerCase();
-      if (pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
+      if (pattern.title && pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
         var words = pattern.title.split(" ");
 
         for (var key in words) {
@@ -613,11 +615,11 @@ var CliqzHistoryPattern = {
   },
   SQL: {
     _execute: function PIS__execute(conn, sql, param, columns, onRow) {
-        var sqlStatement = conn.createAsyncStatement(sql);
-        if(param) {
-          sqlStatement.params.param = param;
-        }
-        var statement = sqlStatement,
+      var sqlStatement = conn.createAsyncStatement(sql);
+      if(param) {
+        sqlStatement.params.param = param;
+      }
+      var statement = sqlStatement,
         onThen, //called after the async operation is finalized
         promiseMock = {
           then: function(func) {

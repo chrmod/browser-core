@@ -302,15 +302,6 @@
     "spell_correction": {
       "message":"Did you really mean "
     },
-    "result_filter_conservative": {
-      "message":"Conservative"
-    },
-    "result_filter_moderate": {
-      "message":"Moderate"
-    },
-    "result_filter_liberal": {
-      "message":"Liberal"
-    },
     "result_filter": {
       "message":"Result filter"
     },
@@ -322,5 +313,29 @@
     },
     "history_results": {
       "message":"Visited Sites"
+    },
+    "adultInfo": {
+        "message": "Some adult content has been hidden."
+    },
+    "adultAction": {
+        "message": "Show unfiltered results?"
+    },
+    "adultConservative": {
+      "message":"Conservative"
+    },
+    "adultModerate": {
+      "message":"Moderate"
+    },
+    "adultLiberal": {
+      "message":"Liberal"
+    },
+    "yes": {
+        "message": "Yes"
+    },
+    "no": {
+        "message": "No"
+    },
+    "options": {
+        "message": "Options"
     }
 }

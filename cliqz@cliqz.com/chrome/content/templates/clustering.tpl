@@ -28,7 +28,7 @@
         {{#each urls}}
           <span
               style="color: {{../color}}; cursor: pointer"
-              url='{{href}}'
+              url='{{url}}'
               type='{{../../type}}'
               extra='topic{{ @index }}'
               class="cliqz-cluster-topic"
