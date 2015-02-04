@@ -882,7 +882,7 @@
   background-position: 0px 4px;
   background-size: 16px 16px;
 }
-
+/*
 .cliqz-pattern-logo {
   width: 54px;
   height: 54px;
@@ -907,12 +907,12 @@
   top: 23px;
   background-position: 7px 7px;
   background-size: 40px 40px;
-  */
+  *//*
   background-image: url(chrome://cliqzres/content/skin/cliqz.png);
   top: 23px;
   background-position: 11px 11px;
   background-size: 32px 32px;
-}
+}*/
 
 /* END history */
 

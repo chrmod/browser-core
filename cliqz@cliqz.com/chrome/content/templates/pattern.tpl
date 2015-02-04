@@ -1,5 +1,5 @@
 <div class='cliqz-pattern cqz-result-{{data.height}}'>
-  <div class='cliqz-pattern-logo cliqz-pattern-logo-{{data.height}}'></div>
+  <!--<div class='cliqz-pattern-logo cliqz-pattern-logo-{{data.height}}'></div>-->
   <div class='cqz-result-title overflow cliqz-pattern-title-{{data.height}}' style='color: rgba(0,0,0,0.72)'>
     {{ data.title }}
     <div class="cliqz-pattern-document-icon-{{data.height}}"></div>
@@ -25,4 +25,5 @@
       </div>
     </div>
   </div>
+  <div class="cliqz-brand-logo cqz-result-logo cqz-vert-center" style="background-image: url(chrome://cliqzres/content/skin/cliqz.png);background-color: #efefef"></div>
 </div>
