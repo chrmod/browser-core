@@ -29,9 +29,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzQueryDebug',
-  'chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
@@ -386,8 +383,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             var country = this.cliqzCountry;
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
-
-                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.unfilteredResults, this.mixedResults);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
