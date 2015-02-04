@@ -143,8 +143,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getLabelAt: function(index) { return this._results[index].label; },
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
-            addResults: function(results){
-                this._results = this._results.concat(results);
+            setResults: function(results){
+                this._results = results;
                 this._results = this.filterUnexpected(this._results);
 
                 CliqzAutocomplete.lastResult = this;
@@ -186,6 +186,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             resultsTimer: null,
             historyTimer: null,
             historyTimeout: false,
+            instant: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -228,7 +229,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     let instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
                     instant_cluster.comment += " (instant history cluster)!";
                     
-                    this.mixedResults.addResults([instant_cluster]);
+                    this.instant = [instant_cluster];
                     this.pushResults(result.searchString);
                 } else {
                     // Pick the url that is the shortest subset of the first entry
@@ -275,7 +276,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         instant.comment += " (instant history)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
-                        this.mixedResults.addResults([instant]);
+                        this.instant = [instant];
+                    } else {
+                        this.instant = [];
                     }
                     this.pushResults(result.searchString);
                 }
@@ -290,25 +293,28 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             historyPatternCallback: function(res) {
                 if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-                  CliqzAutocomplete.lastPattern = res;
-                  var results = res.filteredResults();
+                    CliqzAutocomplete.lastPattern = res;
+                    var results = res.filteredResults();
 
-                  if(this.mixedResults.matchCount > 0) return;
+                    if(this.mixedResults.matchCount > 0) return;
 
-                  if(results.length < 1) return;
-                  var instantResults = new Array();
-                  // Create instant result
-                  var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
-                  instantResults.push(instant);
+                    if(results.length < 1) return;
+                    
+                    // Create instant result
+                    var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
+                    if(instant)
+                        this.instant = [instant];
+                    else
+                        this.instant = [];
 
-                  var latency = 0;
-                  if (CliqzHistoryPattern.latencies[res.query]) {
-                    latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
-                  }
-                  this.latency.patterns = latency;
 
-                  this.mixedResults.addResults(instantResults);
-                  this.pushResults(this.searchString);
+                    var latency = 0;
+                    if (CliqzHistoryPattern.latencies[res.query]) {
+                        latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
+                    }
+                    this.latency.patterns = latency;
+
+                    this.pushResults(this.searchString);
                 }
             },
             sendSuggestionsSignal: function(suggestions) {
@@ -341,7 +347,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.clearTimeout(this.resultsTimer);
                         CliqzUtils.clearTimeout(this.historyTimer);
 
-                        this.mixedResults.addResults(this.mixResults());
+                        this.mixedResults.setResults(this.instant.concat(this.mixResults()));
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
@@ -365,11 +371,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.unfilteredResults = null;
+                        this.instant = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
+
+                        this.mixedResults.setResults(this.instant);
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
@@ -539,6 +548,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
+                this.instant = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
@@ -568,6 +578,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")

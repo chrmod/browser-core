@@ -162,18 +162,21 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 domain: url_parts.host + url_parts.path,
                 title: history[i].title,
                 old_urls: [history[i].url],
-                category: "generic"
+                category: "generic",
+                height: "h2"
             };
             urls.push(new_entry);
         }
 
         var data = {
+            height: "h2",
             title: domain + "  - Your Top Hits",
             url: "http://" + domain,
             urls: urls,
             control: [],
             uncategorized: [],
-            excluded: []
+            excluded: [],
+            template: "pattern-2"
         };
 
         return data;
@@ -422,12 +425,14 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // Step 6 - build config for display
 
         var data = {
+            height: "h2",
             title: categories.base[0].title + "  - Your Top Hits",
             url: categories.base[0].url,
             urls: [],
             control: [],
             uncategorized: [],
-            excluded: []
+            excluded: [],
+            template: "pattern-2"
         };
 
         var clean_categories = [];
@@ -475,7 +480,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                         domain: url_parts.host + url_parts.path,
                         title: entry.title,
                         old_urls: entry.old_urls,
-                        category: clean_categories[i].label
+                        category: clean_categories[i].label,
+                        height: "h2"
                     }
 
                     last_per_topic[i] = new_entry;
