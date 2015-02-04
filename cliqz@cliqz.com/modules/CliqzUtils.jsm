@@ -127,6 +127,9 @@ var CliqzUtils = {
         result = {},
         domains = BRANDS_DATABASE.domains
 
+    if(base.length == 0)
+      return result;
+
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
@@ -510,7 +513,7 @@ var CliqzUtils = {
     if(type.indexOf('action') !== -1) return ['T'];
     else if(type.indexOf('cliqz-results') == 0) return CliqzUtils.encodeCliqzResultType(type);
     else if(type === 'cliqz-bundesliga') return ['b'];
-    else if(type === 'cliqz-cluster' || type === 'cliqz-pattern') return ['C'];
+    else if(type.indexOf('cliqz-pattern') == 0) return ['C'];
     else if(type === 'cliqz-extra') return ['X'];
     else if(type === 'cliqz-series') return ['S'];
 

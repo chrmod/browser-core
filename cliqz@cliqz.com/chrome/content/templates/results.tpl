@@ -8,7 +8,7 @@
 			{{/if}}
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'
-			{{#unless (logic type 'is' 'cliqz-pattern')}}
+			{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
 				arrow="false"
 			{{/unless}}
 			>
