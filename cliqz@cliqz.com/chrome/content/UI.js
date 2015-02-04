@@ -205,8 +205,8 @@ var UI = {
         if(ev.keyCode != ENTER) UI.mouseOver = false;
 
         var sel = getResultSelection(),
-            allArrowable = $$('[arrow]', gCliqzBox),
-            pos = Array.prototype.slice.call(allArrowable).indexOf(sel);
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
+            pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
 
@@ -218,7 +218,6 @@ var UI = {
                 return true;
             break;
             case DOWN:
-                console.log(pos, allArrowable, sel)
                 if(pos != allArrowable.length - 1){
                     var nextEl = allArrowable[pos+1];
                     setResultSelection(nextEl, true, false);
@@ -318,7 +317,7 @@ var UI = {
         if(time - UI.lastInputTime > 300) {
           if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+            setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
         }
       },300);
@@ -1493,7 +1492,8 @@ function registerHelpers(){
             "||": lvalue || rvalue,
             "&": lvalue & rvalue,
             "&&": lvalue & rvalue,
-            "^": lvalue ^ rvalue
+            "^": lvalue ^ rvalue,
+            "is": lvalue == rvalue
         }[operator];
     });
 

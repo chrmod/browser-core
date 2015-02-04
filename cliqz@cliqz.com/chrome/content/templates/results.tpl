@@ -8,7 +8,9 @@
 			{{/if}}
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'
-			arrow="false"
+			{{#unless (logic type 'is' 'cliqz-pattern')}}
+				arrow="false"
+			{{/unless}}
 			>
 			{{partial vertical}}
 		</div>
