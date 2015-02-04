@@ -328,5 +328,26 @@
     },
     "history_results": {
       "message":"Besuchte Webseiten"
+    },
+    "cliqz_slogan_H1": {
+        "message": "SURFEN STATT SUCHEN"
+    },
+    "cliqz_slogan_H2": {
+        "message": "Direkt, schnell & sicher."
+    },
+    "cliqz_common_questions":{
+        "message": "Häufig gestellte Fragen"
+    },
+    "cliqz_give_feedback":{
+        "message": "Feedback und Support"
+    },
+    "cliqz_about_us":{
+        "message": "Über Uns"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy":{
+        "message": "Datenschutz"
     }
 }

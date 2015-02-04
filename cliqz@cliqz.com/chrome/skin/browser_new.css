@@ -907,3 +907,59 @@
  color: silver;
 }
 /* END TimeEZ */
+
+
+/*---------- CLIQZ EZ ---------- thuy@cliqz.com--------------*/
+.EZ-Cliqz-Header{
+height: 58px;
+background-color: white;
+background-repeat: no-repeat;
+background-size: 76px 22px;
+background-position: 22px 18px;
+margin-right: 18px;
+}
+
+.EZ-Cliqz_Header-Contact-icon{
+  height: 22px;
+  width: 22px;
+  float: right;
+  margin-left: 9px;
+  margin-top: 18px;
+}
+.EZ-Cliqz-Body-H1{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 100%;
+font-size: 20px;
+padding-top:15px;
+}
+
+.EZ-Cliqz-Body-H2{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 110%;
+font-size: 20px;
+padding-top:5px;
+}
+
+.EZ-Cliqz-Footer{
+ margin-left: 22px;
+ text-align: left;
+ margin-top: 18px;
+}
+
+.EZ-Cliqz-Footnote-tile{
+  padding-top:5px;
+  padding-bottom: 7px;
+  background-color: silver;
+  padding-left: 7px;
+  padding-right: 7px;
+  border-radius: 3px;
+  margin-right: 9px;
+  float: left;
+  color: white;
+}
+
+/* END CLIQZEZ*/
