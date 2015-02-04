@@ -664,7 +664,7 @@ function getPartial(type){
     if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
-    if(type === 'cliqz-pattern') return 'pattern';
+    if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
@@ -777,7 +777,7 @@ function enhanceResults(res){
     res.results = [];
     for(var i=0; i<all.length && i<3; i++){
         res.results.push(all[i]);
-        if((all[i].type == 'cliqz-extra' || all[i].type == 'cliqz-pattern') && all[i].data){
+        if((all[i].type == 'cliqz-extra' || (all[i].type.indexOf('cliqz-pattern') == 0)) && all[i].data){
             i += (TEMPLATES[all[i].data.template]-1);
         }
     }
@@ -1488,7 +1488,8 @@ function registerHelpers(){
             "&": lvalue & rvalue,
             "&&": lvalue & rvalue,
             "^": lvalue ^ rvalue,
-            "is": lvalue == rvalue
+            "is": lvalue == rvalue,
+            "starts_with": lvalue.indexOf(rvalue) == 0
         }[operator];
     });
 

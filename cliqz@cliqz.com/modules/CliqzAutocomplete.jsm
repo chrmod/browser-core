@@ -141,8 +141,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
-                this._results = results;
-                this._results = this.filterUnexpected(this._results);
+                this._results = this.filterUnexpected(results);
 
                 CliqzAutocomplete.lastResult = this;
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
@@ -344,7 +343,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.clearTimeout(this.resultsTimer);
                         CliqzUtils.clearTimeout(this.historyTimer);
 
-                        this.mixedResults.setResults(this.instant.concat(this.mixResults()));
+                        this.mixResults(false);
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
@@ -373,7 +372,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
-                        this.mixedResults.setResults(this.instant);
+                        this.mixResults(true);
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
@@ -454,7 +453,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
             // mixes history, results and suggestions
-            mixResults: function() {
+            mixResults: function(only_instant) {
                 var maxResults = prefs.getIntPref('maxRichResults');
 
                 var resultsTemp = Mixer.mix(
@@ -462,9 +461,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
-                            this.mixedResults,
+                            this.instant,
                             this.cliqzBundesliga,
-                            maxResults
+                            maxResults,
+                            only_instant
                     );
 
                 var results = resultsTemp[0];
@@ -477,7 +477,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     results = [Result.generic('cliqz-empty', '')];
                 }
 
-                return results;
+                this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
                 [q, this.customResults] = ResultProviders.getCustomResults(q);
