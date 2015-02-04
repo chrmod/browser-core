@@ -166,26 +166,39 @@
     /*margin-top: 2px;*/
 }
 
+/* 
+    Common class for logo to be reused everywhere.
+    Do not change this class if the properties are only dropdown-logo related!
+    Change .cqz-result-logo instead
+*/
+.cliqz-brand-logo {
+    /* container size/shape */
+    width: 2.5em;
+    height: 2.5em;
+    padding: 0.5em;
+    box-sizing: border-box;
+    border-radius: 50%;
+    /* text properties */
+    line-height: 1.45em;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    overflow: hidden;
+    /* background logo */
+    background-origin: content-box;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+}
+
+/* custom logo definitions */
 .cqz-result-logo {
-	width: 54px;
-	height: 54px;
-	border-radius: 50%;
 	margin-right: 18px;
 	position: absolute;
 	right: 0px;
-}
-
-.cqz-result-logo div {
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center center;
-  width: 38px;
-  height: 38px;
-  margin: 8px;
-  text-align: center;
-  line-height: 38px;
-  font-size: 22px;
-  color: white;
+    
+    /* set the size of logo */
+    font-size: 22px;
 }
 
 .cqz-image {
