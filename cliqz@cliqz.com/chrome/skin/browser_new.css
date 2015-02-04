@@ -18,9 +18,48 @@
 
 
 /* reset default browser settings */
-* {
-    padding: 0;
-    margin: 0;
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
 }
 
 /* BROWSER */
@@ -497,11 +536,8 @@
 .cqz-adult-bar {
   font-size: 14px;
   padding: 4px 10px;
-  box-sizing: border-box;
-  -mox-box-sizing: border-box;
   position: relative;
   bottom:0px;
-  width: 100%;
 }
 
 .cqz-adult-bar img {
@@ -882,38 +918,11 @@
   background-position: 0px 4px;
   background-size: 16px 16px;
 }
-/*
+
 .cliqz-pattern-logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  margin-right: 18px;
-  position: absolute;
-  right: 0px;
-  background: #efefef;
-  background-repeat: no-repeat;
+    background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+    background-color: #efefef
 }
-
-.cliqz-pattern-logo-h2 {
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 73px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}
-
-.cliqz-pattern-logo-h3 {
-  /* ENABLE FOR 3 URLS
-  background-image: url(chrome://cliqzres/content/skin/history_icon.png);
-  top: 23px;
-  background-position: 7px 7px;
-  background-size: 40px 40px;
-  *//*
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 23px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}*/
-
 /* END history */
 
 /*  noResult  thuy@cliqz.com*/

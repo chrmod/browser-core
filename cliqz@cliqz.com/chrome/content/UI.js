@@ -775,7 +775,7 @@ function enhanceResults(res){
         if(level == 'moderate' && adultMessage == 0){
             res.showAdult = true;
             res.adultConfig = CliqzUtils.getAdultFilterState();
-            CLIQZ.Core.popup.style.height = "336px";
+            CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
         }
     }
 
