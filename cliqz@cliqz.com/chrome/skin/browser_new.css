@@ -196,7 +196,6 @@
 	margin-right: 18px;
 	position: absolute;
 	right: 0px;
-    
     /* set the size of logo */
     font-size: 22px;
 }
@@ -720,7 +719,7 @@
 .cqz-vert-center {
 	position: absolute;
 	top: 50%;
-	transform: translateY(-50%);
+	transform: translateY(-49%);
 }
 
 .overflow {
