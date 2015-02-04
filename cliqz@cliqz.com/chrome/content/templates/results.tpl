@@ -3,9 +3,14 @@
 		<div class='cqz-result-box'
 			type='{{ type }}'
 			kind='{{ data.kind }}'
-			url='{{ url }}'
+			{{#if url}}
+				url='{{ url }}'
+			{{/if}}
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'
+			{{#unless (logic type 'is' 'cliqz-pattern')}}
+				arrow="false"
+			{{/unless}}
 			>
 			{{partial vertical}}
 		</div>

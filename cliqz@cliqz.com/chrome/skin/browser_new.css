@@ -163,7 +163,7 @@
 }
 */
 .cqz-result-desc {
-    margin-top: 2px;
+    /*margin-top: 2px;*/
 }
 
 /* 
@@ -212,6 +212,10 @@
     position: relative;
 }
 
+.cqz-image-round {
+  border-radius: 3px;
+}
+
 .cqz-image>p {
     background-color: rgba(0, 0, 0, 0.6);
     color: white;
@@ -235,6 +239,11 @@
  display: inline-block;
  padding-right: 32px;
  margin-bottom: 0;
+ cursor: pointer;
+}
+
+.cqz-ez-title:hover {
+  text-decoration: underline;
 }
 
 .cqz-ez-generic-box {
@@ -529,7 +538,6 @@
   color: black;
   box-sizing: border-box;
   -mox-box-sizing: border-box;
-  width: 115px;
   display: inline-block;
   margin-left: 20px;
 }
@@ -537,7 +545,7 @@
 .cqz-adult-options-btn:after {
   content: "⌃";
   top: 3px;
-  left: 15px;
+  left: 3px;
   position: relative;
 }
 
@@ -695,6 +703,9 @@
   line-height: 26px;
   margin: 0 0 9px 0;
   max-width: 150px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .cqz-result-box *[url]:hover {
@@ -702,9 +713,11 @@
 }
 
 .cqz-result-box *[url] {
+  /*
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
+  */
 }
 
 .cqz-result-padding {
@@ -1013,27 +1026,19 @@
 }
 /* END TimeEZ */
 
-/* EZ Currency */
-
-.EZ-currency {
- margin-left: 18px
+.cqz-one-line {
+  height: 1em;
+  overflow: hidden;
 }
 
-.EZ-currency-result {
-  color: #333333;
-  font-size:18px;
-  margin-top:14px;
+.cqz-link {
+  color: #88baf8;
+  margin-right: 10px;
 }
 
-.EZ-currency-rate {
-  color: #999999;
-  font-size:14px;
-  margin-top:10px;
+[arrow="true"] *[selectable]{
+  text-decoration: underline;
 }
-
-.EZ-currency-disclaimer {
-  color: #999999;
-  font-size:12px;
-  margin-top:14px;
+[arrow="true"][selectable]{
+  text-decoration: underline;
 }
-/* End EZ Currency */
