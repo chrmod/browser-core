@@ -52,6 +52,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
     BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false;
 
 var CliqzUtils = {
+
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
@@ -72,9 +73,10 @@ var CliqzUtils = {
   BRANDS_DATABASE_VERSION:        1423041994671,
 
 
+
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
-              'spellcheck': 1, 'time': 1,
+              'spellcheck': 1, 'time': 1, 'Cliqz': 2,
               'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern-2': 2, 'pattern': 1, 'weatherEZ': 2,
               'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3, 'weatherAlert': 3},
 

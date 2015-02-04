@@ -1364,6 +1364,10 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
+    Handlebars.registerHelper('localize_parameters', function(key1, key2 ) {
+        return CliqzUtils.getLocalizedString(key1).replace('{}', CliqzUtils.getLocalizedString(key2));
+    });
+
     Handlebars.registerHelper('local_number', function(val) {
         if(!val)return null;
         try {

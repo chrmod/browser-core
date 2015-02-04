@@ -314,6 +314,7 @@
     "history_results": {
       "message":"Visited Sites"
     },
+
     "adultInfo": {
         "message": "Some adult content has been hidden."
     },
@@ -340,5 +341,26 @@
     },
     "views": {
         "message": "views"
+    },
+    "cliqz_slogan_H1": {
+        "message": "STOP SEARCHING. START SURFING."
+    },
+    "cliqz_slogan_H2": {
+        "message": "Fast, private, direct. See results as you type."
+    },
+    "cliqz_common_questions":{
+        "message": "Common Questions"
+    },
+    "cliqz_give_feedback":{
+        "message": "Give Feedback"
+    },
+    "cliqz_about_us":{
+        "message": "About Us"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy":{
+        "message": "Privacy"
     }
 }
