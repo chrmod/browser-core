@@ -132,6 +132,7 @@ var CliqzHistory = {
   },
   setTitle: function(url, title) {
     CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = :url", null, function(res) {
+      if(!CliqzHistory) return;
       if (res === 0) {
         CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
                   VALUES (:url,:title)", null, null, {

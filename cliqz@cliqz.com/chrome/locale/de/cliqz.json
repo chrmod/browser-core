@@ -308,15 +308,6 @@
     "spell_correction": {
       "message":"Meintest Du wirklich "
     },
-    "result_filter_conservative": {
-      "message":"Konservativ"
-    },
-    "result_filter_moderate": {
-      "message":"Mittelmäßig"
-    },
-    "result_filter_liberal": {
-      "message":"Liberal"
-    },
     "result_filter": {
       "message":"Ergebnisfilter"
     },
@@ -328,6 +319,31 @@
     },
     "history_results": {
       "message":"Besuchte Webseiten"
+    },
+
+    "adultInfo": {
+        "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
+    },
+    "adultAction": {
+        "message": "Alle Ergebnisse anzeigen?"
+    },
+    "adultConservative": {
+      "message":"strikt"
+    },
+    "adultModerate": {
+      "message":"moderat"
+    },
+    "adultLiberal": {
+      "message":"kein Filter"
+    },
+    "yes": {
+        "message": "Ja"
+    },
+    "no": {
+        "message": "Nein"
+    },
+    "options": {
+        "message": "Suchergebnisfilter"
     },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
