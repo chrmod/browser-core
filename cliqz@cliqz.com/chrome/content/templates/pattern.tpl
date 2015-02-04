@@ -1,4 +1,4 @@
-<div class='cliqz-pattern cqz-result-{{data.height}} cqz-result-box'>
+<div class='cliqz-pattern cqz-result-{{data.height}} cqz-result-box '>
   <div class='cliqz-pattern-logo cliqz-pattern-logo-{{data.height}}'></div>
   <div class='cqz-result-title overflow cliqz-pattern-title-{{data.height}}' style='color: rgba(0,0,0,0.72)'>
     {{ data.title }}

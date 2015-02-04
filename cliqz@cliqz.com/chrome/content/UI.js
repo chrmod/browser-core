@@ -973,7 +973,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     arrow.removeAttribute('active');
     if(el){
 
-        var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
+        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el; //focus on the title - if any
         target.setAttribute('arrow', 'true');
 
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
