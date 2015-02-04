@@ -2,7 +2,6 @@
   <div class="cqz-ez-title cqz-ez-video-title" selectable=''>
       {{data.name}}
   </div>
-  {{> EZ-category }}
   <div class="entity-video-stories">
     {{#each data.items}}
       <div class="entity-video-story"
@@ -28,4 +27,5 @@
       </div>
     {{/each}}
   </div>
+  {{> EZ-category }}
 </div>
