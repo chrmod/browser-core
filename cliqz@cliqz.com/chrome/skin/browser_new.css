@@ -1038,19 +1038,18 @@ padding-top:5px;
 .EZ-Cliqz-Footer{
  margin-left: 22px;
  text-align: left;
- margin-top: 18px;
+ margin-top: 17px;
 }
 
 .EZ-Cliqz-Footnote-tile{
-  padding-top:5px;
-  padding-bottom: 7px;
+  padding-top:7px;
+  padding-bottom: 9px;
   background-color: silver;
-  padding-left: 7px;
-  padding-right: 7px;
+  padding-left: 9px;
+  padding-right: 9px;
   border-radius: 3px;
   margin-right: 9px;
   float: left;
-  color: white;
 }
 /* END CLIQZEZ*/
 

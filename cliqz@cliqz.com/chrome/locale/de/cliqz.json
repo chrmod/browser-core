@@ -30,10 +30,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": "we don't have great results this time."
+        "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:."
+        "message": "Versuche es mit ,Enter' bei ... oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
