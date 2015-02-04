@@ -82,6 +82,28 @@ var Mixer = {
             }
         }
 
+        // Remove duplicate results from history cluster
+        var cliqz_new = [];
+        for(let i in cliqz || []) {
+            var duplicate = false;
+            if (mixed.matchCount == 1) {
+                let da = mixed.getDataAt(0);
+                if (da && da.urls) {
+                    for(var key in da.urls) {
+                        if (CliqzHistoryPattern.generalizeUrl(da.urls[key].href, true)
+                          == CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true)) {
+                            duplicate = true;
+                        }
+                    }
+
+                }
+            }
+            if (!duplicate) {
+                cliqz_new.push(cliqz[i]);
+            }
+        }
+        cliqz = cliqz_new;
+
         for (let i = 0; history_trans && i < history_trans.length; i++) {
             let style = history_trans[i]['style'],
                 value = history_trans[i]['value'],
