@@ -223,10 +223,10 @@ function renderHistory(links){
         
         var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
             logoinfo = CliqzUtils.getLogoDetails(urlinfo),
-            icon = template.find(".history-icon").css("background-color",logoinfo.color);
+            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)/*.css({ "background-color": logoinfo.backgroundColor, color: logoinfo.color });
         
-        if (icon.img) icon.css("background-image","url(" + logoinfo.img + ")");
-        else icon.text(logoinfo.text);
+        if (logoinfo.backgroundImage) icon.css("background-image",logoinfo.backgroundImage);
+        else icon.text(logoinfo.text);*/
         
         template.find(".history-url.blurred").text(urlinfo.host);
         template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
@@ -260,34 +260,5 @@ function renderHistory(links){
                 
             },i * 50);
         })(i);
-    }
-}
-
-function getLogo(url){
-    var base = getDomainBase(url),
-        checkRule = function(fulldomain,rule){
-            var address = fulldomain.lastIndexOf(base),
-                parseddomain = fulldomain.substr(0,address) + "#" + fulldomain.substr(address + base.length)
-
-            return parseddomain.indexOf(rule) != -1
-        }
-    
-    if (rules[base]) {
-        for (var i=0,imax=rules[base].length;i<imax;i++) {
-            var rule = rules[base][i]
-            
-            //r, b, l, t, c
-            if (checkRule(fulldomain,rule.r)) {
-                return {
-                    background: rule.b,
-                    logo: rule.l,
-                    text: rule.t,
-                    color: rule.c
-                }
-            }
-        }
-    }
-    else {
-        randomLogo();
     }
 }

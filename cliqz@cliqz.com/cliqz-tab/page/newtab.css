@@ -80,6 +80,7 @@ a.pinned .history-row {
 }
 .history-icon {
     float: left;
+    font-size: 16px;
 }
 .history-desc {
     float: left;
@@ -101,20 +102,6 @@ a.pinned .history-row {
 }
 .history-lis a .history-url.blurred, .history-lis a:hover .history-url.hovered {
     display: block;
-}
-.cliqz-icon {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    margin: 1px 5px 0 0;
-    text-align: center;
-    padding-top: 7px;
-    color: white;
-    font-weight: bold;
-    background-size: 25px 25px;
-    background-repeat: no-repeat;
-    background-position: 5px 5px;
-    box-sizing: border-box;
 }
 
 /* search */

@@ -25,6 +25,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -47,26 +49,28 @@ var VERTICAL_ENCODINGS = {
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
-    BRAND_COLORS = {}, brand_loaded = false;
+    BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false;
 
 var CliqzUtils = {
-  LANGS:                 {'de':'de', 'en':'en', 'fr':'fr'},
-  HOST:                  'https://beta.cliqz.com',
-  SUGGESTIONS:           'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:      'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//'https://newbeta.cliqz.com/api/v1/results?q=',//
-  RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
-  RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
-  CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
-  LOG:                   'https://logging.cliqz.com',
-  CLIQZ_URL:             'https://beta.cliqz.com/',
-  UPDATE_URL:            'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:          'chrome://cliqz/content/offboarding.html',
-  INSTAL_URL:            'https://beta.cliqz.com/code-verified',
-  CHANGELOG:             'https://beta.cliqz.com/changelog',
-  PREF_STRING:           32,
-  PREF_INT:              64,
-  PREF_BOOL:             128,
-  PREFERRED_LANGUAGE:    null,
+  LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
+  HOST:                           'https://beta.cliqz.com',
+  SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//'https://newbeta.cliqz.com/api/v1/results?q=',//
+  RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
+  RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
+  CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
+  LOG:                            'https://logging.cliqz.com',
+  CLIQZ_URL:                      'https://beta.cliqz.com/',
+  UPDATE_URL:                     'chrome://cliqz/content/update.html',
+  TUTORIAL_URL:                   'chrome://cliqz/content/offboarding.html',
+  INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
+  CHANGELOG:                      'https://beta.cliqz.com/changelog',
+  PREF_STRING:                    32,
+  PREF_INT:                       64,
+  PREF_BOOL:                      128,
+  PREFERRED_LANGUAGE:             null,
+  BRANDS_DATABASE_VERSION:        1423041994671,
+  
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
@@ -95,10 +99,11 @@ var CliqzUtils = {
 
     if(!brand_loaded){
       brand_loaded = true;
+      
       CliqzUtils.httpGet(
-        "http://cdn.cliqz.com/extension/core/colors.0.1.json",
+        "http://cdn.cliqz.com/brands-database/database/data/" + this.BRANDS_DATABASE_VERSION + "/database.json",
         function(req){
-          BRAND_COLORS = JSON.parse(req.response);
+          BRANDS_DATABASE = JSON.parse(req.response);
         });
     }
 
@@ -112,54 +117,42 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLogoDetails: function(urlDetails){
-    var domain = urlDetails.domain, img,
-        color = BRAND_COLORS[urlDetails.host] ||  // sub.domain.tld
-                BRAND_COLORS[domain] ||  // domain.tld
-                BRAND_COLORS[urlDetails.name],    // domain
-        localhost = urlDetails.name == "localhost",
-        isIP = urlDetails.name == "IP";
-    if(!color){
-      var signature = 0;
+    var base = urlDetails.name,
+        baseCore = base.replace(/[^0-9a-z]/gi,""),
+        check = function(host,rule){
+          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "#" + host.substr(address + base.length)
+          
+          return parseddomain.indexOf(rule) != -1
+        },
+        result = {},
+        domains = BRANDS_DATABASE.domains
 
-      if (localhost)
-        for(var i=0; i<urlDetails.name.length; i++) signature += urlDetails.name.charCodeAt(i);
-      else if (isIP)
-        for(var i=0; i<urlDetails.host.length; i++) signature += urlDetails.host.charCodeAt(i);
-      else
-        for(var i=0; i<urlDetails.domain.length; i++) signature += urlDetails.domain.charCodeAt(i);
+    if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
+    else if (domains[base]) {
+      for (var i=0,imax=domains[base].length;i<imax;i++) {
+        var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
+        
+        if (i == imax - 1 || check(urlDetails.host,rule.r)) {
+          result = {
+            backgroundColor: rule.b?"#" + rule.b:null,
+            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/logos/" + base + "/" + rule.r + ".svg)":"",
+            text: rule.t,
+            color: rule.c?"":"#fff"
+          }
 
-
-      color = COLOURS[signature%COLOURS.length];  // fallback - solid colour
+          break
+        }
+      }
     }
+      
+    result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
+    result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
+    
+    result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
+    
+    if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 
-    if (localhost)
-      img = 'url(chrome://cliqzres/content/skin/localhost.png)';
-    else if (LOGOS.indexOf(urlDetails.name) != -1){
-      img = 'url(http://cdn.cliqz.com/extension/core/logos/' + urlDetails.name + '.svg)';
-    }
-    /*
-    if (CliqzUtils.isLocalhost(urlDetails.host)) {
-      // localhost
-    }
-    else if (CliqzUtils.isIPv4(urlDetails.host) || CliqzUtils.isIPv6(host)) {
-      //ip
-    }
-    */
-    domain = domain.replace(/\W+|_/g, "");
-
-    var display_text = "";
-    if (domain.length > 1)
-      display_text = domain[0].toUpperCase() + domain[1].toLowerCase();
-    else if (domain.length == 1)
-      display_text = domain;
-    else if (urlDetails.name == "IP")
-      display_text = urlDetails.name;
-
-    return {
-      color: color,
-      text: display_text,
-      img: img
-    }
+    return result
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
     var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
