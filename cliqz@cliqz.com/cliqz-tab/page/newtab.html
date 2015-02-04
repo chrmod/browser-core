@@ -6,11 +6,17 @@
         <link href="newtab.css" rel="stylesheet" media="screen" />
         <link href="chrome://cliqzres/content/skin/browser.css" rel="stylesheet" media="screen" />
         <link href="chrome://cliqzres/content/skin/browser_new.css" rel="stylesheet" media="screen" />
+        
+        <link href="http://cdn.cliqz.com/libs/animate/animate.css" rel="stylesheet" media="screen" />
+
+        <script src="http://cdn.cliqz.com/libs/jquery/jquery-2.1.1.min.js"></script>
+        <script src="sortable.js"></script>
+        <script src="chrome://cliqz/content/core.js"></script>
+        <script src="chrome://cliqz/content/UI.js"></script>
+        <script src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
+        <script src="newtab.js"></script>
     </head>
     <body>
-        <div class="options-btn"></div>
-        <div class="options-container"></div>
-
         <div class="white-cover" style="height: 100%">
             <div class="background">
                 <div class="container search-container">
@@ -22,7 +28,8 @@
 
                         <a href="/" target="_top" class="hidden mostvisited" id="history-row-template" selectable="selectable">
                             <div class="history-row">
-                                <div class='history-icon cliqz-icon'></div>
+                                <div class="close">×</div>
+                                <div class='history-icon cliqz-brand-logo'></div>
                                 <div class='history-desc'>
                                     <div class='history-title ellipsis'></div>
                                     <div class='history-url ellipsis hovered'></div>
@@ -36,13 +43,5 @@
                 </div>
             </div>
         </div>
-
-        <link href="http://cdn.cliqz.com/libs/animate/animate.css" rel="stylesheet" media="screen" />
-
-        <script src="http://cdn.cliqz.com/libs/jquery/jquery-2.1.1.min.js"></script>
-        <script src="chrome://cliqz/content/core.js"></script>
-        <script src="chrome://cliqz/content/UI.js"></script>
-        <script src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
-        <script src="newtab.js"></script>
     </body>
 </html>
