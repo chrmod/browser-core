@@ -140,36 +140,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getLabelAt: function(index) { return this._results[index].label; },
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
-            addResults: function(results){
-                this._results = this.resetUnusedResults(this._results, results);
+            setResults: function(results){
+                this._results = results;
+                this._results = this.filterUnexpected(this._results);
+
                 CliqzAutocomplete.lastResult = this;
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
                 CliqzUtils.setResultOrder(order);
             },
-            resetUnusedResults: function(oldResults, newResults){
-                // We always have at most 1 oldResult, since now we wait for the
-                // whole history to be fetched. Thus, the old code can be
-                // deleted; as well as this one, if we do not want to log
-                // override anymore
-                var cleaned = oldResults;
-                if (
-                    oldResults && oldResults.length > 0 &&
-                    newResults && newResults.length > 0 &&
-                    (oldResults[0].style == "cliqz-cluster" ||
-                    oldResults[0].style == "cliqz-series") &&
-                    (newResults[0].style == "cliqz-cluster" ||
-                    newResults[0].style == "cliqz-series") &&
-                    newResults[0].val
-                ) {
-                    cleaned = [];
-                    if (oldResults[0].hasOwnProperty("override")) {
-                        newResults[0].override = oldResults[0].override;
-                    }
-                }
+            filterUnexpected: function(results){
                 // filter out ununsed/unexpected results
-                var ret=[], merged = cleaned.concat(newResults);
-                for(var i=0; i < merged.length; i++){
-                    var r = merged[i];
+                var ret=[];
+                for(var i=0; i < results.length; i++){
+                    var r = results[i];
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
                             if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
@@ -200,6 +183,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             resultsTimer: null,
             historyTimer: null,
             historyTimeout: false,
+            instant: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -234,15 +218,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
             instantResult: function(search, result) {
+                let [history_left, cluster_data] = CliqzClusterHistory.cluster(this.historyResults, [],
+                                                                                result.searchString);
 
-                let [is_clustered, history_trans] = CliqzClusterHistory.cluster(
-                    this.historyResults, [], result.searchString);
-
-                {
+                // If we could cluster the history, put that as the instant result
+                if(cluster_data) {
+                    let instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
+                    instant_cluster.comment += " (instant history cluster)!";
+                    
+                    this.instant = [instant_cluster];
+                    this.pushResults(result.searchString);
+                } else {
                     // Pick the url that is the shortest subset of the first entry
                     // candidate for instant history
-                    // NOTE: this should be in else {} below, only we need it
-                    // here for AB test tracking
                     var candidate_idx = -1;
                     var candidate_url = '';
 
@@ -273,28 +261,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             }
                         }
                     }
-                }
-                // If we could cluster the history, put that as the instant result
-                if(is_clustered) {
-                    let style = history_trans[0]['style'],
-                        value = history_trans[0]['value'],
-                        image = history_trans[0]['image'],
-                        comment = history_trans[0]['data']['summary'],
-                        label = history_trans[0]['label'],
-                        // if is_cluster the object has additional data
-                        data = history_trans[0]['data'];
 
-                    // See if we overrode the original instant result
-                    let dataHost = CliqzUtils.getDetailsFromUrl(data.url).host.toLowerCase();
-                    let override = candidate_idx != -1 && candidate_url.indexOf(dataHost) == -1;
-                    let instant_cluster = Result.generic(
-                            style, data.url || '', null, '', '', '', data);
-                    instant_cluster.override = override;
-
-                    //this.historyResults.removeValueAt(candidate_idx, false);
-                    this.mixedResults.addResults([instant_cluster]);
-                    this.pushResults(result.searchString);
-                } else {
                     if(candidate_idx != -1) {
                         var style = this.historyResults.getStyleAt(candidate_idx),
                             value = this.historyResults.getValueAt(candidate_idx),
@@ -303,10 +270,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             label = this.historyResults.getLabelAt(candidate_idx);
 
                         var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        instant.comment += " (instant history domain)!";
+                        instant.comment += " (instant history)!";
 
                         this.historyResults.removeValueAt(candidate_idx, false);
-                        this.mixedResults.addResults([instant]);
+                        this.instant = [instant];
+                    } else {
+                        this.instant = [];
                     }
                     this.pushResults(result.searchString);
                 }
@@ -321,25 +290,28 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             historyPatternCallback: function(res) {
                 if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-                  CliqzAutocomplete.lastPattern = res;
-                  var results = res.filteredResults();
+                    CliqzAutocomplete.lastPattern = res;
+                    var results = res.filteredResults();
 
-                  if(this.mixedResults.matchCount > 0) return;
+                    if(this.mixedResults.matchCount > 0) return;
 
-                  if(results.length < 1) return;
-                  var instantResults = new Array();
-                  // Create instant result
-                  var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
-                  instantResults.push(instant);
+                    if(results.length < 1) return;
+                    
+                    // Create instant result
+                    var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
+                    if(instant)
+                        this.instant = [instant];
+                    else
+                        this.instant = [];
 
-                  var latency = 0;
-                  if (CliqzHistoryPattern.latencies[res.query]) {
-                    latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
-                  }
-                  this.latency.patterns = latency;
 
-                  this.mixedResults.addResults(instantResults);
-                  this.pushResults(this.searchString);
+                    var latency = 0;
+                    if (CliqzHistoryPattern.latencies[res.query]) {
+                        latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
+                    }
+                    this.latency.patterns = latency;
+
+                    this.pushResults(this.searchString);
                 }
             },
             sendSuggestionsSignal: function(suggestions) {
@@ -372,7 +344,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.clearTimeout(this.resultsTimer);
                         CliqzUtils.clearTimeout(this.historyTimer);
 
-                        this.mixedResults.addResults(this.mixResults());
+                        this.mixedResults.setResults(this.instant.concat(this.mixResults()));
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
 
@@ -394,11 +366,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.unfilteredResults = null;
+                        this.instant = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
 
                         this.latency.mixed = (new Date()).getTime() - this.startTime;
+
+                        this.mixedResults.setResults(this.instant);
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
@@ -568,6 +543,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
+                this.instant = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
@@ -597,6 +573,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
@@ -664,7 +641,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     result_order: results.map(function(r){ return r.data.kind; }),
                     instant: instant,
                     popup: CliqzAutocomplete.isPopupOpen ? true : false,
-                    clustering_override: CliqzAutocomplete.results && results[0].override ? true : false,
                     latency_cliqz: this.latency.cliqz,
                     latency_history: this.latency.history,
                     latency_patterns: this.latency.patterns,
