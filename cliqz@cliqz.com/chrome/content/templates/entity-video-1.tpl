@@ -28,4 +28,5 @@
     {{/each}}
   </div>
   {{> EZ-category }}
+  {{>logo}}
 </div>

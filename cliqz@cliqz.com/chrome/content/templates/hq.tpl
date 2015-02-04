@@ -2,15 +2,7 @@
     {{#if debug}}
         <span class='cqz-result-debug'>{{ debug }}</span>
     {{/if}}
-    {{#if image.src}}
-        <div class="cqz-image cqz-image-round" style="
-                    background-image: url({{ image.src }});">
-        </div>
-    {{/if}}
-    <div class='cqz-result-center cqz-vert-center'
-         {{#if image.src}}
-            style="width: calc(60% - 120px)"
-         {{/if}}>
+    <div class='cqz-result-center cqz-vert-center'>
         <div class='cqz-result-title overflow' selectable=''>
             {{ emphasis title text 2 true }}
         </div>

@@ -364,7 +364,7 @@ var CliqzUtils = {
               domain: tld ? name + '.' + tld: '',
               tld: tld,
               subdomains: subdomains,
-              path: path,
+              path: path == '/' ? '' : path,
               host: host,
               ssl: ssl,
               port: port

@@ -976,7 +976,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
         target.setAttribute('arrow', 'true');
 
-        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
+        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
     }
 
