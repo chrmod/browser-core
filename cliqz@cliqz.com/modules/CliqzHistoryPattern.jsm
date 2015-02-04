@@ -541,7 +541,7 @@ var CliqzHistoryPattern = {
     } else if (input.trim().indexOf(" ") != -1 &&
       input[input.length - 1] != " " && loose && urlbar.indexOf("www.") != 0) {
       var queryEnd = input.split(" ")[input.split(" ").length - 1].toLowerCase();
-      if (pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
+      if (pattern.title && pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
         var words = pattern.title.split(" ");
 
         for (var key in words) {
