@@ -70,7 +70,7 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423041994671,
-  
+
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
@@ -99,7 +99,7 @@ var CliqzUtils = {
 
     if(!brand_loaded){
       brand_loaded = true;
-      
+
       CliqzUtils.httpGet(
         "http://cdn.cliqz.com/brands-database/database/data/" + this.BRANDS_DATABASE_VERSION + "/database.json",
         function(req){
@@ -121,7 +121,7 @@ var CliqzUtils = {
         baseCore = base.replace(/[^0-9a-z]/gi,""),
         check = function(host,rule){
           var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "#" + host.substr(address + base.length)
-          
+
           return parseddomain.indexOf(rule) != -1
         },
         result = {},
@@ -131,7 +131,7 @@ var CliqzUtils = {
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
-        
+
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
             backgroundColor: rule.b?"#" + rule.b:null,
@@ -144,12 +144,12 @@ var CliqzUtils = {
         }
       }
     }
-      
-    result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
+
+    result.text = result.text || (baseCore.length>0? (baseCore[0].toUpperCase() + baseCore[1].toLowerCase()): '');
     result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
-    
+
     result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
-    
+
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 
     return result
