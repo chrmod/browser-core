@@ -2,7 +2,6 @@
   <div class="cqz-ez-title cqz-ez-video-title" selectable=''>
       {{data.name}}
   </div>
-  {{> EZ-category }}
   <div class="entity-video-stories">
     {{#each data.items}}
       <div class="entity-video-story"
@@ -15,8 +14,8 @@
                <span> {{ sec_to_duration duration}}</span>
            {{/if}}
         </div>
-        <div class="entity-video-story-description cqz-vert-center" selectable=''>
-          <div class="entity-video-story-title">
+        <div class="entity-video-story-description cqz-vert-center" >
+          <div class="entity-video-story-title" selectable=''>
             {{ title }}
           </div>
           {{#if (local_number views )}}
@@ -28,4 +27,6 @@
       </div>
     {{/each}}
   </div>
+  {{> EZ-category }}
+  {{>logo}}
 </div>

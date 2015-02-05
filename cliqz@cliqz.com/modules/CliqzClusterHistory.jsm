@@ -18,7 +18,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
     log: function(str) {
         CliqzUtils.log(str, CliqzClusterHistory.LOG_KEY);
     },
-    
+
     all_rules: undefined,
 
     /**
@@ -40,14 +40,14 @@ var CliqzClusterHistory = CliqzClusterHistory || {
     /**
      * Tries to cluster the history.
      *
-     * @return <tt>[unclustered_history, cluster_data]</tt>: 
+     * @return <tt>[unclustered_history, cluster_data]</tt>:
      *         @c unclustered_history will contain all the items in the history
      *         that do not lead to the clustered domain and
      *         @c cluster_data contains clustered data if clustering was triggered
      */
     cluster: function(history, cliqzResults, q) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
-        if (history==null) 
+        if (history==null)
             return [null, null];
 
         var freqHash = {};
@@ -143,7 +143,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             return [historyTransRemained, clusteredHistory];
         }
     },
-    simpleCluster(domain, history) {
+    simpleCluster: function(domain, history) {
         var num_slots = 6;
 
         var urls = [];
@@ -269,7 +269,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // just use the static URL
         if(typeof rule == 'string') {
             return rule;
-        } 
+        }
 
         var url = entry.url;
         var url_parts = new URL(url);

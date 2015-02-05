@@ -5,12 +5,12 @@
 			kind='{{ data.kind }}'
 			{{#if url}}
 				url='{{ url }}'
+				{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
+					arrow="false"
+				{{/unless}}
 			{{/if}}
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'
-			{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
-				arrow="false"
-			{{/unless}}
 			>
 			{{partial vertical}}
 		</div>
