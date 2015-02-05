@@ -1,7 +1,7 @@
 <div class="cqz-result-h2 EZ-weather-bigcontainer">
     {{#with data}}
 
-  <div class='EZ-weather-title' arrow='false'>
+  <div class='EZ-weather-title' arroww=''>
        <div class="EZ-weather-city">{{ returned_location }}</div>
        <img  class="EZ-weather_icon" src="{{title_icon}}"/>
    </div>
