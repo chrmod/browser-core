@@ -22,10 +22,10 @@
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ local_number data.richData.views }} {{local 'views'}}
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
         </div>
         <div class='cqz-result-desc overflow'>
-            {{ emphasis data.description text 2 true }}
+           {{ local_number data.richData.views }} {{local 'views'}}
         </div>
     </div>
     {{> logo}}

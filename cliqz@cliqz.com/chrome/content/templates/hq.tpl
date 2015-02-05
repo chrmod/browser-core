@@ -1,8 +1,5 @@
 <div class='cqz-result-h3'>
-    {{#if debug}}
-        <span class='cqz-result-debug'>{{ debug }}</span>
-    {{/if}}
-    <div class='cqz-result-center cqz-vert-center'>
+    <div class='cqz-result-center'>
         <div class='cqz-result-title overflow' selectable=''>
             {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
         </div>

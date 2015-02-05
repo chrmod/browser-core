@@ -64,7 +64,7 @@ var CliqzUtils = {
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'chrome://cliqz/content/offboarding.html',
   INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
-  CHANGELOG:                      'https://beta.cliqz.com/changelog',
+  CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,

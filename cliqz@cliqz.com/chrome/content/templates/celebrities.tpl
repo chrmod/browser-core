@@ -6,11 +6,10 @@
          {{/each}}
     </div>
     <div class='cqz-ez-title cqz-celeb-who'>
-    	{{name}}
-    	<span>({{ocupation}})</span>
+    	{{ emphasis name ../text 2 true }} ({{ocupation}})
     </div>
     <div class='cqz-celeb-desc'>
-        {{description_wiki}}
+        {{ emphasis description_wiki ../text 2 true }}
     </div>
 	<div class='cqz-celeb-social-box'>
          {{#each social}}
