@@ -4,8 +4,11 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 var EXPORTED_SYMBOLS = ['CliqzClusterHistory'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 // Only available in FF 22
 // https://developer.mozilla.org/en-US/docs/Web/API/URL
@@ -45,7 +48,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
      *         that do not lead to the clustered domain and
      *         @c cluster_data contains clustered data if clustering was triggered
      */
-    cluster: function(history, cliqzResults, q) {
+    cluster: function(history) {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null)
             return [null, null];
@@ -120,11 +123,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         // No rules, abort and continue history as normal
-        var clusteredHistory;
-        if (!rules) {
-            CliqzClusterHistory.log('No ruleset for domain: ' + maxDomain);
-            clusteredHistory = CliqzClusterHistory.simpleCluster(maxDomain, historyTransFiltered);
-        } else {
+        var clusteredHistory = null;
+        if (rules) {
             clusteredHistory = CliqzClusterHistory.collapse(maxDomain, rules, historyTransFiltered);
         }
 
@@ -142,44 +142,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         } else {
             return [historyTransRemained, clusteredHistory];
         }
-    },
-    simpleCluster: function(domain, history) {
-        var num_slots = 6;
-
-        var urls = [];
-        for(let i = 0; i < history.length; i++) {
-            if(urls.length >= num_slots)
-                break;
-
-            // Remove empty titles
-            if(!history[i].title)
-                continue;
-            var url_parts = CliqzUtils.getDetailsFromUrl(history[i].url);
-            var new_entry = {
-                favicon: '',
-                href: history[i].url,
-                link: url_parts.host + url_parts.path,
-                domain: url_parts.host + url_parts.path,
-                title: history[i].title,
-                old_urls: [history[i].url],
-                category: "generic",
-                height: "h2"
-            };
-            urls.push(new_entry);
-        }
-
-        var data = {
-            height: "h2",
-            title: domain + "  - Your Top Hits",
-            url: "http://" + domain,
-            urls: urls,
-            control: [],
-            uncategorized: [],
-            excluded: [],
-            template: "pattern-2"
-        };
-
-        return data;
     },
     match_url: function(cond, history) {
 
@@ -425,14 +387,13 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // Step 6 - build config for display
 
         var data = {
-            height: "h2",
-            title: categories.base[0].title + "  - Your Top Hits",
+            title: categories.base[0].title + " - " + CliqzUtils.getLocalizedString("history_results_cluster"),
+            top_domain: domain,
             url: categories.base[0].url,
-            urls: [],
+            results: [],
             control: [],
             uncategorized: [],
-            excluded: [],
-            template: "pattern-2"
+            excluded: []
         };
 
         var clean_categories = [];
@@ -476,8 +437,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     var new_entry = {
                         favicon: '',
                         href: entry.url,
-                        link: url_parts.host + url_parts.path,
-                        domain: url_parts.host + url_parts.path,
+                        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host + url_parts.path), true),
+                        domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host), true).split("/")[0],
                         title: entry.title,
                         old_urls: entry.old_urls,
                         category: clean_categories[i].label,
