@@ -216,7 +216,7 @@ var CliqzHistoryPattern = {
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false);
 
     // Add base domain if above threshold
-    if ((DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "cliqz") && share[1] > 0.5 && res.filteredResults().length > 1) {
+    if ((DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "cliqz") && share[1] > 0.5 && res.filteredResults().length > 3) {
       // Check if base domain changed due to filtering
       var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(res.filteredResults(), query);
       if(tmpBaseUrl != baseUrl) {
@@ -772,6 +772,7 @@ var CliqzHistoryPattern = {
         instant.data.url = instant.val;
         instant.comment += " (history!)";
         instant.data.template = "pattern";
+        instant.data.generic = true;
       }
 
       instant.data.urls = [];

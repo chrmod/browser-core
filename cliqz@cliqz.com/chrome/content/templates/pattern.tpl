@@ -14,6 +14,5 @@
         </div>
         {{/each}}
     </div>
-    <div class="cliqz-brand-logo cqz-result-logo cqz-vert-center cliqz-pattern-logo">
-    </div>
+    {{>logo}}
 </div>
