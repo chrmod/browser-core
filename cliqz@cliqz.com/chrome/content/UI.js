@@ -972,8 +972,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     var arrow = $('.cqz-result-selected', gCliqzBox);
     arrow.removeAttribute('active');
     if(el){
-
-        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el; //focus on the title - if any
+        //focus on the title - or on the aroww element inside the element
+        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        if(target != el)
+            //arrow target is now on an inner element
+            el.removeAttribute('arrow');
         target.setAttribute('arrow', 'true');
 
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';

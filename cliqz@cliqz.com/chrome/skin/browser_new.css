@@ -689,6 +689,10 @@
   overflow: hidden;
 }
 
+.cqz-ez-btn:hover, .cqz-ez-btn[arrow='true'] {
+  background-color: red !important;
+}
+
 .cqz-result-box *[url]:hover {
 	/*opacity: 0.85;*/
 }
