@@ -92,6 +92,7 @@ $(function(){
     
     $("#history-undo").click(function(){ HistoryController.undo(false) })
     $("#history-undo-all").click(function(){ HistoryController.undo(true) })
+    $("#history-popup .dismiss").click(function(){ HistoryController.popup(false) })
 });
 
 var CliqzResults = {
@@ -191,6 +192,8 @@ var HistoryController = {
     },
     hide: function(item,link,index){
         this.lastHidden = link
+        
+        this.unpin(item,link)
         
         NewTabUtils.blockedLinks.block(link)
         

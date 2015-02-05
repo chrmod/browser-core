@@ -63,34 +63,29 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
     position: relative;
 }
 .history-row:hover {
-    outline: 2px solid #6666ff
+    outline: 2px solid #5ea3f9 
 }
-.history-row .close {
+.history-row .close, .history-row .pin {
     position: absolute;
     right: 5px;
     top: 5px;
     display: none;
-    height: 25px;
-    width: 25px;
+    height: 20px;
+    width: 20px;
     border: 1px solid white;
     background: url(http://cdn.cliqz.com/extension/newtab/history-items/close.svg) no-repeat center center;
 }
-.history-row .pin {
-    position: absolute;
-    right: 5px;
+.history-row .pin/*, a.pinned .history-row .pin:hover*/ {
+    top: auto;
     bottom: 5px;
-    display: none;
-    height: 25px;
-    width: 25px;
-    border: 1px solid white;
-    background: url(http://cdn.cliqz.com/extension/newtab/history-items/pin.svg) no-repeat center center;
+    background: url(http://cdn.cliqz.com/extension/newtab/history-items/pin-nopadding.svg) no-repeat center center;
 }
-a.pinned .pin {
-    border: 1px solid blue;
-    border-radius: 3px 3px;
+a.pinned .pin, .history-row:hover .pin, .history-row:hover .close { display: block; }
+a.pinned .pin, .history-row .pin:hover {
+    background-image: url(http://cdn.cliqz.com/extension/newtab/history-items/pin-blue.svg);
 }
-.history-row:hover .close, .history-row:hover .pin {
-    display: block;
+.history-row .close:hover {
+    background-image: url(http://cdn.cliqz.com/extension/newtab/history-items/close-red.svg);
 }
 .history-icon {
     float: left;
@@ -98,8 +93,8 @@ a.pinned .pin {
 }
 .history-desc {
     float: left;
-    width: calc(100% - 40px);
-    padding-left: 5px;
+    width: calc(100% - 60px);
+    padding-left: 12px;
     box-sizing: border-box;
 }
 .history-title {
@@ -123,20 +118,34 @@ a.pinned .pin {
     top: 20px;
     left: 20px;
     background: #fff;    
-    padding: 10px;
+    padding: 6px 10px;
     border: 1px solid #efefef;
     border-radius: 6px 6px;
+    color: #666666;
     display: none;
+    font-weight: 300;
 }
 
 #history-popup span {
+    display: inline-block;
+    padding: 0 2px;
     text-decoration: underline;
-    color: blue;
+    color: #5ea3f9;
+    cursor: pointer;
+}
+
+#history-popup .dismiss {
+    display: inline-block;
+    width: 10px;
+    height: 9px;
+    background: url(http://cdn.cliqz.com/extension/newtab/history-items/dismiss-msg.svg) no-repeat left top;
+    background-size: contain;
+    margin-left: 3px;
     cursor: pointer;
 }
 
 /* search */
-.search-box { margin: 0 5px; }
+.search-box { margin: 0 5px 5px; }
 #search {
     width: 100%;
     height: 30px;
