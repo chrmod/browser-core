@@ -340,15 +340,15 @@ var CliqzUtils = {
         var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
                                     .getService(Components.interfaces.nsIEffectiveTLDService);
 
+        tld = eTLDService.getPublicSuffixFromHost(host);
 
-
-        var tld = eTLDService.getPublicSuffixFromHost(host);
         // Get the domain name w/o subdomains and w/o TLD
-        var tld_with_prefix_dot = "." + tld;
-        var name = host.replace(tld_with_prefix_dot, "").split(".").pop();
+        name = host.slice(0, -(tld.length+1)).split('.').pop(); // +1 for the '.'
+
         // Get subdomains
         var name_tld = name + "." + tld;
-        var subdomains = host.replace(name_tld, "").split(".").slice(0, -1);
+        subdomains = host.slice(0, -name_tld.length).split(".").slice(0, -1);
+
         //remove www if exists
         host = host.indexOf('www.') == 0 ? host.slice(4) : host;
       } catch(e){
@@ -363,7 +363,7 @@ var CliqzUtils = {
 
     var urlDetails = {
               name: name,
-              domain: tld ? name + '.' + tld: '',
+              domain: tld ? name + '.' + tld : '',
               tld: tld,
               subdomains: subdomains,
               path: path,
