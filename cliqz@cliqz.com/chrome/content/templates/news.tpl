@@ -9,7 +9,7 @@
     {{/if}}
     <div class='cqz-result-center'
          {{#if image.src}}
-            style="width: calc(85% - 120px)"
+            style="width: calc(80% - 120px)"
          {{/if}}>
         <div class='cqz-result-title overflow' selectable=''>
             {{ emphasis title text 2 true }}
