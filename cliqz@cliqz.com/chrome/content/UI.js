@@ -425,7 +425,7 @@ function hideMisalignedElements(ctx){
     }
 }
 
-function handlePopupHeight(box){
+function handlePopupHeight(box){/*
     var MAX=352, MIN =160,
         height = CliqzUtils.getPref('popupHeight', 290),
         start, footer = document.getElementById('cliqz-footer', box);
@@ -456,7 +456,7 @@ function handlePopupHeight(box){
         start = e.pageY;
         document.addEventListener('mousemove',moveIT);
         document.addEventListener('mouseup', mouseReleased);
-    });
+    });*/
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
