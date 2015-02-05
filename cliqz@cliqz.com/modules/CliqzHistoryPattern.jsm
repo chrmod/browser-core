@@ -755,14 +755,14 @@ var CliqzHistoryPattern = {
         var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
         CliqzUtils.TEMPLATES["pattern"] = 1;
         instant.data.height = "h3";
-        instant.comment += " (history single!)"
+        instant.comment += " (history single)!"
       } else if (res.cluster) {
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
         CliqzUtils.TEMPLATES["pattern"] = 2;
         instant.data.height = "h2";
-        instant.data.title = res.top_domain + " - " + CliqzUtils.getLocalizedString("history_results_cluster")
+        instant.data.title = res.top_domain + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster")
         instant.data.url = results[0].url;
-        instant.comment += " (history domain cluster!)";
+        instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern";
       } else {
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
@@ -770,7 +770,7 @@ var CliqzHistoryPattern = {
         instant.data.height = "h3";
         instant.data.title = CliqzUtils.getLocalizedString("history_results")
         instant.data.url = instant.val;
-        instant.comment += " (history!)";
+        instant.comment += " (history)!";
         instant.data.template = "pattern";
       }
 
