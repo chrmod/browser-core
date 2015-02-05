@@ -774,8 +774,6 @@
 .cliqz-pattern-title-h2 {
   padding-top: 15px;
   padding-bottom: 10px;
-  float: left;
-  position: relative;
 }
 
 .cliqz-pattern-title-h3 {
@@ -785,34 +783,30 @@
   */
   padding-top: 12px;
   padding-bottom: 8px;
-  float: left;
-  position: relative;
+
 }
 
 .cliqz-pattern-results {
-  margin-left: 5px;
-  display:inline-block;
-  text-decoration: none;
-  color:rgba(127,127,127,0.54);
-  overflow: hidden;
-  width: 75%;
-  cursor: pointer;
+
 }
 
 .cliqz-pattern-element {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 16px 16px;
 }
 
 .cliqz-pattern-element-title {
-  color: #9C27B0;
   color:rgba(128,0,128,0.60);
   max-width: 50%;
-  overflow: hidden;
-  float: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: inline-block;
+}
+
+.cliqz-pattern-element-link {
+  margin-left: 8px;
+  color: #999999;
+  display: inline-block;
 }
 
 .cliqz-pattern-element-h2 {
@@ -833,11 +827,7 @@
 }
 
 
-.cliqz-pattern-element-link {
-  margin-left: 8px;
-  color: #999999;
-  text-decoration: none;
-}
+
 
 .cliqz-pattern-favicons {
   max-width: 16px;

@@ -76,7 +76,7 @@ var CliqzUtils = {
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
               'spellcheck': 1, 'time': 1,
               'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern': 1, 'weatherEZ': 2,
-              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 3, 'noResult': 3, 'weatherAlert': 3},
+              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 2, 'noResult': 3, 'weatherAlert': 3},
 
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
