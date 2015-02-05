@@ -189,6 +189,7 @@ var CliqzUtils = {
         req.timeout = (method == 'POST'? 10000 : 1000);
       }
     }
+
     req.send(data);
     return req;
   },
