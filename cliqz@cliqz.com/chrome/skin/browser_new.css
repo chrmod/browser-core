@@ -17,51 +17,6 @@
 }
 
 
-/* reset default browser settings */
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
-menu, nav, output, ruby, section, summary,
-time, mark, audio, video {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-}
-/* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
-footer, header, hgroup, menu, nav, section {
-	display: block;
-}
-body {
-	line-height: 1;
-}
-ol, ul {
-	list-style: none;
-}
-blockquote, q {
-	quotes: none;
-}
-blockquote:before, blockquote:after,
-q:before, q:after {
-	content: '';
-	content: none;
-}
-table {
-	border-collapse: collapse;
-	border-spacing: 0;
-}
-
 /* BROWSER */
 #urlbar[focused="true"] {
 	/*box-shadow: 0px 0px 0px black !important;*/
@@ -115,11 +70,11 @@ table {
 */
 
 .cqz-result-selected {
-	background-color: #cccccc;
+	background-color: #333333;
 	border-radius: 0 3px 0 0;
 	position: absolute;
-	height: 16px;
-	width: 16px;
+	height: 14px;
+	width: 14px;
 	top: 10px;
 	left: -20px;
 	z-index: 1;
@@ -157,7 +112,7 @@ table {
 }
 
 .cqz-result-center {
-	width: 60%;
+	width: 85%;
 	padding: 0px 20px;
 	display: inline-block;
 	overflow: hidden;
@@ -169,6 +124,8 @@ table {
 	font-size: 18px;
 	color: #8a52a2;
   width: 90%;
+  margin-bottom: 6px;
+  margin-top: -4px;
 }
 
 /* unvisited result - cliqz */
@@ -208,10 +165,10 @@ table {
 }
 */
 .cqz-result-desc {
-    /*margin-top: 2px;*/
+    margin-top: 4px;
 }
 
-/* 
+/*
     Common class for logo to be reused everywhere.
     Do not change this class if the properties are only dropdown-logo related!
     Change .cqz-result-logo instead
@@ -247,12 +204,12 @@ table {
 
 .cqz-image {
     display: inline-block;
-    width: 96px; /* 16 */
-    height: 54px; /* 9 */
+    width: 114px; /* 16 */
+    height: 64px; /* 9 */
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    margin: 23px -4px 0px 22px;
+    margin: 18px -4px 0px 22px;
     position: relative;
 }
 
@@ -385,22 +342,6 @@ table {
   margin-bottom: 18px;
 }
 
-.entity-news-title {
-  color: #414141;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.entity-news-title span {
-  color: #1759a4;
-}
-
-.entity-news-title img {
-  float: right;
-  width: 48px;
-  margin: -5px -5px 0 0;
-}
-
 .entity-news-stories {
 }
 
@@ -416,10 +357,10 @@ table {
 }
 
 .entity-news-story-title {
-  color: #333333;
+  color: #506bb8;
   max-width: 550px;
-  font-size: 16px;
-  max-height: 2em;
+  font-size: 18px;
+  max-height: 1em;
   overflow: hidden;
   line-height: 1em;
 }
@@ -428,8 +369,8 @@ table {
     text-decoration: underline;
 }
 .entity-news-story-time {
-  color: #aaaaaa;
-  font-size: 12px;
+  color: #d7011d;
+  font-size: 14px;
   padding-top: 9px;
 }
 
@@ -463,6 +404,7 @@ table {
 /* EZ video */
 .cqz-ez-video-title {
   background-image: url(http://cdn.cliqz.com/extension/EZ/video/y_search.png);
+  margin-bottom: 18px;
 }
 
 
@@ -497,10 +439,10 @@ table {
 }
 
 .entity-video-story-title {
-  color: #333333;
+  color: #506bb8;
   max-width: 550px;
-  font-size: 16px;
-  max-height: 2em;
+  font-size: 18px;
+  max-height: 1em;
   overflow: hidden;
   line-height: 1em;
 }
@@ -509,8 +451,8 @@ table {
     text-decoration: underline;
 }
 .entity-video-story-time {
-    color: #aaaaaa;
-  font-size: 12px;
+  color: #333333;
+  font-size: 14px;
   padding-top: 9px;
 }
 
@@ -740,9 +682,9 @@ table {
 	cursor: pointer;
 	color: white;
 	font-size: 14px;
-  padding: 0 9px 0 9px;
+  padding: 0 9px 2px 9px;
   line-height: 26px;
-  margin: 0 0 9px 0;
+  margin: 0 7px 9px 0;
   max-width: 150px;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -750,7 +692,7 @@ table {
 }
 
 .cqz-result-box *[url]:hover {
-	opacity: 0.85;
+	/*opacity: 0.85;*/
 }
 
 .cqz-result-box *[url] {
@@ -1004,7 +946,7 @@ table {
 
 /* END noResult */
 
-/* TimeEZ thuy@cliqz.com */
+/* --------- TimeEZ ----------- thuy@cliqz.com */
 .EZ-time-bigcontainer{
  padding-left: 0px;
  background-color: white;
@@ -1040,9 +982,68 @@ table {
 }
 /* END TimeEZ */
 
+
 .cqz-one-line {
-  height: 1em;
-  overflow: hidden;
+  height: 1.3em;
+}
+/*---------- CLIQZ EZ ---------- thuy@cliqz.com--------------*/
+.EZ-Cliqz-Header{
+height: 58px;
+background-color: white;
+background-repeat: no-repeat;
+background-size: 76px 22px;
+background-position: 22px 18px;
+margin-right: 18px;
+}
+
+.EZ-Cliqz_Header-Contact-icon{
+  height: 22px;
+  width: 22px;
+  float: right;
+  margin-left: 9px;
+  margin-top: 18px;
+}
+.EZ-Cliqz-Body-H1{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 100%;
+font-size: 20px;
+padding-top:15px;
+}
+
+.EZ-Cliqz-Body-H2{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 110%;
+font-size: 20px;
+padding-top:5px;
+}
+
+.EZ-Cliqz-Footer{
+ margin-left: 22px;
+ text-align: left;
+ margin-top: 17px;
+}
+
+.EZ-Cliqz-Footnote-tile{
+  padding-top:7px;
+  padding-bottom: 9px;
+  background-color: silver;
+  padding-left: 9px;
+  padding-right: 9px;
+  border-radius: 3px;
+  margin-right: 9px;
+  float: left;
+  color: white;
+}
+/* END CLIQZEZ*/
+
+/* EZ Currency */
+
+.EZ-currency {
+ margin-left: 18px
 }
 
 .cqz-link {

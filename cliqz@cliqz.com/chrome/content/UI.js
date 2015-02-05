@@ -17,7 +17,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'g': 'gaming'  ,
         'n': 'news'    ,
         'p': 'people'  ,
-        //'v': 'video'   ,
+        'v': 'video'   ,
         'h': 'hq'      ,
         //'q': 'qaa'     ,
         //'k': 'science' ,
@@ -973,10 +973,10 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     arrow.removeAttribute('active');
     if(el){
 
-        var target = $('.cqz-ez-title', el) || el; //focus on the title - if any
+        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el; //focus on the title - if any
         target.setAttribute('arrow', 'true');
 
-        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
+        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
     }
 
@@ -1379,6 +1379,10 @@ function registerHelpers(){
 
     Handlebars.registerHelper('local', function(key, v1, v2 ) {
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
+    });
+
+    Handlebars.registerHelper('localize_parameters', function(key1, key2 ) {
+        return CliqzUtils.getLocalizedString(key1).replace('{}', CliqzUtils.getLocalizedString(key2));
     });
 
     Handlebars.registerHelper('local_number', function(val) {
