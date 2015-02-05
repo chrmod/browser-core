@@ -387,7 +387,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // Step 6 - build config for display
 
         var data = {
-            title: categories.base[0].title + " - " + CliqzUtils.getLocalizedString("history_results_cluster"),
+            title: categories.base[0].title + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster"),
             top_domain: domain,
             url: categories.base[0].url,
             results: [],
