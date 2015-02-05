@@ -4,7 +4,7 @@
     {{/if}}
     <div class='cqz-result-center cqz-vert-center'>
         <div class='cqz-result-title overflow' selectable=''>
-            {{ emphasis title text 2 true }}
+            {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
         </div>
         <div class='cqz-result-desc
             {{#if data.richData.additional_sources.length }}

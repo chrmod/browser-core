@@ -1549,6 +1549,10 @@ function registerHelpers(){
           return false;
     });
 
+    Handlebars.registerHelper('nameify', function(str) {
+        return str[0].toUpperCase() + str.slice(1);
+    });
+
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
     });

@@ -128,6 +128,10 @@
   margin-top: -4px;
 }
 
+.cqz-result-title span {
+  color: gray;
+}
+
 /* unvisited result - cliqz */
 .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title {
 	color: #5267a2;
