@@ -62,21 +62,35 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
     box-sizing: border-box;
     position: relative;
 }
-a.pinned .history-row {
-    border: 3px solid red
+.history-row:hover {
+    outline: 2px solid #6666ff
 }
 .history-row .close {
     position: absolute;
     right: 5px;
-    top: 0px;
+    top: 5px;
     display: none;
-    font-size: 20px;
+    height: 25px;
+    width: 25px;
+    border: 1px solid white;
+    background: url(http://cdn.cliqz.com/extension/newtab/history-items/close.svg) no-repeat center center;
 }
-.history-row:hover .close {
+.history-row .pin {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    display: none;
+    height: 25px;
+    width: 25px;
+    border: 1px solid white;
+    background: url(http://cdn.cliqz.com/extension/newtab/history-items/pin.svg) no-repeat center center;
+}
+a.pinned .pin {
+    border: 1px solid blue;
+    border-radius: 3px 3px;
+}
+.history-row:hover .close, .history-row:hover .pin {
     display: block;
-}
-.history-row .close:hover {
-    color: red;
 }
 .history-icon {
     float: left;
@@ -102,6 +116,23 @@ a.pinned .history-row {
 }
 .history-lis a .history-url.blurred, .history-lis a:hover .history-url.hovered {
     display: block;
+}
+
+#history-popup {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #fff;    
+    padding: 10px;
+    border: 1px solid #efefef;
+    border-radius: 6px 6px;
+    display: none;
+}
+
+#history-popup span {
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
 }
 
 /* search */
