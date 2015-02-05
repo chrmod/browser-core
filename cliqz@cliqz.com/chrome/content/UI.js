@@ -738,7 +738,7 @@ function enhanceResults(res){
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
-                 r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                 r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
             r.vertical = getPartial(r.type);
 
