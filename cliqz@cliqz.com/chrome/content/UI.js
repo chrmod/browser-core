@@ -750,8 +750,11 @@ function enhanceResults(res){
             //extract tags from title
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
-
         }
+
+        if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
+            r.logo.force_cliqz = true;
+
     }
 
     //prioritize extra (fun-vertical) results
