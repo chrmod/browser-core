@@ -372,7 +372,6 @@ var CliqzUtils = {
               port: port
         };
 
-    CliqzUtils.log(JSON.stringify(urlDetails));
     return urlDetails;
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
