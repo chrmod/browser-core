@@ -3,11 +3,11 @@
         <span class='cqz-result-debug'>{{ debug }}</span>
     {{/if}}
     {{#if image.src}}
-        <div class="cqz-image cqz-image-round " style="
+        <div class="cqz-image cqz-image-news cqz-image-round " style="
                     background-image: url({{ image.src }});">
         </div>
     {{/if}}
-    <div class='cqz-result-center cqz-vert-center'
+    <div class='cqz-result-center'
          {{#if image.src}}
             style="width: calc(85% - 120px)"
          {{/if}}>
