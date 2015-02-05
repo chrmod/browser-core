@@ -34,5 +34,6 @@
 <br style="clear:left"/>
     {{/with}}
 {{>logo}}
+{{>feedback}}
 
 </div>

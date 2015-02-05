@@ -30,4 +30,5 @@
     {{/with}}
 
     {{> logo}}
+    {{>feedback}}
 </div>
