@@ -777,6 +777,15 @@ var CliqzHistoryPattern = {
   },
   // Extract base domain from url
   domainFromUrl: function(url, subdomain) {
+    var urlparts = CliqzUtils.getDetailsFromUrl(url);
+    if(subdomain)
+      return urlparts.host;
+    else
+      return urlparts.domain;
+  },
+  // TODO: Sven, this was failing on certain urls. Is there something it did that my replacement 
+  // function above doesn't?
+  domainFromUrl_old: function(url, subdomain) {
     if (url.indexOf("://") !== -1) {
       url = url.substr(url.indexOf("://")+3);
       if (url.split("/").length > 1) {
