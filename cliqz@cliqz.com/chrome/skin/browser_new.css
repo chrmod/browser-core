@@ -166,6 +166,8 @@
 */
 .cqz-result-desc {
     margin-top: 4px;
+    line-height: 1em;
+    max-height: 2em;
 }
 
 /*

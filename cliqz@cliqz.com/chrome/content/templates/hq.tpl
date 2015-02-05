@@ -6,7 +6,12 @@
         <div class='cqz-result-title overflow' selectable=''>
             {{ emphasis title text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow'>
+        <div class='cqz-result-desc
+            {{#if data.richData.additional_sources.length }}
+                overflow
+            {{/if}}
+            '
+        >
             {{ emphasis data.description text 2 true }}
         </div>
 		{{#if data.richData.additional_sources}}
