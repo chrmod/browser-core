@@ -23,7 +23,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'adult', 'logo', 'EZ-category'],
+    PARTIALS = ['url', 'adult', 'logo', 'EZ-category', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -738,7 +738,7 @@ function enhanceResults(res){
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
-                 r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                 r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
             r.vertical = getPartial(r.type);
 
@@ -972,8 +972,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     var arrow = $('.cqz-result-selected', gCliqzBox);
     arrow.removeAttribute('active');
     if(el){
-
-        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el; //focus on the title - if any
+        //focus on the title - or on the aroww element inside the element
+        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        if(target != el)
+            //arrow target is now on an inner element
+            el.removeAttribute('arrow');
         target.setAttribute('arrow', 'true');
 
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
@@ -1547,6 +1550,10 @@ function registerHelpers(){
           return true;
         else
           return false;
+    });
+
+    Handlebars.registerHelper('nameify', function(str) {
+        return str[0].toUpperCase() + str.slice(1);
     });
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {

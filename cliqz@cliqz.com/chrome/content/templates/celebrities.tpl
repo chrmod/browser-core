@@ -5,9 +5,11 @@
             <img src='{{this}}' class='cqz-celeb-image' />
          {{/each}}
     </div>
-    <div class='cqz-celeb-who'>
-    	{{name}}
-    	<span>({{ocupation}})</span>
+    <div class='cqz-ez-title cqz-celeb-who'>
+    	{{ emphasis name ../text 2 true }} ({{ocupation}})
+    </div>
+    <div class='cqz-celeb-desc'>
+        {{ emphasis description_wiki ../text 2 true }}
     </div>
 	<div class='cqz-celeb-social-box'>
          {{#each social}}
@@ -18,8 +20,8 @@
                 extra='entry-{{ url }}' />
          {{/each}}
     </div>
-    <div>{{local 'age'}}: {{birth_date}}</div>
-    <div>{{local 'nationality'}}: {{nationality}}</div>
     {{/with}}
-    {{>logo}}
+
 </div>
+{{>logo}}
+{{>feedback}}

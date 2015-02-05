@@ -112,24 +112,26 @@
 
 .cqz-result-center {
 	width: 85%;
-	padding: 0px 20px;
+	padding: 14px 22px;
 	display: inline-block;
 	overflow: hidden;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 /* visited result - history, bookmark, ...*/
 .cqz-result-title {
 	font-size: 18px;
-	color: #8a52a2;
+	color: #333333;
   width: 90%;
-  margin-bottom: 6px;
-  margin-top: -4px;
+}
+
+.cqz-result-title span {
+  color: gray;
 }
 
 /* unvisited result - cliqz */
 .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title {
-	color: #5267a2;
+	color: #506bb8;
 }
 
 /*
@@ -148,6 +150,7 @@
 	/*text-overflow: clip !important;*/
 	display: inline-block;
   width: 90%;
+  margin-top: 6px;
 }
 
 .cqz-result-url-ssl {
@@ -164,7 +167,9 @@
 }
 */
 .cqz-result-desc {
-    margin-top: 4px;
+    margin-top: 6px;
+    max-height: 2em;
+    vertical-align: top;
 }
 
 /*
@@ -630,41 +635,35 @@
 }
 
 .cqz-celeb-images {
-    height: 60px;
+    height: 64px;
     overflow: hidden;
+    width: 60%;
 }
 
 .cqz-celeb-image {
-    height: 60px;
+    height: 64px;
     margin-right: 6px;
-    border-radius: 6px;
+    border-radius: 3px;
 }
 
 .cqz-celeb-who {
     font-size: 18px;
-    margin: 3px 0px 5px 0px;
-}
-.cqz-celeb-who span {
-    color: #ccc;
+    margin: 10px 0px 7px 0px;
+    color: #506bb8;
 }
 
 .cqz-celeb-social {
-    height: 15px;
-    margin-bottom: 1px;
-    margin-right: 8px;
+    height: 22px;
+    margin-top: 10px;
+    margin-right: 9px;
 }
 
-.cqz-celeb-logo {
-    background-color: #ccc;
-    border-radius: 50%;
-    position: absolute;
-    height: 80px;
-    width: 80px;
-    line-height: 80px;
-    font-size: 40px;
-    text-align: center;
-    bottom: 22px;
-    right: 22px;
+.cqz-celeb-desc {
+  font-size: 14px;
+  line-height: 1em;
+  height: 2.1em;
+  overflow: hidden;
+  width: 85%;
 }
 /* end EZ celeb */
 
@@ -690,6 +689,10 @@
   overflow: hidden;
 }
 
+.cqz-ez-btn:hover, .cqz-ez-btn[arrow='true'] {
+  background-color: red !important;
+}
+
 .cqz-result-box *[url]:hover {
 	/*opacity: 0.85;*/
 }
@@ -712,6 +715,10 @@
 	padding-top: 15px;
 }
 
+.cqz-vert-center1 {
+  position: absolute;
+}
+
 .cqz-vert-center {
 	position: absolute;
 	top: 50%;
@@ -722,12 +729,18 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: top;
 }
 
 
 /* history */
 .cliqz-pattern {
   padding-left: 19px;
+}
+
+.cqz-result-pattern {
+  padding: 15px 22px;
+  box-sizing: border-box;
 }
 
 .cliqz-pattern-result-container {
@@ -775,10 +788,8 @@
 }
 
 .cliqz-pattern-title-h2 {
-  padding-top: 15px;
-  padding-bottom: 10px;
-  float: left;
-  position: relative;
+  margin-bottom: 14px;
+  cursor: default;
 }
 
 .cliqz-pattern-title-h3 {
@@ -786,36 +797,42 @@
   visibility: hidden;
   height: 17px;
   */
-  padding-top: 12px;
-  padding-bottom: 8px;
-  float: left;
-  position: relative;
+  margin-bottom: 8px;
+ cursor: default;
 }
 
 .cliqz-pattern-results {
-  margin-left: 5px;
-  display:inline-block;
-  text-decoration: none;
-  color:rgba(127,127,127,0.54);
-  overflow: hidden;
-  width: 75%;
-  cursor: pointer;
+
 }
 
 .cliqz-pattern-element {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 14px 14px;
+  height: 16px;
+  margin-bottom: 5px;
 }
 
 .cliqz-pattern-element-title {
-  color: #9C27B0;
-  color:rgba(128,0,128,0.60);
+  color: #8c275f;
   max-width: 50%;
-  overflow: hidden;
-  float: left;
-  text-overflow: ellipsis;
+  display: inline-block;
+  font-size: 14px;
+  height: 16px;
+  overflow-x: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cliqz-pattern-element-link {
+  margin-left: 8px;
+  color: #999999;
+  display: inline-block;
+  height: 16px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .cliqz-pattern-element-h2 {
@@ -836,11 +853,7 @@
 }
 
 
-.cliqz-pattern-element-link {
-  margin-left: 8px;
-  color: #999999;
-  text-decoration: none;
-}
+
 
 .cliqz-pattern-favicons {
   max-width: 16px;
@@ -983,7 +996,9 @@
 
 
 .cqz-one-line {
-  height: 1.3em;
+  max-height: 1.3em;
+  max-width: 85%;
+  overflow: hidden;
 }
 /*---------- CLIQZ EZ ---------- thuy@cliqz.com--------------*/
 .EZ-Cliqz-Header{
@@ -1045,14 +1060,22 @@ padding-top:5px;
  margin-left: 18px
 }
 
+.ez-feedback {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: gray;
+}
+
 .cqz-link {
   color: #88baf8;
   margin-right: 10px;
 }
-
+/*
 [arrow="true"] *[selectable]{
   text-decoration: underline;
 }
 [arrow="true"][selectable]{
   text-decoration: underline;
 }
+*/
