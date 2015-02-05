@@ -31,7 +31,7 @@ $(function(){
             // get & render history
             setTimeout(function(){
                 NewTabUtils.links.populateCache(() => {
-                    renderHistory(NewTabUtils.links.getLinks());
+                    HistoryController.init(NewTabUtils.links.getLinks());
                 });
             },200);
         },
@@ -89,6 +89,10 @@ $(function(){
         $("#search-dropdown").hide()
         CLIQZ.Core.popup.popupOpen = false
     })
+    
+    $("#history-undo").click(function(){ HistoryController.undo(false) })
+    $("#history-undo-all").click(function(){ HistoryController.undo(true) })
+    $("#history-popup .dismiss").click(function(){ HistoryController.popup(false) })
 });
 
 var CliqzResults = {
@@ -171,94 +175,132 @@ function shuffle(array) {
 }
 
 var HistoryController = {
+    amount: 10,
+    nextShownIndex: null,
+    
     pin: function(item,link,index){
-        NewTabUtils.pinnedLinks.pin(item,link,index);
+        NewTabUtils.pinnedLinks.pin(link,index);
         $(item).addClass("pinned")
+        console.log("pinned",item,link,index,NewTabUtils.pinnedLinks)
     },
     isPinned: function(link) {
         return NewTabUtils.pinnedLinks.isPinned(link)
     },
     unpin: function(item,link){
-        NewTabUtils.pinnedLinks.unpin(item,link);
+        NewTabUtils.pinnedLinks.unpin(link);
         $(item).removeClass("pinned")
     },
-    hide: function(link){
-        NewTabUtils.blockedLinks.block(link)
-    }
-};
-
-
-function renderHistory(links){
-    var amount = Math.min(links.length,10), array = [], list = $("#history-lis");
-    
-    for (var i=0;i<amount;i++) {
-        array.push(i);
+    hide: function(item,link,index){
+        this.lastHidden = link
         
-        var link = links[i];
-
+        this.unpin(item,link)
+        
+        NewTabUtils.blockedLinks.block(link)
+        
+        $(item).remove()
+        
+        for (var i=this.nextShownIndex,imax=this.links.length;i<imax;i++) {
+            if (!NewTabUtils.blockedLinks.isBlocked(this.links[i])) {
+                this.animate(this.display(this.links[i]).insertBefore($("#history-lis > *").eq(index)))
+                this.nextShownIndex ++
+                break
+            }
+        }
+        
+        this.popup(true)
+    },
+    popup: function(show){
+        if (show) $("#history-popup").show()
+        else $("#history-popup").hide()
+    },
+    undo: function(all){
+        if (all) NewTabUtils.undoAll(function(){ location.reload() });
+        else { 
+            NewTabUtils.blockedLinks.unblock(this.lastHidden);
+            location.reload()
+        }
+        
+        this.popup(false)
+    },
+    display: function(link){
         var template = $("#history-row-template").clone();
 
-        template.attr("number",i).attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo(list).css("visibility","hidden");
+        template.attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo($("#history-lis")).css("visibility","hidden");
         template[0].link = link;
         template.find(".history-title").text(link.title);
         
         if (HistoryController.isPinned(link)) template.addClass("pinned");
         
-        (function(link){
+        (function(link,template){
             template.find(".close").click(function(e){
-                HistoryController.hide(link);
+                var a = $(this).parents("a:first")
+                HistoryController.hide(a,link,$("#history-lis > *").index(a));
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.reload();
             });
             
-            template.find(".pin").click(function(e){ HistoryController.pin(link); });
+            template.find(".pin").click(function(e){
+                var a = $(this).parents("a:first")
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (a.filter(".pinned").length) HistoryController.unpin(template,link);
+                else HistoryController.pin(template,link,$("#history-lis > *").index(a));
+            });
+            
             template.find(".unpin").click(function(e){
                 HistoryController.unpin(link);
                 e.preventDefault();
                 e.stopPropagation();
                 window.location.reload();
             });
-        })(link);
+        })(link,template);
         
         var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
             logoinfo = CliqzUtils.getLogoDetails(urlinfo),
-            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)/*.css({ "background-color": logoinfo.backgroundColor, color: logoinfo.color });
-        
-        if (logoinfo.backgroundImage) icon.css("background-image",logoinfo.backgroundImage);
-        else icon.text(logoinfo.text);*/
+            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)
         
         template.find(".history-url.blurred").text(urlinfo.host);
         template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
-    }
-
-    Sortable.create(list[0],{
-        animation: 150,
-        onUpdate: function(e){
-            for (var i = e.oldIndex;i > e.newIndex;i--) {
-                var owner = list.children().eq(i)[0]
+        
+        return template
+    },
+    animate: function(item){
+        var element = $(item).css("visibility","visible"),
+            effect = "bounceIn";
                 
-                if (HistoryController.isPinned(owner.link)) history.pin(owner,owner.link,i);
-            }
-            
-            HistoryController.pin(e.item,e.item.link,e.newIndex)
+        element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+            $(this).removeClass(effect + " animated");
+        });
+    },
+    init: function(links){
+        this.links = links
+        this.nextShownIndex = this.amount
+        
+        var amount = Math.min(links.length,this.amount), array = [], list = $("#history-lis");
+    
+        for (var i=0;i<amount;i++) {
+            array.push(i);
+            HistoryController.display(links[i])
         }
-    });
-    
-    shuffle(array);
-    
-    var effect = "bounceIn";
-    
-    for (var i=0;i<amount;i++){
-        (function(index){
-            setTimeout(function(){ 
-                var element = $("#history-lis").children().eq(array[index]).css("visibility","visible");
-                
-                element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                    $(this).removeClass(effect + " animated");
-                });
-                
-            },i * 50);
-        })(i);
+
+        shuffle(array);
+
+        for (var i=0;i<amount;i++)
+            (function(index){ setTimeout(function(){ HistoryController.animate($("#history-lis").children().eq(array[index])) },i * 50); })(i);
+
+        Sortable.create(list[0],{
+            animation: 150,
+            onUpdate: function(e){
+                for (var i = e.oldIndex;i > e.newIndex;i--) {
+                    var owner = list.children().eq(i)[0]
+
+                    if (HistoryController.isPinned(owner.link)) HistoryController.pin(owner,owner.link,i);
+                }
+
+                HistoryController.pin(e.item,e.item.link,e.newIndex)
+            }
+        });
     }
-}
+};
