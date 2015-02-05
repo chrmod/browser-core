@@ -633,39 +633,35 @@
 .cqz-celeb-images {
     height: 60px;
     overflow: hidden;
+    width: 85%;
 }
 
 .cqz-celeb-image {
     height: 60px;
     margin-right: 6px;
-    border-radius: 6px;
+    border-radius: 3px;
 }
 
 .cqz-celeb-who {
     font-size: 18px;
-    margin: 3px 0px 5px 0px;
+    margin: 10px 0px 7px 0px;
 }
 .cqz-celeb-who span {
     color: #ccc;
 }
 
 .cqz-celeb-social {
-    height: 15px;
-    margin-bottom: 1px;
+    height: 20px;
+    margin-top: 8px;
     margin-right: 8px;
 }
 
-.cqz-celeb-logo {
-    background-color: #ccc;
-    border-radius: 50%;
-    position: absolute;
-    height: 80px;
-    width: 80px;
-    line-height: 80px;
-    font-size: 40px;
-    text-align: center;
-    bottom: 22px;
-    right: 22px;
+.cqz-celeb-desc {
+  font-size: 16px;
+  line-height: 1em;
+  height: 2.1em;
+  overflow: hidden;
+  width: 85%;
 }
 /* end EZ celeb */
 
