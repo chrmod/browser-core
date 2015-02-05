@@ -312,9 +312,11 @@
         "message": "Nationality"
     },
     "history_results": {
+      "message":"My Top Hits"
+    },
+    "history_results": {
       "message":"Visited Sites"
     },
-
     "adultInfo": {
         "message": "Some adult content has been hidden."
     },

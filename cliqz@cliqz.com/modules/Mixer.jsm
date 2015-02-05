@@ -55,7 +55,7 @@ var Mixer = {
         if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
           var [history_trans, cluster_data] = [history, null];
         } else {
-          var [history_trans, cluster_data] = CliqzClusterHistory.cluster(history, cliqz, q);
+          var [history_trans, cluster_data] = CliqzClusterHistory.cluster(history);
         }
 
 		/// 1) put each result into a bucket
