@@ -312,10 +312,10 @@
         "message": "Nationality"
     },
     "history_results": {
-      "message":"My Top Hits"
-    },
-    "history_results": {
       "message":"Visited Sites"
+    },
+    "history_results_cluster": {
+      "message":"My Top Hits"
     },
     "adultInfo": {
         "message": "Some adult content has been hidden."
