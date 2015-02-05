@@ -121,7 +121,7 @@
 /* visited result - history, bookmark, ...*/
 .cqz-result-title {
 	font-size: 18px;
-	color: #333333;
+	color: #8c275f;
   width: 90%;
 }
 
@@ -794,6 +794,7 @@
 
 .cliqz-pattern-title-h2 {
   margin-bottom: 14px;
+  color: #333333;
   cursor: default;
 }
 
@@ -803,7 +804,8 @@
   height: 17px;
   */
   margin-bottom: 8px;
- cursor: default;
+  cursor: default;
+  color: #333333;
 }
 
 .cliqz-pattern-results {

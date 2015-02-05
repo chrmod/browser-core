@@ -80,7 +80,7 @@ var Mixer = {
                     // combine sources
                     var tempCliqzResult = Result.cliqz(cliqz[i]);
                     instant[j].style = CliqzUtils.combineSources(instant[j].style, tempCliqzResult.style);
-                    instant[j].data.kind = instant[j].data.kind.concat(tempCliqzResult.data.kind);
+                    instant[j].data.kind = (instant[j].data.kind || []).concat(tempCliqzResult.data.kind || []);
                     instant[j].comment = instant[j].comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
 
                     duplicate = true;
@@ -222,7 +222,7 @@ var Mixer = {
 
         var unfiltered = instant.concat(results);
         results = Filter.deduplicate(unfiltered, -1, 1, 1);
-        
+
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
             results = cliqzExtra.concat(results);
