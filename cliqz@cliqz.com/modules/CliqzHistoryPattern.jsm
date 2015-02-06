@@ -751,7 +751,17 @@ var CliqzHistoryPattern = {
       if(results.length == 0)
         return null; // no results
 
-      if (results.length == 1) {
+      if (searchString.length == 0) {
+        // special case for user request of top sites from history
+        var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
+        CliqzUtils.TEMPLATES["pattern"] = 2;
+        instant.data.height = "h2";
+        instant.data.title = CliqzUtils.getLocalizedString("history_results_cluster")
+        instant.data.url = results[0].url;
+        instant.comment += " (history top sites)!";
+        instant.data.template = "pattern";
+        instant.data.generic = true;
+      } else if (results.length == 1) {
         var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
         CliqzUtils.TEMPLATES["pattern"] = 1;
         instant.data.height = "h3";
