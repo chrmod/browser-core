@@ -29,4 +29,5 @@
     {{/with}}
 
     {{> logo}}
+    {{>feedback}}
 </div>

@@ -208,17 +208,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
-                    if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-                      CliqzHistoryPattern.addFirefoxHistory(result);
-                    } else {
-                      this.instantResult(search, result);
-                    }
+                    CliqzHistoryPattern.addFirefoxHistory(result);
                 }
             },
             // Pick one history result or a cluster as the instant result to be shown to the user first
+            // TODO: no longer used, see if some of this logic can be moved to HistoryPattern
             instantResult: function(search, result) {
-                let [history_left, cluster_data] = CliqzClusterHistory.cluster(this.historyResults, [],
-                                                                                result.searchString);
+                let [history_left, cluster_data] = CliqzClusterHistory.cluster(this.historyResults);
 
                 // If we could cluster the history, put that as the instant result
                 if(cluster_data) {
@@ -288,16 +284,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return false;
             },
             historyPatternCallback: function(res) {
+                // abort if we already have results
+                if(this.mixedResults.matchCount > 0) return;
+
                 if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
                     CliqzAutocomplete.lastPattern = res;
-                    var results = res.filteredResults();
 
-                    if(this.mixedResults.matchCount > 0) return;
-
-                    if(results.length < 1) return;
-                    
                     // Create instant result
-                    var instant = CliqzHistoryPattern.createInstantResult(res, results, this.searchString);
+                    var instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
                     if(instant)
                         this.instant = [instant];
                     else

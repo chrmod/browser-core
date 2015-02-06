@@ -1,18 +1,18 @@
 <div class="cqz-result-h2 EZ-weather-bigcontainer">
     {{#with data}}
 
-  <div class='EZ-weather-title'>
-       <div class="EZ-weather-city">{{ returned_location }}</div>   
+  <div class='EZ-weather-title' arroww=''>
+       <div class="EZ-weather-city">{{ returned_location }}</div>
        <img  class="EZ-weather_icon" src="{{title_icon}}"/>
    </div>
 
 <div class='EZ-weather-container'>
   <div class='EZ-weather-date'>{{ todayWeekday }}</div>
-   <div class="EZ-weather-img" 
+   <div class="EZ-weather-img"
            style="background-image:url({{todayIcon}})">
    </div>
    <div class="EZ-weather-temp">
-         {{todayTemp}} 
+         {{todayTemp}}
          <span style="color:silver"> {{todayMin}} </span>
    </div>
 </div>
@@ -21,11 +21,11 @@
 <div class='EZ-weather-container'>
      <div class='EZ-weather-date'>{{ weekday }}</div>
 
-     <div class="EZ-weather-img" 
+     <div class="EZ-weather-img"
            style="background-image:url({{icon}})">
      </div>
      <div class="EZ-weather-temp">
-         {{max}} 
+         {{max}}
          <span style="color:#999999"> {{min}} </span>
    </div>
 </div>
@@ -34,5 +34,6 @@
 <br style="clear:left"/>
     {{/with}}
 {{>logo}}
+{{>feedback}}
 
 </div>
