@@ -448,7 +448,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-            firstResult != results[0].url) {
+          firstResult != results[0].url) {
             results[0] = [];
             results[0].url = firstResult;
             results[0].title = firstTitle;
