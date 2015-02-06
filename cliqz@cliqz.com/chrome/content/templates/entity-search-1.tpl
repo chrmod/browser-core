@@ -36,4 +36,5 @@
     {{/each}}
   </div>
   {{> logo}}
+  {{>feedback}}
 </div>

@@ -1,12 +1,12 @@
 <div class="cqz-adult-bar">
   <div class="cqz-adult-alert">
-    Some adult content has been hidden.
+    {{local 'adultInfo'}}
   </div>
 
   <div style="float:right" cliqz-action="adult">
-    <span> Show unfiltered results?</span>
-    <span class="cqz-adult-btn" state="yes">Yes</span>
-    <span class="cqz-adult-btn" state="no">No</span>
+    <span>{{local 'adultAction'}}</span>
+    <span class="cqz-adult-btn" state="yes">{{local 'yes'}}</span>
+    <span class="cqz-adult-btn" state="no">{{local 'no' }}</span>
     <span class="cqz-adult-btn cqz-adult-options-btn" state="options">
           <div class='cqz-adult-options'>
               {{#each adultConfig}}
@@ -15,7 +15,7 @@
                   </div>
               {{/each}}
           </div>
-          Options
+          {{local 'options' }}
     </span>
 
   </div>

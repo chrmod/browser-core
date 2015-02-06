@@ -448,7 +448,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-          firstResult != results[0].url) {
+            firstResult != results[0].url) {
             results[0] = [];
             results[0].url = firstResult;
             results[0].title = firstTitle;
@@ -458,10 +458,11 @@ CLIQZ.Core = CLIQZ.Core || {
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
-        if (lastPattern && lastPattern.cluster && !autocomplete.autocomplete) {
-          results.shift();
-          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
-        }
+        // TODO: Sven, this caused problems with rule-based cluster. In what situation is it necessary?
+        // if (lastPattern && lastPattern.cluster && !autocomplete.autocomplete) {
+        //   results.shift();
+        //   autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        // }
 
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
