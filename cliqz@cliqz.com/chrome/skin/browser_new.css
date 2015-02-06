@@ -27,6 +27,8 @@
 #cliqz-results {
     height: 302px;
     position: relative;
+    /* override linux default grey color */
+    background: #fff;
 }
 
 .cqz-result-h1 {
