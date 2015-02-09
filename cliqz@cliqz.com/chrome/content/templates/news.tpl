@@ -9,10 +9,10 @@
     {{/if}}
     <div class='cqz-result-center'
          {{#if image.src}}
-            style="width: calc(80% - 120px)"
+            style="width: calc(80% - 130px)"
          {{/if}}>
         <div class='cqz-result-title overflow' selectable=''>
-            {{ emphasis title text 2 true }}
+           {{ emphasis title text 2 true }}
         </div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
