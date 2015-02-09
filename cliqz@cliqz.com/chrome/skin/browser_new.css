@@ -113,7 +113,7 @@
 }
 
 .cqz-result-center {
-	width: 85%;
+	width: 80%;
 	padding: 14px 22px;
 	display: inline-block;
 	overflow: hidden;
@@ -123,7 +123,7 @@
 /* visited result - history, bookmark, ...*/
 .cqz-result-title {
 	font-size: 18px;
-	color: #333333;
+	color: #8c275f;
   width: 90%;
 }
 
@@ -148,7 +148,7 @@
 
 
 .cqz-result-url {
-	color: #999999;
+	color: #666666;
 	/*text-overflow: clip !important;*/
 	display: inline-block;
   width: 90%;
@@ -157,7 +157,7 @@
 
 .cqz-result-url-ssl {
     padding-left: 13px;
-    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px center;
+    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px;
 }
 
 .cqz-result-path {
@@ -170,7 +170,7 @@
 */
 .cqz-result-desc {
     margin-top: 6px;
-    max-height: 2em;
+    max-height: 22px;
     vertical-align: top;
 }
 
@@ -217,6 +217,11 @@
     background-repeat: no-repeat;
     margin: 18px -4px 0px 22px;
     position: relative;
+}
+
+.cqz-image-news {
+   position: relative;
+   top: -14px;
 }
 
 .cqz-image-round {
@@ -278,12 +283,12 @@
 .cqz-ez-generic-opt {
  background-color: #efefef;
  min-width: 130px;
- max-width: 150px;
+ max-width: 174px;
  height: 132px;
  margin-left: 9px;
  text-align: center;
  box-sizing: border-box;
- padding: 7px 7px 0 7px;
+ padding: 7px 18px 0 18px;
  border-radius: 3px;
  color: #323232;
 }
@@ -292,7 +297,7 @@
   background-repeat: no-repeat;
   height: 65px;
   width: 65px;
-  margin: 17px auto;
+  margin: 14px auto;
   background-position: center;
   background-size: contain;
 }
@@ -409,7 +414,7 @@
 
 /* EZ video */
 .cqz-ez-video-title {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/video/y_search.png);
+  background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg);
   margin-bottom: 18px;
 }
 
@@ -692,7 +697,7 @@
 }
 
 .cqz-ez-btn:hover, .cqz-ez-btn[arrow='true'] {
-  background-color: red !important;
+  background-color: #cccccc !important;
 }
 
 .cqz-result-box *[url]:hover {
@@ -791,6 +796,7 @@
 
 .cliqz-pattern-title-h2 {
   margin-bottom: 14px;
+  color: #333333;
   cursor: default;
 }
 
@@ -800,7 +806,8 @@
   height: 17px;
   */
   margin-bottom: 8px;
- cursor: default;
+  cursor: default;
+  color: #333333;
 }
 
 .cliqz-pattern-results {
@@ -828,6 +835,7 @@
 }
 
 .cliqz-pattern-element-link {
+  max-width: 30%;
   margin-left: 8px;
   color: #999999;
   display: inline-block;
@@ -1066,7 +1074,7 @@ padding-top:5px;
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: gray;
+  color: #cccccc;
 }
 
 .cqz-link {
@@ -1081,3 +1089,7 @@ padding-top:5px;
   text-decoration: underline;
 }
 */
+
+[arrow="true"]:hover .cqz-result-title {
+  text-decoration: underline;
+}
