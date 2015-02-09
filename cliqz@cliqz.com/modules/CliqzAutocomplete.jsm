@@ -425,7 +425,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var results = [];
                     var country = "";
                     if(this.startTime)
-                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime));
+                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime);
 
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
@@ -459,7 +459,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.mixedResults.suggestedCalcResult = null;
 
                     if(this.startTime)
-                        CliqzTimings.add("search_suggest", Date.now() - this.startTime));
+                        CliqzTimings.add("search_suggest", Date.now() - this.startTime);
 
                     // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
                     if(q.trim().indexOf("=") != 0 && response.length >1 &&
