@@ -288,7 +288,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //try to 'heat up' the connection
         CliqzUtils.pingCliqzResults();
 
-        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
+        CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
