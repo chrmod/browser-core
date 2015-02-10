@@ -821,10 +821,12 @@ function urlIndexInHistory(url, urlList) {
 }
 
 function resultClick(ev){
+
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
+
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){

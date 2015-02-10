@@ -141,6 +141,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
+
                 this._results = this.filterUnexpected(results);
 
                 CliqzAutocomplete.lastResult = this;
@@ -148,26 +149,25 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.setResultOrder(order);
             },
 
-            filterUnexpected: function(results){
+            filterUnexpected: function(results) {
                 // filter out ununsed/unexpected results
-                var ret=[];
-                for(var i=0; i < results.length; i++){
+                var ret = [];
+                for (var i = 0; i < results.length; i++) {
                     var r = results[i];
-                    if(r.style == 'cliqz-extra'){
-                        if(r.data){
-                            if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
+                    if (r.style == 'cliqz-extra') {
+                        if (r.data) {
+                            if (r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template) === false) {
                                 // unexpected/unknown template
                                 continue;
                             }
                         }
                     }
 
-                var merged = cleaned.concat(newResults);
-
-                return merged;
+                    ret.push(r);
+                }
+                return ret;
             }
         }
-    }
     },
     initResults: function(){
         CliqzAutocomplete.CliqzResults.prototype = {
@@ -488,7 +488,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     mixed: null,
                     all: null
                 };
-
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
