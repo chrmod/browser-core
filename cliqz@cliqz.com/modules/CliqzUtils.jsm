@@ -69,7 +69,7 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1423163495705,
+  BRANDS_DATABASE_VERSION:        1423572097465,
 
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
@@ -99,9 +99,13 @@ var CliqzUtils = {
 
     if(!brand_loaded){
       brand_loaded = true;
+        
+      var param = this.getPref("brands-database-version")
+      
+      if (param) this.BRANDS_DATABASE_VERSION = param
 
       CliqzUtils.httpGet(
-        "http://cdn.cliqz.com/brands-database/database/data/" + this.BRANDS_DATABASE_VERSION + "/database.json",
+        "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
         function(req){
           BRANDS_DATABASE = JSON.parse(req.response);
         });
@@ -138,7 +142,7 @@ var CliqzUtils = {
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
             backgroundColor: rule.b?"#" + rule.b:null,
-            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/logos/" + base + "/" + rule.r + ".svg)":"",
+            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
           }
