@@ -204,7 +204,6 @@ var UI = {
             pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-console.log(ev,ev.shiftKey,ev.metaKey)
         switch(ev.keyCode) {
             case UP:
                 var nextEl = pos > 0 ? allArrowable[pos-1]: null;

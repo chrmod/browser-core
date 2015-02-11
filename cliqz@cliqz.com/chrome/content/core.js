@@ -280,6 +280,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
+        /* workaround (FIX ME): keeps the value to be used on Blur */
+        CLIQZ.Core.beforeBlurValue = CLIQZ.Core.urlbar.value
+        
         CliqzAutocomplete.isPopupOpen = false;
         CliqzAutocomplete.resetSpellCorr();
         CLIQZ.Core.popupEvent(false);
@@ -320,10 +323,14 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarblur: function(ev) {
+        // restores value to keep autocompleted query after urlbar lost the focus
+        if (CLIQZ.Core.beforeBlurValue && CLIQZ.Core.beforeBlurValue != CLIQZ.Core.urlbar.value) CLIQZ.Core.urlbar.value = CLIQZ.Core.beforeBlurValue
+        
         CliqzAutocomplete.resetSpellCorr();
+        
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
-
+        
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
