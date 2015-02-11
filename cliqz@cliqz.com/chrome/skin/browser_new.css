@@ -798,6 +798,7 @@
   margin-bottom: 14px;
   color: #333333;
   cursor: default;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
 }
 
 .cliqz-pattern-title-h3 {
@@ -808,6 +809,7 @@
   margin-bottom: 8px;
   cursor: default;
   color: #333333;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
 }
 
 .cliqz-pattern-results {

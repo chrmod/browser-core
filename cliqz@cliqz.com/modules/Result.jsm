@@ -119,6 +119,20 @@ var Result = {
             result.subType
         );
     },
+    // Combine two results
+    combine: function(cliqz, generic) {
+        var tempCliqzResult = Result.cliqz(cliqz);
+        var style = CliqzUtils.combineSources(generic.style, tempCliqzResult.style);
+        var ret = Result.generic(style, generic.val, null, generic.comment, generic.label, generic.query, generic.data, null);
+        ret.data.kind = (generic.data.kind || []).concat(tempCliqzResult.data.kind || []);
+        ret.comment = ret.comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+        return ret;
+    },
+    clone: function(entry) {
+        var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, entry.data)
+        ret.data.kind = entry.data.kind;
+        return ret;
+    },
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
         // Google Filters

@@ -242,7 +242,6 @@ var CliqzHistoryPattern = {
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
     }
     res.results = CliqzHistoryPattern.removeDuplicates(res.results);
-    CliqzUtils.log(JSON.stringify(res));
     return res;
   },
 
@@ -770,7 +769,7 @@ var CliqzHistoryPattern = {
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
         CliqzUtils.TEMPLATES["pattern"] = 2;
         instant.data.height = "h2";
-        instant.data.title = res.top_domain + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster")
+        instant.data.title = res.top_domain
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern";

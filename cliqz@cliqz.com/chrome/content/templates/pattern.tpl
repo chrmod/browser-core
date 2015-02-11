@@ -1,5 +1,5 @@
 <div class='cqz-result-{{data.height}} cqz-result-pattern'>
-      <div class='cliqz-pattern-title-{{data.height}} cqz-result-title overflow'>
+      <div class='cqz-ez-title cliqz-pattern-title-{{data.height}} overflow' selectable=''>
           {{ data.title }}
       </div>
       <div class='cliqz-pattern-results'>

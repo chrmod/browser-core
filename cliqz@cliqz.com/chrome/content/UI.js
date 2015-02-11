@@ -758,9 +758,10 @@ function enhanceResults(res){
     }
 
     //prioritize extra (fun-vertical) results
-    var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    var all = first.concat(last);
+    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    // var all = first.concat(last);
+    var all = res.results;
 
     //filter adult results
     if(adult){
