@@ -102,12 +102,9 @@ var Mixer = {
         }
         if(any_duplicates)
             instant = [instant_new[0]];
-        else
-            instant = [instant[0].clone()];
+        else if(instant.length > 0)
+            instant = [Result.clone(instant[0])];
         cliqz = cliqz_new;
-
-
-
 
         for (let i = 0; history_trans && i < history_trans.length; i++) {
             let style = history_trans[i]['style'],
