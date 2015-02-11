@@ -204,7 +204,7 @@ var UI = {
             pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-
+console.log(ev,ev.shiftKey,ev.metaKey)
         switch(ev.keyCode) {
             case UP:
                 var nextEl = pos > 0 ? allArrowable[pos-1]: null;
@@ -232,11 +232,14 @@ var UI = {
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey);
-                CLIQZ.Core.urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
+                
+                urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+                
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
+                
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -318,10 +321,19 @@ var UI = {
       },300);
     },
     cursor: 0,
-    getSelectionRange: function(key, curStart, curEnd, shift) {
+    getSelectionRange: function(key, curStart, curEnd, shift, metakey) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
-        if (shift) {
+        if (shift && metakey) {
+            start = 0
+            UI.cursor = start
+        }    
+        else if (metakey) {
+            start = 0
+            end = start
+            UI.cursor = start
+        }    
+        else if (shift) {
           if (start != end && UI.cursor == end) {
             end -= 1;
             UI.cursor = end;
@@ -340,7 +352,16 @@ var UI = {
           UI.cursor = start;
         }
       } else if (key == RIGHT) {
-        if (shift) {
+        if (shift && metakey) {
+            end = CLIQZ.Core.urlbar.mInputField.value.length
+            UI.cursor = end
+        }
+        else if (metakey) {
+            start = CLIQZ.Core.urlbar.mInputField.value.length
+            end = start
+            UI.cursor = start
+        }   
+        else if (shift) {
           if (start != end && UI.cursor == start) {
             start += 1;
             UI.cursor = start;
