@@ -718,7 +718,7 @@ function enhanceResults(res){
 
         if(r.data && r.data.adult) adult = true;
 
-        if(r.type == 'cliqz-extra'){
+        if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
             var d = r.data;
             if(d){
                 if(d.template && TEMPLATES.hasOwnProperty(d.template)){
@@ -758,9 +758,10 @@ function enhanceResults(res){
     }
 
     //prioritize extra (fun-vertical) results
-    var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    var all = first.concat(last);
+    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    // var all = first.concat(last);
+    var all = res.results;
 
     //filter adult results
     if(adult){
@@ -773,15 +774,6 @@ function enhanceResults(res){
             res.showAdult = true;
             res.adultConfig = CliqzUtils.getAdultFilterState();
             CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
-        }
-    }
-
-    // getMax 3 results height
-    res.results = [];
-    for(var i=0; i<all.length && i<3; i++){
-        res.results.push(all[i]);
-        if((all[i].type == 'cliqz-extra' || (all[i].type.indexOf('cliqz-pattern') == 0)) && all[i].data){
-            i += (TEMPLATES[all[i].data.template]-1);
         }
     }
 

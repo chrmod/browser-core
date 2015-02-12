@@ -442,7 +442,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                         title: entry.title,
                         old_urls: entry.old_urls,
                         category: clean_categories[i].label,
-                        height: "h2"
                     }
 
                     last_per_topic[i] = new_entry;
