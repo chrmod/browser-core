@@ -119,18 +119,18 @@ var Result = {
             result.subType
         );
     },
-    // Combine two results
+    // Combine two results into a new result
     combine: function(cliqz, generic) {
         var tempCliqzResult = Result.cliqz(cliqz);
-        var style = CliqzUtils.combineSources(generic.style, tempCliqzResult.style);
-        var ret = Result.generic(style, generic.val, null, generic.comment, generic.label, generic.query, generic.data, null);
-        ret.data.kind = (generic.data.kind || []).concat(tempCliqzResult.data.kind || []);
+        var ret = Result.clone(generic);
+        ret.style = CliqzUtils.combineSources(ret.style, tempCliqzResult.style);
+        ret.data.kind = (ret.data.kind || []).concat(tempCliqzResult.data.kind || []);
         ret.comment = ret.comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
         return ret;
     },
     clone: function(entry) {
-        var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, entry.data)
-        ret.data.kind = entry.data.kind;
+        var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, null);
+        ret.data = JSON.parse(JSON.stringify(entry.data)); // nasty way of cloning an object
         return ret;
     },
     // check if a result should be kept in final result list
