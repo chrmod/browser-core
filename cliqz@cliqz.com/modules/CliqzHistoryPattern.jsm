@@ -182,7 +182,8 @@ var CliqzHistoryPattern = {
         }
 
         if (pattern.title.length > 0 && pattern.url.length > 0 &&
-          CliqzHistoryPattern.simplifyUrl(pattern.url) != null) {
+            CliqzHistoryPattern.simplifyUrl(pattern.url) != null &&
+            Result.isValid(pattern.url, CliqzUtils.getDetailsFromUrl(pattern.url))) {
           patterns.push(pattern);
         }
       }
