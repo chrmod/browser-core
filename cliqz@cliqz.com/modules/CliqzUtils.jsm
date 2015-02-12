@@ -69,7 +69,7 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1423572097465,
+  BRANDS_DATABASE_VERSION:        1423581286488,
 
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
@@ -99,9 +99,9 @@ var CliqzUtils = {
 
     if(!brand_loaded){
       brand_loaded = true;
-        
+
       var param = this.getPref("brands-database-version")
-      
+
       if (param) this.BRANDS_DATABASE_VERSION = param
 
       CliqzUtils.httpGet(

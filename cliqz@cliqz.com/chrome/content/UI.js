@@ -233,8 +233,8 @@ var UI = {
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey);
-                CLIQZ.Core.urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
+                urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
@@ -322,7 +322,16 @@ var UI = {
     getSelectionRange: function(key, curStart, curEnd, shift) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
-        if (shift) {
+        if (shift && metakey) {
+            start = 0
+            UI.cursor = start
+        }
+        else if (metakey) {
+            start = 0
+            end = start
+            UI.cursor = start
+        }
+        else if (shift) {
           if (start != end && UI.cursor == end) {
             end -= 1;
             UI.cursor = end;
@@ -341,7 +350,16 @@ var UI = {
           UI.cursor = start;
         }
       } else if (key == RIGHT) {
-        if (shift) {
+        if (shift && metakey) {
+            end = CLIQZ.Core.urlbar.mInputField.value.length
+            UI.cursor = end
+        }
+        else if (metakey) {
+            start = CLIQZ.Core.urlbar.mInputField.value.length
+            end = start
+            UI.cursor = start
+        }
+        else if (shift) {
           if (start != end && UI.cursor == start) {
             start += 1;
             UI.cursor = start;
@@ -376,13 +394,6 @@ function sessionEnd(){
 
 var forceCloseResults = false;
 function closeResults(event, force) {
-    var urlbar = CLIQZ.Core.urlbar;
-    // Remove autocomplete from urlbar
-    if (urlbar.selectionEnd !== urlbar.selectionStart &&
-        urlbar.selectionStart !== 0) {
-        urlbar.value = urlbar.value.substr(0, urlbar.selectionStart);
-    }
-
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {
