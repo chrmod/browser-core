@@ -112,7 +112,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
-        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
@@ -124,7 +124,7 @@ CLIQZ.Core = CLIQZ.Core || {
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
-
+        
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -280,9 +280,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
-        /* workaround (FIX ME): keeps the value to be used on Blur */
-        CLIQZ.Core.beforeBlurValue = CLIQZ.Core.urlbar.value
-        
         CliqzAutocomplete.isPopupOpen = false;
         CliqzAutocomplete.resetSpellCorr();
         CLIQZ.Core.popupEvent(false);
@@ -323,9 +320,6 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarblur: function(ev) {
-        // restores value to keep autocompleted query after urlbar lost the focus
-        if (CLIQZ.Core.beforeBlurValue && CLIQZ.Core.beforeBlurValue != CLIQZ.Core.urlbar.value) CLIQZ.Core.urlbar.value = CLIQZ.Core.beforeBlurValue
-        
         CliqzAutocomplete.resetSpellCorr();
         
         if(CLIQZ.Core.triggerLastQ)

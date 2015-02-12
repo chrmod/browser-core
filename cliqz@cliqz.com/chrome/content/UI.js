@@ -198,7 +198,7 @@ var UI = {
     },
     keyDown: function(ev){
         if(ev.keyCode != ENTER) UI.mouseOver = false;
-
+        
         var sel = getResultSelection(),
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
             pos = allArrowable.indexOf(sel);
@@ -396,12 +396,7 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    // Remove autocomplete from urlbar
-    if (urlbar.selectionEnd !== urlbar.selectionStart &&
-        urlbar.selectionStart !== 0) {
-        urlbar.value = urlbar.value.substr(0, urlbar.selectionStart);
-    }
-
+    
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {

@@ -13,7 +13,206 @@ var openUILink = function(value){
     else window.top.location.href = Services.search.currentEngine.getSubmission(value).uri.spec; 
 }
 
+var QuickAccessController = {
+    display: function(title,icon,url){
+        var template = $("#qa-item-template").clone()
+        
+        template.removeAttr("id").removeClass("hidden").attr("href",url).appendTo($("#qa"))
+        
+        template.find(".title").text(title)
+        
+        var logoinfo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)),
+            icon = template.find(".icon").text(logoinfo.text).attr("style",logoinfo.style)
+    },
+    init: function(){
+        var bookmarks = Components.classes["@mozilla.org/browser/nav-bookmarks-service;1"].getService(Components.interfaces.nsINavBookmarksService),
+            history = Components.classes["@mozilla.org/browser/nav-history-service;1"].getService(Components.interfaces.nsINavHistoryService),
+            query = history.getNewQuery()
+        
+        query.setFolders([bookmarks.toolbarFolder], 1)
+        
+        var toolbar = history.executeQuery(query, history.getNewQueryOptions()).root
+        
+        // Open the folder, and iterate over its contents.
+        toolbar.containerOpen = true
+        
+        for (var i=0;i<toolbar.childCount;i++) {
+            var item = toolbar.getChild(i)
+            
+            if (item.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_FOLDER && item.title == "Cliqzess") {
+                item.QueryInterface(Components.interfaces.nsINavHistoryContainerResultNode)
+                item.containerOpen = true
+                
+                for (var j=0;j<item.childCount;j++) {
+                    var bookmark = item.getChild(j)
+                    
+                    if (bookmark.type == Components.interfaces.nsINavHistoryResultNode.RESULT_TYPE_URI) {
+                        this.display(bookmark.title,bookmark.icon,bookmark.uri)
+                    }
+                }
+            }
+        }
+    }
+}
+
+var NewsController = {
+    display: function(title,time,url){
+        var template = $("#news-item-template").clone()
+        
+        template.removeAttr("id").removeClass("hidden").attr("href",url).appendTo($("#news"))
+        
+        template.find(".time").text(time)
+        template.find(".title").text(title)
+    },
+    init: function(){
+        CliqzUtils.httpGet("https://newbeta.cliqz.com/api/v1/results?q=spiegel",function(data){
+            try {
+                var response = JSON.parse(data.response), news = response.extra.results[0].data.news
+
+                for (var i=0,imax=news.length;i<imax;i++) {
+                    NewsController.display(news[i].title,news[i].time,news[i].url)
+                }
+            }
+            catch(e) {
+                alert(e)
+            }
+        });
+    }
+}
+
+var HistoryController = {
+    amount: 10,
+    nextShownIndex: null,
+    
+    pin: function(item,link,index){
+        NewTabUtils.pinnedLinks.pin(link,index);
+        $(item).addClass("pinned")
+    },
+    isPinned: function(link) {
+        return NewTabUtils.pinnedLinks.isPinned(link)
+    },
+    unpin: function(item,link){
+        NewTabUtils.pinnedLinks.unpin(link);
+        $(item).removeClass("pinned")
+    },
+    hide: function(item,link,index){
+        this.lastHidden = link
+        
+        this.unpin(item,link)
+        
+        NewTabUtils.blockedLinks.block(link)
+        
+        $(item).remove()
+        
+        for (var i=this.nextShownIndex,imax=this.links.length;i<imax;i++) {
+            if (!NewTabUtils.blockedLinks.isBlocked(this.links[i])) {
+                this.animate(this.display(this.links[i]).insertBefore($("#history-lis > *").eq(index)))
+                this.nextShownIndex ++
+                break
+            }
+        }
+        
+        this.popup(true)
+    },
+    popup: function(show){
+        if (show) $("#history-popup").show()
+        else $("#history-popup").hide()
+    },
+    undo: function(all){
+        if (all) NewTabUtils.undoAll(function(){ location.reload() });
+        else { 
+            NewTabUtils.blockedLinks.unblock(this.lastHidden);
+            location.reload()
+        }
+        
+        this.popup(false)
+    },
+    display: function(link){
+        var template = $("#history-row-template").clone();
+
+        template.attr("href",link.url).removeClass("hidden").appendTo($("#history-lis")).css("visibility","hidden");
+        template[0].link = link;
+        template.find(".history-title").text(link.title);
+        
+        if (HistoryController.isPinned(link)) template.addClass("pinned");
+        
+        (function(link,template){
+            template.find(".close").click(function(e){
+                var a = $(this).parents("a:first")
+                HistoryController.hide(a,link,$("#history-lis > *").index(a));
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            template.find(".pin").click(function(e){
+                var a = $(this).parents("a:first")
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (a.filter(".pinned").length) HistoryController.unpin(template,link);
+                else HistoryController.pin(template,link,$("#history-lis > *").index(a));
+            });
+            
+            template.find(".unpin").click(function(e){
+                HistoryController.unpin(link);
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.reload();
+            });
+        })(link,template);
+        
+        var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
+            logoinfo = CliqzUtils.getLogoDetails(urlinfo),
+            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)
+        
+        template.find(".history-url.blurred").text(urlinfo.host);
+        template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
+        
+        return template
+    },
+    animate: function(item){
+        var element = $(item).css("visibility","visible"),
+            effect = "bounceIn";
+                
+        element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+            $(this).removeClass(effect + " animated");
+        });
+    },
+    init: function(links){
+        this.links = links
+        this.nextShownIndex = this.amount
+        
+        var amount = Math.min(links.length,this.amount), array = [], list = $("#history-lis");
+    
+        for (var i=0;i<amount;i++) {
+            array.push(i);
+            HistoryController.display(links[i])
+        }
+
+        shuffle(array);
+
+        for (var i=0;i<amount;i++)
+            (function(index){ setTimeout(function(){ HistoryController.animate($("#history-lis").children().eq(array[index])) },i * 50); })(i);
+
+        Sortable.create(list[0],{
+            animation: 150,
+            onUpdate: function(e){
+                for (var i = e.oldIndex;i > e.newIndex;i--) {
+                    var owner = list.children().eq(i)[0]
+
+                    if (HistoryController.isPinned(owner.link)) HistoryController.pin(owner,owner.link,i);
+                }
+
+                HistoryController.pin(e.item,e.item.link,e.newIndex)
+            }
+        });
+    }
+};
+
 $(function(){
+    NewsController.init()
+    
     var serverurl = "http://chrome-backgrounds.cliqz.com";
     
     $("#search").attr("placeholder",CliqzUtils.getWindow().document.getElementById("urlbar").placeholder);
@@ -93,6 +292,8 @@ $(function(){
     $("#history-undo").click(function(){ HistoryController.undo(false) })
     $("#history-undo-all").click(function(){ HistoryController.undo(true) })
     $("#history-popup .dismiss").click(function(){ HistoryController.popup(false) })
+    
+    QuickAccessController.init()
 });
 
 var CliqzResults = {
@@ -173,134 +374,3 @@ function shuffle(array) {
 
   return array;
 }
-
-var HistoryController = {
-    amount: 10,
-    nextShownIndex: null,
-    
-    pin: function(item,link,index){
-        NewTabUtils.pinnedLinks.pin(link,index);
-        $(item).addClass("pinned")
-        console.log("pinned",item,link,index,NewTabUtils.pinnedLinks)
-    },
-    isPinned: function(link) {
-        return NewTabUtils.pinnedLinks.isPinned(link)
-    },
-    unpin: function(item,link){
-        NewTabUtils.pinnedLinks.unpin(link);
-        $(item).removeClass("pinned")
-    },
-    hide: function(item,link,index){
-        this.lastHidden = link
-        
-        this.unpin(item,link)
-        
-        NewTabUtils.blockedLinks.block(link)
-        
-        $(item).remove()
-        
-        for (var i=this.nextShownIndex,imax=this.links.length;i<imax;i++) {
-            if (!NewTabUtils.blockedLinks.isBlocked(this.links[i])) {
-                this.animate(this.display(this.links[i]).insertBefore($("#history-lis > *").eq(index)))
-                this.nextShownIndex ++
-                break
-            }
-        }
-        
-        this.popup(true)
-    },
-    popup: function(show){
-        if (show) $("#history-popup").show()
-        else $("#history-popup").hide()
-    },
-    undo: function(all){
-        if (all) NewTabUtils.undoAll(function(){ location.reload() });
-        else { 
-            NewTabUtils.blockedLinks.unblock(this.lastHidden);
-            location.reload()
-        }
-        
-        this.popup(false)
-    },
-    display: function(link){
-        var template = $("#history-row-template").clone();
-
-        template.attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo($("#history-lis")).css("visibility","hidden");
-        template[0].link = link;
-        template.find(".history-title").text(link.title);
-        
-        if (HistoryController.isPinned(link)) template.addClass("pinned");
-        
-        (function(link,template){
-            template.find(".close").click(function(e){
-                var a = $(this).parents("a:first")
-                HistoryController.hide(a,link,$("#history-lis > *").index(a));
-                e.preventDefault();
-                e.stopPropagation();
-            });
-            
-            template.find(".pin").click(function(e){
-                var a = $(this).parents("a:first")
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (a.filter(".pinned").length) HistoryController.unpin(template,link);
-                else HistoryController.pin(template,link,$("#history-lis > *").index(a));
-            });
-            
-            template.find(".unpin").click(function(e){
-                HistoryController.unpin(link);
-                e.preventDefault();
-                e.stopPropagation();
-                window.location.reload();
-            });
-        })(link,template);
-        
-        var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
-            logoinfo = CliqzUtils.getLogoDetails(urlinfo),
-            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)
-        
-        template.find(".history-url.blurred").text(urlinfo.host);
-        template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
-        
-        return template
-    },
-    animate: function(item){
-        var element = $(item).css("visibility","visible"),
-            effect = "bounceIn";
-                
-        element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-            $(this).removeClass(effect + " animated");
-        });
-    },
-    init: function(links){
-        this.links = links
-        this.nextShownIndex = this.amount
-        
-        var amount = Math.min(links.length,this.amount), array = [], list = $("#history-lis");
-    
-        for (var i=0;i<amount;i++) {
-            array.push(i);
-            HistoryController.display(links[i])
-        }
-
-        shuffle(array);
-
-        for (var i=0;i<amount;i++)
-            (function(index){ setTimeout(function(){ HistoryController.animate($("#history-lis").children().eq(array[index])) },i * 50); })(i);
-
-        Sortable.create(list[0],{
-            animation: 150,
-            onUpdate: function(e){
-                for (var i = e.oldIndex;i > e.newIndex;i--) {
-                    var owner = list.children().eq(i)[0]
-
-                    if (HistoryController.isPinned(owner.link)) HistoryController.pin(owner,owner.link,i);
-                }
-
-                HistoryController.pin(e.item,e.item.link,e.newIndex)
-            }
-        });
-    }
-};

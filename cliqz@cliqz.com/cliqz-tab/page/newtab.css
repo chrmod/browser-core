@@ -27,9 +27,69 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
 @media (min-width: 992px) { .search-container { width: 970px; } }
 @media (min-width: 1200px) { .search-container { width: 1170px; } }
 
+/* qa */
+#qa {
+    margin: 0 5px 10px;
+}
+
+#qa > a {
+    padding: 10px;
+    display: block;
+    width: 200px;
+    background: white;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#qa > a:hover {
+    outline: 2px solid #5ea3f9
+}
+
+#qa .icon {
+    font-size: 10px;
+    float: left;
+    margin-right: 10px;
+}
+
+#qa .title {
+    line-height: 24px;
+    width: 162px;
+    float: left;
+}
+
+/* news */
+#news {
+    float: left;
+    width: 25%;
+    min-width: 260px;
+    background: white;
+    margin: 5px;
+}
+
+#news > a {
+    padding: 10px;
+    display: block;
+}
+
+#news > a:hover {
+    outline: 2px solid #5ea3f9 
+}
+
+#news .title {
+    color: black;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+#news .time {
+    color: grey;
+    font-size: 11px;
+}
+
 /* history */
 .history-lis {
     margin-bottom: 5px;
+    overflow: hidden;
 }
 .history-lis a {
     display: block;
@@ -103,7 +163,7 @@ a.pinned .pin, .history-row .pin:hover {
     font-weight: 400;
 }
 .history-url {
-    color: gray;
+    color: grey;
     font-size: 11px;
 }
 .history-lis a:hover .history-url.blurred, .history-lis a .history-url.hovered {
