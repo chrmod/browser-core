@@ -260,7 +260,7 @@ var Mixer = {
 
             // if the first result is a history cluster,
             // combine it with the entity zone
-            if(results.length > 0 && 
+            if(results.length > 0 &&
                results[0].data && results[0].data.template == "pattern-h2" &&
                cliqzExtra[0].data.template == "entity-generic") {
 
@@ -276,12 +276,12 @@ var Mixer = {
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,4);
                 results = [results[0]];
-            
+
             } else {
                 results = cliqzExtra.concat(results);
             }
         }
-            
+
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
@@ -351,4 +351,3 @@ var Mixer = {
 }
 
 Mixer.init();
-

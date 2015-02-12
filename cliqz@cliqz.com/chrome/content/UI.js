@@ -226,8 +226,9 @@ var UI = {
                 return onEnter(ev, sel);
             break;
             case TAB:
-                clearResultSelection();
+                var urlbar = CLIQZ.Core.urlbar;
                 suggestionNavigation(ev);
+                urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
                 return true;
             case RIGHT:
             case LEFT:
@@ -731,6 +732,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
+                r.width = res.width;
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -956,26 +958,36 @@ function getResultSelection(){
     return $('[arrow="true"]', gCliqzBox);
 }
 
-function clearResultSelection(){
+function clearResultSelection(keepArrow){
     var el = getResultSelection();
     el && el.setAttribute('arrow', 'false');
     UI.mouseOver = false;
+    var arrow = $('.cqz-result-selected', gCliqzBox);
+    (arrow && !keepArrow) && arrow.removeAttribute('active');
+    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
+    if(title)title.style.textDecoration = "none";
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
-    clearResultSelection();
-    var arrow = $('.cqz-result-selected', gCliqzBox);
-    arrow.removeAttribute('active');
     if(el){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        var arrow = $('.cqz-result-selected', gCliqzBox);
+        if(target.className.indexOf("cliqz-pattern-title") != -1) return;
+
+        // Clear Selection
+        clearResultSelection();
+
         if(target != el)
             //arrow target is now on an inner element
             el.removeAttribute('arrow');
-        target.setAttribute('arrow', 'true');
 
+        target.setAttribute('arrow', 'true');
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
+        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
+        title.style.textDecoration = 'underline';
+
         // update the URL bar with the selected URL
         if (UI.lastInput == "") {
             if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
@@ -990,22 +1002,21 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.mouseOver = mouseOver;
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
+        clearResultSelection();
     }
     return;
 }
 
 var lastMoveTime = Date.now();
-var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
         while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-
-        lastHover = el;
-        clearResultSelection();
+        clearResultSelection(true);
         setResultSelection(el, false, false, false, true);
+        UI.mouseOver = true;
         lastMoveTime = Date.now();
     }
 }

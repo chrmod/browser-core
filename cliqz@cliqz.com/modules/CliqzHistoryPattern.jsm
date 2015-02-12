@@ -522,7 +522,7 @@ var CliqzHistoryPattern = {
       }
       return query;
     }
-    if (urlbar == "www." || urlbar == "http://" || urlbar.substr(urlbar.indexOf("://")+3) == "www.")
+    if (urlbar == "www." || urlbar == "http://" || urlbar.substr(urlbar.indexOf("://")+3) == "www." || urlbar == '')
       return {};
 
     var type = null;
