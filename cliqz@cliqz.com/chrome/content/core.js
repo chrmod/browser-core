@@ -112,7 +112,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.checkSession();
 
         CLIQZ.Core._autocompletesearch = CLIQZ.Core.urlbar.getAttribute('autocompletesearch');
-        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
+        CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
         CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
@@ -124,7 +124,7 @@ CLIQZ.Core = CLIQZ.Core || {
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
-
+        
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -321,9 +321,10 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();
+        
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
-
+        
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){

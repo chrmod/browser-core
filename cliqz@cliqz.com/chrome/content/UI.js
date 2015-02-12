@@ -198,13 +198,12 @@ var UI = {
     },
     keyDown: function(ev){
         if(ev.keyCode != ENTER) UI.mouseOver = false;
-
+        
         var sel = getResultSelection(),
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
             pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-
         switch(ev.keyCode) {
             case UP:
                 var nextEl = pos > 0 ? allArrowable[pos-1]: null;
@@ -235,9 +234,11 @@ var UI = {
                 var urlbar = CLIQZ.Core.urlbar;
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+                
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
+                
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -394,6 +395,8 @@ function sessionEnd(){
 
 var forceCloseResults = false;
 function closeResults(event, force) {
+    var urlbar = CLIQZ.Core.urlbar;
+    
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {

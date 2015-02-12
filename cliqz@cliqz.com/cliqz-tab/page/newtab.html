@@ -26,28 +26,39 @@
             <div class="background">
                 <div class="container search-container">
                     <div class="row">
+                        <div id="qa"></div>
                         <div class="search-box">
                             <input id="search" autocomplete="off" class='input-box'/>
                             <div role="menu" aria-labelledby="search" style="display: none;" id="search-dropdown"></div>
                         </div>
-
-                        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template" selectable="selectable">
-                            <div class="history-row">
-                                <div class="close"></div>
-                                <div class="pin"></div>
-                                <div class='history-icon cliqz-brand-logo'></div>
-                                <div class='history-desc'>
-                                    <div class='history-title ellipsis'></div>
-                                    <div class='history-url ellipsis hovered'></div>
-                                    <div class='history-url ellipsis blurred'></div>
-                                </div>
-                                <br style="clear:both" />
-                            </div>
-                        </a>
+                        <div id="news"></div>
                         <div class="history-lis" id="history-lis"></div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- templates -->
+        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template" selectable="selectable">
+            <div class="history-row">
+                <div class="close"></div>
+                <div class="pin"></div>
+                <div class='history-icon cliqz-brand-logo'></div>
+                <div class='history-desc'>
+                    <div class='history-title ellipsis'></div>
+                    <div class='history-url ellipsis hovered'></div>
+                    <div class='history-url ellipsis blurred'></div>
+                </div>
+                <br style="clear:both" />
+            </div>
+        </a>
+        <a target="_top" class="hidden" id="news-item-template">
+            <div class="title"></div>
+            <div class="time"></div>
+        </a>
+        <a target="_top" class="hidden" id="qa-item-template">
+            <div class="cliqz-brand-logo icon"></div>
+            <div class="title ellipsis"></div>
+        </a>
     </body>
 </html>
