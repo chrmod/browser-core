@@ -760,8 +760,9 @@ var CliqzHistoryPattern = {
         var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
         instant.comment += " (history single)!"
       } else if (res.cluster) {
+        var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
-        instant.data.title = res.top_domain
+        instant.data.title = domain[0].toUpperCase() + domain.substr(1);
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";

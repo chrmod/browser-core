@@ -997,7 +997,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
         var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
-        title.style.textDecoration = 'underline';
+        if(title) title.style.textDecoration = 'underline';
 
         // update the URL bar with the selected URL
         if (UI.lastInput == "") {
