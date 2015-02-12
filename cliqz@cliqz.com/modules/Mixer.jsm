@@ -69,7 +69,6 @@ var Mixer = {
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
         var instant_new = [];
-        var any_duplicates = false;
         for(let i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
@@ -97,14 +96,16 @@ var Mixer = {
             }
             if (!duplicate) {
                 cliqz_new.push(cliqz[i]);
-            } else {
-                any_duplicates = true;
             }
         }
-        if(any_duplicates)
-            instant = [instant_new[0]];
-        else if(instant.length > 0)
-            instant = [Result.clone(instant[0])];
+
+        // Later in this function, we will modify the contents of instant.
+        // To avoid changing the source object, make a copy here, if not already
+        // done so in the duplication handling above.
+        if(instant_new.length > 0 && instant.length > 0)
+            instant_new.push(Result.clone(instant[0]));
+        instant = instant_new;
+            
         cliqz = cliqz_new;
 
         for (let i = 0; history_trans && i < history_trans.length; i++) {

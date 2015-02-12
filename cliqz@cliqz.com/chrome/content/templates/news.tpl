@@ -1,7 +1,4 @@
 <div class='cqz-result-h3'>
-    {{#if debug}}
-        <span class='cqz-result-debug'>{{ debug }}</span>
-    {{/if}}
     {{#if image.src}}
         <div class="cqz-image cqz-image-news cqz-image-round " style="
                     background-image: url({{ image.src }});">
