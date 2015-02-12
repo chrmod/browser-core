@@ -14,8 +14,7 @@ var openUILink = function(value){
 }
 
 $(function(){
-    var serverurl = "http://chrome-backgrounds.cliqz.com",
-        googlebarurl = "http://cdn.cliqz.com/extension/newtab/google-bar/";
+    var serverurl = "http://chrome-backgrounds.cliqz.com";
     
     $("#search").attr("placeholder",CliqzUtils.getWindow().document.getElementById("urlbar").placeholder);
     
@@ -32,47 +31,15 @@ $(function(){
             // get & render history
             setTimeout(function(){
                 NewTabUtils.links.populateCache(() => {
-                    renderHistory(NewTabUtils.links.getLinks());
+                    HistoryController.init(NewTabUtils.links.getLinks());
                 });
             },200);
         },
         error: function() {}
     });
     
-    // fill options
-    [
-        { name: "Gmail", url: "https://mail.google.com/", img: "gmail.png" },
-        { name: "Calendar", url: "https://www.google.com/calendar/", img: "calendar.png" },
-        { name: "News", url: "https://news.google.de/", img: "news.png" },
-        { name: "Maps", url: "https://maps.google.de/", img: "maps.png" },
-        { name: "Youtube", url: "https://www.youtube.de/", img: "youtube.png" }
-    ].forEach(function(item){
-        $("<a class='option' style='background-image:url(" + googlebarurl + item.img + ")'>").attr("href",item.url)
-                                                                                             .attr("target","_top")
-                                                                                             .html(item.name)
-                                                                                             .appendTo(".options-container")
-    })
-    
-    $(".options-btn").click(function(event){
-        if ($(".options-container.active").length) {
-            var effect = "flipOutY";
-            
-            $(".options-container").addClass(effect + " animated")
-                                   .removeClass("active")    
-                                   .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                $(this).removeClass(effect + " animated").hide();
-            });            
-        }
-        else {
-            var effect = "flipInY";
-            
-            $(".options-container").show().addClass(effect + " animated active")
-                                   .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                $(this).removeClass(effect + " animated");
-            });
-        }
-        
-        event.stopPropagation();
+    $('#search-dropdown').click(function(ev){
+        ev.stopPropagation();
     });
     
     $(document).click(function(ev){
@@ -122,6 +89,10 @@ $(function(){
         $("#search-dropdown").hide()
         CLIQZ.Core.popup.popupOpen = false
     })
+    
+    $("#history-undo").click(function(){ HistoryController.undo(false) })
+    $("#history-undo-all").click(function(){ HistoryController.undo(true) })
+    $("#history-popup .dismiss").click(function(){ HistoryController.popup(false) })
 });
 
 var CliqzResults = {
@@ -203,45 +174,133 @@ function shuffle(array) {
   return array;
 }
 
-function renderHistory(links){
-    var amount = Math.min(links.length,10), array = [];
+var HistoryController = {
+    amount: 10,
+    nextShownIndex: null,
     
-    for (var i=0;i<amount;i++) {
-        array.push(i);
+    pin: function(item,link,index){
+        NewTabUtils.pinnedLinks.pin(link,index);
+        $(item).addClass("pinned")
+        console.log("pinned",item,link,index,NewTabUtils.pinnedLinks)
+    },
+    isPinned: function(link) {
+        return NewTabUtils.pinnedLinks.isPinned(link)
+    },
+    unpin: function(item,link){
+        NewTabUtils.pinnedLinks.unpin(link);
+        $(item).removeClass("pinned")
+    },
+    hide: function(item,link,index){
+        this.lastHidden = link
         
-        var link = links[i];
-
+        this.unpin(item,link)
+        
+        NewTabUtils.blockedLinks.block(link)
+        
+        $(item).remove()
+        
+        for (var i=this.nextShownIndex,imax=this.links.length;i<imax;i++) {
+            if (!NewTabUtils.blockedLinks.isBlocked(this.links[i])) {
+                this.animate(this.display(this.links[i]).insertBefore($("#history-lis > *").eq(index)))
+                this.nextShownIndex ++
+                break
+            }
+        }
+        
+        this.popup(true)
+    },
+    popup: function(show){
+        if (show) $("#history-popup").show()
+        else $("#history-popup").hide()
+    },
+    undo: function(all){
+        if (all) NewTabUtils.undoAll(function(){ location.reload() });
+        else { 
+            NewTabUtils.blockedLinks.unblock(this.lastHidden);
+            location.reload()
+        }
+        
+        this.popup(false)
+    },
+    display: function(link){
         var template = $("#history-row-template").clone();
 
-        template.attr("number",i).attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo("#history-lis").css("visibility","hidden");
-
+        template.attr("href",link.url).removeAttr("id").removeClass("hidden").appendTo($("#history-lis")).css("visibility","hidden");
+        template[0].link = link;
         template.find(".history-title").text(link.title);
+        
+        if (HistoryController.isPinned(link)) template.addClass("pinned");
+        
+        (function(link,template){
+            template.find(".close").click(function(e){
+                var a = $(this).parents("a:first")
+                HistoryController.hide(a,link,$("#history-lis > *").index(a));
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            template.find(".pin").click(function(e){
+                var a = $(this).parents("a:first")
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (a.filter(".pinned").length) HistoryController.unpin(template,link);
+                else HistoryController.pin(template,link,$("#history-lis > *").index(a));
+            });
+            
+            template.find(".unpin").click(function(e){
+                HistoryController.unpin(link);
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.reload();
+            });
+        })(link,template);
         
         var urlinfo = CliqzUtils.getDetailsFromUrl(link.url),
             logoinfo = CliqzUtils.getLogoDetails(urlinfo),
-            icon = template.find(".history-icon").css("background-color",logoinfo.color);
-        
-        if (icon.img) icon.css("background-image","url(" + logoinfo.img + ")");
-        else icon.text(logoinfo.text);
+            icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)
         
         template.find(".history-url.blurred").text(urlinfo.host);
         template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
-    }
-    
-    shuffle(array);
-    
-    var effect = "bounceIn";
-    
-    for (var i=0;i<amount;i++){
-        (function(index){
-            setTimeout(function(){ 
-                var element = $("#history-lis").children().eq(array[index]).css("visibility","visible");
+        
+        return template
+    },
+    animate: function(item){
+        var element = $(item).css("visibility","visible"),
+            effect = "bounceIn";
                 
-                element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
-                    $(this).removeClass(effect + " animated");
-                });
-                
-            },i * 50);
-        })(i);
+        element.addClass(effect + " animated").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+            $(this).removeClass(effect + " animated");
+        });
+    },
+    init: function(links){
+        this.links = links
+        this.nextShownIndex = this.amount
+        
+        var amount = Math.min(links.length,this.amount), array = [], list = $("#history-lis");
+    
+        for (var i=0;i<amount;i++) {
+            array.push(i);
+            HistoryController.display(links[i])
+        }
+
+        shuffle(array);
+
+        for (var i=0;i<amount;i++)
+            (function(index){ setTimeout(function(){ HistoryController.animate($("#history-lis").children().eq(array[index])) },i * 50); })(i);
+
+        Sortable.create(list[0],{
+            animation: 150,
+            onUpdate: function(e){
+                for (var i = e.oldIndex;i > e.newIndex;i--) {
+                    var owner = list.children().eq(i)[0]
+
+                    if (HistoryController.isPinned(owner.link)) HistoryController.pin(owner,owner.link,i);
+                }
+
+                HistoryController.pin(e.item,e.item.link,e.newIndex)
+            }
+        });
     }
-}
+};

@@ -1,28 +1,22 @@
-<div class='cliqz-pattern cqz-result-{{data.height}}'>
-  <div class='cliqz-pattern-logo cliqz-pattern-logo-{{data.height}}'></div>
-  <div class='cqz-result-title overflow cliqz-pattern-title-{{data.height}}' style='color: rgba(0,0,0,0.72)'>
-    {{ data.title }}
-    <div class="cliqz-pattern-document-icon-{{data.height}}"></div>
-  </div>
-
-  <br clear='both' class='cliqz-pattern-margin-{{data.height}}' />
-  <div style="width:{{ width }}px;">
-    <div style="position:relative;overflow:hidden;">
-      <div class='.cqz-result-box cliqz-pattern-result-container'>
-        <div class='cliqz-pattern-favicons'>
-          {{#each data.urls}}
-          <div class='cliqz-pattern-favicon-element-{{height}}' style='background-image: url({{ favicon }}'></div>
-          {{/each}}
-        </div>
-        <div class='cliqz-pattern-results'>
-          {{#each data.urls}}
-          <div class='cliqz-pattern-element' url='{{href}}' shortUrl='{{link}}' domain='{{domain}}' height='{{height}}' type='' extra=''>
-              <div class='cliqz-pattern-element-title cliqz-pattern-element-{{height}}'>{{ emphasis title text 2 true }}</div>
-              <span class='cliqz-pattern-element-link cliqz-pattern-element-{{height}}'>{{ emphasis link text 2 true }}</span>
-          </div>
-          {{/each}}
-        </div>
+<div class='cqz-result-{{data.height}} cqz-result-pattern'>
+      <div class='cliqz-pattern-title-{{data.height}} cqz-result-title overflow'>
+          {{ data.title }}
       </div>
+      <div class='cliqz-pattern-results'>
+        {{#each data.urls}}
+        <div class='cliqz-pattern-element overflow'
+            {{#if favicon }}
+             style='background-image: url({{ favicon }}'
+             {{else}}
+              style='padding-left: 0px;'
+             {{/if}}
+             url='{{href}}' shortUrl='{{link}}'
+             domain='{{domain}}' height='{{height}}'
+            arrow="false">
+            <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
+            <div class='cliqz-pattern-element-link'>{{ link }}</div>
+        </div>
+        {{/each}}
     </div>
-  </div>
+    {{>logo}}
 </div>

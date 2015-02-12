@@ -30,10 +30,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": "we don't have great results this time."
+        "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:."
+        "message": "Versuche es mit ,Enter' bei ... oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
@@ -308,15 +308,6 @@
     "spell_correction": {
       "message":"Meintest Du wirklich "
     },
-    "result_filter_conservative": {
-      "message":"Konservativ"
-    },
-    "result_filter_moderate": {
-      "message":"Mittelmäßig"
-    },
-    "result_filter_liberal": {
-      "message":"Liberal"
-    },
     "result_filter": {
       "message":"Ergebnisfilter"
     },
@@ -329,7 +320,58 @@
     "history_results": {
       "message":"Besuchte Webseiten"
     },
+    "history_results_cluster": {
+      "message":"Meine Top-Seiten"
+    },
+    "adultInfo": {
+        "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
+    },
+    "adultAction": {
+        "message": "Alle Ergebnisse anzeigen?"
+    },
+    "adultConservative": {
+      "message":"strikt"
+    },
+    "adultModerate": {
+      "message":"moderat"
+    },
+    "adultLiberal": {
+      "message":"kein Filter"
+    },
+    "yes": {
+        "message": "Ja"
+    },
+    "no": {
+        "message": "Nein"
+    },
+    "options": {
+        "message": "Suchergebnisfilter"
+    },
+    "cliqz_slogan_H1": {
+        "message": "SURFEN STATT SUCHEN"
+    },
+    "cliqz_slogan_H2": {
+        "message": "Direkt, schnell & sicher."
+    },
+    "cliqz_common_questions":{
+        "message": "Häufig gestellte Fragen"
+    },
+    "cliqz_give_feedback":{
+        "message": "Feedback und Support"
+    },
+    "cliqz_about_us":{
+        "message": "Über Uns"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy": {
+        "message": "Datenschutz"
+    },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
+    },
+    "views": {
+        "message": "Aufrufe"
     }
 }

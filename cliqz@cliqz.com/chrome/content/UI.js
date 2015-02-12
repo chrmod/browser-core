@@ -17,13 +17,13 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'g': 'gaming'  ,
         'n': 'news'    ,
         'p': 'people'  ,
-        //'v': 'video'   ,
-        //'h': 'hq'      ,
+        'v': 'video'   ,
+        'h': 'hq'      ,
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'adult', 'logo', 'EZ-category'],
+    PARTIALS = ['url', 'adult', 'logo', 'EZ-category', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -99,11 +99,6 @@ var UI = {
         enginesBox.addEventListener('click', enginesClick);
 
         gCliqzBox.enginesBox = enginesBox;
-
-        var queryDebugLink = document.getElementById('cliqz-querydebug-link', box);
-        queryDebugLink.addEventListener('click', function(ev){
-            openUILink("chrome://cliqz/content/debugquery.html")
-        });
 
         handlePopupHeight(box);
 
@@ -203,24 +198,23 @@ var UI = {
     },
     keyDown: function(ev){
         if(ev.keyCode != ENTER) UI.mouseOver = false;
-        var sel = getResultSelection();
-        UI.lastInputTime = (new Date()).getTime();
+
+        var sel = getResultSelection(),
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
+            pos = allArrowable.indexOf(sel);
+
+        UI.lastInputTime = (new Date()).getTime()
+
         switch(ev.keyCode) {
             case UP:
-                var nextEl = sel && sel.previousElementSibling;
+                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
                 setResultSelection(nextEl, true, true, true);
                 trackArrowNavigation(nextEl);
                 return true;
             break;
             case DOWN:
-                if(sel != gCliqzBox.resultsBox.lastElementChild){
-                    var nextEl = sel && sel.nextElementSibling;
-                    nextEl = nextEl || gCliqzBox.resultsBox.firstElementChild;
-                    if (sel && sel.className == "cliqz-pattern-element" && nextEl.getAttribute("kind") == "C") {
-                      nextEl = nextEl.nextElementSibling;
-                    }
-                    if(nextEl.className == 'cqz-result-selected') return true;
-                    if(!nextEl.getAttribute("url")) return true;
+                if(pos != allArrowable.length - 1){
+                    var nextEl = allArrowable[pos+1];
                     setResultSelection(nextEl, true, false, true);
                     trackArrowNavigation(nextEl);
                 }
@@ -318,7 +312,7 @@ var UI = {
         if(time - UI.lastInputTime > 300) {
           if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
+            setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
         }
       },300);
@@ -431,7 +425,7 @@ function hideMisalignedElements(ctx){
     }
 }
 
-function handlePopupHeight(box){
+function handlePopupHeight(box){/*
     var MAX=352, MIN =160,
         height = CliqzUtils.getPref('popupHeight', 290),
         start, footer = document.getElementById('cliqz-footer', box);
@@ -462,7 +456,7 @@ function handlePopupHeight(box){
         start = e.pageY;
         document.addEventListener('mousemove',moveIT);
         document.addEventListener('mouseup', mouseReleased);
-    });
+    });*/
 }
 
 function $(e, ctx){return (ctx || document).querySelector(e); }
@@ -670,7 +664,7 @@ function getPartial(type){
     if(type === 'cliqz-images') return 'images';
     if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
-    if(type === 'cliqz-pattern') return 'pattern';
+    if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
     if(type.indexOf('cliqz-custom sources-') === 0) return 'custom';
     if(type.indexOf('cliqz-results sources-') == 0){
@@ -744,7 +738,7 @@ function enhanceResults(res){
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
-                 r.width = res.width - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                 r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
             r.vertical = getPartial(r.type);
 
@@ -756,8 +750,11 @@ function enhanceResults(res){
             //extract tags from title
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
-
         }
+
+        if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
+            r.logo.force_cliqz = true;
+
     }
 
     //prioritize extra (fun-vertical) results
@@ -775,7 +772,7 @@ function enhanceResults(res){
         if(level == 'moderate' && adultMessage == 0){
             res.showAdult = true;
             res.adultConfig = CliqzUtils.getAdultFilterState();
-            CLIQZ.Core.popup.style.height = "336px";
+            CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
         }
     }
 
@@ -783,7 +780,7 @@ function enhanceResults(res){
     res.results = [];
     for(var i=0; i<all.length && i<3; i++){
         res.results.push(all[i]);
-        if((all[i].type == 'cliqz-extra' || all[i].type == 'cliqz-pattern') && all[i].data){
+        if((all[i].type == 'cliqz-extra' || (all[i].type.indexOf('cliqz-pattern') == 0)) && all[i].data){
             i += (TEMPLATES[all[i].data.template]-1);
         }
     }
@@ -959,31 +956,55 @@ function handleAdultClick(ev){
                 //click on options btn
             }
     }
+    setTimeout(CliqzUtils.refreshButtons, 0);
 }
 
 function getResultSelection(){
-    var selectedHistory = $('.' + "cliqz-pattern-element" + '[selected="true"]', gCliqzBox);
     if(UI.mouseOver) return null;
-    if (selectedHistory) return selectedHistory;
-    else                 return $('.' + IC + '[selected="true"]', gCliqzBox);
+    return $('[arrow="true"]', gCliqzBox);
 }
 
 function clearResultSelection(){
     var el = getResultSelection();
-    el && el.removeAttribute('selected');
-    if(gCliqzBox) {
-      var selected = $('.cqz-result-selected', gCliqzBox);
-      selected && selected.removeAttribute('active');
-      // Reset history entries to domain name
-      /*var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
-      for(var i=0; i<history.length; i++) {
-        history[i].children[1].textContent = history[i].getAttribute("domain");
-      }*/
-    }
+    el && el.setAttribute('arrow', 'false');
     UI.mouseOver = false;
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+    clearResultSelection();
+    var arrow = $('.cqz-result-selected', gCliqzBox);
+    arrow.removeAttribute('active');
+    if(el){
+        //focus on the title - or on the aroww element inside the element
+        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        if(target != el)
+            //arrow target is now on an inner element
+            el.removeAttribute('arrow');
+        target.setAttribute('arrow', 'true');
+
+        arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
+        arrow.setAttribute('active', 'true');
+    }
+
+    // update the URL bar with the selected URL
+    if(el){
+        if (UI.lastInput == "") {
+            if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
+                UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+            } else {
+                UI.lastInput = CLIQZ.Core.urlbar.value;
+            }
+        }
+        if(changeUrl) {
+            CLIQZ.Core.urlbar.value = el.getAttribute("url");
+        }
+        UI.mouseOver = mouseOver;
+    } else if (changeUrl && UI.lastInput != "") {
+        CLIQZ.Core.urlbar.value = UI.lastInput;
+    }
+
+    return;
+    //sven: do we still need this?
     clearResultSelection();
     $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
     if(el){
@@ -1038,13 +1059,10 @@ var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
-        while (el && el.className != IC && el.className != "cliqz-pattern-element") {
+        while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-        // History Cluster -> only hover entries, not the whole area
-        if (el && el.getAttribute("kind") == "C" || el == lastHover) {
-            return;
-        }
+
         lastHover = el;
         clearResultSelection();
         setResultSelection(el, false, false, false, true);
@@ -1302,7 +1320,8 @@ function trackArrowNavigation(el){
     };
     if(el){
         action.position_type = getResultKind(el);
-        action.search = CliqzUtils.isSearch(el.getAttribute('url'));
+        var url = getResultOrChildAttr(el, 'url');
+        action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.track(action);
 }
@@ -1366,6 +1385,10 @@ function registerHelpers(){
 
     Handlebars.registerHelper('local', function(key, v1, v2 ) {
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
+    });
+
+    Handlebars.registerHelper('localize_parameters', function(key1, key2 ) {
+        return CliqzUtils.getLocalizedString(key1).replace('{}', CliqzUtils.getLocalizedString(key2));
     });
 
     Handlebars.registerHelper('local_number', function(val) {
@@ -1492,7 +1515,9 @@ function registerHelpers(){
             "||": lvalue || rvalue,
             "&": lvalue & rvalue,
             "&&": lvalue & rvalue,
-            "^": lvalue ^ rvalue
+            "^": lvalue ^ rvalue,
+            "is": lvalue == rvalue,
+            "starts_with": lvalue.indexOf(rvalue) == 0
         }[operator];
     });
 
@@ -1529,6 +1554,10 @@ function registerHelpers(){
           return true;
         else
           return false;
+    });
+
+    Handlebars.registerHelper('nameify', function(str) {
+        return str[0].toUpperCase() + str.slice(1);
     });
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {

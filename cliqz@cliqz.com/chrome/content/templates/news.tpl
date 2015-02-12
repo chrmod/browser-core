@@ -3,18 +3,15 @@
         <span class='cqz-result-debug'>{{ debug }}</span>
     {{/if}}
     {{#if image.src}}
-        <div class="cqz-image" style="
+        <div class="cqz-image cqz-image-news cqz-image-round " style="
                     background-image: url({{ image.src }});">
-        {{#if image.text }}
-            <p class='cqz-video-arrow'>{{ image.text }}</p>
-        {{/if}}
         </div>
     {{/if}}
-    <div class='cqz-result-center cqz-vert-center'
+    <div class='cqz-result-center'
          {{#if image.src}}
-            style="width: calc(60% - 120px)"
+            style="width: calc(80% - 130px)"
          {{/if}}>
-        <div class='cqz-result-title overflow'>
+        <div class='cqz-result-title overflow' selectable=''>
             {{ emphasis title text 2 true }}
         </div>
         <div class='cqz-result-url overflow
@@ -26,7 +23,7 @@
         </div>
         <div class='cqz-result-desc overflow'>
         	{{#if data.richData.discovery_timestamp}}
-        	    <span style="color: red">
+        	    <span style="color: #d7011d; padding-right:5px; ">
             	{{ agoline data.richData.discovery_timestamp }}
             	</span>
             {{/if}}

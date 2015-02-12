@@ -16,7 +16,6 @@
     src: url("fonts/Lato-Light.ttf");
 }
 
-
 /* BROWSER */
 #urlbar[focused="true"] {
 	/*box-shadow: 0px 0px 0px black !important;*/
@@ -28,6 +27,8 @@
 #cliqz-results {
     height: 302px;
     position: relative;
+    /* override linux default grey color */
+    background: #fff;
 }
 
 .cqz-result-h1 {
@@ -70,11 +71,11 @@
 */
 
 .cqz-result-selected {
-	background-color: #cccccc;
+	background-color: #333333;
 	border-radius: 0 3px 0 0;
 	position: absolute;
-	height: 16px;
-	width: 16px;
+	height: 14px;
+	width: 14px;
 	top: 10px;
 	left: -20px;
 	z-index: 1;
@@ -112,23 +113,27 @@
 }
 
 .cqz-result-center {
-	width: 60%;
-	padding: 0px 20px;
+	width: 80%;
+	padding: 14px 22px;
 	display: inline-block;
 	overflow: hidden;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 /* visited result - history, bookmark, ...*/
 .cqz-result-title {
 	font-size: 18px;
-	color: #8a52a2;
+	color: #8c275f;
   width: 90%;
+}
+
+.cqz-result-title span {
+  color: gray;
 }
 
 /* unvisited result - cliqz */
 .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title {
-	color: #5267a2;
+	color: #506bb8;
 }
 
 /*
@@ -143,15 +148,16 @@
 
 
 .cqz-result-url {
-	color: #999999;
+	color: #666666;
 	/*text-overflow: clip !important;*/
 	display: inline-block;
   width: 90%;
+  margin-top: 6px;
 }
 
 .cqz-result-url-ssl {
     padding-left: 13px;
-    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px center;
+    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px;
 }
 
 .cqz-result-path {
@@ -163,40 +169,63 @@
 }
 */
 .cqz-result-desc {
-    margin-top: 2px;
+    margin-top: 6px;
+    max-height: 22px;
+    vertical-align: top;
 }
 
+/*
+    Common class for logo to be reused everywhere.
+    Do not change this class if the properties are only dropdown-logo related!
+    Change .cqz-result-logo instead
+*/
+.cliqz-brand-logo {
+    /* container size/shape */
+    width: 2.5em;
+    height: 2.5em;
+    padding: 0.37em;
+    box-sizing: border-box;
+    border-radius: 50%;
+    /* text properties */
+    line-height: 1.75em;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    overflow: hidden;
+    /* background logo */
+    background-origin: content-box;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center center;
+}
+
+/* custom logo definitions */
 .cqz-result-logo {
-	width: 54px;
-	height: 54px;
-	border-radius: 50%;
 	margin-right: 18px;
 	position: absolute;
 	right: 0px;
-}
-
-.cqz-result-logo div {
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center center;
-  width: 38px;
-  height: 38px;
-  margin: 8px;
-  text-align: center;
-  line-height: 38px;
-  font-size: 22px;
-  color: white;
+    /* set the size of logo */
+    font-size: 26px;
 }
 
 .cqz-image {
     display: inline-block;
-    width: 96px; /* 16 */
-    height: 54px; /* 9 */
+    width: 114px; /* 16 */
+    height: 64px; /* 9 */
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    margin: 23px -4px 0px 22px;
+    margin: 18px -4px 0px 22px;
     position: relative;
+}
+
+.cqz-image-news {
+   position: relative;
+   top: -14px;
+}
+
+.cqz-image-round {
+  border-radius: 3px;
 }
 
 .cqz-image>p {
@@ -222,6 +251,11 @@
  display: inline-block;
  padding-right: 32px;
  margin-bottom: 0;
+ cursor: pointer;
+}
+
+.cqz-ez-title:hover {
+  text-decoration: underline;
 }
 
 .cqz-ez-generic-box {
@@ -249,12 +283,12 @@
 .cqz-ez-generic-opt {
  background-color: #efefef;
  min-width: 130px;
- max-width: 150px;
+ max-width: 174px;
  height: 132px;
  margin-left: 9px;
  text-align: center;
  box-sizing: border-box;
- padding: 7px 7px 0 7px;
+ padding: 7px 18px 0 18px;
  border-radius: 3px;
  color: #323232;
 }
@@ -263,7 +297,7 @@
   background-repeat: no-repeat;
   height: 65px;
   width: 65px;
-  margin: 17px auto;
+  margin: 14px auto;
   background-position: center;
   background-size: contain;
 }
@@ -319,22 +353,6 @@
   margin-bottom: 18px;
 }
 
-.entity-news-title {
-  color: #414141;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.entity-news-title span {
-  color: #1759a4;
-}
-
-.entity-news-title img {
-  float: right;
-  width: 48px;
-  margin: -5px -5px 0 0;
-}
-
 .entity-news-stories {
 }
 
@@ -350,10 +368,10 @@
 }
 
 .entity-news-story-title {
-  color: #333333;
+  color: #506bb8;
   max-width: 550px;
-  font-size: 16px;
-  max-height: 2em;
+  font-size: 18px;
+  max-height: 1em;
   overflow: hidden;
   line-height: 1em;
 }
@@ -362,8 +380,8 @@
     text-decoration: underline;
 }
 .entity-news-story-time {
-  color: #aaaaaa;
-  font-size: 12px;
+  color: #d7011d;
+  font-size: 14px;
   padding-top: 9px;
 }
 
@@ -396,7 +414,8 @@
 
 /* EZ video */
 .cqz-ez-video-title {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/video/y_search.png);
+  background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg);
+  margin-bottom: 18px;
 }
 
 
@@ -431,10 +450,10 @@
 }
 
 .entity-video-story-title {
-  color: #333333;
+  color: #506bb8;
   max-width: 550px;
-  font-size: 16px;
-  max-height: 2em;
+  font-size: 18px;
+  max-height: 1em;
   overflow: hidden;
   line-height: 1em;
 }
@@ -443,8 +462,8 @@
     text-decoration: underline;
 }
 .entity-video-story-time {
-    color: #aaaaaa;
-  font-size: 12px;
+  color: #333333;
+  font-size: 14px;
   padding-top: 9px;
 }
 
@@ -478,12 +497,9 @@
 
 .cqz-adult-bar {
   font-size: 14px;
-  padding: 5px 10px;
-  box-sizing: border-box;
-  -mox-box-sizing: border-box;
+  padding: 4px 10px;
   position: relative;
   bottom:0px;
-  width: 100%;
 }
 
 .cqz-adult-bar img {
@@ -516,7 +532,6 @@
   color: black;
   box-sizing: border-box;
   -mox-box-sizing: border-box;
-  width: 115px;
   display: inline-block;
   margin-left: 20px;
 }
@@ -524,7 +539,7 @@
 .cqz-adult-options-btn:after {
   content: "⌃";
   top: 3px;
-  left: 15px;
+  left: 3px;
   position: relative;
 }
 
@@ -627,41 +642,35 @@
 }
 
 .cqz-celeb-images {
-    height: 60px;
+    height: 64px;
     overflow: hidden;
+    width: 60%;
 }
 
 .cqz-celeb-image {
-    height: 60px;
+    height: 64px;
     margin-right: 6px;
-    border-radius: 6px;
+    border-radius: 3px;
 }
 
 .cqz-celeb-who {
     font-size: 18px;
-    margin: 3px 0px 5px 0px;
-}
-.cqz-celeb-who span {
-    color: #ccc;
+    margin: 10px 0px 7px 0px;
+    color: #506bb8;
 }
 
 .cqz-celeb-social {
-    height: 15px;
-    margin-bottom: 1px;
-    margin-right: 8px;
+    height: 22px;
+    margin-top: 10px;
+    margin-right: 9px;
 }
 
-.cqz-celeb-logo {
-    background-color: #ccc;
-    border-radius: 50%;
-    position: absolute;
-    height: 80px;
-    width: 80px;
-    line-height: 80px;
-    font-size: 40px;
-    text-align: center;
-    bottom: 22px;
-    right: 22px;
+.cqz-celeb-desc {
+  font-size: 14px;
+  line-height: 1em;
+  height: 2.1em;
+  overflow: hidden;
+  width: 85%;
 }
 /* end EZ celeb */
 
@@ -678,20 +687,29 @@
 	cursor: pointer;
 	color: white;
 	font-size: 14px;
-  padding: 0 9px 0 9px;
+  padding: 0 9px 2px 9px;
   line-height: 26px;
-  margin: 0 0 9px 0;
+  margin: 0 7px 9px 0;
   max-width: 150px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.cqz-ez-btn:hover, .cqz-ez-btn[arrow='true'] {
+  background-color: #cccccc !important;
 }
 
 .cqz-result-box *[url]:hover {
-	opacity: 0.85;
+	/*opacity: 0.85;*/
 }
 
 .cqz-result-box *[url] {
+  /*
 	-webkit-transition: all 0.3s ease;
 	-moz-transition: all 0.3s ease;
 	-o-transition: all 0.3s ease;
+  */
 }
 
 .cqz-result-padding {
@@ -704,22 +722,32 @@
 	padding-top: 15px;
 }
 
+.cqz-vert-center1 {
+  position: absolute;
+}
+
 .cqz-vert-center {
 	position: absolute;
 	top: 50%;
-	transform: translateY(-50%);
+	transform: translateY(-49%);
 }
 
 .overflow {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: top;
 }
 
 
 /* history */
 .cliqz-pattern {
   padding-left: 19px;
+}
+
+.cqz-result-pattern {
+  padding: 15px 22px;
+  box-sizing: border-box;
 }
 
 .cliqz-pattern-result-container {
@@ -767,10 +795,9 @@
 }
 
 .cliqz-pattern-title-h2 {
-  padding-top: 23px;
-  padding-bottom: 10px;
-  float: left;
-  position: relative;
+  margin-bottom: 14px;
+  color: #333333;
+  cursor: default;
 }
 
 .cliqz-pattern-title-h3 {
@@ -778,36 +805,44 @@
   visibility: hidden;
   height: 17px;
   */
-  padding-top: 12px;
-  padding-bottom: 8px;
-  float: left;
-  position: relative;
+  margin-bottom: 8px;
+  cursor: default;
+  color: #333333;
 }
 
 .cliqz-pattern-results {
-  margin-left: 5px;
-  display:inline-block;
-  text-decoration: none;
-  color:rgba(127,127,127,0.54);
-  overflow: hidden;
-  width: 75%;
-  cursor: pointer;
+
 }
 
 .cliqz-pattern-element {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  padding-left: 20px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 14px 14px;
+  height: 16px;
+  margin-bottom: 5px;
 }
 
 .cliqz-pattern-element-title {
-  color: #9C27B0;
-  color:rgba(128,0,128,0.60);
+  color: #8c275f;
   max-width: 50%;
-  overflow: hidden;
-  float: left;
-  text-overflow: ellipsis;
+  display: inline-block;
+  font-size: 14px;
+  height: 16px;
+  overflow-x: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cliqz-pattern-element-link {
+  max-width: 30%;
+  margin-left: 8px;
+  color: #999999;
+  display: inline-block;
+  height: 16px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .cliqz-pattern-element-h2 {
@@ -828,11 +863,7 @@
 }
 
 
-.cliqz-pattern-element-link {
-  margin-left: 8px;
-  color: #999999;
-  text-decoration: none;
-}
+
 
 .cliqz-pattern-favicons {
   max-width: 16px;
@@ -866,36 +897,9 @@
 }
 
 .cliqz-pattern-logo {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  margin-right: 18px;
-  position: absolute;
-  right: 0px;
-  background: #efefef;
-  background-repeat: no-repeat;
+    background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+    background-color: #efefef
 }
-
-.cliqz-pattern-logo-h2 {
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 73px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}
-
-.cliqz-pattern-logo-h3 {
-  /* ENABLE FOR 3 URLS
-  background-image: url(chrome://cliqzres/content/skin/history_icon.png);
-  top: 23px;
-  background-position: 7px 7px;
-  background-size: 40px 40px;
-  */
-  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-  top: 23px;
-  background-position: 11px 11px;
-  background-size: 32px 32px;
-}
-
 /* END history */
 
 /*  noResult  thuy@cliqz.com*/
@@ -964,7 +968,7 @@
 
 /* END noResult */
 
-/* TimeEZ thuy@cliqz.com */
+/* --------- TimeEZ ----------- thuy@cliqz.com */
 .EZ-time-bigcontainer{
  padding-left: 0px;
  background-color: white;
@@ -1000,27 +1004,92 @@
 }
 /* END TimeEZ */
 
+
+.cqz-one-line {
+  max-height: 1.3em;
+  max-width: 85%;
+  overflow: hidden;
+}
+/*---------- CLIQZ EZ ---------- thuy@cliqz.com--------------*/
+.EZ-Cliqz-Header{
+height: 58px;
+background-color: white;
+background-repeat: no-repeat;
+background-size: 76px 22px;
+background-position: 22px 18px;
+margin-right: 18px;
+}
+
+.EZ-Cliqz_Header-Contact-icon{
+  height: 22px;
+  width: 22px;
+  float: right;
+  margin-left: 9px;
+  margin-top: 18px;
+}
+.EZ-Cliqz-Body-H1{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 100%;
+font-size: 20px;
+padding-top:15px;
+}
+
+.EZ-Cliqz-Body-H2{
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+line-height: 110%;
+font-size: 20px;
+padding-top:5px;
+}
+
+.EZ-Cliqz-Footer{
+ margin-left: 22px;
+ text-align: left;
+ margin-top: 17px;
+}
+
+.EZ-Cliqz-Footnote-tile{
+  padding-top:7px;
+  padding-bottom: 9px;
+  background-color: silver;
+  padding-left: 9px;
+  padding-right: 9px;
+  border-radius: 3px;
+  margin-right: 9px;
+  float: left;
+  color: white;
+}
+/* END CLIQZEZ*/
+
 /* EZ Currency */
 
 .EZ-currency {
  margin-left: 18px
 }
 
-.EZ-currency-result {
-  color: #333333;
-  font-size:18px;
-  margin-top:14px;
+.ez-feedback {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: #cccccc;
 }
 
-.EZ-currency-rate {
-  color: #999999;
-  font-size:14px;
-  margin-top:10px;
+.cqz-link {
+  color: #88baf8;
+  margin-right: 10px;
 }
+/*
+[arrow="true"] *[selectable]{
+  text-decoration: underline;
+}
+[arrow="true"][selectable]{
+  text-decoration: underline;
+}
+*/
 
-.EZ-currency-disclaimer {
-  color: #999999;
-  font-size:12px;
-  margin-top:14px;
+[arrow="true"]:hover .cqz-result-title {
+  text-decoration: underline;
 }
-/* End EZ Currency */
