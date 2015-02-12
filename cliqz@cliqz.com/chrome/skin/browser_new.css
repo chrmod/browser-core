@@ -492,6 +492,70 @@
 }
 /* EZ video end */
 
+/* EZ portal */
+.cqz-ez-portal-title {
+  background-image: url(http://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg);
+  margin-bottom: 18px;
+}
+
+.entity-portal-title {
+  color: #414141;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.entity-portal-title span {
+  color: #1759a4;
+}
+
+.entity-portal-title img {
+  float: right;
+  width: 48px;
+  margin: -5px -5px 0 0;
+}
+
+.entity-portal-stories {
+}
+
+.entity-portal-story {
+  position: relative;
+  height: 54px;
+  margin-bottom: 9px;
+}
+
+.entity-portal-story-description {
+  vertical-align: top;
+  padding: 0 0 0 9px;
+}
+
+.entity-portal-story-title {
+  color: #506bb8;
+  max-width: 550px;
+  font-size: 18px;
+  max-height: 1em;
+  overflow: hidden;
+  line-height: 1em;
+}
+
+.entity-portal-story:hover .entity-video-story-title {
+    text-decoration: underline;
+}
+
+.entity-portal-story-image {
+  display: inline-block;
+  background-color: #dddddd;
+  width: 86px;
+  height: 54px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 3px 3px;
+}
+
+.entity-portal-story-description {
+  display: inline-block;
+}
+/* EZ portal end */
 
 /* Adult content */
 

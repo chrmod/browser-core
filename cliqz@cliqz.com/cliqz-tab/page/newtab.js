@@ -65,7 +65,7 @@ var NewsController = {
         template.find(".title").text(title)
     },
     init: function(){
-        CliqzUtils.httpGet("https://newbeta.cliqz.com/api/v1/results?q=spiegel",function(data){
+        CliqzUtils.httpGet("https://newbeta.cliqz.com/api/v1/results?q=spiegel&_=" + new Date().getTime(),function(data){
             try {
                 var response = JSON.parse(data.response), news = response.extra.results[0].data.news
 
