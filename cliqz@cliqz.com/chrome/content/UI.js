@@ -984,10 +984,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
-    }
-
-    // update the URL bar with the selected URL
-    if(el){
+        // update the URL bar with the selected URL
         if (UI.lastInput == "") {
             if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
                 UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
@@ -1002,56 +999,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
     }
-
     return;
-    //sven: do we still need this?
-    clearResultSelection();
-    $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
-    if(el){
-        // History selection
-        var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
-        if (el.getAttribute("kind") == "C" && !scrollTop) el = history[0];
-        else if(el.getAttribute("kind") == "C" && scrollTop) el = history[history.length-1];
-
-        el.setAttribute('selected', 'true');
-        if (el.className == 'cliqz-pattern-element') {
-          var offset = (el.getAttribute("height") == "h2") ? 53 : 43/* 3 URLs 18 */;
-          $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
-          // Show full url for highlighted entry
-          //el.children[1].textContent = el.getAttribute("shortUrl");
-        } else {
-            var target = $('.cqz-ez-title', el) || el;
-            $('.cqz-result-selected', gCliqzBox).style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
-        }
-
-        $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
-
-        if(scroll){
-            var rBox = gCliqzBox.resultsBox,
-                firstOffset = rBox.children[0].offsetTop;
-
-            if(scrollTop && rBox.scrollTop > (el.offsetTop - firstOffset))
-                el.scrollIntoView(true);
-            else if(!scrollTop &&
-                (rBox.scrollTop + rBox.offsetHeight <
-                    (el.offsetTop - firstOffset) + el.offsetHeight))
-                el.scrollIntoView(false);
-        }
-
-        if (UI.lastInput == "") {
-            if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
-                UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
-            } else {
-                UI.lastInput = CLIQZ.Core.urlbar.value;
-            }
-        }
-        if(changeUrl) {
-            CLIQZ.Core.urlbar.value = el.getAttribute("url");
-        }
-        UI.mouseOver = mouseOver;
-    } else if (changeUrl && UI.lastInput != "") {
-        CLIQZ.Core.urlbar.value = UI.lastInput;
-    }
 }
 
 var lastMoveTime = Date.now();

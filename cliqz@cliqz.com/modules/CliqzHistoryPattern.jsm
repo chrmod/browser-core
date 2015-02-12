@@ -177,6 +177,7 @@ var CliqzHistoryPattern = {
         pattern.title = history.getCommentAt(i);
         if (pattern.title.length == 0) {
           pattern.title = CliqzHistoryPattern.domainFromUrl(pattern.url, false);
+          pattern.title = pattern.title.indexOf(".") ? pattern.title.split(".")[0] : pattern.title;
           if(pattern.title.length != 0)
             pattern.title = pattern.title[0].toUpperCase() + pattern.title.substr(1);
         }
@@ -391,10 +392,8 @@ var CliqzHistoryPattern = {
 
     if (commonDomain) {
       baseUrl = commonDomain;
-    } else {
-      if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
-      // Ignore subdomain
-      //baseUrl = baseUrl.substr(baseUrl.indexOf(CliqzHistoryPattern.domainFromUrl(baseUrl, false)));
+    } else if  (baseUrl.indexOf('/') != -1) {
+      baseUrl = baseUrl.split('/')[0];
     }
 
     for (var i = 0; i < patterns.length; i++) {
@@ -842,48 +841,6 @@ var CliqzHistoryPattern = {
       return urlparts.host;
     else
       return urlparts.domain;
-  },
-  // TODO: Sven, this was failing on certain urls. Is there something it did that my replacement 
-  // function above doesn't?
-  domainFromUrl_old: function(url, subdomain) {
-    if (url.indexOf("://") !== -1) {
-      url = url.substr(url.indexOf("://")+3);
-      if (url.split("/").length > 1) {
-        url = url.substring(0, url.lastIndexOf("/"));
-      }
-    }
-    url = url.replace("www.", "");
-
-    function parseUri(str) {
-      var o = parseUri.options,
-        m = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-        uri = {},
-        i = 14;
-
-      while (i--) uri[o.key[i]] = m[i] || "";
-
-      uri[o.q.name] = {};
-      uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) {
-        if ($1) uri[o.q.name][$1] = $2;
-      });
-
-      return uri;
-    }
-
-    parseUri.options = {
-      strictMode: false,
-      key: ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"],
-      q: {
-        name: "queryKey",
-        parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-      },
-      parser: {
-        strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-        loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-      }
-    };
-    if (!subdomain) return (parseUri(url).host.match(/([^.]+)\.\w{2,4}(?:\.\w{2})?$/) || [])[1];
-    else return parseUri(url).host;
   },
   // Escape strings for SQL statements
   escapeSQL: function(str) {
