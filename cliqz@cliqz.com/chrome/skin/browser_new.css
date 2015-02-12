@@ -829,7 +829,7 @@
   display: inline-block;
   font-size: 14px;
   height: 16px;
-  overflow-x: hidden;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -840,7 +840,7 @@
   color: #999999;
   display: inline-block;
   height: 16px;
-  overflow-x: hidden;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
