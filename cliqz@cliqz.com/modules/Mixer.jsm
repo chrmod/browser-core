@@ -260,7 +260,8 @@ var Mixer = {
 
             // if the first result is a history cluster,
             // combine it with the entity zone
-            if(results.length > 0 && 
+            if(CliqzUtils.getPref('newCombinedEZ') &&
+               results.length > 0 && 
                results[0].data && results[0].data.template == "pattern-h2" &&
                cliqzExtra[0].data.template == "entity-generic") {
 
@@ -332,19 +333,19 @@ var Mixer = {
                 i += (CliqzUtils.TEMPLATES[results[i].data.template]-1);
             }
         }
-        // add in empty entries to fill up three
-        for(var j=i; j<3; j++) {
-            new_results.push(Result.generic('favicon', " ", null, " ", " ", q));
-        }
+
+        // // TEMPORARY: add in empty entries to fill up three
+        // for(var j=i; j<3; j++) {
+        //     new_results.push(Result.generic('favicon', " ", null, " ", " ", q));
+        // }
 
         results = new_results;
 
-        // Then add in full history backfill
-        if(!only_instant)
-            results = results.concat(history_backfill);
+        // // Then add in full history backfill
+        // if(!only_instant)
+        //     results = results.concat(history_backfill);
 
-
-        CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
+        // CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
 
         return [results, unfiltered];
     }
