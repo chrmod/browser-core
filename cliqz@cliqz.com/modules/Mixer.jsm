@@ -40,10 +40,10 @@ var Mixer = {
 	mix: function(q, history, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
 		var results = [];
 
-        CliqzUtils.log("results: " + JSON.stringify(results), "Mixer");
-        CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
-        CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
+        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
+        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
+        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
 
         if(!instant)
             instant = [];
@@ -102,10 +102,10 @@ var Mixer = {
         // Later in this function, we will modify the contents of instant.
         // To avoid changing the source object, make a copy here, if not already
         // done so in the duplication handling above.
-        if(instant_new.length > 0 && instant.length > 0)
+        if(instant_new.length == 0 && instant.length > 0)
             instant_new.push(Result.clone(instant[0]));
         instant = instant_new;
-            
+        
         cliqz = cliqz_new;
 
         for (let i = 0; history_trans && i < history_trans.length; i++) {
