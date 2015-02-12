@@ -69,13 +69,13 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1423572097465,
+  BRANDS_DATABASE_VERSION:        1423581286488,
 
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
-              'spellcheck': 1, 'time': 1,
-              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'pattern': 1, 'weatherEZ': 2,
+              'spellcheck': 1, 'time': 1, 'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'weatherEZ': 2,
               'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 2, 'noResult': 3, 'weatherAlert': 3},
 
 
@@ -99,9 +99,9 @@ var CliqzUtils = {
 
     if(!brand_loaded){
       brand_loaded = true;
-        
+
       var param = this.getPref("brands-database-version")
-      
+
       if (param) this.BRANDS_DATABASE_VERSION = param
 
       CliqzUtils.httpGet(
