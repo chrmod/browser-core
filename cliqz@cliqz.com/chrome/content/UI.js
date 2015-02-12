@@ -319,7 +319,7 @@ var UI = {
       },300);
     },
     cursor: 0,
-    getSelectionRange: function(key, curStart, curEnd, shift) {
+    getSelectionRange: function(key, curStart, curEnd, shift, metakey) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
         if (shift && metakey) {
