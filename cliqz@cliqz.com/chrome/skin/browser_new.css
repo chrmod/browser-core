@@ -819,63 +819,35 @@
   overflow:hidden;
 }
 
-.cliqz-pattern-margin-h2 {
-
-}
-
-.cliqz-pattern-margin-h3 {
-  /* ENABLE FOR 3 URLS
-  display: none;
-  */
-}
-
-.cliqz-pattern-document-icon-h2 {
-  position: absolute;
-  bottom: 12px;
-  margin-left: 5px;
-  height: 18.3px;
-  width: 15px;
+.cliqz-pattern-title-h1 {
+  margin-bottom: 14px;
+  color: #333333;
+  cursor: default;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
-  background-position: 0px 0px;
-  background-size: 15px 18.3px;
-  background-repeat: no-repeat;
-  display: inline-block;
-}
-
-.cliqz-pattern-document-icon-h3 {
-  /* ENABLE FOR 3 URLS
-  visibility: hidden;
-  height: 0px; */
-  position: absolute;
-  bottom: 10px;
-  margin-left: 10px;
-  height: 18.3px;
-  width: 15px;
-  background-image: url(chrome://cliqzres/content/skin/history_document.png);
-  background-position: 0px 0px;
-  background-size: 15px 18.3px;
-  background-repeat: no-repeat;
-  display: inline-block;
 }
 
 .cliqz-pattern-title-h2 {
   margin-bottom: 14px;
   color: #333333;
   cursor: default;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
 }
 
 .cliqz-pattern-title-h3 {
-  /* ENABLE FOR 3 URLS
-  visibility: hidden;
-  height: 17px;
-  */
   margin-bottom: 8px;
   cursor: default;
   color: #333333;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
 }
 
-.cliqz-pattern-results {
-
+.cliqz-pattern-title-h1:hover{
+  text-decoration:none;
+}
+.cliqz-pattern-title-h2:hover{
+  text-decoration:none;
+}
+.cliqz-pattern-title-h3:hover{
+  text-decoration:none;
 }
 
 .cliqz-pattern-element {
@@ -893,7 +865,7 @@
   display: inline-block;
   font-size: 14px;
   height: 16px;
-  overflow-x: hidden;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -904,62 +876,10 @@
   color: #999999;
   display: inline-block;
   height: 16px;
-  overflow-x: hidden;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-.cliqz-pattern-element-h2 {
-  line-height: 20px;
-  height: 25px;
-  font-size: 15px;
-}
-
-.cliqz-pattern-element-h3 {
-  /* ENABLE FOR 3 URLS
-  line-height: 22px;
-  height: 22px;
-  font-size: 14px;
-  */
-  line-height: 23px;
-  height: 23px;
-  font-size: 14px;
-}
-
-
-
-
-.cliqz-pattern-favicons {
-  max-width: 16px;
-  overflow: hidden;
-  display:inline-block;
-}
-
-.cliqz-pattern-favicon-element-h2 {
-  float:left;
-  height: 25px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 2px;
-  background-size: 16px 16px;
-}
-
-.cliqz-pattern-favicon-element-h3 {
-  /* ENABLE FOR 3 URLS
-  float:left;
-  height: 22px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 4px;
-  background-size: 16px 16px; */
-  float:left;
-  height: 23px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 4px;
-  background-size: 16px 16px;
-}
-
 .cliqz-pattern-logo {
     background-image: url(chrome://cliqzres/content/skin/cliqz.png);
     background-color: #efefef

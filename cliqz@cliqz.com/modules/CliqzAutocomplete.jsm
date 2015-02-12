@@ -183,6 +183,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyTimer: null,
             historyTimeout: false,
             instant: [],
+            historyBackfill: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -297,6 +298,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     else
                         this.instant = [];
 
+                    // Create backfill result
+                    var backfill = CliqzHistoryPattern.createBackfillResult(res, this.searchString);
+                    if(backfill)
+                        this.historyBackfill = [backfill];
+                    else
+                        this.historyBackfill = [];
 
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
@@ -360,6 +367,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.historyResults = null;
                         this.unfilteredResults = null;
                         this.instant = [];
+                        this.backFill = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -456,6 +464,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
+                            this.historyBackfill,
                             this.cliqzBundesliga,
                             maxResults,
                             only_instant
@@ -538,6 +547,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
                 this.instant = [];
+                this.historyBackfill = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
