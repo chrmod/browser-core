@@ -731,6 +731,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
+                r.width = res.width;
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
