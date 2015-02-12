@@ -37,12 +37,13 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, history, cliqz, cliqzExtra, instant, bundesligaResults, maxResults, only_instant){
+	mix: function(q, history, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
 		var results = [];
 
-        // CliqzUtils.log("results: " + JSON.stringify(results), "Mixer");
-        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
-        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        CliqzUtils.log("results: " + JSON.stringify(results), "Mixer");
+        CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
+        CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
 
         if(!instant)
             instant = [];
@@ -260,8 +261,7 @@ var Mixer = {
             // if the first result is a history cluster,
             // combine it with the entity zone
             if(results.length > 0 && 
-               results[0].data && results[0].data.template == "pattern" &&
-               results[0].data.height == "h2" && 
+               results[0].data && results[0].data.template == "pattern-h2" &&
                cliqzExtra[0].data.template == "entity-generic") {
 
                 results[0].style = "cliqz-extra";
@@ -323,9 +323,30 @@ var Mixer = {
             );
         }
 
-        // CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
+        // getMax 3 results height
+        var new_results = [];
+        var i =0;
+        for(i=0; i<results.length && i<3; i++){
+            new_results.push(results[i]);
+            if((results[i].style == 'cliqz-extra' || (results[i].style.indexOf('cliqz-pattern') == 0)) && results[i].data){
+                i += (CliqzUtils.TEMPLATES[results[i].data.template]-1);
+            }
+        }
+        // add in empty entries to fill up three
+        for(var j=i; j<3; j++) {
+            new_results.push(Result.generic('favicon', " ", null, " ", " ", q));
+        }
 
-        return [results.slice(0, maxResults), unfiltered];
+        results = new_results;
+
+        // Then add in full history backfill
+        if(!only_instant)
+            results = results.concat(history_backfill);
+
+
+        CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
+
+        return [results, unfiltered];
     }
 }
 
