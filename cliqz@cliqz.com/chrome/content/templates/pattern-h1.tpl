@@ -6,7 +6,7 @@
         {{#each data.urls}}
         <div class='cliqz-pattern-element overflow'
             {{#if favicon }}
-             style='background-image: url({{ favicon }}'
+             style='background-image: url({{ favicon }})'
              {{else}}
               style='padding-left: 0px;'
              {{/if}}

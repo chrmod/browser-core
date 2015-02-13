@@ -820,17 +820,19 @@
 }
 
 .cliqz-pattern-title-h1 {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   color: #333333;
   cursor: default;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: right 7px top 1px;
 }
 
 .cliqz-pattern-title-h2 {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   color: #333333;
   cursor: default;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: right 7px top 1px;
 }
 
 .cliqz-pattern-title-h3 {
@@ -838,6 +840,7 @@
   cursor: default;
   color: #333333;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: right 7px top 1px;
 }
 
 .cliqz-pattern-title-h1:hover{
@@ -856,7 +859,8 @@
   background-position: left center;
   background-size: 14px 14px;
   height: 16px;
-  margin-bottom: 5px;
+  line-height: 14px;
+  margin-bottom: 7px;
 }
 
 .cliqz-pattern-element-title {
@@ -865,6 +869,7 @@
   display: inline-block;
   font-size: 14px;
   height: 16px;
+  line-height: 14px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -876,6 +881,7 @@
   color: #999999;
   display: inline-block;
   height: 16px;
+  line-height: 14px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

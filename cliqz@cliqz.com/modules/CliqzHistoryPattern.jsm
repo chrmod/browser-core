@@ -810,6 +810,7 @@ var CliqzHistoryPattern = {
       return [];
     
     var results = res.results;
+    if(!results[0]) return null;
     var backfill = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
     backfill.data.title = CliqzUtils.getLocalizedString("history_results")
     backfill.data.url = backfill.val;
