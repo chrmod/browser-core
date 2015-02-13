@@ -1212,6 +1212,14 @@ function onEnter(ev, item){
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
+            // Check for login url without protocol
+            if(inputValue.indexOf("://") == -1 &&
+               inputValue.indexOf("@") != -1 && inputValue.split("@")[0].indexOf(":") != -1 &&
+               inputValue.split("@")[0].split(":").length == 2) {
+                urlBar.value = "http://" + urlBar.value;
+                inputValue = urlBar.value;
+            }
+
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.updateQuery(inputValue);
                 CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "typed");

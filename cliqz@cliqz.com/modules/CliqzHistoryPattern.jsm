@@ -807,6 +807,7 @@ var CliqzHistoryPattern = {
   // Create a full-sized unfiltered history entry for use as second-page backfill results
   createBackfillResult: function(res, searchString) {
     var results = res.results;
+    if(!results[0]) return null;
     var backfill = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
     backfill.data.title = CliqzUtils.getLocalizedString("history_results")
     backfill.data.url = backfill.val;
