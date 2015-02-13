@@ -84,7 +84,7 @@ var Mixer = {
 
                 // Do any of the sublinks match?
                 if(instant[0].style == 'cliqz-pattern') {
-                    for(let u = 0; u < instant[0].data.urls; u++) {
+                    for(var u in instant[0].data.urls) {
                         var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
@@ -105,7 +105,7 @@ var Mixer = {
         if(instant_new.length == 0 && instant.length > 0)
             instant_new.push(Result.clone(instant[0]));
         instant = instant_new;
-        
+
         cliqz = cliqz_new;
 
         for (let i = 0; history_trans && i < history_trans.length; i++) {
@@ -262,7 +262,7 @@ var Mixer = {
             // if the first result is a history cluster,
             // combine it with the entity zone
             if(CliqzUtils.getPref('newCombinedEZ') &&
-               results.length > 0 && 
+               results.length > 0 &&
                results[0].data && results[0].data.template == "pattern-h2" &&
                cliqzExtra[0].data.template == "entity-generic") {
 
