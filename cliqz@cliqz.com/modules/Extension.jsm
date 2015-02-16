@@ -490,7 +490,9 @@ var Extension = {
             win.addEventListener('load', function loader() {
                 win.removeEventListener('load', loader, false);
                 if (win.location.href == 'chrome://browser/content/browser.xul')
-                    Extension.loadIntoWindow(win, true);
+                    CliqzUtils.setTimeout(function(){
+                        win && Extension.loadIntoWindow(win, true);
+                    }, 1000);
             }, false);
         }
     }
