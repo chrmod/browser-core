@@ -43,6 +43,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutosuggestion',
+  'chrome://cliqzmodules/content/CliqzAutosuggestion.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
   'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
