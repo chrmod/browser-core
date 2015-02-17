@@ -95,8 +95,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
+        //create a new panel for cliqz to avoid inconsistencies at FF startup
+        var item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
+        item.setAttribute("type", 'autocomplete-richlistbox');
+        item.setAttribute("id", 'PopupAutoCompleteRichResultCliqz');
+        item.setAttribute("noautofocus", 'true');
+        CLIQZ.Core.elem.push(item);
+        document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(item);
+
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
-        CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
+        CLIQZ.Core.popup = item;
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -107,7 +115,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
-        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
+        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResultCliqz');
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
