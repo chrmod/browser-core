@@ -744,6 +744,7 @@ var CliqzHistoryPattern = {
 
     } else {
       var results = res.filteredResults();
+      var logExtra = '';
 
       if(results.length == 0)
         return null; // no results
@@ -756,9 +757,11 @@ var CliqzHistoryPattern = {
         instant.comment += " (history top sites)!";
         instant.data.template = "pattern-h1";
         instant.data.generic = true;
+        logExtra = 'h1-';
       } else if (results.length == 1) {
         var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
         instant.comment += " (history single)!"
+        instant.data.kind = "H";
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
@@ -766,6 +769,7 @@ var CliqzHistoryPattern = {
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
+        logExtra = 'h2-';
       } else {
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results")
@@ -773,6 +777,7 @@ var CliqzHistoryPattern = {
         instant.comment += " (history)!";
         instant.data.template = "pattern-h3";
         instant.data.generic = true;
+        logExtra = 'h3-';
       }
 
       instant.data.urls = [];
@@ -791,6 +796,7 @@ var CliqzHistoryPattern = {
           domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
           vdate: CliqzHistoryPattern.formatDate(results[i].date),
           title: results[i].title,
+          extra: "history-"+ logExtra + i,
           favicon: favicon,
         });
         if ((instant.data.urls.length > 10 && instant.data.template == "pattern-h1") ||

@@ -822,10 +822,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.cliqz-pattern-logo {
-    background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-    background-color: #efefef
-}
+
 /* END history */
 
 /*  noResult  thuy@cliqz.com*/
