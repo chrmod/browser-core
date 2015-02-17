@@ -481,10 +481,12 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
-            if (urlBar.value.length > 80) {
-              urlBar.value = urlBar.value.substr(0,80) + "...";
+            // Cut urlbar to max 80 characters
+            // Error-prone, disabled for now
+            /*if (urlBar.mInputField.value.length > 80) {
+              urlBar.mInputField.value = urlBar.mInputField.value.substr(0,80) + "...";
               urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            }
+            }*/
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();
         }
