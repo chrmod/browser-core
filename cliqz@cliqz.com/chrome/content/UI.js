@@ -828,13 +828,10 @@ function urlIndexInHistory(url, urlList) {
 function logUIEvent(el, historyLogType, extraData) {
   var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
-  if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart)
-  {
+  if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
       var first = gCliqzBox.resultsBox.children[0];
       if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
-      {
           queryAutocompleted = query;
-      }
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
@@ -1146,6 +1143,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CLIQZ.Core.triggerLastQ = true;
     return false;
   }
   // Typed
@@ -1156,6 +1154,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
