@@ -143,8 +143,10 @@ var CliqzHistoryPattern = {
       results: patterns,
       filteredResults: function() {
         var tmp = [];
+
         for (var key in this.results) {
-          if (CliqzHistoryPattern.domainFromUrl(this.results[key].url, false) == this.top_domain &&
+          var domain = CliqzHistoryPattern.domainFromUrl(this.results[key].url, false).split(".")[0];
+          if (domain == this.top_domain.split(".")[0] &&
             this.results[key].title) {
             tmp.push(this.results[key]);
           }
@@ -227,12 +229,11 @@ var CliqzHistoryPattern = {
     // Add base domain if above threshold
     if ((DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "cliqz") && share[1] > 0.5 && res.filteredResults().length > 2) {
       // Check if base domain changed due to filtering
-      /*var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(res.filteredResults(), query);
+      var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(res.filteredResults(), query);
       if(tmpBaseUrl != baseUrl) {
-        res.results = tmpResults;
         baseUrl = tmpBaseUrl;
-      }*/
-      CliqzHistoryPattern.addBaseDomain(patterns, res.top_domain);
+      }
+      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
     } else {
