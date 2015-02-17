@@ -1264,6 +1264,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
+      CliqzUtils.log("XXXXXX");
+      CliqzUtils.log(generateLogoClass(CliqzUtils.getDetailsFromUrl(url)));
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
 

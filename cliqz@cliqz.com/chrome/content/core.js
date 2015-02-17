@@ -124,7 +124,7 @@ CLIQZ.Core = CLIQZ.Core || {
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
-        
+
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -321,10 +321,10 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();
-        
+
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
-        
+
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
@@ -437,6 +437,11 @@ CLIQZ.Core = CLIQZ.Core || {
             return;
         }
         CliqzAutocomplete.highlightFirstElement = false;
+
+        // History cluster does not have a url attribute, therefore firstResult is null
+        var lastPattern = CliqzAutocomplete.lastPattern;
+        if(!firstResult && lastPattern && lastPattern.filteredResults().length > 1)
+          firstResult = lastPattern.filteredResults()[0].url;
 
         var urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
