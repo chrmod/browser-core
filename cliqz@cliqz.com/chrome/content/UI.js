@@ -773,18 +773,12 @@ function enhanceResults(res){
 
     }
 
-    //prioritize extra (fun-vertical) results
-    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    // var all = first.concat(last);
-    var all = res.results;
-
     //filter adult results
     if(adult){
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
 
         if(level != 'liberal' && adultMessage != 1)
-            all = all.filter(function(r){ return !(r.data && r.data.adult); });
+            res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
             res.showAdult = true;
