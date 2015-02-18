@@ -105,8 +105,7 @@ var CliqzUCrawl = {
         var res = res || []
         for(var key in CliqzUCrawl.httpCache) {
             if (CliqzUCrawl.httpCache[key]['location']!=null && CliqzUCrawl.httpCache[key]['status']=='301') {
-                if (CliqzUCrawl.httpCache[key]['location']==url) {
-                    CliqzUtils.log("1.>>>" + key, CliqzUCrawl.LOG_KEY);
+                if (CliqzUCrawl.httpCache[key]['location']==url) {;
                     res.unshift(key)
                     CliqzUCrawl.getRedirects(key, res);
                 }
@@ -339,7 +338,6 @@ var CliqzUCrawl = {
         var metas = null;
         var redURL = null;
         var title = null;
-        CliqzUtils.log("0.1: " + cd,CliqzUCrawl.LOG_KEY)
         try{redURL = cd.split('URL=')[1].split('>')[0].replace('"','')}catch(ee){};
         CliqzUCrawl.httpCache[url] = {'status': '301', 'time': CliqzUCrawl.counter, 'location': redURL};
         CliqzUtils.log("0.1: " + url + redURL, CliqzUCrawl.LOG_KEY);
@@ -425,8 +423,8 @@ var CliqzUCrawl = {
 
             var currwin = CliqzUtils.getWindow();
             var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
-            //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
 
+            //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
             if(_currURL.indexOf('t.co/') > -1){
                 CliqzUtils.httpGet(_currURL,
                 function(res){
@@ -507,10 +505,7 @@ var CliqzUCrawl = {
                         var redURL = red[0];
                         var refURL = CliqzUCrawl.linkCache[redURL];
                         if(refURL){
-                            referral = refURL['s'];    
-                            CliqzUtils.log('>>>>' + red[0], CliqzUCrawl.LOG_KEY);
-                            CliqzUtils.log("Ref: " + referral, CliqzUCrawl.LOG_KEY);
-                            //referral = redURL;
+                            referral = refURL['s'];   
                         }
                 }
 
