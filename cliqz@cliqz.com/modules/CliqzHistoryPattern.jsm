@@ -757,7 +757,7 @@ var CliqzHistoryPattern = {
         instant.data.template = "pattern-h1";
         instant.data.generic = true;
       } else if (results.length == 1) {
-        var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
+        var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
         instant.comment += " (history single)!"
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
