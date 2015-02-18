@@ -25,8 +25,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
-Components.utils.import("resource://gre/modules/devtools/Console.jsm");
-
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
 //  'chrome://cliqzmodules/content/CliqzTimings.jsm');
 
@@ -104,9 +102,7 @@ var CliqzUtils = {
 
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
-      
-      console.log(this.BRANDS_DATABASE_VERSION,config,dev)
-      
+
       CliqzUtils.httpGet(
         "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
         function(req){
@@ -616,7 +612,7 @@ var CliqzUtils = {
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
     if(CliqzUtils.cliqzPrefs.getBoolPref('dnt'))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
-    msg.ts = (new Date()).getTime();
+    msg.ts = Date.now();
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
@@ -662,13 +658,13 @@ var CliqzUtils = {
     CliqzUtils._track_sending = CliqzUtils.trk.slice(0);
     CliqzUtils.trk = [];
 
-    CliqzUtils._track_start = (new Date()).getTime();
+    CliqzUtils._track_start = Date.now();
 
     CliqzUtils.log('push tracking data: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
-    //CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
+    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -682,7 +678,7 @@ var CliqzUtils = {
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
     CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    //CliqzTimings.add("send_log", (new Date()).getTime() - CliqzUtils._track_start)
+    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
