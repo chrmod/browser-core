@@ -273,7 +273,7 @@ var UI = {
       }
     },
     selectFirstElement: function() {
-        if (!UI.preventFirstElementHighlight) {
+        if (!UI.preventFirstElementHighlight && gCliqzBox) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
         }
     },
@@ -702,8 +702,8 @@ function resultClick(ev){
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
-                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
-                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    reaction_time: Date.now() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? Date.now() - CliqzAutocomplete.lastDisplayTime : null,
                     result_order: currentResults.results.map(function(r){ return r.data.kind; }),
                     v: 1
                 };
@@ -914,7 +914,7 @@ function onEnter(ev, item){
         inputValue = urlBar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
-        currentTime = (new Date()).getTime(),
+        currentTime = Date.now(),
         action = {
             type: 'activity',
             action: 'result_enter',
