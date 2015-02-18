@@ -96,15 +96,15 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
-        var item = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
-        item.setAttribute("type", 'autocomplete-richlistbox');
-        item.setAttribute("id", 'PopupAutoCompleteRichResultCliqz');
-        item.setAttribute("noautofocus", 'true');
-        CLIQZ.Core.elem.push(item);
-        document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(item);
+        var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
+        popup.setAttribute("type", 'autocomplete-richlistbox');
+        popup.setAttribute("id", 'PopupAutoCompleteRichResultCliqz');
+        popup.setAttribute("noautofocus", 'true');
+        CLIQZ.Core.elem.push(popup);
+        document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
-        CLIQZ.Core.popup = item;
+        CLIQZ.Core.popup = popup;
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
