@@ -24,7 +24,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.03',
+    VERSION: '0.04',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
     debug: false,
@@ -72,11 +72,12 @@ var CliqzUCrawl = {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
                 var url = decodeURIComponent(aChannel.URI.spec);
 
-                var ho = CliqzUtils.getHeaders(aExtraStringData);
-
+                var ho = CliqzUCrawl.getHeaders(aExtraStringData);
                 var status = ho['status'];
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
+                //CliqzUtils.log("CurrLoc " + url  + ">>>", CliqzUCrawl.LOG_KEY);
+
 
                 if (status=='301') {
                   CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
@@ -100,17 +101,17 @@ var CliqzUCrawl = {
         }
       }
     },
-    getRedirects: function(url) {
-      var res = []
-      for(var key in CliqzUCrawl.httpCache) {
-        if (CliqzUCrawl.httpCache[key]['location']!=null && CliqzUCrawl.httpCache[key]['status']=='301') {
-          if (CliqzUCrawl.httpCache[key]['location']==url) {
-            res.push(key);
-          }
+    getRedirects: function(url, res) {
+        var res = res || []
+        for(var key in CliqzUCrawl.httpCache) {
+            if (CliqzUCrawl.httpCache[key]['location']!=null && CliqzUCrawl.httpCache[key]['status']=='301') {
+                if (CliqzUCrawl.httpCache[key]['location']==url) {;
+                    res.unshift(key)
+                    CliqzUCrawl.getRedirects(key, res);
+                }
+            }
         }
-      }
-      if (res.length==0) return null;
-      else return res;
+        return res;
     },
     generateHashId: function(text) {
       try {
@@ -298,8 +299,9 @@ var CliqzUCrawl = {
       //req.open('GET', url, true, ' ', null);
       req.open('GET', url, true);
       req.overrideMimeType('text/html');
+      req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
       // thank God to standard: http://www.w3.org/TR/XMLHttpRequest/
-      req.setRequestHeader("Authorization", "true");
+      //req.setRequestHeader("Authorization", "true");
 
       req.onload = function(){
         if(req.status != 200 && req.status != 0 /* local files */){
@@ -331,6 +333,16 @@ var CliqzUCrawl = {
       req.timeout = 10000;
       req.send(null);
 
+    },
+    getMetaRefresh: function(cd, url){
+        var metas = null;
+        var redURL = null;
+        var title = null;
+        try{redURL = cd.split('URL=')[1].split('>')[0].replace('"','')}catch(ee){};
+        CliqzUCrawl.httpCache[url] = {'status': '301', 'time': CliqzUCrawl.counter, 'location': redURL};
+        CliqzUtils.log("0.1: " + url + redURL, CliqzUCrawl.LOG_KEY);
+        return redURL;
+        
     },
     getPageData: function(cd) {
 
@@ -410,7 +422,22 @@ var CliqzUCrawl = {
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
             var currwin = CliqzUtils.getWindow();
+            var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
+            //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
+            if(_currURL.indexOf('t.co/') > -1){
+                CliqzUtils.httpGet(_currURL,
+                function(res){
+                    if(res && res.response){
+                        try {
+                         var _metaCD = res.response;
+                         var redURL = CliqzUCrawl.getMetaRefresh(_metaCD,_currURL );
+                        } catch(e){}
+                    }
+                }, null, 2000);
+                
+            }
+                
             //this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             CliqzUCrawl.lastActive = CliqzUCrawl.counter;
@@ -467,9 +494,24 @@ var CliqzUCrawl = {
                   referral = CliqzUCrawl.linkCache[activeURL]['s'];
                 }
 
+                //Get redirect chain 
+                var red = [];
+                red = CliqzUCrawl.getRedirects(activeURL, red);
+                if(red.length == 0){
+                    red = null;
+                }
+                //Set referral for the first redirect in the chain.
+                if (red && referral == null) {
+                        var redURL = red[0];
+                        var refURL = CliqzUCrawl.linkCache[redURL];
+                        if(refURL){
+                            referral = refURL['s'];   
+                        }
+                }
+
                 CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                         'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
-                        'red': CliqzUCrawl.getRedirects(activeURL)};
+                        'red': red};
 
                 if (referral) {
                   // if there is a good referral, we must inherit the query if there is one
@@ -535,7 +577,9 @@ var CliqzUCrawl = {
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-          //CliqzUtils.log('state change: ' + aWebProgress, CliqzUCrawl.LOG_KEY);
+         // CliqzUtils.log('state change: ' + aFlag, CliqzUCrawl.LOG_KEY);
+
+
         }
     },
     pacemaker: function() {
