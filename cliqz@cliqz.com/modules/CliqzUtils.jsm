@@ -69,7 +69,7 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1423581286488,
+  BRANDS_DATABASE_VERSION:        1423762658427,
 
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
@@ -100,9 +100,12 @@ var CliqzUtils = {
     if(!brand_loaded){
       brand_loaded = true;
 
-      var param = this.getPref("brands-database-version")
+      var config = this.getPref("config_logoVersion"), dev = this.getPref("brands-database-version")
 
-      if (param) this.BRANDS_DATABASE_VERSION = param
+      if (dev) this.BRANDS_DATABASE_VERSION = dev
+      else if (config) this.BRANDS_DATABASE_VERSION = config
+      
+      console.log(this.BRANDS_DATABASE_VERSION,config,dev)
       
       CliqzUtils.httpGet(
         "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
