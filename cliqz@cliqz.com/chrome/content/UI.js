@@ -985,7 +985,7 @@ function clearResultSelection(keepArrow){
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el){
         //focus on the title - or on the aroww element inside the element
-        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
         if(target.className.indexOf("cliqz-pattern-title") != -1) return;
 
