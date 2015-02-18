@@ -717,7 +717,6 @@ function enhanceResults(res){
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
-
         if(r.type == 'cliqz-extra'){
             var d = r.data;
             if(d){
