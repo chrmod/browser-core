@@ -1008,6 +1008,19 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
             CLIQZ.Core.urlbar.value = el.getAttribute("url");
         }
         UI.mouseOver = mouseOver;
+
+        if(scroll){
+            var rBox = gCliqzBox.resultsBox,
+                firstOffset = rBox.children[0].offsetTop,
+                result = closest(el, '.cqz-result-box');
+
+            if(scrollTop && rBox.scrollTop > (result.offsetTop - firstOffset))
+                result.scrollIntoView(true);
+            else if(!scrollTop &&
+                (rBox.scrollTop + rBox.offsetHeight <
+                    (result.offsetTop - firstOffset) + result.offsetHeight))
+                result.scrollIntoView(false);
+        }
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
         clearResultSelection();
