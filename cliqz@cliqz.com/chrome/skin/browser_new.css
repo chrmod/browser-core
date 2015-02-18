@@ -25,10 +25,11 @@
 
 /* end browser*/
 #cliqz-results {
-    height: 302px;
+    height: 303px;
     position: relative;
     /* override linux default grey color */
     background: #fff;
+    overflow-y: scroll;
 }
 
 .cqz-result-h1 {
@@ -113,7 +114,7 @@
 }
 
 .cqz-result-center {
-	width: 85%;
+	width: 80%;
 	padding: 14px 22px;
 	display: inline-block;
 	overflow: hidden;
@@ -123,7 +124,7 @@
 /* visited result - history, bookmark, ...*/
 .cqz-result-title {
 	font-size: 18px;
-	color: #333333;
+	color: #8c275f;
   width: 90%;
 }
 
@@ -148,7 +149,7 @@
 
 
 .cqz-result-url {
-	color: #999999;
+	color: #666666;
 	/*text-overflow: clip !important;*/
 	display: inline-block;
   width: 90%;
@@ -157,7 +158,7 @@
 
 .cqz-result-url-ssl {
     padding-left: 13px;
-    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px center;
+    background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px;
 }
 
 .cqz-result-path {
@@ -170,7 +171,7 @@
 */
 .cqz-result-desc {
     margin-top: 6px;
-    max-height: 2em;
+    max-height: 22px;
     vertical-align: top;
 }
 
@@ -217,6 +218,11 @@
     background-repeat: no-repeat;
     margin: 18px -4px 0px 22px;
     position: relative;
+}
+
+.cqz-image-news {
+   position: relative;
+   top: -14px;
 }
 
 .cqz-image-round {
@@ -278,12 +284,12 @@
 .cqz-ez-generic-opt {
  background-color: #efefef;
  min-width: 130px;
- max-width: 150px;
+ max-width: 174px;
  height: 132px;
  margin-left: 9px;
  text-align: center;
  box-sizing: border-box;
- padding: 7px 7px 0 7px;
+ padding: 7px 18px 0 18px;
  border-radius: 3px;
  color: #323232;
 }
@@ -292,7 +298,7 @@
   background-repeat: no-repeat;
   height: 65px;
   width: 65px;
-  margin: 17px auto;
+  margin: 14px auto;
   background-position: center;
   background-size: contain;
 }
@@ -409,7 +415,7 @@
 
 /* EZ video */
 .cqz-ez-video-title {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/video/y_search.png);
+  background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg);
   margin-bottom: 18px;
 }
 
@@ -487,6 +493,70 @@
 }
 /* EZ video end */
 
+/* EZ portal */
+.cqz-ez-portal-title {
+  background-image: url(http://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg);
+  margin-bottom: 18px;
+}
+
+.entity-portal-title {
+  color: #414141;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.entity-portal-title span {
+  color: #1759a4;
+}
+
+.entity-portal-title img {
+  float: right;
+  width: 48px;
+  margin: -5px -5px 0 0;
+}
+
+.entity-portal-stories {
+}
+
+.entity-portal-story {
+  position: relative;
+  height: 54px;
+  margin-bottom: 9px;
+}
+
+.entity-portal-story-description {
+  vertical-align: top;
+  padding: 0 0 0 9px;
+}
+
+.entity-portal-story-title {
+  color: #506bb8;
+  max-width: 550px;
+  font-size: 18px;
+  max-height: 1em;
+  overflow: hidden;
+  line-height: 1em;
+}
+
+.entity-portal-story:hover .entity-video-story-title {
+    text-decoration: underline;
+}
+
+.entity-portal-story-image {
+  display: inline-block;
+  background-color: #dddddd;
+  width: 86px;
+  height: 54px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 3px 3px;
+}
+
+.entity-portal-story-description {
+  display: inline-block;
+}
+/* EZ portal end */
 
 /* Adult content */
 
@@ -692,7 +762,7 @@
 }
 
 .cqz-ez-btn:hover, .cqz-ez-btn[arrow='true'] {
-  background-color: red !important;
+  background-color: #cccccc !important;
 }
 
 .cqz-result-box *[url]:hover {
@@ -750,61 +820,38 @@
   overflow:hidden;
 }
 
-.cliqz-pattern-margin-h2 {
-
-}
-
-.cliqz-pattern-margin-h3 {
-  /* ENABLE FOR 3 URLS
-  display: none;
-  */
-}
-
-.cliqz-pattern-document-icon-h2 {
-  position: absolute;
-  bottom: 12px;
-  margin-left: 5px;
-  height: 18.3px;
-  width: 15px;
+.cliqz-pattern-title-h1 {
+  margin-bottom: 12px;
+  color: #333333;
+  cursor: default;
   background-image: url(chrome://cliqzres/content/skin/history_document.png);
-  background-position: 0px 0px;
-  background-size: 15px 18.3px;
-  background-repeat: no-repeat;
-  display: inline-block;
-}
-
-.cliqz-pattern-document-icon-h3 {
-  /* ENABLE FOR 3 URLS
-  visibility: hidden;
-  height: 0px; */
-  position: absolute;
-  bottom: 10px;
-  margin-left: 10px;
-  height: 18.3px;
-  width: 15px;
-  background-image: url(chrome://cliqzres/content/skin/history_document.png);
-  background-position: 0px 0px;
-  background-size: 15px 18.3px;
-  background-repeat: no-repeat;
-  display: inline-block;
+  background-position: right 7px top 1px;
 }
 
 .cliqz-pattern-title-h2 {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  color: #333333;
   cursor: default;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: right 7px top 1px;
 }
 
 .cliqz-pattern-title-h3 {
-  /* ENABLE FOR 3 URLS
-  visibility: hidden;
-  height: 17px;
-  */
   margin-bottom: 8px;
- cursor: default;
+  cursor: default;
+  color: #333333;
+  background-image: url(chrome://cliqzres/content/skin/history_document.png);
+  background-position: right 7px top 1px;
 }
 
-.cliqz-pattern-results {
-
+.cliqz-pattern-title-h1:hover{
+  text-decoration:none;
+}
+.cliqz-pattern-title-h2:hover{
+  text-decoration:none;
+}
+.cliqz-pattern-title-h3:hover{
+  text-decoration:none;
 }
 
 .cliqz-pattern-element {
@@ -813,7 +860,8 @@
   background-position: left center;
   background-size: 14px 14px;
   height: 16px;
-  margin-bottom: 5px;
+  line-height: 14px;
+  margin-bottom: 7px;
 }
 
 .cliqz-pattern-element-title {
@@ -822,72 +870,23 @@
   display: inline-block;
   font-size: 14px;
   height: 16px;
-  overflow-x: hidden;
+  line-height: 14px;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .cliqz-pattern-element-link {
+  max-width: 30%;
   margin-left: 8px;
   color: #999999;
   display: inline-block;
   height: 16px;
-  overflow-x: hidden;
+  line-height: 14px;
+  overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
-.cliqz-pattern-element-h2 {
-  line-height: 20px;
-  height: 25px;
-  font-size: 15px;
-}
-
-.cliqz-pattern-element-h3 {
-  /* ENABLE FOR 3 URLS
-  line-height: 22px;
-  height: 22px;
-  font-size: 14px;
-  */
-  line-height: 23px;
-  height: 23px;
-  font-size: 14px;
-}
-
-
-
-
-.cliqz-pattern-favicons {
-  max-width: 16px;
-  overflow: hidden;
-  display:inline-block;
-}
-
-.cliqz-pattern-favicon-element-h2 {
-  float:left;
-  height: 25px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 2px;
-  background-size: 16px 16px;
-}
-
-.cliqz-pattern-favicon-element-h3 {
-  /* ENABLE FOR 3 URLS
-  float:left;
-  height: 22px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 4px;
-  background-size: 16px 16px; */
-  float:left;
-  height: 23px;
-  width: 16px;
-  background-repeat: no-repeat;
-  background-position: 0px 4px;
-  background-size: 16px 16px;
-}
-
 .cliqz-pattern-logo {
     background-image: url(chrome://cliqzres/content/skin/cliqz.png);
     background-color: #efefef
@@ -1078,7 +1077,7 @@ padding-top:5px;
   position: absolute;
   bottom: 10px;
   right: 10px;
-  color: gray;
+  color: #cccccc;
 }
 
 .cqz-link {
@@ -1094,6 +1093,9 @@ padding-top:5px;
 }
 */
 
+[arrow="true"]:hover .cqz-result-title {
+  text-decoration: underline;
+}
 
 /* EZ Stocks */
 .cqz-ez-img-trend
@@ -1144,4 +1146,3 @@ padding-top:5px;
 
 .cqz-disclaimer {
   color:#cccccc;
-}

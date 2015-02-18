@@ -204,7 +204,6 @@ var UI = {
             pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-
         switch(ev.keyCode) {
             case UP:
                 var nextEl = pos > 0 ? allArrowable[pos-1]: null;
@@ -226,17 +225,20 @@ var UI = {
                 return onEnter(ev, sel);
             break;
             case TAB:
-                clearResultSelection();
+                var urlbar = CLIQZ.Core.urlbar;
                 suggestionNavigation(ev);
+                urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
                 return true;
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey);
-                CLIQZ.Core.urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
+                urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
+
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
+
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -310,7 +312,7 @@ var UI = {
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
+          if (!UI.preventFirstElementHighlight && time > UI.animationEnd && gCliqzBox) {
             UI.animationEnd = (new Date()).getTime() + 330;
             setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
@@ -318,10 +320,19 @@ var UI = {
       },300);
     },
     cursor: 0,
-    getSelectionRange: function(key, curStart, curEnd, shift) {
+    getSelectionRange: function(key, curStart, curEnd, shift, metakey) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
-        if (shift) {
+        if (shift && metakey) {
+            start = 0
+            UI.cursor = start
+        }
+        else if (metakey) {
+            start = 0
+            end = start
+            UI.cursor = start
+        }
+        else if (shift) {
           if (start != end && UI.cursor == end) {
             end -= 1;
             UI.cursor = end;
@@ -340,7 +351,16 @@ var UI = {
           UI.cursor = start;
         }
       } else if (key == RIGHT) {
-        if (shift) {
+        if (shift && metakey) {
+            end = CLIQZ.Core.urlbar.mInputField.value.length
+            UI.cursor = end
+        }
+        else if (metakey) {
+            start = CLIQZ.Core.urlbar.mInputField.value.length
+            end = start
+            UI.cursor = start
+        }
+        else if (shift) {
           if (start != end && UI.cursor == start) {
             start += 1;
             UI.cursor = start;
@@ -376,11 +396,6 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    // Remove autocomplete from urlbar
-    if (urlbar.selectionEnd !== urlbar.selectionStart &&
-        urlbar.selectionStart !== 0) {
-        urlbar.value = urlbar.value.substr(0, urlbar.selectionStart);
-    }
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
@@ -717,7 +732,9 @@ function enhanceResults(res){
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
-        if(r.type == 'cliqz-extra'){
+
+
+        if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
             var d = r.data;
             if(d){
                 if(d.template && TEMPLATES.hasOwnProperty(d.template)){
@@ -730,6 +747,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
+                r.width = res.width;
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -757,9 +775,10 @@ function enhanceResults(res){
     }
 
     //prioritize extra (fun-vertical) results
-    var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    var all = first.concat(last);
+    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    // var all = first.concat(last);
+    var all = res.results;
 
     //filter adult results
     if(adult){
@@ -772,15 +791,6 @@ function enhanceResults(res){
             res.showAdult = true;
             res.adultConfig = CliqzUtils.getAdultFilterState();
             CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
-        }
-    }
-
-    // getMax 3 results height
-    res.results = [];
-    for(var i=0; i<all.length && i<3; i++){
-        res.results.push(all[i]);
-        if((all[i].type == 'cliqz-extra' || (all[i].type.indexOf('cliqz-pattern') == 0)) && all[i].data){
-            i += (TEMPLATES[all[i].data.template]-1);
         }
     }
 
@@ -841,8 +851,8 @@ function resultClick(ev){
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
-                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
-                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    reaction_time: Date.now() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? Date.now() - CliqzAutocomplete.lastDisplayTime : null,
                     result_order: currentResults.results.map(function(r){ return r.data.kind; }),
                     v: 1
                 };
@@ -963,30 +973,37 @@ function getResultSelection(){
     return $('[arrow="true"]', gCliqzBox);
 }
 
-function clearResultSelection(){
+function clearResultSelection(keepArrow){
     var el = getResultSelection();
     el && el.setAttribute('arrow', 'false');
     UI.mouseOver = false;
+    var arrow = $('.cqz-result-selected', gCliqzBox);
+    (arrow && !keepArrow) && arrow.removeAttribute('active');
+    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
+    if(title)title.style.textDecoration = "none";
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
-    clearResultSelection();
-    var arrow = $('.cqz-result-selected', gCliqzBox);
-    arrow.removeAttribute('active');
     if(el){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        var arrow = $('.cqz-result-selected', gCliqzBox);
+        if(target.className.indexOf("cliqz-pattern-title") != -1) return;
+
+        // Clear Selection
+        clearResultSelection();
+
         if(target != el)
             //arrow target is now on an inner element
             el.removeAttribute('arrow');
-        target.setAttribute('arrow', 'true');
 
+        target.setAttribute('arrow', 'true');
         arrow.style.top = (target.offsetTop + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
-    }
+        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
+        if(title) title.style.textDecoration = 'underline';
 
-    // update the URL bar with the selected URL
-    if(el){
+        // update the URL bar with the selected URL
         if (UI.lastInput == "") {
             if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
                 UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
@@ -1000,71 +1017,21 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.mouseOver = mouseOver;
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
+        clearResultSelection();
     }
-
     return;
-    //sven: do we still need this?
-    clearResultSelection();
-    $('.cqz-result-selected', gCliqzBox).removeAttribute('active');
-    if(el){
-        // History selection
-        var history = gCliqzBox.getElementsByClassName("cliqz-pattern-element");
-        if (el.getAttribute("kind") == "C" && !scrollTop) el = history[0];
-        else if(el.getAttribute("kind") == "C" && scrollTop) el = history[history.length-1];
-
-        el.setAttribute('selected', 'true');
-        if (el.className == 'cliqz-pattern-element') {
-          var offset = (el.getAttribute("height") == "h2") ? 53 : 43/* 3 URLs 18 */;
-          $('.cqz-result-selected', gCliqzBox).style.top = (offset + el.offsetTop + el.offsetHeight/2 - 8) + 'px';
-          // Show full url for highlighted entry
-          //el.children[1].textContent = el.getAttribute("shortUrl");
-        } else {
-            var target = $('.cqz-ez-title', el) || el;
-            $('.cqz-result-selected', gCliqzBox).style.top = (target.offsetTop + target.offsetHeight/2 - 8) + 'px';
-        }
-
-        $('.cqz-result-selected', gCliqzBox).setAttribute('active', 'true');
-
-        if(scroll){
-            var rBox = gCliqzBox.resultsBox,
-                firstOffset = rBox.children[0].offsetTop;
-
-            if(scrollTop && rBox.scrollTop > (el.offsetTop - firstOffset))
-                el.scrollIntoView(true);
-            else if(!scrollTop &&
-                (rBox.scrollTop + rBox.offsetHeight <
-                    (el.offsetTop - firstOffset) + el.offsetHeight))
-                el.scrollIntoView(false);
-        }
-
-        if (UI.lastInput == "") {
-            if (CLIQZ.Core.urlbar.selectionStart !== CLIQZ.Core.urlbar.selectionEnd) {
-                UI.lastInput = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
-            } else {
-                UI.lastInput = CLIQZ.Core.urlbar.value;
-            }
-        }
-        if(changeUrl) {
-            CLIQZ.Core.urlbar.value = el.getAttribute("url");
-        }
-        UI.mouseOver = mouseOver;
-    } else if (changeUrl && UI.lastInput != "") {
-        CLIQZ.Core.urlbar.value = UI.lastInput;
-    }
 }
 
 var lastMoveTime = Date.now();
-var lastHover = null;
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
         var el = ev.target;
         while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-
-        lastHover = el;
-        clearResultSelection();
+        clearResultSelection(true);
         setResultSelection(el, false, false, false, true);
+        UI.mouseOver = true;
         lastMoveTime = Date.now();
     }
 }
@@ -1148,7 +1115,7 @@ function onEnter(ev, item){
         inputValue = urlBar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
-        currentTime = (new Date()).getTime(),
+        currentTime = Date.now(),
         action = {
             type: 'activity',
             action: 'result_enter',
@@ -1249,6 +1216,14 @@ function onEnter(ev, item){
             CliqzUtils.trackResult(query, queryAutocompleted, index,
                 CliqzUtils.isPrivateResultType(action.source) ? '' : CliqzUtils.cleanMozillaActions(firstUrl));
         } else {
+            // Check for login url without protocol
+            if(inputValue.indexOf("://") == -1 &&
+               inputValue.indexOf("@") != -1 && inputValue.split("@")[0].indexOf(":") != -1 &&
+               inputValue.split("@")[0].split(":").length == 2) {
+                urlBar.value = "http://" + urlBar.value;
+                inputValue = urlBar.value;
+            }
+
             if(CliqzUtils.isUrl(inputValue)){
                 CliqzHistory.updateQuery(inputValue);
                 CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "typed");
@@ -1413,6 +1388,7 @@ function registerHelpers(){
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
