@@ -136,7 +136,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
-            getImageAt: function (index) { return undefined; },
+            getImageAt: function (index) { return ''; },
             getLabelAt: function(index) { return this._results[index].label; },
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),

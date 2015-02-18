@@ -273,7 +273,7 @@ var UI = {
       }
     },
     selectFirstElement: function() {
-        if (!UI.preventFirstElementHighlight) {
+        if (!UI.preventFirstElementHighlight && gCliqzBox) {
             setResultSelection(gCliqzBox.resultsBox.firstElementChild, true, false);
         }
     },
