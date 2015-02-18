@@ -198,7 +198,7 @@ var UI = {
     },
     keyDown: function(ev){
         if(ev.keyCode != ENTER) UI.mouseOver = false;
-        
+
         var sel = getResultSelection(),
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
             pos = allArrowable.indexOf(sel);
@@ -234,11 +234,11 @@ var UI = {
                 var urlbar = CLIQZ.Core.urlbar;
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
-                
+
                 if (CliqzAutocomplete.spellCorr.on) {
                     CliqzAutocomplete.spellCorr.override = true
                 }
-                
+
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
@@ -312,7 +312,7 @@ var UI = {
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd) {
+          if (!UI.preventFirstElementHighlight && time > UI.animationEnd && gCliqzBox) {
             UI.animationEnd = (new Date()).getTime() + 330;
             setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
@@ -396,7 +396,7 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    
+
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (forceCloseResults || force) {
@@ -850,8 +850,8 @@ function resultClick(ev){
                     search: CliqzUtils.isSearch(url),
                     has_image: el.getAttribute('hasimage') || false,
                     clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
-                    reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
-                    display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
+                    reaction_time: Date.now() - CliqzAutocomplete.lastQueryTime,
+                    display_time: CliqzAutocomplete.lastDisplayTime ? Date.now() - CliqzAutocomplete.lastDisplayTime : null,
                     result_order: currentResults.results.map(function(r){ return r.data.kind; }),
                     v: 1
                 };
@@ -1114,7 +1114,7 @@ function onEnter(ev, item){
         inputValue = urlBar.value,
         popupOpen = CLIQZ.Core.popup.popupOpen,
         lr = CliqzAutocomplete.lastResult,
-        currentTime = (new Date()).getTime(),
+        currentTime = Date.now(),
         action = {
             type: 'activity',
             action: 'result_enter',
