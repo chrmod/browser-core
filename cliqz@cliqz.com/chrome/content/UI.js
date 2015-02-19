@@ -867,14 +867,10 @@ function urlIndexInHistory(url, urlList) {
 
 function messageClick(ev) {
   var el = ev.target;
-
-  CliqzUtils.log("TARGET", el.getAttribute("id"));
   // Handle adult results
-
 
   while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
     var action = el.getAttribute('cliqz-action');
-    CliqzUtils.log("ACTION", action);
     if(action == 'stop-click-event-propagation'){
       break;
     }
@@ -887,7 +883,6 @@ function messageClick(ev) {
     if (action && action == 'adult') {
       handleAdultClick(ev);
     };
-
 
     /*  END "Handle message clicks"  */
     /*********************************/
