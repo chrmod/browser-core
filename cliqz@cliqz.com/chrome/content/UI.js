@@ -797,17 +797,17 @@ function enhanceResults(res){
             all = all.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
-            setAdultWarningState("show");
+            updateAdultWarningState("show");
         }
     }
     else {
-      setAdultWarningState("hide");
+      updateAdultWarningState("hide");
     }
 
     return res;
 }
 
-function setAdultWarningState(state) {
+function updateAdultWarningState(state) {
   var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
   switch (state) {
     case "show":
@@ -979,18 +979,18 @@ function handleAdultClick(ev){
         case 'yes': //allow in this session
             adultMessage = 1;
             UI.handleResults();
-            setAdultWarningState("hide");
+            updateAdultWarningState("hide");
             break;
         case 'no':
             adultMessage = 2;
             UI.handleResults();
-            setAdultWarningState("hide");
+            updateAdultWarningState("hide");
             break;
         default:
             var rules = CliqzUtils.getAdultFilterState();
             if(rules[state]){
                 CliqzUtils.setPref('adultContentFilter', state);
-                setAdultWarningState('show');
+                updateAdultWarningState('show');
                 UI.handleResults();
 
             }
