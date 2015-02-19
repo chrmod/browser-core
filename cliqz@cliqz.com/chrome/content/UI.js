@@ -1289,10 +1289,11 @@ function trackArrowNavigation(el){
         action: 'arrow_key',
         current_position: getResultPosition(el),
     };
-    // for inner link info
-    if(el.getAttribute('extra'))
-        action.extra = el.getAttribute('extra');
     if(el){
+        // for inner link info
+        if(el.getAttribute('extra'))
+            action.extra = el.getAttribute('extra');
+
         action.position_type = getResultKind(el);
         var url = getResultOrChildAttr(el, 'url');
         action.search = CliqzUtils.isSearch(url);
