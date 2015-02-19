@@ -11,6 +11,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
+    MESSAGE_TEMPLATES = ['adult'],
     VERTICALS = {
         //'b': 'bundesliga',
         //'s': 'shopping',
@@ -23,7 +24,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'adult', 'logo', 'EZ-category', 'feedback'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -40,7 +41,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
+    messageContainer
     ;
 
 var UI = {
@@ -59,6 +61,16 @@ var UI = {
             });
         });
 
+        for (var i in MESSAGE_TEMPLATES) {
+          (function(tpl_name){
+            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
+                UI.tpl[tpl_name] = Handlebars.compile(res.response);
+            });
+          })(MESSAGE_TEMPLATES[i]);
+        }
+
+
+
         for(var v in VERTICALS){
             (function(vName){
                 CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
@@ -71,11 +83,6 @@ var UI = {
             CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
                  Handlebars.registerPartial(tpl, res.response);
             });
-        });
-
-        // Compile adult warning template
-        CliqzUtils.httpGet(TEMPLATES_PATH + 'adult.tpl', function(res){
-            UI.tpl['adult'] = Handlebars.compile(res.response);
         });
 
         registerHelpers();
@@ -91,9 +98,10 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-        var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
+        messageContainer = document.getElementById('cliqz-message-container');
+
         resultsBox.addEventListener('mouseup', resultClick);
-        adultWarningContainer.addEventListener('mouseup', resultClick);
+        messageContainer.addEventListener('mouseup', messageClick);
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
@@ -808,18 +816,18 @@ function enhanceResults(res){
 }
 
 function updateAdultWarningState(state) {
-  var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
+  //var messageContainer = document.getElementById('cliqz-message-container');
   switch (state) {
     case "show":
       // Show adult warning
       CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
-      adultWarningContainer.innerHTML = UI.tpl.adult({
+      messageContainer.innerHTML = UI.tpl.adult({
         'adultConfig': CliqzUtils.getAdultFilterState()
       });
       break;
     case "hide":
     default:
-      adultWarningContainer.innerHTML = "";
+      messageContainer.innerHTML = "";
       CLIQZ.Core.popup.style.height = "302px";
       break;
   }
@@ -855,6 +863,40 @@ function urlIndexInHistory(url, urlList) {
       }
     }
     return index;
+}
+
+function messageClick(ev) {
+  var el = ev.target;
+
+  CliqzUtils.log("TARGET", el.getAttribute("id"));
+  // Handle adult results
+
+
+  while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
+    var action = el.getAttribute('cliqz-action');
+    CliqzUtils.log("ACTION", action);
+    if(action == 'stop-click-event-propagation'){
+      break;
+    }
+
+
+    /*********************************/
+    /* BEGIN "Handle message clicks" */
+
+    /* Adult message */
+    if (action && action == 'adult') {
+      handleAdultClick(ev);
+    };
+
+
+    /*  END "Handle message clicks"  */
+    /*********************************/
+
+    /* Propagate event up the DOM tree */
+    el = el.parentElement;
+
+  }
+
 }
 
 function resultClick(ev){
@@ -950,13 +992,7 @@ function resultClick(ev){
                     break;
                 }
             }
-            /*
-             * Show adult content
-             */
-            if (el.getAttribute('cliqz-action') == 'adult') {
-              handleAdultClick(ev);
-              break;
-            };
+
             if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
                 console.log(el);
                 console.log(ev);
@@ -974,7 +1010,7 @@ function resultClick(ev){
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state');
-    var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
+    //var messageContainer = document.getElementById('cliqz-message-container');
     switch(state) {
         case 'yes': //allow in this session
             adultMessage = 1;
