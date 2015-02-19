@@ -32,7 +32,7 @@
 
   <div class="cqz-disclaimer cqz-ez-stock-disclaimer">
     <span>
-      <a href="http://info.yahoo.com/legal/eu/yahoo/utos/de-de/">Ohne Gewähr</a>
+      <a href="http://info.yahoo.com/legal/eu/yahoo/utos/de-de/"> {{ local 'no_legal_disclaimer' }}</a>
     </span>
   </div>
 

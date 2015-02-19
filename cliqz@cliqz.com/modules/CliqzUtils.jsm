@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:               'http://rh-staging.fbt.co/mixer?q=', //'https://newbeta.cliqz.com/api/v1/results?q=', 'http://rich-header-server.fbt.co/mixer?q='
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging.fbt.co/mixer?q=', 'http://rich-header-server.fbt.co/mixer?q='
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
