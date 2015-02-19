@@ -171,7 +171,7 @@ var UI = {
         gCliqzBox.style.width = (res.width +1) + 'px';
 
         // try to find and hide misaligned elemets - eg - weather
-        //setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
 
 
