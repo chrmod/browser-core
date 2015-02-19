@@ -1,4 +1,4 @@
-<div class="cqz-result-h1 cqz-result-padding" idx='{{ @index }}'>
+<div class="cqz-result-h1 cqz-result-padding">
   <div class="cqz-ez-title cqz-ez-news-title" selectable=''>
       {{data.name}}
   </div>

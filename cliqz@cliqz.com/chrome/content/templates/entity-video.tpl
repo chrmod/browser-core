@@ -1,4 +1,4 @@
-<div class="cqz-result-h1 entity-search-container" idx='{{ @index }}'>
+<div class="cqz-result-h1 entity-search-container">
     <div>
       <div class="cqz-ez-search-box"
            style="border: 1px solid {{data.search_box_background_color}};"
