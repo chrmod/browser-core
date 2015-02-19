@@ -1,4 +1,4 @@
-<div class="cqz-result-h2 cqz-result-padding">
+<div class="cqz-result-h2 cqz-result-padding" idx='{{ @index }}'>
   <div class="cqz-ez-title cqz-ez-search-title">
       {{data.search_provider}}
   </div>

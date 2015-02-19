@@ -1,4 +1,4 @@
-<div class='cqz-result-h2 cqz-result-padding'>
+<div class='cqz-result-h2 cqz-result-padding' idx='{{ @index }}'>
     {{#if debug}}
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}

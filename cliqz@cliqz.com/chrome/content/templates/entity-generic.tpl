@@ -1,4 +1,4 @@
-<div class='cqz-result-h2 cqz-result-padding'>
+<div class='cqz-result-h2 cqz-result-padding' idx='{{ @index }}'>
     {{#if debug}}
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
@@ -13,6 +13,7 @@
                     <div
                         class="cqz-ez-btn overflow"
                         style="background-color: {{ color }}"
+                        extra="action-{{ @index }}"
                         url="{{url}}" arrow="false" selectable=''
                         >{{ title }}</div>
                 {{/each}}
@@ -20,7 +21,7 @@
             {{#each links }}
                 <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
-                     extra="shortcut{{ @index }}">
+                     extra="shortcut-{{ @index }}">
                      <div style="background-image: url({{ icon }});"></div>
                     {{ title }}
                 </div>
