@@ -325,29 +325,6 @@ var Mixer = {
             );
         }
 
-        // getMax 3 results height
-        var new_results = [];
-        var i =0;
-        for(i=0; i<results.length && i<3; i++){
-            new_results.push(results[i]);
-            if((results[i].style == 'cliqz-extra' || (results[i].style.indexOf('cliqz-pattern') == 0)) && results[i].data){
-                i += (CliqzUtils.TEMPLATES[results[i].data.template]-1);
-            }
-        }
-
-        // // TEMPORARY: add in empty entries to fill up three
-        // for(var j=i; j<3; j++) {
-        //     new_results.push(Result.generic('favicon', " ", null, " ", " ", q));
-        // }
-
-        results = new_results;
-
-        // // Then add in full history backfill
-        // if(!only_instant)
-        //     results = results.concat(history_backfill);
-
-        // CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
-
         return [results, unfiltered];
     }
 }

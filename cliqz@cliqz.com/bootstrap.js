@@ -9,16 +9,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
-
     Cm.registerFactory(
         AboutURL.prototype.classID,
         AboutURL.prototype.classDescription,
         AboutURL.prototype.contractID,
         AboutURLFactory
     );
-
-    if (aReason == ADDON_ENABLE || aReason == ADDON_INSTALL)
-        CliqzUtils.setOurOwnPrefs();
 }
 
 function shutdown(aData, aReason) {

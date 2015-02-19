@@ -25,10 +25,11 @@
 
 /* end browser*/
 #cliqz-results {
-    height: 302px;
+    height: 303px;
     position: relative;
     /* override linux default grey color */
     background: #fff;
+    overflow-y: scroll;
 }
 
 .cqz-result-h1 {

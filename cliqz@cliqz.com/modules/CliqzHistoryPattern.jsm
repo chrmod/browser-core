@@ -765,7 +765,7 @@ var CliqzHistoryPattern = {
         instant.data.generic = true;
         logExtra = 'h1-';
       } else if (results.length == 1) {
-        var instant = Result.generic('cliqz-results', results[0].url, null, results[0].title, null, searchString);
+        var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
         instant.comment += " (history single)!"
         instant.data.kind = "H";
       } else if (res.cluster) {
