@@ -6,3 +6,5 @@
 		<span id='cliqz-engines-box'></span>
 	</span>
 </div>
+<div id='cliqz-adult-warning-container'>
+</div>

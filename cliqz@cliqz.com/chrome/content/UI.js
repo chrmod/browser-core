@@ -73,6 +73,11 @@ var UI = {
             });
         });
 
+        // Compile adult warning template
+        CliqzUtils.httpGet(TEMPLATES_PATH + 'adult.tpl', function(res){
+            UI.tpl['adult'] = Handlebars.compile(res.response);
+        });
+
         registerHelpers();
 
         UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
@@ -86,8 +91,9 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-
+        var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
         resultsBox.addEventListener('mouseup', resultClick);
+        adultWarningContainer.addEventListener('mouseup', resultClick);
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
@@ -121,7 +127,7 @@ var UI = {
         q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
         lastRes = CliqzAutocomplete.lastResult;
 
-      popup.style.height = "302px";
+      //popup.style.height = "302px";
 
       for(var i=0; i<popup._matchCount; i++) {
           data.push({
@@ -165,7 +171,11 @@ var UI = {
         gCliqzBox.style.width = (res.width +1) + 'px';
 
         // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+        //setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+
+
+
+
         return currentResults;
     },
     // redraws a result
@@ -783,18 +793,36 @@ function enhanceResults(res){
     //filter adult results
     if(adult){
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
-
         if(level != 'liberal' && adultMessage != 1)
             all = all.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
-            res.showAdult = true;
-            res.adultConfig = CliqzUtils.getAdultFilterState();
-            CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
+            setAdultWarningState("show");
         }
+    }
+    else {
+      setAdultWarningState("hide");
     }
 
     return res;
+}
+
+function setAdultWarningState(state) {
+  var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
+  switch (state) {
+    case "show":
+      // Show adult warning
+      CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
+      adultWarningContainer.innerHTML = UI.tpl.adult({
+        'adultConfig': CliqzUtils.getAdultFilterState()
+      });
+      break;
+    case "hide":
+    default:
+      adultWarningContainer.innerHTML = "";
+      CLIQZ.Core.popup.style.height = "302px";
+      break;
+  }
 }
 
 function getResultPosition(el){
@@ -946,20 +974,25 @@ function resultClick(ev){
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state');
+    var adultWarningContainer = document.getElementById('cliqz-adult-warning-container');
     switch(state) {
         case 'yes': //allow in this session
             adultMessage = 1;
             UI.handleResults();
+            setAdultWarningState("hide");
             break;
         case 'no':
             adultMessage = 2;
             UI.handleResults();
+            setAdultWarningState("hide");
             break;
         default:
             var rules = CliqzUtils.getAdultFilterState();
             if(rules[state]){
                 CliqzUtils.setPref('adultContentFilter', state);
+                setAdultWarningState('show');
                 UI.handleResults();
+
             }
             else {
                 //click on options btn
