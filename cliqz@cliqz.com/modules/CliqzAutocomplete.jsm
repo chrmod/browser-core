@@ -364,7 +364,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-                        this.unfilteredResults = null;
                         this.instant = [];
                         this.backFill = [];
                         return;
@@ -457,9 +456,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             mixResults: function(only_instant) {
                 var maxResults = prefs.getIntPref('maxRichResults');
 
-                var resultsTemp = Mixer.mix(
+                var results = Mixer.mix(
                             this.searchString,
-                            this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
@@ -468,9 +466,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults,
                             only_instant
                     );
-
-                var results = resultsTemp[0];
-                this.unfilteredResults = resultsTemp[1];
 
                 CliqzAutocomplete.afterQueryCount = 0;
 
@@ -542,7 +537,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
                 this.instant = [];

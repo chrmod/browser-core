@@ -37,33 +37,21 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, history, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
 		var results = [];
-
-        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
-        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
-        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
 
         if(!instant)
             instant = [];
         if(!cliqz)
             cliqz = [];
+        if(!cliqzExtra)
+            cliqzExtra = [];
 
-        if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-          var [history_trans, cluster_data] = [history, null];
-        } else {
-          var [history_trans, cluster_data] = CliqzClusterHistory.cluster(history);
-        }
-
-		/// 1) put each result into a bucket
-        var bucketHistoryDomain = [],
-            bucketHistoryOther = [],
-            bucketCache = [],
-            bucketHistoryCache = [],
-            bucketHistoryCluster = [],
-            bucketBookmark = [],
-            bucketBookmarkCache = [];
+        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
+        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
+        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
+        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
@@ -78,7 +66,9 @@ var Mixer = {
                 var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
                 if(cl_url == instant_url) {
                     var temp = Result.combine(cliqz[i], instant[0]);
-                    instant_new.push(temp);
+                    // don't keep this one if we already have one entry like this
+                    if(instant_new.length == 0)
+                        instant_new.push(temp);
                     duplicate = true;
                 }
 
@@ -108,122 +98,18 @@ var Mixer = {
 
         cliqz = cliqz_new;
 
-        for (let i = 0; history_trans && i < history_trans.length; i++) {
-            let style = history_trans[i]['style'],
-                value = history_trans[i]['value'],
-                image = history_trans[i]['image'],
-                comment = history_trans[i]['comment'],
-                label = history_trans[i]['label'];
+        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
-            var bookmark = false;
-            if (style.indexOf('tag') == 0 || style.indexOf('bookmark') == 0) {
-                bookmark = true;
-            }
 
-            // Deduplicate: check if this result is also in the cache results
-            let cacheIndex = -1;
-            for(let i in cliqz || []) {
-                if(cliqz[i].url == label) {
-                    // combine sources
-                    var tempResult = Result.cliqz(cliqz[i]);
-                    tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
-                    tempResult.data.kind = CliqzUtils.encodeResultType(style).concat(tempResult.data.kind);;
-                    //use the title from history/bookmark - might be manually changed - eg: for tag results
-                    if(comment) tempResult.comment = comment;
-
-                    if (bookmark)
-                        bucketBookmarkCache.push(tempResult);
-                    else
-                        bucketHistoryCache.push(tempResult);
-
-                    cacheIndex = i;
-                    break;
-                }
-            }
-
-            if(cacheIndex >= 0) {
-                // if also found in cache, remove so it is not added to cache-only bucket
-                cliqz.splice(cacheIndex, 1);
-            } else {
-                let urlparts = CliqzUtils.getDetailsFromUrl(label);
-
-                if(bookmark) {
-                    bucketBookmark.push(Result.generic(style, value, image, comment, label, q));
-                }
-                else if(Result.isValid(label, urlparts)) {
-                    // Assign to different buckets if the search string occurs in hostname
-                    if(urlparts.host.toLowerCase().indexOf(q) !=-1)
-                        bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, q));
-                    else
-                        bucketHistoryOther.push(Result.generic(style, value, image, comment, label, q));
-                }
-            }
+        var results = instant;
+        
+        for(let i = 0; i < cliqz.length; i++) {
+            results.push(Result.cliqz(cliqz[i]));
         }
 
-        for(let i in cliqz || []) {
-            bucketCache.push(Result.cliqz(cliqz[i]));
-        }
-
-        /// 2) Prepare final result list from buckets
-
-        if(!only_instant) { // do not mix in everything is this is only for instant result
-
-            // the top history with matching domain will be show already via instant-serve
-            // all bucketBookmarksCache
-            for(let i = 0; i < bucketBookmarkCache.length; i++) {
-                bucketBookmarkCache[i].comment += " (bookmark and vertical: " + bucketBookmarkCache[i].query + ")!";
-                results.push(bucketBookmarkCache[i]);
-            }
-
-            // all bucketBookmarks
-            for(let i = 0; i < bucketBookmark.length; i++) {
-                bucketBookmark[i].comment += " (bookmark: " + bucketBookmark[i].query + ")!";
-                results.push(bucketBookmark[i]);
-            }
-
-            // all bucketHistoryCache
-            for(let i = 0; i < bucketHistoryCache.length; i++) {
-                bucketHistoryCache[i].comment += " (history and vertical: " + bucketHistoryCache[i].query + ")!";
-                results.push(bucketHistoryCache[i]);
-            }
-
-            // top 1 of bucketCache
-            if(bucketCache.length > 0) {
-                bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
-                results.push(bucketCache[0]);
-            }
-
-            // top 2 of bucketHistoryDomain
-            for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
-                bucketHistoryDomain[i].comment += " (top history domain)!";
-                results.push(bucketHistoryDomain[i]);
-            }
-
-            // rest of bucketCache
-            for(let i = 1; i < bucketCache.length && i < 10; i++) {
-                bucketCache[i].comment += " (vertical: " + bucketCache[i].query + ")!";
-                results.push(bucketCache[i]);
-            }
-
-            // rest of bucketHistoryDomain
-            for(let i = 2; i < bucketHistoryDomain.length; i++) {
-                bucketHistoryDomain[i].comment += " (history domain)!";
-                results.push(bucketHistoryDomain[i]);
-            }
-
-            // all bucketHistoryOther
-            for(let i = 0; i < bucketHistoryOther.length; i++) {
-                bucketHistoryOther[i].comment += " (history other)!";
-                results.push(bucketHistoryOther[i]);
-            }
-
-            // add external bundesliga API results
-            if(bundesligaResults && bundesligaResults.length > 0)
-                results = bundesligaResults.concat(results);
-        }
-
-        var unfiltered = instant.concat(results);
-        results = Filter.deduplicate(unfiltered, -1, 1, 1);
+// NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
+// Consider taking some ideas from this function but not all.
+//        results = Filter.deduplicate(unfiltered, -1, 1, 1);
 
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {
@@ -277,7 +163,16 @@ var Mixer = {
 
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,4);
-                results = [results[0]];
+            }
+            // Convert 2/3 size history into 1/3 to place below EZ
+            else if(results.length > 0 &&
+                    results[0].data && results[0].data.template == "pattern-h2" &&
+                    cliqzExtra[0].data.template == "entity-generic") {
+                results[0].data.template = "pattern-h3";
+                // limit number of URLs
+                results[0].data.urls = results[0].data.urls.slice(0,2);
+
+                results = cliqzExtra.concat(results);
 
             } else {
                 results = cliqzExtra.concat(results);
@@ -325,7 +220,7 @@ var Mixer = {
             );
         }
 
-        return [results, unfiltered];
+        return results;
     }
 }
 
