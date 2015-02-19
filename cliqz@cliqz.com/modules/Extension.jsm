@@ -341,13 +341,12 @@ var Extension = {
             Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
         }, false);
 
+        /*
         var menuitem5 = doc.createElement('menuitem');
         menuitem5.setAttribute('id', 'cliqz_menuitem5');
         menuitem5.setAttribute('label',
             CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
         );
-
-        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
 
         menuitem5.addEventListener('command', function(event) {
             var newvalue = !CliqzNewTab.isCliqzNewTabShown();
@@ -357,10 +356,10 @@ var Extension = {
             menuitem5.setAttribute('label',
                 CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
             );
-            //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
         }, false);
+        */
 
-        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
+        [menuitem1,menuitem2,menuitem4/*,menuitem5*/].forEach(function(item){
             menupopup.appendChild(item);
         });
 
