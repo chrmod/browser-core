@@ -341,7 +341,7 @@ var Extension = {
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         //safe search
-        menupopup.appendChild(simpleBtn('HUMAN SEARCH'));
+        menupopup.appendChild(simpleBtn('HUMAN WEB'));
 
         var safeSearchBtn = doc.createElement('menuitem');
         safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
