@@ -84,7 +84,7 @@ var Mixer = {
 
                 // Do any of the sublinks match?
                 if(instant[0].style == 'cliqz-pattern') {
-                    for(let u = 0; u < instant[0].data.urls; u++) {
+                    for(var u in instant[0].data.urls) {
                         var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results

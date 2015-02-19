@@ -1,5 +1,5 @@
 <div class='cqz-result-h1 cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'>
+      <div class='cqz-ez-title cliqz-pattern-title cliqz-pattern-title-h1 overflow'>
           {{ data.title }}
       </div>
       <div class='cliqz-pattern-results'>
@@ -11,6 +11,7 @@
               style='padding-left: 0px;'
              {{/if}}
              url='{{href}}' shortUrl='{{link}}'
+             extra='{{extra}}'
              domain='{{domain}}'
             arrow="false">
             <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
