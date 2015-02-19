@@ -37,13 +37,8 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, history, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
 		var results = [];
-
-        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
-        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
-        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
 
         if(!instant)
             instant = [];
@@ -52,7 +47,11 @@ var Mixer = {
         if(!cliqzExtra)
             cliqzExtra = [];
 
-        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " history:" + history.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
+        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
+        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
+        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
@@ -67,7 +66,9 @@ var Mixer = {
                 var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
                 if(cl_url == instant_url) {
                     var temp = Result.combine(cliqz[i], instant[0]);
-                    instant_new.push(temp);
+                    // don't keep this one if we already have one entry like this
+                    if(instant_new.length == 0)
+                        instant_new.push(temp);
                     duplicate = true;
                 }
 
@@ -97,13 +98,16 @@ var Mixer = {
 
         cliqz = cliqz_new;
 
+        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+
+
         var results = instant;
         
         for(let i = 0; i < cliqz.length; i++) {
             results.push(Result.cliqz(cliqz[i]));
         }
 
-// NOTE: Simple deduplication is done above, and much less aggressive than the following function.
+// NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
 // Consider taking some ideas from this function but not all.
 //        results = Filter.deduplicate(unfiltered, -1, 1, 1);
 
@@ -159,7 +163,16 @@ var Mixer = {
 
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,4);
-                results = [results[0]];
+            }
+            // Convert 2/3 size history into 1/3 to place below EZ
+            else if(results.length > 0 &&
+                    results[0].data && results[0].data.template == "pattern-h2" &&
+                    cliqzExtra[0].data.template == "entity-generic") {
+                results[0].data.template = "pattern-h3";
+                // limit number of URLs
+                results[0].data.urls = results[0].data.urls.slice(0,2);
+
+                results = cliqzExtra.concat(results);
 
             } else {
                 results = cliqzExtra.concat(results);

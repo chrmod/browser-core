@@ -458,7 +458,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 var results = Mixer.mix(
                             this.searchString,
-                            this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
