@@ -232,7 +232,7 @@ var UI = {
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
@@ -280,6 +280,7 @@ var UI = {
             default:
                 UI.lastInput = "";
                 UI.preventFirstElementHighlight = false;
+                UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
         }
     },
@@ -320,65 +321,91 @@ var UI = {
       },300);
     },
     cursor: 0,
-    getSelectionRange: function(key, curStart, curEnd, shift, metakey) {
+    getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
-        if (shift && metakey) {
-            start = 0
-            UI.cursor = start
-        }
-        else if (metakey) {
-            start = 0
-            end = start
-            UI.cursor = start
-        }
-        else if (shift) {
-          if (start != end && UI.cursor == end) {
-            end -= 1;
-            UI.cursor = end;
-          } else {
-            if(start >= 1) start -= 1;
+        if (shift && meta) {
+            start = 0;
             UI.cursor = start;
-          }
-        // Default action
+        } else if (meta) {
+            start = 0;
+            end = start;
+            UI.cursor = start;
+        } else if(alt && shift) {
+            if (start != end && UI.cursor == end) {
+                end = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+                start = curStart;
+                UI.cursor = end;
+            } else {
+                start = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+                end = curEnd;
+                UI.cursor = start;
+            }
+        } else if(alt) {
+            start = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+            end = start;
+            UI.cursor = start;
+        } else if (shift) {
+            if (start != end && UI.cursor == end) {
+                end -= 1;
+                UI.cursor = end;
+            } else {
+                if(start >= 1) start -= 1;
+                UI.cursor = start;
+            }
+          // Default action
         } else {
-          if (start != end) {
-            end = start;
-          } else {
-            start -= 1;
-            end = start;
-          }
-          UI.cursor = start;
+            if (start != end) {
+                end = start;
+            } else {
+                start -= 1;
+                end = start;
+            }
+            UI.cursor = start;
         }
       } else if (key == RIGHT) {
-        if (shift && metakey) {
-            end = CLIQZ.Core.urlbar.mInputField.value.length
-            UI.cursor = end
-        }
-        else if (metakey) {
-            start = CLIQZ.Core.urlbar.mInputField.value.length
-            end = start
-            UI.cursor = start
-        }
-        else if (shift) {
-          if (start != end && UI.cursor == start) {
-            start += 1;
-            UI.cursor = start;
-          } else {
-            if(end < CLIQZ.Core.urlbar.mInputField.value.length) end += 1;
+        if (shift && meta) {
+            end = CLIQZ.Core.urlbar.mInputField.value.length;
             UI.cursor = end;
-          }
+        }
+        else if (meta) {
+            start = CLIQZ.Core.urlbar.mInputField.value.length;
+            end = start;
+            UI.cursor = start;
+        } else if(alt && shift) {
+            if (start != end && UI.cursor == start) {
+                start = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+                end = curEnd;
+                UI.cursor = start;
+            } else {
+                end = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+                start = curStart;
+                UI.cursor = end;
+            }
+        } else if(alt) {
+            start = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+            end = start;
+            UI.cursor = start;
+        } else if (shift) {
+            if (start != end && UI.cursor == start) {
+                start += 1;
+                UI.cursor = start;
+            } else {
+                if(end < CLIQZ.Core.urlbar.mInputField.value.length) end += 1;
+                UI.cursor = end;
+            }
         // Default action
         } else {
           if (start != end) {
-            start = end;
+              start = end;
           } else {
-            start += 1;
-            end = start;
+              start += 1;
+              end = start;
           }
           UI.cursor = end;
         }
       }
+
       return {
         selectionStart: start,
         selectionEnd: end
@@ -387,6 +414,23 @@ var UI = {
     closeResults: closeResults,
     sessionEnd: sessionEnd,
 };
+
+function selectWord(input, direction) {
+  var start = 0, end = 0;
+  var cursor = UI.cursor;
+  input = input.replace(/\W/g, ' ');
+
+  if(direction == LEFT) {
+    if(cursor > 0) cursor -= 1;
+    for(;input[cursor] == ' ' && cursor >= 0;cursor--);
+    for(; cursor>=0 && input[cursor] != " "; cursor--);
+    return cursor+1;
+  } else {
+    for(;input[cursor] == ' ' && cursor < input.length;cursor++);
+    for(; cursor<input.length && input[cursor] != " "; cursor++);
+    return cursor;
+  }
+}
 
 //called on urlbarBlur
 function sessionEnd(){
