@@ -128,8 +128,9 @@
     background-size: cover;
     background-position: center center;
     position: relative;
+    margin-right: 5px;
 }
-#cliqz-results .cqz-image-news { position: relative; top: -14px; }
+#cliqz-results .cqz-image-news { position: relative; }
 #cliqz-results .cqz-image-round { border-radius: 3px; }
 #cliqz-results .cqz-image > p {
     position: absolute;
