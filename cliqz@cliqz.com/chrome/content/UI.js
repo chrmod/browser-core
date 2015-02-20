@@ -872,8 +872,8 @@ function urlIndexInHistory(url, urlList) {
     return index;
 }
 
-function logUIEvent(el, historyLogType, extraData) {
-  var query = CLIQZ.Core.urlbar.value;
+function logUIEvent(el, historyLogType, extraData, query) {
+  if(!query) var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
   if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
       var first = gCliqzBox.resultsBox.children[0];
@@ -923,7 +923,7 @@ function resultClick(ev){
             logUIEvent(el, "result", {
               action: "result_click",
               new_tab: newTab
-              });
+            }, CliqzAutocomplete.lastSearch);
             CLIQZ.Core.openLink(CliqzUtils.cleanMozillaActions(el.getAttribute('url')), newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1287,7 +1287,7 @@ function onEnter(ev, item){
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
       urlbar_time: urlbar_time
-    });
+    }, CliqzAutocomplete.lastSearch);
   }
 
   CLIQZ.Core.openLink(input);
