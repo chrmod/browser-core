@@ -102,7 +102,7 @@ var Mixer = {
 
 
         var results = instant;
-        
+
         for(let i = 0; i < cliqz.length; i++) {
             results.push(Result.cliqz(cliqz[i]));
         }
@@ -144,6 +144,29 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
+            // Remove entity links form history
+            if(results.length > 0 && results[0].data.template.indexOf("pattern") == 0) {
+                 var mainUrl = cliqzExtra[0].val;
+                 var history = results[0].data.urls;
+                 CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
+                 // Go through entity data and search for urls
+                 for(var k in cliqzExtra[0].data) {
+                   for(var l in cliqzExtra[0].data[k]) {
+                     if(cliqzExtra[0].data[k][l].url) {
+                        CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+                     }
+                   }
+                 }
+                 // Change size or remove history if necessary
+                 if(history.length == 0) results.splice(0,1);
+                 else if(history.length == 1){
+                   // Replace with single result
+                   results[0] = Result.generic('favicon', history[0].href, null, history[0].title, null, results[0].search);
+                   results[0].comment += " (history single)!"
+                   results[0].data.kind = "H";
+                 }
+                 else if(history.length == 2) results[0].data.template = "pattern-h3";
+            }
 
             // if the first result is a history cluster,
             // combine it with the entity zone

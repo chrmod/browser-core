@@ -816,6 +816,17 @@ var CliqzHistoryPattern = {
     res.shown = instant.data.urls.length;
     return instant;
   },
+  // Removes a given url from the instant.data.url list
+  removeUrlFromResult: function(urlList, url) {
+    var url = CliqzHistoryPattern.generalizeUrl(url);
+    for(var key in urlList) {
+      var r_url = CliqzHistoryPattern.generalizeUrl(urlList[key].href);
+      if (r_url == url) {
+        urlList.splice(key, 1);
+        return;
+      }
+    }
+  },
   // Create a full-sized unfiltered history entry for use as second-page backfill results
   createBackfillResult: function(res, searchString) {
     if(res.results.length == 0)

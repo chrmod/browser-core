@@ -230,6 +230,8 @@ var UI = {
                 trackArrowNavigation(nextEl);
                 return true;
             break;
+            case TAB:
+                if (!CLIQZ.Core.popup.mPopupOpen) return false;
             case DOWN:
                 if(pos != allArrowable.length - 1){
                     var nextEl = allArrowable[pos+1];
@@ -242,15 +244,10 @@ var UI = {
                 UI.lastInput = "";
                 return onEnter(ev, sel);
             break;
-            case TAB:
-                var urlbar = CLIQZ.Core.urlbar;
-                suggestionNavigation(ev);
-                urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
-                return true;
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
-                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.metaKey || ev.ctrlKey || ev.altKey);
+                var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
@@ -298,6 +295,7 @@ var UI = {
             default:
                 UI.lastInput = "";
                 UI.preventFirstElementHighlight = false;
+                UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
         }
     },
@@ -338,65 +336,91 @@ var UI = {
       },300);
     },
     cursor: 0,
-    getSelectionRange: function(key, curStart, curEnd, shift, metakey) {
+    getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
       if (key == LEFT) {
-        if (shift && metakey) {
-            start = 0
-            UI.cursor = start
-        }
-        else if (metakey) {
-            start = 0
-            end = start
-            UI.cursor = start
-        }
-        else if (shift) {
-          if (start != end && UI.cursor == end) {
-            end -= 1;
-            UI.cursor = end;
-          } else {
-            if(start >= 1) start -= 1;
+        if (shift && meta) {
+            start = 0;
             UI.cursor = start;
-          }
-        // Default action
+        } else if (meta) {
+            start = 0;
+            end = start;
+            UI.cursor = start;
+        } else if(alt && shift) {
+            if (start != end && UI.cursor == end) {
+                end = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+                start = curStart;
+                UI.cursor = end;
+            } else {
+                start = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+                end = curEnd;
+                UI.cursor = start;
+            }
+        } else if(alt) {
+            start = selectWord(CLIQZ.Core.urlbar.mInputField.value, LEFT);
+            end = start;
+            UI.cursor = start;
+        } else if (shift) {
+            if (start != end && UI.cursor == end) {
+                end -= 1;
+                UI.cursor = end;
+            } else {
+                if(start >= 1) start -= 1;
+                UI.cursor = start;
+            }
+          // Default action
         } else {
-          if (start != end) {
-            end = start;
-          } else {
-            start -= 1;
-            end = start;
-          }
-          UI.cursor = start;
+            if (start != end) {
+                end = start;
+            } else {
+                start -= 1;
+                end = start;
+            }
+            UI.cursor = start;
         }
       } else if (key == RIGHT) {
-        if (shift && metakey) {
-            end = CLIQZ.Core.urlbar.mInputField.value.length
-            UI.cursor = end
-        }
-        else if (metakey) {
-            start = CLIQZ.Core.urlbar.mInputField.value.length
-            end = start
-            UI.cursor = start
-        }
-        else if (shift) {
-          if (start != end && UI.cursor == start) {
-            start += 1;
-            UI.cursor = start;
-          } else {
-            if(end < CLIQZ.Core.urlbar.mInputField.value.length) end += 1;
+        if (shift && meta) {
+            end = CLIQZ.Core.urlbar.mInputField.value.length;
             UI.cursor = end;
-          }
+        }
+        else if (meta) {
+            start = CLIQZ.Core.urlbar.mInputField.value.length;
+            end = start;
+            UI.cursor = start;
+        } else if(alt && shift) {
+            if (start != end && UI.cursor == start) {
+                start = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+                end = curEnd;
+                UI.cursor = start;
+            } else {
+                end = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+                start = curStart;
+                UI.cursor = end;
+            }
+        } else if(alt) {
+            start = selectWord(CLIQZ.Core.urlbar.mInputField.value, RIGHT);
+            end = start;
+            UI.cursor = start;
+        } else if (shift) {
+            if (start != end && UI.cursor == start) {
+                start += 1;
+                UI.cursor = start;
+            } else {
+                if(end < CLIQZ.Core.urlbar.mInputField.value.length) end += 1;
+                UI.cursor = end;
+            }
         // Default action
         } else {
           if (start != end) {
-            start = end;
+              start = end;
           } else {
-            start += 1;
-            end = start;
+              start += 1;
+              end = start;
           }
           UI.cursor = end;
         }
       }
+
       return {
         selectionStart: start,
         selectionEnd: end
@@ -407,6 +431,22 @@ var UI = {
 };
 
 
+function selectWord(input, direction) {
+  var start = 0, end = 0;
+  var cursor = UI.cursor;
+  input = input.replace(/\W/g, ' ');
+
+  if(direction == LEFT) {
+    if(cursor > 0) cursor -= 1;
+    for(;input[cursor] == ' ' && cursor >= 0;cursor--);
+    for(; cursor>=0 && input[cursor] != " "; cursor--);
+    return cursor+1;
+  } else {
+    for(;input[cursor] == ' ' && cursor < input.length;cursor++);
+    for(; cursor<input.length && input[cursor] != " "; cursor++);
+    return cursor;
+  }
+}
 
 //called on urlbarBlur
 function sessionEnd(){
@@ -968,8 +1008,8 @@ function messageClick(ev) {
 
 
 
-function logUIEvent(el, historyLogType, extraData) {
-  var query = CLIQZ.Core.urlbar.value;
+function logUIEvent(el, historyLogType, extraData, query) {
+  if(!query) var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
   if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
       var first = gCliqzBox.resultsBox.children[0];
@@ -1018,7 +1058,7 @@ function resultClick(ev){
             logUIEvent(el, "result", {
               action: "result_click",
               new_tab: newTab
-              });
+            }, CliqzAutocomplete.lastSearch);
             CLIQZ.Core.openLink(CliqzUtils.cleanMozillaActions(el.getAttribute('url')), newTab);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1121,14 +1161,19 @@ function getResultSelection(){
     return $('[arrow="true"]', gCliqzBox);
 }
 
-function clearResultSelection(keepArrow){
+function clearResultSelection(){
     UI.keyboardSelection = null;
     var el = getResultSelection();
     el && el.setAttribute('arrow', 'false');
     var arrow = $('.cqz-result-selected', gCliqzBox);
-    (arrow && !keepArrow) && arrow.removeAttribute('active');
-    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
-    if(title)title.style.textDecoration = "none";
+    arrow && arrow.removeAttribute('active');
+    clearTextSelection();
+}
+
+function clearTextSelection() {
+    var el = getResultSelection();
+    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el) || el;
+    title && (title.style.textDecoration = "none");
 }
 
 /**
@@ -1212,6 +1257,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
         if(target.className.indexOf("cliqz-pattern-title") != -1) return;
+        if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
         clearResultSelection();
@@ -1228,8 +1274,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         target.setAttribute('arrow', 'true');
         arrow.style.top = (offset + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
-        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
-        if(title) title.style.textDecoration = 'underline';
+        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el) || el;
+        if(title && title.className.indexOf("title") != -1 && mouseOver) title.style.textDecoration = 'underline';
 
         // update the URL bar with the selected URL
         if (UI.lastInput == "") {
@@ -1258,7 +1304,7 @@ function resultMove(ev){
         while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-        clearResultSelection(true);
+        clearTextSelection();
         setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
     }
@@ -1403,7 +1449,7 @@ function onEnter(ev, item){
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
       urlbar_time: urlbar_time
-    });
+    }, CliqzAutocomplete.lastSearch);
   }
 
   CLIQZ.Core.openLink(input);

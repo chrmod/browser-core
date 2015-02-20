@@ -237,6 +237,7 @@ var Extension = {
     addButtons: function(win){
         var doc = win.document;
         if (!CliqzUtils.PREFERRED_LANGUAGE) {
+          // Need locale when cliqz is disabled
           var nav = win.navigator;
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
