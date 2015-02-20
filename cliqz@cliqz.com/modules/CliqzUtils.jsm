@@ -73,9 +73,8 @@ var CliqzUtils = {
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
               'spellcheck': 1, 'time': 1, 'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,'entity-portal': 3,
-              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'weatherEZ': 2,
+              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'weatherEZ': 2, 'Cliqz': 2,
               'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 2, 'noResult': 3, 'stocks': 3, 'weatherAlert': 3},
-
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),

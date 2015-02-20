@@ -98,10 +98,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new_new.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
