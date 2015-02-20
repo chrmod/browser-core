@@ -397,5 +397,8 @@
     },
     "disable-cliqz": {
       "message": "Disable Cliqz"
+    },
+    "btnActivateCliqz": {
+      "message": "Activate Cliqz"
     }
 }

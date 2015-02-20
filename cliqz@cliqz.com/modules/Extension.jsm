@@ -217,8 +217,17 @@ var Extension = {
             Extension.addButtons(win);
 
             try {
-                if (!CliqzUtils.getPref("cliqz_core_disabled", false))
+                if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
                   win.CLIQZ.Core.init();
+                  CliqzUtils.log('Initialized', 'CORE');
+                }
+
+
+                // Always set urlbar and start whoAmI
+                // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+                win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+                win.CLIQZ.Core.whoAmI(true); //startup
+
             } catch(e) {Cu.reportError(e); }
         }
         else {
@@ -227,6 +236,11 @@ var Extension = {
     },
     addButtons: function(win){
         var doc = win.document;
+        if (!CliqzUtils.PREFERRED_LANGUAGE) {
+          var nav = win.navigator;
+          CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
+          CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+        }
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
@@ -395,14 +409,25 @@ var Extension = {
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
+        var cliqz_core_disabled = CliqzUtils.getPref("cliqz_core_disabled", false);
         if(Services.search.init != null){
             Services.search.init(function(){
+              if (!cliqz_core_disabled) {
                 menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
                 menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+              }
+              else {
+                menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+              }
             });
         } else {
-            menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-            menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+            if (!cliqz_core_disabled) {
+              menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+              menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+            }
+            else {
+              menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+            }
         }
     },
     openTab: function(doc, url){

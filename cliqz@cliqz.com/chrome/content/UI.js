@@ -944,7 +944,7 @@ function messageClick(ev) {
                   CliqzUtils.setPref("cliqz_core_disabled", true);
                   updateMessageState("hide");
                   CLIQZ.Core.destroy(true);
-                  // Destroy core
+                  CliqzUtils.toggleMenuSettings("disabled");
                   break;
               case 'keep-cliqz':
                   updateMessageState("hide");
@@ -1076,6 +1076,8 @@ function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state');
 
     //var messageContainer = document.getElementById('cliqz-message-container');
+    var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning");
+    var user_location = CliqzUtils.getPref("config_location");
     switch(state) {
         case 'yes': //allow in this session
             adultMessage = 1;

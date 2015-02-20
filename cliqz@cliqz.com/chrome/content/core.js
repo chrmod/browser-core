@@ -175,8 +175,8 @@ CLIQZ.Core = CLIQZ.Core || {
             }, false);
         }
 
-        CLIQZ.Core.whoAmI(true); //startup
-        CliqzUtils.log('Initialized', 'CORE');
+        //CLIQZ.Core.whoAmI(true); //startup
+        //CliqzUtils.log('Initialized', 'CORE');
     },
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
