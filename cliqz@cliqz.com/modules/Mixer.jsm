@@ -37,7 +37,7 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, maxResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -177,6 +177,11 @@ var Mixer = {
             } else {
                 results = cliqzExtra.concat(results);
             }
+        }
+
+        // Add custom results to the beginning if there are any
+        if(custom && custom.length > 0) {
+            results = custom.concat(results);
         }
 
 
