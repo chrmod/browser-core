@@ -299,6 +299,24 @@ var CliqzUtils = {
 
     return url;
   },
+  test_getDetailsFromUrl: function() {
+    function assert(test, msg) {
+      if(!test) {
+        CliqzUtils.log("test assert failed: " + msg, "test_getDetailsFromUrl");
+      }
+    }
+
+    //T1
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
+    assert(parts.domain == "facebook.com", "t1.1");
+    assert(parts.name == "facebook", "t1.2");
+    assert(parts.subdomains[0] == "www", "t1.3");
+    assert(parts.tld == "com", "t1.4");
+    assert(parts.path == "/", "t1.5");
+    assert(parts.query == "", "t1.6");
+    assert(parts.fragment == "", "t1.7");
+
+  },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
