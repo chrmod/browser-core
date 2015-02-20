@@ -17,7 +17,5 @@
 		</div>
 	{{/unless}}
 {{/each}}
-{{#if showAdult}}
-	{{>adult}}
-{{/if}}
+
 <div class='cqz-result-selected'></div>

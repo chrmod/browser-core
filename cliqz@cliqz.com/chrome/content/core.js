@@ -103,8 +103,16 @@ CLIQZ.Core = CLIQZ.Core || {
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
+        //create a new panel for cliqz to avoid inconsistencies at FF startup
+        var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
+        popup.setAttribute("type", 'autocomplete-richlistbox');
+        popup.setAttribute("id", 'PopupAutoCompleteRichResultCliqz');
+        popup.setAttribute("noautofocus", 'true');
+        CLIQZ.Core.elem.push(popup);
+        document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
+
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
-        CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
+        CLIQZ.Core.popup = popup;
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -115,7 +123,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', 'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
-        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
+        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResultCliqz');
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
@@ -124,7 +132,7 @@ CLIQZ.Core = CLIQZ.Core || {
             var ev = CLIQZ.Core.urlbarEvents[i];
             CLIQZ.Core.urlbar.addEventListener(ev, CLIQZ.Core['urlbar' + ev]);
         }
-        
+
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
 
@@ -296,7 +304,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //try to 'heat up' the connection
         CliqzUtils.pingCliqzResults();
 
-        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
+        CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
@@ -321,10 +329,10 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();
-        
+
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
-        
+
         CLIQZ.Core.urlbarEvent('blur');
 
         if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
@@ -438,6 +446,11 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         CliqzAutocomplete.highlightFirstElement = false;
 
+        // History cluster does not have a url attribute, therefore firstResult is null
+        var lastPattern = CliqzAutocomplete.lastPattern;
+        if(!firstResult && lastPattern && lastPattern.filteredResults().length > 1)
+          firstResult = lastPattern.filteredResults()[0].url;
+
         var urlBar = CLIQZ.Core.urlbar, r,
             endPoint = urlBar.value.length;
         var lastPattern = CliqzAutocomplete.lastPattern;
@@ -476,10 +489,12 @@ CLIQZ.Core = CLIQZ.Core || {
         }
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
-            if (urlBar.value.length > 80) {
-              urlBar.value = urlBar.value.substr(0,80) + "...";
+            // Cut urlbar to max 80 characters
+            // Error-prone, disabled for now
+            /*if (urlBar.mInputField.value.length > 80) {
+              urlBar.mInputField.value = urlBar.mInputField.value.substr(0,80) + "...";
               urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            }
+            }*/
             CliqzAutocomplete.highlightFirstElement = true;
             CLIQZ.UI.selectFirstElement();
         }

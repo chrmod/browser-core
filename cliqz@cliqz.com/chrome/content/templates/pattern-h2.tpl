@@ -12,7 +12,8 @@
              {{/if}}
              url='{{href}}' shortUrl='{{link}}'
              domain='{{domain}}'
-            arrow="false">
+             extra='{{extra}}'
+             arrow="false">
             <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
             <div class='cliqz-pattern-element-link'>{{ link }}</div>
         </div>
