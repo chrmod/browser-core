@@ -1064,6 +1064,12 @@ function clearResultSelection(keepArrow){
     interrupted
  */
 var smooth_scroll_to = function(element, target, duration) {
+    if(!Promise || typeof Promise != 'function'){ // older FF
+        //should we do our own animation?
+        element.scrollTop = Math.round(target);
+        return;
+    }
+
     target = Math.round(target);
     duration = Math.round(duration);
     if (duration < 0) {
