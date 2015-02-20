@@ -6,7 +6,7 @@
         "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
-        "message": "Einstellung"
+        "message": "EINSTELLUNGEN"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
@@ -25,6 +25,12 @@
     },
     "btnShare":{
         "message": "CLIQZ Share"
+    },
+    "btnSafeSearch":{
+        "message": "Ich nehme teil"
+    },
+    "btnSafeSearchDesc":{
+        "message": "Was ist das?"
     },
     "urlBarLastSearch":{
         "message":"↵  "
@@ -373,5 +379,23 @@
     },
     "views": {
         "message": "Aufrufe"
+    },
+    "cliqz_stock_open": {
+        "message": "Eröffnung"
+    },
+    "cliqz_stock_high": {
+        "message": "Hoch"
+    },
+    "cliqz_stock_low": {
+        "message": "Tief"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Marktkapit."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "P/E ratio(ttm)"
+    },
+    "cliqz_stock_minutes_ago": {
+       "message": "Minuten früher"
     }
 }
