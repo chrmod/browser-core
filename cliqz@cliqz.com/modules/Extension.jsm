@@ -216,7 +216,8 @@ var Extension = {
             Extension.addButtons(win);
 
             try {
-                win.CLIQZ.Core.init();
+                if (!CliqzUtils.getPref("cliqz_core_disabled", false))
+                  win.CLIQZ.Core.init();
             } catch(e) {Cu.reportError(e); }
         }
         else {
