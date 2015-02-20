@@ -69,7 +69,6 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
 
-
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
               'spellcheck': 1, 'time': 1, 'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,'entity-portal': 3,
@@ -1013,8 +1012,9 @@ var CliqzUtils = {
                 doc = win.document;
 
             try{
-                var btn = win.document.getElementById('cliqz-button')
-                if(btn && btn.children && btn.children.cliqz_menupopup){
+                var btn = win.document.getElementById('cliqz-button'),
+                    cliqz_core_disabled = CliqzUtils.getPref("cliqz_core_disabled", false);
+                if(btn && btn.children && btn.children.cliqz_menupopup && !cliqz_core_disabled){
                     var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
                     adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
@@ -1084,5 +1084,48 @@ var CliqzUtils = {
         };
         menu.appendChild(menupopup);
         return menu;
+    },
+    createActivateButton: function(doc) {
+      var button = doc.createElement('menuitem');
+      button.setAttribute('label', CliqzUtils.getLocalizedString('btnActivateCliqz'));
+      button.addEventListener('command', function(event) {
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            win.CLIQZ.Core.init();
+        }
+        CliqzUtils.setPref("cliqz_core_disabled", false);
+        CliqzUtils.toggleMenuSettings("enabled");
+      });
+      return button;
+    },
+
+    toggleMenuSettings: function(new_state) {
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext(),
+              doc = win.document;
+          CliqzUtils.log("1");
+          try{
+            var btn = doc.getElementById('cliqz-button');
+            if(btn && btn.children && btn.children.cliqz_menupopup){
+              if (new_state == "enabled") {
+                var activateButton = btn.children.cliqz_menupopup.lastChild;
+                activateButton.parentNode.removeChild(activateButton);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+              }
+              else if (new_state == "disabled") {
+                var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                adultFilterOptions.parentNode.removeChild(adultFilterOptions);
+                var searchOptions = btn.children.cliqz_menupopup.lastChild;
+                searchOptions.parentNode.removeChild(searchOptions);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+              }
+            }
+          } catch (e){}
+      }
     }
 };
