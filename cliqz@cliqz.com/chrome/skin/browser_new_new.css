@@ -31,6 +31,9 @@
 
 /* common classes */
 #cliqz-results em { font-style: normal; font-weight: bold; }
+#cliqz-results b { font-weight: bold; }
+#cliqz-results i { font-style: italic; }
+
 #cliqz-results .cqz-result-h1, #cliqz-results .cqz-result-h2, #cliqz-results .cqz-result-h3 {
     padding: 16px calc(44px + 65px + 22px) 16px 22px;
     -moz-box-sizing: border-box;
@@ -142,6 +145,17 @@
     color: white;
 }
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
+
+/* custom result */
+#cliqz-results .cqz-custom-text {
+    line-height: 68px;
+    color: #999999;
+    font-weight: 500;
+    font-size: 18px;
+}
+#cliqz-results .cqz-custom-text * {
+    font-size: 18px;
+}
 
 /* EZ generic */
 #cliqz-results .cqz-ez-title {
@@ -399,3 +413,4 @@
 }
 
 .hidden { visibility: hidden; display: none !important; }
+
