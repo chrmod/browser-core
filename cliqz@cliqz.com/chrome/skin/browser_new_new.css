@@ -149,11 +149,11 @@
     background-size: auto 18px;
     background-position: right;
     display: inline-block;
-    padding-right: 32px;
+    padding-right: 40px;
 }
 #cliqz-results .cqz-ez-title:hover { text-decoration: underline; }
-#cliqz-results .cqz-ez-generic-box { float: left; margin-top: 9px; }
-#cliqz-results .cqz-ez-generic-box .cqz-ez-btn { background-color: #2fc4fc; }
+#cliqz-results .cqz-ez-generic-box { float: left; }
+#cliqz-results .cqz-ez-generic-box .cqz-ez-btn { background-color: #2fc4fc; display: block; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn:nth-of-type(1) { background-color: #5267a2; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn:nth-of-type(2) { background-color: #1e5cdc; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn:nth-of-type(3) { background-color: #5ea3f9; }
@@ -175,7 +175,7 @@
     background-position: center;
     background-size: contain;
 }
-#cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 142px; }
+#cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 132px; }
 
 /* EZ banking */
 #cliqz-results .cqz-ez-banking-box { float: left; margin-top: 12px; }
@@ -267,7 +267,7 @@
 #cliqz-results .cliqz-celeb .cqz-result-logo { margin-top: 40px; }
 #cliqz-results .cqz-celeb-images { height: 64px; overflow: hidden; width: 60%; }
 #cliqz-results .cqz-celeb-image { height: 64px; margin-right: 6px; border-radius: 3px; }
-#cliqz-results .cqz-celeb-who { font-size: 18px; margin: 10px 0 7px; color: #506bb8; }
+#cliqz-results .cqz-celeb-who, #cliqz-results .cqz-celeb-who em { font-size: 18px; margin: 10px 0 7px; color: #506bb8; }
 #cliqz-results .cqz-celeb-social { height: 22px; margin-top: 10px; margin-right: 9px; }
 #cliqz-results .cqz-celeb-desc { height: 2.1em; overflow: hidden; width: 85%; }
 
