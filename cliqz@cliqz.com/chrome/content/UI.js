@@ -1072,33 +1072,43 @@ function resultClick(ev){
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state');
+
     //var messageContainer = document.getElementById('cliqz-message-container');
     switch(state) {
         case 'yes': //allow in this session
             adultMessage = 1;
             UI.handleResults();
             updateMessageState("hide");
+            if (user_location != "de" && !ignored_location_warning)
+              updateMessageState("show", {
+                  "bad_results_warning": {}
+              });
             break;
         case 'no':
             adultMessage = 2;
             UI.handleResults();
             updateMessageState("hide");
+            if (user_location != "de" && !ignored_location_warning)
+              updateMessageState("show", {
+                  "bad_results_warning": {}
+               });
             break;
         default:
             var rules = CliqzUtils.getAdultFilterState();
             if(rules[state]){
                 CliqzUtils.setPref('adultContentFilter', state);
-                updateMessageState("show", {
-                    "adult": {
-                      "adultConfig": CliqzUtils.getAdultFilterState()
-                    },
-                 });
+                updateMessageState("hide");
                 UI.handleResults();
-
+                if (user_location != "de" && !ignored_location_warning)
+                  updateMessageState("show", {
+                      "bad_results_warning": {}
+                   });
             }
             else {
                 //click on options btn
             }
+            break;
+
     }
     setTimeout(CliqzUtils.refreshButtons, 0);
 }
