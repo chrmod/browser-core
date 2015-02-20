@@ -98,10 +98,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new_new.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');

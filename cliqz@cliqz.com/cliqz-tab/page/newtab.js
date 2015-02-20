@@ -241,10 +241,6 @@ $(function(){
         ev.stopPropagation();
     });
     
-    $(document).click(function(ev){
-        $('#search-dropdown').hide();
-    });
-    
     CLIQZ.UI.init();
     CLIQZ.Core.popup = $('#search-dropdown')[0]
     CLIQZ.Core.popup.closePopup = function(){}
@@ -294,6 +290,12 @@ $(function(){
     $("#history-popup .dismiss").click(function(){ HistoryController.popup(false) })
     
     QuickAccessController.init()
+    
+    /*$(document).click(function(ev){
+        $('#search-dropdown').hide();
+    });*/
+    
+    
 });
 
 var CliqzResults = {
