@@ -1,13 +1,13 @@
-<div class="cqz-adult-bar">
-  <div class="cqz-adult-alert">
+<div class="cqz-message-bar">
+  <div class="cqz-message cqz-message-alert">
     {{local 'adultInfo'}}
   </div>
 
   <div style="float:right" cliqz-action="adult">
     <span>{{local 'adultAction'}}</span>
-    <span class="cqz-adult-btn" state="yes">{{local 'yes'}}</span>
-    <span class="cqz-adult-btn" state="no">{{local 'no' }}</span>
-    <span class="cqz-adult-btn cqz-adult-options-btn" state="options">
+    <span class="cqz-btn cqz-btn-default" state="yes">{{local 'yes'}}</span>
+    <span class="cqz-btn cqz-btn-default" state="no">{{local 'no' }}</span>
+    <span class="cqz-btn cqz-adult-options-btn" state="options">
           <div class='cqz-adult-options'>
               {{#each adultConfig}}
                   <div state='{{@key}}' selected='{{selected}}'>

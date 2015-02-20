@@ -382,5 +382,14 @@
     },
     "cliqz_stock_minutes_ago": {
        "message": "minutes ago"
+    },
+    "OutOfCoverageWarning": {
+       "message": "CLIQZ’s results for your country are not so \"gut\" yet. We will get better outside of Germany soon."
+    },
+    "keep-cliqz": {
+      "message": "OK"
+    },
+    "disable-cliqz": {
+      "message": "Disable Cliqz"
     }
 }

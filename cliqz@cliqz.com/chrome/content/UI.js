@@ -11,7 +11,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
-    MESSAGE_TEMPLATES = ['adult'],
+    MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
         //'b': 'bundesliga',
         //'s': 'shopping',
@@ -792,6 +792,14 @@ function enhanceResults(res){
 
     }
 
+
+    var user_location = CliqzUtils.getPref("config_location", "de");
+    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
+    var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
+
+
+
+
     //prioritize extra (fun-vertical) results
     // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
     // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
@@ -799,30 +807,70 @@ function enhanceResults(res){
     var all = res.results;
 
     //filter adult results
-    if(adult){
+    if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             all = all.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
-            updateAdultWarningState("show");
+            updateMessageState("show", {
+                "adult": {
+                  "adultConfig": CliqzUtils.getAdultFilterState()
+                }
+             });
         }
     }
+    else if (user_location != "de" && !ignored_location_warning) {
+      updateMessageState("show", {
+          "bad_results_warning": {}
+       });
+    }
     else {
-      updateAdultWarningState("hide");
+      updateMessageState("hide");
     }
 
     return res;
 }
 
-function updateAdultWarningState(state) {
-  //var messageContainer = document.getElementById('cliqz-message-container');
+ /*
+  * Updates the state of the messages box at the bottom of the suggestions popup.
+  * @param state the new state, One of ("show", "hide"). Default Vaule: "hide"
+  *
+  * @param messages the dictionary of messages that will be updated,
+  * specified by the name of the template, excluding the .tpl extension.
+  * The name should be in MESSAGE_TEMPLATES, so the template can be automatically rendered.
+  * In the dictionary, the key is the name of the template, and the value is the dictinary
+  * of template arguments. e.g:
+  * If state == "hide", then messages_list is ignored and all messages are hidden.
+  * If state == "show", the messages in messages_list will be displayed to the user, in the same order.
+  *
+  * example: updateMessageState("show", {
+                "adult": {
+                  "adultConfig": CliqzUtils.getAdultFilterState()
+                }
+             });
+  * You can also pass multiple messages at once, e.g:
+
+             updateMessageState("show", {
+                "adult": {
+                    "adultConfig": CliqzUtils.getAdultFilterState()
+                },
+                "bad_results_warning": {
+                  // Template has no arguments.
+                }
+             });
+  */
+
+function updateMessageState(state, messages) {
+
   switch (state) {
     case "show":
       // Show adult warning
-      CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
-      messageContainer.innerHTML = UI.tpl.adult({
-        'adultConfig': CliqzUtils.getAdultFilterState()
+      CliqzUtils.log(CLIQZ.Core.popup.style.height);
+      //CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
+      messageContainer.innerHTML = "";
+      Object.keys(messages).forEach(function(tpl_name){
+          messageContainer.innerHTML += UI.tpl[tpl_name](messages[tpl_name]);
       });
       break;
     case "hide":
@@ -870,29 +918,52 @@ function messageClick(ev) {
   // Handle adult results
 
   while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
-    var action = el.getAttribute('cliqz-action');
-    if(action == 'stop-click-event-propagation'){
-      break;
+      var action = el.getAttribute('cliqz-action');
+      if(action == 'stop-click-event-propagation'){
+        break;
+      }
+
+
+      /*********************************/
+      /* BEGIN "Handle message clicks" */
+
+
+      if (action) {
+        if (action == 'adult') {
+          /* Adult message */
+          handleAdultClick(ev);
+        }
+        else if (action == 'disable-cliqz') {
+          // "Cliqz is not optimized for your country" message */
+          var state = ev.originalTarget.getAttribute('state');
+          switch(state) {
+              case 'disable-cliqz':
+                  CliqzUtils.setPref("cliqz_core_disabled", true);
+                  updateMessageState("hide");
+                  CLIQZ.Core.destroy(true);
+                  // Destroy core
+                  break;
+              case 'keep-cliqz':
+                  updateMessageState("hide");
+                  // Lets us know that the user has ignored the warning
+                  CliqzUtils.setPref('ignored_location_warning', true);
+                  break;
+              default:
+                  break;
+          }
+          setTimeout(CliqzUtils.refreshButtons, 0);
+        }
+      }
+      /* Propagate event up the DOM tree */
+      el = el.parentElement;
     }
-
-
-    /*********************************/
-    /* BEGIN "Handle message clicks" */
-
-    /* Adult message */
-    if (action && action == 'adult') {
-      handleAdultClick(ev);
-    };
 
     /*  END "Handle message clicks"  */
     /*********************************/
 
-    /* Propagate event up the DOM tree */
-    el = el.parentElement;
-
-  }
-
 }
+
+
 
 function resultClick(ev){
     var el = ev.target,
@@ -1010,18 +1081,22 @@ function handleAdultClick(ev){
         case 'yes': //allow in this session
             adultMessage = 1;
             UI.handleResults();
-            updateAdultWarningState("hide");
+            updateMessageState("hide");
             break;
         case 'no':
             adultMessage = 2;
             UI.handleResults();
-            updateAdultWarningState("hide");
+            updateMessageState("hide");
             break;
         default:
             var rules = CliqzUtils.getAdultFilterState();
             if(rules[state]){
                 CliqzUtils.setPref('adultContentFilter', state);
-                updateAdultWarningState('show');
+                updateMessageState("show", {
+                    "adult": {
+                      "adultConfig": CliqzUtils.getAdultFilterState()
+                    },
+                 });
                 UI.handleResults();
 
             }

@@ -558,38 +558,74 @@
 }
 /* EZ portal end */
 
-/* Adult content */
 
-.cqz-adult-bar {
+
+/* Messages ( Hidden Adult content / Cliqz not optimized for your country etc. )*/
+
+.cqz-message-bar {
   font-size: 14px;
   padding: 4px 10px;
   position: relative;
 }
 
-.cqz-adult-bar img {
+.cqz-message-bar img {
   height: 16px;
 }
 
-.cqz-adult-alert {
-  color: #c3043e;
-  background-image: url(http://cdn.cliqz.com/extension/adultfilter/red-alert.svg);
-  background-repeat: no-repeat;
-  background-position: left center;
-  padding-left: 20px;
-  padding: 2px 8px 2px 30px;
+
+.cqz-message {
+  padding: 2px 20px 2px;
   margin-top: 2px;
   display: inline-block;
 }
 
-.cqz-adult-btn {
+.cqz-message-success {
+  color: #28ae2b;
+
+}
+
+.cqz-message-warning {
+  color: #ffcc66;
+}
+
+
+.cqz-message-alert {
+  color: #c3043e;
+  padding-left:30px; /* To make room for the image */
+  background-image: url(http://cdn.cliqz.com/extension/adultfilter/red-alert.svg);
+  background-repeat: no-repeat;
+  background-position: left center;
+
+}
+
+.cqz-btn {
   margin: 0 5px;
   cursor: pointer;
   color: white;
-  background-color: #abc8e2;
   border-radius: 3px;
   padding: 4px 8px;
   text-align: center;
+  display:inline-block;
+  background-color: #0480c3;
 }
+
+.cqz-btn-default {
+  background-color: #0480c3;
+}
+
+.cqz-btn-success {
+  background-color: #28ae2b;
+}
+
+.cqz-btn-error {
+  background-color: #c3043e;
+}
+
+.cqz-btn-warning {
+  background-color: #ffcc66;
+}
+
+/* Adult content */
 
 .cqz-adult-options-btn {
   background-color: #eaeaea;
