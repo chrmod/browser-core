@@ -1011,14 +1011,19 @@ function getResultSelection(){
     return $('[arrow="true"]', gCliqzBox);
 }
 
-function clearResultSelection(keepArrow){
+function clearResultSelection(){
     UI.keyboardSelection = null;
     var el = getResultSelection();
     el && el.setAttribute('arrow', 'false');
     var arrow = $('.cqz-result-selected', gCliqzBox);
-    (arrow && !keepArrow) && arrow.removeAttribute('active');
-    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
-    if(title)title.style.textDecoration = "none";
+    arrow && arrow.removeAttribute('active');
+    clearTextSelection();
+}
+
+function clearTextSelection() {
+    var el = getResultSelection();
+    var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el) || el;
+    title && (title.style.textDecoration = "none");
 }
 
 /**
@@ -1099,9 +1104,10 @@ var smooth_scroll_to = function(element, target, duration) {
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el){
         //focus on the title - or on the aroww element inside the element
-        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        var target = $('.cqz-ez-title', el) || $('[arrow]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
         if(target.className.indexOf("cliqz-pattern-title") != -1) return;
+        if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
         clearResultSelection();
@@ -1118,8 +1124,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         target.setAttribute('arrow', 'true');
         arrow.style.top = (offset + target.offsetHeight/2 - 7) + 'px';
         arrow.setAttribute('active', 'true');
-        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el);
-        if(title) title.style.textDecoration = 'underline';
+        var title = $('.cqz-ez-title', el) || $('.cqz-result-title', el) || $('.cliqz-pattern-element-title', el) || el;
+        if(title && title.className.indexOf("title") != -1 && mouseOver) title.style.textDecoration = 'underline';
 
         // update the URL bar with the selected URL
         if (UI.lastInput == "") {
@@ -1147,7 +1153,7 @@ function resultMove(ev){
         while (el && el.className != IC && !el.hasAttribute('arrow')) {
             el = el.parentElement;
         }
-        clearResultSelection(true);
+        clearTextSelection();
         setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
     }

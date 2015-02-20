@@ -1058,15 +1058,3 @@ padding-top:5px;
   color: #88baf8;
   margin-right: 10px;
 }
-/*
-[arrow="true"] *[selectable]{
-  text-decoration: underline;
-}
-[arrow="true"][selectable]{
-  text-decoration: underline;
-}
-*/
-
-[arrow="true"]:hover .cqz-result-title {
-  text-decoration: underline;
-}
