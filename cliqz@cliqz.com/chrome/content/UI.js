@@ -406,6 +406,8 @@ var UI = {
     sessionEnd: sessionEnd,
 };
 
+
+
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
@@ -806,11 +808,12 @@ function enhanceResults(res){
     // var all = first.concat(last);
     var all = res.results;
 
+
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
-            all = all.filter(function(r){ return !(r.data && r.data.adult); });
+            res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
@@ -1004,7 +1007,6 @@ function logUIEvent(el, historyLogType, extraData) {
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
-
 function resultClick(ev){
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
@@ -1205,7 +1207,7 @@ var smooth_scroll_to = function(element, target, duration) {
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el){
         //focus on the title - or on the aroww element inside the element
-        var target = $('.cqz-ez-title', el) || $('[arroww]', el) || el;
+        var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
         if(target.className.indexOf("cliqz-pattern-title") != -1) return;
 
@@ -1236,6 +1238,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         }
         if(changeUrl)
             CLIQZ.Core.urlbar.value = el.getAttribute("url");
+
         if (!mouseOver)
           UI.keyboardSelection = el;
 
@@ -1449,10 +1452,11 @@ function trackArrowNavigation(el){
         action: 'arrow_key',
         current_position: getResultPosition(el),
     };
-    // for inner link info
-    if(el.getAttribute('extra'))
-        action.extra = el.getAttribute('extra');
     if(el){
+        // for inner link info
+        if(el.getAttribute('extra'))
+            action.extra = el.getAttribute('extra');
+
         action.position_type = getResultKind(el);
         var url = getResultOrChildAttr(el, 'url');
         action.search = CliqzUtils.isSearch(url);
@@ -1473,6 +1477,7 @@ var AGO_CEILINGS=[
     [58060800     , 'ago1year'   , 1],
     [2903040000   , 'agoXYears'     , 29030400],
 ];
+
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         var template = UI.tpl[name] || UI.tpl.empty;
@@ -1700,7 +1705,6 @@ function registerHelpers(){
         return width - reduction;
     });
 }
-
 ctx.CLIQZ = ctx.CLIQZ || {};
 ctx.CLIQZ.UI = UI;
 

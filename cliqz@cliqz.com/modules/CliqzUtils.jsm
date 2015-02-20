@@ -510,8 +510,11 @@ var CliqzUtils = {
     });
   },
   encodeCountry: function() {
-    var flag = 'forceCountry';
-    return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
+    //international result not supported
+    return '';
+
+    //var flag = 'forceCountry';
+    //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
@@ -610,7 +613,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.cliqzPrefs.getBoolPref('dnt'))return;
+    if(CliqzUtils.getPref('telemetry', false))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
@@ -1013,8 +1016,6 @@ var CliqzUtils = {
             try{
                 var btn = win.document.getElementById('cliqz-button')
                 if(btn && btn.children && btn.children.cliqz_menupopup){
-                    var languageOptions = btn.children.cliqz_menupopup.lastChild;
-                    languageOptions.parentNode.removeChild(languageOptions);
                     var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
                     adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
@@ -1022,72 +1023,9 @@ var CliqzUtils = {
 
                     btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
                     btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-                    btn.children.cliqz_menupopup.appendChild(CliqzUtils.createLanguageOptions(doc));
                 }
             } catch(e){}
         }
-    },
-
-    createLanguageOptions: function (doc) {
-        var menu = doc.createElement('menu'),
-            menupopup = doc.createElement('menupopup');
-
-        var languages = {
-          '': { lang: CliqzUtils.getLocalizedString('country_code_'), selected: false},
-          'BR': { lang: CliqzUtils.getLocalizedString('country_code_BR'), selected: false},
-          'DE': { lang: CliqzUtils.getLocalizedString('country_code_DE'), selected: false},
-          'EE': { lang: CliqzUtils.getLocalizedString('country_code_EE'), selected: false},
-          'FR': { lang: CliqzUtils.getLocalizedString('country_code_FR'), selected: false},
-          'GR': { lang: CliqzUtils.getLocalizedString('country_code_GR'), selected: false},
-          'GB': { lang: CliqzUtils.getLocalizedString('country_code_GB'), selected: false},
-          'ID': { lang: CliqzUtils.getLocalizedString('country_code_ID'), selected: false},
-          'IT': { lang: CliqzUtils.getLocalizedString('country_code_IT'), selected: false},
-          'CA': { lang: CliqzUtils.getLocalizedString('country_code_CA'), selected: false},
-          'HR': { lang: CliqzUtils.getLocalizedString('country_code_HR'), selected: false},
-          'AT': { lang: CliqzUtils.getLocalizedString('country_code_AT'), selected: false},
-          'PS': { lang: CliqzUtils.getLocalizedString('country_code_PS'), selected: false},
-          'RO': { lang: CliqzUtils.getLocalizedString('country_code_RO'), selected: false},
-          'RU': { lang: CliqzUtils.getLocalizedString('country_code_RU'), selected: false},
-          'RS': { lang: CliqzUtils.getLocalizedString('country_code_RS'), selected: false},
-          'SG': { lang: CliqzUtils.getLocalizedString('country_code_SG'), selected: false},
-          'ES': { lang: CliqzUtils.getLocalizedString('country_code_ES'), selected: false},
-          'CH': { lang: CliqzUtils.getLocalizedString('country_code_CH'), selected: false},
-          'TH': { lang: CliqzUtils.getLocalizedString('country_code_TH'), selected: false},
-          'TR': { lang: CliqzUtils.getLocalizedString('country_code_TR'), selected: false},
-          'HU': { lang: CliqzUtils.getLocalizedString('country_code_HU'), selected: false},
-          'US': { lang: CliqzUtils.getLocalizedString('country_code_US'), selected: false},
-          'VN': { lang: CliqzUtils.getLocalizedString('country_code_VN'), selected: false}
-        };
-
-        var location = CliqzUtils.getPref('config_location', 'DE').toUpperCase();
-        // Append current location to Automatic string
-        languages[''].lang += ' (' + languages[location].lang + ')';
-
-        var countryCode = CliqzUtils.getPref('forceCountry', '');
-        if(languages[countryCode])
-          languages[countryCode].selected = true;
-
-        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnRegion'));
-        for (var language in languages) {
-          var item = doc.createElement('menuitem');
-          item.setAttribute('label', languages[language].lang);
-          item.setAttribute('class', 'menuitem-iconic');
-          if (languages[language].selected) {
-            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-          }
-          item.lang = new String(language);
-          item.addEventListener('command', function(event) {
-              CliqzUtils.setPref('forceCountry', this.lang.toString());
-              timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
-          }, false);
-          menupopup.appendChild(item);
-          // Add seperator after Automatic item
-          if (language === '')
-            menupopup.appendChild(doc.createElement('menuseparator'));
-        }
-
-        menu.appendChild(menupopup);
-        return menu;
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),

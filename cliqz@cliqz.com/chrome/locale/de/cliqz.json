@@ -6,7 +6,7 @@
         "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
-        "message": "Einstellung"
+        "message": "EINSTELLUNGEN"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
@@ -25,6 +25,12 @@
     },
     "btnShare":{
         "message": "CLIQZ Share"
+    },
+    "btnSafeSearch":{
+        "message": "Ich nehme teil"
+    },
+    "btnSafeSearchDesc":{
+        "message": "Was ist das?"
     },
     "urlBarLastSearch":{
         "message":"↵  "
