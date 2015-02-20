@@ -118,7 +118,8 @@
     max-width: 150px;
     display: inline-block;
 }
-#cliqz-results .cqz-ez-btn:hover, #cliqz-results .cqz-ez-btn[arrow='true'] { background-color: #cccccc; }
+
+#cliqz-results .cqz-ez-btn:hover, #cliqz-results .cqz-ez-btn[arrow='true'] { background-color: #cccccc !important; }
 #cliqz-results .cqz-vert-center1 { position: absolute; }
 #cliqz-results .cqz-vert-center { position: absolute; top: 50%;	transform: translateY(-49%); }
 #cliqz-results .cqz-image {
