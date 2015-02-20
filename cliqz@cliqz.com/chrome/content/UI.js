@@ -1314,6 +1314,11 @@ function onEnter(ev, item){
       current_position: -1
     });
     CLIQZ.Core.triggerLastQ = true;
+
+    var customQuery = ResultProviders.isCustomQuery(input);
+    if(customQuery){
+        urlbar.value = customQuery.queryURI;
+    }
     return false;
   }
   // Typed
