@@ -364,7 +364,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzResultsExtra = null;
                         this.cliqzCache = null;
                         this.historyResults = null;
-                        this.unfilteredResults = null;
                         this.instant = [];
                         this.backFill = [];
                         return;
@@ -453,31 +452,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
-            // mixes history, results and suggestions
+            // mixes backend results, entity zones, history and custom results
             mixResults: function(only_instant) {
                 var maxResults = prefs.getIntPref('maxRichResults');
 
-                var resultsTemp = Mixer.mix(
+                var results = Mixer.mix(
                             this.searchString,
-                            this.historyResults,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
                             this.historyBackfill,
+                            this.customResults,
                             this.cliqzBundesliga,
                             maxResults,
                             only_instant
                     );
 
-                var results = resultsTemp[0];
-                this.unfilteredResults = resultsTemp[1];
-
                 CliqzAutocomplete.afterQueryCount = 0;
-
-                //if there is a custom cliqzResults - force the opening of the dropdown
-                if(results.length == 0 && CliqzUtils.getPref('cliqzResult', false)){
-                    results = [Result.generic('cliqz-empty', '')];
-                }
 
                 this.mixedResults.setResults(results);
             },
@@ -488,7 +479,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
-                CliqzAutocomplete.lastSearch = searchString;
                 CliqzAutocomplete.lastResult = null;
                 CliqzAutocomplete.lastSuggestions = null;
                 this.oldPushLength = 0;
@@ -511,8 +501,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.track(action);
 
-                // custom results
+                // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
+                CliqzAutocomplete.lastSearch = searchString;
+
+                // spell correction
                 var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
                 if (!CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
@@ -542,7 +535,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.unfilteredResults = null;
                 this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
                 this.instant = [];
@@ -560,13 +552,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-                this.mixedResults.customResults = this.customResults;
-
-                if(this.customResults && this.customResults.length > 0){
-                    this.mixedResults.customResults = this.customResults;
-                    this.mixedResults.addResults(this.customResults);
-                    this.pushResults(this.searchString);
-                }
 
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);

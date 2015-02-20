@@ -1277,6 +1277,11 @@ function onEnter(ev, item){
       current_position: -1
     });
     CLIQZ.Core.triggerLastQ = true;
+
+    var customQuery = ResultProviders.isCustomQuery(input);
+    if(customQuery){
+        urlbar.value = customQuery.queryURI;
+    }
     return false;
   }
   // Typed
@@ -1342,8 +1347,11 @@ function trackArrowNavigation(el){
     var action = {
         type: 'activity',
         action: 'arrow_key',
-        current_position: el ? el.getAttribute('idx') : -1,
+        current_position: getResultPosition(el),
     };
+    // for inner link info
+    if(el.getAttribute('extra'))
+        action.extra = el.getAttribute('extra');
     if(el){
         action.position_type = getResultKind(el);
         var url = getResultOrChildAttr(el, 'url');
