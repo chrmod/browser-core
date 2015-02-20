@@ -145,7 +145,7 @@ var Mixer = {
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
             // Remove entity links form history
-            if(results.length > 0 && results[0].data.template.indexOf("pattern") == 0) {
+            if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
                  var mainUrl = cliqzExtra[0].val;
                  var history = results[0].data.urls;
                  CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);

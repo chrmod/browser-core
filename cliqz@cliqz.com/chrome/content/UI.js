@@ -533,8 +533,31 @@ function handlePopupHeight(box){/*
     });*/
 }
 
-function $(e, ctx){return (ctx || document).querySelector(e); }
-function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
+//returns the first child which matches the selector
+function $(selector, ctx){return (ctx || document).querySelector(selector); }
+
+//returns all the childs which match the selector
+function $$(selector, ctx){return (ctx || document).querySelectorAll(selector); }
+
+//returns the ctx itself if its a match or first child which matches the selector
+function $_(selector, ctx){
+    if(matches(ctx || document, selector)){
+        return ctx || document;
+    } else return $(selector, ctx);
+}
+
+
+// returns true if the selector matches the element
+function matches(elem, selector) {
+    var f = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+    if(f){
+        return f.bind(elem)(selector);
+    }
+    else {
+        //older FF doest have mathes - create our own
+        return elem.parentNode && Array.prototype.indexOf.call(elem.parentNode.querySelectorAll(selector), elem) != -1;
+    }
+}
 
 /**
  * Finds the closest ancestor of @p elem that matches @p selector.
@@ -542,10 +565,8 @@ function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
  * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
  */
 function closest(elem, selector) {
-   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
-
     while (elem) {
-        if (matchesSelector.bind(elem)(selector)) {
+        if (matches(elem, selector)) {
             return elem;
         } else {
             elem = elem.parentElement;
@@ -1089,6 +1110,12 @@ function clearTextSelection() {
     interrupted
  */
 var smooth_scroll_to = function(element, target, duration) {
+    if(!Promise || typeof Promise != 'function'){ // older FF
+        //should we do our own animation?
+        element.scrollTop = Math.round(target);
+        return;
+    }
+
     target = Math.round(target);
     duration = Math.round(duration);
     if (duration < 0) {
@@ -1157,7 +1184,7 @@ var smooth_scroll_to = function(element, target, duration) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
-    if(el){
+    if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
@@ -1167,9 +1194,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         // Clear Selection
         clearResultSelection();
 
-        if(target != el)
+        if(target != el){
             //arrow target is now on an inner element
             el.removeAttribute('arrow');
+            target.setAttribute('url', el.getAttribute('url'));
+        }
 
         var offset = target.offsetTop;
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
@@ -1199,7 +1228,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         CLIQZ.Core.urlbar.value = UI.lastInput;
         clearResultSelection();
     }
-    return;
 }
 
 var lastMoveTime = Date.now();

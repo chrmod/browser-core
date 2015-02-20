@@ -1136,3 +1136,11 @@ padding-top:5px;
 
 .cqz-disclaimer {
   color:#cccccc;
+}
+
+.cqz-custom-text {
+    line-height: 68px;
+    color: #999999;
+    font-weight: 500;
+    font-size: 14pt;
+}
