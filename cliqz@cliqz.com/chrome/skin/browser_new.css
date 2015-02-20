@@ -564,7 +564,6 @@
   font-size: 14px;
   padding: 4px 10px;
   position: relative;
-  bottom:0px;
 }
 
 .cqz-adult-bar img {
@@ -1047,6 +1046,18 @@ padding-top:5px;
  margin-left: 18px
 }
 
+.EZ-currency-result {
+  margin-top: 18px;
+  font-size: 25px;
+  color: #333333;
+}
+
+.EZ-currency-rate {
+  color:#999999;
+  margin-top: 18px;
+  font-size: 14px;
+}
+
 .ez-feedback {
   position: absolute;
   bottom: 10px;
@@ -1070,3 +1081,53 @@ padding-top:5px;
 [arrow="true"]:hover .cqz-result-title {
   text-decoration: underline;
 }
+
+/* EZ Stocks */
+.cqz-ez-img-trend
+{
+  width:17px;
+  height:18px;
+}
+
+.cqz-ez-stock-exchange {
+  margin-top: 12px;
+  font-size:12px;
+  color:#cccccc;
+}
+
+.cqz-ez-img-stock {
+ height:18px;
+}
+
+.cqz-ez-stock-trend {
+  margin-top: 18px;
+  font-size:25px;
+}
+
+.cliqz-stock-price-table
+{
+  margin-top:18px;
+  border-spacing:1;
+  color:#999999;
+}
+
+.green {
+  color: #74d463;
+}
+
+.red {
+  color: #c3043e;
+}
+
+.cliqz-stock-price-td
+{
+  padding-left:28px;
+}
+
+.cqz-ez-stock-disclaimer {
+  margin-top:18px;
+  margin-left:2px;
+}
+
+.cqz-disclaimer {
+  color:#cccccc;

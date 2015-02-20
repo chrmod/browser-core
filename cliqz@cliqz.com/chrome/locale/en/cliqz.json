@@ -370,5 +370,23 @@
     },
     "cliqz_privacy":{
         "message": "Privacy"
+    },
+    "cliqz_stock_open": {
+        "message": "Open"
+    },
+    "cliqz_stock_high": {
+        "message": "High"
+    },
+    "cliqz_stock_low": {
+        "message": "Low"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Market Cap."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "P/E ratio(ttm)"
+    },
+    "cliqz_stock_minutes_ago": {
+       "message": "minutes ago"
     }
 }
