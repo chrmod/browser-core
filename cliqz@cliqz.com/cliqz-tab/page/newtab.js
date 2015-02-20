@@ -246,9 +246,12 @@ $(function(){
     CLIQZ.Core.popup.closePopup = function(){}
     CLIQZ.Core.popup.hidePopup = function(){}
     CLIQZ.Core.popup.cliqzBox = $('#search-dropdown')[0];
-    CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox);
-    CLIQZ.Core.urlbar = $('.input-box')[0];
-    CLIQZ.Core.urlbar.mInputField = $('.input-box')[0];
+    
+    setTimeout(function(){
+        CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox);
+        CLIQZ.Core.urlbar = $('.input-box')[0];
+        CLIQZ.Core.urlbar.mInputField = $('.input-box')[0];
+    },100);
     
     var searchinput = $("#search").keydown(CLIQZ.Core.urlbarkeydown),
         TAB = 9,

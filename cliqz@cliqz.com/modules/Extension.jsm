@@ -336,6 +336,12 @@ var Extension = {
             return item
         }
 
+        function optInOut(){
+            return CliqzUtils.getPref('dnt', false)?
+                             'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                             'url(chrome://cliqzres/content/skin/opt-out.svg)';
+        }
+
         //feedback and FAQ
         menupopup.appendChild(simpleBtn('Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));
@@ -346,16 +352,10 @@ var Extension = {
         var safeSearchBtn = doc.createElement('menuitem');
         safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
         safeSearchBtn.setAttribute('class', 'menuitem-iconic');
-        if(CliqzUtils.getPref('dnt', false)){
-            safeSearchBtn.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-        }
+        safeSearchBtn.style.listStyleImage = optInOut();
         safeSearchBtn.addEventListener('command', function(event) {
             CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
-            if(CliqzUtils.getPref('dnt', false)){
-                safeSearchBtn.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-            } else {
-                safeSearchBtn.style.listStyleImage = '';
-            }
+            safeSearchBtn.style.listStyleImage = optInOut();
         }, false);
         menupopup.appendChild(safeSearchBtn);
 
