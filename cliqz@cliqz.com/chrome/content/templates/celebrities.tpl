@@ -5,7 +5,7 @@
             <img src='{{this}}' class='cqz-celeb-image' />
          {{/each}}
     </div>
-    <div class='cqz-ez-title cqz-celeb-who'>
+    <div class='cqz-ez-title cqz-celeb-who' arrow="false">
     	{{ emphasis name ../text 2 true }} ({{ocupation}})
     </div>
     <div class='cqz-celeb-desc'>
