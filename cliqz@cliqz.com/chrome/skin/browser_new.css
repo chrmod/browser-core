@@ -832,8 +832,8 @@
 }
 
 .cliqz-pattern-logo {
-background-image: url(chrome://cliqzres/content/skin/cliqz.png);
-background-color: #efefef
+  background-image: url(chrome://cliqzres/content/skin/cliqz.png);
+  background-color: #efefef
 }
 
 .cliqz-pattern-title-h1 {
