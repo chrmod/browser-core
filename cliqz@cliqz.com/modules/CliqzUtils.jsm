@@ -1105,7 +1105,7 @@ var CliqzUtils = {
       while (enumerator.hasMoreElements()) {
           var win = enumerator.getNext(),
               doc = win.document;
-          CliqzUtils.log("1");
+
           try{
             var btn = doc.getElementById('cliqz-button');
             if(btn && btn.children && btn.children.cliqz_menupopup){
