@@ -306,16 +306,36 @@ var CliqzUtils = {
       }
     }
 
-    //T1
+    //t1
     var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
     assert(parts.domain == "facebook.com", "t1.1");
     assert(parts.name == "facebook", "t1.2");
     assert(parts.subdomains[0] == "www", "t1.3");
     assert(parts.tld == "com", "t1.4");
-    assert(parts.path == "/", "t1.5");
+    assert(parts.path == "", "t1.5");
     assert(parts.query == "", "t1.6");
     assert(parts.fragment == "", "t1.7");
 
+    //t2
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com/url?test=fdsaf");
+    assert(parts.domain == "facebook.com", "t2.1");
+    assert(parts.name == "facebook", "t2.2");
+    assert(parts.subdomains[0] == "www", "t2.3");
+    assert(parts.tld == "com", "t2.4");
+    assert(parts.path == "/url", "t2.5");
+    assert(parts.query == "test=fdaaf", "t2.6");
+    assert(parts.fragment == "", "t2.7");
+
+    //t3
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf");
+    assert(parts.ssl, "t3.0");
+    assert(parts.domain == "facebook.com", "t3.1");
+    assert(parts.name == "facebook", "t3.2");
+    assert(parts.subdomains[0] == "www", "t3.3");
+    assert(parts.tld == "com", "t3.4");
+    assert(parts.path == "/url", "t3.5");
+    assert(parts.query == "test=fdaaf", "t3.6");
+    assert(parts.fragment == "", "t3.7");
   },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
@@ -325,6 +345,8 @@ var CliqzUtils = {
         tld = '',
         subdomains = [],
         path = '',
+        query ='',
+        fragment = '',
         ssl = originalUrl.indexOf('https') == 0;
 
 
@@ -388,6 +410,8 @@ var CliqzUtils = {
               tld: tld,
               subdomains: subdomains,
               path: path,
+              query: query,
+              fragment: fragment,
               host: host,
               ssl: ssl,
               port: port
