@@ -212,6 +212,8 @@ var UI = {
                 trackArrowNavigation(nextEl);
                 return true;
             break;
+            case TAB:
+                if (!CLIQZ.Core.popup.mPopupOpen) return false;
             case DOWN:
                 if(pos != allArrowable.length - 1){
                     var nextEl = allArrowable[pos+1];
@@ -224,11 +226,6 @@ var UI = {
                 UI.lastInput = "";
                 return onEnter(ev, sel);
             break;
-            case TAB:
-                var urlbar = CLIQZ.Core.urlbar;
-                suggestionNavigation(ev);
-                urlbar.setSelectionRange(urlbar.mInputField.value.length, urlbar.mInputField.value.length);
-                return true;
             case RIGHT:
             case LEFT:
                 var urlbar = CLIQZ.Core.urlbar;
