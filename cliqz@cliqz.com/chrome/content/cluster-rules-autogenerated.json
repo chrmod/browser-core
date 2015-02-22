@@ -158,7 +158,7 @@
                     "category": "Sitemap_Youtube_Playlists", 
                     "url": {
                         "query": "list=[A-Za-z0-9]+", 
-                        "scheme": "https"
+                        "scheme": "https:"
                     }, 
                     "match": {
                         "path": "/playlist", 

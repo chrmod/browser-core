@@ -127,7 +127,7 @@ brands:
                 path: /playlist
                 query: list=[A-Za-z0-9]+
             url:
-                scheme: 'https'
+                scheme: 'https:'
                 query: list=[A-Za-z0-9]+
         -
             category: Videos

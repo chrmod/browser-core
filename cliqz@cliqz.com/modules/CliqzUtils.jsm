@@ -309,39 +309,122 @@ var CliqzUtils = {
     //t1
     var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
     assert(parts.domain == "facebook.com", "t1.1");
+    assert(parts.host == "www.facebook.com", "t1.1.1")
     assert(parts.name == "facebook", "t1.2");
     assert(parts.subdomains[0] == "www", "t1.3");
     assert(parts.tld == "com", "t1.4");
     assert(parts.path == "", "t1.5");
     assert(parts.query == "", "t1.6");
     assert(parts.fragment == "", "t1.7");
+    assert(parts.scheme == "", "t1.8");
 
     //t2
-    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com/url?test=fdsaf");
+    var parts = CliqzUtils.getDetailsFromUrl("http://www.facebook.com/url?test=fdsaf");
+    assert(!parts.ssl, "t2.0");
     assert(parts.domain == "facebook.com", "t2.1");
+    assert(parts.host == "www.facebook.com", "t2.1.1")
     assert(parts.name == "facebook", "t2.2");
     assert(parts.subdomains[0] == "www", "t2.3");
     assert(parts.tld == "com", "t2.4");
     assert(parts.path == "/url", "t2.5");
-    assert(parts.query == "test=fdaaf", "t2.6");
+    assert(parts.query == "test=fdsaf", "t2.6");
     assert(parts.fragment == "", "t2.7");
+    assert(parts.scheme == "http:", "t2.8");
 
     //t3
     var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf");
     assert(parts.ssl, "t3.0");
     assert(parts.domain == "facebook.com", "t3.1");
+    assert(parts.host == "www.facebook.com", "t3.1.1")
     assert(parts.name == "facebook", "t3.2");
     assert(parts.subdomains[0] == "www", "t3.3");
     assert(parts.tld == "com", "t3.4");
     assert(parts.path == "/url", "t3.5");
-    assert(parts.query == "test=fdaaf", "t3.6");
+    assert(parts.query == "test=fdsaf", "t3.6");
     assert(parts.fragment == "", "t3.7");
+    assert(parts.scheme == "https:", "t3.8");
+
+
+    //t4
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf#blah");
+    assert(parts.ssl, "t4.0");
+    assert(parts.domain == "facebook.com", "t4.1");
+    assert(parts.host == "www.facebook.com", "t4.1.1")
+    assert(parts.name == "facebook", "t4.2");
+    assert(parts.subdomains[0] == "www", "t4.3");
+    assert(parts.tld == "com", "t4.4");
+    assert(parts.path == "/url", "t4.5");
+    assert(parts.query == "test=fdsaf", "t4.6");
+    assert(parts.fragment == "blah", "t4.7");
+
+    //t5
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk#blah");
+    assert(!parts.ssl, "t5.0");
+    assert(parts.domain == "facebook.co.uk", "t5.1");
+    assert(parts.host == "www.facebook.co.uk", "t5.1.1")
+    assert(parts.name == "facebook", "t5.2");
+    assert(parts.subdomains[0] == "www", "t5.3");
+    assert(parts.tld == "co.uk", "t5.4");
+    assert(parts.path == "", "t5.5");
+    assert(parts.query == "", "t5.6");
+    assert(parts.fragment == "blah", "t5.7");
+
+    //t6
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk/url#blah");
+    assert(!parts.ssl, "t6.0");
+    assert(parts.domain == "facebook.co.uk", "t6.1");
+    assert(parts.host == "www.facebook.co.uk", "t6.1.1")
+    assert(parts.name == "facebook", "t6.2");
+    assert(parts.subdomains[0] == "www", "t6.3");
+    assert(parts.tld == "co.uk", "t6.4");
+    assert(parts.path == "/url", "t6.5");
+    assert(parts.query == "", "t6.6");
+    assert(parts.fragment == "blah", "t6.7");
+
+    //t7
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com:8080/url?test=fdsaf#blah");
+    assert(parts.ssl, "t7.0");
+    assert(parts.domain == "facebook.com", "t7.1");
+    assert(parts.host == "www.facebook.com", "t7.1.1")
+    assert(parts.name == "facebook", "t7.2");
+    assert(parts.subdomains[0] == "www", "t7.3");
+    assert(parts.tld == "com", "t7.4");
+    assert(parts.path == "/url", "t7.5");
+    assert(parts.query == "test=fdsaf", "t7.6");
+    assert(parts.fragment == "blah", "t7.7");
+    assert(parts.port == 8080, "t7.8");
+
+    //t8
+    var parts = CliqzUtils.getDetailsFromUrl("https://localhost:8080/url?test=fdsaf#blah");
+    assert(parts.ssl, "t8.0");
+    assert(parts.domain == "", "t8.1");
+    assert(parts.host == "localhost", "t8.1.1")
+    assert(parts.name == "localhost", "t8.2");
+    assert(parts.subdomains.length == 0, "t8.3");
+    assert(parts.tld == "", "t8.4");
+    assert(parts.path == "/url", "t8.5");
+    assert(parts.query == "test=fdsaf", "t8.6");
+    assert(parts.fragment == "blah", "t8.7");
+    assert(parts.port == 8080, "t8.8");
+
+    //t9
+    var parts = CliqzUtils.getDetailsFromUrl("https://192.168.11.1:8080/url?test=fdsaf#blah");
+    assert(parts.ssl, "t9.0");
+    assert(parts.domain == "", "t9.1");
+    assert(parts.host == "192.168.11.1", "t9.1.1")
+    assert(parts.name == "IP", "t9.2");
+    assert(parts.subdomains.length == 0, "t9.3");
+    assert(parts.tld == "", "t9.4");
+    assert(parts.path == "/url", "t9.5");
+    assert(parts.query == "test=fdsaf", "t9.6");
+    assert(parts.fragment == "blah", "t9.7");
+    assert(parts.port == 8080, "t9.8");
   },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
-        name = originalUrl,
+        name = '',
         tld = '',
         subdomains = [],
         path = '',
@@ -349,20 +432,25 @@ var CliqzUtils = {
         fragment = '',
         ssl = originalUrl.indexOf('https') == 0;
 
-
+    // remove scheme
     url = CliqzUtils.cleanUrlProtocol(url, false);
-    // extract only hostname
-    var host = url.split('/')[0].toLowerCase();
+    var scheme = originalUrl.replace(url, '').replace('//', '');
+
+    // separate hostname from path, etc. Could be separated from rest by /, ? or #
+    var host = url.split(/[\/\#\?]/)[0].toLowerCase();
     var path = url.replace(host,'');
+
+    // separate username:password@ from host
+    var userpass_host = host.split('@');
+    if(userpass_host.length > 1)
+      host = userpass_host[1];
 
     // Parse Port number
     var port = "";
     var isIPv4 = CliqzUtils.isIPv4(host);
     var isIPv6 = CliqzUtils.isIPv6(host);
 
-
     var indexOfColon = host.indexOf(":");
-
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
       [host, port] = [host.substr(0,indexOfColon), host.substr(indexOfColon+1)];
     }
@@ -375,9 +463,32 @@ var CliqzUtils = {
       }
     }
 
-    // extract only path
+    // extract query and fragment from url
+    var query = '';
+    var query_idx = path.indexOf('?');
+    if(query_idx != -1) {
+      query = path.substr(query_idx+1);
+    }
 
+    var fragment = '';
+    var fragment_idx = path.indexOf('#');
+    if(fragment_idx != -1) {
+      fragment = path.substr(fragment_idx+1);
+    }
 
+    // remove query and fragment from path
+    path = path.replace('?' + query, '');
+    path = path.replace('#' + fragment, '');
+    query = query.replace('#' + fragment, '');
+
+    // extra - all path, query and fragment
+    var extra = path;
+    if(query)
+      extra += "?" + query;
+    if(fragment)
+      extra += "#" + fragment;
+
+    // find parts of hostname
     if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
       try {
         var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
@@ -393,7 +504,9 @@ var CliqzUtils = {
         subdomains = host.slice(0, -name_tld.length).split(".").slice(0, -1);
 
         //remove www if exists
-        host = host.indexOf('www.') == 0 ? host.slice(4) : host;
+        // TODO: I don't think this is the right place to do this.
+        //       Disabled for now, but check there are no issues.
+        // host = host.indexOf('www.') == 0 ? host.slice(4) : host;
       } catch(e){
         name = "";
         host = "";
@@ -405,6 +518,7 @@ var CliqzUtils = {
     }
 
     var urlDetails = {
+              scheme: scheme,
               name: name,
               domain: tld ? name + '.' + tld : '',
               tld: tld,
@@ -412,6 +526,7 @@ var CliqzUtils = {
               path: path,
               query: query,
               fragment: fragment,
+              extra: extra,
               host: host,
               ssl: ssl,
               port: port
