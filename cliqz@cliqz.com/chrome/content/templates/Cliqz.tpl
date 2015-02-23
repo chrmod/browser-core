@@ -1,5 +1,5 @@
 {{#with data}}
-<div class="cqz-result-h2">
+<div class="cqz-result-h2 nopadding">
  <div class="EZ-Cliqz-Header"
         style="background-image: url({{cliqz_logo}})">
         {{#each social_contact}}

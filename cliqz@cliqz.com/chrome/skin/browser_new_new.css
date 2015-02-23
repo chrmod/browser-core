@@ -36,6 +36,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+#cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-h1 { height: 302px; }
 #cliqz-results .cqz-result-h2 { height: 201px; }
 #cliqz-results .cqz-result-h3 {	height: 100px; }
@@ -58,16 +59,15 @@
 }
 #cliqz-results .cqz-result-selected[active="true"] { left: -8px; }
 #cliqz-results .cqz-result-debug { float: right; }
-#cliqz-results .cqz-result-center { display: inline-block; width: 80%; }
 
-/* visited result - history, bookmark, ...*/
-#cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; width: 90%; }
+/* visited result - history, bookmark, ... */
+#cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; }
 #cliqz-results .cqz-result-title * { font-size: inherit; }
 #cliqz-results .cqz-result-title span { color: grey; }
 /* unvisited result - cliqz */
 #cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title { color: #506bb8; }
 
-#cliqz-results .cqz-result-url { display: inline-block; color: #999999; width: 90%; margin-top: 6px; }
+#cliqz-results .cqz-result-url { display: inline-block; color: #999999; margin-top: 6px; }
 #cliqz-results .cqz-result-url-ssl { padding-left: 13px; background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px; }
 #cliqz-results .cqz-result-path { visibility: hidden; }
 #cliqz-results .cqz-result-desc { margin-top: 4px; max-height: 22px; vertical-align: top; }
@@ -102,9 +102,13 @@
 	position: absolute;
 	right: 22px;
     cursor: pointer;
+	-moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
     /* set the size of logo */
     font-size: 26px;
 }
+
+#cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
 #cliqz-results .cqz-ez-btns { margin: 13px 0px 18px; height: 30px; }
@@ -122,14 +126,14 @@
 #cliqz-results .cqz-vert-center1 { position: absolute; }
 #cliqz-results .cqz-vert-center { position: absolute; top: 50%;	transform: translateY(-49%); }
 #cliqz-results .cqz-image {
-    display: inline-block;
     width: 114px; /* 16 */
     height: 64px; /* 9 */
     background-size: cover;
     background-position: center center;
+    float: left;
+    margin: 2px 10px 0 0;
     position: relative;
 }
-#cliqz-results .cqz-image-news { position: relative; top: -14px; }
 #cliqz-results .cqz-image-round { border-radius: 3px; }
 #cliqz-results .cqz-image > p {
     position: absolute;
