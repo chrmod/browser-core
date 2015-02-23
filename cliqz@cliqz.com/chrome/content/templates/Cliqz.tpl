@@ -15,20 +15,21 @@
  {{/with}}
 
  <div class="EZ-Cliqz-Footer">
-        <div class="cqz-ez-btn" style="background-color:{{Common_Questions.color}}"  url="{{Common_Questions.url}}">
-            {{localize_parameters 'cliqz_common_questions'}}
+        <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{Common_Questions.color}}"  url="{{Common_Questions.url}}">
+            {{local 'cliqz_common_questions'}}
          </div>
-        <div class="cqz-ez-btn" style="background-color:{{Give_Feedback.color}}"  url="{{Give_Feedback.url}}">
-            {{localize_parameters 'cliqz_give_feedback'}}
+        <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{Give_Feedback.color}}"  url="{{Give_Feedback.url}}">
+            {{local 'cliqz_give_feedback'}}
          </div>
-        <div class="cqz-ez-btn" style="background-color:{{About_Us.color}}"  url="{{About_Us.url}}">
-            {{localize_parameters 'cliqz_about_us'}}
+        <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{About_Us.color}}"  url="{{About_Us.url}}">
+            {{local 'cliqz_about_us'}}
          </div>
-        <div class="cqz-ez-btn" style="background-color:{{Jobs.color}}"  url="{{Jobs.url}}">
-            {{localize_parameters 'cliqz_jobs'}}
+        <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{Jobs.color}}"  url="{{Jobs.url}}">
+            {{local 'cliqz_jobs'}}
          </div>
-        <div class="cqz-ez-btn" style="background-color:{{Privacy.color}}"  url="{{Privacy.url}}">
-            {{localize_parameters 'cliqz_privacy'}}
+        <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{Privacy.color}}"  url="{{Privacy.url}}">
+            {{local 'cliqz_privacy'}}
+
          </div>
       <br style="clear:left"/>
 
