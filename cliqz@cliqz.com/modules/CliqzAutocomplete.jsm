@@ -53,7 +53,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastResult: null,
     lastSuggestions: null,
     hasUserScrolledCurrentResults: false, // set to true whenever user scrolls, set to false when new results are shown
-    lastResultUpdateTime: null, // to measure how long a result has been shown for
+    lastResultsUpdateTime: null, // to measure how long a result has been shown for
     afterQueryCount: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
@@ -199,31 +199,27 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             }
         };
     },
-    // a result becomes invalid (i.e., outdated) once a new result
-    // comes in, or once the popup closes
-    invalidateResult: function() {
-        this.invalidateResult(null);
-    }, 
-    invalidateResult: function(newResultUpdateTime) {
-        // is there a current result to invalidate?
-        if (CliqzAutocomplete.lastResultUpdateTime) {
-            var resultDisplayTime = Date.now() - CliqzAutocomplete.lastResultUpdateTime;                         
-            this.sendScrollSignal(
+    // a result is done once a new result comes in, or once the popup closes
+    markResultsDone: function(newResultsUpdateTime) {        
+        // is there a result to be marked as done?
+        if (CliqzAutocomplete.lastResultsUpdateTime) {
+            var resultsDisplayTime = Date.now() - CliqzAutocomplete.lastResultsUpdateTime;                         
+            this.sendResultsDoneSignal(
                 CliqzAutocomplete.hasUserScrolledCurrentResults,
-                resultDisplayTime);                        
+                resultsDisplayTime);                        
         }
         // start counting elapsed time anew 
-        CliqzAutocomplete.lastResultUpdateTime = newResultUpdateTime;
+        CliqzAutocomplete.lastResultsUpdateTime = newResultsUpdateTime;
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
-    sendScrollSignal: function(hasUserScrolled, resultDisplayTime) {
+    sendResultsDoneSignal: function(hasUserScrolled, resultsDisplayTime) {
         // reduced traffic: only track if result was shown long enough (e.g., 0.5s)
-        if (resultDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
+        if (resultsDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
             var action = {
                 type: 'activity',
-                action: 'scroll',
-                has_scrolled: hasUserScrolled,
-                result_display_time: resultDisplayTime
+                action: 'results_done',
+                has_user_scrolled: hasUserScrolled,
+                results_display_time: resultsDisplayTime
             };
             CliqzUtils.track(action);
         }
@@ -718,11 +714,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
                 }           
-                
-                // TODO: is this (i.e., sendResultsSignal) a good place to invalidate results?
+                                
                 if (CliqzAutocomplete.isPopupOpen) {
-                    // don't invalidate if popup closed as the user does not see anything
-                    CliqzAutocomplete.invalidateResult(Date.now());
+                    // don't mark as done if popup closed as the user does not see anything
+                    CliqzAutocomplete.markResultsDone(Date.now());
                 }
 
                 // keep a track of if the popup was open for last result

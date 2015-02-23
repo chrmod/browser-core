@@ -282,7 +282,7 @@ CLIQZ.Core = CLIQZ.Core || {
     popupClose: function(){
         CliqzAutocomplete.isPopupOpen = false;                
         CliqzAutocomplete.resetSpellCorr();
-        CliqzAutocomplete.invalidateResult();        
+        CliqzAutocomplete.markResultsDone(null);        
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
