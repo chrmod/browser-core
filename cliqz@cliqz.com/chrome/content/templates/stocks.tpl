@@ -1,6 +1,6 @@
 <div class="cqz-result-h1 cqz-result-padding">
   <div class="cqz-ez-title cqz-ez-stock-title">
-      {{data.message.Name}} <span><img class="cqz-ez-img-stock" src="http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg"/></span>
+      {{data.message.Name}}
   </div>
 
   <div class="cqz-ez-stock-exchange">

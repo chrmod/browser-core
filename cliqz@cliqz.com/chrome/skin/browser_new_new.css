@@ -136,7 +136,7 @@
     background-size: cover;
     background-position: center center;
     position: relative;
-    margin-right: 5px;
+    margin-right: 10px;
 }
 #cliqz-results .cqz-image-news { position: relative; }
 #cliqz-results .cqz-image-round { border-radius: 3px; }
@@ -301,12 +301,31 @@
 #cliqz-results .EZ-Cliqz-Body-H2 { font-size: 20px; padding-top: 5px; }
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
 
+
+/* ez stock */
+#cliqz-results .cqz-ez-img-trend { width:17px; height:18px;}
+#cliqz-results .cqz-ez-stock-exchange { margin-top: 12px; font-size:12px; color:#cccccc ; }
+#cliqz-results .cqz-ez-img-stock { height:18px; }
+#cliqz-results .cqz-ez-stock-title { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); }
+#cliqz-results .cqz-ez-stock-trend { margin-top: 18px; font-size:25px; }
+#cliqz-results .cliqz-stock-price-table { margin-top:18px; border-spacing:1; color:#999999 ; }
+#cliqz-results .green { color: #74d463 ; }
+#cliqz-results .red { color: #c3043e ; }
+#cliqz-results .cliqz-stock-price-td { padding-left:28px; }
+#cliqz-results .cqz-ez-stock-disclaimer { margin-top:18px; margin-left:2px; }
+#cliqz-results .cqz-disclaimer { color:#cccccc ; }
+
+
+
 /* ez currency */
-#cliqz-results .EZ-currency { margin-left: 18px }
+#cliqz-results .EZ-currency { }
 #cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
 #cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
 
+#cliqz-results .EZ-currency-result { color: #333333; font-size:18px; }
+#cliqz-results .EZ-currency-rate { color: #999999; font-size:14px; margin-top:2px; }
+#cliqz-results .EZ-currency-disclaimer { color: #999999; font-size:12px; margin-top: 4px; }
 /* ez time */
 #cliqz-results .EZ-time-bigcontainer{ height: 90px; text-align: center; }
 #cliqz-results .EZ-time-location{ position: relative; top: 17px; color: black; }
