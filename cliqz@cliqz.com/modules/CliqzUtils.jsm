@@ -76,7 +76,7 @@ var CliqzUtils = {
       'spellcheck': 1,
       'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
-      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 3, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
