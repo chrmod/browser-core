@@ -54,7 +54,7 @@ var CliqzUtils = {
   RESULTS_PROVIDER_LOG:  'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING: 'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:       'https://newbeta.cliqz.com/api/v1/config',
-  LOG:                   'localhost:3333', // https://logging.cliqz.com',
+  LOG:                   'https://logging.cliqz.com',
   CLIQZ_URL:             'https://beta.cliqz.com/',
   UPDATE_URL:            'chrome://cliqz/content/update.html',
   TUTORIAL_URL:          'chrome://cliqz/content/offboarding.html',
