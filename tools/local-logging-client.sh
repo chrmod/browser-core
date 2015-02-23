@@ -25,7 +25,7 @@ case "$1" in
 			tee "$FILE_NAME.log" | \
 			jq -c ".[]" > "$FILE_NAME.json" &
 
-		echo "client listening to port $port and writing to $FILE_NAME..."
+		echo "client listening to port $PORT and writing to $FILE_NAME..."
 		;;
 	stop)
 		kill $(cat $PID_FILE)
