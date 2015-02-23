@@ -15,13 +15,14 @@
                         url="{{url}}"
                         arrow="false"
                         selectable=''
+                        extra='action-{{ @index }}'
                         >{{title}}</div>
                 {{/each}}
             </div>
             {{#each links }}
                 <div class="cqz-ez-banking-box cqz-ez-banking-opt"
                      url="{{ url }}"
-                     extra="shortcut{{ @index }}"
+                     extra="link-{{ @index }}"
                      style="background-image: url({{ icon }});">
                     {{ title }}
                 </div>

@@ -3,8 +3,8 @@
   <div class="entity-stories">
     {{#each data.items}}
       <div class="entity-story"
-           url="{{ link }}" type="X"
-           extra="entity-video-story-{{ @index }}"
+           url="{{ link }}"
+           extra="entry-{{ @index }}"
            arrow="false">
         <div class="entity-story-image" style="background-image: url({{ thumbnail }})">
            {{#if (sec_to_duration duration)}}<span> {{ sec_to_duration duration}}</span>{{/if}}

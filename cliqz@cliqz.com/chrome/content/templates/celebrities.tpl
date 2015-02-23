@@ -17,7 +17,7 @@
             	src='{{img}}'
             	url='{{url}}'
             	class='cqz-celeb-social'
-                extra='entry-{{ url }}' />
+                extra='social-{{ @index }}' />
          {{/each}}
     </div>
     {{/with}}

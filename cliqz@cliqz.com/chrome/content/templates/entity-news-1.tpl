@@ -3,8 +3,8 @@
   <div class="entity-stories">
     {{#each data.news}}
       <div class="entity-story"
-           url="{{ url }}" type="X"
-           extra="news-{{ @index }}"
+           url="{{ url }}"
+           extra="entry-{{ @index }}"
            arrow="false">
         <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
