@@ -280,8 +280,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;
+        CliqzAutocomplete.isPopupOpen = false;                
         CliqzAutocomplete.resetSpellCorr();
+        CliqzAutocomplete.invalidateResult();        
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
