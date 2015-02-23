@@ -53,7 +53,9 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging.fbt.co/mixer?q=', 'http://rich-header-server.fbt.co/mixer?q='
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
+//  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
+  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -69,11 +71,13 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
 
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
-              'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
-              'spellcheck': 1, 'time': 1, 'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,'entity-portal': 3,
-              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'weatherEZ': 2, 'Cliqz': 2,
-              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 2, 'noResult': 3, 'stocks': 3, 'weatherAlert': 3},
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+      'spellcheck': 1,
+      'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'airlinesEZ': 2, 'entity-portal': 3,
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 3, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -296,127 +300,6 @@ var CliqzUtils = {
       url = url.slice(4);
 
     return url;
-  },
-  test_getDetailsFromUrl: function() {
-    function assert(test, msg) {
-      if(!test) {
-        CliqzUtils.log("test assert failed: " + msg, "test_getDetailsFromUrl");
-      }
-    }
-
-    //t1
-    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
-    assert(parts.domain == "facebook.com", "t1.1");
-    assert(parts.host == "www.facebook.com", "t1.1.1")
-    assert(parts.name == "facebook", "t1.2");
-    assert(parts.subdomains[0] == "www", "t1.3");
-    assert(parts.tld == "com", "t1.4");
-    assert(parts.path == "", "t1.5");
-    assert(parts.query == "", "t1.6");
-    assert(parts.fragment == "", "t1.7");
-    assert(parts.scheme == "", "t1.8");
-
-    //t2
-    var parts = CliqzUtils.getDetailsFromUrl("http://www.facebook.com/url?test=fdsaf");
-    assert(!parts.ssl, "t2.0");
-    assert(parts.domain == "facebook.com", "t2.1");
-    assert(parts.host == "www.facebook.com", "t2.1.1")
-    assert(parts.name == "facebook", "t2.2");
-    assert(parts.subdomains[0] == "www", "t2.3");
-    assert(parts.tld == "com", "t2.4");
-    assert(parts.path == "/url", "t2.5");
-    assert(parts.query == "test=fdsaf", "t2.6");
-    assert(parts.fragment == "", "t2.7");
-    assert(parts.scheme == "http:", "t2.8");
-
-    //t3
-    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf");
-    assert(parts.ssl, "t3.0");
-    assert(parts.domain == "facebook.com", "t3.1");
-    assert(parts.host == "www.facebook.com", "t3.1.1")
-    assert(parts.name == "facebook", "t3.2");
-    assert(parts.subdomains[0] == "www", "t3.3");
-    assert(parts.tld == "com", "t3.4");
-    assert(parts.path == "/url", "t3.5");
-    assert(parts.query == "test=fdsaf", "t3.6");
-    assert(parts.fragment == "", "t3.7");
-    assert(parts.scheme == "https:", "t3.8");
-
-
-    //t4
-    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf#blah");
-    assert(parts.ssl, "t4.0");
-    assert(parts.domain == "facebook.com", "t4.1");
-    assert(parts.host == "www.facebook.com", "t4.1.1")
-    assert(parts.name == "facebook", "t4.2");
-    assert(parts.subdomains[0] == "www", "t4.3");
-    assert(parts.tld == "com", "t4.4");
-    assert(parts.path == "/url", "t4.5");
-    assert(parts.query == "test=fdsaf", "t4.6");
-    assert(parts.fragment == "blah", "t4.7");
-
-    //t5
-    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk#blah");
-    assert(!parts.ssl, "t5.0");
-    assert(parts.domain == "facebook.co.uk", "t5.1");
-    assert(parts.host == "www.facebook.co.uk", "t5.1.1")
-    assert(parts.name == "facebook", "t5.2");
-    assert(parts.subdomains[0] == "www", "t5.3");
-    assert(parts.tld == "co.uk", "t5.4");
-    assert(parts.path == "", "t5.5");
-    assert(parts.query == "", "t5.6");
-    assert(parts.fragment == "blah", "t5.7");
-
-    //t6
-    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk/url#blah");
-    assert(!parts.ssl, "t6.0");
-    assert(parts.domain == "facebook.co.uk", "t6.1");
-    assert(parts.host == "www.facebook.co.uk", "t6.1.1")
-    assert(parts.name == "facebook", "t6.2");
-    assert(parts.subdomains[0] == "www", "t6.3");
-    assert(parts.tld == "co.uk", "t6.4");
-    assert(parts.path == "/url", "t6.5");
-    assert(parts.query == "", "t6.6");
-    assert(parts.fragment == "blah", "t6.7");
-
-    //t7
-    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com:8080/url?test=fdsaf#blah");
-    assert(parts.ssl, "t7.0");
-    assert(parts.domain == "facebook.com", "t7.1");
-    assert(parts.host == "www.facebook.com", "t7.1.1")
-    assert(parts.name == "facebook", "t7.2");
-    assert(parts.subdomains[0] == "www", "t7.3");
-    assert(parts.tld == "com", "t7.4");
-    assert(parts.path == "/url", "t7.5");
-    assert(parts.query == "test=fdsaf", "t7.6");
-    assert(parts.fragment == "blah", "t7.7");
-    assert(parts.port == 8080, "t7.8");
-
-    //t8
-    var parts = CliqzUtils.getDetailsFromUrl("https://localhost:8080/url?test=fdsaf#blah");
-    assert(parts.ssl, "t8.0");
-    assert(parts.domain == "", "t8.1");
-    assert(parts.host == "localhost", "t8.1.1")
-    assert(parts.name == "localhost", "t8.2");
-    assert(parts.subdomains.length == 0, "t8.3");
-    assert(parts.tld == "", "t8.4");
-    assert(parts.path == "/url", "t8.5");
-    assert(parts.query == "test=fdsaf", "t8.6");
-    assert(parts.fragment == "blah", "t8.7");
-    assert(parts.port == 8080, "t8.8");
-
-    //t9
-    var parts = CliqzUtils.getDetailsFromUrl("https://192.168.11.1:8080/url?test=fdsaf#blah");
-    assert(parts.ssl, "t9.0");
-    assert(parts.domain == "", "t9.1");
-    assert(parts.host == "192.168.11.1", "t9.1.1")
-    assert(parts.name == "IP", "t9.2");
-    assert(parts.subdomains.length == 0, "t9.3");
-    assert(parts.tld == "", "t9.4");
-    assert(parts.path == "/url", "t9.5");
-    assert(parts.query == "test=fdsaf", "t9.6");
-    assert(parts.fragment == "blah", "t9.7");
-    assert(parts.port == 8080, "t9.8");
   },
   getDetailsFromUrl: function(originalUrl){
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);

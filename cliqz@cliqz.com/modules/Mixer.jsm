@@ -37,7 +37,8 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, maxResults, only_instant){
+//	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, customResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, maxResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -203,11 +204,9 @@ var Mixer = {
         }
 
         // Add custom results to the beginning if there are any
-        if(custom && custom.length > 0) {
-            results = custom.concat(results);
+        if(customResults && customResults.length > 0) {
+            results = customResults.concat(results);
         }
-
-
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
             var path = "http://cdn.cliqz.com/extension/EZ/noResult/";

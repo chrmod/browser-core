@@ -21,7 +21,6 @@
          {{/each}}
     </div>
     {{/with}}
-
 </div>
 {{>logo}}
 {{>feedback}}

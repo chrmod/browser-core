@@ -141,12 +141,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
+
                 this._results = this.filterUnexpected(results);
 
                 CliqzAutocomplete.lastResult = this;
                 var order = CliqzAutocomplete.getResultsOrder(this._results);
                 CliqzUtils.setResultOrder(order);
             },
+
             filterUnexpected: function(results){
                 // filter out ununsed/unexpected results
                 var ret=[];
@@ -170,7 +172,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 return ret;
             }
-        };
+        }
     },
     initResults: function(){
         CliqzAutocomplete.CliqzResults.prototype = {
@@ -329,6 +331,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             pushResults: function(q) {
                 //CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
+
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
                     return;
 
@@ -462,8 +465,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra,
                             this.instant,
                             this.historyBackfill,
-                            this.customResults,
                             this.cliqzBundesliga,
+                            this.customResults,
                             maxResults,
                             only_instant
                     );
@@ -490,7 +493,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     mixed: null,
                     all: null
                 };
-
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
@@ -676,3 +678,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
+
+
+

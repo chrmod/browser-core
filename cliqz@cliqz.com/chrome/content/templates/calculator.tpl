@@ -1,6 +1,5 @@
 {{#if data.is_calculus}}
-    <div class='cqz-result-h3 ez-calculator'
-         style="cursor: {{#if data.support_copy_ans}} pointer {{else}} auto {{/if}}" cliqz-action='copy-calc-answer'>
+    <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
     {{#with data}}
         <div>
            <div class="answer">{{prefix_answer}} <span id='calc-answer'>{{answer}}</span></div>

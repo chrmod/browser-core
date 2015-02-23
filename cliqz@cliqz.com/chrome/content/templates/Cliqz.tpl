@@ -16,24 +16,21 @@
 
  <div class="EZ-Cliqz-Footer">
         <div class="cqz-ez-btn" style="background-color:{{Common_Questions.color}}"  url="{{Common_Questions.url}}">
-            {{localize_parameters 'cliqz_common_questions'}}
+            {{local 'cliqz_common_questions'}}
          </div>
         <div class="cqz-ez-btn" style="background-color:{{Give_Feedback.color}}"  url="{{Give_Feedback.url}}">
-            {{localize_parameters 'cliqz_give_feedback'}}
+            {{local 'cliqz_give_feedback'}}
          </div>
         <div class="cqz-ez-btn" style="background-color:{{About_Us.color}}"  url="{{About_Us.url}}">
-            {{localize_parameters 'cliqz_about_us'}}
+            {{local 'cliqz_about_us'}}
          </div>
         <div class="cqz-ez-btn" style="background-color:{{Jobs.color}}"  url="{{Jobs.url}}">
-            {{localize_parameters 'cliqz_jobs'}}
+            {{local 'cliqz_jobs'}}
          </div>
         <div class="cqz-ez-btn" style="background-color:{{Privacy.color}}"  url="{{Privacy.url}}">
-            {{localize_parameters 'cliqz_privacy'}}
+            {{local 'cliqz_privacy'}}
+
          </div>
-      <br style="clear:left"/>
-
  </div>
-
- <br style="clear:left"/>
 </div>
 {{/with}}
