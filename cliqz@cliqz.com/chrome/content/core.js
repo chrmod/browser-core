@@ -356,6 +356,18 @@ CLIQZ.Core = CLIQZ.Core || {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
         });
+
+        // push profile Data
+          var data = JSON.parse(CliqzUtils.getPref('profile', '{}'));
+          if(Object.keys(data).length !== 0){
+            var action = {
+                type: 'profile',
+                data: data
+            };
+            CliqzUtils.setPref('profile', '{}');
+
+            CliqzUtils.track(action);
+          }
     },
 
     sendEnvironmentalSignal: function(startup, defaultSearchEngine){
