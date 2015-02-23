@@ -891,8 +891,8 @@ function resultClick(ev){
                 const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                                            .getService(Components.interfaces.nsIClipboardHelper);
                 gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
-                document.getElementById('calc-copied-btn').style.display = "";
-                document.getElementById('calc-copy-btn').style.display = "none";
+                document.getElementById('calc-copied-msg').style.display = "";
+                document.getElementById('calc-copy-msg').style.display = "none";
             }
             /*
              * Hides the current element and displays one of its siblings that
@@ -1389,10 +1389,6 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
-    Handlebars.registerHelper('localize_parameters', function(key1, key2 ) {
-        return CliqzUtils.getLocalizedString(key1).replace('{}', CliqzUtils.getLocalizedString(key2));
-    });
-
     Handlebars.registerHelper('local_number', function(val) {
         if(!val)return null;
         try {
@@ -1402,7 +1398,15 @@ function registerHelpers(){
         }
     });
 
+    Handlebars.registerHelper('wikiEZ_height', function(data_richData){
+        if (data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+            return 'cqz-result-h2';
+        return 'cqz-result-h3';
+    });
 
+    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
+        return idx < max_idx;
+    });
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);

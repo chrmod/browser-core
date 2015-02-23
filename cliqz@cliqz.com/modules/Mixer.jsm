@@ -44,7 +44,7 @@ var Mixer = {
                 }
             );
     },
-	mix: function(q, history, cliqz, cliqzExtra, instant, bundesligaResults, maxResults, only_instant){
+	mix: function(q, history, cliqz, cliqzExtra, instant, bundesligaResults, customResults, maxResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -247,6 +247,12 @@ var Mixer = {
                 if(ez)
                     results = [ez].concat(results);
             }
+        }
+
+        //------------- custom Results ----thuy---------------//
+        if (customResults && customResults.length > 0 ){
+            var cr = 0;
+            results = customResults.concat(results)
         }
 
         // ----------- noResult EntityZone---------------- //

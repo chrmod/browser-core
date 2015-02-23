@@ -319,6 +319,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             pushResults: function(q) {
                 //CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
+
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
                     return;
 
@@ -453,6 +454,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra,
                             this.instant,
                             this.cliqzBundesliga,
+                            this.customResults,  // THUY added to show customResults - 12Feb2015
                             maxResults,
                             only_instant
                     );
@@ -550,9 +552,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if(this.customResults && this.customResults.length > 0){
                     this.mixedResults.customResults = this.customResults;
-                    this.mixedResults.addResults(this.customResults);
+                    this.mixedResults.setResults(this.customResults);
                     this.pushResults(this.searchString);
                 }
+
 
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
@@ -677,3 +680,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
+
+
+
