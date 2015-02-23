@@ -720,7 +720,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }           
                 
                 // TODO: is this (i.e., sendResultsSignal) a good place to invalidate results?
-                CliqzAutocomplete.invalidateResult(Date.now());                                                
+                if (CliqzAutocomplete.isPopupOpen) {
+                    // don't invalidate if popup closed as the user does not see anything
+                    CliqzAutocomplete.invalidateResult(Date.now());
+                }
 
                 // keep a track of if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
