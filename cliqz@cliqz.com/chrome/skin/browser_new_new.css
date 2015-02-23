@@ -8,6 +8,22 @@
 
 #urlbar[focused="true"] { box-shadow: 0 0 1px #3B99FC inset!important; }
 
+/* last search */
+.cliqz-urlbar-Last-search-container { display: none; /*max-width: 220px; overflow: hidden;*/ }
+/*
+.cliqz-urlbar-Last-search {
+    background-size: 14px 10px;
+    color: white;
+    background-color: grey;
+    margin: 0px;
+    padding: 2px 6px 2px 6px;
+    margin-right: 3px;
+    border-radius: 1px;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}*/
+
 #cliqz-results {
     padding: 0;
     margin: 0;
@@ -34,6 +50,8 @@
 }
 
 /* common classes */
+.hidden { visibility: hidden; display: none !important; }
+#cliqz-results * > em, #cliqz-results * > i,#cliqz-results * > b { font-size: inherit }
 #cliqz-results em { font-style: normal; font-weight: bold; }
 #cliqz-results b { font-weight: bold; }
 #cliqz-results i { font-style: italic; }
@@ -70,7 +88,7 @@
 /* visited result - history, bookmark, ... */
 #cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; }
 #cliqz-results .cqz-result-title * { font-size: inherit; }
-#cliqz-results .cqz-result-title span { color: grey; }
+#cliqz-results .cqz-result-title span { color: #cccccc; }
 /* unvisited result - cliqz */
 #cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title { color: #506bb8; }
 
@@ -278,21 +296,11 @@
     background-size: 35px auto;
 }
 
-/*  EZ celeb */
-#cliqz-results .cliqz-celeb {
-    padding: 18px 22px;
-    height: 201px;
-    position: relative;
-    box-sizing: border-box;
-    -mox-box-sizing: border-box;
-    border-bottom: 1px solid #ccc
-}
-#cliqz-results .cliqz-celeb .cqz-result-logo { margin-top: 40px; }
-#cliqz-results .cqz-celeb-images { height: 64px; overflow: hidden; width: 60%; }
-#cliqz-results .cqz-celeb-image { height: 64px; margin-right: 6px; border-radius: 3px; }
-#cliqz-results .cqz-celeb-who, #cliqz-results .cqz-celeb-who em { font-size: 18px; margin: 10px 0 7px; color: #506bb8; }
-#cliqz-results .cqz-celeb-social { height: 22px; margin-top: 10px; margin-right: 9px; }
-#cliqz-results .cqz-celeb-desc { height: 2.1em; overflow: hidden; width: 85%; }
+/*  ez celeb */
+#cliqz-results .cqz-celeb-images { height: 67px; overflow: hidden; width: 80%; }
+#cliqz-results .cqz-celeb-image { height: 67px; margin-right: 9px; border-radius: 3px; float: left }
+#cliqz-results .cqz-celeb-who { margin: 16px 0 7px; background-image: none; padding: 0 }
+#cliqz-results .cqz-celeb-social { height: 22px; margin-top: 14px; margin-right: 9px; }
 
 /* ez cliqz */
 #cliqz-results .EZ-Cliqz-Header {
@@ -312,7 +320,7 @@
 #cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
 
-/* ez time */
+/* ez time 
 #cliqz-results .EZ-time-bigcontainer{ height: 90px; text-align: center; }
 #cliqz-results .EZ-time-location{ position: relative; top: 17px; color: black; }
 #cliqz-results .EZ-time-time{
@@ -325,7 +333,11 @@
     font-weight: 500;
 }
 #cliqz-results .EZ-time-timezone { padding-left: 5px; position: relative; top: 40%; transform: translateY(-50%); color: #cccccc; }
-#cliqz-results .cqz-one-line { max-height: 1.3em; max-width: 85%; overflow: hidden; }
+#cliqz-results .cqz-one-line { max-height: 1.3em; max-width: 85%; overflow: hidden; }*/
+
+/* ez calculator (time etc) */
+#cliqz-results .ez-calculator .answer { font-size: 25px }
+#cliqz-results .ez-calculator .expression { margin-top: 20px; color: #999999 }
 
 /* history */
 #cliqz-results .cqz-result-pattern { padding: 16px 22px; box-sizing: border-box; }
@@ -405,21 +417,3 @@
     background-position: 1px center;
     background-repeat: no-repeat;
 }
-
-/* last search */
-.cliqz-urlbar-Last-search-container { max-width: 220px; overflow: hidden; }
-
-.cliqz-urlbar-Last-search {
-    background-size: 14px 10px;
-    color: white;
-    background-color: grey;
-    margin: 0px;
-    padding: 2px 6px 2px 6px;
-    margin-right: 3px;
-    border-radius: 1px;
-    max-width: 200px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.hidden { visibility: hidden; display: none !important; }
