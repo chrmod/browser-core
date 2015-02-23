@@ -1119,9 +1119,6 @@ function resultClick(ev){
             }
 
             if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
-                console.log(el);
-                console.log(ev);
-
               enginesClick(ev);
               break;
             };
@@ -1173,6 +1170,13 @@ function handleAdultClick(ev){
             }
             break;
 
+    }
+    if(state && state != 'options'){ //optionsBtn
+        CliqzUtils.track({
+            type: 'setting',
+            setting: 'adultFilter',
+            value: state
+        });
     }
     setTimeout(CliqzUtils.refreshButtons, 0);
 }
