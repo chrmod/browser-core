@@ -74,7 +74,7 @@ var CliqzUtils = {
   BRANDS_DATABASE_VERSION:        1423163495705,
 
 
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'calculator_bck' : 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
               'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
               'spellcheck': 1,
               'airlinesEZ': 2, 'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2, 'pattern': 1, 'weatherEZ': 2,
@@ -191,7 +191,7 @@ var CliqzUtils = {
         req.timeout = (method == 'POST'? 10000 : 1000);
       }
     }
-      
+
     req.send(data);
     return req;
   },
