@@ -302,11 +302,14 @@
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
 
 /* ez currency */
-#cliqz-results .EZ-currency { margin-left: 18px }
+#cliqz-results .EZ-currency { }
 #cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
 #cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
 
+#cliqz-results .EZ-currency-result { color: #333333; font-size:18px; }
+#cliqz-results .EZ-currency-rate { color: #999999; font-size:14px; margin-top:2px; }
+#cliqz-results .EZ-currency-disclaimer { color: #999999; font-size:12px; margin-top: 4px; }
 /* ez time */
 #cliqz-results .EZ-time-bigcontainer{ height: 90px; text-align: center; }
 #cliqz-results .EZ-time-location{ position: relative; top: 17px; color: black; }
