@@ -110,7 +110,7 @@ var Mixer = {
 
 // NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
 // Consider taking some ideas from this function but not all.
-//        results = Filter.deduplicate(unfiltered, -1, 1, 1);
+        results = Filter.deduplicate(results, -1, 1, 1);
 
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {

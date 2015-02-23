@@ -98,8 +98,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
-        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new_new.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
