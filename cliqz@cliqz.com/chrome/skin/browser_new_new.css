@@ -136,7 +136,7 @@
     background-size: cover;
     background-position: center center;
     position: relative;
-    margin-right: 5px;
+    margin-right: 10px;
 }
 #cliqz-results .cqz-image-news { position: relative; }
 #cliqz-results .cqz-image-round { border-radius: 3px; }
