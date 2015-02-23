@@ -344,6 +344,64 @@ var CliqzUCrawl = {
         return redURL;
         
     },
+    scrapeLinkedinFurther: function(element,cd){
+        var payloadProf = {}
+        //CliqzUtils.log("data pipeline: " + index, CliqzUCrawl.LOG_KEY);
+        var imageLink = null;
+        var fullName = null;
+        var profileLink = null;
+        var currentWork = null;
+        var profileID = null;
+        var url = '' + cd.location;
+
+        //Do not log anything for private search
+        if(url.indexOf('vsearch') > -1){
+            return;
+        }
+
+        try {imageLink = element.querySelector('.photo,.entity-img,.profile-picture img').getAttribute('src')}catch(ee){};
+        try {fullName = element.querySelector('h2 a,.title,.full-name').textContent.trim()}catch(ee){};
+
+        //This changes as different URLs on linkedin.
+        // View-public-profile
+        try{
+            profileLink = element.querySelector('h2 a,.title,.view-public-profile').getAttribute('href');
+            if(!profileLink){
+                profileLink =  Array.prototype.slice.call(cd.querySelectorAll('.view-public-profile'))[0].getAttribute('href');
+                if(!profileLink){
+                    profileLink = cd.location.href;
+                }
+            }
+        }catch(ee){profileLink = cd.location.href;};
+
+        try {currentWork = element.querySelector('.vcard-basic .title,.description,.editable-item .title').textContent}catch(ee){} ;
+        try {profileID = element.getAttribute('data-li-entity-id')}catch(ee){};
+
+        payloadProf = {"imgl" : imageLink, "fn": fullName, "pl" : profileLink,"cw" : currentWork,"pid" : profileID}
+        CliqzUtils.log("data pipeline: " + JSON.stringify(payloadProf), CliqzUCrawl.LOG_KEY);
+        CliqzUCrawl.track({'type': 'safe', 'action': 'lprofile', 'payload': payloadProf});
+        return;
+
+    },
+    scrapeLinkedin: function(cd){
+        var vCards = Array.prototype.slice.call(cd.querySelectorAll('.vcard,.result'));
+        vCards.forEach(function(e){CliqzUCrawl.scrapeLinkedinFurther(e,cd)});
+    },
+    checkLinkedin: function(cd){
+        CliqzUtils.log("In data pipeline" + cd.location,CliqzUCrawl.LOG_KEY);
+        //var linkedin_regex = "^https?://((www|\w\w)\.)?linkedin.com/((in/[^/]+/?)|(pub/[^/]+/((\w|\d)+/?){3}))$"
+        var url = '' + cd.location;
+        if(url.indexOf('linkedin.com') > -1){
+            CliqzUtils.log("In data pipeline : yes",CliqzUCrawl.LOG_KEY);
+            CliqzUCrawl.scrapeLinkedin(cd);
+        }
+    },
+    dataPipeline: function(cd){
+        //This will form the basis of data pipeline.
+        //Currently need to check whether if it is a linkedin page or not.
+        CliqzUCrawl.checkLinkedin(cd);
+
+    },
     getPageData: function(cd) {
 
       var len_html = null;
@@ -537,6 +595,9 @@ var CliqzUCrawl = {
                   try {
                     var cd = currWin.gBrowser.selectedBrowser.contentDocument;
 
+                    //Check if the page matches prof. social profile:
+
+                    CliqzUCrawl.dataPipeline(cd);
                     var x = CliqzUCrawl.getPageData(cd);
 
                     if (CliqzUCrawl.state['v'][currURL] != null) {
