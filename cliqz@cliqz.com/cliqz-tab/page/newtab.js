@@ -167,7 +167,7 @@ var HistoryController = {
             icon = template.find(".history-icon").text(logoinfo.text).attr("style",logoinfo.style)
         
         template.find(".history-url.blurred").text(urlinfo.host);
-        template.find(".history-url.hovered").text(urlinfo.host + urlinfo.path);
+        template.find(".history-url.hovered").text(urlinfo.host + urlinfo.extra);
         
         return template
     },
