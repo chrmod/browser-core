@@ -8,6 +8,22 @@
 
 #urlbar[focused="true"] { box-shadow: 0 0 1px #3B99FC inset!important; }
 
+/* last search */
+.cliqz-urlbar-Last-search-container { display: none; /*max-width: 220px; overflow: hidden;*/ }
+/*
+.cliqz-urlbar-Last-search {
+    background-size: 14px 10px;
+    color: white;
+    background-color: grey;
+    margin: 0px;
+    padding: 2px 6px 2px 6px;
+    margin-right: 3px;
+    border-radius: 1px;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}*/
+
 #cliqz-results {
     padding: 0;
     margin: 0;
@@ -34,6 +50,8 @@
 }
 
 /* common classes */
+.hidden { visibility: hidden; display: none !important; }
+#cliqz-results * > em, #cliqz-results * > i,#cliqz-results * > b { font-size: inherit }
 #cliqz-results em { font-style: normal; font-weight: bold; }
 #cliqz-results b { font-weight: bold; }
 #cliqz-results i { font-style: italic; }
@@ -43,6 +61,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+#cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-h1 { height: 302px; }
 #cliqz-results .cqz-result-h2 { height: 201px; }
 #cliqz-results .cqz-result-h3 {	height: 100px; }
@@ -65,16 +84,15 @@
 }
 #cliqz-results .cqz-result-selected[active="true"] { left: -8px; }
 #cliqz-results .cqz-result-debug { float: right; }
-#cliqz-results .cqz-result-center { display: inline-block; width: 80%; }
 
-/* visited result - history, bookmark, ...*/
-#cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; width: 90%; }
+/* visited result - history, bookmark, ... */
+#cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; }
 #cliqz-results .cqz-result-title * { font-size: inherit; }
-#cliqz-results .cqz-result-title span { color: grey; }
+#cliqz-results .cqz-result-title span { color: #cccccc; }
 /* unvisited result - cliqz */
 #cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title { color: #506bb8; }
 
-#cliqz-results .cqz-result-url { display: inline-block; color: #999999; width: 90%; margin-top: 6px; }
+#cliqz-results .cqz-result-url { display: inline-block; color: #999999; margin-top: 6px; }
 #cliqz-results .cqz-result-url-ssl { padding-left: 13px; background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px; }
 #cliqz-results .cqz-result-path { visibility: hidden; }
 #cliqz-results .cqz-result-desc { margin-top: 4px; max-height: 22px; vertical-align: top; }
@@ -109,9 +127,13 @@
 	position: absolute;
 	right: 22px;
     cursor: pointer;
+	-moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
     /* set the size of logo */
     font-size: 26px;
 }
+
+#cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
 #cliqz-results .cqz-ez-btns { margin: 13px 0px 18px; height: 30px; }
@@ -130,11 +152,12 @@
 #cliqz-results .cqz-vert-center1 { position: absolute; }
 #cliqz-results .cqz-vert-center { position: absolute; top: 50%;	transform: translateY(-49%); }
 #cliqz-results .cqz-image {
-    display: inline-block;
     width: 114px; /* 16 */
     height: 64px; /* 9 */
     background-size: cover;
     background-position: center center;
+    float: left;
+    margin: 2px 10px 0 0;
     position: relative;
     margin-right: 10px;
 }
@@ -149,6 +172,9 @@
     color: white;
 }
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
+#cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
+#cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
+#cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
 
 /* custom result */
 #cliqz-results .cqz-custom-text {
@@ -273,21 +299,11 @@
     background-size: 35px auto;
 }
 
-/*  EZ celeb */
-#cliqz-results .cliqz-celeb {
-    padding: 18px 22px;
-    height: 201px;
-    position: relative;
-    box-sizing: border-box;
-    -mox-box-sizing: border-box;
-    border-bottom: 1px solid #ccc
-}
-#cliqz-results .cliqz-celeb .cqz-result-logo { margin-top: 40px; }
-#cliqz-results .cqz-celeb-images { height: 64px; overflow: hidden; width: 60%; }
-#cliqz-results .cqz-celeb-image { height: 64px; margin-right: 6px; border-radius: 3px; }
-#cliqz-results .cqz-celeb-who, #cliqz-results .cqz-celeb-who em { font-size: 18px; margin: 10px 0 7px; color: #506bb8; }
-#cliqz-results .cqz-celeb-social { height: 22px; margin-top: 10px; margin-right: 9px; }
-#cliqz-results .cqz-celeb-desc { height: 2.1em; overflow: hidden; width: 85%; }
+/*  ez celeb */
+#cliqz-results .cqz-celeb-images { height: 67px; overflow: hidden; width: 80%; }
+#cliqz-results .cqz-celeb-image { height: 67px; margin-right: 9px; border-radius: 3px; float: left }
+#cliqz-results .cqz-celeb-who { margin: 16px 0 7px; background-image: none; padding: 0 }
+#cliqz-results .cqz-celeb-social { height: 22px; margin-top: 14px; margin-right: 9px; }
 
 /* ez cliqz */
 #cliqz-results .EZ-Cliqz-Header {
@@ -300,7 +316,6 @@
 #cliqz-results .EZ-Cliqz-Body-H1 { font-size: 20px; padding-top: 12px; }
 #cliqz-results .EZ-Cliqz-Body-H2 { font-size: 20px; padding-top: 5px; }
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
-
 
 /* ez stock */
 #cliqz-results .cqz-ez-img-trend { width:17px; height:18px;}
@@ -315,31 +330,33 @@
 #cliqz-results .cqz-ez-stock-disclaimer { margin-top:18px; margin-left:2px; }
 #cliqz-results .cqz-disclaimer { color:#cccccc ; }
 
-
-
 /* ez currency */
-#cliqz-results .EZ-currency { }
-#cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
-#cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
-#cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
+#cliqz-results .EZ-currency-result { font-size: 25px; margin-top: -6px; }
+#cliqz-results .EZ-currency-rate { color: #999999; margin: 11px 0px 3px; }
+#cliqz-results .EZ-currency-disclaimer { color: #cccccc; }
 
-#cliqz-results .EZ-currency-result { color: #333333; font-size:18px; }
-#cliqz-results .EZ-currency-rate { color: #999999; font-size:14px; margin-top:2px; }
-#cliqz-results .EZ-currency-disclaimer { color: #999999; font-size:12px; margin-top: 4px; }
-/* ez time */
-#cliqz-results .EZ-time-bigcontainer{ height: 90px; text-align: center; }
-#cliqz-results .EZ-time-location{ position: relative; top: 17px; color: black; }
-#cliqz-results .EZ-time-time{
-    padding-left: 5px;
-    position: relative;
-    top: 40%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    color: black;
-    font-weight: 500;
+/* ez calculator (time etc) */
+#cliqz-results .ez-calculator .answer { font-size: 25px }
+#cliqz-results .ez-calculator .expression { margin-top: 20px; color: #999999 }
+
+/* ez weather */
+#cliqz-results .ez-weather .alert {
+    height: 100px;
+    background-image: url(http://cdn.cliqz.com/extension/EZ/weather/warning_2.svg);
+    background-size: 54px 54px;
+    background-position: 22px center;
+    padding-left: calc(22px + 54px + 18px);
+    color: white;
 }
-#cliqz-results .EZ-time-timezone { padding-left: 5px; position: relative; top: 40%; transform: translateY(-50%); color: #cccccc; }
-#cliqz-results .cqz-one-line { max-height: 1.3em; max-width: 85%; overflow: hidden; }
+#cliqz-results .ez-weather .alert .header { font-size: 18px; text-decoration: underline; margin: 23px 0 9px; }
+#cliqz-results .ez-weather .cqz-ez-title { background-image: none; margin-bottom: 16px; }
+#cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
+#cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
+#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
+#cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
+#cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
+#cliqz-results .EZ-weather-img { background-position: center center; background-size: 62px 62px; height: 62px; margin: 16px 0 }
+#cliqz-results .ez-weather .cqz-result-h2 { position: relative }
 
 /* history */
 #cliqz-results .cqz-result-pattern { padding: 16px 22px; box-sizing: border-box; }
@@ -419,21 +436,3 @@
     background-position: 1px center;
     background-repeat: no-repeat;
 }
-
-/* last search */
-.cliqz-urlbar-Last-search-container { max-width: 220px; overflow: hidden; }
-
-.cliqz-urlbar-Last-search {
-    background-size: 14px 10px;
-    color: white;
-    background-color: grey;
-    margin: 0px;
-    padding: 2px 6px 2px 6px;
-    margin-right: 3px;
-    border-radius: 1px;
-    max-width: 200px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.hidden { visibility: hidden; display: none !important; }
