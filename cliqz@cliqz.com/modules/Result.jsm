@@ -119,6 +119,20 @@ var Result = {
             result.subType
         );
     },
+    // Combine two results into a new result
+    combine: function(cliqz, generic) {
+        var tempCliqzResult = Result.cliqz(cliqz);
+        var ret = Result.clone(generic);
+        ret.style = CliqzUtils.combineSources(ret.style, tempCliqzResult.style);
+        ret.data.kind = (ret.data.kind || []).concat(tempCliqzResult.data.kind || []);
+        ret.comment = ret.comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+        return ret;
+    },
+    clone: function(entry) {
+        var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, null);
+        ret.data = JSON.parse(JSON.stringify(entry.data)); // nasty way of cloning an object
+        return ret;
+    },
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
         // Google Filters
@@ -127,7 +141,7 @@ var Result = {
         //    www.google.*/url? - for redirects
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
-           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+           (urlparts.extra.indexOf("/search?") == 0 || urlparts.extra.indexOf("/url?") == 0)) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -135,7 +149,7 @@ var Result = {
         // Filter all like:
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
+           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
             log("Discarding result page from history: " + url)
             return false;
         }

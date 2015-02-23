@@ -3,8 +3,8 @@
  <div class="EZ-Cliqz-Header"
         style="background-image: url({{cliqz_logo}})">
         {{#each social_contact}}
-            <img  url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" arroww=''/>
-       {{/each}}
+            <img  url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" arrow-override=''/>
+        {{/each}}
  </div>
 
  {{#with slogan}}
@@ -29,6 +29,7 @@
          </div>
         <div class="EZ-Cliqz-Footnote-tile" style="background-color:{{Privacy.color}}"  url="{{Privacy.url}}">
             {{local 'cliqz_privacy'}}
+
          </div>
       <br style="clear:left"/>
 

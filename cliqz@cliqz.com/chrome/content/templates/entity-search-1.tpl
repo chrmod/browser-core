@@ -29,7 +29,7 @@
         style="background-color: {{this.background_color_icon}};
                    background-image: url({{this.icon_url}})"
         url="{{this.url}}"
-        extra="item-{{this.logg_as}}"
+        extra="link-{{this.logg_as}}"
         >
             {{this.text}}
       </div>

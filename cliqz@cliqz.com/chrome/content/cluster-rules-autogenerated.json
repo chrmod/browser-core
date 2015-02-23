@@ -27,20 +27,20 @@
                 {
                     "category": {
                         "var": "path", 
-                        "pattern": "^/([A-Za-z0-9\\-]+)/"
+                        "pattern": "^/([A-Za-z0-9\\-\\._~]+)/"
                     }, 
                     "url": {
                         "fragment": "", 
-                        "path": "^/[A-Za-z0-9\\-]+/[A-Za-z0-9\\-]+", 
+                        "path": "^/[A-Za-z0-9\\-\\._~]+/[A-Za-z0-9\\-\\._~]+", 
                         "scheme": "https:", 
                         "query": ""
                     }, 
                     "match": {
-                        "path": "^/[A-Za-z0-9\\-]+/[A-Za-z0-9\\-]+"
+                        "path": "^/[A-Za-z0-9\\-\\._~]+/[A-Za-z0-9\\-\\._~]+"
                     }, 
                     "title": {
                         "var": "path", 
-                        "pattern": "^/([A-Za-z0-9\\-]+/[A-Za-z0-9\\-]+)"
+                        "pattern": "^/([A-Za-z0-9\\-\\._~]+/[A-Za-z0-9\\-\\._~]+)"
                     }
                 }
             ], 
@@ -158,7 +158,7 @@
                     "category": "Sitemap_Youtube_Playlists", 
                     "url": {
                         "query": "list=[A-Za-z0-9]+", 
-                        "scheme": "https"
+                        "scheme": "https:"
                     }, 
                     "match": {
                         "path": "/playlist", 

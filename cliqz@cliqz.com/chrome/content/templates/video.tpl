@@ -12,7 +12,7 @@
     {{/if}}
     <div class='cqz-result-center cqz-vert-center'
          {{#if image.src}}
-            style="width: calc(85% - 120px)"
+            style="width: calc(80% - 120px)"
          {{/if}}>
         <div class='cqz-result-title overflow' selectable=''>
            {{ emphasis title text 2 true }}
@@ -22,7 +22,7 @@
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
         <div class='cqz-result-desc overflow'>
            {{ local_number data.richData.views }} {{local 'views'}}
