@@ -1,4 +1,8 @@
-#PopupAutoCompleteRichResultCliqz { -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz"); color: #333333; }
+#PopupAutoCompleteRichResultCliqz {
+    -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
+    color: #333333;
+    font-size: 14px;
+}
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
 
@@ -414,4 +418,3 @@
 }
 
 .hidden { visibility: hidden; display: none !important; }
-
