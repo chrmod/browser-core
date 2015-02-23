@@ -1174,6 +1174,13 @@ function handleAdultClick(ev){
             break;
 
     }
+    if(state && state != 'options'){ //optionsBtn
+        CliqzUtils.track({
+            type: 'setting',
+            setting: 'adultFilter',
+            value: state
+        });
+    }
     setTimeout(CliqzUtils.refreshButtons, 0);
 }
 
