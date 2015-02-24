@@ -851,8 +851,11 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
         }
 
-        if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
-            r.logo.force_cliqz = true;
+        if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
+            r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
+            r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
+            r.logo.add_logo_url = true;
+        }
 
     }
 
@@ -860,16 +863,6 @@ function enhanceResults(res){
     var user_location = CliqzUtils.getPref("config_location", "de");
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
-
-
-
-
-    //prioritize extra (fun-vertical) results
-    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    // var all = first.concat(last);
-    var all = res.results;
-
 
     //filter adult results
     if(adult) {
@@ -1005,7 +998,7 @@ function messageClick(ev) {
                       var win = enumerator.getNext();
                       win.CLIQZ.Core.destroy(true);
                   }
-                  CliqzUtils.toggleMenuSettings("disabled");
+                  CliqzUtils.refreshButtons();
                   break;
               case 'keep-cliqz':
                   updateMessageState("hide");

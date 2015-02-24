@@ -6,9 +6,9 @@
     <div class="logos" id="EZ-noResult-logos" >
         {{#each search_engines}}
             <div class="cliqz-brand-logo"
-                  style="{{logo.style}}"
+                  style="{{style}}"
                   engine="{{name}}"
-                  engineCode="{{code}}" 
+                  engineCode="{{code}}"
                   cliqz-action="alternative-search-engine"></div>
         {{/each}}
     </div>
