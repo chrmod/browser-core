@@ -138,7 +138,6 @@ var CliqzUtils = {
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
 
     else if (domains[base]) {
-      CliqzUtils.log(domains);
       for (var i=0,imax=domains[base].length;i<imax;i++) {
         CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
@@ -1017,7 +1016,7 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 
     return urlbar.value.length == 0;
   },
@@ -1047,6 +1046,11 @@ var CliqzUtils = {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
+  openTabInWindow: function(win, url){
+      var tBrowser = win.document.getElementById('content');
+      var tab = tBrowser.addTab(url);
+      tBrowser.selectedTab = tab;
+  },
   //Q button
   refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -1073,10 +1077,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1116,7 +1120,7 @@ var CliqzUtils = {
       else {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
-      menupopup.appendChild(CliqzUtils.createHumanMenu(doc));
+      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1138,8 +1142,7 @@ var CliqzUtils = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                // keep reference to timer to avoid garbage collection
-                timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -1169,7 +1172,7 @@ var CliqzUtils = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -1187,8 +1190,9 @@ var CliqzUtils = {
 
         return item
     },
-    createHumanMenu: function(doc){
-        var menu = doc.createElement('menu'),
+    createHumanMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
             menuPopup = doc.createElement('menupopup');
 
         menu.setAttribute('label', 'Human Web');
@@ -1215,7 +1219,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        Extension.openTab(doc, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/support/#common-questions');
                     }
             )
         );

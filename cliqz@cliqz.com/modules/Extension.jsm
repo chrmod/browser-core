@@ -25,8 +25,7 @@ var BTN_ID = 'cliqz-button',
     //toolbar
     searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
     //next element in the toolbar
-    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext',
-    timerRef;
+    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext';
 
 
 var Extension = {
@@ -328,11 +327,6 @@ var Extension = {
         } else {
             CliqzUtils.createQbutton(win, menupopup);
         }
-    },
-    openTab: function(doc, url){
-        var tBrowser = doc.getElementById('content');
-        var tab = tBrowser.addTab(url);
-        tBrowser.selectedTab = tab;
     },
     unloadFromWindow: function(win){
         try {
