@@ -60,7 +60,6 @@ var CliqzHistoryManager = {
                   statement.params[key] = parameters[key];
                 }
             }
-            CliqzUtils.log(sql + ' - ' +JSON.stringify(statement.params))
             statement.executeAsync({
                 handleCompletion: function(reason)  {
                   onThen();

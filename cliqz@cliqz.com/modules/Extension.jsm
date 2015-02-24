@@ -42,6 +42,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -89,6 +90,8 @@ var Extension = {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+
+        CliqzCategories.destroy();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
