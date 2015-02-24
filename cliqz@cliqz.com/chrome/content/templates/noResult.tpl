@@ -12,6 +12,6 @@
                   cliqz-action="alternative-search-engine"></div>
         {{/each}}
     </div>
-    <a href="https://cliqz.com"><img class="cliqz-logo" src="{{cliqz_logo}}"/></a>
+    <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
 </div>
 {{/with}}
