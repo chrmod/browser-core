@@ -859,11 +859,6 @@ function enhanceResults(res){
 
     }
 
-
-    var user_location = CliqzUtils.getPref("config_location", "de");
-    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
-    var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
-
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -878,7 +873,7 @@ function enhanceResults(res){
              });
         }
     }
-    else if (user_location != "de" && !ignored_location_warning) {
+    else if (notSupported()) {
       updateMessageState("show", {
           "bad_results_warning": {}
        });
@@ -888,6 +883,17 @@ function enhanceResults(res){
     }
 
     return res;
+}
+
+function notSupported(r){
+    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
+    // or he is in germany
+    if(CliqzUtils.getPref("ignored_location_warning", false) ||
+        CliqzUtils.getPref("config_location", "de") == 'de') return false
+
+    //if he is not in germany he might still be  german speaking
+    var lang = navigator.language.toLowerCase();
+    return lang != 'de' && lang.split('-')[0] != 'de';
 }
 
  /*
@@ -1005,6 +1011,11 @@ function messageClick(ev) {
               default:
                   break;
           }
+          CliqzUtils.track({
+            type: 'setting',
+            setting: 'international',
+            value: state
+          });
           setTimeout(CliqzUtils.refreshButtons, 0);
         }
       }
