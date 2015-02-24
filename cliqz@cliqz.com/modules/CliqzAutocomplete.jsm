@@ -54,6 +54,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSuggestions: null,
     hasUserScrolledCurrentResults: false, // set to true whenever user scrolls, set to false when new results are shown
     lastResultsUpdateTime: null, // to measure how long a result has been shown for
+    resultsOverflowHeight: 0, // to determine if scrolling is possible (i.e., overflow > 0px)
     afterQueryCount: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
@@ -219,7 +220,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 type: 'activity',
                 action: 'results_done',
                 has_user_scrolled: hasUserScrolled,
-                results_display_time: resultsDisplayTime
+                results_display_time: resultsDisplayTime,
+                results_overflow_height: CliqzAutocomplete.resultsOverflowHeight,
+                can_user_scroll: CliqzAutocomplete.resultsOverflowHeight > 0
             };
             CliqzUtils.track(action);
         }
