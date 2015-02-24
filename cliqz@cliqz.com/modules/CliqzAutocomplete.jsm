@@ -66,6 +66,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'override': false,
         'pushed': null
     },
+    _lastKey: 0,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -440,6 +441,45 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
+            cliqzAutoSuggestionFetcher: function(req, q) {
+                /* handles cliqz auto suggestion queries and update autosuggestion list
+                 */
+                let response = JSON.parse(req.response);
+                for (let i=0; i<response.length; i++) {
+                    CliqzUtils.log('candidate word: ' + response[i].value, 'Cliqz AS');
+                    if (response[i].score < 10 || CliqzAutosuggestion.CliqzTrie.exists(response[i].value))
+                        continue;
+                    CliqzAutosuggestion.CliqzTrieCount += 1;
+                    CliqzUtils.log('pushing word: ' + response[i].value, 'Cliqz AS');
+                    CliqzAutosuggestion.CliqzTrie.incr(response[i].value, response[i].score);
+                }
+            },
+            cliqzAutoSuggest: function(searchString) {
+                /* Check if there is a suggestion from local Trie.
+                 If not, call the suggestion backend (asynchronously)
+                 call the backend only if autocomplete alrealy in place
+                 */
+                let urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                if (searchString.length > 2 &&  // auto suggestion should starts with min 3 char
+                    urlbar.selectionStart === urlbar.selectionEnd &&  // nothing selected in urlbar
+                    CliqzAutocomplete._lastKey !== 46 && CliqzAutocomplete._lastKey !== 8) {  // don't autocomplete if last key is delete or backspace
+                    CliqzUtils.log('Searching autosuggestion', 'Cliqz AS');
+                    let cliqzAS = CliqzAutosuggestion.findSuggestion(searchString);
+                    if (cliqzAS && cliqzAS != searchString &&
+                        !(cliqzAS in CliqzAutosuggestion.notExpandTo)) {  // there is auto suggetsion
+                        CliqzUtils.log('Auto suggestion to: ' + cliqzAS, 'Cliqz AS');
+                        CliqzAutosuggestion.active = true;
+                        urlbar.mInputField.value = cliqzAS;
+                        urlbar.mInputField.setSelectionRange(searchString.length, cliqzAS.length);
+                        searchString = cliqzAS;
+                    }
+                }
+                if (CliqzAutosuggestion.CliqzTrieCount < 20000) {
+                    CliqzUtils.log('Fetching suggestion for ' + searchString);
+                    CliqzUtils.getAS(searchString, this.cliqzAutoSuggestionFetcher);
+                }
+                return searchString;
+            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -489,10 +529,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
-                CliqzAutocomplete.lastSearch = searchString;
 
                 // spell correction
                 var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
+                CliqzAutocomplete.lastSearch = searchString;
+
                 if (!CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
                     urlbar.selectionEnd == urlbar.value.length) {
@@ -541,10 +583,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+                this.cliqzAutoSuggestionFetcher = this.cliqzAutoSuggestionFetcher.bind(this);
+                this.cliqzAutoSuggest = this.cliqzAutoSuggest.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
-                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);

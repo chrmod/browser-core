@@ -50,11 +50,14 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAutosuggestion.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
+
         this.telemetry = CliqzUtils.telemetry;
+        CliqzAutosuggestion.init();
 
         CliqzClusterHistory.init();
     },
