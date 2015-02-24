@@ -112,6 +112,15 @@ var Mixer = {
 // Consider taking some ideas from this function but not all.
         results = Filter.deduplicate(results, -1, 1, 1);
 
+
+        // extract the entity zone accompanying the first cliqz result, if any
+        if(cliqz && cliqz.length > 0) {
+            if(cliqz[0].extra) {
+                cliqzExtra.push(Result.cliqzExtra(cliqz[0].extra));
+                CliqzUtils.log("EZ in snippet: " + JSON.stringify(cliqzExtra));
+            }
+        }
+
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {
             for(var i=0; i < cliqzExtra.length; i++){
