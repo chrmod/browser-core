@@ -31,7 +31,9 @@ var CliqzHistory = {
     QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
     onLocationChange: function(aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
-      CliqzCategories.assess(aBrowser.currentURI.spec);
+      if(CliqzUtils.getPref('categoryAssessment', false)){
+        CliqzCategories.assess(aBrowser.currentURI.spec);
+      }
 
       var url = aBrowser.currentURI.spec;
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);

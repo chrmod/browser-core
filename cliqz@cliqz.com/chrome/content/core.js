@@ -91,7 +91,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
         CliqzHistoryPattern.preloadColors();
-        CliqzCategories.init();
+        if(CliqzUtils.getPref('categoryAssessment', false)){
+            CliqzCategories.init();
+        }
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
