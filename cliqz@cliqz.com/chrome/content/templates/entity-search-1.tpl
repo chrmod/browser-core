@@ -5,12 +5,8 @@
   {{#unless data.no-search-box}}
     <div>
       <div class="cqz-ez-search-box"
-           style="border: 1px solid {{data.search_box_background_color}};"
+           style="{{#with logo}}border-color: {{backgroundColor}}; background-color: {{backgroundColor}}; {{/with}}"
            >
-        <img
-          style="background-color: {{data.search_box_background_color}};"
-          class="cqz-ez-search-box-icon"
-          src="{{data.search_box_icon}}" />
         <input
           dont-close="true" type="text" class="cqz-ez-search-box-input"
           cliqz-action="stop-click-event-propagation"
@@ -26,8 +22,7 @@
     {{#each data.links}}
       <div
         class="cqz-ez-search-app"
-        style="background-color: {{this.background_color_icon}};
-                   background-image: url({{this.icon_url}})"
+        style="background-color: {{this.background_color_icon}}; background-image: url({{this.icon_url}})"
         url="{{this.url}}"
         extra="link-{{this.logg_as}}"
         >
