@@ -922,9 +922,6 @@ function enhanceResults(res){
 function updateMessageState(state, messages) {
   switch (state) {
     case "show":
-      // Show adult warning
-      CliqzUtils.log(CLIQZ.Core.popup.style.height);
-      //CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
       gCliqzBox.messageContainer.innerHTML = "";
       Object.keys(messages).forEach(function(tpl_name){
           gCliqzBox.messageContainer.innerHTML += UI.tpl[tpl_name](messages[tpl_name]);
@@ -1581,8 +1578,6 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
-      CliqzUtils.log("XXXXXX");
-      CliqzUtils.log(generateLogoClass(CliqzUtils.getDetailsFromUrl(url)));
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
 

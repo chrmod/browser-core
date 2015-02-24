@@ -138,7 +138,6 @@ var CliqzUtils = {
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
 
     else if (domains[base]) {
-      CliqzUtils.log(domains);
       for (var i=0,imax=domains[base].length;i<imax;i++) {
         CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
