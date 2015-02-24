@@ -8,8 +8,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
   'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
-  'chrome://cliqzmodules/content/CUcrawl.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawlTest',
+  'chrome://cliqzmodules/content/CUcrawlTest.jsm');
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE);
@@ -17,7 +17,7 @@ function startup(aData, aReason) {
 
 function shutdown(aData, aReason) {
     CliqzUCrawl.destroy();
-    CUcrawl.destroy()
+    CUcrawlTest.destroy()
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
@@ -28,7 +28,7 @@ function shutdown(aData, aReason) {
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
     Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-    Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
+    Cu.unload('chrome://cliqzmodules/content/CUcrawlTest.jsm');
 }
 
 function eventLog(ev){

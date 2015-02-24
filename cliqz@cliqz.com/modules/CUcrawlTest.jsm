@@ -7,7 +7,7 @@
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-var EXPORTED_SYMBOLS = ['CUcrawl'];
+var EXPORTED_SYMBOLS = ['CUcrawlTest'];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
@@ -24,21 +24,20 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
-//CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
+CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
 //CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
-//CliqzUtils.setPref('showDebugLogs', true);
+CliqzUtils.setPref('showDebugLogs', true);
 
-CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
-CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
-CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
+//CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
+//CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
+//CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
 
 
-var CUcrawl = {
+var CUcrawlTest = {
     VERSION: 'moz-test 0.01',
     WAIT_TIME: 2000,
     LOG_KEY: 'mucrawl',
@@ -76,27 +75,27 @@ var CUcrawl = {
         var m = null;
         var _uri = null;
         var i = null;
-        var m   = CUcrawl.parser[CUcrawl.strictMode ? "strict" : "loose"].exec(str);
+        var m   = CUcrawlTest.parser[CUcrawlTest.strictMode ? "strict" : "loose"].exec(str);
         var _uri = {};
         var i   = 14;
 
-        while (i--) _uri[CUcrawl.key[i]] = m[i] || "";
+        while (i--) _uri[CUcrawlTest.key[i]] = m[i] || "";
 
-        _uri[CUcrawl.q.name] = {};
-        _uri[CUcrawl.key[12]].replace(CUcrawl.q.parser, function ($0, $1, $2) { if ($1) { _uri[CUcrawl.q.name][$1] = $2; }});
+        _uri[CUcrawlTest.q.name] = {};
+        _uri[CUcrawlTest.key[12]].replace(CUcrawlTest.q.parser, function ($0, $1, $2) { if ($1) { _uri[CUcrawlTest.q.name][$1] = $2; }});
         return _uri;
     },
     maskURL: function(url){
         var url_parts = null;
         var masked_url = null;
-        url_parts = CUcrawl.parseUri(url);
+        url_parts = CUcrawlTest.parseUri(url);
 
-        if (CUcrawl.dropLongURL(url)) {
+        if (CUcrawlTest.dropLongURL(url)) {
             //Explicit check for google search url.
             if(url_parts['host'].indexOf('google') > 0){
                 if(url_parts['queryKey']['url']){
                     masked_url = url_parts['queryKey']['url'];
-                    masked_url = CUcrawl.maskURL(decodeURIComponent(''+masked_url));
+                    masked_url = CUcrawlTest.maskURL(decodeURIComponent(''+masked_url));
                     return masked_url;
                 }
             }
@@ -121,10 +120,10 @@ var CUcrawl = {
         var url_parts = {};
         var whitelist = ['google','yahoo','bing'];
 
-        url_parts = CUcrawl.parseUri(aURI);
+        url_parts = CUcrawlTest.parseUri(aURI);
 
-        //CliqzUtils.log("Sanitize: " + url_parts.host, CUcrawl.LOG_KEY);
-        //CliqzUtils.log("Sanitize: " + url_parts.source.indexOf('about:'), CUcrawl.LOG_KEY);
+        //CliqzUtils.log("Sanitize: " + url_parts.host, CUcrawlTest.LOG_KEY);
+        //CliqzUtils.log("Sanitize: " + url_parts.source.indexOf('about:'), CUcrawlTest.LOG_KEY);
         if (url_parts.source.indexOf('about:') == 0){
             return true;
         }
@@ -137,7 +136,7 @@ var CUcrawl = {
             return true;
         }
 
-        //CliqzUtils.log("Sanitize: " + url_parts.port , CUcrawl.LOG_KEY);
+        //CliqzUtils.log("Sanitize: " + url_parts.port , CUcrawlTest.LOG_KEY);
         if (url_parts.port != "" & (url_parts.port!="80" || url_parts.port!="443")) {
             return true;
         }
@@ -146,23 +145,23 @@ var CUcrawl = {
             return true;
         }
 
-        if ( url_parts.source.indexOf('#') > -1 & CUcrawl.checkIfSearchURL(url_parts.source) != true) {
-            if (CUcrawl.debug) CliqzUtils.log("Dropped because of # in url: " + decodeURIComponent(aURI)  , CUcrawl.LOG_KEY);
+        if ( url_parts.source.indexOf('#') > -1 & CUcrawlTest.checkIfSearchURL(url_parts.source) != true) {
+            if (CUcrawlTest.debug) CliqzUtils.log("Dropped because of # in url: " + decodeURIComponent(aURI)  , CUcrawlTest.LOG_KEY);
             return true;
         }
     },
     dropLongURL: function(url){
         var url_parts = {};
 
-        url_parts = CUcrawl.parseUri(url);
-        if (url_parts.query.length > CUcrawl.qs_len) {
+        url_parts = CUcrawlTest.parseUri(url);
+        if (url_parts.query.length > CUcrawlTest.qs_len) {
             return true;
         }
 
 
         var v = url_parts.relative.split(/[/._ -]/);
         for (let i=0; i<v.length; i++) {
-            if (v[i].length > CUcrawl.rel_part_len) {
+            if (v[i].length > CUcrawlTest.rel_part_len) {
                 return true;
             }
         }
@@ -173,7 +172,7 @@ var CUcrawl = {
 
     },
     createTable: function(reason){
-        CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafe"]));
+        CUcrawlTest.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
         var usafe = "create table usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
                 ref VARCHAR(255),\
@@ -187,26 +186,26 @@ var CUcrawl = {
                 )";
 
         try{
-            CUcrawl.dbConn.executeSimpleSQL(usafe)
+            CUcrawlTest.dbConn.executeSimpleSQL(usafe)
         }catch(ee){};
 
 
 
     },
     cleanHttpCache: function() {
-      for(var key in CUcrawl.httpCache) {
-        if ((CUcrawl.counter - CUcrawl.httpCache[key]['time']) > 60*CUcrawl.tmult) {
-          delete CUcrawl.httpCache[key];
+      for(var key in CUcrawlTest.httpCache) {
+        if ((CUcrawlTest.counter - CUcrawlTest.httpCache[key]['time']) > 60*CUcrawlTest.tmult) {
+          delete CUcrawlTest.httpCache[key];
         }
       }
-      for(var key in CUcrawl.httpCache401) {
-        if ((CUcrawl.counter - CUcrawl.httpCache401[key]['time']) > 60*CUcrawl.tmult) {
-          delete CUcrawl.httpCache401[key];
+      for(var key in CUcrawlTest.httpCache401) {
+        if ((CUcrawlTest.counter - CUcrawlTest.httpCache401[key]['time']) > 60*CUcrawlTest.tmult) {
+          delete CUcrawlTest.httpCache401[key];
         }
       }
     },
     getHeaders: function(strData) {
-      //CliqzUtils.log("In get headers:",CUcrawl.LOG_KEY);
+      //CliqzUtils.log("In get headers:",CUcrawlTest.LOG_KEY);
       var o = {};
       o['status'] = strData.split(" ")[1];
 
@@ -231,29 +230,29 @@ var CUcrawl = {
             try {
                 var aChannel = aHttpChannel.QueryInterface(nsIHttpChannel);
                 var url = decodeURIComponent(aChannel.URI.spec);
-                var ho = CUcrawl.getHeaders(aExtraStringData);
+                var ho = CUcrawlTest.getHeaders(aExtraStringData);
                 var status = ho['status'];
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
                 if (status=='301') {
-                  CUcrawl.httpCache[url] = {'status': status, 'time': CUcrawl.counter, 'location': loc};
+                  CUcrawlTest.httpCache[url] = {'status': status, 'time': CUcrawlTest.counter, 'location': loc};
                 }
 
                 if (status=='401') {
-                  CUcrawl.httpCache401[url] = {'time': CUcrawl.counter};
+                  CUcrawlTest.httpCache401[url] = {'time': CUcrawlTest.counter};
                 }
 
               } catch(ee) {
-                if (CUcrawl.debug) CliqzUtils.log("error httpObserver" + ee,CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("error httpObserver" + ee,CUcrawlTest.LOG_KEY);
                 return;
               }
         }
     },
     linkCache: {},
     cleanLinkCache: function() {
-      for(var key in CUcrawl.linkCache) {
-        if ((CUcrawl.counter - CUcrawl.linkCache[key]['time']) > 30*CUcrawl.tmult) {
-          delete CUcrawl.linkCache[key];
+      for(var key in CUcrawlTest.linkCache) {
+        if ((CUcrawlTest.counter - CUcrawlTest.linkCache[key]['time']) > 30*CUcrawlTest.tmult) {
+          delete CUcrawlTest.linkCache[key];
         }
       }
     },
@@ -266,8 +265,8 @@ var CUcrawl = {
             else return null;
         }
         catch(ee) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('Exception scrapping query: ' + ee, CUcrawl.LOG_KEY);
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('Exception scrapping query: ' + ee, CUcrawlTest.LOG_KEY);
             }
             return null;
         }
@@ -283,22 +282,22 @@ var CUcrawl = {
 
         }
         else{
-          res[''+i] = {'u': CUcrawl.maskURL(_res[i].href), 't': _res[i].text};
+          res[''+i] = {'u': CUcrawlTest.maskURL(_res[i].href), 't': _res[i].text};
         }
         
       }
-      //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawl.LOG_KEY);
+      //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawlTest.LOG_KEY);
       return res;
     },
     searchResults:function(currURL, document){
         var _res = null;
         var query = null;
         var res = {};
-        res['t'] = CUcrawl.getTime();//new Date().getTime();
+        res['t'] = CUcrawlTest.getTime();//new Date().getTime();
         res['r'] = {};
         try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
         res['ctry'] = location;
-        res['qurl'] = CUcrawl.maskURL(currURL);
+        res['qurl'] = CUcrawlTest.maskURL(currURL);
 
         if(currURL.indexOf('google') > 0) {
             var val = document.getElementById('ires').attributes['data-async-context'].value;
@@ -314,11 +313,11 @@ var CUcrawl = {
             _res = Array.prototype.slice.call(document.querySelectorAll('h3 [href]')).filter(function(e){var r = RegExp("^http(s)?\\:\\/\\/((.)+\\.)?search\\.yahoo\\.com\\/(.)*");   return !r.test(e.getAttribute('h3 href') );    });
         }
 
-        res['r'] = CUcrawl.searchResultsRefine(_res);
+        res['r'] = CUcrawlTest.searchResultsRefine(_res);
         res['q'] = query;
 
-        if (CUcrawl.debug) {
-            CliqzUtils.log('>>> Results moz-ucrawl: ' +  JSON.stringify(res,undefined,2), CUcrawl.LOG_KEY);
+        if (CUcrawlTest.debug) {
+            CliqzUtils.log('>>> Results moz-ucrawl: ' +  JSON.stringify(res,undefined,2), CUcrawlTest.LOG_KEY);
         }
         return res;
 
@@ -349,27 +348,27 @@ var CUcrawl = {
         //Get google result
         var rq = null;
         if (requery.test(activeURL)) {
-            rq = CUcrawl.searchResults(activeURL, document);
+            rq = CUcrawlTest.searchResults(activeURL, document);
             if (rq!=null) {
-                CUcrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
-                CUcrawl.track({'type': CUcrawl.msgType, 'action': 'query', 'payload': rq});
+                CUcrawlTest.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
+                CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'query', 'payload': rq});
                 }
             }
         //Get yahoo result
         if (yrequery.test(activeURL)) {
-            rq = CUcrawl.searchResults(activeURL, document);
+            rq = CUcrawlTest.searchResults(activeURL, document);
             if (rq!=null) {
-                CUcrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'yahoo'};
-                CUcrawl.track({'type': CUcrawl.msgType, 'action': 'query', 'payload': rq});
+                CUcrawlTest.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'yahoo'};
+                CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'query', 'payload': rq});
                 }
             }
 
          //Get Bing result
         if (brequery.test(activeURL)){
-            rq = CUcrawl.searchResults(activeURL, document);
+            rq = CUcrawlTest.searchResults(activeURL, document);
             if (rq!=null) {
-                CUcrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'bing'};
-                CUcrawl.track({'type': CUcrawl.msgType, 'action': 'query', 'payload': rq});
+                CUcrawlTest.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'bing'};
+                CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'query', 'payload': rq});
                 }
         }
         return rq        
@@ -387,10 +386,10 @@ var CUcrawl = {
                 // we have both the source and the query,
                 // let's see if we have done the query
 
-                if (CUcrawl.userTransitions['search'][query] == null) {
-                    CUcrawl.userTransitions['search'][query] = {'time': CUcrawl.counter, 'data': []}
+                if (CUcrawlTest.userTransitions['search'][query] == null) {
+                    CUcrawlTest.userTransitions['search'][query] = {'time': CUcrawlTest.counter, 'data': []}
                 }
-                CUcrawl.userTransitions['search'][query]['data'].push([source, CUcrawl.counter - CUcrawl.userTransitions['search'][query]['time']]);
+                CUcrawlTest.userTransitions['search'][query]['data'].push([source, CUcrawlTest.counter - CUcrawlTest.userTransitions['search'][query]['time']]);
                 }
             }
 
@@ -409,7 +408,7 @@ var CUcrawl = {
         var ihttp = targetURL.lastIndexOf('http://')
         if (ihttps>0 || ihttp>0) {
             // contains either http or https not ont he query string, very suspicious
-            var parqs = CUcrawl.getParametersQS(targetURL);
+            var parqs = CUcrawlTest.getParametersQS(targetURL);
             if (parqs['url']) {
                 return decodeURIComponent(parqs['url']);
             }
@@ -430,14 +429,14 @@ var CUcrawl = {
         //req.withCredentials = false;
         //req.setRequestHeader("Authorization", "true");
 
-        // CUcrawl.auxGetPageData('http://github.com/cliqz/navigation-extension/', function(x) {console.log(x);}, function(y) {})
-        // CUcrawl.auxGetPageData('https://www.google.de/?gfe_rd=cr&ei=zk_bVNiXIMGo8wfwkYHwBQ&gws_rd=ssl', function(x) {console.log(x);}, function(y) {})
+        // CUcrawlTest.auxGetPageData('http://github.com/cliqz/navigation-extension/', function(x) {console.log(x);}, function(y) {})
+        // CUcrawlTest.auxGetPageData('https://www.google.de/?gfe_rd=cr&ei=zk_bVNiXIMGo8wfwkYHwBQ&gws_rd=ssl', function(x) {console.log(x);}, function(y) {})
 
         req.onload = function(){
 
             if (req.status != 200 && req.status != 0 /* local files */){
                 error_message = 'status not valid: ' + req.status;
-                if (CUcrawl.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawlTest.LOG_KEY);
                 req.onerror();
             }
             else {
@@ -446,8 +445,8 @@ var CUcrawl = {
                 if (req.responseURL != url) {
                     if (decodeURI(decodeURI(req.responseURL)) != decodeURI(decodeURI(url))) {
                         error_message = 'dangerous redirect';
-                        if (CUcrawl.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawl.LOG_KEY);
-                        if (CUcrawl.debug) CliqzUtils.log("DANGER: " + url + ' ' + req.responseURL , CUcrawl.LOG_KEY);
+                        if (CUcrawlTest.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawlTest.LOG_KEY);
+                        if (CUcrawlTest.debug) CliqzUtils.log("DANGER: " + url + ' ' + req.responseURL , CUcrawlTest.LOG_KEY);
                         req.onerror();
                         return;
                     }
@@ -457,7 +456,7 @@ var CUcrawl = {
                 var doc = document.implementation.createHTMLDocument("example");
                 doc.documentElement.innerHTML = req.responseText;
 
-                var x = CUcrawl.getPageData(url, doc);
+                var x = CUcrawlTest.getPageData(url, doc);
 
                 onsuccess(x);
 
@@ -469,7 +468,7 @@ var CUcrawl = {
         }
         req.ontimeout = function() {
             error_message = 'timeout';
-            if (CUcrawl.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawl.LOG_KEY);
+            if (CUcrawlTest.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CUcrawlTest.LOG_KEY);
             req.onerror();
         }
 
@@ -507,22 +506,22 @@ var CUcrawl = {
         // the page after.
 
 
-        if (CUcrawl.debug) {
-            CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CUcrawl.LOG_KEY);
-            CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CUcrawl.LOG_KEY);
+        if (CUcrawlTest.debug) {
+            CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CUcrawlTest.LOG_KEY);
+            CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CUcrawlTest.LOG_KEY);
         }
 
         // if any of the titles is null (false), then decline (discard)
 
         if (!(struct_bef['t'] && struct_aft['t'])) {
-            if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: found an empty title", CUcrawl.LOG_KEY);
+            if (CUcrawlTest.debug) CliqzUtils.log("fovalidDoubleFetch: found an empty title", CUcrawlTest.LOG_KEY);
             return false;
         }
 
 
         // if any of the two struct has a iall to false decline
         if (!(struct_bef['iall'] && struct_aft['iall'])) {
-            if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: found a noindex", CUcrawl.LOG_KEY);
+            if (CUcrawlTest.debug) CliqzUtils.log("fovalidDoubleFetch: found a noindex", CUcrawlTest.LOG_KEY);
             return false;
         }
 
@@ -532,7 +531,7 @@ var CUcrawl = {
         if ((struct_bef['lh'] || 0) > 10*1024) {
             var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
             if (ratio_lh < 0.10 || ratio_lh > 0.90) {
-                if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: lh is not balanced", CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("fovalidDoubleFetch: lh is not balanced", CUcrawlTest.LOG_KEY);
                 return false;
             }
         }
@@ -542,7 +541,7 @@ var CUcrawl = {
         if ((struct_bef['lh'] || 0) > 30) {
             var ratio_nl = (struct_bef['nl'] || 0) / ((struct_bef['nl'] || 0) + (struct_aft['nl'] || 0));
             if (ratio_nl < 0.10 || ratio_nl > 0.90) {
-                if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: nl is not balanced", CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("fovalidDoubleFetch: nl is not balanced", CUcrawlTest.LOG_KEY);
                 return false;
             }
         }
@@ -558,7 +557,7 @@ var CUcrawl = {
             var vt1 = t1.split(' ').filter(function(el) {el.length>1});
             var vt2 = t2.split(' ').filter(function(el) {el.length>1});;
 
-            jc = CUcrawl.auxIntersection(vt1,vt2).length / CUcrawl.auxUnion(vt1,vt2).length;
+            jc = CUcrawlTest.auxIntersection(vt1,vt2).length / CUcrawlTest.auxUnion(vt1,vt2).length;
             if (jc <= 0.5) {
 
                 // one last check, perhaps it's an encoding issue
@@ -570,15 +569,15 @@ var CUcrawl = {
                     // if we have not decreased the titles by more than 50%
                     var vtt1 = tt1.split(' ').filter(function(el) {el.length>1});
                     var vtt2 = tt2.split(' ').filter(function(el) {el.length>1});
-                    jc = CUcrawl.auxIntersection(vtt1,vtt2).length / CUcrawl.auxUnion(vtt1,vtt2).length;
+                    jc = CUcrawlTest.auxIntersection(vtt1,vtt2).length / CUcrawlTest.auxUnion(vtt1,vtt2).length;
                     // we are more demanding on the title overlap now
                     if (jc <= 0.80) {
-                        if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail title overlap after ascii", CUcrawl.LOG_KEY);
+                        if (CUcrawlTest.debug) CliqzUtils.log("validDoubleFetch: fail title overlap after ascii", CUcrawlTest.LOG_KEY);
                         return false;
                     }
                 }
                 else {
-                  if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail title overlap", CUcrawl.LOG_KEY);
+                  if (CUcrawlTest.debug) CliqzUtils.log("validDoubleFetch: fail title overlap", CUcrawlTest.LOG_KEY);
                   return false;
                 }
             }
@@ -593,13 +592,13 @@ var CUcrawl = {
 
             // if had no password inputs before and it has after, decline
             if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] != 0)) {
-                if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail nip", CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("validDoubleFetch: fail nip", CUcrawlTest.LOG_KEY);
                 return false;
             }
 
             // if had no forms before and it has after, decline
             if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] != 0)) {
-                if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CUcrawlTest.LOG_KEY);
                 return false;
             }
 
@@ -630,11 +629,11 @@ var CUcrawl = {
             }
         }
 
-        if (CUcrawl.dropLongURL(url)) {
+        if (CUcrawlTest.dropLongURL(url)) {
 
             if (page_doc['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
-                if (CUcrawl.dropLongURL(page_doc['canonical_url'])) {
+                if (CUcrawlTest.dropLongURL(page_doc['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
                     isok = false;
                 }
@@ -652,29 +651,29 @@ var CUcrawl = {
         if (isok) {
 
 
-            CUcrawl.auxGetPageData(url, function(data) {
+            CUcrawlTest.auxGetPageData(url, function(data) {
 
-                if (CUcrawl.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawl.LOG_KEY);
+                if (CUcrawlTest.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawlTest.LOG_KEY);
 
-                if (CUcrawl.validDoubleFetch(page_struct_before, data)) {
-                    if (CUcrawl.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawl.LOG_KEY);
-                    CUcrawl.setAsPublic(url);
-                    CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
+                if (CUcrawlTest.validDoubleFetch(page_struct_before, data)) {
+                    if (CUcrawlTest.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawlTest.LOG_KEY);
+                    CUcrawlTest.setAsPublic(url);
+                    CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'page', 'payload': page_doc});
                 }
                 else {
-                    if (CUcrawl.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CUcrawl.LOG_KEY);
-                    CUcrawl.setAsPrivate(url);
+                    if (CUcrawlTest.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CUcrawlTest.LOG_KEY);
+                    CUcrawlTest.setAsPrivate(url);
                 }
             },
             function(error_message) {
-                if (CUcrawl.debug) CliqzUtils.log("failure on doubleFetch! " + error_message, CUcrawl.LOG_KEY);
-                CUcrawl.setAsPrivate(url);
+                if (CUcrawlTest.debug) CliqzUtils.log("failure on doubleFetch! " + error_message, CUcrawlTest.LOG_KEY);
+                CUcrawlTest.setAsPrivate(url);
             });
 
         }
         else {
-            if (CUcrawl.debug) CliqzUtils.log("doubleFetch refused to process this url: " + url, CUcrawl.LOG_KEY);
-            CUcrawl.setAsPrivate(url);
+            if (CUcrawlTest.debug) CliqzUtils.log("doubleFetch refused to process this url: " + url, CUcrawlTest.LOG_KEY);
+            CUcrawlTest.setAsPrivate(url);
         }
 
     },
@@ -748,7 +747,7 @@ var CUcrawl = {
         if (canonical_url != null && canonical_url.length > 0) {
             // check that is not relative
             if (canonical_url[0] == '/') {
-                var ourl = CUcrawl.parseURL(url);
+                var ourl = CUcrawlTest.parseURL(url);
                 // ignore if httpauth or if non standard port
                 canonical_url = ourl['protocol'] + '://' + ourl['hostname'] + canonical_url;
             }
@@ -759,7 +758,7 @@ var CUcrawl = {
 
 
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
-        //CliqzUtils.log("Testing" + x.ctry, CUcrawl.LOG_KEY);
+        //CliqzUtils.log("Testing" + x.ctry, CUcrawlTest.LOG_KEY);
         return x;
     },       
     getCDByURL: function(url) {
@@ -771,8 +770,8 @@ var CUcrawl = {
             dd_url = decodeURI(decodeURI(url));
         } catch(ee) {}
 
-        for (var j = 0; j < CUcrawl.windowsRef.length; j++) {
-            var gBrowser = CUcrawl.windowsRef[j].gBrowser;
+        for (var j = 0; j < CUcrawlTest.windowsRef.length; j++) {
+            var gBrowser = CUcrawlTest.windowsRef[j].gBrowser;
             if (gBrowser.tabContainer) {
                 var numTabs = gBrowser.tabContainer.childNodes.length;
                 for (var i=0; i<numTabs; i++) {
@@ -780,8 +779,8 @@ var CUcrawl = {
                     var currentBrowser = gBrowser.getBrowserForTab(currentTab);
                     var currURL=''+currentBrowser.contentDocument.location;
 
-                    if (CUcrawl.debug) {
-                        CliqzUtils.log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL, CUcrawl.LOG_KEY);
+                    if (CUcrawlTest.debug) {
+                        CliqzUtils.log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL, CUcrawlTest.LOG_KEY);
                     }
 
                     if (currURL==''+url) {
@@ -821,27 +820,27 @@ var CUcrawl = {
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
             var currwin = CliqzUtils.getWindow();
 
-            CUcrawl.lastActive = CUcrawl.counter;
-            CUcrawl.lastActiveAll = CUcrawl.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            CUcrawlTest.lastActiveAll = CUcrawlTest.counter;
 
-            var activeURL = CUcrawl.currentURL();
+            var activeURL = CUcrawlTest.currentURL();
             //Check if the URL is know to be bad: private, about:, odd ports, etc.
-            if (CUcrawl.isSuspiciousURL(activeURL)) return;
+            if (CUcrawlTest.isSuspiciousURL(activeURL)) return;
 
 
 
             if (activeURL.indexOf('about:')!=0) {
-                if (CUcrawl.state['v'][activeURL] == null) {
+                if (CUcrawlTest.state['v'][activeURL] == null) {
                     // we check for privacy, if not private the function will add the url
                     // to the UrlsCache
-                    CUcrawl.getPageFromDB(activeURL, function(page) {
+                    CUcrawlTest.getPageFromDB(activeURL, function(page) {
                         if ((page!=null) && (page.checked==1) && (page.private==0)) {
-                            CUcrawl.UrlsCache[activeURL] = true;
+                            CUcrawlTest.UrlsCache[activeURL] = true;
                         }
                     });                    
 
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
-                    if (CUcrawl.checkIfSearchURL(activeURL)){
+                    if (CUcrawlTest.checkIfSearchURL(activeURL)){
 
 
                         currwin.setTimeout(function(currURLAtTime) {
@@ -852,7 +851,7 @@ var CUcrawl = {
 
                                     // FIXME: this begs for refactoring!!
                                     
-                                    var activeURL = CUcrawl.currentURL();
+                                    var activeURL = CUcrawlTest.currentURL();
                                     var document = null;  
                                     var searchURL = null;  
 
@@ -861,63 +860,63 @@ var CUcrawl = {
                                         searchURL = activeURL;
                                     }
                                     else{
-                                        document = CUcrawl.getCDByURL(currURLAtTime);  
+                                        document = CUcrawlTest.getCDByURL(currURLAtTime);
                                         searchURL = currURLAtTime;
 
                                     }
 
                                     var rq = null;
-                                    rq = CUcrawl.getSearchData(searchURL, document);
-                                    CUcrawl.userSearchTransition(rq);
+                                    rq = CUcrawlTest.getSearchData(searchURL, document);
+                                    CUcrawlTest.userSearchTransition(rq);
 
                                     
                                 }
                                 catch(ee) {
                                     // silent fail
-                                    if (CUcrawl.debug) {
-                                        CliqzUtils.log('Exception: ' + ee, CUcrawl.LOG_KEY);
+                                    if (CUcrawlTest.debug) {
+                                        CliqzUtils.log('Exception: ' + ee, CUcrawlTest.LOG_KEY);
                                     }
                                 }
                             }
 
-                        }, CUcrawl.WAIT_TIME, activeURL);
+                        }, CUcrawlTest.WAIT_TIME, activeURL);
                     }
                 
 
                     var status = null;
 
-                    if (CUcrawl.httpCache[activeURL]!=null) {
-                        status = CUcrawl.httpCache[activeURL]['status'];
+                    if (CUcrawlTest.httpCache[activeURL]!=null) {
+                        status = CUcrawlTest.httpCache[activeURL]['status'];
                     }
 
                     var referral = null;
                     var qreferral = null;
-                    if (CUcrawl.linkCache[activeURL] != null) {
-                        //referral = CUcrawl.maskURL(CUcrawl.linkCache[activeURL]['s']);
-                        referral = CUcrawl.linkCache[activeURL]['s'];
+                    if (CUcrawlTest.linkCache[activeURL] != null) {
+                        //referral = CUcrawlTest.maskURL(CUcrawlTest.linkCache[activeURL]['s']);
+                        referral = CUcrawlTest.linkCache[activeURL]['s'];
                     }
                 
 
-                    CUcrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
+                    CUcrawlTest.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                             'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
-                            'tbeg':CUcrawl.getTime()};
+                            'tbeg':CUcrawlTest.getTime()};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
-                        if (CUcrawl.state['v'][referral] && CUcrawl.state['v'][referral]['qr']) {
-                            CUcrawl.state['v'][activeURL]['qr'] = {}
-                            CUcrawl.state['v'][activeURL]['qr']['q'] = CUcrawl.state['v'][referral]['qr']['q'];
-                            CUcrawl.state['v'][activeURL]['qr']['t'] = CUcrawl.state['v'][referral]['qr']['t'];
-                            CUcrawl.state['v'][activeURL]['qr']['d'] = CUcrawl.state['v'][referral]['qr']['d']+1;
+                        if (CUcrawlTest.state['v'][referral] && CUcrawlTest.state['v'][referral]['qr']) {
+                            CUcrawlTest.state['v'][activeURL]['qr'] = {}
+                            CUcrawlTest.state['v'][activeURL]['qr']['q'] = CUcrawlTest.state['v'][referral]['qr']['q'];
+                            CUcrawlTest.state['v'][activeURL]['qr']['t'] = CUcrawlTest.state['v'][referral]['qr']['t'];
+                            CUcrawlTest.state['v'][activeURL]['qr']['d'] = CUcrawlTest.state['v'][referral]['qr']['d']+1;
 
                            //If the depth is greater then two, we need to check if the ref. is of same domain.
                             //If not then drop the QR object, else keep it. 
-                            if(CUcrawl.state['v'][activeURL]['qr']['d'] > 2){
-                                delete CUcrawl.state['v'][activeURL]['qr'];
+                            if(CUcrawlTest.state['v'][activeURL]['qr']['d'] > 2){
+                                delete CUcrawlTest.state['v'][activeURL]['qr'];
                             }
-                            else if(CUcrawl.state['v'][activeURL]['qr']['d'] == 2){    
-                                if(CUcrawl.parseUri(activeURL)['host'] != CUcrawl.parseUri(referral)['host']){
-                                    delete CUcrawl.state['v'][activeURL]['qr'];
+                            else if(CUcrawlTest.state['v'][activeURL]['qr']['d'] == 2){
+                                if(CUcrawlTest.parseUri(activeURL)['host'] != CUcrawlTest.parseUri(referral)['host']){
+                                    delete CUcrawlTest.state['v'][activeURL]['qr'];
                                 }
                             }
                         }    
@@ -935,128 +934,128 @@ var CUcrawl = {
                             // var cd = currWin.gBrowser.selectedBrowser.contentDocument;
                             // because during the time of the timeout there can be win or tab switching
                             //
-                            //var activeURL = CUcrawl.currentURL();
+                            //var activeURL = CUcrawlTest.currentURL();
                             //if (activeURL != currURL) {}
 
 
 
 
-                            var cd = CUcrawl.getCDByURL(currURL);
+                            var cd = CUcrawlTest.getCDByURL(currURL);
                             if (cd==null) {
-                                if (CUcrawl.debug) {
-                                    CliqzUtils.log("CANNOT GET THE CONTENT OF : " + currURL, CUcrawl.LOG_KEY);
+                                if (CUcrawlTest.debug) {
+                                    CliqzUtils.log("CANNOT GET THE CONTENT OF : " + currURL, CUcrawlTest.LOG_KEY);
                                 }
                                 return;
                             }
 
-                            var x = CUcrawl.getPageData(currURL, cd);
+                            var x = CUcrawlTest.getPageData(currURL, cd);
 
 
                             if (x['canonical_url']) {
-                                CUcrawl.can_urls[currURL] = x['canonical_url'];
+                                CUcrawlTest.can_urls[currURL] = x['canonical_url'];
                             }
 
-                            if (CUcrawl.state['v'][currURL] != null) {
-                                CUcrawl.state['v'][currURL]['x'] = x;
+                            if (CUcrawlTest.state['v'][currURL] != null) {
+                                CUcrawlTest.state['v'][currURL]['x'] = x;
                             }
 
-                            if (CUcrawl.queryCache[currURL]) {
-                                CUcrawl.state['v'][currURL]['qr'] = CUcrawl.queryCache[currURL];
+                            if (CUcrawlTest.queryCache[currURL]) {
+                                CUcrawlTest.state['v'][currURL]['qr'] = CUcrawlTest.queryCache[currURL];
                             }
 
-                            if (CUcrawl.state['v'][currURL] != null) {
-                                CUcrawl.addURLtoDB(currURL, CUcrawl.state['v'][currURL]['ref'], CUcrawl.state['v'][currURL]);
+                            if (CUcrawlTest.state['v'][currURL] != null) {
+                                CUcrawlTest.addURLtoDB(currURL, CUcrawlTest.state['v'][currURL]['ref'], CUcrawlTest.state['v'][currURL]);
                             }
 
                         } catch(ee) {
-                            if (CUcrawl.debug) {
-                                CliqzUtils.log("Error fetching title and length of page: " + ee, CUcrawl.LOG_KEY);
+                            if (CUcrawlTest.debug) {
+                                CliqzUtils.log("Error fetching title and length of page: " + ee, CUcrawlTest.LOG_KEY);
                             }
                         }
 
-                    }, CUcrawl.WAIT_TIME, currwin, activeURL);
+                    }, CUcrawlTest.WAIT_TIME, currwin, activeURL);
 
                 }
                 else {
                     // wops, it exists on the active page, probably it comes from a back button or back
                     // from tab navigation
-                    CUcrawl.state['v'][activeURL]['tend'] = null;
+                    CUcrawlTest.state['v'][activeURL]['tend'] = null;
                 }
 
                 // they need to be loaded upon each onlocation, not only the first time
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CUcrawl.captureKeyPressPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CUcrawl.captureMouseMovePage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CUcrawl.captureMouseClickPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CUcrawl.captureScrollPage);
-                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CUcrawl.captureCopyPage);
+                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("keypress", CUcrawlTest.captureKeyPressPage);
+                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousemove", CUcrawlTest.captureMouseMovePage);
+                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("mousedown", CUcrawlTest.captureMouseClickPage);
+                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("scroll", CUcrawlTest.captureScrollPage);
+                currwin.gBrowser.selectedBrowser.contentDocument.addEventListener("copy", CUcrawlTest.captureCopyPage);
 
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-            //CliqzUtils.log('state change: ' + aWebProgress, CUcrawl.LOG_KEY);
+            //CliqzUtils.log('state change: ' + aWebProgress, CUcrawlTest.LOG_KEY);
         }
     },
     pacemaker: function() {
-        var activeURL = CUcrawl.currentURL();
+        var activeURL = CUcrawlTest.currentURL();
 
         if (activeURL && (activeURL).indexOf('about:')!=0) {
-            if ((CUcrawl.counter - CUcrawl.lastActive) < 5*CUcrawl.tmult) {
+            if ((CUcrawlTest.counter - CUcrawlTest.lastActive) < 5*CUcrawlTest.tmult) {
                 // if there has been an event on the last 5 seconds, if not do no count, the user must
                 // be doing something else,
                 //
                 try {
-                    CUcrawl.state['v'][activeURL]['a'] += 1;
+                    CUcrawlTest.state['v'][activeURL]['a'] += 1;
                 } catch(ee) {}
             }
         }
 
 
-        if ((activeURL==null) && ((CUcrawl.counter/CUcrawl.tmult) % 10 == 0)) {
+        if ((activeURL==null) && ((CUcrawlTest.counter/CUcrawlTest.tmult) % 10 == 0)) {
             // this one is for when you do not have the page open, for instance, no firefox but console opened
-            CUcrawl.pushAllData();
+            CUcrawlTest.pushAllData();
         }
 
 
 
-        if ((CUcrawl.counter/CUcrawl.tmult) % 1 == 0) {
+        if ((CUcrawlTest.counter/CUcrawlTest.tmult) % 1 == 0) {
 
-            var openPages = CUcrawl.getAllOpenPages();
+            var openPages = CUcrawlTest.getAllOpenPages();
             var tt = new Date().getTime();
 
-            for (var url in CUcrawl.state['v']) {
-                if (CUcrawl.state['v'].hasOwnProperty(url)) {
+            for (var url in CUcrawlTest.state['v']) {
+                if (CUcrawlTest.state['v'].hasOwnProperty(url)) {
 
                     if (openPages.indexOf(url)==-1) {
                         // not opened
 
-                        if (CUcrawl.state['v'][url]['tend']==null) {
-                            CUcrawl.state['v'][url]['tend'] = tt;
-                            CUcrawl.state['v'][url]['tfin'] = CUcrawl.getTime();
+                        if (CUcrawlTest.state['v'][url]['tend']==null) {
+                            CUcrawlTest.state['v'][url]['tend'] = tt;
+                            CUcrawlTest.state['v'][url]['tfin'] = CUcrawlTest.getTime();
                         }
 
-                        if ((tt - CUcrawl.state['v'][url]['tend']) > CUcrawl.deadFiveMts*60*1000) {
+                        if ((tt - CUcrawlTest.state['v'][url]['tend']) > CUcrawlTest.deadFiveMts*60*1000) {
                             // move to "dead pages" after 5 minutes
-                            CUcrawl.state['m'].push(CUcrawl.state['v'][url]);
+                            CUcrawlTest.state['m'].push(CUcrawlTest.state['v'][url]);
 
-                            //CliqzUtils.log("Deleted: moved to dead pages after 5 mts.",CUcrawl.LOG_KEY);
-                            CliqzUtils.log(CUcrawl.state['m'],CUcrawl.LOG_KEY);
-                            CUcrawl.addURLtoDB(url, CUcrawl.state['v'][url]['ref'], CUcrawl.state['v'][url]);
-                            delete CUcrawl.state['v'][url];
+                            //CliqzUtils.log("Deleted: moved to dead pages after 5 mts.",CUcrawlTest.LOG_KEY);
+                            CliqzUtils.log(CUcrawlTest.state['m'],CUcrawlTest.LOG_KEY);
+                            CUcrawlTest.addURLtoDB(url, CUcrawlTest.state['v'][url]['ref'], CUcrawlTest.state['v'][url]);
+                            delete CUcrawlTest.state['v'][url];
                         }
                     }
                     else {
                         // stil opened, do nothing.
-                        if ((tt - CUcrawl.state['v'][url]['tin']) > CUcrawl.deadTwentyMts*60*1000) {
+                        if ((tt - CUcrawlTest.state['v'][url]['tin']) > CUcrawlTest.deadTwentyMts*60*1000) {
                             // unless it was opened more than 20 minutes ago, if so, let's move it to dead pages
 
-                            CUcrawl.state['v'][url]['tend'] = null;
-                            CUcrawl.state['v'][url]['tfin'] = null;
-                            CUcrawl.state['v'][url]['too_long'] = true;
-                            CUcrawl.state['m'].push(CUcrawl.state['v'][url]);
-                            CUcrawl.addURLtoDB(url, CUcrawl.state['v'][url]['ref'], CUcrawl.state['v'][url]);
-                            delete CUcrawl.state['v'][url];
-                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts.",CUcrawl.LOG_KEY);
-                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts: " + CUcrawl.state['m'].length,CUcrawl.LOG_KEY);
+                            CUcrawlTest.state['v'][url]['tend'] = null;
+                            CUcrawlTest.state['v'][url]['tfin'] = null;
+                            CUcrawlTest.state['v'][url]['too_long'] = true;
+                            CUcrawlTest.state['m'].push(CUcrawlTest.state['v'][url]);
+                            CUcrawlTest.addURLtoDB(url, CUcrawlTest.state['v'][url]['ref'], CUcrawlTest.state['v'][url]);
+                            delete CUcrawlTest.state['v'][url];
+                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts.",CUcrawlTest.LOG_KEY);
+                            //CliqzUtils.log("Deleted: moved to dead pages after 20 mts: " + CUcrawlTest.state['m'].length,CUcrawlTest.LOG_KEY);
 
                         }
                     }
@@ -1064,54 +1063,54 @@ var CUcrawl = {
             }
         }
 
-        if ((CUcrawl.counter/CUcrawl.tmult) % 10 == 0) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('Pacemaker: ' + CUcrawl.counter/CUcrawl.tmult + ' ' + activeURL + ' >> ' + CUcrawl.state.id, CUcrawl.LOG_KEY);
-                //CliqzUtils.log(JSON.stringify(CUcrawl.state, undefined, 2), CUcrawl.LOG_KEY);
-                //CliqzUtils.log(JSON.stringify(CUcrawl.getAllOpenPages(), undefined, 2), CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter/CUcrawlTest.tmult) % 10 == 0) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('Pacemaker: ' + CUcrawlTest.counter/CUcrawlTest.tmult + ' ' + activeURL + ' >> ' + CUcrawlTest.state.id, CUcrawlTest.LOG_KEY);
+                //CliqzUtils.log(JSON.stringify(CUcrawlTest.state, undefined, 2), CUcrawlTest.LOG_KEY);
+                //CliqzUtils.log(JSON.stringify(CUcrawlTest.getAllOpenPages(), undefined, 2), CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.cleanHttpCache();
-            CUcrawl.cleanUserTransitions(false);
+            CUcrawlTest.cleanHttpCache();
+            CUcrawlTest.cleanUserTransitions(false);
         }
 
-        if ((CUcrawl.counter/CUcrawl.tmult) % (1*60) == 0) {
+        if ((CUcrawlTest.counter/CUcrawlTest.tmult) % (1*60) == 0) {
             // every minute
-            CUcrawl.listOfUnchecked(1, CUcrawl.doubleFetchTimeInSec, null, CUcrawl.processUnchecks);
+            CUcrawlTest.listOfUnchecked(1, CUcrawlTest.doubleFetchTimeInSec, null, CUcrawlTest.processUnchecks);
         }
 
-        if ((CUcrawl.counter/CUcrawl.tmult) % 10 == 0) {
-            var ll = CUcrawl.state['m'].length;
+        if ((CUcrawlTest.counter/CUcrawlTest.tmult) % 10 == 0) {
+            var ll = CUcrawlTest.state['m'].length;
             if (ll > 0) {
-                var v = CUcrawl.state['m'].slice(0, ll);
-                CUcrawl.state['m'] = CUcrawl.state['m'].slice(ll, CUcrawl.state['m'].length);
+                var v = CUcrawlTest.state['m'].slice(0, ll);
+                CUcrawlTest.state['m'] = CUcrawlTest.state['m'].slice(ll, CUcrawlTest.state['m'].length);
 
                 for(var i=0;i<v.length;i++) {
-                    if (CUcrawl.UrlsCache.hasOwnProperty(v[i]['url'])) {
-                        CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': v[i]});
+                    if (CUcrawlTest.UrlsCache.hasOwnProperty(v[i]['url'])) {
+                        CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'page', 'payload': v[i]});
                     }
                 }
             }
         }
     
-        CUcrawl.counter += 1;
+        CUcrawlTest.counter += 1;
 
     },
     cleanUserTransitions: function(force) {
-        for(var query in CUcrawl.userTransitions['search']) {
-            if ((force) || ((CUcrawl.counter - CUcrawl.userTransitions['search'][query]['time']) > CUcrawl.userTransitionsSearchSession*CUcrawl.tmult)) {
+        for(var query in CUcrawlTest.userTransitions['search']) {
+            if ((force) || ((CUcrawlTest.counter - CUcrawlTest.userTransitions['search'][query]['time']) > CUcrawlTest.userTransitionsSearchSession*CUcrawlTest.tmult)) {
 
                 // the query session is more than 5 minutes old or we are forcing the event,
                 // if the condition is met and there are more than two elements in data we
                 // must create the signal
                 //
-                if (CUcrawl.userTransitions['search'][query]['data'].length > 1) {
-                    var doc = {'q': query, 'sources': CUcrawl.userTransitions['search'][query]['data'], 't': CUcrawl.getTime()};
-                    if (CUcrawl.debug) {
-                        CliqzUtils.log(JSON.stringify(doc,undefined,2), CUcrawl.LOG_KEY);
+                if (CUcrawlTest.userTransitions['search'][query]['data'].length > 1) {
+                    var doc = {'q': query, 'sources': CUcrawlTest.userTransitions['search'][query]['data'], 't': CUcrawlTest.getTime()};
+                    if (CUcrawlTest.debug) {
+                        CliqzUtils.log(JSON.stringify(doc,undefined,2), CUcrawlTest.LOG_KEY);
                     }
-                    CUcrawl.track({'type': CUcrawl.msgType, 'action': 'userTransition.search', 'payload': doc});
+                    CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'userTransition.search', 'payload': doc});
                 }
-                delete CUcrawl.userTransitions['search'][query];
+                delete CUcrawlTest.userTransitions['search'][query];
             }
         }
 
@@ -1119,59 +1118,59 @@ var CUcrawl = {
     pushAllData: function() {
 
         // force send user Transitions sessions even if not elapsed because the browser is shutting down
-        CUcrawl.cleanUserTransitions(true);
+        CUcrawlTest.cleanUserTransitions(true);
 
         var tt = new Date().getTime();
         var res = [];
-        for (var url in CUcrawl.state['v']) {
-            if (CUcrawl.state['v'][url]) res.push(url);
+        for (var url in CUcrawlTest.state['v']) {
+            if (CUcrawlTest.state['v'][url]) res.push(url);
         }
 
         for (var i=0; i<res.length; i++) {
             // move all the pages to m set
             var url = res[i];
-            if (CUcrawl.state['v'][url]) {
-                if (CUcrawl.state['v'][url]['tend']==null) {
-                    CUcrawl.state['v'][url]['tend'] = tt;
-                    CUcrawl.state['v'][url]['tfin'] = CUcrawl.getTime();
+            if (CUcrawlTest.state['v'][url]) {
+                if (CUcrawlTest.state['v'][url]['tend']==null) {
+                    CUcrawlTest.state['v'][url]['tend'] = tt;
+                    CUcrawlTest.state['v'][url]['tfin'] = CUcrawlTest.getTime();
                 }
 
-                CUcrawl.state['m'].push(CUcrawl.state['v'][url]);
-                delete CUcrawl.state['v'][url];
+                CUcrawlTest.state['m'].push(CUcrawlTest.state['v'][url]);
+                delete CUcrawlTest.state['v'][url];
             }
         }
 
         // send them to track if needed
-        var ll = CUcrawl.state['m'].length;
+        var ll = CUcrawlTest.state['m'].length;
         if (ll > 0) {
-            var v = CUcrawl.state['m'].slice(0, ll);
-            CUcrawl.state['m'] = CUcrawl.state['m'].slice(ll, CUcrawl.state['m'].length);
+            var v = CUcrawlTest.state['m'].slice(0, ll);
+            CUcrawlTest.state['m'] = CUcrawlTest.state['m'].slice(ll, CUcrawlTest.state['m'].length);
 
             for(var i=0;i<v.length;i++) {
-                if (CUcrawl.UrlsCache.hasOwnProperty(v[i]['url'])){
-                    CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': v[i]});
+                if (CUcrawlTest.UrlsCache.hasOwnProperty(v[i]['url'])){
+                    CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'page', 'payload': v[i]});
                 }
             }
             // do a instant push on whatever is left on the track
-            CUcrawl.pushTrack();
+            CUcrawlTest.pushTrack();
         }
     },
     destroy: function() {
         //debugger;
-        CliqzUtils.log('destroy', CUcrawl.LOG_KEY);
+        CliqzUtils.log('destroy', CUcrawlTest.LOG_KEY);
 
         // send all the data
-        CUcrawl.pushAllData();
-        CliqzUtils.clearTimeout(CUcrawl.pacemakerId);
-        CliqzUtils.clearTimeout(CUcrawl.trkTimer);
-        CliqzUtils.log('end_destroy', CUcrawl.LOG_KEY);
+        CUcrawlTest.pushAllData();
+        CliqzUtils.clearTimeout(CUcrawlTest.pacemakerId);
+        CliqzUtils.clearTimeout(CUcrawlTest.trkTimer);
+        CliqzUtils.log('end_destroy', CUcrawlTest.LOG_KEY);
     },
     destroyAtBrowser: function(){
         //var activityDistributor = Components.classes["@mozilla.org/network/http-activity-distributor;1"]
         //                              .getService(Components.interfaces.nsIHttpActivityDistributor);
-        //CUcrawl.activityDistributor.removeObserver(CUcrawl.httpObserver);
+        //CUcrawlTest.activityDistributor.removeObserver(CUcrawlTest.httpObserver);
 
-        CUcrawl.activityDistributor.removeObserver(CUcrawl.httpObserver);
+        CUcrawlTest.activityDistributor.removeObserver(CUcrawlTest.httpObserver);
     },
     currentURL: function() {
         var currwin = CliqzUtils.getWindow();
@@ -1189,55 +1188,55 @@ var CUcrawl = {
     pacemakerId: null,
     // load from the about:config settings
     captureKeyPress: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['keypress']|0)) > 1 * CUcrawl.tmult && ((CUcrawl.counter - (CUcrawl.lastEv['keypresspage']|0)) > 1 * CUcrawl.tmult)) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureKeyPressAll', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['keypress']|0)) > 1 * CUcrawlTest.tmult && ((CUcrawlTest.counter - (CUcrawlTest.lastEv['keypresspage']|0)) > 1 * CUcrawlTest.tmult)) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureKeyPressAll', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['keypress'] = CUcrawl.counter;
-            CUcrawl.lastActiveAll = CUcrawl.counter;
+            CUcrawlTest.lastEv['keypress'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActiveAll = CUcrawlTest.counter;
         }
     },
     captureMouseMove: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['mousemove']|0)) > 1 * CUcrawl.tmult && ((CUcrawl.counter - (CUcrawl.lastEv['mousemovepage']|0)) > 1 * CUcrawl.tmult)) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureMouseMoveAll', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mousemove']|0)) > 1 * CUcrawlTest.tmult && ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mousemovepage']|0)) > 1 * CUcrawlTest.tmult)) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureMouseMoveAll', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['mousemove'] = CUcrawl.counter;
-            CUcrawl.lastActiveAll = CUcrawl.counter;
+            CUcrawlTest.lastEv['mousemove'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActiveAll = CUcrawlTest.counter;
         }
     },
     captureMouseClick: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['mouseclick']|0)) > 1 * CUcrawl.tmult && ((CUcrawl.counter - (CUcrawl.lastEv['mouseclickpage']|0)) > 1 * CUcrawl.tmult)) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureMouseClickAll', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mouseclick']|0)) > 1 * CUcrawlTest.tmult && ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mouseclickpage']|0)) > 1 * CUcrawlTest.tmult)) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureMouseClickAll', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['mouseclick'] = CUcrawl.counter;
-            CUcrawl.lastActiveAll = CUcrawl.counter;
+            CUcrawlTest.lastEv['mouseclick'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActiveAll = CUcrawlTest.counter;
         }
     },
     captureKeyPressPage: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['keypresspage']|0)) > 1 * CUcrawl.tmult) {
-            if (CUcrawl.debug) {
-                //CliqzUtils.log('captureKeyPressPage', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['keypresspage']|0)) > 1 * CUcrawlTest.tmult) {
+            if (CUcrawlTest.debug) {
+                //CliqzUtils.log('captureKeyPressPage', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['keypresspage'] = CUcrawl.counter;
-            CUcrawl.lastActive = CUcrawl.counter;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.state['v'][activeURL]!=null && CUcrawl.state['v'][activeURL]['a'] > 1*CUcrawl.tmult) {
-                CUcrawl.state['v'][activeURL]['e']['kp'] += 1;
+            CUcrawlTest.lastEv['keypresspage'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.state['v'][activeURL]!=null && CUcrawlTest.state['v'][activeURL]['a'] > 1*CUcrawlTest.tmult) {
+                CUcrawlTest.state['v'][activeURL]['e']['kp'] += 1;
             }
         }
     },
     captureMouseMovePage: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['mousemovepage']|0)) > 1 * CUcrawl.tmult) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureMouseMovePage', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mousemovepage']|0)) > 1 * CUcrawlTest.tmult) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureMouseMovePage', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['mousemovepage'] = CUcrawl.counter;
-            CUcrawl.lastActive = CUcrawl.counter;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.state['v'][activeURL]!=null && CUcrawl.state['v'][activeURL]['a'] > 1*CUcrawl.tmult) {
-                CUcrawl.state['v'][activeURL]['e']['mm'] += 1;
+            CUcrawlTest.lastEv['mousemovepage'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.state['v'][activeURL]!=null && CUcrawlTest.state['v'][activeURL]['a'] > 1*CUcrawlTest.tmult) {
+                CUcrawlTest.state['v'][activeURL]['e']['mm'] += 1;
             }
         }
     },
@@ -1253,8 +1252,8 @@ var CUcrawl = {
             }
         }
         catch(ee) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('Error in getURLFromEvent: ' + ee, CUcrawl.LOG_KEY);
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('Error in getURLFromEvent: ' + ee, CUcrawlTest.LOG_KEY);
             }
         }
         return null;
@@ -1264,67 +1263,67 @@ var CUcrawl = {
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
-        var targetURL = CUcrawl.getURLFromEvent(ev);
+        var targetURL = CUcrawlTest.getURLFromEvent(ev);
 
         if (targetURL!=null) {
 
-            var embURL = CUcrawl.getEmbeddedURL(targetURL);
+            var embURL = CUcrawlTest.getEmbeddedURL(targetURL);
             if (embURL!=null) targetURL = embURL;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureMouseClickPage>> ' + CUcrawl.counter + ' ' + targetURL  + ' : ' + " active: " + activeURL + " " + (CUcrawl.state['v'][activeURL]!=null) + " " + ev.target + ' :: ' + ev.target.value  + ' >>' + JSON.stringify(CUcrawl.lastEv), CUcrawl.LOG_KEY);
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureMouseClickPage>> ' + CUcrawlTest.counter + ' ' + targetURL  + ' : ' + " active: " + activeURL + " " + (CUcrawlTest.state['v'][activeURL]!=null) + " " + ev.target + ' :: ' + ev.target.value  + ' >>' + JSON.stringify(CUcrawlTest.lastEv), CUcrawlTest.LOG_KEY);
             }
 
-            //var activeURL = CUcrawl.currentURL();
+            //var activeURL = CUcrawlTest.currentURL();
 
-            if (CUcrawl.state['v'][activeURL]!=null) {
+            if (CUcrawlTest.state['v'][activeURL]!=null) {
                 //Fix same link in 'l'
                 //Only add if gur. that they are public and the link exists in the double fetch page(Public).it's available on the public page.Such
                 //check is not done, therefore we do not push the links clicked on that page. - potential record linkage.
 
-                //CUcrawl.state['v'][activeURL]['c'].push({'l': ''+ CUcrawl.maskURL(targetURL), 't': CUcrawl.counter});
-                CUcrawl.linkCache[targetURL] = {'s': ''+activeURL, 'time': CUcrawl.counter};
+                //CUcrawlTest.state['v'][activeURL]['c'].push({'l': ''+ CUcrawlTest.maskURL(targetURL), 't': CUcrawlTest.counter});
+                CUcrawlTest.linkCache[targetURL] = {'s': ''+activeURL, 'time': CUcrawlTest.counter};
                 //Need a better fix, can't locate the cache.
-                //CUcrawl.addURLtoDB(activeURL, CUcrawl.state['v'][activeURL]['ref'], CUcrawl.state['v'][activeURL]);
+                //CUcrawlTest.addURLtoDB(activeURL, CUcrawlTest.state['v'][activeURL]['ref'], CUcrawlTest.state['v'][activeURL]);
             }
         }
 
-        if ((CUcrawl.counter - (CUcrawl.lastEv['mouseclickpage']|0)) > 1 * CUcrawl.tmult) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureMouseClickPage', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['mouseclickpage']|0)) > 1 * CUcrawlTest.tmult) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureMouseClickPage', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['mouseclickpage'] = CUcrawl.counter;
-            CUcrawl.lastActive = CUcrawl.counter;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.state['v'][activeURL]!=null && CUcrawl.state['v'][activeURL]['a'] > 1*CUcrawl.tmult) {
-                CUcrawl.state['v'][activeURL]['e']['md'] += 1;
+            CUcrawlTest.lastEv['mouseclickpage'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.state['v'][activeURL]!=null && CUcrawlTest.state['v'][activeURL]['a'] > 1*CUcrawlTest.tmult) {
+                CUcrawlTest.state['v'][activeURL]['e']['md'] += 1;
             }
         }
     },
     captureScrollPage: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['scrollpage']|0)) > 1 * CUcrawl.tmult) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureScrollPage ', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['scrollpage']|0)) > 1 * CUcrawlTest.tmult) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureScrollPage ', CUcrawlTest.LOG_KEY);
             }
 
-            CUcrawl.lastEv['scrollpage'] = CUcrawl.counter;
-            CUcrawl.lastActive = CUcrawl.counter;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.state['v'][activeURL]!=null && CUcrawl.state['v'][activeURL]['a'] > 1*CUcrawl.tmult) {
-                CUcrawl.state['v'][activeURL]['e']['sc'] += 1;
+            CUcrawlTest.lastEv['scrollpage'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.state['v'][activeURL]!=null && CUcrawlTest.state['v'][activeURL]['a'] > 1*CUcrawlTest.tmult) {
+                CUcrawlTest.state['v'][activeURL]['e']['sc'] += 1;
             }
         }
     },
     captureCopyPage: function(ev) {
-        if ((CUcrawl.counter - (CUcrawl.lastEv['copypage']|0)) > 1 * CUcrawl.tmult) {
-            if (CUcrawl.debug) {
-                CliqzUtils.log('captureCopyPage', CUcrawl.LOG_KEY);
+        if ((CUcrawlTest.counter - (CUcrawlTest.lastEv['copypage']|0)) > 1 * CUcrawlTest.tmult) {
+            if (CUcrawlTest.debug) {
+                CliqzUtils.log('captureCopyPage', CUcrawlTest.LOG_KEY);
             }
-            CUcrawl.lastEv['copypage'] = CUcrawl.counter;
-            CUcrawl.lastActive = CUcrawl.counter;
-            var activeURL = CUcrawl.currentURL();
-            if (CUcrawl.state['v'][activeURL]!=null && CUcrawl.state['v'][activeURL]['a'] > 1*CUcrawl.tmult) {
-                CUcrawl.state['v'][activeURL]['e']['cp'] += 1;
+            CUcrawlTest.lastEv['copypage'] = CUcrawlTest.counter;
+            CUcrawlTest.lastActive = CUcrawlTest.counter;
+            var activeURL = CUcrawlTest.currentURL();
+            if (CUcrawlTest.state['v'][activeURL]!=null && CUcrawlTest.state['v'][activeURL]['a'] > 1*CUcrawlTest.tmult) {
+                CUcrawlTest.state['v'][activeURL]['e']['cp'] += 1;
             }
         }
     },
@@ -1337,8 +1336,8 @@ var CUcrawl = {
     getAllOpenPages: function() {
         var res = [];
         try {
-            for (var j = 0; j < CUcrawl.windowsRef.length; j++) {
-                var gBrowser = CUcrawl.windowsRef[j].gBrowser;
+            for (var j = 0; j < CUcrawlTest.windowsRef.length; j++) {
+                var gBrowser = CUcrawlTest.windowsRef[j].gBrowser;
                 if (gBrowser.tabContainer) {
                     var numTabs = gBrowser.tabContainer.childNodes.length;
                     for (var i=0; i<numTabs; i++) {
@@ -1360,34 +1359,34 @@ var CUcrawl = {
     windowsRef: [],
     windowsMem: {},
     init: function(window) {
-        CliqzUtils.log("Init function called:", CUcrawl.LOG_KEY)
-        CUcrawl.initDB();
+        CliqzUtils.log("Init function called:", CUcrawlTest.LOG_KEY)
+        CUcrawlTest.initDB();
         var win_id = CliqzUtils.getWindowID()
 
-        if (CUcrawl.state == null) {
-            CUcrawl.state = {};
+        if (CUcrawlTest.state == null) {
+            CUcrawlTest.state = {};
         }
         else {
 
             var util = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
             var win_id = util.outerWindowID;
 
-            if (CUcrawl.windowsMem[win_id] == null) {
-                CUcrawl.windowsMem[win_id] = window;
-                CUcrawl.windowsRef.push(window);
+            if (CUcrawlTest.windowsMem[win_id] == null) {
+                CUcrawlTest.windowsMem[win_id] = window;
+                CUcrawlTest.windowsRef.push(window);
             }
         }
 
         var util = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
         var win_id = util.outerWindowID;
 
-        if (CUcrawl.windowsMem[win_id] == null) {
-            CUcrawl.windowsMem[win_id] = window;
-            CUcrawl.windowsRef.push(window);
+        if (CUcrawlTest.windowsMem[win_id] == null) {
+            CUcrawlTest.windowsMem[win_id] = window;
+            CUcrawlTest.windowsRef.push(window);
         }
 
-        if (CUcrawl.pacemakerId==null) {
-            CUcrawl.pacemakerId = CliqzUtils.setInterval(CUcrawl.pacemaker, CUcrawl.tpace, null);
+        if (CUcrawlTest.pacemakerId==null) {
+            CUcrawlTest.pacemakerId = CliqzUtils.setInterval(CUcrawlTest.pacemaker, CUcrawlTest.tpace, null);
         }
 
         //Check health
@@ -1395,8 +1394,8 @@ var CUcrawl = {
             function(res){
             if(res && res.response){
                 try {
-                    if (CUcrawl.debug) {
-                        CliqzUtils.log('Healthcheck success', CUcrawl.LOG_KEY);
+                    if (CUcrawlTest.debug) {
+                        CliqzUtils.log('Healthcheck success', CUcrawlTest.LOG_KEY);
                     }
                 } catch(e){}
             }
@@ -1404,18 +1403,18 @@ var CUcrawl = {
 
     },
     initAtBrowser: function(){
-        CUcrawl.activityDistributor.addObserver(CUcrawl.httpObserver);
+        CUcrawlTest.activityDistributor.addObserver(CUcrawlTest.httpObserver);
     },
     state: {'v': {}, 'm': [], '_id': Math.floor( Math.random() * 1000 ) },
     hashCode: function(s) {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     },
     msgSanitize: function(msg){
-        CliqzUtils.log('Sanitize: ' , "CUcrawl.pushTrack");
+        CliqzUtils.log('Sanitize: ' , "CUcrawlTest.pushTrack");
 
         //Remove time
 
-        msg.ts = CUcrawl.getTime();
+        msg.ts = CUcrawlTest.getTime();
         
         delete msg.payload.tend;
         delete msg.payload.tin;
@@ -1424,8 +1423,8 @@ var CUcrawl = {
         // handled beforehand!!!
         //Canonical URLs and Referrals.
 
-        if(CUcrawl.can_urls[msg.payload.url]){
-            msg.payload.url = CUcrawl.can_urls[msg.payload.url];
+        if(CUcrawlTest.can_urls[msg.payload.url]){
+            msg.payload.url = CUcrawlTest.can_urls[msg.payload.url];
         }
 
         //Remove ref.
@@ -1455,14 +1454,14 @@ var CUcrawl = {
         if (!CUcrawl) return; //might be called after the module gets unloaded
         if (CliqzUtils.ucrawlPrefs.getBoolPref('dnt')) return;
 
-        msg.ver = CUcrawl.VERSION;
-        msg = CUcrawl.msgSanitize(msg);
-        CUcrawl.trk.push(msg);
-        CliqzUtils.clearTimeout(CUcrawl.trkTimer);
-        if(instantPush || CUcrawl.trk.length % 100 == 0){
-            CUcrawl.pushTrack();
+        msg.ver = CUcrawlTest.VERSION;
+        msg = CUcrawlTest.msgSanitize(msg);
+        CUcrawlTest.trk.push(msg);
+        CliqzUtils.clearTimeout(CUcrawlTest.trkTimer);
+        if(instantPush || CUcrawlTest.trk.length % 100 == 0){
+            CUcrawlTest.pushTrack();
         } else {
-            CUcrawl.trkTimer = CliqzUtils.setTimeout(CUcrawl.pushTrack, 60000);
+            CUcrawlTest.trkTimer = CliqzUtils.setTimeout(CUcrawlTest.pushTrack, 60000);
         }
     },
     _track_req: null,
@@ -1470,60 +1469,60 @@ var CUcrawl = {
     _track_start: undefined,
     TRACK_MAX_SIZE: 500,
     pushTrack: function() {
-        if(CUcrawl._track_req) return;
+        if(CUcrawlTest._track_req) return;
 
         // put current data aside in case of failure
-        CUcrawl._track_sending = CUcrawl.trk.slice(0);
-        CUcrawl.trk = [];
-        CUcrawl._track_start = (new Date()).getTime();
+        CUcrawlTest._track_sending = CUcrawlTest.trk.slice(0);
+        CUcrawlTest.trk = [];
+        CUcrawlTest._track_start = (new Date()).getTime();
 
-        CUcrawl._track_req = CliqzUtils.httpPost(CliqzUtils.getPref('safe_browsing_events', null), CUcrawl.pushTrackCallback, JSON.stringify(CUcrawl._track_sending), CUcrawl.pushTrackError);
+        CUcrawlTest._track_req = CliqzUtils.httpPost(CliqzUtils.getPref('safe_browsing_events', null), CUcrawlTest.pushTrackCallback, JSON.stringify(CUcrawlTest._track_sending), CUcrawlTest.pushTrackError);
     },
     pushTrackCallback: function(req){
         try {
             var response = JSON.parse(req.response);
-            CUcrawl._track_sending = [];
-            CUcrawl._track_req = null;
+            CUcrawlTest._track_sending = [];
+            CUcrawlTest._track_req = null;
         } catch(e){}
     },
     pushTrackError: function(req){
         // pushTrack failed, put data back in queue to be sent again later
-        CliqzUtils.log('push tracking failed: ' + CUcrawl._track_sending.length + ' elements', "CUcrawl.pushTrack");
-        CUcrawl.trk = CUcrawl._track_sending.concat(CUcrawl.trk);
+        CliqzUtils.log('push tracking failed: ' + CUcrawlTest._track_sending.length + ' elements', "CUcrawlTest.pushTrack");
+        CUcrawlTest.trk = CUcrawlTest._track_sending.concat(CUcrawlTest.trk);
 
         // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-        var slice_pos = CUcrawl.trk.length - CUcrawl.TRACK_MAX_SIZE + 100;
+        var slice_pos = CUcrawlTest.trk.length - CUcrawlTest.TRACK_MAX_SIZE + 100;
         if(slice_pos > 0){
-            CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CUcrawl.pushTrack");
-            CUcrawl.trk = CUcrawl.trk.slice(slice_pos);
+            CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CUcrawlTest.pushTrack");
+            CUcrawlTest.trk = CUcrawlTest.trk.slice(slice_pos);
         }
 
-        CUcrawl._track_sending = [];
-        CUcrawl._track_req = null;
+        CUcrawlTest._track_sending = [];
+        CUcrawlTest._track_req = null;
     },
     // ************************ Database ***********************
     // Stolen from modules/CliqzHistory
     // *********************************************************
     initDB: function() {
-        if ( FileUtils.getFile("ProfD", ["moz.dbusafe"]).exists() ) {
-            if (CUcrawl.dbConn==null) {
-                CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafe"]));
+        if ( FileUtils.getFile("ProfD", ["moz.test.dbusafe"]).exists() ) {
+            if (CUcrawlTest.dbConn==null) {
+                CUcrawlTest.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
                 //Load the public url's cache:
-                //CUcrawl.checkTableExists()
-                //if(CUcrawl.checkTableExists() == true){
+                //CUcrawlTest.checkTableExists()
+                //if(CUcrawlTest.checkTableExists() == true){
                
                 //}
                 //else{
-                //    CUcrawl.createTable();
+                //    CUcrawlTest.createTable();
                 //}
                 
                 //var checkTable = "select name from sqlite_master where type='table' and name='usafe'";
-                //CliqzUtils.log('Exists table?: ' + CUcrawl.dbConn.executeSimpleSQL(checkTable),CUcrawl.LOG_KEY);
+                //CliqzUtils.log('Exists table?: ' + CUcrawlTest.dbConn.executeSimpleSQL(checkTable),CUcrawlTest.LOG_KEY);
             }
             return;
         }
         else {
-            CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafe"]));
+            CUcrawlTest.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
             var usafe = "create table usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
                 ref VARCHAR(255),\
@@ -1535,19 +1534,19 @@ var CUcrawl = {
                 payload VARCHAR(4096) \
             )";
 
-            CUcrawl.dbConn.executeSimpleSQL(usafe);
+            CUcrawlTest.dbConn.executeSimpleSQL(usafe);
         }
 
     },
     dbConn: null,
     auxSameDomain: function(url1, url2) {
-        var d1 = CUcrawl.parseURL(url1).hostname.replace('www.','');
-        var d2 = CUcrawl.parseURL(url2).hostname.replace('www.','');
+        var d1 = CUcrawlTest.parseURL(url1).hostname.replace('www.','');
+        var d2 = CUcrawlTest.parseURL(url2).hostname.replace('www.','');
         return d1==d2;
     },
     getPageFromDB: function(url, callback) {
         var res = [];
-        var st = CUcrawl.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
+        var st = CUcrawlTest.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
         st.params.url = url;
         var res = [];
         st.executeAsync({
@@ -1557,12 +1556,12 @@ var CUcrawl = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
+                CliqzUtils.log("SQL error: " + aError.message, CUcrawlTest.LOG_KEY);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CUcrawl.LOG_KEY);
+                    CliqzUtils.log("SQL canceled or aborted", CUcrawlTest.LOG_KEY);
                     callback(null);
                 }
                 else {
@@ -1582,10 +1581,10 @@ var CUcrawl = {
         // returns -1 if not checked yet, handled as public in this cases,
 
         var res = [];
-        var st = CUcrawl.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
+        var st = CUcrawlTest.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
         st.params.url = url;
 
-        // CUcrawl.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
+        // CUcrawlTest.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
         var res = [];
         st.executeAsync({
             handleResult: function(aResultSet) {
@@ -1594,20 +1593,20 @@ var CUcrawl = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
+                CliqzUtils.log("SQL error: " + aError.message, CUcrawlTest.LOG_KEY);
                 callback(true);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CUcrawl.LOG_KEY);
+                    CliqzUtils.log("SQL canceled or aborted", CUcrawlTest.LOG_KEY);
                     callback(true);
                 }
                 else {
                     if (res.length == 1) {
                         // the urls already exists in the DB, it has been seen before
                         if (res[0].ref!='' && res[0].ref!=null) {
-                            if (CUcrawl.auxSameDomain(res[0].ref, url)) {
-                                CUcrawl.isPrivate(res[0].ref, function(priv) {
+                            if (CUcrawlTest.auxSameDomain(res[0].ref, url)) {
+                                CUcrawlTest.isPrivate(res[0].ref, function(priv) {
                                     callback(priv);
                                 });
                             }
@@ -1658,7 +1657,7 @@ var CUcrawl = {
             var s = v.slice(1, v.length).join('://');
             v = s.split('/');
 
-            var oh = CUcrawl.parseHostname(v[0]);
+            var oh = CUcrawlTest.parseHostname(v[0]);
             o['hostname'] = oh['hostname'];
             o['port'] = oh['port'];
             o['username'] = oh['username'];
@@ -1699,7 +1698,7 @@ var CUcrawl = {
 
 
 
-        var stmt = CUcrawl.dbConn.createStatement("SELECT url, checked FROM usafe WHERE url = :url");
+        var stmt = CUcrawlTest.dbConn.createStatement("SELECT url, checked FROM usafe WHERE url = :url");
         stmt.params.url = url;
 
         var res = [];
@@ -1710,20 +1709,20 @@ var CUcrawl = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
+                CliqzUtils.log("SQL error: " + aError.message, CUcrawlTest.LOG_KEY);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CUcrawl.LOG_KEY);
+                    CliqzUtils.log("SQL canceled or aborted", CUcrawlTest.LOG_KEY);
                 }
                 else {
                     if (res.length == 0) {
                         // we never seen it, let's add it
                         paylobj['ft'] = true;
 
-                        if (CUcrawl.debug) CliqzUtils.log("insert Pagepayload" + CUcrawl.state['v'][url] ,CUcrawl.LOG_KEY);
+                        if (CUcrawlTest.debug) CliqzUtils.log("insert Pagepayload" + CUcrawlTest.state['v'][url] ,CUcrawlTest.LOG_KEY);
 
-                        var st = CUcrawl.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload)");
+                        var st = CUcrawlTest.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload)");
                         st.params.url = url;
                         st.params.ref = ref;
                         st.params.last_visit = tt;
@@ -1736,14 +1735,14 @@ var CUcrawl = {
                             st.params.private = 1;
                             st.params.reason = 'empty page data';
                         }
-                        else if (CUcrawl.isSuspiciousURL(url)) {
+                        else if (CUcrawlTest.isSuspiciousURL(url)) {
                             // if the url looks private already add it already as checked and private
                             st.params.checked = 1;
                             st.params.private = 1;
                             st.params.reason = 'susp. url';
                         }
                         else {
-                            if (CUcrawl.httpCache401[url]) {
+                            if (CUcrawlTest.httpCache401[url]) {
                                 st.params.checked = 1;
                                 st.params.private = 1;
                                 st.params.reason = '401';
@@ -1759,19 +1758,19 @@ var CUcrawl = {
                     }
                     /*
                     else if ((res.length > 0)) {
-                        CliqzUtils.log(JSON.stringify(paylobj || {}), CUcrawl.LOG_KEY);
+                        CliqzUtils.log(JSON.stringify(paylobj || {}), CUcrawlTest.LOG_KEY);
 
-                        var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET payload = :payload WHERE url = :url");
+                        var st = CUcrawlTest.dbConn.createStatement("UPDATE usafe SET payload = :payload WHERE url = :url");
                         st.params.url = url;
                         st.params.payload = JSON.stringify(paylobj || {});
                         while (st.executeStep()) {};
                     }
                     */
                     else {
-                        //CliqzUtils.log("Res == 0, pushing in DB: " + tt + url + JSON.stringify(paylobj || {}), CUcrawl.LOG_KEY);
+                        //CliqzUtils.log("Res == 0, pushing in DB: " + tt + url + JSON.stringify(paylobj || {}), CUcrawlTest.LOG_KEY);
                         // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
                         if (res[0]['checked']==0) {
-                            var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload WHERE url = :url");
+                            var st = CUcrawlTest.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload WHERE url = :url");
                             st.params.url = url;
                             st.params.last_visit = tt;
                             st.params.payload = JSON.stringify(paylobj || {});
@@ -1785,7 +1784,7 @@ var CUcrawl = {
         });
     },
     setAsPrivate: function(url) {
-        var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
+        var st = CUcrawlTest.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
         st.params.url = url;
         st.params.checked = 1;
         st.params.private = 1;
@@ -1793,23 +1792,23 @@ var CUcrawl = {
         // Update the private cache
     },
     setAsPublic: function(url) {
-        var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
+        var st = CUcrawlTest.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
         st.params.url = url;
         st.params.checked = 1;
         st.params.private = 0;
         while (st.executeStep()) {};
         // Update the main cache
-        CUcrawl.UrlsCache[url] = true;
+        CUcrawlTest.UrlsCache[url] = true;
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
         var tt = new Date().getTime();
         var stmt = null;
         if (fixed_url == null) {
             // all urls
-            stmt = CUcrawl.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
+            stmt = CUcrawlTest.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
         }
         else {
-            stmt = CUcrawl.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit and url = :url;");
+            stmt = CUcrawlTest.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit and url = :url;");
             stmt.params.url = fixed_url;
         }
         stmt.params.last_visit = (tt - sec_old*1000);
@@ -1823,11 +1822,11 @@ var CUcrawl = {
                 }
             },
             handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
+                CliqzUtils.log("SQL error: " + aError.message, CUcrawlTest.LOG_KEY);
             },
             handleCompletion: function(aReason) {
                 if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
-                    CliqzUtils.log("SQL canceled or aborted", CUcrawl.LOG_KEY);
+                    CliqzUtils.log("SQL canceled or aborted", CUcrawlTest.LOG_KEY);
                 }
                 else {
                     callback(res.splice(0,cap), null);
@@ -1841,33 +1840,33 @@ var CUcrawl = {
             var page_doc = listOfUncheckedUrls[i][1];
             var page_struct_before = page_doc['x'];
 
-            CUcrawl.isPrivate(url, function(isPrivate) {
+            CUcrawlTest.isPrivate(url, function(isPrivate) {
                 if (isPrivate) {
-                    var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
+                    var st = CUcrawlTest.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
                     st.params.url = url;
                     st.params.checked = 1;
                     st.params.private = 1;
                     st.params.reason = 'priv. st.';
                     while (st.executeStep()) {};
                     // Update the Public urls' cache.
-                    delete CUcrawl.UrlsCache[url];
+                    delete CUcrawlTest.UrlsCache[url];
                 }
                 else {
-                    CUcrawl.doubleFetch(url, page_struct_before, page_doc);
+                    CUcrawlTest.doubleFetch(url, page_struct_before, page_doc);
                 }
             });
         }
     },
-    // to invoke in console: CUcrawl.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
+    // to invoke in console: CUcrawlTest.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
     forceDoubleFetch(url) {
-        CUcrawl.listOfUnchecked(1000000000000, 0, url, CUcrawl.processUnchecks);
+        CUcrawlTest.listOfUnchecked(1000000000000, 0, url, CUcrawlTest.processUnchecks);
     },
     outOfABTest: function() {
-        CUcrawl.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+        CUcrawlTest.dbConn.executeSimpleSQL('DROP TABLE usafe;');
     },
     removeTable: function(reason) {
         try{
-            CUcrawl.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+            CUcrawlTest.dbConn.executeSimpleSQL('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {

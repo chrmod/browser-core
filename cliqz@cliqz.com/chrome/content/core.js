@@ -50,6 +50,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
   'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawlTest',
+  'chrome://cliqzmodules/content/CUcrawlTest.jsm');
+
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -160,6 +163,11 @@ CLIQZ.Core = CLIQZ.Core || {
                 window.gBrowser.addProgressListener(CliqzUCrawl.listener);
             }
 
+            if(CliqzUtils.getPref("safeBrowsing", false)){
+                CUcrawlTest.init(window);
+                window.gBrowser.addProgressListener(CUcrawlTest.listener);
+            }
+
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
                 var tabs = window.gBrowser.tabs;
@@ -263,6 +271,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeProgressListener(CliqzUCrawl.listener);
+            window.gBrowser.removeProgressListener(CUcrawlTest.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
