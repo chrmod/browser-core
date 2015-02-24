@@ -81,6 +81,7 @@ var UI = {
         var resultsBox = document.getElementById('cliqz-results',box);
 
         resultsBox.addEventListener('click', resultClick);
+        resultsBox.addEventListener('scroll', resultScroll);
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
@@ -679,6 +680,12 @@ function getResultOrChildAttr(el, attr){
         el = el.parentElement;
     }
     return '';
+}
+
+
+// user scroll event
+function resultScroll(ev) {
+    CliqzAutocomplete.hasUserScrolledCurrentResults = true;
 }
 
 function resultClick(ev){

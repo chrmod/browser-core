@@ -53,6 +53,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
 XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawlTest',
   'chrome://cliqzmodules/content/CUcrawlTest.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
+  'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
@@ -96,6 +98,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
         CliqzHistoryPattern.preloadColors();
+        if(CliqzUtils.getPref('categoryAssessment', false)){
+            CliqzCategories.init();
+        }
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -310,6 +315,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.ResultProviders;
+            delete window.CliqzCategories;
             delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
@@ -327,8 +333,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;
+        CliqzAutocomplete.isPopupOpen = false;                
         CliqzAutocomplete.resetSpellCorr();
+        CliqzAutocomplete.markResultsDone(null);        
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {

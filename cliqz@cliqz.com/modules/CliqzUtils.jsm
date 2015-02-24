@@ -95,6 +95,9 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
+    // Ensure prefs are set to our custom values
+    CliqzUtils.setOurOwnPrefs();
+
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -213,6 +216,9 @@ var CliqzUtils = {
 
       return ret;
   },
+  hash: function(s){
+    return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
+  },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
         var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
@@ -271,7 +277,7 @@ var CliqzUtils = {
 
     var urlDetails = {
               name: name,
-              domain: name + tld,
+              domain: name + '.' + tld,
               tld: tld,
               subdomains: subdomains,
               path: path,
@@ -838,8 +844,6 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */

@@ -121,6 +121,9 @@ var CliqzABTests = CliqzABTests || {
             case "1023_B":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
+            case "1024_B":
+                CliqzUtils.setPref("categoryAssessment", true);
+                break;
 
 
             default:
@@ -242,6 +245,9 @@ var CliqzABTests = CliqzABTests || {
             case "1023_A":
             case "1023_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                break;
+            case "1024_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
 
             default:
