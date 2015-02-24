@@ -851,8 +851,12 @@ function enhanceResults(res){
                 [r.title, r.tags] = getTags(r.title);
         }
 
-        if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
-            r.logo.force_cliqz = true;
+        if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
+            r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
+            r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
+            r.logo.add_logo_url = true;
+        }
+
     }
 
 
