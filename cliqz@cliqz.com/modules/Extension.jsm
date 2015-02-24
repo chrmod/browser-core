@@ -66,7 +66,10 @@ var Extension = {
         }
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
-        CUcrawlTest.initAtBrowser();
+
+        if(CliqzUtils.getPref("safeBrowsingMoz", false)){
+            CUcrawlTest.initAtBrowser();
+        }
 
         // open changelog on update
         if(upgrade && CliqzUtils.getPref('showChangelog', false)){
