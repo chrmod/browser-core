@@ -1104,7 +1104,8 @@ var CUcrawlTest = {
                 // must create the signal
                 //
                 if (CUcrawlTest.userTransitions['search'][query]['data'].length > 1) {
-                    var doc = {'q': query, 'sources': CUcrawlTest.userTransitions['search'][query]['data'], 't': CUcrawlTest.getTime()};
+                    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                    var doc = {'q': query, 'sources': CUcrawlTest.userTransitions['search'][query]['data'], 't': CUcrawlTest.getTime(), 'ctry': location};
                     if (CUcrawlTest.debug) {
                         CliqzUtils.log(JSON.stringify(doc,undefined,2), CUcrawlTest.LOG_KEY);
                     }
@@ -1389,6 +1390,7 @@ var CUcrawlTest = {
             CUcrawlTest.pacemakerId = CliqzUtils.setInterval(CUcrawlTest.pacemaker, CUcrawlTest.tpace, null);
         }
 
+
         //Check health
         CliqzUtils.httpGet(CliqzUtils.getPref('safe_browsing_events', null),
             function(res){
@@ -1440,6 +1442,7 @@ var CUcrawlTest = {
           }
         }
 
+        
         //Remove the msg if the query is too long,
 
         if(msg.action=='query') {
@@ -1465,6 +1468,7 @@ var CUcrawlTest = {
 
             }
         }
+        
 
         return msg;
 
@@ -1481,6 +1485,7 @@ var CUcrawlTest = {
 
         msg.ver = CUcrawlTest.VERSION;
         msg = CUcrawlTest.msgSanitize(msg);
+        CliqzUtils.log('Sanitize: ' + JSON.stringify(msg) , "CUcrawlTest.pushTrack");
         if (msg) CUcrawlTest.trk.push(msg);
         CliqzUtils.clearTimeout(CUcrawlTest.trkTimer);
         if(instantPush || CUcrawlTest.trk.length % 100 == 0){

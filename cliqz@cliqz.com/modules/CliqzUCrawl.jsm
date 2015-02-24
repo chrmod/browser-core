@@ -27,7 +27,7 @@ var CliqzUCrawl = {
     VERSION: '0.04',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -265,7 +265,7 @@ var CliqzUCrawl = {
       if (CliqzUCrawl.debug) {
         CliqzUtils.log("doubleFetch for: " + url, CliqzUCrawl.LOG_KEY);
       }
-
+      CliqzUtils.log("doubleFetch for: " + CliqzUCrawl.debug, CliqzUCrawl.LOG_KEY);
       var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
 
       // hack to modify,
@@ -297,9 +297,17 @@ var CliqzUCrawl = {
       */
 
       //req.open('GET', url, true, ' ', null);
-      req.open('GET', url, true);
-      req.overrideMimeType('text/html');
-      req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
+      try{
+        req.open('GET', url, true);
+        req.overrideMimeType('text/html');
+        req.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
+        }
+        catch(ee){
+            //Cases where in url starting from resource:// get loaded, should be handled at the starting.
+            CliqzUCrawl.setAsPrivate(url);
+            return;
+        }
+
       // thank God to standard: http://www.w3.org/TR/XMLHttpRequest/
       //req.setRequestHeader("Authorization", "true");
 
@@ -718,6 +726,7 @@ var CliqzUCrawl = {
       CliqzUtils.log('destroy', CliqzUCrawl.LOG_KEY);
       CliqzUCrawl.pushAllData();
       CliqzUtils.clearTimeout(CliqzUCrawl.pacemakerId);
+      CliqzUtils.clearTimeout(CliqzUCrawl.trkTimer);
       CliqzUtils.log('end_destroy', CliqzUCrawl.LOG_KEY);
     },
     currentURL: function() {
@@ -1059,7 +1068,7 @@ var CliqzUCrawl = {
       st.executeAsync({
         handleResult: function(aResultSet) {
           for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-            res.push({"url": row.getResultByName("url"), "ref": row.getResultByName("ref"), "private": row.getResultByName("private"), "checked": row.getResultByName("private")});
+            res.push({"url": row.getResultByName("url"), "ref": row.getResultByName("ref"), "private": row.getResultByName("private"), "checked": row.getResultByName("checked")});
           }
         },
         handleError: function(aError) {

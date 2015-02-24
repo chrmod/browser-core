@@ -17,7 +17,7 @@ function startup(aData, aReason) {
 
 function shutdown(aData, aReason) {
     CliqzUCrawl.destroy();
-    CUcrawlTest.destroy()
+    CUcrawlTest.destroy();
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;

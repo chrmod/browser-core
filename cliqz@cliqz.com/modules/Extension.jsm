@@ -65,6 +65,7 @@ var Extension = {
         }
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
+        CUcrawlTest.initAtBrowser();
 
         // open changelog on update
         if(upgrade && CliqzUtils.getPref('showChangelog', false)){
@@ -75,6 +76,7 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
+        CUcrawlTest.destroyAtBrowser();
         if(uninstall){
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
