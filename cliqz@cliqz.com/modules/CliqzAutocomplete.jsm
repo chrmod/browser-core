@@ -119,7 +119,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             'correctBack': {},
             'override': false,
             'pushed': null
-        }
+        };
     },
     initProvider: function(){
         CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
@@ -339,7 +339,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
-                //CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
 
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
@@ -504,6 +503,17 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
+                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                // if (CliqzAutocomplete.lastAutocomplete) {
+                //     let lastACUrl = CliqzAutocomplete.lastAutocomplete.
+                //             replace('http://', '').replace('https://', '').replace('www.', '');
+                //     if (lastACUrl.indexOf(searchString) == 0) {
+                //         urlbar.mInputField.value = lastACUrl;
+                //         urlbar.mInputField.setSelectionRange(
+                //             searchString.length, lastACUrl.length);
+                //     }
+                // }
+
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastResult = null;
@@ -519,7 +529,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
-
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
@@ -531,7 +540,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 searchString = this.analyzeQuery(searchString);
 
                 // spell correction
-                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
                 searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
                 CliqzAutocomplete.lastSearch = searchString;
 
@@ -549,7 +557,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.wrongSearchString = searchString;
                 if (newSearchString != searchString) {
                     // the local spell checker kicks in
-                    var action = {
+                    action = {
                         type: 'activity',
                         action: 'spell_correction',
                         current_length: searchString.length
@@ -570,10 +578,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.searchStringSuggest = null;
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
-                        this.searchString,
-                        Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
-                        -2, // blocks autocomplete
-                        '');
+                    this.searchString,
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
+                    -2,  // blocks autocomplete
+                    '');
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
@@ -627,7 +635,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
                 this.historyTimeout = false;
             },
-
             /**
             * Stops an asynchronous search that is in progress
             */

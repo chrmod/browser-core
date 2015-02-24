@@ -330,7 +330,7 @@ var UI = {
 
         var pos = allArrowable.indexOf(sel);
 
-        UI.lastInputTime = (new Date()).getTime()
+        UI.lastInputTime = Date.now();
         switch(ev.keyCode) {
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
@@ -360,7 +360,7 @@ var UI = {
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
+                    CliqzAutocomplete.spellCorr.override = true;
                 }
 
                 return true;
