@@ -40,7 +40,7 @@ CliqzUtils.setPref('showDebugLogs', true);
 var CUcrawlTest = {
     VERSION: 'moz-test 0.01',
     WAIT_TIME: 2000,
-    LOG_KEY: 'mucrawl',
+    LOG_KEY: 'moz-test-ucrawl',
     debug: true,
     httpCache: {},
     httpCache401: {},
@@ -54,7 +54,7 @@ var CUcrawlTest = {
     can_urls: {},
     deadFiveMts: 5,
     deadTwentyMts: 20,
-    msgType:'mucrawl',
+    msgType:'moz-test-ucrawl',
     userTransitions: {
         search: {}
     },
@@ -846,7 +846,7 @@ var CUcrawlTest = {
                         currwin.setTimeout(function(currURLAtTime) {
 
                             // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
-                            if (CUcrawl) {
+                            if (CUcrawlTest) {
                                 try {
 
                                     // FIXME: this begs for refactoring!!
@@ -1438,8 +1438,33 @@ var CUcrawlTest = {
           if(msg.payload.qr.d > 2){
             delete msg.payload.qr;
           }
-        } 
-               
+        }
+
+        //Remove the msg if the query is too long,
+
+        if(msg.action=='query') {
+            //Remove the msg if the query is too long,
+            if ((msg.payload.q == null) || (msg.payload.q == '')) {
+                return null;
+            }
+            else {
+                //Remove the msg if the query is too long,
+                if (msg.payload.q.length > 50) return null;
+                if (msg.payload.q.split(' ').length > 7) return null;
+                //Remove if query looks like an http pass
+                if (/[^:]+:[^@]+@/.test(msg.payload.q)) return null;
+                //Remove if email
+                if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(msg.payload.q)) return null;
+
+                var v = msg.payload.q.split(' ');
+                for(let i=0;i<v.length;i++) {
+                    if (v[i].length > 20) return null;
+                    if (/[^:]+:[^@]+@/.test(v[i])) return null;
+                    if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return null;
+                }
+
+            }
+        }
 
         return msg;
 
@@ -1451,12 +1476,12 @@ var CUcrawlTest = {
     trk: [],
     trkTimer: null,
     track: function(msg, instantPush) {
-        if (!CUcrawl) return; //might be called after the module gets unloaded
-        if (CliqzUtils.ucrawlPrefs.getBoolPref('dnt')) return;
+        if (!CUcrawlTest) return; //might be called after the module gets unloaded
+        if (CliqzUtils.getPref('dnt', false)) return;
 
         msg.ver = CUcrawlTest.VERSION;
         msg = CUcrawlTest.msgSanitize(msg);
-        CUcrawlTest.trk.push(msg);
+        if (msg) CUcrawlTest.trk.push(msg);
         CliqzUtils.clearTimeout(CUcrawlTest.trkTimer);
         if(instantPush || CUcrawlTest.trk.length % 100 == 0){
             CUcrawlTest.pushTrack();
