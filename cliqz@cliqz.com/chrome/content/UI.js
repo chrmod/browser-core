@@ -853,23 +853,12 @@ function enhanceResults(res){
 
         if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
             r.logo.force_cliqz = true;
-
     }
 
 
     var user_location = CliqzUtils.getPref("config_location", "de");
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
-
-
-
-
-    //prioritize extra (fun-vertical) results
-    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    // var all = first.concat(last);
-    var all = res.results;
-
 
     //filter adult results
     if(adult) {
