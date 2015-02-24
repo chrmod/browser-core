@@ -42,6 +42,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.import('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
@@ -143,6 +144,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
@@ -482,6 +484,7 @@ var Extension = {
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;
+
         }catch(e){Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
