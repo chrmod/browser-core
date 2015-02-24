@@ -169,10 +169,9 @@ var Mixer = {
                  else if(history.length == 2) results[0].data.template = "pattern-h3";
             }
 
-            // if the first result is a history cluster,
-            // combine it with the entity zone
-            if(CliqzUtils.getPref('newCombinedEZ') &&
-               results.length > 0 &&
+            // if the first result is a history cluster and 
+            // there is a generic EZ, make a combined entry
+            if(results.length > 0 &&
                results[0].data && results[0].data.template == "pattern-h2" &&
                cliqzExtra[0].data.template == "entity-generic") {
 
@@ -188,7 +187,7 @@ var Mixer = {
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,4);
             }
-            // Convert 2/3 size history into 1/3 to place below EZ
+            // Convert 2/3 size history into 1/3 to place non-generic EZ
             else if(results.length > 0 &&
                     results[0].data && results[0].data.template == "pattern-h2" &&
                     CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {

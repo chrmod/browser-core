@@ -1,32 +1,48 @@
-<div class='cqz-result-h2 cqz-result-pattern'>
-  <div class="cqz-ez-title cliqz-pattern-title-h2 overflow" selectable=''>
-        {{ data.name }}
-  </div>
-  <div class='cliqz-pattern-results'>
-    {{#each data.urls}}
-    <div class='cliqz-pattern-element overflow'
-        {{#if favicon }}
-         style='background-image: url({{ favicon }}'
-         {{else}}
-          style='padding-left: 0px;'
-         {{/if}}
-         url='{{href}}' shortUrl='{{link}}'
-         domain='{{domain}}' height='{{height}}'
-        arrow="false">
-        <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
-        <div class='cliqz-pattern-element-link'>{{ link }}</div>
-    </div>
-    {{/each}}
-  </div>
-  <div class="cqz-ez-btns overflow">
-  {{#each data.actions}}
-    <div class="cqz-ez-btn"
-         style="background-color: {{ ../logo/backgroundColor }}"
-         url="{{ url }}" arrow="false" selectable=''>
-      {{ title }}
-    </div>
-  {{/each}}
-  </div>
-  {{>feedback}}
-  {{>logo}}
+<div class='cqz-result-h1 cqz-result-padding cqz-result-pattern'>
+    {{#if debug}}
+        <div class='cqz-result-debug'>{{ debug }}</div>
+    {{/if}}
+    {{#with data}}
+        <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
+            {{name}}
+            <div class="after" style="background-image: url({{icon}})"></div>
+        </div>
+        
+        <div class="cqz-ez-generic-elems">
+            <div class="cqz-ez-generic-box">
+                {{#each actions }}
+                    <div
+                        class="cqz-ez-btn overflow"
+                        style="background-color: {{ color }}"
+                        extra="action-{{ @index }}"
+                        url="{{url}}" arrow="false" selectable=''
+                        >{{ title }}</div>
+                {{/each}}
+            </div>
+            {{#each links }}
+                <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
+                     url="{{ url }}"
+                     extra="link-{{ @index }}">
+                     <div style="background-image: url({{ icon }});"></div>
+                    {{ title }}
+                </div>
+            {{/each}}
+        </div>
+
+        <div class='cliqz-history-results'>
+        {{#each urls}}
+            <div class='cliqz-pattern-element overflow'
+                 style='padding-left: 0px;'
+                 url='{{href}}' shortUrl='{{link}}'
+                 extra='{{extra}}'
+                 domain='{{domain}}'
+                 arrow="false">
+                <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
+                <div class='cliqz-pattern-element-link'>{{ link }}</div>
+            </div>
+        {{/each}}
+        </div>
+    {{/with}}
+    {{>logo}}
+    {{>feedback}}
 </div>
