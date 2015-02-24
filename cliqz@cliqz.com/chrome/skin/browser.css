@@ -211,13 +211,18 @@
     box-sizing: border-box;
     padding: 7px 18px 0;
     border-radius: 3px;
+    cursor: pointer;
+
 }
+#cliqz-results .cqz-ez-generic-opt:hover { text-decoration: underline; }
+
 #cliqz-results .cqz-ez-generic-opt div {
     height: 65px;
     width: 65px;
     margin: 14px auto;
     background-position: center;
     background-size: contain;
+    cursor: pointer;
 }
 #cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 132px; }
 
@@ -236,7 +241,9 @@
     -moz-box-sizing: border-box;
 	padding-top: 74px;
 	border-radius: 3px;
+    cursor: pointer;
 }
+#cliqz-results .cqz-ez-banking-opt:hover { text-decoration: underline; }
 #cliqz-results .cqz-ez-banking-elems { margin-top: 10px; }
 #cliqz-results .cqz-ez-banking-title { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
@@ -244,6 +251,7 @@
 #cliqz-results .cqz-ez-title { background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg); margin-bottom: 11px; }
 #cliqz-results .entity-stories { margin-left: -22px; }
 #cliqz-results .entity-story { position: relative; height: 54px; padding: 5px 0 5px 22px; }
+#cliqz-results .entity-story * {  cursor: pointer; }
 #cliqz-results .entity-story-image {
     position: relative;
     width: 86px;
