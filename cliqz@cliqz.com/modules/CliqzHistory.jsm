@@ -18,6 +18,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
+  'chrome://cliqzmodules/content/CliqzCategories.jsm');
+
+
+
 
 var CliqzHistory = {
   prefExpire: (60 * 60 * 24 * 1000), // 24 hours
@@ -26,6 +31,10 @@ var CliqzHistory = {
     QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
     onLocationChange: function(aBrowser, aWebProgress, aRequest, aLocation, aFlags) {
+      if(CliqzUtils.getPref('categoryAssessment', false)){
+        CliqzCategories.assess(aBrowser.currentURI.spec);
+      }
+
       var url = aBrowser.currentURI.spec;
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
