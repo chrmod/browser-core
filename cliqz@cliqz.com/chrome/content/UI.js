@@ -994,7 +994,7 @@ function messageClick(ev) {
                       var win = enumerator.getNext();
                       win.CLIQZ.Core.destroy(true);
                   }
-                  CliqzUtils.toggleMenuSettings("disabled");
+                  CliqzUtils.refreshButtons();
                   break;
               case 'keep-cliqz':
                   updateMessageState("hide");

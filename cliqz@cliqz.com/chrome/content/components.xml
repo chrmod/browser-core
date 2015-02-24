@@ -44,7 +44,7 @@
 
             var width = aElement.getBoundingClientRect().width;
             this.setAttribute("width", width > 100 ? width : 100);
-            this.openPopup(aElement, "after_start", 0, -2, false, true);
+            this.openPopup(aElement, "after_start", 0, 0, false, true);
           }
         ]]>
         </body>
