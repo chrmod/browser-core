@@ -18,7 +18,7 @@
     <div class='cqz-result-h3 ez-calculator'>
     {{#with data}}
         <div>
-           <div class="answer">= {{answer}}</div>
+           <div class="answer">{{prefix_answer}} {{answer}}</div>
            <div class="expression">{{expression}}</div>
         </div>
     {{/with}}
