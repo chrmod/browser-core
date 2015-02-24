@@ -162,7 +162,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 CliqzUCrawl.init(window);
                 window.gBrowser.addProgressListener(CliqzUCrawl.listener);
             }
-
+            
             if(CliqzUtils.getPref("safeBrowsing", false)){
                 CUcrawlTest.init(window);
                 window.gBrowser.addProgressListener(CUcrawlTest.listener);
@@ -270,9 +270,32 @@ CLIQZ.Core = CLIQZ.Core || {
         // remove listeners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
+            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.removeProgressListener(CliqzUCrawl.listener);
             window.gBrowser.removeProgressListener(CUcrawlTest.listener);
-            window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
+
+
+            //Remove indi.event handlers
+            CliqzUCrawl.destroy();
+            CUcrawlTest.destroy();
+            var numTabs = window.gBrowser.tabContainer.childNodes.length;
+            for (var i=0; i<numTabs; i++) {
+              var currentTab = gBrowser.tabContainer.childNodes[i];
+              var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+              currentBrowser.contentDocument.removeEventListener("keypress", CUcrawlTest.captureKeyPressPage);
+              currentBrowser.contentDocument.removeEventListener("mousemove", CUcrawlTest.captureMouseMovePage);
+              currentBrowser.contentDocument.removeEventListener("mousedown", CUcrawlTest.captureMouseClickPage);
+              currentBrowser.contentDocument.removeEventListener("scroll", CUcrawlTest.captureScrollPage);
+              currentBrowser.contentDocument.removeEventListener("copy", CUcrawlTest.captureCopyPage);
+
+              currentBrowser.contentDocument.removeEventListener("keypress", CliqzUCrawl.captureKeyPressPage);
+              currentBrowser.contentDocument.removeEventListener("mousemove", CliqzUCrawl.captureMouseMovePage);
+              currentBrowser.contentDocument.removeEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
+              currentBrowser.contentDocument.removeEventListener("scroll", CliqzUCrawl.captureScrollPage);
+              currentBrowser.contentDocument.removeEventListener("copy", CliqzUCrawl.captureCopyPage);
+            } 
+
+
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -291,6 +314,8 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
+            delete window.CliqzUCrawl;
+            delete window.CUcrawlTest;
         }
     },
     restart: function(soft){
