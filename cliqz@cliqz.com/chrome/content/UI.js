@@ -829,7 +829,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
-                r.width = res.width;
+                
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -837,7 +837,7 @@ function enhanceResults(res){
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
-                 r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                 //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
             r.vertical = getPartial(r.type);
 
@@ -850,6 +850,8 @@ function enhanceResults(res){
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
         }
+        
+        r.width = res.width > 500 ? res.width : 500;
 
         if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
@@ -933,7 +935,6 @@ function updateMessageState(state, messages) {
     case "hide":
     default:
       gCliqzBox.messageContainer.innerHTML = "";
-      CLIQZ.Core.popup.style.height = "302px";
       break;
   }
 }
