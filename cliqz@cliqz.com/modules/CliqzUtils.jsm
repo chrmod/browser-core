@@ -125,7 +125,7 @@ var CliqzUtils = {
     var base = urlDetails.name,
         baseCore = base.replace(/[^0-9a-z]/gi,""),
         check = function(host,rule){
-          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "#" + host.substr(address + base.length)
+          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "$" + host.substr(address + base.length)
 
           return parseddomain.indexOf(rule) != -1
         },

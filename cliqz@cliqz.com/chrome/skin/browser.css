@@ -57,7 +57,7 @@
 #cliqz-results i { font-style: italic; }
 
 #cliqz-results .cqz-result-h1, #cliqz-results .cqz-result-h2, #cliqz-results .cqz-result-h3 {
-    padding: 16px calc(44px + 65px + 22px) 16px 22px;
+    padding: 14px calc(44px + 65px + 22px) 16px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
@@ -188,14 +188,20 @@
 }
 
 /* EZ generic */
-#cliqz-results .cqz-ez-title {
-    font-size: 18px;
-    background-size: auto 18px;
-    background-position: right;
+#cliqz-results .cqz-ez-title { font-size: 18px; display: inline-block; margin-bottom: 11px; }
+#cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-ez-title .after {
     display: inline-block;
-    padding-right: 40px;
+    background-size: auto 18px;
+    background-position: 10px 2px;
+    background-repeat: no-repeat;
+    content: "";
+    width: 999999999999999px;
+    height: 22px;
+    vertical-align: top;
 }
+#cliqz-results .cqz-ez-title.custom-after::after { display: none; }
 #cliqz-results .cqz-ez-title:hover { text-decoration: underline; }
+#cliqz-results .cqz-ez-generic-elems { height: 132px; }
 #cliqz-results .cqz-ez-generic-box { float: left; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn { background-color: #2fc4fc; display: block; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn:nth-of-type(1) { background-color: #5267a2; }
@@ -219,7 +225,6 @@
     background-position: center;
     background-size: contain;
 }
-#cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 132px; }
 
 /* EZ banking */
 #cliqz-results .cqz-ez-banking-box { float: left; margin-top: 12px; }
@@ -238,10 +243,9 @@
 	border-radius: 3px;
 }
 #cliqz-results .cqz-ez-banking-elems { margin-top: 10px; }
-#cliqz-results .cqz-ez-banking-title { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
+#cliqz-results .cqz-ez-banking-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
 /* ez news, video, portal */
-#cliqz-results .cqz-ez-title { background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg); margin-bottom: 11px; }
 #cliqz-results .entity-stories { margin-left: -22px; }
 #cliqz-results .entity-story { position: relative; height: 54px; padding: 5px 0 5px 22px; }
 #cliqz-results .entity-story-image {
@@ -265,42 +269,48 @@
 #cliqz-results .entity-story-title { padding-top: 4px; color: #506bb8; max-width: 550px; font-size: 18px; }
 #cliqz-results .entity-story:hover .entity-story-title { text-decoration: underline; }
 #cliqz-results .entity-story-comment { color: #d7011d; padding-top: 9px; }
+#cliqz-results .ez-news .cqz-ez-title::after {
+    background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg); 
+}
 /* ez video specials */
-#cliqz-results .ez-video .cqz-ez-title { background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg); }
+#cliqz-results .ez-video .cqz-ez-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg); }
 #cliqz-results .ez-video .entity-story-comment { color: #333333; padding-top: 4px; }
 /* ez portal specials */
-#cliqz-results .ez-portal .cqz-ez-title { background-image: url(http://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg); margin-bottom: 18px; }
+#cliqz-results .ez-portal .cqz-ez-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg); margin-bottom: 18px; }
 #cliqz-results .ez-portal .entity-story-image { border-radius: 3px 3px; }
 
 /* EZ search */
-#cliqz-results .cqz-ez-search-title { background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg); }
+#cliqz-results .cqz-ez-search-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg); }
 #cliqz-results .cqz-ez-search-box {
     border: 1px solid #3E86FC;
     max-width: 371px;
-    height: 20px;
-    margin: 5px 0 15px 0px;
-    background-color: white;
+    height: 26px;
+    margin: 4px 0 17px 0px;
     border-radius: 0 3px 3px 0;
+    padding-right: 26px;
+    background-color: #3E86FC;
+    background-position: right 5px center;
+    background-size: 15px 15px;
+    background-image: url(http://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg)
 }
-#cliqz-results .cqz-ez-search-box-icon { background-color: #3E86FC; width: 20px; height: 20px; float: right; }
-#cliqz-results .cqz-ez-search-box-input { vertical-align: top; width: 347px; height: 18px; }
+#cliqz-results .cqz-ez-search-box-input { width: 100%; height: 100%; padding: 0 6px; box-sizing: border-box; -moz-box-sizing: border-box; }
 #cliqz-results .cqz-ez-search-app {
-    display: inline-block;
-    width: 80px;
-    height: 80px;
+    float: left;
+    width: 85px;
+    height: 85px;
     border-radius: 3px;
-    margin-right: 4px;
-    background-position: center 20%;
+    margin-right: 9px;
     text-align: center;
-    padding-top: 56px;
+    padding-top: 61px;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     color: white;
-    background-size: 35px auto;
+    background-size: auto 36px;
+    background-position: center 9px;
 }
 
 /*  ez celeb */
-#cliqz-results .cqz-celeb-images { height: 67px; overflow: hidden; width: 80%; }
+#cliqz-results .cqz-celeb-images { height: 67px; overflow: hidden; width: 80%; margin-top: 3px; }
 #cliqz-results .cqz-celeb-image { height: 67px; margin-right: 9px; border-radius: 3px; float: left }
 #cliqz-results .cqz-celeb-who { margin: 16px 0 7px; background-image: none; padding: 0 }
 #cliqz-results .cqz-celeb-social { height: 22px; margin-top: 14px; margin-right: 9px; }
@@ -318,7 +328,7 @@
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
 
 /* ez stock */
-#cliqz-results .cqz-ez-stock-title { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); margin-bottom: 6px; }
+#cliqz-results .cqz-ez-stock-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); margin-bottom: 6px; }
 #cliqz-results .cqz-ez-stock-exchange, #cliqz-results .cqz-disclaimer { font-size: 12px; color: #cccccc; }
 #cliqz-results .cqz-ez-stock-trend { margin-top: 13px; font-size: 25px; }
 #cliqz-results .cqz-ez-img-trend { width: 12px; height: 18px; display: inline-block; margin: 0 4px 0 18px; }
@@ -334,8 +344,9 @@
 #cliqz-results .EZ-currency-disclaimer { color: #cccccc; }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 25px }
-#cliqz-results .ez-calculator .expression { margin-top: 20px; color: #999999 }
+#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
+#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
@@ -360,8 +371,9 @@
 #cliqz-results .cqz-result-pattern { padding: 16px 22px; box-sizing: border-box; }
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 14px;
+}
+#cliqz-results .cliqz-pattern-title-h1::after, #cliqz-results .cliqz-pattern-title-h2::after, #cliqz-results .cliqz-pattern-title-h3::after {
     background-image: url(chrome://cliqzres/content/skin/history_document.png);
-    background-position: right 7px top 1px;
 }
 #cliqz-results .cliqz-pattern-title-h3 { margin-bottom: 8px; }
 #cliqz-results .cliqz-pattern-element { padding-left: 20px; background-position: left center; background-size: 14px 14px; margin-bottom: 4px; }

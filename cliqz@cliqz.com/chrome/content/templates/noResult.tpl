@@ -6,7 +6,7 @@
     <div class="logos" id="EZ-noResult-logos" >
         {{#each search_engines}}
             <div class="cliqz-brand-logo"
-                  style="background-color:{{background-color}}; background-image: url({{logo}})"
+                  style="{{logo.style}}"
                   engine="{{name}}"
                   engineCode="{{code}}" 
                   cliqz-action="alternative-search-engine"></div>
@@ -15,4 +15,3 @@
     <a href="https://cliqz.com"><img class="cliqz-logo" src="{{cliqz_logo}}"/></a>
 </div>
 {{/with}}
-
