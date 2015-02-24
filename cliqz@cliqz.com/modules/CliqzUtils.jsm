@@ -551,7 +551,7 @@ var CliqzUtils = {
   },
   encodeCountry: function() {
     //international result not supported
-    return '';
+    return '&force_country=true';
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
@@ -1238,6 +1238,12 @@ var CliqzUtils = {
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CliqzUtils.refreshButtons();
+
+        CliqzUtils.track({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
       });
       return button;
     },
