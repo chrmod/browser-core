@@ -46,7 +46,7 @@ var CliqzHistoryManager = {
             });
     },
 	PlacesInterestsStorage: {
-        _execute: function PIS__execute(sql, columns, onRow) {
+        _execute: function PIS__execute(sql, columns, onRow, parameters) {
             var conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
                 statement = conn.createAsyncStatement(sql),
                 onThen, //called after the async operation is finalized
@@ -55,7 +55,12 @@ var CliqzHistoryManager = {
                         onThen = func;
                     }
                 };
-
+            if(parameters){
+                for(var key in parameters) {
+                  statement.params[key] = parameters[key];
+                }
+            }
+            CliqzUtils.log(sql + ' - ' +JSON.stringify(statement.params))
             statement.executeAsync({
                 handleCompletion: function(reason)  {
                   onThen();

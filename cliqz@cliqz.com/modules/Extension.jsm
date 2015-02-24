@@ -143,6 +143,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -189,15 +190,7 @@ var Extension = {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
     cleanPossibleOldVersions: function(win){
-        //temporary method
-        delete win.CliqzUtils;
-        delete win.CliqzHistoryManager;
-        delete win.CliqzAutocomplete;
-        delete win.CliqzLanguage;
-        delete win.ResultProviders;
-        delete win.CliqzTimings;
-        delete win.CliqzABTests;
-        delete win.CliqzSearchHistory;
+        //
     },
     loadIntoWindow: function(win) {
         if (!win) return;

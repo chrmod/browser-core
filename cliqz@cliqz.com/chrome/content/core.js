@@ -46,6 +46,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
+  'chrome://cliqzmodules/content/CliqzCategories.jsm');
+
 var CLIQZ = CLIQZ || {};
 CLIQZ.Core = CLIQZ.Core || {
     ITEM_HEIGHT: 50,
@@ -88,6 +91,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
         CliqzHistoryPattern.preloadColors();
+        CliqzCategories.init();
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -265,6 +269,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.ResultProviders;
+            delete window.CliqzCategories;
             delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
@@ -356,18 +361,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
         });
-
-        // push profile Data
-          var data = JSON.parse(CliqzUtils.getPref('profile', '{}'));
-          if(Object.keys(data).length !== 0){
-            var action = {
-                type: 'profile',
-                data: data
-            };
-            CliqzUtils.setPref('profile', '{}');
-
-            CliqzUtils.track(action);
-          }
     },
 
     sendEnvironmentalSignal: function(startup, defaultSearchEngine){
