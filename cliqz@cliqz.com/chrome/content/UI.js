@@ -829,7 +829,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
-                r.width = res.width;
+                
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -837,7 +837,7 @@ function enhanceResults(res){
 
              if (getPartial(r.type) != 'images'){
                  r.image = constructImage(r.data);
-                 r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
+                 //r.width = res.width;// - TYPE_LOGO_WIDTH - (r.image && r.image.src ? r.image.width + 14 : 0);
                 }
             r.vertical = getPartial(r.type);
 
@@ -850,6 +850,8 @@ function enhanceResults(res){
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
         }
+        
+        r.width = res.width > 500 ? res.width : 500;
 
         if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
@@ -858,11 +860,6 @@ function enhanceResults(res){
         }
 
     }
-
-
-    var user_location = CliqzUtils.getPref("config_location", "de");
-    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
-    var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
 
     //filter adult results
     if(adult) {
@@ -878,7 +875,7 @@ function enhanceResults(res){
              });
         }
     }
-    else if (user_location != "de" && !ignored_location_warning) {
+    else if (notSupported()) {
       updateMessageState("show", {
           "bad_results_warning": {}
        });
@@ -888,6 +885,17 @@ function enhanceResults(res){
     }
 
     return res;
+}
+
+function notSupported(r){
+    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
+    // or he is in germany
+    if(CliqzUtils.getPref("ignored_location_warning", false) ||
+        CliqzUtils.getPref("config_location", "de") == 'de') return false
+
+    //if he is not in germany he might still be  german speaking
+    var lang = navigator.language.toLowerCase();
+    return lang != 'de' && lang.split('-')[0] != 'de';
 }
 
  /*
@@ -922,9 +930,6 @@ function enhanceResults(res){
 function updateMessageState(state, messages) {
   switch (state) {
     case "show":
-      // Show adult warning
-      CliqzUtils.log(CLIQZ.Core.popup.style.height);
-      //CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
       gCliqzBox.messageContainer.innerHTML = "";
       Object.keys(messages).forEach(function(tpl_name){
           gCliqzBox.messageContainer.innerHTML += UI.tpl[tpl_name](messages[tpl_name]);
@@ -933,7 +938,6 @@ function updateMessageState(state, messages) {
     case "hide":
     default:
       gCliqzBox.messageContainer.innerHTML = "";
-      CLIQZ.Core.popup.style.height = "302px";
       break;
   }
 }
@@ -1008,6 +1012,11 @@ function messageClick(ev) {
               default:
                   break;
           }
+          CliqzUtils.track({
+            type: 'setting',
+            setting: 'international',
+            value: state
+          });
           setTimeout(CliqzUtils.refreshButtons, 0);
         }
       }
@@ -1588,8 +1597,6 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
-      CliqzUtils.log("XXXXXX");
-      CliqzUtils.log(generateLogoClass(CliqzUtils.getDetailsFromUrl(url)));
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });
 

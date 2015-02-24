@@ -408,10 +408,23 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra =
                                 json.images.results.map(Result.cliqzExtra);
 
-                        if(json.extra && json.extra.results && json.extra.results.length >0)
+                        var hasExtra = function(el){
+                            if(!el || !el.results || el.results.length == 0) return false;
+                            el.results = el.results.filter(function(r){
+                                //ignore empty results
+                                return r.hasOwnProperty('url');
+//                                return Object.keys(r).length == 0;
+                            })
+
+                            return el.results.length != 0;
+                        }
+
+                        if(hasExtra(json.extra))
+                        //if(json.extra && json.extra.results && json.extra.results.length >0)
                             //this.cliqzResultsExtra = this.cliqzResultsExtra.concat(
                             //    json.extra.results.map(Result.cliqzExtra));
                             // we do not show both images and EZones. EZones have priority
+
                             this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
 
                         this.latency.cliqz = json.duration;

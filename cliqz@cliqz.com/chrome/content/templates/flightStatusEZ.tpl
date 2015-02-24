@@ -1,7 +1,7 @@
-<div class='cqz-result-h2' style="margin-left: 22px">
+<div class='cqz-result-h2'>
 
 {{#with data}}
-     <div style="color:#999999; font-size: 18px; padding-top:14px">
+     <div style="color:#999999; font-size: 18px; padding-top:0px">
          {{flight_name}}
          <span style="color:{{status_color}}; font-size:18px;"> ({{status}})</span>
      </div>
@@ -19,8 +19,8 @@
          <div style="float: left">
           <div > {{depart_arrive.0.location_name}} </div>
           <div style="padding-top: 4px"> {{depart_arrive.0.estimate_actual_date}} </div>
-          <div style="float:left; height:1px; margin-top: 4px; margin-left: 0px; margin-right: 10px; margin-bottom: 5px; width:220px;background-color:#cccccc"></div>
-          <div style="margin-top:4px"> Scheduled: {{depart_arrive.0.scheduled_time}}</div>
+          <div style="height:1px; margin-top: 4px; margin-left: 0px; margin-right: 10px; margin-bottom: 5px; width:220px;background-color:#cccccc"></div>
+          <div style="margin-top:4px clear:left"> Scheduled: {{depart_arrive.0.scheduled_time}}</div>
           <div style="margin-top:4px">
           <span style="margin-right: 10px; font-size:18px; color: black">{{depart_arrive.0.estimate_actual_time}}</span>
           <span style="margin-right: 10px">Terminal: {{depart_arrive.0.terminal}}</span>
@@ -32,7 +32,7 @@
          <div style="float: left; margin-left: 110px; text-align:left">
                    <div > {{depart_arrive.1.location_name}} </div>
           <div style="padding-top: 4px"> {{depart_arrive.1.estimate_actual_date}} </div>
-          <div style="float:left; height:1px; margin-top: 4px; margin-left: 0px; margin-right: 10px; margin-bottom: 5px; width:190px;background-color:#cccccc"></div>
+          <div style="height:1px; margin-top: 4px; margin-left: 0px; margin-right: 10px; margin-bottom: 5px; width:190px;background-color:#cccccc"></div>
           <div style="margin-top:4px"> Scheduled: {{depart_arrive.1.scheduled_time}}</div>
           <div style="margin-top:4px">
           <span style="margin-right: 10px; font-size:18px; color: black">{{depart_arrive.1.estimate_actual_time}}</span>

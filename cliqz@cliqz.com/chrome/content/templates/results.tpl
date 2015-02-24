@@ -10,7 +10,7 @@
 				{{/unless}}
 			{{/if}}
 			idx='{{ @index }}'
-			style="width:{{../width}}px"
+            style="width:{{../width}}px"
 			hasimage='{{ hasimage image }}'
 			>
 			{{partial vertical}}
