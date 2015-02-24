@@ -196,7 +196,7 @@
 }
 
 /* EZ generic */
-#cliqz-results .cqz-ez-title { font-size: 18px; display: inline-block; margin-bottom: 11px; }
+#cliqz-results .cqz-ez-title { cursor: pointer; font-size: 18px; display: inline-block; margin-bottom: 11px; }
 #cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-ez-title .after {
     display: inline-block;
     background-size: auto 18px;
