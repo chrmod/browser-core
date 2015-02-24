@@ -125,7 +125,7 @@ var CliqzUtils = {
     var base = urlDetails.name,
         baseCore = base.replace(/[^0-9a-z]/gi,""),
         check = function(host,rule){
-          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "#" + host.substr(address + base.length)
+          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "$" + host.substr(address + base.length)
 
           return parseddomain.indexOf(rule) != -1
         },
@@ -136,8 +136,11 @@ var CliqzUtils = {
       return result;
 
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
+
     else if (domains[base]) {
+      CliqzUtils.log(domains);
       for (var i=0,imax=domains[base].length;i<imax;i++) {
+        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
