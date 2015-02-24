@@ -541,8 +541,13 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
+            let startSelectPos = autocomplete.selectionStart;
+            // in case something was selected already
+            if (urlBar.mInputField.selectionStart < autocomplete.selectionStart) {
+                startSelectPos = urlBar.mInputField.selectionStart;
+            }
             urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
+            urlBar.setSelectionRange(startSelectPos, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
             CLIQZ.UI.cursor = autocomplete.selectionStart;
 
