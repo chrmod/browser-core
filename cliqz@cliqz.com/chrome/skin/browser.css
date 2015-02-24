@@ -223,6 +223,13 @@
     background-position: center;
     background-size: contain;
     cursor: pointer;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+#cliqz-results .cqz-ez-generic-opt:hover div {
+    height: 69px;
+    width: 69px;
+    margin: 12px auto;
 }
 #cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 132px; }
 
