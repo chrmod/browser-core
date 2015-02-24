@@ -1485,7 +1485,6 @@ var CUcrawlTest = {
 
         msg.ver = CUcrawlTest.VERSION;
         msg = CUcrawlTest.msgSanitize(msg);
-        CliqzUtils.log('Sanitize: ' + JSON.stringify(msg) , "CUcrawlTest.pushTrack");
         if (msg) CUcrawlTest.trk.push(msg);
         CliqzUtils.clearTimeout(CUcrawlTest.trkTimer);
         if(instantPush || CUcrawlTest.trk.length % 100 == 0){
