@@ -215,11 +215,11 @@ var Mixer = {
                 current_search_engine = Services.search.currentEngine.name;
 
             var alternative_search_engines_data = [// default
-                                {"name": "DuckDuckGo", "code": null, "style":""}, //, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
-                                {"name": "Bing", "code": null, "style":""}, //, "logo": path+"Bing.svg", "background-color": "#ffc802"},
-                                {"name": "Google", "code": null, "style":""}, //, "logo": path+"google.svg", "background-color": "#5ea3f9"},
-                                {"name": "Google Images", "code":null, "style":"", "base_url":"http://images.google.de/"}, //: "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
-                                {"name": "Google Maps", "code": null, "style":""} //, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
+                                {"name": "DuckDuckGo", "code": null, "style":"", "base_url": "https://duckduckgo.com"}, //, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
+                                {"name": "Bing", "code": null, "style":"", "base_url": "http://www.bing.com/search?q=&pc=MOZI"}, //, "logo": path+"Bing.svg", "background-color": "#ffc802"},
+                                {"name": "Google", "code": null, "style":"", "base_url": "http://www.google.de"}, //, "logo": path+"google.svg", "background-color": "#5ea3f9"},
+                                {"name": "Google Images", "code":null, "style":"", "base_url": "http://images.google.de/"}, //: "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
+                                {"name": "Google Maps", "code": null, "style":"", "base_url": "http://maps.google.de/"} //, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
                             ],
                 alt_s_e;
 
