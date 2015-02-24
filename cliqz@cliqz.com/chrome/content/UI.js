@@ -107,7 +107,7 @@ var UI = {
         gCliqzBox.messageContainer = messageContainer;
 
         box.addEventListener('mousemove', resultMove);
-        resultsBox.addEventListener('wheel', resultScroll);
+        //resultsBox.addEventListener('wheel', resultScroll);
         gCliqzBox.resultsBox = resultsBox;
 
         var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
@@ -1131,31 +1131,6 @@ function resultClick(ev){
     }
 }
 
-
-var lastScroll = 0;
-function resultScroll(ev) {
-  var now = Date.now();
-  if(now - lastScroll < 800) {
-    ev.preventDefault();
-    return;
-  }
-
-  var lastScrollTop = gCliqzBox.resultsBox.scrollTop;
-  var scroll = lastScrollTop % 304;
-
-  if(/*scroll > 5 && */ev.deltaY > 0){
-    // Scroll to next page
-    smooth_scroll_to(gCliqzBox.resultsBox, (parseInt(lastScrollTop / 303)+1) * 303, 800);
-    lastScroll = now;
-    clearResultSelection();
-  } else if (/*scroll < 298 &&*/ ev.deltaY < 0) {
-    smooth_scroll_to(gCliqzBox.resultsBox, (parseInt(lastScrollTop / 304)) * 303, 800);
-    lastScroll = now;
-    clearResultSelection();
-  }
-
-}
-
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),
         ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
@@ -1261,7 +1236,7 @@ var smooth_scroll_to = function(element, target, duration) {
         if(point <= start) { return 0; }
         if(point >= end) { return 1; }
         var x = (point - start) / (end - start); // interpolation
-        return x*x*(3 - 2*x);
+        return x*x*x*(x*(x*6 - 15) + 10);//x*x*(3 - 2*x);
     }
 
     return new Promise(function(resolve, reject) {
