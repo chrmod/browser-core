@@ -140,23 +140,11 @@ var CliqzHistory = {
     }
   },
   setTitle: function(url, title) {
-    CliqzHistory.SQL("SELECT * FROM urltitles WHERE url = :url", null, function(res) {
-      if(!CliqzHistory) return;
-      if (res === 0) {
-        CliqzHistory.SQL("INSERT INTO urltitles (url, title)\
-                  VALUES (:url,:title)", null, null, {
-                    url: CliqzHistory.escapeSQL(url),
-                    title: CliqzHistory.escapeSQL(title)
-                  });
-      } else {
-        CliqzHistory.SQL("UPDATE urltitles SET title=:title WHERE url=:url", null, null, {
-                    url: CliqzHistory.escapeSQL(url),
-                    title: CliqzHistory.escapeSQL(title)
-                  });
-      }
-    }, {
-      url: CliqzHistory.escapeSQL(url)
-    });
+    CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title)\
+              VALUES (:url,:title)", null, null, {
+                url: CliqzHistory.escapeSQL(url),
+                title: CliqzHistory.escapeSQL(title)
+              });
   },
   getTabData: function(panel, attr) {
     if (!CliqzHistory.tabData[panel]) {
@@ -180,19 +168,21 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, 'queryDate', date);
     }
   },
+  dbConn: null,
   SQL: function(sql, onRow, callback, parameters) {
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
-    var dbConn = Services.storage.openDatabase(file);
-    var statement = dbConn.createStatement(sql);
+    if(!CliqzHistory.dbConn)
+      CliqzHistory.dbConn = Services.storage.openDatabase(file);
+
+    var statement = CliqzHistory.dbConn.createAsyncStatement(sql);
+
     for(var key in parameters) {
       statement.params[key] = parameters[key];
     }
-    CliqzHistory._SQL(dbConn, statement, onRow, callback);
+
+    CliqzHistory._SQL(CliqzHistory.dbConn, statement, onRow, callback);
   },
   _SQL: function(dbConn, statement, onRow, callback) {
-
-    //var statement = dbConn.createStatement(sql);
-
     statement.executeAsync({
       onRow: onRow,
       callback: callback,
@@ -210,16 +200,16 @@ var CliqzHistory = {
       },
 
       handleError: function(aError) {
+        CliqzUtils.log("Error (" + aError.result + "):" + aError.message, "CliqzHistory._SQL");
         if (this.callback) {
           this.callback(0);
         }
       },
       handleCompletion: function(aReason) {
-        if (this.callback) {
-          this.callback(0);
-        }
+        // Always called when done
       }
     });
+    statement.finalize();
   },
   initDB: function() {
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
