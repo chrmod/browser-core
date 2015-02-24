@@ -1,4 +1,4 @@
-#PopupAutoCompleteRichResult {
+#PopupAutoCompleteRichResultCliqz {
   -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
   color: black;
 }

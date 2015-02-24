@@ -29,9 +29,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
   'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzQueryDebug',
-  'chrome://cliqzmodules/content/CliqzQueryDebug.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
@@ -139,7 +136,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
             getCommentAt: function(index) { return this._results[index].comment; },
             getStyleAt: function(index) { return this._results[index].style; },
-            getImageAt: function (index) { return undefined; },
+            getImageAt: function (index) { return ''; },
             getLabelAt: function(index) { return this._results[index].label; },
             getDataAt: function(index) { return this._results[index].data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
@@ -150,6 +147,29 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.setResultOrder(order);
             },
             resetUnusedResults: function(oldResults, newResults){
+
+                // filter out ununsed/unexpected results
+                var temp = [];
+                for(var i=0; i < newResults.length; i++){
+                    var r = newResults[i];
+                    if(r.style == 'cliqz-extra'){
+                        if(r.data){
+                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
+                                // unexpected/unknown template
+                                continue;
+                            }
+                        }
+                    }
+
+                    // If one of the results is data.only = true Remove all others.
+                    if (!r.invalid && r.data && r.data.only) {
+                      return [r];
+                    }
+
+                    temp.push(r);
+                }
+                newResults = temp;
+
                 // We always have at most 1 oldResult, since now we wait for the
                 // whole history to be fetched. Thus, the old code can be
                 // deleted; as well as this one, if we do not want to log
@@ -169,27 +189,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         newResults[0].override = oldResults[0].override;
                     }
                 }
-                // filter out ununsed/unexpected results
-                var ret=[], merged = cleaned.concat(newResults);
-                for(var i=0; i < merged.length; i++){
-                    var r = merged[i];
-                    if(r.style == 'cliqz-extra'){
-                        if(r.data){
-                            if(r.data.template && CliqzUtils.TEMPLATES.indexOf(r.data.template) == -1){
-                                // unexpected/unknown template
-                                continue;
-                            }
-                        }
-                    }
 
-                    // If one of the results is data.only = true Remove all others.
-                    if (!r.invalid && r.data && r.data.only) {
-                      return [r];
-                    }
+                var merged = cleaned.concat(newResults);
 
-                    ret.push(r);
-                }
-                return ret;
+                return merged;
             }
         };
     },
@@ -214,7 +217,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return; // no current search, just discard
                 }
 
-                var now = (new Date()).getTime();
+                var now = Date.now();
 
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
@@ -336,7 +339,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                   var latency = 0;
                   if (CliqzHistoryPattern.latencies[res.query]) {
-                    latency = (new Date()).getTime() -
+                    latency = Date.now() -
                               CliqzHistoryPattern.latencies[res.query];
                   }
                   this.latency.patterns = latency;
@@ -365,7 +368,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return;
 
                 if(q == this.searchString && this.startTime != null){ // be sure this is not a delayed result
-                    var now = (new Date()).getTime();
+                    var now = Date.now();
 
                     if((now > this.startTime + CliqzAutocomplete.TIMEOUT) || // 1s timeout
                        (this.isHistoryReady() || this.historyTimeout) && // history is ready or timed out
@@ -377,17 +380,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.mixedResults.addResults(this.mixResults());
 
-                        this.latency.mixed = (new Date()).getTime() - this.startTime;
+                        this.latency.mixed = Date.now() - this.startTime;
 
                         this.listener.onSearchResult(this, this.mixedResults);
 
-                        this.latency.all = (new Date()).getTime() - this.startTime;
+                        this.latency.all = Date.now() - this.startTime;
                         if(this.cliqzResults)
                             var country = this.cliqzCountry;
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
-
-                        CliqzQueryDebug.recordResults(q, this.cliqzResults, this.historyResults, this.unfilteredResults, this.mixedResults);
 
                         if(this.startTime)
                             CliqzTimings.add("result", (now - this.startTime));
@@ -403,13 +404,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
 
-                        this.latency.mixed = (new Date()).getTime() - this.startTime;
+                        this.latency.mixed = Date.now() - this.startTime;
 
                         // force update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
 
-                        this.latency.all = (new Date()).getTime() - this.startTime;
+                        this.latency.all = Date.now() - this.startTime;
                         //instant result, no country info yet
                         this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
                     } else {
@@ -420,11 +421,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
                 if(q == this.searchString){ // be sure this is not a delayed result
-                    this.latency.backend = (new Date()).getTime() - this.startTime;
+                    this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
                     if(this.startTime)
-                        CliqzTimings.add("search_cliqz", ((new Date()).getTime() - this.startTime));
+                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime);
 
                     if(req.status == 200 || req.status == 0){
                         var json = JSON.parse(req.response);
@@ -458,7 +459,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.mixedResults.suggestedCalcResult = null;
 
                     if(this.startTime)
-                        CliqzTimings.add("search_suggest", ((new Date()).getTime() - this.startTime));
+                        CliqzTimings.add("search_suggest", Date.now() - this.startTime);
 
                     // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
                     if(q.trim().indexOf("=") != 0 && response.length >1 &&
@@ -512,7 +513,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
-                CliqzAutocomplete.lastQueryTime = (new Date()).getTime();
+                CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastSearch = searchString;
                 CliqzAutocomplete.lastResult = null;
@@ -582,7 +583,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         -2, // blocks autocomplete
                         '');
 
-                this.startTime = (new Date()).getTime();
+                this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
                 this.mixedResults.customResults = this.customResults;
 
@@ -673,7 +674,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_patterns: this.latency.patterns,
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
-                    latency_all: this.startTime? (new Date()).getTime() - this.startTime : null,
+                    latency_all: this.startTime? Date.now() - this.startTime : null,
                     v: 1
                 };
                 if (CliqzAutocomplete.lastAutocompleteType) {
@@ -688,7 +689,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // keep a track of if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
                 if (results.length > 0) {
-                    CliqzAutocomplete.lastDisplayTime = (new Date()).getTime();
+                    CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
                 this.addCalculatorSignal(action);
                 CliqzUtils.track(action);

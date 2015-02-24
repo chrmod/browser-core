@@ -100,8 +100,16 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
+        //create a new panel for cliqz to avoid inconsistencies at FF startup
+        var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
+        popup.setAttribute("type", 'autocomplete-richlistbox');
+        popup.setAttribute("id", 'PopupAutoCompleteRichResultCliqz');
+        popup.setAttribute("noautofocus", 'true');
+        CLIQZ.Core.elem.push(popup);
+        document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
+
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
-        CLIQZ.Core.popup = document.getElementById('PopupAutoCompleteRichResult');
+        CLIQZ.Core.popup = popup;
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -112,7 +120,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.urlbar.setAttribute('autocompletesearch', /*'urlinline */'cliqz-results');// + urlbar.getAttribute('autocompletesearch')); /* urlinline history'*/
 
         CLIQZ.Core._autocompletepopup = CLIQZ.Core.urlbar.getAttribute('autocompletepopup');
-        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResult');
+        CLIQZ.Core.urlbar.setAttribute('autocompletepopup', /*'PopupAutoComplete'*/ 'PopupAutoCompleteRichResultCliqz');
 
         CLIQZ.Core.popup.addEventListener('popuphiding', CLIQZ.Core.popupClose);
         CLIQZ.Core.popup.addEventListener('popupshowing', CLIQZ.Core.popupOpen);
@@ -301,7 +309,7 @@ CLIQZ.Core = CLIQZ.Core || {
         //try to 'heat up' the connection
         CliqzUtils.pingCliqzResults();
 
-        CliqzAutocomplete.lastFocusTime = (new Date()).getTime();
+        CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
@@ -423,8 +431,7 @@ CLIQZ.Core = CLIQZ.Core || {
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle){
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
-           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE ||
-           CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart){
+           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
             if (CliqzAutocomplete.highlightFirstElement) {
                 CLIQZ.UI.selectFirstElement();
             }
@@ -443,7 +450,8 @@ CLIQZ.Core = CLIQZ.Core || {
             urlBar.mInputField.value = CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase();
         }
         // Use first entry if there are no patterns
-        if (results.length === 0 || lastPattern.query != urlBar.value) {
+        if (results.length === 0 || lastPattern.query != urlBar.value ||
+          firstResult != results[0].url) {
             results[0] = [];
             results[0].url = firstResult;
             results[0].title = firstTitle;

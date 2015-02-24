@@ -53,12 +53,12 @@ var CliqzHistoryPattern = {
         "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits " +
         "inner join ( " +
         "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > " + CliqzHistoryPattern.timeFrame + " and " +
-        "(visits.url like '%" + this.escapeSQL(query) + "%' or visits.last_query like '%" + this.escapeSQL(query) + "%' or urltitles.title like '%" + this.escapeSQL(query) + "%') " +
+        "(visits.url like :param or visits.last_query like :param or urltitles.title like :param ) " +
         "group by visits.last_query_date " +
         ") as matches  " +
         "on visits.last_query_date = matches.last_query_date " +
         "left outer join urltitles on urltitles.url = visits.url order by visits.visit_date",
-
+        "%" + this.escapeSQL(query) + "%",
         ["sdate", "query", "url", "vdate", "title"],
         function(result) {
           try {
@@ -541,7 +541,7 @@ var CliqzHistoryPattern = {
     } else if (input.trim().indexOf(" ") != -1 &&
       input[input.length - 1] != " " && loose && urlbar.indexOf("www.") != 0) {
       var queryEnd = input.split(" ")[input.split(" ").length - 1].toLowerCase();
-      if (pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
+      if (pattern.title && pattern.title.toLowerCase().indexOf(queryEnd) != -1) {
         var words = pattern.title.split(" ");
 
         for (var key in words) {
@@ -604,8 +604,12 @@ var CliqzHistoryPattern = {
     }
   },
   SQL: {
-    _execute: function PIS__execute(conn, sql, columns, onRow) {
-      var statement = conn.createAsyncStatement(sql),
+    _execute: function PIS__execute(conn, sql, param, columns, onRow) {
+      var sqlStatement = conn.createAsyncStatement(sql);
+      if(param) {
+        sqlStatement.params.param = param;
+      }
+      var statement = sqlStatement,
         onThen, //called after the async operation is finalized
         promiseMock = {
           then: function(func) {
@@ -785,6 +789,7 @@ var CliqzHistoryPattern = {
       ._execute(
         PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
         "SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places", ["min_date", "max_date"],
+        null,
         function(result) {
           try {
             min = parseInt(result.min_date / 1000);
