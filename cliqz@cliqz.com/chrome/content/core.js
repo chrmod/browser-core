@@ -99,9 +99,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_new.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
+        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
@@ -175,8 +175,8 @@ CLIQZ.Core = CLIQZ.Core || {
             }, false);
         }
 
-        CLIQZ.Core.whoAmI(true); //startup
-        CliqzUtils.log('Initialized', 'CORE');
+        //CLIQZ.Core.whoAmI(true); //startup
+        //CliqzUtils.log('Initialized', 'CORE');
     },
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown

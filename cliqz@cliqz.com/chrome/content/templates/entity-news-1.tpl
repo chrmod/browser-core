@@ -1,28 +1,20 @@
-<div class="cqz-result-h1 cqz-result-padding">
-  <div class="cqz-ez-title cqz-ez-news-title" selectable=''>
-      {{data.name}}
-  </div>
-  <div class="entity-news-stories">
+<div class="cqz-result-h1 ez-news cqz-result-padding">
+  <div class="cqz-ez-title" selectable=''>{{data.name}}</div>
+  <div class="entity-stories">
     {{#each data.news}}
-      <div class="entity-news-story"
-           url="{{ url }}" type="X"
-           extra="news-{{ @index }}"
+      <div class="entity-story"
+           url="{{ url }}"
+           extra="entry-{{ @index }}"
            arrow="false">
-        <div class="entity-news-story-image cqz-image-round"
-          style="background-image: url({{ thumbnail }})">
-        </div>
-        <div class="entity-news-story-description cqz-vert-center">
-          <div class="entity-news-story-title" selectable=''>
-            {{ title }}
-          </div>
-          <div class="entity-news-story-time">
-            {{ time }}
-          </div>
+        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-description">
+          <div class="entity-story-title" selectable=''>{{ title }}</div>
+          <div class="entity-story-comment">{{ time }}</div>
         </div>
       </div>
     {{/each}}
   </div>
-  {{> EZ-category }}
+  {{>EZ-category}}
   {{>logo}}
   {{>feedback}}
 </div>

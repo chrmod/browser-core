@@ -53,7 +53,9 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging.fbt.co/mixer?q=', 'http://rich-header-server.fbt.co/mixer?q='
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
+//  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
+  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -69,13 +71,13 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
 
-
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1,  'currency':1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
-              'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
-              'spellcheck': 1, 'time': 1, 'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,'entity-portal': 3,
-              'airlinesEZ': 2, 'celebrities': 2, 'entity-search-1': 2, 'entity-banking-2': 2, 'weatherEZ': 2,
-              'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3, 'entity-generic': 2, 'noResult': 3, 'stocks': 3, 'weatherAlert': 3},
-
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
+      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+      'spellcheck': 1,
+      'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'airlinesEZ': 2, 'entity-portal': 3,
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -303,26 +305,33 @@ var CliqzUtils = {
     originalUrl = CliqzUtils.cleanMozillaActions(originalUrl);
     // exclude protocol
     var url = originalUrl,
-        name = originalUrl,
+        name = '',
         tld = '',
         subdomains = [],
         path = '',
+        query ='',
+        fragment = '',
         ssl = originalUrl.indexOf('https') == 0;
 
-
+    // remove scheme
     url = CliqzUtils.cleanUrlProtocol(url, false);
-    // extract only hostname
-    var host = url.split('/')[0].toLowerCase();
+    var scheme = originalUrl.replace(url, '').replace('//', '');
+
+    // separate hostname from path, etc. Could be separated from rest by /, ? or #
+    var host = url.split(/[\/\#\?]/)[0].toLowerCase();
     var path = url.replace(host,'');
+
+    // separate username:password@ from host
+    var userpass_host = host.split('@');
+    if(userpass_host.length > 1)
+      host = userpass_host[1];
 
     // Parse Port number
     var port = "";
     var isIPv4 = CliqzUtils.isIPv4(host);
     var isIPv6 = CliqzUtils.isIPv6(host);
 
-
     var indexOfColon = host.indexOf(":");
-
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
       [host, port] = [host.substr(0,indexOfColon), host.substr(indexOfColon+1)];
     }
@@ -335,9 +344,32 @@ var CliqzUtils = {
       }
     }
 
-    // extract only path
+    // extract query and fragment from url
+    var query = '';
+    var query_idx = path.indexOf('?');
+    if(query_idx != -1) {
+      query = path.substr(query_idx+1);
+    }
 
+    var fragment = '';
+    var fragment_idx = path.indexOf('#');
+    if(fragment_idx != -1) {
+      fragment = path.substr(fragment_idx+1);
+    }
 
+    // remove query and fragment from path
+    path = path.replace('?' + query, '');
+    path = path.replace('#' + fragment, '');
+    query = query.replace('#' + fragment, '');
+
+    // extra - all path, query and fragment
+    var extra = path;
+    if(query)
+      extra += "?" + query;
+    if(fragment)
+      extra += "#" + fragment;
+
+    // find parts of hostname
     if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
       try {
         var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
@@ -353,7 +385,9 @@ var CliqzUtils = {
         subdomains = host.slice(0, -name_tld.length).split(".").slice(0, -1);
 
         //remove www if exists
-        host = host.indexOf('www.') == 0 ? host.slice(4) : host;
+        // TODO: I don't think this is the right place to do this.
+        //       Disabled for now, but check there are no issues.
+        // host = host.indexOf('www.') == 0 ? host.slice(4) : host;
       } catch(e){
         name = "";
         host = "";
@@ -365,11 +399,15 @@ var CliqzUtils = {
     }
 
     var urlDetails = {
+              scheme: scheme,
               name: name,
               domain: tld ? name + '.' + tld : '',
               tld: tld,
               subdomains: subdomains,
               path: path,
+              query: query,
+              fragment: fragment,
+              extra: extra,
               host: host,
               ssl: ssl,
               port: port
@@ -1014,8 +1052,9 @@ var CliqzUtils = {
                 doc = win.document;
 
             try{
-                var btn = win.document.getElementById('cliqz-button')
-                if(btn && btn.children && btn.children.cliqz_menupopup){
+                var btn = win.document.getElementById('cliqz-button'),
+                    cliqz_core_disabled = CliqzUtils.getPref("cliqz_core_disabled", false);
+                if(btn && btn.children && btn.children.cliqz_menupopup && !cliqz_core_disabled){
                     var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
                     adultFilterOptions.parentNode.removeChild(adultFilterOptions);
                     var searchOptions = btn.children.cliqz_menupopup.lastChild;
@@ -1085,5 +1124,48 @@ var CliqzUtils = {
         };
         menu.appendChild(menupopup);
         return menu;
+    },
+    createActivateButton: function(doc) {
+      var button = doc.createElement('menuitem');
+      button.setAttribute('label', CliqzUtils.getLocalizedString('btnActivateCliqz'));
+      button.addEventListener('command', function(event) {
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            win.CLIQZ.Core.init();
+        }
+        CliqzUtils.setPref("cliqz_core_disabled", false);
+        CliqzUtils.toggleMenuSettings("enabled");
+      });
+      return button;
+    },
+
+    toggleMenuSettings: function(new_state) {
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext(),
+              doc = win.document;
+
+          try{
+            var btn = doc.getElementById('cliqz-button');
+            if(btn && btn.children && btn.children.cliqz_menupopup){
+              if (new_state == "enabled") {
+                var activateButton = btn.children.cliqz_menupopup.lastChild;
+                activateButton.parentNode.removeChild(activateButton);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+              }
+              else if (new_state == "disabled") {
+                var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                adultFilterOptions.parentNode.removeChild(adultFilterOptions);
+                var searchOptions = btn.children.cliqz_menupopup.lastChild;
+                searchOptions.parentNode.removeChild(searchOptions);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+              }
+            }
+          } catch (e){}
+      }
     }
 };

@@ -217,7 +217,15 @@ var Extension = {
             Extension.addButtons(win);
 
             try {
-                win.CLIQZ.Core.init();
+                if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
+                  win.CLIQZ.Core.init();
+                  CliqzUtils.log('Initialized', 'CORE');
+                }
+                // Always set urlbar and start whoAmI
+                // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+                win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+                win.CLIQZ.Core.whoAmI(true); //startup
+
             } catch(e) {Cu.reportError(e); }
         }
         else {
@@ -226,6 +234,12 @@ var Extension = {
     },
     addButtons: function(win){
         var doc = win.document;
+        if (!CliqzUtils.PREFERRED_LANGUAGE) {
+          // Need locale when cliqz is disabled
+          var nav = win.navigator;
+          CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
+          CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+        }
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
@@ -336,6 +350,12 @@ var Extension = {
             return item
         }
 
+        function optInOut(){
+            return CliqzUtils.getPref('dnt', false)?
+                             'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                             'url(chrome://cliqzres/content/skin/opt-out.svg)';
+        }
+
         //feedback and FAQ
         menupopup.appendChild(simpleBtn('Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));
@@ -346,16 +366,10 @@ var Extension = {
         var safeSearchBtn = doc.createElement('menuitem');
         safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
         safeSearchBtn.setAttribute('class', 'menuitem-iconic');
-        if(CliqzUtils.getPref('dnt', false)){
-            safeSearchBtn.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-        }
+        safeSearchBtn.style.listStyleImage = optInOut();
         safeSearchBtn.addEventListener('command', function(event) {
             CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
-            if(CliqzUtils.getPref('dnt', false)){
-                safeSearchBtn.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
-            } else {
-                safeSearchBtn.style.listStyleImage = '';
-            }
+            safeSearchBtn.style.listStyleImage = optInOut();
         }, false);
         menupopup.appendChild(safeSearchBtn);
 
@@ -394,14 +408,25 @@ var Extension = {
 
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
+        var cliqz_core_disabled = CliqzUtils.getPref("cliqz_core_disabled", false);
         if(Services.search.init != null){
             Services.search.init(function(){
+              if (!cliqz_core_disabled) {
                 menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
                 menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+              }
+              else {
+                menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+              }
             });
         } else {
-            menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-            menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+            if (!cliqz_core_disabled) {
+              menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+              menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+            }
+            else {
+              menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+            }
         }
     },
     openTab: function(doc, url){

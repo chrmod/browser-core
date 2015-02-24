@@ -37,7 +37,8 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, maxResults, only_instant){
+//	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, customResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, maxResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -109,7 +110,7 @@ var Mixer = {
 
 // NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
 // Consider taking some ideas from this function but not all.
-//        results = Filter.deduplicate(unfiltered, -1, 1, 1);
+        results = Filter.deduplicate(results, -1, 1, 1);
 
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {
@@ -145,7 +146,7 @@ var Mixer = {
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
             // Remove entity links form history
-            if(results.length > 0 && results[0].data.template.indexOf("pattern") == 0) {
+            if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
                  var mainUrl = cliqzExtra[0].val;
                  var history = results[0].data.urls;
                  CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
@@ -203,11 +204,9 @@ var Mixer = {
         }
 
         // Add custom results to the beginning if there are any
-        if(custom && custom.length > 0) {
-            results = custom.concat(results);
+        if(customResults && customResults.length > 0) {
+            results = customResults.concat(results);
         }
-
-
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
             var path = "http://cdn.cliqz.com/extension/EZ/noResult/";

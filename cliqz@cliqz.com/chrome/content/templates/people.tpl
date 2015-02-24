@@ -21,7 +21,7 @@
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
         {{#with data.richData}}
             <div class='cqz-result-desc overflow'>

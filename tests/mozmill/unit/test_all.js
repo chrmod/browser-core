@@ -175,3 +175,118 @@ function testFilter() {
     }
 }
 
+function test_getDetailsFromUrl() {
+    //t1
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com");
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "");
+
+    //t2
+    var parts = CliqzUtils.getDetailsFromUrl("http://www.facebook.com/url?test=fdsaf");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com");
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "http:");
+
+    //t3
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "https:");
+
+
+    //t4
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+
+    //t5
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk#blah");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.co.uk");
+    assert.equal(parts.host, "www.facebook.co.uk")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "co.uk");
+    assert.equal(parts.path, "");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "blah");
+
+    //t6
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk/url#blah");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.co.uk");
+    assert.equal(parts.host, "www.facebook.co.uk")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "co.uk");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "blah");
+
+    //t7
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+
+    //t8
+    var parts = CliqzUtils.getDetailsFromUrl("https://localhost:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "");
+    assert.equal(parts.host, "localhost")
+    assert.equal(parts.name, "localhost");
+    assert.equal(parts.subdomains.length, 0);
+    assert.equal(parts.tld, "");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+
+    //t9
+    var parts = CliqzUtils.getDetailsFromUrl("https://192.168.11.1:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "");
+    assert.equal(parts.host, "192.168.11.1")
+    assert.equal(parts.name, "IP");
+    assert.equal(parts.subdomains.length, 0);
+    assert.equal(parts.tld, "");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+}

@@ -10,11 +10,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
-// Only available in FF 22
-// https://developer.mozilla.org/en-US/docs/Web/API/URL
-// - TODO: replace with something that works in old browsers
-Cu.importGlobalProperties(['URL']);
-
 
 var CliqzClusterHistory = CliqzClusterHistory || {
     LOG_KEY: 'CliqzClusterHistory',
@@ -153,7 +148,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 continue;
 
             var url = history[i].url;
-            var url_parts = new URL(url)
+            var url_parts = CliqzUtils.getDetailsFromUrl(url);
 
             var matched_scheme = false,
                 matched_domain = false,
@@ -162,23 +157,23 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 matched_fragment = false;
 
             // SCHEME
-            if(!cond.scheme || url_parts.protocol.search(cond.scheme) != -1)
+            if(!cond.scheme || url_parts.scheme.search(cond.scheme) != -1)
                 matched_scheme = true;
 
             // DOMAIN
-            if(!cond.domain || url_parts.hostname.search(cond.domain) != -1)
+            if(!cond.domain || url_parts.host.search(cond.domain) != -1)
                 matched_domain = true;
 
             // PATH
-            if(!cond.path || url_parts.pathname.search(cond.path) != -1)
+            if(!cond.path || url_parts.path.search(cond.path) != -1)
                 matched_path = true;
 
             // QUERY
-            if(!cond.query || url_parts.search.replace(/^\?/, '').search(cond.query) != -1)
+            if(!cond.query || url_parts.query.search(cond.query) != -1)
                 matched_query = true;
 
             // FRAGMENT
-            if(!cond.fragment || url_parts.hash.replace(/^#/, '').search(cond.fragment) != -1)
+            if(!cond.fragment || url_parts.fragment.search(cond.fragment) != -1)
                 matched_fragment = true;
 
             if(matched_scheme && matched_domain && matched_path && matched_query && matched_fragment)
@@ -190,7 +185,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         if(!rule)
             return undefined;
 
-        var url_parts = new URL(entry.url);
+        var url_parts = CliqzUtils.getDetailsFromUrl(entry.url);
 
         if (typeof rule == 'string') {
             return rule;
@@ -205,11 +200,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                 else if(rule.var == 'domain')
                     source = url_parts.host;
                 else if(rule.var == 'path')
-                    source = url_parts.pathname;
+                    source = url_parts.path;
                 else if(rule.var == 'query')
-                    source = url_parts.search.replace(/^\?/, '');
+                    source = url_parts.query;
                 else if(rule.var == 'fragment')
-                    source = url_parts.hash.replace(/^#/, '');
+                    source = url_parts.fragment;
 
                 if(source) {
                     var regex = new RegExp(rule.pattern);
@@ -234,7 +229,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         var url = entry.url;
-        var url_parts = new URL(url);
+        var url_parts = CliqzUtils.getDetailsFromUrl(url);
 
         function rewrite(text, pattern) {
             if(pattern == undefined)
@@ -255,11 +250,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         // extract individual parts based on pattern in rule
-        var scheme = rewrite(url_parts.protocol, rule.scheme);
+        var scheme = rewrite(url_parts.scheme, rule.scheme);
         var domain = rewrite(url_parts.host, rule.domain);
-        var path = rewrite(url_parts.pathname, rule.path);
-        var query = rewrite(url_parts.search.replace(/^\?/, ''), rule.query);
-        var fragment = rewrite(url_parts.hash.replace(/^#/, ''), rule.fragment);
+        var path = rewrite(url_parts.path, rule.path);
+        var query = rewrite(url_parts.query, rule.query);
+        var fragment = rewrite(url_parts.fragment, rule.fragment);
 
         // combine them back into a full URL
         var url = scheme + "//" + domain + path;
@@ -437,7 +432,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                     var new_entry = {
                         favicon: '',
                         href: entry.url,
-                        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host + url_parts.path), true),
+                        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host + url_parts.extra), true),
                         domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host), true).split("/")[0],
                         title: entry.title,
                         old_urls: entry.old_urls,

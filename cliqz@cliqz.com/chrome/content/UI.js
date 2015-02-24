@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
-    MESSAGE_TEMPLATES = ['adult'],
+    MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
         //'b': 'bundesliga',
         //'s': 'shopping',
@@ -44,8 +44,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
-    messageContainer
+    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
     ;
 
 var UI = {
@@ -101,10 +100,11 @@ var UI = {
         box.innerHTML = UI.tpl.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
-        messageContainer = document.getElementById('cliqz-message-container');
+        var messageContainer = document.getElementById('cliqz-message-container');
 
         resultsBox.addEventListener('mouseup', resultClick);
         messageContainer.addEventListener('mouseup', messageClick);
+        gCliqzBox.messageContainer = messageContainer;
 
         box.addEventListener('mousemove', resultMove);
         resultsBox.addEventListener('wheel', resultScroll);
@@ -163,9 +163,6 @@ var UI = {
         if (!gCliqzBox)
             return;
 
-        currentResults = enhanceResults(res);
-        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
-
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -173,6 +170,10 @@ var UI = {
                 UI.main(cliqzBox);
             }
         }
+
+        currentResults = enhanceResults(res);
+        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
+
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
 
@@ -431,6 +432,7 @@ var UI = {
     sessionEnd: sessionEnd,
 };
 
+
 function selectWord(input, direction) {
   var start = 0, end = 0;
   var cursor = UI.cursor;
@@ -534,8 +536,31 @@ function handlePopupHeight(box){/*
     });*/
 }
 
-function $(e, ctx){return (ctx || document).querySelector(e); }
-function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
+//returns the first child which matches the selector
+function $(selector, ctx){return (ctx || document).querySelector(selector); }
+
+//returns all the childs which match the selector
+function $$(selector, ctx){return (ctx || document).querySelectorAll(selector); }
+
+//returns the ctx itself if its a match or first child which matches the selector
+function $_(selector, ctx){
+    if(matches(ctx || document, selector)){
+        return ctx || document;
+    } else return $(selector, ctx);
+}
+
+
+// returns true if the selector matches the element
+function matches(elem, selector) {
+    var f = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
+    if(f){
+        return f.bind(elem)(selector);
+    }
+    else {
+        //older FF doest have mathes - create our own
+        return elem.parentNode && Array.prototype.indexOf.call(elem.parentNode.querySelectorAll(selector), elem) != -1;
+    }
+}
 
 /**
  * Finds the closest ancestor of @p elem that matches @p selector.
@@ -543,10 +568,8 @@ function $$(e, ctx){return (ctx || document).querySelectorAll(e); }
  * @see http://stackoverflow.com/questions/15329167/closest-ancestor-matching-selector-using-native-dom
  */
 function closest(elem, selector) {
-   var matchesSelector = elem.matches || elem.webkitMatchesSelector || elem.mozMatchesSelector || elem.msMatchesSelector;
-
     while (elem) {
-        if (matchesSelector.bind(elem)(selector)) {
+        if (matches(elem, selector)) {
             return elem;
         } else {
             elem = elem.parentElement;
@@ -834,36 +857,90 @@ function enhanceResults(res){
 
     }
 
+
+    var user_location = CliqzUtils.getPref("config_location", "de");
+    // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
+    var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
+
+
+
+
+    //prioritize extra (fun-vertical) results
+    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
+    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
+    // var all = first.concat(last);
+    var all = res.results;
+
+
     //filter adult results
-    if(adult){
+    if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
         if(level == 'moderate' && adultMessage == 0){
-            updateAdultWarningState("show");
+            updateMessageState("show", {
+                "adult": {
+                  "adultConfig": CliqzUtils.getAdultFilterState()
+                }
+             });
         }
     }
+    else if (user_location != "de" && !ignored_location_warning) {
+      updateMessageState("show", {
+          "bad_results_warning": {}
+       });
+    }
     else {
-      updateAdultWarningState("hide");
+      updateMessageState("hide");
     }
 
     return res;
 }
 
-function updateAdultWarningState(state) {
-  //var messageContainer = document.getElementById('cliqz-message-container');
+ /*
+  * Updates the state of the messages box at the bottom of the suggestions popup.
+  * @param state the new state, One of ("show", "hide"). Default Vaule: "hide"
+  *
+  * @param messages the dictionary of messages that will be updated,
+  * specified by the name of the template, excluding the .tpl extension.
+  * The name should be in MESSAGE_TEMPLATES, so the template can be automatically rendered.
+  * In the dictionary, the key is the name of the template, and the value is the dictinary
+  * of template arguments. e.g:
+  * If state == "hide", then messages_list is ignored and all messages are hidden.
+  * If state == "show", the messages in messages_list will be displayed to the user, in the same order.
+  *
+  * example: updateMessageState("show", {
+                "adult": {
+                  "adultConfig": CliqzUtils.getAdultFilterState()
+                }
+             });
+  * You can also pass multiple messages at once, e.g:
+
+             updateMessageState("show", {
+                "adult": {
+                    "adultConfig": CliqzUtils.getAdultFilterState()
+                },
+                "bad_results_warning": {
+                  // Template has no arguments.
+                }
+             });
+  */
+
+function updateMessageState(state, messages) {
   switch (state) {
     case "show":
       // Show adult warning
-      CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
-      messageContainer.innerHTML = UI.tpl.adult({
-        'adultConfig': CliqzUtils.getAdultFilterState()
+      CliqzUtils.log(CLIQZ.Core.popup.style.height);
+      //CLIQZ.Core.popup.style.height = CliqzUtils.isWindows(CliqzUtils.getWindow())?"340px":"336px";
+      gCliqzBox.messageContainer.innerHTML = "";
+      Object.keys(messages).forEach(function(tpl_name){
+          gCliqzBox.messageContainer.innerHTML += UI.tpl[tpl_name](messages[tpl_name]);
       });
       break;
     case "hide":
     default:
-      messageContainer.innerHTML = "";
+      gCliqzBox.messageContainer.innerHTML = "";
       CLIQZ.Core.popup.style.height = "302px";
       break;
   }
@@ -900,6 +977,58 @@ function urlIndexInHistory(url, urlList) {
     }
     return index;
 }
+
+function messageClick(ev) {
+  var el = ev.target;
+  // Handle adult results
+
+  while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
+      var action = el.getAttribute('cliqz-action');
+      /*********************************/
+      /* BEGIN "Handle message clicks" */
+
+      if (action) {
+        if (action == 'adult') {
+          /* Adult message */
+          handleAdultClick(ev);
+        }
+        else if (action == 'disable-cliqz') {
+          // "Cliqz is not optimized for your country" message */
+          var state = ev.originalTarget.getAttribute('state');
+          switch(state) {
+              case 'disable-cliqz':
+                  CliqzUtils.setPref("cliqz_core_disabled", true);
+                  updateMessageState("hide");
+                  var enumerator = Services.wm.getEnumerator('navigator:browser');
+
+                  //remove cliqz from all windows
+                  while (enumerator.hasMoreElements()) {
+                      var win = enumerator.getNext();
+                      win.CLIQZ.Core.destroy(true);
+                  }
+                  CliqzUtils.toggleMenuSettings("disabled");
+                  break;
+              case 'keep-cliqz':
+                  updateMessageState("hide");
+                  // Lets us know that the user has ignored the warning
+                  CliqzUtils.setPref('ignored_location_warning', true);
+                  break;
+              default:
+                  break;
+          }
+          setTimeout(CliqzUtils.refreshButtons, 0);
+        }
+      }
+      /* Propagate event up the DOM tree */
+      el = el.parentElement;
+    }
+
+    /*  END "Handle message clicks"  */
+    /*********************************/
+
+}
+
+
 
 function logUIEvent(el, historyLogType, extraData, query) {
   if(!query) var query = CLIQZ.Core.urlbar.value;
@@ -940,40 +1069,13 @@ function logUIEvent(el, historyLogType, extraData, query) {
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
-
-function messageClick(ev) {
-  var el = ev.target;
-  // Handle adult results
-
-  while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
-    var action = el.getAttribute('cliqz-action');
-    if(action == 'stop-click-event-propagation'){
-      break;
-    }
-
-
-    /*********************************/
-    /* BEGIN "Handle message clicks" */
-
-    /* Adult message */
-    if (action && action == 'adult') {
-      handleAdultClick(ev);
-    };
-
-    /*  END "Handle message clicks"  */
-    /*********************************/
-
-    /* Propagate event up the DOM tree */
-    el = el.parentElement;
-
-  }
-}
-
 function resultClick(ev){
+
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
+
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){
@@ -994,8 +1096,8 @@ function resultClick(ev){
                 const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
                                            .getService(Components.interfaces.nsIClipboardHelper);
                 gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
-                document.getElementById('calc-copied-btn').style.display = "";
-                document.getElementById('calc-copy-btn').style.display = "none";
+                document.getElementById('calc-copied-msg').style.display = "";
+                document.getElementById('calc-copy-msg').style.display = "none";
             }
             /*
              * Hides the current element and displays one of its siblings that
@@ -1020,9 +1122,6 @@ function resultClick(ev){
             }
 
             if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
-                console.log(el);
-                console.log(ev);
-
               enginesClick(ev);
               break;
             };
@@ -1058,30 +1157,52 @@ function resultScroll(ev) {
 }
 
 function handleAdultClick(ev){
-    var state = ev.originalTarget.getAttribute('state');
-    //var messageContainer = document.getElementById('cliqz-message-container');
+    var state = ev.originalTarget.getAttribute('state'),
+        ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
+        user_location = CliqzUtils.getPref("config_location");
+
     switch(state) {
         case 'yes': //allow in this session
             adultMessage = 1;
             UI.handleResults();
-            updateAdultWarningState("hide");
+            updateMessageState("hide");
+            if (user_location != "de" && !ignored_location_warning)
+              updateMessageState("show", {
+                  "bad_results_warning": {}
+              });
             break;
         case 'no':
             adultMessage = 2;
             UI.handleResults();
-            updateAdultWarningState("hide");
+            updateMessageState("hide");
+            if (user_location != "de" && !ignored_location_warning)
+              updateMessageState("show", {
+                  "bad_results_warning": {}
+               });
             break;
         default:
             var rules = CliqzUtils.getAdultFilterState();
             if(rules[state]){
                 CliqzUtils.setPref('adultContentFilter', state);
-                updateAdultWarningState('show');
+                updateMessageState("hide");
                 UI.handleResults();
-
+                if (user_location != "de" && !ignored_location_warning)
+                  updateMessageState("show", {
+                      "bad_results_warning": {}
+                   });
             }
             else {
                 //click on options btn
             }
+            break;
+
+    }
+    if(state && state != 'options'){ //optionsBtn
+        CliqzUtils.track({
+            type: 'setting',
+            setting: 'adultFilter',
+            value: state
+        });
     }
     setTimeout(CliqzUtils.refreshButtons, 0);
 }
@@ -1113,6 +1234,12 @@ function clearTextSelection() {
     interrupted
  */
 var smooth_scroll_to = function(element, target, duration) {
+    if(!Promise || typeof Promise != 'function'){ // older FF
+        //should we do our own animation?
+        element.scrollTop = Math.round(target);
+        return;
+    }
+
     target = Math.round(target);
     duration = Math.round(duration);
     if (duration < 0) {
@@ -1181,7 +1308,7 @@ var smooth_scroll_to = function(element, target, duration) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
-    if(el){
+    if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
@@ -1191,9 +1318,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         // Clear Selection
         clearResultSelection();
 
-        if(target != el)
+        if(target != el){
             //arrow target is now on an inner element
             el.removeAttribute('arrow');
+            target.setAttribute('url', el.getAttribute('url'));
+        }
 
         var offset = target.offsetTop;
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
@@ -1223,7 +1352,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         CLIQZ.Core.urlbar.value = UI.lastInput;
         clearResultSelection();
     }
-    return;
 }
 
 var lastMoveTime = Date.now();
@@ -1454,6 +1582,7 @@ var AGO_CEILINGS=[
     [58060800     , 'ago1year'   , 1],
     [2903040000   , 'agoXYears'     , 29030400],
 ];
+
 function registerHelpers(){
     Handlebars.registerHelper('partial', function(name, options) {
         var template = UI.tpl[name] || UI.tpl.empty;
@@ -1504,10 +1633,6 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
     });
 
-    Handlebars.registerHelper('localize_parameters', function(key1, key2 ) {
-        return CliqzUtils.getLocalizedString(key1).replace('{}', CliqzUtils.getLocalizedString(key2));
-    });
-
     Handlebars.registerHelper('local_number', function(val) {
         if(!val)return null;
         try {
@@ -1517,7 +1642,15 @@ function registerHelpers(){
         }
     });
 
+    Handlebars.registerHelper('wikiEZ_height', function(data_richData){
+        if (data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+            return 'cqz-result-h2';
+        return 'cqz-result-h3';
+    });
 
+    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
+        return idx < max_idx;
+    });
 
     Handlebars.registerHelper('json', function(value, options) {
         return JSON.stringify(value);
@@ -1681,7 +1814,6 @@ function registerHelpers(){
         return width - reduction;
     });
 }
-
 ctx.CLIQZ = ctx.CLIQZ || {};
 ctx.CLIQZ.UI = UI;
 
