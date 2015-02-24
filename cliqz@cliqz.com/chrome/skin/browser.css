@@ -51,7 +51,7 @@
 
 /* common classes */
 .hidden { visibility: hidden; display: none !important; }
-#cliqz-results * > em, #cliqz-results * > i,#cliqz-results * > b { font-size: inherit }
+#cliqz-results * > em, #cliqz-results * > i,#cliqz-results * > b,#cliqz-results * > span { font-size: inherit }
 #cliqz-results em { font-style: normal; font-weight: bold; }
 #cliqz-results b { font-weight: bold; }
 #cliqz-results i { font-style: italic; }
@@ -143,7 +143,7 @@
     color: white;
     padding: 0 9px 2px;
     line-height: 28px;
-    margin: 0 7px 9px 0;
+    margin: 0 7px 4px 0;
     max-width: 150px;
     display: inline-block;
 }
@@ -211,13 +211,18 @@
     box-sizing: border-box;
     padding: 7px 18px 0;
     border-radius: 3px;
+    cursor: pointer;
+
 }
+#cliqz-results .cqz-ez-generic-opt:hover { text-decoration: underline; }
+
 #cliqz-results .cqz-ez-generic-opt div {
     height: 65px;
     width: 65px;
     margin: 14px auto;
     background-position: center;
     background-size: contain;
+    cursor: pointer;
 }
 #cliqz-results .cqz-ez-generic-elems { margin-top: 5px; overflow: hidden; height: 132px; }
 
@@ -236,7 +241,9 @@
     -moz-box-sizing: border-box;
 	padding-top: 74px;
 	border-radius: 3px;
+    cursor: pointer;
 }
+#cliqz-results .cqz-ez-banking-opt:hover { text-decoration: underline; }
 #cliqz-results .cqz-ez-banking-elems { margin-top: 10px; }
 #cliqz-results .cqz-ez-banking-title { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
@@ -244,6 +251,7 @@
 #cliqz-results .cqz-ez-title { background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg); margin-bottom: 11px; }
 #cliqz-results .entity-stories { margin-left: -22px; }
 #cliqz-results .entity-story { position: relative; height: 54px; padding: 5px 0 5px 22px; }
+#cliqz-results .entity-story * {  cursor: pointer; }
 #cliqz-results .entity-story-image {
     position: relative;
     width: 86px;
@@ -318,17 +326,15 @@
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
 
 /* ez stock */
-#cliqz-results .cqz-ez-img-trend { width:17px; height:18px;}
-#cliqz-results .cqz-ez-stock-exchange { margin-top: 12px; font-size:12px; color:#cccccc ; }
-#cliqz-results .cqz-ez-img-stock { height:18px; }
-#cliqz-results .cqz-ez-stock-title { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); }
-#cliqz-results .cqz-ez-stock-trend { margin-top: 18px; font-size:25px; }
-#cliqz-results .cliqz-stock-price-table { margin-top:18px; border-spacing:1; color:#999999 ; }
-#cliqz-results .green { color: #74d463 ; }
-#cliqz-results .red { color: #c3043e ; }
-#cliqz-results .cliqz-stock-price-td { padding-left:28px; }
-#cliqz-results .cqz-ez-stock-disclaimer { margin-top:18px; margin-left:2px; }
-#cliqz-results .cqz-disclaimer { color:#cccccc ; }
+#cliqz-results .cqz-ez-stock-title { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); margin-bottom: 6px; }
+#cliqz-results .cqz-ez-stock-exchange, #cliqz-results .cqz-disclaimer { font-size: 12px; color: #cccccc; }
+#cliqz-results .cqz-ez-stock-trend { margin-top: 13px; font-size: 25px; }
+#cliqz-results .cqz-ez-img-trend { width: 12px; height: 18px; display: inline-block; margin: 0 4px 0 18px; }
+#cliqz-results .green { color: #74d463; }
+#cliqz-results .red { color: #c3043e; }
+#cliqz-results .cliqz-stock-price-table { margin: 8px 0; border-spacing: 1; color: #999999; }
+#cliqz-results .cliqz-stock-price-table td { font-size: 12px; }
+#cliqz-results .cliqz-stock-price-td { padding-left: 28px; }
 
 /* ez currency */
 #cliqz-results .EZ-currency-result { font-size: 25px; margin-top: -6px; }
@@ -399,7 +405,7 @@
     border-radius: 3px;
     padding: 4px 8px;
     text-align: center;
-    display:inline-block;
+    display: inline-block;
     background-color: #0480c3;
 }
 #PopupAutoCompleteRichResultCliqz .cqz-btn-default { background-color: #0480c3;}

@@ -191,7 +191,7 @@ var Mixer = {
             // Convert 2/3 size history into 1/3 to place below EZ
             else if(results.length > 0 &&
                     results[0].data && results[0].data.template == "pattern-h2" &&
-                    cliqzExtra[0].data.template == "entity-generic") {
+                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
                 results[0].data.template = "pattern-h3";
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,2);
