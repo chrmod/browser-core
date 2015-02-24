@@ -20,8 +20,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var EXPORTED_SYMBOLS = ['CliqzCalculator'];
 
 var basics = "[\\\(\\)\\+\\/\\*\\%\\^\\-\\.\\s0123456789]",
-//    utils = "|km|cm|meter|mm|m|inch|inches|foot|yard|mile|gr|rad|grad|celsius|fahrenheit|kelvin|to",
-    utils = "meter|m|inch|inches|in|foot|ft|feet|yard",
+    utils = "|km|cm|meter|mm|m|inch|inches|foot|yard|mile|gr|rad|grad|celsius|fahrenheit|kelvin|to",
     mathExp = "|log|exp|sin|cos|tan|asin|acos|atan|sqrt|log|abs|ceil|floor|round|exp",
     REG_CALC = new RegExp( "^([" + basics + mathExp + utils +"|\s])*$");
 
