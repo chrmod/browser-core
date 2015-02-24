@@ -864,16 +864,6 @@ function enhanceResults(res){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     var ignored_location_warning = CliqzUtils.getPref("ignored_location_warning", false);
 
-
-
-
-    //prioritize extra (fun-vertical) results
-    // var first = res.results.filter(function(r){ return r.type === "cliqz-extra"; });
-    // var last = res.results.filter(function(r){ return r.type !== "cliqz-extra"; });
-    // var all = first.concat(last);
-    var all = res.results;
-
-
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1008,7 +998,7 @@ function messageClick(ev) {
                       var win = enumerator.getNext();
                       win.CLIQZ.Core.destroy(true);
                   }
-                  CliqzUtils.toggleMenuSettings("disabled");
+                  CliqzUtils.refreshButtons();
                   break;
               case 'keep-cliqz':
                   updateMessageState("hide");
