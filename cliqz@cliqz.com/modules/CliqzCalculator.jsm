@@ -76,7 +76,8 @@ var CliqzCalculator = {
                               expression: expanded_expression,
                               answer: this.CALCULATOR_RES,
                               prefix_answer: result_sign,
-                              is_calculus: !this.IS_UNIT_CONVERTER,
+                              is_calculus: true,
+//                              is_calculus: !this.IS_UNIT_CONVERTER,
                               support_copy_ans: true
                           }
                       }

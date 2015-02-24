@@ -28,4 +28,5 @@
   </table>
 
   <div class="cqz-disclaimer cqz-ez-stock-disclaimer">{{ local 'no_legal_disclaimer' }}</div>
+  {{> logo}}
 </div>

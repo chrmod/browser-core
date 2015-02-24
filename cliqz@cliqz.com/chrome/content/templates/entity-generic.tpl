@@ -3,10 +3,11 @@
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
     {{#with data}}
-        <div class="cqz-ez-title cqz-ez-generic-title cqz-ez-banking-title"
-             style="background-image: url({{icon}})">
-          {{name}}
+        <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
+            {{name}}
+            <div class="after" style="background-image: url({{icon}})"></div>
         </div>
+        
         <div class="cqz-ez-generic-elems">
             <div class="cqz-ez-generic-box">
                 {{#each actions }}
