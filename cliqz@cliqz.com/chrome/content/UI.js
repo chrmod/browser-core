@@ -102,9 +102,12 @@ var UI = {
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
 
+
         resultsBox.addEventListener('mouseup', resultClick);
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
+        resultsBox.addEventListener('scroll', resultScroll);
+
 
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
@@ -829,7 +832,7 @@ function enhanceResults(res){
                     r.invalid = true;
                     r.dontCountAsResult = true;
                 }
-                
+
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -850,7 +853,7 @@ function enhanceResults(res){
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
         }
-        
+
         r.width = res.width > 500 ? res.width : 500;
 
         if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
@@ -1070,6 +1073,12 @@ function logUIEvent(el, historyLogType, extraData, query) {
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
+
+// user scroll event
+function resultScroll(ev) {
+    CliqzAutocomplete.hasUserScrolledCurrentResults = true;
+}
+
 function resultClick(ev){
 
     var el = ev.target,

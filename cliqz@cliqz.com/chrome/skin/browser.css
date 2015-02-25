@@ -29,6 +29,7 @@
     margin: 0;
     min-width: 500px;
     background: #fff; /* override linux default grey color */
+    position: relative;
 }
 
 /* reset defaults for dropdown content */
@@ -129,7 +130,7 @@
 /* custom logo definitions */
 #cliqz-results .cliqz-brand-logo, .cliqz-brand-logo {
 	-moz-transition: all 0.3s ease;
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;
 }
 
 #cliqz-results .cqz-result-logo {
@@ -292,7 +293,7 @@
 #cliqz-results .entity-story:hover .entity-story-title { text-decoration: underline; }
 #cliqz-results .entity-story-comment { color: #d7011d; padding-top: 9px; }
 #cliqz-results .ez-news .cqz-ez-title::after {
-    background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg); 
+    background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg);
 }
 /* ez video specials */
 #cliqz-results .ez-video .cqz-ez-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg); }
@@ -429,6 +430,7 @@
 
 /* adult content */
 #cliqz-popup .cqz-message-bar { padding: 4px 10px; text-align: justify; white-space: normal; line-height: 0 }
+#cliqz-popup .cqz-message-bar > * { margin-top: 8px; vertical-align: top; display: inline-block }
 #cliqz-popup .cqz-message-bar img { height: 16px; }
 #cliqz-popup .cqz-message { padding: 2px 20px 2px; margin-top: 2px; display: inline-block; }
 #cliqz-popup .cqz-message-success { color: #28ae2b; }
@@ -440,12 +442,11 @@
     background-position: left center;
     background-repeat: no-repeat;
     margin-bottom: 5px;
+    vertical-align: bottom;
 }
-#cliqz-popup .cqz-message-yes-no { display: inline-block; }
 #cliqz-popup .cqz-message-yes-no .message { vertical-align: top; line-height: 25px; margin-right: 5px; }
-#cliqz-popup .cqz-dummy-100percent { display: inline-block; width: 100%; }
-#cliqz-popup .cqz-dropdown-container { display: inline-block; margin-top: 8px; }
-
+#cliqz-popup .cqz-dummy-100percent { width: 100%; }
+#cliqz-popup .cqz-dropdown-container { margin-top: 8px; }
 #cliqz-popup .cqz-adult-options-btn {
     background-color: #eaeaea;
     box-sizing: border-box;
@@ -454,18 +455,18 @@
     margin-left: 0;
     color: #333333;
     overflow: visible;
+    width: 143px;
 }
-#cliqz-popup .cqz-adult-options-btn:after { content: "⌃"; top: 3px; left: 3px; position: relative; }
+#cliqz-popup .cqz-adult-options-btn:after { content: "⌃"; top: 3px; left: 3px; position: relative;  }
 #cliqz-popup .cqz-adult-options-btn:hover {
     border-top-left-radius: 0 0;
     border-top-right-radius: 0 0;
 }
-#cliqz-popup .cqz-adult-options-btn:hover .cqz-adult-options { display: inline-block; }
 #cliqz-popup .cqz-adult-options {
     display: none;
     position: absolute;
-    bottom: 34px;
-    width: 140px;
+    bottom: 37px;
+    width: 141px;
     text-align: left;
     border: 1px solid #eaeaea;
     border-radius: 3px;
@@ -476,6 +477,7 @@
     border-bottom-right-radius: 0 0;
     padding: 6px 0;
 }
+#cliqz-popup .cqz-adult-options-btn:hover .cqz-adult-options { display: block; }
 #cliqz-popup .cqz-adult-options div { padding: 3px 5px 3px 26px; }
 #cliqz-popup .cqz-adult-options div:hover { background-color: #116cd6; color: white; }
 #cliqz-popup .cqz-adult-options div[selected="true"] {
