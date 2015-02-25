@@ -119,6 +119,9 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
+    // Ensure prefs are set to our custom values
+    CliqzUtils.setOurOwnPrefs();
+
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLogoDetails: function(urlDetails){
@@ -138,7 +141,6 @@ var CliqzUtils = {
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
 
     else if (domains[base]) {
-      CliqzUtils.log(domains);
       for (var i=0,imax=domains[base].length;i<imax;i++) {
         CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
@@ -281,6 +283,9 @@ var CliqzUtils = {
           ret += space.charAt(Math.floor(Math.random() * sLen));
 
       return ret;
+  },
+  hash: function(s){
+    return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -552,7 +557,7 @@ var CliqzUtils = {
   },
   encodeCountry: function() {
     //international result not supported
-    return '';
+    return '&force_country=true';
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
@@ -1017,7 +1022,7 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 
     return urlbar.value.length == 0;
   },
@@ -1029,8 +1034,6 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */
@@ -1046,6 +1049,11 @@ var CliqzUtils = {
     } else {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
+  },
+  openTabInWindow: function(win, url){
+      var tBrowser = win.document.getElementById('content');
+      var tab = tBrowser.addTab(url);
+      tBrowser.selectedTab = tab;
   },
   //Q button
   refreshButtons: function(){
@@ -1073,10 +1081,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1116,7 +1124,7 @@ var CliqzUtils = {
       else {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
-      menupopup.appendChild(CliqzUtils.createHumanMenu(doc));
+      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1138,8 +1146,7 @@ var CliqzUtils = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                // keep reference to timer to avoid garbage collection
-                timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -1169,7 +1176,7 @@ var CliqzUtils = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -1187,8 +1194,9 @@ var CliqzUtils = {
 
         return item
     },
-    createHumanMenu: function(doc){
-        var menu = doc.createElement('menu'),
+    createHumanMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
             menuPopup = doc.createElement('menupopup');
 
         menu.setAttribute('label', 'Human Web');
@@ -1215,7 +1223,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        Extension.openTab(doc, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/support/#common-questions');
                     }
             )
         );
@@ -1234,6 +1242,12 @@ var CliqzUtils = {
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CliqzUtils.refreshButtons();
+
+        CliqzUtils.track({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
       });
       return button;
     },
