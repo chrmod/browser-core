@@ -37,7 +37,6 @@ var Mixer = {
     init: function() {
         // nothing
     },
-//	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, custom, bundesligaResults, customResults, maxResults, only_instant){
 	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, maxResults, only_instant){
 		var results = [];
 
@@ -53,6 +52,14 @@ var Mixer = {
         // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
         // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
         CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+
+        // extract the entity zone accompanying the first cliqz result, if any
+        if(cliqz && cliqz.length > 0) {
+            if(cliqz[0].extra) {
+                cliqzExtra.push(Result.cliqzExtra(cliqz[0].extra));
+                CliqzUtils.log("EZ found in result for " + cliqz[0].url, "Mixer");
+            }
+        }
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
@@ -99,9 +106,6 @@ var Mixer = {
 
         cliqz = cliqz_new;
 
-        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
-
-
         var results = instant;
 
         for(let i = 0; i < cliqz.length; i++) {
@@ -111,15 +115,6 @@ var Mixer = {
 // NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
 // Consider taking some ideas from this function but not all.
         results = Filter.deduplicate(results, -1, 1, 1);
-
-
-        // extract the entity zone accompanying the first cliqz result, if any
-        if(cliqz && cliqz.length > 0) {
-            if(cliqz[0].extra) {
-                cliqzExtra.push(Result.cliqzExtra(cliqz[0].extra));
-                CliqzUtils.log("EZ in snippet: " + JSON.stringify(cliqzExtra));
-            }
-        }
 
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {
@@ -140,13 +135,17 @@ var Mixer = {
             }
         } else if(results.length > 0) {
             // Take the first entry and see if we can trigger an EZ with it
-            var url = CliqzHistoryPattern.generalizeUrl(results[0].label, true);
-            CliqzUtils.log("Check if url triggers EZ: " + url, "Mixer");
+
+            var url = results[0].val;
+            // if there is no url associated with the first result, try to find it inside
+            if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
+                url = results[0].data.urls[0].href;
+
+            url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
-                CliqzUtils.log("Yes, it is cached? ID: "  + Mixer.ezURLs[url], "Mixer");
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
-                    CliqzUtils.log("Yes, here it is: " + JSON.stringify(ez), "Mixer");
+                    CliqzUtils.log("Triggering EZ based on local cache with " + url, "Mixer");
                     cliqzExtra = [ez];
                 }
             }
