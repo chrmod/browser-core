@@ -1223,7 +1223,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
                     }
             )
         );
