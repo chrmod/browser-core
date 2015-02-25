@@ -444,7 +444,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 if (!CliqzAutosuggestion.active) {
                     urlbar.mInputField.setUserInput(query);
                     CliqzUtils.log('set new search to: ' + query, 'Cliqz AS');
-                } */ 
+                } */
+                urlbar.mInputField.setUserInput(query);
                 urlbar.mInputField.value = old;
                 urlbar.mInputField.setSelectionRange(start+1, urlbar.value.length);
                 ev.preventDefault();
