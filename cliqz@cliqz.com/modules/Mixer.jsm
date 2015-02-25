@@ -160,43 +160,17 @@ var Mixer = {
                  }
                  // Change size or remove history if necessary
                  if(history.length == 0) results.splice(0,1);
-                 else if(history.length == 1){
-                   // Replace with single result
-                   results[0] = Result.generic('favicon', history[0].href, null, history[0].title, null, results[0].search);
-                   results[0].comment += " (history single)!"
-                   results[0].data.kind = "H";
-                 }
                  else if(history.length == 2) results[0].data.template = "pattern-h3";
             }
 
             // if the first result is a history cluster and 
-            // there is a generic EZ, make a combined entry
-            if(results.length > 0 &&
-               results[0].data && results[0].data.template == "pattern-h2" &&
-               cliqzExtra[0].data.template == "entity-generic") {
-
-                results[0].style = "cliqz-extra";
-
-                // combine data from the two entries:
-                for (let [key, value] in Iterator(cliqzExtra[0].data))
-                    results[0].data[key] = value;
-
-                // use special combined template
-                results[0].data.template = "entity-generic-history";
-
-                // limit number of URLs
-                results[0].data.urls = results[0].data.urls.slice(0,4);
-            }
-            // Convert 2/3 size history into 1/3 to place non-generic EZ
-            else if(results.length > 0 &&
-                    results[0].data && results[0].data.template == "pattern-h2" &&
+            // there is an EZ, make a combined entry
+            if(results.length > 0 && results[0].data &&
                     CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
-                results[0].data.template = "pattern-h3";
-                // limit number of URLs
-                results[0].data.urls = results[0].data.urls.slice(0,2);
 
-                results = cliqzExtra.concat(results);
-
+                var temp_history = results[0];
+                results[0] = cliqzExtra[0];
+                results[0].data.urls = temp_history.data.urls.slice(0,4);
             } else {
                 results = cliqzExtra.concat(results);
             }

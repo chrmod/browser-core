@@ -1,4 +1,10 @@
-<div class='cqz-result-h2 cqz-result-padding'>
+<div 
+  {{#if data.urls}}
+    class="cqz-result-h1 cqz-result-padding"
+  {{else}}
+    class="cqz-result-h2 cqz-result-padding"  
+  {{/if}}
+>
     {{#if debug}}
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
@@ -30,6 +36,7 @@
         </div>
     {{/with}}
 
-    {{> logo}}
+    {{>EZ-history}}
+    {{>logo}}
     {{>feedback}}
 </div>
