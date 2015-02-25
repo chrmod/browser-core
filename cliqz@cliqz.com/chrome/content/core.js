@@ -167,8 +167,8 @@ CLIQZ.Core = CLIQZ.Core || {
                 CliqzUCrawl.init(window);
                 window.gBrowser.addProgressListener(CliqzUCrawl.listener);
             }
-            
-            if(CliqzUtils.getPref("safeBrowsing", false)){
+
+            if(CliqzUtils.getPref("safeBrowsingMoz", false)){
                 CUcrawlTest.init(window);
                 window.gBrowser.addProgressListener(CUcrawlTest.listener);
             }
@@ -298,7 +298,7 @@ CLIQZ.Core = CLIQZ.Core || {
               currentBrowser.contentDocument.removeEventListener("mousedown", CliqzUCrawl.captureMouseClickPage);
               currentBrowser.contentDocument.removeEventListener("scroll", CliqzUCrawl.captureScrollPage);
               currentBrowser.contentDocument.removeEventListener("copy", CliqzUCrawl.captureCopyPage);
-            } 
+            }
 
 
         }
@@ -333,9 +333,9 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.popupEvent(true);
     },
     popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;                
+        CliqzAutocomplete.isPopupOpen = false;
         CliqzAutocomplete.resetSpellCorr();
-        CliqzAutocomplete.markResultsDone(null);        
+        CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
