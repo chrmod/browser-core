@@ -1567,6 +1567,13 @@ function registerHelpers(){
         return new Handlebars.SafeString(template(this));
     });
 
+    Handlebars.registerHelper('get_array_element', function(arr, idx, subelement) {
+      if (typeof(subelement) == undefined)
+        return arr[idx];
+      else
+        return arr[idx][subelement];
+    });
+
     Handlebars.registerHelper('agoline', function(ts, options) {
         if(!ts) return '';
         var now = (new Date().getTime() / 1000),
