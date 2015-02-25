@@ -440,20 +440,20 @@ CLIQZ.Core = CLIQZ.Core || {
                 // prevent the redraw in urlbar but send the search signal
                 let query = urlbar.value, old = urlbar.value, start = urlbar.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);
-                CliqzUtils.log('prevent default', 'Cliqz AS');
+                /* CliqzUtils.log('prevent default', 'Cliqz AS');
                 if (!CliqzAutosuggestion.active) {
                     urlbar.mInputField.setUserInput(query);
                     CliqzUtils.log('set new search to: ' + query, 'Cliqz AS');
-                }
+                } */ 
                 urlbar.mInputField.value = old;
                 urlbar.mInputField.setSelectionRange(start+1, urlbar.value.length);
                 ev.preventDefault();
-            } else {
+            } /* else {
                 CliqzAutosuggestion.active = false;
-            }
-        } else {
-            CliqzAutosuggestion.active = false;
-        }
+            } */
+        } /* else {
+           CliqzAutosuggestion.active = false;
+        } */
     },
     openLink: function(url, newTab){
         CLIQZ.Core.triggerLastQ = true;
