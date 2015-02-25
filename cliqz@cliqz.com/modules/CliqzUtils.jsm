@@ -659,7 +659,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.getPref('telemetry', false))return;
+    if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
@@ -1223,7 +1223,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
                     }
             )
         );
