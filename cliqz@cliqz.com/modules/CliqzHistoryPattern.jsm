@@ -254,19 +254,34 @@ var CliqzHistoryPattern = {
     return res;
   },
 
-  // Calculates the share of the most common domain in given patterns
+  // Calculates the _weighted_ share of the most common domain in given patterns
   maxDomainShare: function(patterns) {
+    var patternCount = patterns.length; 
+    // boost the first X domain entries (i.e., within boostRange)
+    var boostRange = 3;
+    // weight for the first X entries, all other entries have weight of 1;
+    // this makes the first X entries as important as the remaining (N - X) entries
+    var boostFactor = (patternCount - boostRange) / (1 * boostRange);
+    
+    // make sure the first results do not become less important, which happens if
+    // if there are only very few patterns (i.e, patternCount < boostRange * 2)
+    boostFactor = Math.max(1, boostFactor);
+  
     var domains = [];
+    var index = 0;
     for (var key in patterns) {
       var url = patterns[key].url;
       var domain = this.domainFromUrl(url, false);
+      // assign a higher weight to this domain entry if it is one of the first N entries
+      var weightedCount = index < boostRange ? boostFactor : 1;
       if (!domains[domain]) {
-        domains[domain] = 1;
+        domains[domain] = weightedCount;
       } else {
         var cnt = 1;
         if(patterns[key].cnt) cnt = patterns[key].cnt;
-        domains[domain] += cnt;
+        domains[domain] += weightedCount;
       }
+      index++;
     }
     var max = 0.0;
     var cnt = 0.0;
@@ -278,6 +293,7 @@ var CliqzHistoryPattern = {
         domain = key;
       }
     }
+
     return [domain, max / cnt];
   },
   sortPatterns: function(desc, key) {
