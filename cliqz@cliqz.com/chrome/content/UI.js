@@ -856,7 +856,7 @@ function enhanceResults(res){
 
         r.width = res.width > 500 ? res.width : 500;
 
-        if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
+        if(r.data && r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             r.logo.add_logo_url = true;
