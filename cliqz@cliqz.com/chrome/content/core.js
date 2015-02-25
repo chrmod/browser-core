@@ -49,6 +49,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
   'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
+  'chrome://cliqzmodules/content/CliqzCategories.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -94,7 +97,12 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.init(window);
         CliqzNewTab.init(window);
         CliqzHistory.initDB();
+
         //CliqzHistoryPattern.preloadColors();
+        if(CliqzUtils.getPref('categoryAssessment', false)){
+            CliqzCategories.init();
+        }
+
         CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
@@ -273,6 +281,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.ResultProviders;
+            delete window.CliqzCategories;
             delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
@@ -290,6 +299,7 @@ CLIQZ.Core = CLIQZ.Core || {
     popupClose: function(){
         CliqzAutocomplete.isPopupOpen = false;
         CliqzAutocomplete.resetSpellCorr();
+        CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
     },
     popupEvent: function(open) {
