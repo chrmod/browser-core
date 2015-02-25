@@ -225,20 +225,21 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
-            case UP:
-                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
-                setResultSelection(nextEl, true, true, true);
-                trackArrowNavigation(nextEl);
-                return true;
-            break;
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
-            case DOWN:
-                if(pos != allArrowable.length - 1){
-                    var nextEl = allArrowable[pos+1];
-                    setResultSelection(nextEl, true, false, true);
-                    trackArrowNavigation(nextEl);
+                // move up if SHIFT key is held down
+                if (ev.shiftKey) {
+                    selectPrevResult(pos, allArrowable);
+                } else {
+                    selectNextResult(pos, allArrowable);
                 }
+                return true;
+            case UP:
+                selectPrevResult(pos, allArrowable);
+                return true;
+            break;
+            case DOWN:
+                selectNextResult(pos, allArrowable);
                 return true;
             break;
             case ENTER:
@@ -1283,6 +1284,22 @@ var smooth_scroll_to = function(element, target, duration) {
         // boostrap the animation process
         setTimeout(scroll_frame, 0);
     });
+}
+
+function selectNextResult(pos, allArrowable) {
+    if (pos != allArrowable.length - 1) {
+        var nextEl = allArrowable[pos + 1];
+        setResultSelection(nextEl, true, false, true);
+        trackArrowNavigation(nextEl);
+    }
+}
+
+function selectPrevResult(pos, allArrowable) {
+    if (pos > 0) {
+        var nextEl = allArrowable[pos - 1];
+        setResultSelection(nextEl, true, true, true);
+        trackArrowNavigation(nextEl);
+    }
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
