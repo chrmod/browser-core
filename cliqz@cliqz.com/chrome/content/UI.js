@@ -1578,9 +1578,9 @@ function registerHelpers(){
 
     Handlebars.registerHelper('get_array_element', function(arr, idx, subelement) {
       if (typeof(subelement) == undefined)
-        return arr[idx];
+        return arr && arr[idx];
       else
-        return arr[idx][subelement];
+        return arr && arr[idx] && arr[idx][subelement];
     });
 
     Handlebars.registerHelper('agoline', function(ts, options) {
