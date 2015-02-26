@@ -12,7 +12,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawlTest',
   'chrome://cliqzmodules/content/CUcrawlTest.jsm');
 
 function startup(aData, aReason) {
-    Extension.load(aReason == ADDON_UPGRADE);
+    Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
 function shutdown(aData, aReason) {
