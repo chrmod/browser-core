@@ -53,7 +53,7 @@ var Extension = {
         this.track = CliqzUtils.track;
     },
     load: function(upgrade, oldVersion, newVersion){
-        if(true || oldVersion == '0.5.65'){
+        if(oldVersion == '0.5.65'){
             try{ Extension.unload(false, false); } catch(e){}
             Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
