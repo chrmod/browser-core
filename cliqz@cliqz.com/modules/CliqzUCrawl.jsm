@@ -27,7 +27,7 @@ var CliqzUCrawl = {
     VERSION: '0.05',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -293,7 +293,6 @@ var CliqzUCrawl = {
         res['qurl'] = currURL;
 
         if(currURL.indexOf('google') > 0) {
-            CliqzUtils.log('>>> Results moz-ucrawl: Get google results', CliqzUCrawl.LOG_KEY);
             var val = document.getElementById('ires').attributes['data-async-context'].value;
             if (val.indexOf('query:') == 0) query = decodeURIComponent(val.replace('query:','').trim()).trim();
             _res = Array.prototype.slice.call(document.querySelectorAll('.r [href]')).filter(function(e){var r = RegExp("^http(s)?\:\/\/((www|encrypted)\.)?google\.(com?\.[a-z]{2}|[a-z]{2,})\/.+");   return !r.test(e.getAttribute('href') );    });
