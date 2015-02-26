@@ -119,13 +119,16 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
+    // Ensure prefs are set to our custom values
+    CliqzUtils.setOurOwnPrefs();
+
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
         baseCore = base.replace(/[^0-9a-z]/gi,""),
         check = function(host,rule){
-          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "#" + host.substr(address + base.length)
+          var address = host.lastIndexOf(base), parseddomain = host.substr(0,address) + "$" + host.substr(address + base.length)
 
           return parseddomain.indexOf(rule) != -1
         },
@@ -136,8 +139,10 @@ var CliqzUtils = {
       return result;
 
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
+
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
+        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
@@ -278,6 +283,9 @@ var CliqzUtils = {
           ret += space.charAt(Math.floor(Math.random() * sLen));
 
       return ret;
+  },
+  hash: function(s){
+    return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -549,7 +557,7 @@ var CliqzUtils = {
   },
   encodeCountry: function() {
     //international result not supported
-    return '';
+    return '&force_country=true';
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
@@ -651,7 +659,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.getPref('telemetry', false))return;
+    if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
@@ -1014,7 +1022,7 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 
     return urlbar.value.length == 0;
   },
@@ -1026,8 +1034,6 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */
@@ -1044,27 +1050,81 @@ var CliqzUtils = {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
+  openTabInWindow: function(win, url){
+      var tBrowser = win.document.getElementById('content');
+      var tab = tBrowser.addTab(url);
+      tBrowser.selectedTab = tab;
+  },
   //Q button
   refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext(),
-                doc = win.document;
+            var win = enumerator.getNext()
 
             try{
-                var btn = win.document.getElementById('cliqz-button'),
-                    cliqz_core_disabled = CliqzUtils.getPref("cliqz_core_disabled", false);
-                if(btn && btn.children && btn.children.cliqz_menupopup && !cliqz_core_disabled){
-                    var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
-                    adultFilterOptions.parentNode.removeChild(adultFilterOptions);
-                    var searchOptions = btn.children.cliqz_menupopup.lastChild;
-                    searchOptions.parentNode.removeChild(searchOptions);
-
-                    btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-                    btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-                }
+                var btn = win.document.getElementById('cliqz-button')
+                CliqzUtils.createQbutton(win, btn.children.cliqz_menupopup);
             } catch(e){}
         }
+    },
+    createQbutton: function(win, menupopup){
+        var doc = win.document,
+            lang = CliqzUtils.getLanguage(win);
+
+        //clean it
+        while(menupopup.lastChild)
+          menupopup.removeChild(menupopup.lastChild);
+
+        function feedback_FAQ(){
+            win.Application.getExtensions(function(extensions) {
+                var beVersion = extensions.get('cliqz@cliqz.com').version;
+                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+                    function success(req){
+                        var source = JSON.parse(req.response).shortName;
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                    },
+                    function error(){
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                    }
+                );
+            });
+        }
+
+        //feedback and FAQ
+        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
+        menupopup.appendChild(doc.createElement('menuseparator'));
+
+        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
+
+        /*
+        NEW TAB
+
+        var menuitem5 = doc.createElement('menuitem');
+        menuitem5.setAttribute('id', 'cliqz_menuitem5');
+        menuitem5.setAttribute('label',
+            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
+        );
+
+        menuitem5.addEventListener('command', function(event) {
+            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
+
+            CliqzNewTab.showCliqzNewTab(newvalue);
+
+            menuitem5.setAttribute('label',
+                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
+            );
+        }, false);
+        */
+
+
+      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
+        menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+        menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+      }
+      else {
+        menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+      }
+      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1086,8 +1146,7 @@ var CliqzUtils = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                // keep reference to timer to avoid garbage collection
-                timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -1117,13 +1176,60 @@ var CliqzUtils = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
         };
         menu.appendChild(menupopup);
         return menu;
+    },
+    createSimpleBtn: function(doc, txt, func){
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', txt);
+        if(func)
+            item.addEventListener('command', func, false);
+        else
+            item.setAttribute('disabled', 'true');
+
+        return item
+    },
+    createHumanMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
+            menuPopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', 'Human Web');
+
+        function optInOut(){
+            return CliqzUtils.getPref('dnt', false) == false?
+                             'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                             'url(chrome://cliqzres/content/skin/opt-out.svg)';
+        }
+
+        var safeSearchBtn = doc.createElement('menuitem');
+        safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
+        safeSearchBtn.setAttribute('class', 'menuitem-iconic');
+        safeSearchBtn.style.listStyleImage = optInOut();
+        safeSearchBtn.addEventListener('command', function(event) {
+            CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
+            safeSearchBtn.style.listStyleImage = optInOut();
+        }, false);
+        menuPopup.appendChild(safeSearchBtn);
+
+
+        menuPopup.appendChild(
+            CliqzUtils.createSimpleBtn(
+                doc,
+                CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
+                function(){
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
+                    }
+            )
+        );
+
+        menu.appendChild(menuPopup)
+        return menu
     },
     createActivateButton: function(doc) {
       var button = doc.createElement('menuitem');
@@ -1135,11 +1241,17 @@ var CliqzUtils = {
             win.CLIQZ.Core.init();
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
-        CliqzUtils.toggleMenuSettings("enabled");
+        CliqzUtils.refreshButtons();
+
+        CliqzUtils.track({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
       });
       return button;
     },
-
+    /*
     toggleMenuSettings: function(new_state) {
       var enumerator = Services.wm.getEnumerator('navigator:browser');
       while (enumerator.hasMoreElements()) {
@@ -1168,4 +1280,5 @@ var CliqzUtils = {
           } catch (e){}
       }
     }
+    */
 };

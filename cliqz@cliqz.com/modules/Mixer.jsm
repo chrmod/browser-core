@@ -191,7 +191,7 @@ var Mixer = {
             // Convert 2/3 size history into 1/3 to place below EZ
             else if(results.length > 0 &&
                     results[0].data && results[0].data.template == "pattern-h2" &&
-                    cliqzExtra[0].data.template == "entity-generic") {
+                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
                 results[0].data.template = "pattern-h3";
                 // limit number of URLs
                 results[0].data.urls = results[0].data.urls.slice(0,2);
@@ -215,11 +215,11 @@ var Mixer = {
                 current_search_engine = Services.search.currentEngine.name;
 
             var alternative_search_engines_data = [// default
-                                {"name": "DuckDuckGo", "code": null, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
-                                {"name": "Bing", "code": null, "logo": path+"Bing.svg", "background-color": "#ffc802"},
-                                {"name": "Google", "code": null, "logo": path+"google.svg", "background-color": "#5ea3f9"},
-                                {"name": "Google Images", "code": null, "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
-                                {"name": "Google Maps", "code": null, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
+                                {"name": "DuckDuckGo", "code": null, "style":"", "base_url": "https://duckduckgo.com"}, //, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
+                                {"name": "Bing", "code": null, "style":"", "base_url": "http://www.bing.com/search?q=&pc=MOZI"}, //, "logo": path+"Bing.svg", "background-color": "#ffc802"},
+                                {"name": "Google", "code": null, "style":"", "base_url": "http://www.google.de"}, //, "logo": path+"google.svg", "background-color": "#5ea3f9"},
+                                {"name": "Google Images", "code":null, "style":"", "base_url": "http://images.google.de/"}, //: "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
+                                {"name": "Google Maps", "code": null, "style":"", "base_url": "http://maps.google.de/"} //, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
                             ],
                 alt_s_e;
 
@@ -227,6 +227,10 @@ var Mixer = {
                 alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
                 if (typeof alt_s_e != 'undefined'){
                     alternative_search_engines_data[i].code = alt_s_e.code;
+                    var url = alternative_search_engines_data[i].base_url || alt_s_e.base_url;
+                    var urlDetails = CliqzUtils.getDetailsFromUrl(url);
+                    var logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+                    alternative_search_engines_data[i].style = logoDetails.style;
                 }
             }
 

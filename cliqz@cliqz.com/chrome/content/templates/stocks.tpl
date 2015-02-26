@@ -7,10 +7,7 @@
     <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - 20 {{ local 'cliqz_stock_minutes_ago' }}</span>
   </div>
   <div class="cqz-ez-stock-trend">
-    <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}">
-      <img src="http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>
-      {{ data.message.Change }} ({{ data.message.PercentChange }})
-    </span>
+    <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}"><img src="http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>{{ data.message.Change }} ({{ data.message.PercentChange }})</span>
   </div>
 
   <table class="cliqz-stock-price-table">
@@ -30,10 +27,6 @@
     </tr>
   </table>
 
-  <div class="cqz-disclaimer cqz-ez-stock-disclaimer">
-    <span>
-      <a href="http://info.yahoo.com/legal/eu/yahoo/utos/de-de/"> {{ local 'no_legal_disclaimer' }}</a>
-    </span>
-  </div>
-
+  <div class="cqz-disclaimer cqz-ez-stock-disclaimer">{{ local 'no_legal_disclaimer' }}</div>
+  {{> logo}}
 </div>
