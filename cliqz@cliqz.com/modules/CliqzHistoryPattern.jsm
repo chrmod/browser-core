@@ -36,6 +36,7 @@ var CliqzHistoryPattern = {
   historyCallback: null,
   latencies: [],
   // This method uses the cliqz history to detect patterns
+  dbConn: null,
   detectPattern: function(query, callback) {
     if (DATA_SOURCE != "cliqz") {
       return;
@@ -45,11 +46,13 @@ var CliqzHistoryPattern = {
     query = CliqzHistoryPattern.generalizeUrl(query);
     query = query.split(" ")[0];
     let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
+    if(!CliqzHistoryPattern.dbConn)
+      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file)
     this.data = [];
     this.pattern = [];
     this.SQL
       ._execute(
-        Services.storage.openDatabase(file),
+        CliqzHistoryPattern.dbConn,
         "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits " +
         "inner join ( " +
         "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > " + CliqzHistoryPattern.timeFrame + " and " +
