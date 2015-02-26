@@ -1,6 +1,7 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
     min-height: 303px; /* fixes bug with popup auto-sizing */
+    overflow: hidden;
 }
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
@@ -30,6 +31,7 @@
     background: #fff; /* override linux default grey color */
     position: relative;
     color: #333333;
+    overflow: hidden;
 }
 
 /* reset defaults for dropdown content */
@@ -51,7 +53,7 @@
     height: 303px;
     position: relative;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 /* common classes */
