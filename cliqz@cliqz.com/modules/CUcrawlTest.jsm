@@ -30,7 +30,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
 //CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
-CliqzUtils.setPref('showDebugLogs', true);
+//CliqzUtils.setPref('showDebugLogs', true);
 
 //CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
 //CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
@@ -46,7 +46,7 @@ var CUcrawlTest = {
     httpCache401: {},
     queryCache: {},
     privateCache: {},
-    UrlsCache : {},    
+    UrlsCache : {},
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
@@ -284,7 +284,7 @@ var CUcrawlTest = {
         else{
           res[''+i] = {'u': CUcrawlTest.maskURL(_res[i].href), 't': _res[i].text};
         }
-        
+
       }
       //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawlTest.LOG_KEY);
       return res;
@@ -327,15 +327,15 @@ var CUcrawlTest = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
         if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
             return true;
-        } 
+        }
         else{
             return false;
         }
 
-        
+
     },
     getSearchData: function(activeURL, document){
         // here we check if user ignored our results and went to google and landed on the same url
@@ -343,7 +343,7 @@ var CUcrawlTest = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
         //Get google result
         var rq = null;
@@ -371,7 +371,7 @@ var CUcrawlTest = {
                 CUcrawlTest.track({'type': CUcrawlTest.msgType, 'action': 'query', 'payload': rq});
                 }
         }
-        return rq        
+        return rq
 
 
 
@@ -614,7 +614,7 @@ var CUcrawlTest = {
         // private/suspicious/search_result page/etc. we can mark it as private directly
 
         var isok = true;
-        
+
         if (page_doc['x'] == null) {
             // this should not happen, but it does. Need to debug why the 'x' field gets lost
             // right now, let's set is a private to avoid any risk
@@ -622,7 +622,7 @@ var CUcrawlTest = {
             isok = false
         }
 
-        else { 
+        else {
             if (page_doc['x']['iall'] == false) {
                 // the url is marked as noindex
                 isok = false;
@@ -760,7 +760,7 @@ var CUcrawlTest = {
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
         //CliqzUtils.log("Testing" + x.ctry, CUcrawlTest.LOG_KEY);
         return x;
-    },       
+    },
     getCDByURL: function(url) {
 
 
@@ -837,7 +837,7 @@ var CUcrawlTest = {
                         if ((page!=null) && (page.checked==1) && (page.private==0)) {
                             CUcrawlTest.UrlsCache[activeURL] = true;
                         }
-                    });                    
+                    });
 
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
                     if (CUcrawlTest.checkIfSearchURL(activeURL)){
@@ -850,10 +850,10 @@ var CUcrawlTest = {
                                 try {
 
                                     // FIXME: this begs for refactoring!!
-                                    
+
                                     var activeURL = CUcrawlTest.currentURL();
-                                    var document = null;  
-                                    var searchURL = null;  
+                                    var document = null;
+                                    var searchURL = null;
 
                                     if (currURLAtTime == activeURL) {
                                         document = currwin.gBrowser.selectedBrowser.contentDocument;
@@ -869,7 +869,7 @@ var CUcrawlTest = {
                                     rq = CUcrawlTest.getSearchData(searchURL, document);
                                     CUcrawlTest.userSearchTransition(rq);
 
-                                    
+
                                 }
                                 catch(ee) {
                                     // silent fail
@@ -881,7 +881,7 @@ var CUcrawlTest = {
 
                         }, CUcrawlTest.WAIT_TIME, activeURL);
                     }
-                
+
 
                     var status = null;
 
@@ -895,7 +895,7 @@ var CUcrawlTest = {
                         //referral = CUcrawlTest.maskURL(CUcrawlTest.linkCache[activeURL]['s']);
                         referral = CUcrawlTest.linkCache[activeURL]['s'];
                     }
-                
+
 
                     CUcrawlTest.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                             'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
@@ -910,7 +910,7 @@ var CUcrawlTest = {
                             CUcrawlTest.state['v'][activeURL]['qr']['d'] = CUcrawlTest.state['v'][referral]['qr']['d']+1;
 
                            //If the depth is greater then two, we need to check if the ref. is of same domain.
-                            //If not then drop the QR object, else keep it. 
+                            //If not then drop the QR object, else keep it.
                             if(CUcrawlTest.state['v'][activeURL]['qr']['d'] > 2){
                                 delete CUcrawlTest.state['v'][activeURL]['qr'];
                             }
@@ -919,8 +919,8 @@ var CUcrawlTest = {
                                     delete CUcrawlTest.state['v'][activeURL]['qr'];
                                 }
                             }
-                        }    
-                    }   
+                        }
+                    }
 
                     currwin.setTimeout(function(currWin, currURL) {
 
@@ -1091,7 +1091,7 @@ var CUcrawlTest = {
                 }
             }
         }
-    
+
         CUcrawlTest.counter += 1;
 
     },
@@ -1158,6 +1158,8 @@ var CUcrawlTest = {
     },
     destroy: function() {
         //debugger;
+        if(!CliqzUtils.getPref("safeBrowsingMoz", false))return;
+
         CliqzUtils.log('destroy', CUcrawlTest.LOG_KEY);
 
         // send all the data
@@ -1417,7 +1419,7 @@ var CUcrawlTest = {
         //Remove time
 
         msg.ts = CUcrawlTest.getTime();
-        
+
         delete msg.payload.tend;
         delete msg.payload.tin;
 
@@ -1432,17 +1434,17 @@ var CUcrawlTest = {
         //Remove ref.
         if(msg.payload.ref){
           delete msg.payload.ref;
-        }      
-        
+        }
+
         //Check the depth. Just to be extra sure.
-        
+
         if(msg.payload.qr){
           if(msg.payload.qr.d > 2){
             delete msg.payload.qr;
           }
         }
 
-        
+
         //Remove the msg if the query is too long,
 
         if(msg.action=='query') {
@@ -1468,7 +1470,7 @@ var CUcrawlTest = {
 
             }
         }
-        
+
 
         return msg;
 
@@ -1539,12 +1541,12 @@ var CUcrawlTest = {
                 //Load the public url's cache:
                 //CUcrawlTest.checkTableExists()
                 //if(CUcrawlTest.checkTableExists() == true){
-               
+
                 //}
                 //else{
                 //    CUcrawlTest.createTable();
                 //}
-                
+
                 //var checkTable = "select name from sqlite_master where type='table' and name='usafe'";
                 //CliqzUtils.log('Exists table?: ' + CUcrawlTest.dbConn.executeSimpleSQL(checkTable),CUcrawlTest.LOG_KEY);
             }
@@ -1711,7 +1713,7 @@ var CUcrawlTest = {
 
     },
     addURLtoDB: function(url, ref, paylobj) {
-      
+
         var tt = new Date().getTime();
 
         var requery = /\/www.google/; // regex for google query
@@ -1807,7 +1809,7 @@ var CUcrawlTest = {
                         }
 
                     }
-                    
+
                 }
             }
         });

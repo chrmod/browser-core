@@ -98,7 +98,7 @@ function sendHistoricalData(){
 		    )
 	}
 
-	tH = CliqzUtils.setTimeout(sendHistoricalData, 1000)
+	tH = CliqzUtils.setTimeout(sendHistoricalData, 60 * 60 * 1000)
 }
 
 function assess(url){
