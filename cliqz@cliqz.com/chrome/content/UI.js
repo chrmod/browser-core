@@ -730,8 +730,23 @@ function resultClick(ev){
             CliqzUtils.track(action);
 
             // CliqzUCrawl wants to know if you click on a Cliqz results
-            if (CliqzUCrawl && CliqzUCrawl.queryCache) {
+            /*
+            if (CliqzUCrawl && CliqzUCrawl.queryCache) {  
               CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl'};
+            } 
+            */ 
+
+            // CliqzUCrawl wants to know if you click on a Cliqz results : Not sending if it is from history.
+            //CliqzUtils.log("1.>>>> " + CliqzUtils.isPrivateResultType(action.position_type) + " >> " + action.position_type , 'on click')
+            if(!CliqzUtils.isPrivateResultType(action.position_type)){
+                if (CliqzUCrawl && CliqzUCrawl.queryCache) {  
+                    CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
+                }
+            }
+            else{
+                if (CliqzUCrawl && CliqzUCrawl.queryCache) {  
+                    CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
+                }
             }
 
             var query = CLIQZ.Core.urlbar.value;
@@ -945,6 +960,21 @@ function onEnter(ev, item){
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
         action.position_type = getResultKind(item);
+        CliqzUtils.log("1.>>>> " + action.position_type, 'on enter')        
+
+        // CliqzUCrawl wants to know if you click on a Cliqz results : Not sending if it is from history.
+        if(!CliqzUtils.isPrivateResultType(action.position_type)){
+            if (CliqzUCrawl && CliqzUCrawl.queryCache) {  
+                CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
+            }
+        }
+        else{
+            CliqzUtils.log("2.>>>> private url" + action.position_type, 'on enter')
+            if (CliqzUCrawl && CliqzUCrawl.queryCache) {  
+                CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
+            }
+        }
+
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
             action.Ctype = CliqzUtils.getClusteringDomain(url)
@@ -965,6 +995,7 @@ function onEnter(ev, item){
         CLIQZ.Core.openLink(url || urlBar.value, false);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+
 
     } else { //enter while on urlbar and no result selected
         // update the urlbar if a suggestion is selected
@@ -1028,6 +1059,9 @@ function onEnter(ev, item){
         return false;
     }
     CliqzUtils.track(action);
+
+
+
     return true;
 }
 
