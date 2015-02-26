@@ -1,7 +1,6 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    color: #333333;
-    font-size: 14px;
+    min-height: 303px; /* fixes bug with popup auto-sizing */
 }
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
@@ -29,7 +28,8 @@
     margin: 0;
     min-width: 500px;
     background: #fff; /* override linux default grey color */
-    position: relative; 
+    position: relative;
+    color: #333333;
 }
 
 /* reset defaults for dropdown content */
