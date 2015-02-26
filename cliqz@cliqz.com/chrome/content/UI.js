@@ -110,7 +110,6 @@ var UI = {
 
 
         box.addEventListener('mousemove', resultMove);
-        //resultsBox.addEventListener('wheel', resultScroll);
         gCliqzBox.resultsBox = resultsBox;
 
         var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
@@ -1142,6 +1141,8 @@ function resultClick(ev){
     }
 }
 
+
+
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),
         ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
@@ -1258,7 +1259,7 @@ var smooth_scroll_to = function(element, target, duration) {
         // This is like a think function from a game loop
         var scroll_frame = function() {
             if(element.scrollTop != previous_top) {
-                //reject("interrupted").catch();
+                //reject("interrupted");
                 return;
             }
 
