@@ -119,6 +119,9 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
+    // Ensure prefs are set to our custom values
+    CliqzUtils.setOurOwnPrefs();
+
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLogoDetails: function(urlDetails){
@@ -280,6 +283,9 @@ var CliqzUtils = {
           ret += space.charAt(Math.floor(Math.random() * sLen));
 
       return ret;
+  },
+  hash: function(s){
+    return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -551,7 +557,7 @@ var CliqzUtils = {
   },
   encodeCountry: function() {
     //international result not supported
-    return '';
+    return '&force_country=true';
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
@@ -653,7 +659,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.getPref('telemetry', false))return;
+    if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
@@ -1028,8 +1034,6 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */
@@ -1219,7 +1223,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
                     }
             )
         );
@@ -1238,6 +1242,12 @@ var CliqzUtils = {
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CliqzUtils.refreshButtons();
+
+        CliqzUtils.track({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
       });
       return button;
     },
