@@ -24,14 +24,51 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.04',
+    VERSION: '0.05',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
     privateCache: {},
+    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+    q:   {
+        name:   "queryKey",
+        parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+    },
+    parser: {
+        strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+        loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+    },
+    parseUri: function (str) {
+        //var o   = parseUri.options,
+        var m = null;
+        var _uri = null;
+        var i = null;
+        var m   = CliqzUCrawl.parser[CliqzUCrawl.strictMode ? "strict" : "loose"].exec(str);
+        var _uri = {};
+        var i   = 14;
+
+        while (i--) _uri[CliqzUCrawl.key[i]] = m[i] || "";
+
+        _uri[CliqzUCrawl.q.name] = {};
+        _uri[CliqzUCrawl.key[12]].replace(CliqzUCrawl.q.parser, function ($0, $1, $2) { if ($1) { _uri[CliqzUCrawl.q.name][$1] = $2; }});
+        return _uri;
+    },
+    maskURL: function(url){
+        var url_parts = null;
+        var masked_url = null;
+        url_parts = CliqzUCrawl.parseUri(url);
+
+        if(url_parts['host'].indexOf('msn') > 0){
+            if(url_parts['queryKey']['u']){
+                masked_url = url_parts['queryKey']['u'];
+                return masked_url;
+            }
+        }
+        return url;
+    },
     cleanHttpCache: function() {
       for(var key in CliqzUCrawl.httpCache) {
         if ((CliqzUCrawl.counter - CliqzUCrawl.httpCache[key]['time']) > 60*CliqzUCrawl.tmult) {
@@ -76,11 +113,9 @@ var CliqzUCrawl = {
                 var status = ho['status'];
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
-                //CliqzUtils.log("CurrLoc " + url  + ">>>", CliqzUCrawl.LOG_KEY);
 
-
-                if (status=='301') {
-                  CliqzUCrawl.httpCache[url] = {'status': status, 'time': CliqzUCrawl.counter, 'location': loc};
+                if (status=='301' || status == '302') {
+                  CliqzUCrawl.httpCache[url] = {'status': '301', 'time': CliqzUCrawl.counter, 'location': loc};
                 }
 
                 if (status=='401') {
@@ -229,6 +264,109 @@ var CliqzUCrawl = {
       }
       return res;
 
+    },
+    searchResultsRefine: function(_res){
+      var res={};
+
+      //res = {};
+      for (var i=0;i<_res.length;i++){
+        if(_res[i].href.indexOf('r.search.yahoo.com') > 0){
+          res[''+i] = {'u': _res[i].href.split('%2f')[2], 't': _res[i].text};
+
+        }
+        else{
+          res[''+i] = {'u': _res[i].href, 't': _res[i].text};
+        }
+        
+      }
+      //Ucrawlutils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawl.LOG_KEY);
+      return res;
+    },
+    searchResults:function(currURL, document){
+        var _res = null;
+        var query = null;
+        var res = {};
+        res['t'] = new Date().getTime();
+        res['r'] = {};
+        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        res['ctry'] = location;
+        res['qurl'] = currURL;
+
+        if(currURL.indexOf('google') > 0) {
+            CliqzUtils.log('>>> Results moz-ucrawl: Get google results', CliqzUCrawl.LOG_KEY);
+            var val = document.getElementById('ires').attributes['data-async-context'].value;
+            if (val.indexOf('query:') == 0) query = decodeURIComponent(val.replace('query:','').trim()).trim();
+            _res = Array.prototype.slice.call(document.querySelectorAll('.r [href]')).filter(function(e){var r = RegExp("^http(s)?\:\/\/((www|encrypted)\.)?google\.(com?\.[a-z]{2}|[a-z]{2,})\/.+");   return !r.test(e.getAttribute('href') );    });
+        }
+        else if(currURL.indexOf('bing') > 0) {
+            query = document.getElementById('sb_form_q').value;
+            _res = Array.prototype.slice.call(document.querySelectorAll('.b_algo h2 [href]')).filter(function(e){var r = RegExp("^http(s)?\\:\\/\\/www\\.bing\\.com\\/(.)*");   return !r.test(e.getAttribute('.b_algo h2 href') );});
+        }
+        else if(currURL.indexOf('yahoo') > 0) {
+            query = document.getElementById('yschsp').value;
+            _res = Array.prototype.slice.call(document.querySelectorAll('h3 [href]')).filter(function(e){var r = RegExp("^http(s)?\\:\\/\\/((.)+\\.)?search\\.yahoo\\.com\\/(.)*");   return !r.test(e.getAttribute('h3 href') );    });
+        }
+
+        res['r'] = CliqzUCrawl.searchResultsRefine(_res);
+        res['q'] = query;
+
+        if (CliqzUCrawl.debug) {
+            CliqzUtils.log('>>> Results moz-ucrawl: ' +  JSON.stringify(res,undefined,2), CliqzUCrawl.LOG_KEY);
+        }
+        return res;
+
+    },
+    checkIfSearchURL:function(activeURL) {
+        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
+        var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
+        var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
+        var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
+            return true;
+        } 
+        else{
+            return false;
+        }
+
+        
+    },
+    getSearchData: function(activeURL, document){
+        CliqzUtils.log('>>> Results moz-ucrawl: Get search results', CliqzUCrawl.LOG_KEY);
+        // here we check if user ignored our results and went to google and landed on the same url
+        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query 
+        var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
+        var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
+        var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+
+        //Get google result
+        var rq = null;
+        if (requery.test(activeURL)) {
+            rq = CliqzUCrawl.searchResults(activeURL, document);
+            if (rq!=null) {
+                CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
+                CliqzUCrawl.track({'type': CliqzUCrawl.msgType, 'action': 'query', 'payload': rq});
+                }
+            }
+        //Get yahoo result
+        if (yrequery.test(activeURL)) {
+            rq = CliqzUCrawl.searchResults(activeURL, document);
+            if (rq!=null) {
+                CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'yahoo'};
+                CliqzUCrawl.track({'type': CliqzUCrawl.msgType, 'action': 'query', 'payload': rq});
+                }
+            }
+
+         //Get Bing result
+        if (brequery.test(activeURL)){
+            rq = CliqzUCrawl.searchResults(activeURL, document);
+            if (rq!=null) {
+                CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'bing'};
+                CliqzUCrawl.track({'type': CliqzUCrawl.msgType, 'action': 'query', 'payload': rq});
+                }
+        }
+        return rq ; 
     },
     getParametersQS: function(url) {
       var res = {};
@@ -463,6 +601,46 @@ var CliqzUCrawl = {
 
       var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall };
       return x;
+    },       
+    getCDByURL: function(url) {
+
+
+        var dd_url = url;
+
+        try {
+            dd_url = decodeURI(decodeURI(url));
+        } catch(ee) {}
+
+        for (var j = 0; j < CliqzUCrawl.windowsRef.length; j++) {
+            var gBrowser = CliqzUCrawl.windowsRef[j].gBrowser;
+            if (gBrowser.tabContainer) {
+                var numTabs = gBrowser.tabContainer.childNodes.length;
+                for (var i=0; i<numTabs; i++) {
+                    var currentTab = gBrowser.tabContainer.childNodes[i];
+                    var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+                    var currURL=''+currentBrowser.contentDocument.location;
+
+                    if (CliqzUCrawl.debug) {
+                        CliqzUtils.log("getCDByURL: " + (currURL==''+url) + " >> " + url + " " + currURL, CliqzUCrawl.LOG_KEY);
+                    }
+
+                    if (currURL==''+url) {
+                        return currentBrowser.contentDocument;
+                    }
+                    else {
+                        // silent fail is currURL is invalid, we need to ignore that element otherwise
+                        // one bad url would prevent any other url to be found
+                        //
+                        try {
+                            if (decodeURI(decodeURI(currURL))==dd_url) return currentBrowser.contentDocument;
+                        }
+                        catch(ee) {}
+                    }
+                }
+            }
+        }
+
+        return null;
     },
     listener: {
         tmpURL: undefined,
@@ -507,7 +685,8 @@ var CliqzUCrawl = {
               if (CliqzUCrawl.state['v'][activeURL] == null) {
 
                 //// if it was a Google query
-                if (requery.test(activeURL) && !reref.test(activeURL)) {
+                //if (requery.test(activeURL) && !reref.test(activeURL)) {
+                if (CliqzUCrawl.checkIfSearchURL(activeURL)){    
                   currwin.setTimeout(function(currURLAtTime) {
 
                     // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
@@ -517,18 +696,22 @@ var CliqzUCrawl = {
                           // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
                           //var currURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
 
-                          var activeURL = CliqzUCrawl.currentURL();
+                            var activeURL = CliqzUCrawl.currentURL();
+                            var document = null;  
+                            var searchURL = null;  
 
-                          if (currURLAtTime == activeURL) {
-                            var document = currwin.gBrowser.selectedBrowser.contentDocument;
-                            var rq = CliqzUCrawl.scrape(activeURL, document);
-
-                            if (rq!=null) {
-                              CliqzUCrawl.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
-                              CliqzUCrawl.track({'type': 'safe', 'action': 'query', 'payload': rq});
+                            if (currURLAtTime == activeURL) {
+                                document = currwin.gBrowser.selectedBrowser.contentDocument;
+                                searchURL = activeURL;
                             }
+                            else{
+                                    document = CliqzUCrawl.getCDByURL(currURLAtTime);  
+                                    searchURL = currURLAtTime;
 
-                          }
+                                }
+
+                            var rq = null;
+                            rq = CliqzUCrawl.getSearchData(searchURL, document);
                       }
                       catch(ee) {
                         // silent fail
@@ -565,6 +748,12 @@ var CliqzUCrawl = {
                         if(refURL){
                             referral = refURL['s'];   
                         }
+
+                        //Update query cache with the redirected URL
+
+                        if (CliqzUCrawl.queryCache[redURL]) {
+                            CliqzUCrawl.queryCache[activeURL] = CliqzUCrawl.queryCache[redURL];
+                        }
                 }
 
                 CliqzUCrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
@@ -593,11 +782,17 @@ var CliqzUCrawl = {
                   //
 
                   try {
-                    var cd = currWin.gBrowser.selectedBrowser.contentDocument;
+                    if (CliqzUCrawl.debug) {
+                      CliqzUtils.log("CurrURL: " + currURL + " >>> Currwin: " + currWin.gBrowser.selectedBrowser.contentDocument.location.href , CliqzUCrawl.LOG_KEY);
+                    }
+
+                    //var cd = currWin.gBrowser.selectedBrowser.contentDocument;
+                    //var cd = currURL.gBrowser.selectedBrowser.contentDocument;
+                    var cd = CliqzUCrawl.getCDByURL(currURL);
 
                     //Check if the page matches prof. social profile:
 
-                    CliqzUCrawl.dataPipeline(cd);
+                    //CliqzUCrawl.dataPipeline(cd);
                     var x = CliqzUCrawl.getPageData(cd);
 
                     if (CliqzUCrawl.state['v'][currURL] != null) {
