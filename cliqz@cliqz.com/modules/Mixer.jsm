@@ -37,7 +37,7 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -108,7 +108,7 @@ var Mixer = {
 
         var results = instant;
 
-        for(let i = 0; i < cliqz.length; i++) {
+        for(let i = 0; i < Math.min(cliqz.length,3); i++) {
             results.push(Result.cliqz(cliqz[i]));
         }
 
@@ -123,7 +123,7 @@ var Mixer = {
                 if(r.style == 'cliqz-extra'){
                     if(r.val != "" && r.data.subType){
                         var eztype = JSON.parse(r.data.subType).ez;
-
+                        // TODO: Check if this EZ is cacheable or not
                         if(eztype) {
                             CliqzUtils.log("Caching EZ " + eztype, "Mixer")
                             Mixer.ezCache[eztype] = r;
