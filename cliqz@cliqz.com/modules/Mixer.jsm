@@ -34,6 +34,7 @@ CliqzUtils.init();
 var Mixer = {
     ezCache: {},
     ezURLs: {},
+    EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
         // nothing
     },
@@ -164,13 +165,22 @@ var Mixer = {
             }
 
             // if the first result is a history cluster and 
-            // there is an EZ, make a combined entry
+            // there is an EZ of a supported types then make a combined entry
             if(results.length > 0 && results[0].data &&
-                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
+              Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
 
                 var temp_history = results[0];
                 results[0] = cliqzExtra[0];
                 results[0].data.urls = temp_history.data.urls.slice(0,4);
+            }
+            // Convert 2/3 size history into 1/3 to place below EZ 
+            else if(results.length > 0 &&
+                    results[0].data && results[0].data.template == "pattern-h2" &&
+                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
+                results[0].data.template = "pattern-h3";
+                // limit number of URLs
+                results[0].data.urls = results[0].data.urls.slice(0,2);
+                results = cliqzExtra.concat(results);
             } else {
                 results = cliqzExtra.concat(results);
             }
