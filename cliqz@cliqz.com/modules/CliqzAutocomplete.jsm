@@ -54,6 +54,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSuggestions: null,
     hasUserScrolledCurrentResults: false, // set to true whenever user scrolls, set to false when new results are shown
     lastResultsUpdateTime: null, // to measure how long a result has been shown for
+    resultsOverflowHeight: 0, // to determine if scrolling is possible (i.e., overflow > 0px)
     afterQueryCount: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
@@ -204,22 +205,22 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         // is there a result to be marked as done?
         if (CliqzAutocomplete.lastResultsUpdateTime) {
             var resultsDisplayTime = Date.now() - CliqzAutocomplete.lastResultsUpdateTime;                         
-            this.sendResultsDoneSignal(
-                CliqzAutocomplete.hasUserScrolledCurrentResults,
-                resultsDisplayTime);                        
+            this.sendResultsDoneSignal(resultsDisplayTime);                        
         }
         // start counting elapsed time anew 
         CliqzAutocomplete.lastResultsUpdateTime = newResultsUpdateTime;
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
-    sendResultsDoneSignal: function(hasUserScrolled, resultsDisplayTime) {
+    sendResultsDoneSignal: function(resultsDisplayTime) {
         // reduced traffic: only track if result was shown long enough (e.g., 0.5s)
         if (resultsDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
             var action = {
                 type: 'activity',
                 action: 'results_done',
-                has_user_scrolled: hasUserScrolled,
-                results_display_time: resultsDisplayTime
+                has_user_scrolled: CliqzAutocomplete.hasUserScrolledCurrentResults,
+                results_display_time: resultsDisplayTime,
+                results_overflow_height: CliqzAutocomplete.resultsOverflowHeight,
+                can_user_scroll: CliqzAutocomplete.resultsOverflowHeight > 0
             };
             CliqzUtils.track(action);
         }
