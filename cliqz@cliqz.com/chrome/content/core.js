@@ -435,10 +435,12 @@ CLIQZ.Core = CLIQZ.Core || {
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
             var urlbar = CLIQZ.Core.urlbar;
-            if (urlbar.selectionEnd !== urlbar.selectionStart &&
-                urlbar.value[urlbar.selectionStart] == String.fromCharCode(ev.charCode)) {
+            if (urlbar.mInputField.selectionEnd !== urlbar.mInputField.selectionStart &&
+                urlbar.mInputField.value[urlbar.mInputField.selectionStart] == String.fromCharCode(ev.charCode)) {
                 // prevent the redraw in urlbar but send the search signal
-                let query = urlbar.value, old = urlbar.value, start = urlbar.selectionStart;
+                let query = urlbar.value,
+                    old = urlbar.mInputField.value,
+                    start = urlbar.mInputField.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);
                 /* CliqzUtils.log('prevent default', 'Cliqz AS');
                 if (!CliqzAutosuggestion.active) {
@@ -447,7 +449,7 @@ CLIQZ.Core = CLIQZ.Core || {
                 } */
                 urlbar.mInputField.setUserInput(query);
                 urlbar.mInputField.value = old;
-                urlbar.mInputField.setSelectionRange(start+1, urlbar.value.length);
+                urlbar.mInputField.setSelectionRange(start+1, urlbar.mInputField.value.length);
                 ev.preventDefault();
             } /* else {
                 CliqzAutosuggestion.active = false;
