@@ -27,7 +27,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo', 'EZ-category', 'feedback'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class

@@ -1,4 +1,11 @@
-<div class="cqz-result-h1 ez-portal cqz-result-padding">
+<!-- Resize to include history -->
+<div 
+  {{#if data.urls}}
+    class="cqz-result-h1 ez-portal cqz-result-padding cqz-result-pattern"
+  {{else}}
+    class="cqz-result-h2 ez-portal cqz-result-padding cqz-result-pattern"
+  {{/if}}
+>
   <div class="cqz-ez-title" selectable=''>{{data.name}}</div>
 
   <div class="entity-portal-stories">
@@ -15,6 +22,7 @@
     {{/each}}
   </div>
   {{>EZ-category}}
+  {{>EZ-history}}
   {{>logo}}
   {{>feedback}}
 </div>

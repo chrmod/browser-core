@@ -760,17 +760,16 @@ var CliqzHistoryPattern = {
 
       if (searchString.length == 0) {
         // special case for user request of top sites from history
-        var instant = Result.generic('cliqz-pattern', ""/*results[0].url*/, null, results[0].title, null, searchString);
+        var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results_cluster")
         instant.data.url = results[0].url;
         instant.comment += " (history top sites)!";
         instant.data.template = "pattern-h1";
         instant.data.generic = true;
-        logExtra = 'h1-';
-      } else if (results.length == 1) {
-        var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
-        instant.comment += " (history single)!"
-        instant.data.kind = "H";
+      // } else if (results.length == 1) {
+      //   var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
+      //   instant.comment += " (history single)!"
+      //   instant.data.kind = "H";
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
@@ -778,15 +777,13 @@ var CliqzHistoryPattern = {
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
-        logExtra = 'h2-';
       } else {
-        var instant = Result.generic('cliqz-pattern', ""/*results[0].url*/, null, results[0].title, null, searchString);
+        var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results")
         instant.data.url = instant.val;
         instant.comment += " (history)!";
         instant.data.template = "pattern-h3";
         instant.data.generic = true;
-        logExtra = 'h3-';
       }
 
       instant.data.urls = [];
@@ -805,7 +802,7 @@ var CliqzHistoryPattern = {
           domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
           vdate: CliqzHistoryPattern.formatDate(results[i].date),
           title: results[i].title,
-          extra: "history-"+ logExtra + i,
+          extra: "history-" + i,
           favicon: favicon,
         });
         if ((instant.data.urls.length > 9 && instant.data.template == "pattern-h1") ||
