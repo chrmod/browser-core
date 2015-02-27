@@ -7,5 +7,5 @@
             <span id='cliqz-engines-box'></span>
         </span>
     </div>
-    <div id='cliqz-message-container'></div>
+    <div id='cliqz-message-container' style="width:{{width}}px"></div>
 </div>
