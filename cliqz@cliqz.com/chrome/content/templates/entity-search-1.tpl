@@ -1,4 +1,11 @@
-<div class="cqz-result-h2 cqz-result-padding">
+<!-- Resize to include history -->
+<div 
+  {{#if data.urls}} 
+    class="cqz-result-h1 cqz-result-padding cqz-result-pattern"
+  {{else}}
+    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"  
+  {{/if}}
+>
   <div class="cqz-ez-title cqz-ez-search-title">
       {{data.search_provider}}
   </div>
@@ -30,6 +37,7 @@
       </div>
     {{/each}}
   </div>
-  {{> logo}}
+  {{>EZ-history}}
+  {{>logo}}
   {{>feedback}}
 </div>

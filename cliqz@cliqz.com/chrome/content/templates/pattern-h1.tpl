@@ -2,7 +2,7 @@
       <div class='cqz-ez-title cliqz-pattern-title cliqz-pattern-title-h1 overflow'>
           {{ data.title }}
       </div>
-      <div class='cliqz-pattern-results'>
+      <div>
         {{#each data.urls}}
         <div class='cliqz-pattern-element overflow'
             {{#if favicon }}

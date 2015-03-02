@@ -27,7 +27,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo', 'EZ-category', 'feedback'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -155,8 +155,8 @@ var UI = {
       var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
-        isInstant: lastRes && lastRes.isInstant,
-        width: CLIQZ.Core.urlbar.clientWidth
+        isInstant: lastRes && lastRes.isInstant//,
+        //width: CLIQZ.Core.urlbar.clientWidth
       });
       CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
       CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
@@ -182,14 +182,18 @@ var UI = {
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
+        var width = CLIQZ.Core.urlbar.clientWidth
+            
         // set the width
-        gCliqzBox.style.width = (res.width +1) + 'px';
-
+        gCliqzBox.style.width = width + 1 + "px"
+        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
+        
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
-
-
+        // find out if scrolling is possible
+        CliqzAutocomplete.resultsOverflowHeight =
+            gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
 
         return currentResults;
     },
@@ -228,20 +232,21 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
-            case UP:
-                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
-                setResultSelection(nextEl, true, true, true);
-                trackArrowNavigation(nextEl);
-                return true;
-            break;
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
-            case DOWN:
-                if(pos != allArrowable.length - 1){
-                    var nextEl = allArrowable[pos+1];
-                    setResultSelection(nextEl, true, false, true);
-                    trackArrowNavigation(nextEl);
+                // move up if SHIFT key is held down
+                if (ev.shiftKey) {
+                    selectPrevResult(pos, allArrowable);
+                } else {
+                    selectNextResult(pos, allArrowable);
                 }
+                return true;
+            case UP:
+                selectPrevResult(pos, allArrowable);
+                return true;
+            break;
+            case DOWN:
+                selectNextResult(pos, allArrowable);
                 return true;
             break;
             case ENTER:
@@ -856,7 +861,7 @@ function enhanceResults(res){
 
         r.width = res.width > 500 ? res.width : 500;
 
-        if(r.data.generic) {// this entry combines several domains, so show CLIQZ logo
+        if(r.data && r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
             r.logo.add_logo_url = true;
@@ -1294,6 +1299,22 @@ var smooth_scroll_to = function(element, target, duration) {
     });
 }
 
+function selectNextResult(pos, allArrowable) {
+    if (pos != allArrowable.length - 1) {
+        var nextEl = allArrowable[pos + 1];
+        setResultSelection(nextEl, true, false, true);
+        trackArrowNavigation(nextEl);
+    }
+}
+
+function selectPrevResult(pos, allArrowable) {
+    if (pos > 0) {
+        var nextEl = allArrowable[pos - 1];
+        setResultSelection(nextEl, true, true, true);
+        trackArrowNavigation(nextEl);
+    }
+}
+
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
@@ -1578,9 +1599,9 @@ function registerHelpers(){
 
     Handlebars.registerHelper('get_array_element', function(arr, idx, subelement) {
       if (typeof(subelement) == undefined)
-        return arr[idx];
+        return arr && arr[idx];
       else
-        return arr[idx][subelement];
+        return arr && arr[idx] && arr[idx][subelement];
     });
 
     Handlebars.registerHelper('agoline', function(ts, options) {

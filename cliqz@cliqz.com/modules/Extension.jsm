@@ -32,12 +32,8 @@ var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'session': '',
-        'showQueryDebug': false, // show query debug information next to results
-        'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send safe browsing signals
         'telemetry': true //statistics
-//      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
         Extension.unloadModules();
@@ -72,7 +68,7 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(true || upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
+        if(upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
             var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
                             CliqzUtils.getPref('changelogURL') :
                             CliqzUtils.CHANGELOG;

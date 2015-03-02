@@ -1,7 +1,7 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    color: #333333;
-    font-size: 14px;
+    min-height: 303px; /* fixes bug with popup auto-sizing */
+    overflow: hidden;
 }
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
@@ -9,8 +9,8 @@
 #urlbar[focused="true"] { box-shadow: 0 0 1px #3B99FC inset!important; }
 
 /* last search */
-.cliqz-urlbar-Last-search-container { display: none; /*max-width: 220px; overflow: hidden;*/ }
-/*
+.cliqz-urlbar-Last-search-container { max-width: 220px; overflow: hidden; }
+
 .cliqz-urlbar-Last-search {
     background-size: 14px 10px;
     color: white;
@@ -22,7 +22,7 @@
     max-width: 200px;
     text-overflow: ellipsis;
     overflow: hidden;
-}*/
+}
 
 #cliqz-popup {
     padding: 0;
@@ -30,6 +30,8 @@
     min-width: 500px;
     background: #fff; /* override linux default grey color */
     position: relative;
+    color: #333333;
+    overflow: hidden;
 }
 
 /* reset defaults for dropdown content */
@@ -51,7 +53,7 @@
     height: 303px;
     position: relative;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 /* common classes */
