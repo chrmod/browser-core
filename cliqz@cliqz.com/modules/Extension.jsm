@@ -29,12 +29,7 @@ var BTN_ID = 'cliqz-button',
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'session': '',
-        'showQueryDebug': false, // show query debug information next to results
-        'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 290, // popup/dropdown height in pixels
-        'dnt': false, // if set to true the extension will not send any tracking signals
-//      'inPrivateWindows': true, // enables extension in private mode
+        'session': ''
     },
     init: function(){
         Extension.unloadModules();
