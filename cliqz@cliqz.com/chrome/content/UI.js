@@ -857,7 +857,7 @@ function enhanceResults(res){
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
         }
-console.log(res.width)
+
         r.width = res.width > 500 ? res.width : 500;
 
         if(r.data && r.data.generic) {// this entry combines several domains, so show CLIQZ logo
