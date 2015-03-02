@@ -155,8 +155,8 @@ var UI = {
       var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
-        isInstant: lastRes && lastRes.isInstant,
-        width: CLIQZ.Core.urlbar.clientWidth
+        isInstant: lastRes && lastRes.isInstant//,
+        //width: CLIQZ.Core.urlbar.clientWidth
       });
       CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
       CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
@@ -182,9 +182,12 @@ var UI = {
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
+        var width = CLIQZ.Core.urlbar.clientWidth
+            
         // set the width
-        gCliqzBox.style.width = (res.width +1) + 'px';
-
+        gCliqzBox.style.width = width + 1 + "px"
+        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
+        
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
