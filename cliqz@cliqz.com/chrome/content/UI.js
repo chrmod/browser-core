@@ -47,6 +47,10 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
     ;
 
+function lg(msg){
+    CliqzUtils.log(msg, 'CLIQZ.UI');
+}
+
 var UI = {
     tpl: {},
     showDebug: false,
@@ -55,37 +59,22 @@ var UI = {
     lastInput: "",
     mouseOver: false,
     init: function(){
-
-        Object.keys(TEMPLATES).forEach(function(tpl_name){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
-                UI.tpl[tpl_name] = Handlebars.compile(res.response);
-
-            });
-        });
-
-        for (var i in MESSAGE_TEMPLATES) {
-          (function(tpl_name){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
-                UI.tpl[tpl_name] = Handlebars.compile(res.response);
-            });
-          })(MESSAGE_TEMPLATES[i]);
-        }
-
-
-
-        for(var v in VERTICALS){
-            (function(vName){
-                CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
-                    UI.tpl[vName] = Handlebars.compile(res.response);
+        function fetchTemplate(tName, isPartial) {
+            try {
+                CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
+                    if(isPartial === true)
+                        Handlebars.registerPartial(tName, res.response);
+                    else
+                        UI.tpl[tName] = Handlebars.compile(res.response);
                 });
-            })(VERTICALS[v]);
-        };
-
-        PARTIALS.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                 Handlebars.registerPartial(tpl, res.response);
-            });
-        });
+            } catch(e){
+                lg('ERROR loading template ' + tName);
+            }
+        }
+        Object.keys(TEMPLATES).forEach(fetchTemplate);
+        MESSAGE_TEMPLATES.forEach(fetchTemplate);
+        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
+        PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
 
@@ -183,11 +172,11 @@ var UI = {
         CLIQZ.Core.popup.mPopupOpen = true;
 
         var width = CLIQZ.Core.urlbar.clientWidth
-            
+
         // set the width
         gCliqzBox.style.width = width + 1 + "px"
         gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
-        
+
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
