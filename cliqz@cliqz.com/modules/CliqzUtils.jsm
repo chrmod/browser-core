@@ -74,7 +74,7 @@ var CliqzUtils = {
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
       'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
-      'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
@@ -172,11 +172,12 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(req.status != 200 && req.status != 0 /* local files */){
+      var statusClass = Math.floor(req.status / 100);
+      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
+        callback && callback(req);
+      } else {
         CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
         onerror && onerror();
-      } else {
-        callback && callback(req);
       }
     }
     req.onerror = function(){

@@ -113,6 +113,13 @@ var Mixer = {
 // Consider taking some ideas from this function but not all.
         results = Filter.deduplicate(results, -1, 1, 1);
 
+        //allow maximum 3 BM results
+        var cliqzRes = 0;
+        results = results.filter(function(r){
+            if(r.style.indexOf('cliqz-results ') == 0) cliqzRes++;
+            return cliqzRes <= 3;
+        })
+
         // Find any entity zone in the results and cache them for later use
         if(cliqzExtra && cliqzExtra.length > 0) {
             for(var i=0; i < cliqzExtra.length; i++){
@@ -164,7 +171,7 @@ var Mixer = {
                  else if(history.length == 2) results[0].data.template = "pattern-h3";
             }
 
-            // if the first result is a history cluster and 
+            // if the first result is a history cluster and
             // there is an EZ of a supported types then make a combined entry
             if(results.length > 0 && results[0].data &&
               Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
@@ -173,7 +180,7 @@ var Mixer = {
                 results[0] = cliqzExtra[0];
                 results[0].data.urls = temp_history.data.urls.slice(0,4);
             }
-            // Convert 2/3 size history into 1/3 to place below EZ 
+            // Convert 2/3 size history into 1/3 to place below EZ
             else if(results.length > 0 &&
                     results[0].data && results[0].data.template == "pattern-h2" &&
                     CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
