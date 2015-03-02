@@ -172,11 +172,12 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(req.status != 200 && req.status != 0 /* local files */){
+      var statusClass = Math.floor(req.status / 100);
+      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
+        callback && callback(req);
+      } else {
         CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
         onerror && onerror();
-      } else {
-        callback && callback(req);
       }
     }
     req.onerror = function(){
