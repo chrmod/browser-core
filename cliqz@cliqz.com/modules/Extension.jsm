@@ -42,7 +42,6 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
-        CliqzUtils.setPref('showDebugLogs', false);
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         this.track = CliqzUtils.track;
