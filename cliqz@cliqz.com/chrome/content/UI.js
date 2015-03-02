@@ -191,8 +191,9 @@ var UI = {
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
-
-
+        // find out if scrolling is possible
+        CliqzAutocomplete.resultsOverflowHeight =
+            gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
 
         return currentResults;
     },
