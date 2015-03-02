@@ -195,8 +195,8 @@ var CliqzUtils = {
       }
   },
   log: function(msg, key){
-    if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showDebugLogsIgnore', "[]"))
+    if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
+      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
         CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
     }
