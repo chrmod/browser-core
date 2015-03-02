@@ -109,7 +109,7 @@ var Mixer = {
 
         var results = instant;
 
-        for(let i = 0; i < Math.min(cliqz.length,3); i++) {
+        for(let i = 0; i < cliqz.length; i++) {
             results.push(Result.cliqz(cliqz[i]));
         }
 
@@ -118,25 +118,28 @@ var Mixer = {
         results = Filter.deduplicate(results, -1, 1, 1);
 
         // Find any entity zone in the results and cache them for later use
-        if(cliqzExtra && cliqzExtra.length > 0) {
-            for(var i=0; i < cliqzExtra.length; i++){
-                var r = cliqzExtra[i];
-                if(r.style == 'cliqz-extra'){
-                    if(r.val != "" && r.data.subType){
-                        var eztype = JSON.parse(r.data.subType).ez;
-                        // TODO: Check if this EZ is cacheable or not
-                        if(eztype) {
-                            CliqzUtils.log("Caching EZ " + eztype, "Mixer")
-                            Mixer.ezCache[eztype] = r;
-                            var temp_url = CliqzHistoryPattern.generalizeUrl(r.val, true);
-                            Mixer.ezURLs[temp_url] = eztype;
+        for(var i=0; i < (cliqzExtra || []).length; i++){
+            var r = cliqzExtra[i];
+            if(r.style == 'cliqz-extra'){
+                if(r.val != "" && r.data.subType){
+                    CliqzUtils.log(JSON.stringify(r));
+                    var eztype = JSON.parse(r.data.subType).ez;
+                    var trigger_urls = r.data.trigger_urls || [];
+                    if(eztype && trigger_urls.length > 0) {
+                        for(var j=0; j < trigger_urls.length; j++) {
+                            CliqzUtils.log("EZ " + eztype + " <-- " + trigger_urls[j]);
+                            Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
+                        Mixer.ezCache[eztype] = r;
                     }
                 }
             }
-        } else if(results.length > 0) {
-            // Take the first entry and see if we can trigger an EZ with it
+        } 
 
+        // Take the first entry and see if we can trigger an EZ with it,
+        // this will override an EZ sent by backend.
+        if(results.length > 0) {
+            
             var url = results[0].val;
             // if there is no url associated with the first result, try to find it inside
             if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
@@ -144,6 +147,8 @@ var Mixer = {
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
+                // TODO: update cached EZ from rich-header-server
+                // TODO: perhaps only use this cached data if newer than certain age
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
                     CliqzUtils.log("Triggering EZ based on local cache with " + url, "Mixer");
@@ -156,25 +161,25 @@ var Mixer = {
         if(cliqzExtra && cliqzExtra.length > 0) {
             // Remove entity links form history
             if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
-                 var mainUrl = cliqzExtra[0].val;
-                 var history = results[0].data.urls;
-                 CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
-                 // Go through entity data and search for urls
-                 for(var k in cliqzExtra[0].data) {
-                   for(var l in cliqzExtra[0].data[k]) {
-                     if(cliqzExtra[0].data[k][l].url) {
-                        CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
-                     }
-                   }
-                 }
-                 // Change size or remove history if necessary
-                 if(history.length == 0) results.splice(0,1);
-                 else if(history.length == 2) results[0].data.template = "pattern-h3";
+                var mainUrl = cliqzExtra[0].val;
+                var history = results[0].data.urls;
+                CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
+                // Go through entity data and search for urls
+                for(var k in cliqzExtra[0].data) {
+                    for(var l in cliqzExtra[0].data[k]) {
+                        if(cliqzExtra[0].data[k][l].url) {
+                            CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+                        }
+                    }
+                }
+                // Change size or remove history if necessary
+                if(history.length == 0) results.splice(0,1);
+                else if(history.length == 2) results[0].data.template = "pattern-h3";
             }
 
             // if the first result is a history cluster and 
             // there is an EZ of a supported types then make a combined entry
-            if(results.length > 0 && results[0].data &&
+            if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
               Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
 
                 var temp_history = results[0];
@@ -198,6 +203,7 @@ var Mixer = {
         if(customResults && customResults.length > 0) {
             results = customResults.concat(results);
         }
+
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
             var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
