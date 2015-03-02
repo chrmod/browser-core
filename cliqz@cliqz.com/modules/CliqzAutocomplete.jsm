@@ -178,15 +178,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     },
     // a result is done once a new result comes in, or once the popup closes
-    markResultsDone: function(newResultsUpdateTime) {        
+    markResultsDone: function(newResultsUpdateTime) {
         // is there a result to be marked as done?
         if (CliqzAutocomplete.lastResultsUpdateTime) {
-            var resultsDisplayTime = Date.now() - CliqzAutocomplete.lastResultsUpdateTime;                         
+            var resultsDisplayTime = Date.now() - CliqzAutocomplete.lastResultsUpdateTime;
             this.sendResultsDoneSignal(
                 CliqzAutocomplete.hasUserScrolledCurrentResults,
-                resultsDisplayTime);                        
+                resultsDisplayTime);
         }
-        // start counting elapsed time anew 
+        // start counting elapsed time anew
         CliqzAutocomplete.lastResultsUpdateTime = newResultsUpdateTime;
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
@@ -511,7 +511,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             maxResults,
                             only_instant
                     );
-
+                CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
                 this.mixedResults.setResults(results);
@@ -688,8 +688,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
-                }           
-                                
+                }
+
                 if (CliqzAutocomplete.isPopupOpen) {
                     // don't mark as done if popup closed as the user does not see anything
                     CliqzAutocomplete.markResultsDone(Date.now());
@@ -726,6 +726,3 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
-
-
-

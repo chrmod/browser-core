@@ -11,6 +11,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
+
+
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
@@ -53,6 +55,7 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInputTime: 0,
     lastInput: "",
+    lastSelectedUrl: null,
     mouseOver: false,
     init: function(){
 
@@ -176,8 +179,12 @@ var UI = {
         currentResults = enhanceResults(res);
         process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
 
-        if(gCliqzBox.resultsBox)
-            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+        if(gCliqzBox.resultsBox) {
+            var now = Date.now();
+            UI.lastDispatch = now;
+            UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+          }
+            //gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -192,6 +199,101 @@ var UI = {
 
 
         return currentResults;
+    },
+    nextRedraw: 0,
+    lastDispatch: 0,
+    dispatchRedraw: function(html, id) {
+      var now = Date.now();
+      if(id != UI.lastDispatch) return;
+      if(now < UI.nextRedraw) {
+        setTimeout(UI.dispatchRedraw, 50, html, id);
+      } else {
+        UI.redrawResultHTML(html);
+      }
+    },
+    animateHistory: null,
+    redrawResultHTML: function(newHTML) {
+      var $ = CLIQZ.Core.jQuery;
+      var box = gCliqzBox.resultsBox;
+      var oldBox = $(box).clone();
+      var newBox = $(box).clone();
+      $(newBox).html(newHTML);
+
+      // Extract old/new results
+      var oldResults = $('.cqz-result-box', oldBox);
+      var newResults = $('.cqz-result-box', newBox);
+
+      if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
+        UI.animateHistory = null;
+        for(var i=0; i<newResults.length; i++) {
+          var oldChild = oldResults[i];
+          box.replaceChild(newResults[i], box.children[i]);
+          var newChild = box.children[i];
+          if (i == 0 && newChild && newChild.getAttribute("type") == "cliqz-pattern" &&
+            oldChild && oldChild.getAttribute("type") == "cliqz-pattern" &&
+            oldChild.children[0].className.indexOf("h3") != -1 &&
+            newChild.children[0].className.indexOf("h2") != -1) {
+              newChild.style.height = "101px";
+              UI.animateHistory = newChild;
+          } else {
+            UI.animateHistory = null;
+          }
+        }
+        return;
+      }
+
+      if(UI.animateHistory == box.children[0]) var animate = true;
+      var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
+      $(box).html(newHTML);
+      newResults = $('.cqz-result-box', box);
+
+      if (animate) {
+        newResults[0].style.height = "101px";
+        $(newResults[0]).animate({
+          "height": "202px"
+        }, 600);
+      }
+
+
+      var delay = 0;
+      for(var i=0; i<max; i++) {
+        var oldRes = oldResults[i];
+        var newRes = newResults[i];
+        if(!oldRes && newRes) {
+          newRes.style.opacity = 0;
+          setTimeout(function(r){
+          $(r).stop().animate({
+            "opacity": "1"
+          }, 400)}, delay, newRes);
+          delay += 100;
+        } else if(oldRes && !newRes) {
+          // No animation here because element is already removed
+        } else {
+          var curUrls = UI.extractResultUrls(oldRes.innerHTML);
+          var newUrls = UI.extractResultUrls(newRes.innerHTML);
+          if (curUrls != newUrls &&
+            newRes.innerHTML.indexOf("cqz-result-pattern") == -1) {
+            newRes.style.opacity = 0;
+            setTimeout(function(r){
+            $(r).stop().animate({
+              "opacity": "1"
+            }, 400)}, delay, newRes);
+            delay += 100;
+          }
+        }
+      }
+      var nextDraw = Date.now() + delay + (delay>0?400:0);
+      if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
+      UI.nextRedraw += 100;
+      UI.animateHistory = null;
+    },
+    // Returns a concatenated string of all urls in a result list
+    extractResultUrls: function(str) {
+      var match = str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
+      var res = "";
+      if(match)
+        for(var i=1;i<match.length;i++) res += match[i];
+      return res;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -268,6 +370,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
+                UI.lastSelectedUrl = null;
                 if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
@@ -298,6 +401,7 @@ var UI = {
                 return false;
             default:
                 UI.lastInput = "";
+                UI.nextRedraw = Date.now()+150;
                 UI.preventFirstElementHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
@@ -327,6 +431,11 @@ var UI = {
     },
     animationEnd: 0,
     selectFirstElement: function() {
+      // Skip timeout if element was selected before
+      if ($('[arrow]', gCliqzBox) && UI.lastSelectedUrl == $('[arrow]', gCliqzBox).getAttribute("url")) {
+        setResultSelection($('[arrow]', gCliqzBox), true, false);
+        return;
+      }
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
@@ -338,6 +447,7 @@ var UI = {
           }
         }
       },300);
+
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
@@ -1294,6 +1404,7 @@ var smooth_scroll_to = function(element, target, duration) {
     });
 }
 
+var lastScroll = 0;
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
@@ -1311,10 +1422,19 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
             target.setAttribute('url', el.getAttribute('url'));
         }
 
+        if(el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
+        UI.lastSelectedUrl = el.getAttribute("url");
+        //arrow.className += " notransition";
+
         var offset = target.offsetTop;
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
         var scroll = parseInt(offset/303) * 303;
-        if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
+        if(!mouseOver && scroll != lastScroll) {//smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
+          CLIQZ.Core.jQuery(gCliqzBox.resultsBox).animate({
+              scrollTop: scroll
+           }, 800);
+           lastScroll = scroll;
+        }
 
         target.setAttribute('arrow', 'true');
         arrow.style.top = (offset + target.offsetHeight/2 - 7) + 'px';
@@ -1334,6 +1454,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = el;
+
+        //arrow.className = arrow.className.replace("notransition", "");
 
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;

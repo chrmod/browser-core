@@ -65,8 +65,18 @@ CLIQZ.Core = CLIQZ.Core || {
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    jQuery: null,
+
+    loadjQuery: function(wnd){
+          var loader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+           .getService(Components.interfaces.mozIJSSubScriptLoader);
+          loader.loadSubScript("chrome://cliqzmodules/content/jquery-2.1.3.min.js",wnd);
+          var jQuery = wnd.jQuery.noConflict(true);
+          return jQuery;
+    },
 
     init: function(){
+        CLIQZ.Core.jQuery = CLIQZ.Core.loadjQuery(window);
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
         var listners = window.gBrowser.mTabsProgressListeners;
         for(var i=0; i<listners.length; i++){
