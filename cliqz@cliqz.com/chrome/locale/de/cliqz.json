@@ -1,15 +1,21 @@
 {
     "whatIsCliqz":{
-        "message": "Was ist cliqz?"
+        "message": "Was ist CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+        "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
-        "message": "Einstellung"
+        "message": "EINSTELLUNGEN"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab deaktivieren"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab aktivieren"
     },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
@@ -18,16 +24,22 @@
         "message": "Regionale Ergebnisse"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
+    },
+    "btnSafeSearch":{
+        "message": "Ich nehme teil"
+    },
+    "btnSafeSearchDesc":{
+        "message": "Was ist das?"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+        "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
+        "message": "Versuche es mit ,Enter' bei ... oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
@@ -85,6 +97,21 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - über uns"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Datenschutz"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
     },
     "offTitle":{
         "message":"die neue Art, durch’s Web zu navigieren"
@@ -286,5 +313,89 @@
     },
     "spell_correction": {
       "message":"Meintest Du wirklich "
+    },
+    "result_filter": {
+      "message":"Ergebnisfilter"
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
+    },
+    "history_results": {
+      "message":"Besuchte Webseiten"
+    },
+    "history_results_cluster": {
+      "message":"Meine Top-Seiten"
+    },
+    "adultInfo": {
+        "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
+    },
+    "adultAction": {
+        "message": "Alle Ergebnisse anzeigen?"
+    },
+    "adultConservative": {
+      "message":"strikt"
+    },
+    "adultModerate": {
+      "message":"moderat"
+    },
+    "adultLiberal": {
+      "message":"kein Filter"
+    },
+    "yes": {
+        "message": "Ja"
+    },
+    "no": {
+        "message": "Nein"
+    },
+    "options": {
+        "message": "Suchergebnisfilter"
+    },
+    "cliqz_slogan_H1": {
+        "message": "SURFEN STATT SUCHEN"
+    },
+    "cliqz_slogan_H2": {
+        "message": "Direkt, schnell & sicher."
+    },
+    "cliqz_common_questions":{
+        "message": "Häufig gestellte Fragen"
+    },
+    "cliqz_give_feedback":{
+        "message": "Feedback und Support"
+    },
+    "cliqz_about_us":{
+        "message": "Über Uns"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy": {
+        "message": "Datenschutz"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
+    },
+    "views": {
+        "message": "Aufrufe"
+    },
+    "cliqz_stock_open": {
+        "message": "Eröffnung"
+    },
+    "cliqz_stock_high": {
+        "message": "Hoch"
+    },
+    "cliqz_stock_low": {
+        "message": "Tief"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Marktkapit."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "P/E ratio(ttm)"
+    },
+    "cliqz_stock_minutes_ago": {
+       "message": "Minuten früher"
     }
 }

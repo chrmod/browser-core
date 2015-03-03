@@ -1,15 +1,21 @@
 {
     "whatIsCliqz":{
-        "message": "cliqz, c'est quoi?"
+        "message": "CLIQZ, c'est quoi?"
     },
     "whatIsCliqzTry":{
-        "message": "cliqz, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
+        "message": "CLIQZ, c'est quoi? <-- essayez l'exemple: 'meteo lyon'"
     },
     "settings":{
         "message": "Paramètres"
     },
     "btnPrivacy":{
         "message": "Politique de confidentialité"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab désactiver"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab activer"
     },
     "btnDefaultSearchEngine":{
         "message": "Moteur de recherche par défaut"
@@ -18,16 +24,16 @@
         "message": "Pays de recherche"
     },
     "btnShare":{
-        "message": "Partager avec cliqz"
+        "message": "Partager avec CLIQZ"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Oops, Nous n'avons pas encore le bon résultat.<br /> Nous faisons de notre mieux pour résoudre le problème!"
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Survolez <b><i>plus</i></b> en bas à droite et sélectionnez un autre moteur de recherche."
+        "message":"press enter to search on ..., or try one of these:"
     },
     "noResults": {
         "message":"Aucun résultat"
@@ -85,6 +91,21 @@
     },
     "agoXYears":{
         "message":"il y a {} ans"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - a propos"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - confidentialité"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - team"
     },
     "offTitle":{
         "message":"le nouveau moyen pour surfer sereinement."

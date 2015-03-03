@@ -49,7 +49,7 @@ var CliqzSearchHistory = {
         this.windows[window_id].lastSearchElement.addEventListener('click',
                                                 this.returnToLastSearch.bind(this));
         this.windows[window_id].searchHistoryContainer.appendChild(this.windows[window_id].lastSearchElement)
-
+        
         return this.windows[window_id].searchHistoryContainer;
     },
 

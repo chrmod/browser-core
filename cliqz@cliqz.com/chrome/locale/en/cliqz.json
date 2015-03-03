@@ -1,15 +1,21 @@
 {
     "whatIsCliqz":{
-        "message": "What is cliqz?"
+        "message": "What is CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "What is cliqz? <-- try it yourself, eg: 'weather new york'"
+        "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
     "settings":{
-        "message": "Settings"
+        "message": "SETTINGS"
     },
     "btnPrivacy":{
         "message": "Privacy Policy"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Disable Newtab"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Enable Newtab"
     },
     "btnDefaultSearchEngine":{
         "message": "Default Search Engine"
@@ -18,16 +24,22 @@
         "message": "Local Results"
     },
     "btnShare":{
-        "message": "cliqz Share"
+        "message": "CLIQZ Share"
+    },
+    "btnSafeSearch":{
+        "message": "Take part"
+    },
+    "btnSafeSearchDesc":{
+        "message": "What is this?"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Sorry, we don’t have any results yet.<br />We’re working on it."
+        "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"Hover over <b><i>more</i></b> at the bottom right and select another search engine."
+        "message":"press enter to search on ..., or try one of these:"
     },
     "noResults": {
         "message":"No results"
@@ -85,6 +97,21 @@
     },
     "agoXYears":{
         "message":"{} years ago"
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - About us"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Privacy"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
     },
     "offTitle":{
         "message":"the new way to navigate the web"
@@ -280,5 +307,98 @@
     },
     "spell_correction": {
       "message":"Did you really mean "
+    },
+    "result_filter": {
+      "message":"Result filter"
+    },
+    "age": {
+        "message": "Age"
+    },
+    "nationality": {
+        "message": "Nationality"
+    },
+    "history_results": {
+      "message":"Visited Sites"
+    },
+    "history_results_cluster": {
+      "message":"My Top Hits"
+    },
+    "adultInfo": {
+        "message": "Some adult content has been hidden."
+    },
+    "adultAction": {
+        "message": "Show unfiltered results?"
+    },
+    "adultConservative": {
+      "message":"Conservative"
+    },
+    "adultModerate": {
+      "message":"Moderate"
+    },
+    "adultLiberal": {
+      "message":"Liberal"
+    },
+    "yes": {
+        "message": "Yes"
+    },
+    "no": {
+        "message": "No"
+    },
+    "options": {
+        "message": "Options"
+    },
+    "views": {
+        "message": "views"
+    },
+    "cliqz_slogan_H1": {
+        "message": "STOP SEARCHING. START SURFING."
+    },
+    "cliqz_slogan_H2": {
+        "message": "Fast, private, direct. See results as you type."
+    },
+    "cliqz_common_questions":{
+        "message": "Common Questions"
+    },
+    "cliqz_give_feedback":{
+        "message": "Give Feedback"
+    },
+    "cliqz_about_us":{
+        "message": "About Us"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy":{
+        "message": "Privacy"
+    },
+    "cliqz_stock_open": {
+        "message": "Open"
+    },
+    "cliqz_stock_high": {
+        "message": "High"
+    },
+    "cliqz_stock_low": {
+        "message": "Low"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Market Cap."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "P/E ratio(ttm)"
+    },
+    "cliqz_stock_minutes_ago": {
+       "message": "minutes ago"
+    },
+    "OutOfCoverageWarning": {
+       "message": "CLIQZ’s results for your country are not so \"gut\" yet. We will get better outside of Germany soon."
+    },
+    "keep-cliqz": {
+      "message": "OK"
+    },
+    "disable-cliqz": {
+      "message": "Disable Cliqz"
+    },
+    "btnActivateCliqz": {
+      "message": "Activate Cliqz"
     }
 }

@@ -1,62 +1,40 @@
-<div class='cliqz-inline-box-children cliqz-result-generic'>
-	<div class='cliqz-result-left-box'>
-		<div class='cliqz-result-type' ></div>
-	</div>
-	{{#if image.src}}
-		<div class="cliqz-image" style="
-					background-image: url({{ image.src }});
-					{{#if image.height }}
-						background-size: {{ image.backgroundSize }}px;
-						width: {{ image.width }}px;
-						height: {{ image.height }}px;
-					{{/if}}
-				"
-		>
-		</div>
-	{{/if}}
-	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
-		<div class='cliqz-result-title-box overflow'>
-			{{ emphasis title text 2 false }}
-		</div>
-		{{#if debug}}
-			<span class='cliqz-result-debug overflow'>
-				<span>{{ debug }}</span>
-			</span>
-		{{/if}}
-		<div class='cliqz-result-url-box overflow'>
-			{{#with data.richData}}
-			<span class='cliqz-result-url-host
-				{{#if urlDetails.ssl }}
-				  cliqz-result-url-ssl
-				{{/if}}
-				'
-			>
-				{{ emphasis source_name ../text 2 false}}
-			</span>
-			<span class='cliqz-hq-language'>
-				{{ source_language }}
-			</span>
-			{{/with}}
-		</div>
+<div class='{{wikiEZ_height data.richData}}'>
+    {{#if data.richData.images }}
+    {{#if data.richData.images.length}}
+        <div class='cqz-celeb-images' style='padding: 18px'>
+          {{#each data.richData.images}}
+            {{#if (limit_images_shown @index 5)}}
+            <img src='{{this}}' class='cqz-celeb-image' />
+            {{/if}}
+          {{/each}}
+        </div>
+    {{/if}}
+    {{/if}}
 
-		<div class='cliqz-result-description'>
-			{{ emphasis data.description text 2 true }}
-		</div>
-
+    <div class='cqz-result-center'>
+        <div class='cqz-result-title overflow' selectable=''>
+            {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
+        </div>
+        <div class='cqz-result-desc
+            {{#if data.richData.additional_sources.length }}
+                overflow
+            {{/if}}
+            '
+        >
+            {{ emphasis data.description text 2 true }}
+        </div>
 		{{#if data.richData.additional_sources}}
-			<div class='cliqz-hq-links'>
+			<div class="cqz-one-line" style="margin-top: 5px;">
 			{{#each data.richData.additional_sources}}
-				<div url='{{url}}'
+				<span url='{{url}}'
 					 extra='sources{{ @index }}'
-					 type='{{ ../type }}'
-				     class='cliqz-hq-link'>
+				     class='cqz-link'>
 					{{title}}
-				</div>
+				</span>
 			{{/each}}
 			</div>
 		{{/if}}
-	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
-	     newtab='true'>
-	</div>
+    </div>
+    {{> logo}}
 </div>
+
