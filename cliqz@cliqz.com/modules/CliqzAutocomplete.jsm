@@ -431,10 +431,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     results = json.result || [];
                     country = json.country;
                     this.cliqzResultsExtra = []
-
-                    if(json.images && json.images.results && json.images.results.length >0)
+                    if(json.images && json.images.results && json.images.results.length >0){
                         this.cliqzResultsExtra =
                             json.images.results.map(Result.cliqzExtra);
+                    }
 
                     var hasExtra = function(el){
                         if(!el || !el.results || el.results.length == 0) return false;
@@ -446,9 +446,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return el.results.length != 0;
                     }
 
-                    if(hasExtra(json.extra))
+                    if(hasExtra(json.extra)) {
                         this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-
+                    }
                     this.latency.cliqz = json.duration;
 
                     this.cliqzResults = results.filter(function(r){
@@ -589,7 +589,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
