@@ -492,8 +492,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // mixes backend results, entity zones, history and custom results
             mixResults: function(only_instant) {
-                var maxResults = prefs.getIntPref('maxRichResults');
-
                 var results = Mixer.mix(
                             this.searchString,
                             this.cliqzResults,
@@ -502,7 +500,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.historyBackfill,
                             this.cliqzBundesliga,
                             this.customResults,
-                            maxResults,
                             only_instant
                     );
 
