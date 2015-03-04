@@ -1,17 +1,24 @@
-    <div id="cliqz-images-results" class='cliqz-images'>
+<div class='cqz-result-images'>
+     <div class='cqz-ez-images-title'>
+        Images
+    </div>
+
+    <div  class='cliqz-images'>
         {{#each data.items}}
         <div class="cliqz-image-item"
-             style='width:{{width}}px; height:{{height}}px;'
+             style='width:{{disp_width}}px; height:{{disp_height}}px;'
              type="image" url="{{ ref_url }}">
-
-               <img class="cliqz-image-clear" src="{{thumb_url}}"
-                     width="{{width}}"
-                     height="{{height}}"
+                <img class="cliqz-image-clear" src="{{ thumb.url}}"
+                     id="{{im_url}}"
+                     width="{{disp_width}}"
+                     height="{{disp_height}}"
                      />
+            <div class="cliqz-image-hilight"
+                 style='width:{{disp_width}}px; max-width:{{disp_width}}px;'>
+                {{width}} x {{height}} - {{domain}}
+            </div>
 
-                <div class="cliqz-image-hilight" style="width:{{width}}px; max-width:{{width}}px;">
-                  {{orig_image_width}} &#10008; {{orig_image_height}} {{domain}}
-                </div>
-
-        </div>{{/each}}
+        </div>
+        {{/each}}
+    </div>
 </div>
