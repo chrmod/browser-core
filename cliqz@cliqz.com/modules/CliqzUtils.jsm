@@ -62,9 +62,10 @@ var CliqzUtils = {
   LOG:                            'https://logging.cliqz.com',
   CLIQZ_URL:                      'https://beta.cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:                   'chrome://cliqz/content/offboarding.html',
+  TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
   CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
+  UNINSTALL:                      'https://beta.cliqz.com/home/offboarding',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
@@ -112,7 +113,7 @@ var CliqzUtils = {
         });
     }
 
-    if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+    //if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);

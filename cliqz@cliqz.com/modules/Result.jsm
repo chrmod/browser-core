@@ -107,7 +107,7 @@ var Result = {
     },
     cliqzExtra: function(result){
         result.data.subType = result.subType;
-        
+
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value
@@ -176,7 +176,8 @@ var Result = {
 
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
-                richData: result.snippet.rich_data
+                richData: result.snippet.rich_data,
+                adult: result.snippet.adult || false
             },
             source = getSuperType(result) || result.source;
 
