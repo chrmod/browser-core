@@ -44,7 +44,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultQueryTriggerAt = 0.66
     ;
 
 function lg(msg){
@@ -79,6 +80,8 @@ var UI = {
         registerHelpers();
 
         UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+
+        adultQueryTriggerAt = parseFloat(CliqzUtils.getPref('config_adult', '0.66'));
     },
     main: function(box){
         gCliqzBox = box;
@@ -806,14 +809,17 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
-    var adult = false;
+    var adultResults = 0, backResults = res.results.length;
 
     for(var i=0; i<res.results.length; i++){
         var r = res.results[i];
 
-        if(r.data && r.data.adult) adult = true;
+        //only consider the backend results for porn filtering
+        if(r.type.indexOf('cliqz-results sources-') != 0){
+            backResults--;
+        }
 
-
+        //EZones
         if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
             var d = r.data;
             if(d){
@@ -828,8 +834,11 @@ function enhanceResults(res){
                     r.dontCountAsResult = true;
                 }
 
+                //matching an EZone makes the query adult
+                if(d.adult) adultResults = res.results.length;
             }
         } else {
+            //regular results
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
             r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
@@ -847,6 +856,8 @@ function enhanceResults(res){
             //extract tags from title
             if(r.type.split(' ').indexOf('tag') != -1)
                 [r.title, r.tags] = getTags(r.title);
+
+            if(r.data && r.data.adult) adultResults++;
         }
 
         r.width = res.width > 500 ? res.width : 500;
@@ -860,12 +871,14 @@ function enhanceResults(res){
     }
 
     //filter adult results
-    if(adult) {
-        var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+    if(adultResults > 0) {
+        var adultQuery = adultResults / backResults >= adultQueryTriggerAt,
+            level = CliqzUtils.getPref('adultContentFilter', 'moderate');
+
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
-        if(level == 'moderate' && adultMessage == 0){
+        if(level == 'moderate' && adultMessage == 0 && adultQuery){
             updateMessageState("show", {
                 "adult": {
                   "adultConfig": CliqzUtils.getAdultFilterState()
