@@ -762,8 +762,7 @@ var CliqzHistoryPattern = {
   createInstantResult: function(res, searchString) {
     // if url set has already been prepared (e.g., in the case of rule-based clustering)
     if(res.urls) {
-      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString);
-      instant.data = res;
+      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString, res);
       instant.comment += " (history rules cluster!)"
       instant.data.template = "pattern-h2";
 
