@@ -13,6 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 
 (function(ctx) {
 
+
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
@@ -49,6 +50,17 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
 
 function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
+}
+
+
+// Images search components
+
+var IM_SEARCH_CONF = {
+    'DEFAULT_THUMB' :{"width": 300, "height": 200},
+    'IMAGES_MARGIN':4,
+    'IMAGES_LINES': 3, // Max displayed grid rows (lines)
+    'OFFSET': 20, // Offset for the title (should be set automatically)
+    'MARGIN':2,
 }
 
 var UI = {
@@ -163,7 +175,11 @@ var UI = {
         }
 
         currentResults = enhanceResults(res);
-        process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
+
+        var maxImagesHeight = (IM_SEARCH_CONF.IMAGES_LINES*(100-IM_SEARCH_CONF.MARGIN) - IM_SEARCH_CONF.OFFSET)/IM_SEARCH_CONF.IMAGES_LINES;
+        var zone_height = ((IM_SEARCH_CONF.IMAGES_LINES*100) - IM_SEARCH_CONF.OFFSET)
+        process_images_result(res, maxImagesHeight, zone_height); // Images-layout for Cliqz-Images-Search
+
 
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
@@ -646,49 +662,55 @@ function constructImage(data){
     return null;
 }
 
-    // Cliqz Images Search Layout
+// Image search layout
 
-    var IMAGES_MARGIN = 4;
-    var IMAGES_LINES = 1;
-    function getheight(images, width) {
-        width -= IMAGES_MARGIN * images.length; //images  margin
+    function getheight(images, width, margin) {
+        width -= margin * images.length; //images  margin
         var h = 0;
         for (var i = 0; i < images.length; ++i) {
-            // console.log('width (getheight): '+images[i].image_width)
-            h += images[i].image_width / images[i].image_height
+            // console.log(' Debug:'+JSON.stringify(images[i].thumb))
+            if ('thumb' in images[i]){
+                h += (images[i].thumb.width || default_width) / (images[i].thumb.height || default_height);
+            } else {
+                h += IM_SEARCH_CONF.DEFAULT_THUMB.width/IM_SEARCH_CONF.DEFAULT_THUMB.height;
+            }
         }
         return width / h;
     }
 
-    function setheight(images, height) {
+    function setheight(images, height, margin) {
         var verif_width = 0;
         var estim_width = 0;
         for (var i = 0; i < images.length; ++i) {
-           var width_float = height * images[i].image_width /images[i].image_height;
-            verif_width += ( IMAGES_MARGIN + width_float);
-            images[i].width = parseInt(width_float);
-            estim_width +=  ( IMAGES_MARGIN + images[i].width);
-            images[i].height = parseInt(height);
-            // console.log('width (new): ' + images[i].width +
-            //             ', height (new): ' + images[i].height);
+            var width_float = null
+            if ('thumb' in images[i]){
+                width_float = (height * images[i].thumb.width) /images[i].thumb.height;
+            } else {
+                width_float = (height * IM_SEARCH_CONF.DEFAULT_THUMB.width) /IM_SEARCH_CONF.DEFAULT_THUMB.height;
+            }
+
+            verif_width += (margin + width_float);
+            images[i].disp_width = parseInt(width_float);
+            estim_width +=  (margin + images[i].disp_width);
+            images[i].disp_height = parseInt(height);
         }
 
         // Collecting sub-pixel error
         var error = estim_width - parseInt(verif_width)
-        //console.log('estimation error:' + error);
+        // console.log('estimation error:' + error + ', images nbr:' + images.length);
 
         if (error>0) {
             //var int_error = parseInt(Math.abs(Math.ceil(error)));
             // distribute the error on first images each take 1px
             for (var i = 0; i < error; ++i) {
-                images[i].width -= 1;
+                images[i].disp_width -= 1;
             }
         }
         else {
             error=Math.abs(error)
             //var int_error = parseInt(Math.abs(Math.floor(error)));
             for (var i = 0; i < error; ++i) {
-                images[i].width += 1;
+                images[i].disp_width += 1;
             }
         }
 
@@ -699,32 +721,43 @@ function constructImage(data){
         //    verify += (images[i].width + IMAGES_MARGIN);
         // }
         // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
+
     }
 
-    function resize(images, width) {
-        setheight(images, getheight(images, width));
-    }
+    // function resize(images, width) {
+    //     setheight(images, getheight(images, width));
+    // }
 
 
-    function process_images_result(res, max_height) {
+    function process_images_result(res, max_height, zone_height) {
+        // Zone height should consider the
         // Processing images to fit with max_height and
-        var tmp = []
+        var tmp = [];
+        var data = null;
+
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
-            if (r.vertical == 'images' && r.data.template == 'images') {
+
+            if ('data' in r) {
+                data = r.data;
+            }
+
+            if (r.vertical == 'images_beta' && data && data.template == 'images_beta') {
                 var size = CLIQZ.Core.urlbar.clientWidth - (CliqzUtils.isWindows(window)?20:15);
                 var n = 0;
-                var images = r.data.items;
-                // console.log('global width: '+ size + ', verif: '+ res.width
-                //     +', images nbr: '+images.length) // TODO Define which is the better src for width f(time, scroll_bar_styles)
-                w: while ((images.length > 0) && (n<IMAGES_LINES)){
+                var images = data.items;
+                console.log('- Global width: '+ size + ', verif: '+ res.width
+                             +', images nbr: '+images.length); // TODO Define which is the better src for width f(time, scroll_bar_styles)
+                w: while ((images.length > 0) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                     var i = 1;
-                    while ((i < images.length + 1) && (n<IMAGES_LINES)){
+                    while ((i < images.length + 1) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                         var slice = images.slice(0, i);
-                        var h = getheight(slice, size);
-                        //console.log('height: '+h);
+                        var h = getheight(slice, size, IM_SEARCH_CONF.IMAGES_MARGIN);
+                        // console.log('height: '+h + ', max height:' + max_height);
                         if (h < max_height) {
-                            setheight(slice, h);
+                            setheight(slice, h, IM_SEARCH_CONF.IMAGES_MARGIN);
+                            zone_height = zone_height - h; // updates the zone height
+                            max_height = Math.min(zone_height, max_height);
                             //res.results[k].data.results = slice
                             tmp.push.apply(tmp, slice);
                             // console.log('height: '+h);
@@ -734,19 +767,18 @@ function constructImage(data){
                         }
                         i++;
                     }
-                    setheight(slice, Math.min(max_height, h));
+                    setheight(slice, Math.min(max_height, h), IM_SEARCH_CONF.IMAGES_MARGIN);
                     tmp.push.apply(tmp, slice);
                     n++;
                     break;
                 }
                 res.results[k].data.items = tmp
-                // console.log('lines: '+n); // should be 1
+                console.log('lines: '+n); // should be 1
                 }
             }
-
         }
 
-    // end image-search layout
+// end image-search layout
 
 //loops though al the source and returns the first one with custom snippet
 function getFirstVertical(type){
