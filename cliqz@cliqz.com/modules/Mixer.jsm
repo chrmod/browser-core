@@ -178,7 +178,7 @@ var Mixer = {
 
                 var temp_history = results[0];
                 results[0] = cliqzExtra[0];
-                results[0].data.urls = temp_history.data.urls.slice(0,4);
+                results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
             }
             // Convert 2/3 size history into 1/3 to place below EZ
             else if(results.length > 0 &&
@@ -186,7 +186,7 @@ var Mixer = {
                     CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
                 results[0].data.template = "pattern-h3";
                 // limit number of URLs
-                results[0].data.urls = results[0].data.urls.slice(0,2);
+                results[0].data.urls = (results[0].data.urls || []).slice(0,2);
                 results = cliqzExtra.concat(results);
             } else {
                 results = cliqzExtra.concat(results);
