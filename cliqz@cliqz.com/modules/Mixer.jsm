@@ -164,6 +164,9 @@ var Mixer = {
             }
         }
 
+        // limit to one entity zone
+        cliqzExtra = cliqzExtra.slice(0, 1);
+
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
             // Remove entity links form history
