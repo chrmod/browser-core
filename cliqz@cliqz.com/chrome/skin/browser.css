@@ -68,23 +68,25 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
+
 #cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-h1 { height: 302px; }
 #cliqz-results .cqz-result-h2 { height: 201px; }
-#cliqz-results .cqz-result-h3 {	height: 100px; }
+#cliqz-results .cqz-result-h3 { height: 100px; }
 #cliqz-results .cqz-result-box { position: relative; border-bottom: 1px solid #CCC; }
 #cliqz-results .cqz-result-selected {
     position: absolute;
-	top: 10px;
-	left: -20px;
-	height: 14px;
-	width: 14px;
+    top: 10px;
+    left: -20px;
+    height: 14px;
+    width: 14px;
 
-	background-color: #333333;
-	border-radius: 0 3px 0 0;
-	transform: rotate(42deg);
+    background-color: #333333;
+    border-radius: 0 3px 0 0;
+    transform: rotate(42deg);
 
-	-moz-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
     -moz-backface-visibility: hidden;
     backface-visibility: hidden;
@@ -131,13 +133,13 @@
 
 /* custom logo definitions */
 #cliqz-results .cliqz-brand-logo, .cliqz-brand-logo {
-	-moz-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
     transition: all 0.3s ease;
 }
 
 #cliqz-results .cqz-result-logo {
-	position: absolute;
-	right: 22px;
+    position: absolute;
+    right: 22px;
     cursor: pointer;
     /* set the size of logo */
     font-size: 26px;
@@ -253,16 +255,16 @@
 #cliqz-results .cqz-ez-banking-box .cqz-ez-btn { margin-bottom: 5px; }
 #cliqz-results .cqz-ez-banking-opt {
     background-color: #efefef;
-	width: 110px;
-	height: 100px;
-	background-size: 60px auto;
-	margin-left: 8px;
-	background-position: 50% calc(70% - 20px);
-	text-align: center;
-	box-sizing: border-box;
+    width: 110px;
+    height: 100px;
+    background-size: 60px auto;
+    margin-left: 8px;
+    background-position: 50% calc(70% - 20px);
+    text-align: center;
+    box-sizing: border-box;
     -moz-box-sizing: border-box;
-	padding-top: 74px;
-	border-radius: 3px;
+    padding-top: 74px;
+    border-radius: 3px;
     cursor: pointer;
 }
 #cliqz-results .cqz-ez-banking-opt:hover { text-decoration: underline; }
@@ -492,43 +494,65 @@
 
 
 
-/* images */
+/* Images search (beta) */
 
-.cliqz-images {
-    width:100%;
-    height:100%;
-    display: inline-block;
-    margin-left:auto;
-    margin-right:auto;
-    background: white;
-
+#cliqz-results .cqz-result-images {
+     /* height: 201px; */
+     padding: 3px 0px 0px 15px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-.cliqz-image-item {
+#cliqz-results .cqz-result-images .cqz-ez-images-title { cursor: pointer; font-size: 16px; display: inline-block; margin-top: 2px; margin-bottom: 2px; }
+#cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-result-images .cqz-ez-images-title .after {
+    display: inline-block;
+    background-size: auto 16px;
+    background-position: 4px 2px;
+    background-repeat: no-repeat;
+    content: "";
+    width: 999999999999999px;
+    height: 18px;
+    vertical-align: top;
+}
+
+#cliqz-results .cqz-result-images .cqz-ez-images-title::after {
+  background-image: url(http://cdn.cliqz.com/extension/EZ/images/camera.png);
+}
+
+
+#cliqz-results .cqz-result-images .cliqz-images {
+}
+
+
+#cliqz-results .cqz-result-images .cliqz-image-item {
     display: inline-block;
     float: left;
     position: relative;
-    margin:  0px 2px 0px 2px;
+    padding: 1px 2px 1px 2px;
+    border-radius: 10px;
+
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-item img{
+    display: block;
     border-radius: 10px;
 }
 
-.cliqz-image-item img{
-    border-radius: 5px;
-}
-
-.cliqz-image-item:hover .cliqz-image-hilight {display: block;}
+#cliqz-results .cqz-result-images .cliqz-image-item:hover .cliqz-image-hilight {display: block;}
 
 
-.cliqz-image-hidden{
+#cliqz-results .cqz-result-images .cliqz-image-hidden{
     background-color: black;
     filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
     filter: blur(10px);
 }
 
-.cliqz-image-clear{
+#cliqz-results .cqz-result-images .cliqz-image-clear{
+    display: block;
+    border-radius: 10px;
 }
 
-.cliqz-image-hilight{
+#cliqz-results .cqz-result-images .cliqz-image-hilight{
     display: none;
     white-space: word-wrap;
     overflow: hidden;
@@ -537,18 +561,19 @@
     background-color: rgba(0,0,0,0.65);
     position: absolute;
     font-family: Courier New;
-    font-size:10px;
+    font-size:9px;
     bottom: +10px;
     z-index: 1;
 }
 
-.cliqz-image-item > .cliqz-image-hilight:hover{
+
+#cliqz-results .cqz-result-images .cliqz-image-item > .cliqz-image-hilight:hover{
     text-overflow:inherit;
     overflow:visible;
     display:hidden;
 }
 
-.cliqz-image-report{
+#cliqz-results .cqz-result-images .cliqz-image-report{
     white-space: word-wrap;
     overflow: hidden;
     position: relative;
