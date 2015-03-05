@@ -306,7 +306,16 @@
     background-size: 15px 15px;
     background-image: url(http://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg)
 }
-#cliqz-results .cqz-ez-search-box-input { width: 100%; height: 100%; padding: 0 6px; box-sizing: border-box; -moz-box-sizing: border-box; }
+
+#cliqz-results .cqz-ez-search-box-input {
+    width: 100%;
+    height: 100%;
+    padding: 0 6px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    cursor: text;
+}
+
 #cliqz-results .cqz-ez-search-app {
     float: left;
     width: 85px;
