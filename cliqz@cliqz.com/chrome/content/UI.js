@@ -16,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
-        //'b': 'bundesliga',
         //'s': 'shopping',
         //'g': 'gaming'  ,
         'n': 'news'    ,
@@ -716,7 +715,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-images') return 'images';
-    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
