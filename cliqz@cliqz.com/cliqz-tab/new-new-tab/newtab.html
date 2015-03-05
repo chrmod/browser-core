@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css' />
+        <link href="newtab.css" rel="stylesheet" media="screen" />
+        <link href="chrome://cliqzres/content/skin/brands.css" rel="stylesheet" media="screen" />
+        <link href="http://cdn.cliqz.com/libs/animate/animate.css" rel="stylesheet" media="screen" />
+
+        <script src="http://cdn.cliqz.com/libs/jquery/jquery-2.1.1.min.js"></script>
+        <script src="http://cdn.cliqz.com/libs/sortable/sortable.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.3/jquery-ui.min.js"></script>
+        <script src="packery.pkgd.min.js"></script>
+        <script src="newtab.js"></script>
+    </head>
+    <body>
+        <div id="history-popup">
+            Shortcut removed. <span id="history-undo">Undo</span> or <span id="history-undo-all">Restore All</span>
+            <div class="dismiss"></div>
+        </div>
+        
+        <div class="white-cover" style="height: 100%">
+            <div class="background">
+                <div class="container search-container">
+                    <div class="row">
+                        <div class="history-lis" id="history-lis">
+                            <div class="sample"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- templates -->
+        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template" selectable="selectable">
+            <div class="history-row">
+                <div class="close"></div>
+                <div class="pin"></div>
+                <div class='history-icon cliqz-brands-logo'></div>
+                <div class='history-desc'>
+                    <div class='history-title ellipsis'></div>
+                    <div class='history-url ellipsis hovered'></div>
+                    <div class='history-url ellipsis blurred'></div>
+                </div>
+            </div>
+            <div class='news-section'>
+                <div class="item item1"></div>
+                <div class="item item2"></div>
+                <div class="item item3"></div>
+            </div>
+        </a>
+    </body>
+</html>
