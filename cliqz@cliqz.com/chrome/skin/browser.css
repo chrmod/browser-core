@@ -177,7 +177,7 @@
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
 #cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
 #cliqz-results .ez-feedback:hover { text-decoration: underline; }
-#cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; }
+#cliqz-results .cqz-link { color: #88baf8; margin-right: 10px; cursor: pointer; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
 
 /* custom result */
