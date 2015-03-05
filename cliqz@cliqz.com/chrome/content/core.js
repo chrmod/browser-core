@@ -108,6 +108,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
+
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
@@ -436,7 +438,7 @@ CLIQZ.Core = CLIQZ.Core || {
             if (urlbar.mInputField.selectionEnd !== urlbar.mInputField.selectionStart &&
                 urlbar.mInputField.value[urlbar.mInputField.selectionStart] == String.fromCharCode(ev.charCode)) {
                 // prevent the redraw in urlbar but send the search signal
-                let query = urlbar.value,
+                var query = urlbar.value,
                     old = urlbar.mInputField.value,
                     start = urlbar.mInputField.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);

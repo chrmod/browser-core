@@ -152,7 +152,7 @@ var UI = {
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
-        var width = CLIQZ.Core.urlbar.clientWidth
+        var width = Math.max(CLIQZ.Core.urlbar.clientWidth,500)
 
         // set the width
         gCliqzBox.style.width = width + 1 + "px"
