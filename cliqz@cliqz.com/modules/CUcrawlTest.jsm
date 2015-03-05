@@ -239,10 +239,7 @@ var CUcrawlTest = {
                   CUcrawlTest.httpCache401[url] = {'time': CUcrawlTest.counter};
                 }
 
-              } catch(ee) {
-                if (CUcrawlTest.debug) CliqzUtils.log("error httpObserver" + ee,CUcrawlTest.LOG_KEY);
-                return;
-              }
+              } catch(ee){}
         }
     },
     linkCache: {},
