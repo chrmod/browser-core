@@ -440,7 +440,7 @@ CLIQZ.Core = CLIQZ.Core || {
             if (urlbar.mInputField.selectionEnd !== urlbar.mInputField.selectionStart &&
                 urlbar.mInputField.value[urlbar.mInputField.selectionStart] == String.fromCharCode(ev.charCode)) {
                 // prevent the redraw in urlbar but send the search signal
-                let query = urlbar.value,
+                var query = urlbar.value,
                     old = urlbar.mInputField.value,
                     start = urlbar.mInputField.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);
