@@ -136,6 +136,8 @@ var CliqzUtils = {
         result = {},
         domains = BRANDS_DATABASE.domains
 
+
+
     if(base.length == 0)
       return result;
 
@@ -161,7 +163,7 @@ var CliqzUtils = {
     result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
     result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
 
-    result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
+    result.style = "background-color:" + result.backgroundColor + ";color:" + (result.color || '#fff') + ";"
 
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 
@@ -828,15 +830,26 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
+  //  gets a key and a dynamic of parameters
+  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
+  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
   getLocalizedString: function(key){
+    var ret = key;
+
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        return CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
     } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        return CliqzUtils.locale['default'][key].message;
-    } else {
-        return key;
+        ret = CliqzUtils.locale['default'][key].message;
     }
+
+    if(arguments.length>1){
+      for(var i=1;i<arguments.length;i++){
+        ret = ret.replace('{}', arguments[i]);
+      }
+    }
+
+    return ret;
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content

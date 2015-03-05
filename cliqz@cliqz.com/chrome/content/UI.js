@@ -854,6 +854,10 @@ function enhanceResults(res){
         if(r.data && r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
+            if(r.logo.style.indexOf('background-image') == -1){
+                //add local cliqz image if there is no internet
+                r.logo.style += ";background-image:url(chrome://cliqzres/content/skin/img/cliqzLogo.svg)"
+            }
             r.logo.add_logo_url = true;
         }
 
@@ -1603,7 +1607,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1], parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -1633,8 +1637,8 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('local', function(key, v1, v2 ) {
-        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
+    Handlebars.registerHelper('local', function() {
+        return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
     Handlebars.registerHelper('local_number', function(val) {
