@@ -206,12 +206,14 @@ var UI = {
       var now = Date.now();
       if(id != UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(UI.dispatchRedraw, 50, html, id);
+        setTimeout(UI.dispatchRedraw, 100, html, id);
       } else {
         UI.redrawResultHTML(html);
       }
     },
-    animateHistory: null,
+    animateHistory: false,
+    lastDrawnQuery: null,
+    clearDropdownOnRedraw: false,
     redrawResultHTML: function(newHTML) {
       var $ = CLIQZ.Core.jQuery;
       var box = gCliqzBox.resultsBox;
@@ -224,38 +226,65 @@ var UI = {
       var newResults = $('.cqz-result-box', newBox);
 
       if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
-        UI.animateHistory = null;
         for(var i=0; i<newResults.length; i++) {
           var oldChild = oldResults[i];
-          box.replaceChild(newResults[i], box.children[i]);
+          var curUrls = UI.extractResultUrls(oldChild.innerHTML);
+          var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
+          if(oldChild.getAttribute("type") != newResults[i].getAttribute("type") &&
+          (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
+            $(oldChild).fadeOut("slow", function(){
+                $(this).replaceWith(newResults[i]);
+                $(oldChild).fadeIn("slow");
+            });
+          } else if(curUrls != newUrls) {
+            box.replaceChild(newResults[i], box.children[i]);
+          }
           var newChild = box.children[i];
-          if (i == 0 && newChild && newChild.getAttribute("type") == "cliqz-pattern" &&
-            oldChild && oldChild.getAttribute("type") == "cliqz-pattern" &&
-            oldChild.children[0].className.indexOf("h3") != -1 &&
-            newChild.children[0].className.indexOf("h2") != -1) {
+          if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
+            oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
+            newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
               newChild.style.height = "101px";
-              UI.animateHistory = newChild;
-          } else {
-            UI.animateHistory = null;
+              UI.animateHistory = true;
           }
         }
         return;
       }
+      UI.lastDrawnQuery = CliqzAutocomplete.lastSearch;
 
-      if(UI.animateHistory == box.children[0]) var animate = true;
+
+      // Fade out for old results
+      var fadeoutTime = 0;
+      for(var i=0; i<oldResults.length; i++) {
+        var item = box.children[i];
+        var curUrls = UI.extractResultUrls(item.innerHTML);
+        var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
+        if (item.getAttribute("type").indexOf("cliqz-pattern") == -1 && curUrls != newUrls) {
+          // Animate
+          item.style.opacity = 1;
+          $(item).animate({
+            "opacity": "0"
+          }, 150);
+          fadeoutTime = 150;
+        }
+      }
+
       var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       $(box).html(newHTML);
       newResults = $('.cqz-result-box', box);
+      var firstResult = newResults[0];
 
-      if (animate) {
-        newResults[0].style.height = "101px";
-        $(newResults[0]).animate({
+      var historyDelay = 0;
+      if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
+      firstResult.children[0].className.indexOf("h2") != -1) {
+        firstResult.style.height = "101px";
+        $(firstResult).animate({
           "height": "202px"
         }, 600);
+        UI.animateHistory = false;
+        historyDelay = 600;
       }
 
-
-      var delay = 0;
+      var delay = fadeoutTime;
       for(var i=0; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
@@ -272,7 +301,7 @@ var UI = {
           var curUrls = UI.extractResultUrls(oldRes.innerHTML);
           var newUrls = UI.extractResultUrls(newRes.innerHTML);
           if (curUrls != newUrls &&
-            newRes.innerHTML.indexOf("cqz-result-pattern") == -1) {
+            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i != 0)) {
             newRes.style.opacity = 0;
             setTimeout(function(r){
             $(r).stop().animate({
@@ -282,10 +311,9 @@ var UI = {
           }
         }
       }
-      var nextDraw = Date.now() + delay + (delay>0?400:0);
+      var nextDraw = Date.now() + delay + (delay>0?400:0) + historyDelay;
       if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
       UI.nextRedraw += 100;
-      UI.animateHistory = null;
     },
     // Returns a concatenated string of all urls in a result list
     extractResultUrls: function(str) {
@@ -397,6 +425,7 @@ var UI = {
                     CliqzUtils.track(signal);
                 }
                 UI.preventFirstElementHighlight = true;
+                UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
             default:
@@ -570,6 +599,7 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
+    gCliqzBox.resultsBox.innerHTML ="";
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
@@ -1421,10 +1451,9 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
             el.removeAttribute('arrow');
             target.setAttribute('url', el.getAttribute('url'));
         }
-
-        if(el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
+        arrow.className = arrow.className.replace(" notransition", "");
+        if(!mouseOver && el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
         UI.lastSelectedUrl = el.getAttribute("url");
-        //arrow.className += " notransition";
 
         var offset = target.offsetTop;
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
