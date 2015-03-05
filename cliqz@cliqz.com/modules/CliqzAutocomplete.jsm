@@ -404,6 +404,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         country = json.country;
                         this.cliqzResultsExtra = []
 
+
                         if(json.images && json.images.results && json.images.results.length >0)
                             this.cliqzResultsExtra =
                                 json.images.results.map(Result.cliqzExtra);
@@ -666,27 +667,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
-                this.addCalculatorSignal(action);
                 CliqzUtils.track(action);
-            },
-            addCalculatorSignal: function(action) {
-                var calcAnswer = null,
-                    cResults = this.customResults;
-
-                if(cResults && cResults.length > 0 &&
-                        cResults[0].style == Result.CLIQZE &&
-                        cResults[0].data.template == 'calculator'){
-                    calcAnswer = cResults[0].data.answer;
-                }
-                if (calcAnswer == null && this.suggestedCalcResult == null){
-                    return;
-                }
-                action.suggestions_recived =  this.suggestionsRecieved;
-                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
-                action.suggested = this.suggestedCalcResult != null;
-                action.calculator = calcAnswer != null;
-                this.suggestionsRecieved = false;
-                this.suggestedCalcResult = null;
             }
         }
     }

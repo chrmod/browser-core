@@ -53,7 +53,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
+//  RESULTS_PROVIDER:              'http://rich-header-server.clyqz.com/mixer?q=',//'https://newbeta.cliqz.com/api/v1/results?q=',//
+  RESULTS_PROVIDER:               'http://rh-staging.fbt.co/mixer?q=',//http://rich-header-server.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/id_to_snippet?q=', //
 //  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
   RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
@@ -77,7 +78,9 @@ var CliqzUtils = {
       'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'hq12': 1
+  },
 
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),

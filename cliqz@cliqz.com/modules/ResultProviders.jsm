@@ -61,6 +61,11 @@ var ResultProviders = {
     getCustomResults: function(q){
         var results = null;
         var customQuery = ResultProviders.isCustomQuery(q);
+        var isLocationWiki_query = function(query){ // THUY ------ testing WIKI LOCATION results with GOOGLE MAP
+            if (query.toLowerCase() === "thuycliqz")
+                return true;
+            return false;
+        };
         if(customQuery){
             results = [
                 Result.generic(
@@ -82,8 +87,53 @@ var ResultProviders = {
             if (calcRes != null){
                 results = [calcRes];
             }
+        } else if(isLocationWiki_query(q)) {  // THUY ------ testing WIKI LOCATION results with GOOGLE MAP
+            results = [Result.cliqzExtra(
+                {
+                    q: q,
+                    url: 'http://de.wikipedia.org/wiki/Australien',
+                    style: "cliqz-extra",
+                    type: "cliqz-extra",
+                    subType: JSON.stringify({type:'calculator'}),
+                    "data": {
+                        "template": "hq12",
+                        "description": "THUY-Der Staat Australien liegt auf der Südhalbkugel nordwestlich von Neuseeland und südlich von Indonesien, Osttimor, West-Neuguinea und Papua-Neuguinea und umfasst neben der kontinentalen Landmasse die vorgelagerte Insel Tasmanien und einige kleinere Inseln.",
+                        "source_language": "DE",
+                        "source_name": "Wikipedia",
+                        "richData": {
+                            "map":{
+                                "url": "http://maps.google.com/maps/api/staticmap?size=200x200&center=Paris&format=png&markers=size:mid%7Ccolor:red%7Clabel:1%7CParis&sensor=false",
+                                "alt_text": 'GoogleMap',
+                                "search_url": "http://maps.google.com/?q=Australia"
+                            },
+                            "images": [
+                                "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Flag_of_Australia.svg/300px-Flag_of_Australia.svg.png",
+                                "http://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Coat_of_Arms_of_Australia.svg/300px-Coat_of_Arms_of_Australia.svg.png",
+                                "http://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Australia-climate-map_MJC01.png/440px-Australia-climate-map_MJC01.png",
+                                "http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Uluru_Australia%281%29.jpg/440px-Uluru_Australia%281%29.jpg",
+                                "http://ts1.mm.bing.net/th?id=HN.607993960275905008&pid=15.1&H=99&W=160",
+                                "http://ts1.mm.bing.net/th?id=HN.608014958369835100&pid=15.1&H=106&W=160",
+                                "http://ts4.mm.bing.net/th?id=HN.608040028094595619&pid=15.1&H=240&W=160",
+                                "http://ts1.mm.bing.net/th?id=HN.608038511970419668&pid=15.1&H=160&W=160"
+                            ],
+                            "additional_sources": [
+                                {
+                                    "title": "Geographie Australiens",
+                                    "url": "http://de.wikipedia.org/wiki/Geographie_Australiens"
+                                },
+                                {
+                                    "title": "Klima in Australien",
+                                    "url": "http://de.wikipedia.org/wiki/Klima_in_Australien"
+                                },
+                                {
+                                    "title": "Fauna Australiens",
+                                    "url": "http://de.wikipedia.org/wiki/Fauna_Australiens"
+                                }]
+                        },
+                        "title": "Australien"
+                    }
+                })];
         }
-
         return [q, results];
     },
     getSearchEngines: function(){
