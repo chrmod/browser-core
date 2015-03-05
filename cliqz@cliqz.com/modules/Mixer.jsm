@@ -125,7 +125,8 @@ var Mixer = {
         })
 
         // Find any entity zone in the results and cache them for later use
-        for(var i=0; i < (cliqzExtra || []).length; i++){
+        // go backwards to be sure to cache the newest (which will be first in the list)
+        for(var i=(cliqzExtra || []).length - 1; i >= 0; i--){
             var r = cliqzExtra[i];
             if(r.style == 'cliqz-extra'){
                 if(r.val != "" && r.data.subType){
