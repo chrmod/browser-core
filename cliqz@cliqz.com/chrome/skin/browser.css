@@ -497,13 +497,31 @@
 /* Images search (beta) */
 
 #cliqz-results .cqz-result-images {
-     /* height: 201px; */
      padding: 3px 0px 0px 15px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
-#cliqz-results .cqz-result-images .cqz-ez-images-title { cursor: pointer; font-size: 16px; display: inline-block; margin-top: 2px; margin-bottom: 2px; }
+#cliqz-results .cqz-result-images-1 {
+     height: 101px;
+}
+
+#cliqz-results .cqz-result-images-2 {
+     height: 202px;
+}
+
+#cliqz-results .cqz-result-images-3 {
+     height: 303px;
+}
+
+#cliqz-results .cqz-result-images .cqz-ez-images-title {
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
 #cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-result-images .cqz-ez-images-title .after {
     display: inline-block;
     background-size: auto 16px;
@@ -554,7 +572,8 @@
 
 #cliqz-results .cqz-result-images .cliqz-image-hilight{
     display: none;
-    white-space: word-wrap;
+    white-space: normal;
+    /* word-wrap: break-word; */
     overflow: hidden;
     /* text-overflow: ellipsis; */
     color: rgba(255, 255, 255, 1);
