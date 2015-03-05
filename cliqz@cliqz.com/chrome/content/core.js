@@ -31,9 +31,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
@@ -152,8 +149,6 @@ CLIQZ.Core = CLIQZ.Core || {
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
         CliqzAutocomplete.init();
-
-        CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -282,7 +277,6 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzLanguage;
             delete window.ResultProviders;
             delete window.CliqzCategories;
-            delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
@@ -371,7 +365,6 @@ CLIQZ.Core = CLIQZ.Core || {
             if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
 
-        CLIQZ.Core.handleTimings();
         CliqzABTests.check();
 
         //executed after the services are fetched
@@ -408,14 +401,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 CliqzUtils.track(info);
             });
         });
-    },
-    // Reset collection of timing data at regular intervals, send log if pref set.
-    handleTimings: function() {
-        CliqzTimings.send_log("result", 1000);
-        CliqzTimings.send_log("search_history", 200);
-        CliqzTimings.send_log("search_cliqz", 1000);
-        CliqzTimings.send_log("search_suggest", 500);
-        CliqzTimings.send_log("send_log", 2000);
     },
     showUninstallMessage: function(currentVersion){
         var UNINSTALL_PREF = 'uninstallVersion',

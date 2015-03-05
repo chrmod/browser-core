@@ -25,9 +25,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-//  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -52,9 +49,8 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
-//  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
-  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -703,7 +699,6 @@ var CliqzUtils = {
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
-    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -717,7 +712,6 @@ var CliqzUtils = {
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
     CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.

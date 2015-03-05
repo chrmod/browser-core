@@ -135,7 +135,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');

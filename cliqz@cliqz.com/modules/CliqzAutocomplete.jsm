@@ -20,9 +20,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
@@ -230,7 +227,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
-                CliqzTimings.add("search_history", (now - this.startTime));
 
                 //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
                 //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
@@ -379,8 +375,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        if(this.startTime)
-                            CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
                         this.resultsTimer = null;
                         this.historyTimer = null;
@@ -416,8 +410,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
-                    if(this.startTime)
-                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime);
 
                     var json = JSON.parse(req.response);
                     results = json.result || [];
