@@ -58,9 +58,10 @@ function lg(msg){
 var IM_SEARCH_CONF = {
     'DEFAULT_THUMB' :{"width": 300, "height": 200},
     'IMAGES_MARGIN':4,
-    'IMAGES_LINES': 3, // Max displayed grid rows (lines)
-    'OFFSET': 20, // Offset for the title (should be set automatically)
+    'IMAGES_LINES': 2, // Max displayed grid rows (lines)
+    'OFFSET': 30, // Offset for the title (should be set automatically)
     'MARGIN':2,
+    'CELL_HEIGHT':100
 }
 
 var UI = {
@@ -175,11 +176,9 @@ var UI = {
         }
 
         currentResults = enhanceResults(res);
-
-        var maxImagesHeight = (IM_SEARCH_CONF.IMAGES_LINES*(100-IM_SEARCH_CONF.MARGIN) - IM_SEARCH_CONF.OFFSET)/IM_SEARCH_CONF.IMAGES_LINES;
-        var zone_height = ((IM_SEARCH_CONF.IMAGES_LINES*100) - IM_SEARCH_CONF.OFFSET)
-        process_images_result(res, maxImagesHeight, zone_height); // Images-layout for Cliqz-Images-Search
-
+        // Images-layout for Cliqz-Images-Search
+        process_images_result(res,
+           IM_SEARCH_CONF.CELL_HEIGHT-IM_SEARCH_CONF.MARGIN);
 
         if(gCliqzBox.resultsBox)
             gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
@@ -729,51 +728,51 @@ function constructImage(data){
     // }
 
 
-    function process_images_result(res, max_height, zone_height) {
-        // Zone height should consider the
+    function process_images_result(res, max_height) {
         // Processing images to fit with max_height and
         var tmp = [];
         var data = null;
-
+        var effect_max_height = max_height;
         for(var k=0; k<res.results.length; k++){
             var r = res.results[k];
-
             if ('data' in r) {
                 data = r.data;
             }
-
             if (r.vertical == 'images_beta' && data && data.template == 'images_beta') {
                 var size = CLIQZ.Core.urlbar.clientWidth - (CliqzUtils.isWindows(window)?20:15);
                 var n = 0;
                 var images = data.items;
-                console.log('- Global width: '+ size + ', verif: '+ res.width
-                             +', images nbr: '+images.length); // TODO Define which is the better src for width f(time, scroll_bar_styles)
+                // console.log('- Global width: '+ size + ', verif: '+ res.width
+                //              +', images nbr: '+images.length); // TODO Define which is the better src for width f(time, scroll_bar_styles)
                 w: while ((images.length > 0) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
+                    if (n==0){
+                        effect_max_height = Math.min(max_height, (IM_SEARCH_CONF.CELL_HEIGHT-IM_SEARCH_CONF.OFFSET));
+                        console.log('(line 1) effect_max_height: ' + effect_max_height);
+                    }
                     var i = 1;
                     while ((i < images.length + 1) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                         var slice = images.slice(0, i);
                         var h = getheight(slice, size, IM_SEARCH_CONF.IMAGES_MARGIN);
-                        // console.log('height: '+h + ', max height:' + max_height);
-                        if (h < max_height) {
+                        console.log('height: '+h + ', max height:' + effect_max_height);
+                        if (h < effect_max_height) {
                             setheight(slice, h, IM_SEARCH_CONF.IMAGES_MARGIN);
-                            zone_height = zone_height - h; // updates the zone height
-                            max_height = Math.min(zone_height, max_height);
-                            //res.results[k].data.results = slice
+                            effect_max_height =  effect_max_height - h + max_height;
                             tmp.push.apply(tmp, slice);
-                            // console.log('height: '+h);
+                            console.log('height: '+h);
                             n++;
                             images = images.slice(i);
                             continue w;
                         }
                         i++;
                     }
-                    setheight(slice, Math.min(max_height, h), IM_SEARCH_CONF.IMAGES_MARGIN);
+                    setheight(slice, Math.min(effect_max_height, h), IM_SEARCH_CONF.IMAGES_MARGIN);
                     tmp.push.apply(tmp, slice);
                     n++;
                     break;
                 }
-                res.results[k].data.items = tmp
-                console.log('lines: '+n); // should be 1
+                res.results[k].data.items = tmp;
+                res.results[k].data.lines = n;
+                // console.log('lines: '+n); // should be <= IM_SEARCH_CONF.IMAGES_LINES
                 }
             }
         }
