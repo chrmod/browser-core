@@ -49,9 +49,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
-  RESULTS_PROVIDER:               'http://54.167.251.177/api/v1/results?q=' ,// 'https://newbeta.cliqz.com/api/v1/results?q=',// 'http://images.clyqz.com/api/mixer_clone?n=30&q=',// //'http://rich-header-server.fbt.co/mixer?q=',//
-//  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
-  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
