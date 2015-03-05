@@ -16,7 +16,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
-        //'b': 'bundesliga',
         //'s': 'shopping',
         //'g': 'gaming'  ,
         'n': 'news'    ,
@@ -716,7 +715,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-images') return 'images';
-    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
@@ -1400,6 +1398,44 @@ function onEnter(ev, item){
 
   CLIQZ.Core.openLink(input);
   return true;
+}
+
+function enginesClick(ev){
+    var engineName;
+    var el = ev.target;
+
+    if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
+        var engine;
+        if(engine = Services.search.getEngineByName(engineName)){
+            var urlbar = CLIQZ.Core.urlbar,
+                userInput = urlbar.value;
+
+            // avoid autocompleted urls
+            if(urlbar.selectionStart &&
+               urlbar.selectionEnd &&
+               urlbar.selectionStart != urlbar.selectionEnd){
+                userInput = userInput.slice(0, urlbar.selectionStart);
+            }
+
+            var url = engine.getSubmission(userInput).uri.spec,
+                action = {
+                    type: 'activity',
+                    action: 'visual_hash_tag',
+                    engine: ev.target.getAttribute('engineCode') || -1
+                };
+
+            if(ev.metaKey || ev.ctrlKey){
+                CLIQZ.Core.openLink(url, true);
+                action.new_tab = true;
+            } else {
+                gBrowser.selectedBrowser.contentDocument.location = url;
+                CLIQZ.Core.popup.closePopup();
+                action.new_tab = false;
+            }
+
+            CliqzUtils.track(action);
+        }
+    }
 }
 
 function trackArrowNavigation(el){
