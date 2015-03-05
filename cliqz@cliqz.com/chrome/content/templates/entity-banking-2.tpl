@@ -17,8 +17,7 @@
             <div class="cqz-ez-banking-box">
                 {{#each buttons }}
                     <div
-                        class="cqz-ez-btn"
-                        style="background-color: {{color}}"
+                        class="cqz-ez-btn {{ ../../logo.buttonsClass }}"
                         url="{{url}}"
                         arrow="false"
                         selectable=''

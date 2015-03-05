@@ -47,7 +47,7 @@ var VERTICAL_ENCODINGS = {
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
-    BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false;
+    BRANDS_DATABASE = { domains: {}, palette: ["999"], buttons: [1] }, brand_loaded = false;
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
@@ -142,12 +142,11 @@ var CliqzUtils = {
 
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
-        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
-            backgroundColor: rule.b?"#" + rule.b:null,
+            backgroundColor: rule.b?rule.b:null,
             backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
@@ -159,9 +158,15 @@ var CliqzUtils = {
     }
 
     result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
-    result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
-
-    result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
+    result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
+    
+    var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor)
+    
+    if (BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]) {
+        result.buttonsClass = "cliqz-brands-button-" + BRANDS_DATABASE.buttons[colorID]
+    }
+      
+    result.style = "background-color: #" + result.backgroundColor + ";color:" + result.color + ";"
 
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 

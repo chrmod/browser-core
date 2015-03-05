@@ -19,8 +19,7 @@
             <div class="cqz-ez-generic-box">
                 {{#each actions }}
                     <div
-                        class="cqz-ez-btn overflow"
-                        style="background-color: {{ color }}"
+                        class="cqz-ez-btn {{ ../../logo.buttonsClass }}"
                         extra="action-{{ @index }}"
                         url="{{url}}" arrow="false" selectable=''
                         >{{ title }}</div>

@@ -108,6 +108,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
+        
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
         // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
