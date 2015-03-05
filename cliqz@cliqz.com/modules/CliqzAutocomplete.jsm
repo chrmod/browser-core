@@ -413,9 +413,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     country = json.country;
                     this.cliqzResultsExtra = []
 
-                    if(json.images && json.images.results && json.images.results.length >0)
-                        this.cliqzResultsExtra =
-                            json.images.results.map(Result.cliqzExtra);
+                    if(json.images && json.images.results && json.images.results.length >0){
+                        var imgs = json.images.results.filter(function(r){
+                            //ignore empty results
+                            return Object.keys(r).length != 0;
+                        });
+
+                        this.cliqzResultsExtra =imgs.map(Result.cliqzExtra);
+                    }
 
                     var hasExtra = function(el){
                         if(!el || !el.results || el.results.length == 0) return false;
