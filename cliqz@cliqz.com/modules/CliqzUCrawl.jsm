@@ -277,7 +277,7 @@ var CliqzUCrawl = {
         else{
           res[''+i] = {'u': _res[i].href, 't': _res[i].text};
         }
-        
+
       }
       //Ucrawlutils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawl.LOG_KEY);
       return res;
@@ -320,24 +320,24 @@ var CliqzUCrawl = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
         if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
             return true;
-        } 
+        }
         else{
             return false;
         }
 
-        
+
     },
     getSearchData: function(activeURL, document){
         CliqzUtils.log('>>> Results moz-ucrawl: Get search results', CliqzUCrawl.LOG_KEY);
         // here we check if user ignored our results and went to google and landed on the same url
-        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query 
+        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
         //Get google result
         var rq = null;
@@ -365,7 +365,7 @@ var CliqzUCrawl = {
                 CliqzUCrawl.track({'type': CliqzUCrawl.msgType, 'action': 'query', 'payload': rq});
                 }
         }
-        return rq ; 
+        return rq ;
     },
     getParametersQS: function(url) {
       var res = {};
@@ -487,7 +487,7 @@ var CliqzUCrawl = {
         CliqzUCrawl.httpCache[url] = {'status': '301', 'time': CliqzUCrawl.counter, 'location': redURL};
         CliqzUtils.log("0.1: " + url + redURL, CliqzUCrawl.LOG_KEY);
         return redURL;
-        
+
     },
     scrapeLinkedinFurther: function(element,cd){
         var payloadProf = {}
@@ -585,33 +585,33 @@ var CliqzUCrawl = {
         for(var i=0;i<inputs.length;i++) if (inputs[i]['type'] && inputs[i]['type']!='hidden') inputs_nh+=1;
       } catch(ee) {}
 
-      
+
       try {
       metas = cd.getElementsByTagName('meta');
       for (i=0;i<metas.length;i++){if (metas[i].getAttribute("http-equiv") == "content-language" || metas[i].getAttribute("name") == "language")
-       { 
-         pg_l = metas[i].getAttribute("content"); 
+       {
+         pg_l = metas[i].getAttribute("content");
       }};
 
       if (pg_l == null)
       {
        tag_html = cd.getElementsByTagName('html');
        pg_l = tag_html[0].getAttribute("lang");
-      };  
+      };
       }catch(ee){}
 
       try {
       metas = cd.getElementsByTagName('meta');
       for (i=0;i<metas.length;i++){if (metas[i].getAttribute("name") == "robots")
-       { 
+       {
          all = metas[i]['content'];
          if(all.indexOf('noindex') > -1)
          {
            iall = 'no';
         }
-        
+
       }};
- 
+
       }catch(ee){};
 
     // extract the canonical url if available
@@ -621,7 +621,7 @@ var CliqzUCrawl = {
     }
 
       try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){}
-      
+
       try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
       //Detect doorway pages
@@ -631,7 +631,7 @@ var CliqzUCrawl = {
 
       var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
       return x;
-    },       
+    },
     getCDByURL: function(url) {
 
 
@@ -701,9 +701,9 @@ var CliqzUCrawl = {
                         } catch(e){}
                     }
                 }, null, 2000);
-                
+
             }
-                
+
             //this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             CliqzUCrawl.lastActive = CliqzUCrawl.counter;
@@ -716,7 +716,7 @@ var CliqzUCrawl = {
 
                 //// if it was a Google query
                 //if (requery.test(activeURL) && !reref.test(activeURL)) {
-                if (CliqzUCrawl.checkIfSearchURL(activeURL)){    
+                if (CliqzUCrawl.checkIfSearchURL(activeURL)){
                   currwin.setTimeout(function(currURLAtTime) {
 
                     // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
@@ -727,15 +727,15 @@ var CliqzUCrawl = {
                           //var currURL = currwin.gBrowser.selectedBrowser.contentDocument.location;
 
                             var activeURL = CliqzUCrawl.currentURL();
-                            var document = null;  
-                            var searchURL = null;  
+                            var document = null;
+                            var searchURL = null;
 
                             if (currURLAtTime == activeURL) {
                                 document = currwin.gBrowser.selectedBrowser.contentDocument;
                                 searchURL = activeURL;
                             }
                             else{
-                                    document = CliqzUCrawl.getCDByURL(currURLAtTime);  
+                                    document = CliqzUCrawl.getCDByURL(currURLAtTime);
                                     searchURL = currURLAtTime;
 
                                 }
@@ -765,7 +765,7 @@ var CliqzUCrawl = {
                   referral = CliqzUCrawl.linkCache[activeURL]['s'];
                 }
 
-                //Get redirect chain 
+                //Get redirect chain
                 var red = [];
                 red = CliqzUCrawl.getRedirects(activeURL, red);
                 if(red.length == 0){
@@ -776,7 +776,7 @@ var CliqzUCrawl = {
                         var redURL = red[0];
                         var refURL = CliqzUCrawl.linkCache[redURL];
                         if(refURL){
-                            referral = refURL['s'];   
+                            referral = refURL['s'];
                         }
 
                         //Update query cache with the redirected URL
@@ -1567,9 +1567,12 @@ var CliqzUCrawl = {
           }
         },
         handleError: function(aError) {
-          CliqzUtils.log("SQL error: " + aError.message, CliqzUCrawl.LOG_KEY);
+          CliqzUtils && CliqzUtils.log("SQL error: " + aError.message, CliqzUCrawl.LOG_KEY);
         },
         handleCompletion: function(aReason) {
+          //might get called after uninstall
+          if(!Components || !CliqzUtils) return;
+
           if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
             CliqzUtils.log("SQL canceled or aborted", CliqzUCrawl.LOG_KEY);
           }

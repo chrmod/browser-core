@@ -147,13 +147,15 @@ var CliqzHistory = {
               });
   },
   getTabData: function(panel, attr) {
-    if (!CliqzHistory.tabData[panel]) {
+    if (!CliqzHistory || !CliqzHistory.tabData[panel]) {
       return undefined;
     } else {
       return CliqzHistory.tabData[panel][attr];
     }
   },
   setTabData: function(panel, attr, val) {
+    if(!CliqzHistory) return;
+
     if (!CliqzHistory.tabData[panel]) {
       CliqzHistory.tabData[panel] = [];
     }
