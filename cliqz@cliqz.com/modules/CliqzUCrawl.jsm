@@ -24,7 +24,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 var CliqzUCrawl = {
-    VERSION: '0.05',
+    VERSION: '0.06',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
     debug: true,
@@ -547,6 +547,18 @@ var CliqzUCrawl = {
         CliqzUCrawl.checkLinkedin(cd);
 
     },
+    eventDoorWayPage: function(cd){
+        var payload = {};
+        var url = cd.location.href;
+        var doorwayURL = cd.getElementsByTagName('a')[0].href;
+        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        var orignalDomain = CliqzUCrawl.parseUri(url).host;
+        var dDomain = CliqzUCrawl.parseUri(doorwayURL).host;
+        if(orignalDomain == dDomain) return;
+        payload = {"url":url, "durl":doorwayURL,"ctry": location};
+        CliqzUCrawl.track({'type': CliqzUCrawl.msgType, 'action': 'doorwaypage', 'payload': payload});
+
+    },
     getPageData: function(cd) {
 
       var len_html = null;
@@ -561,6 +573,7 @@ var CliqzUCrawl = {
       var tag_html = null;
       var iall =  'yes';
       var all = null;
+      var canonical_url = null;
 
       try { len_html = cd.documentElement.innerHTML.length; } catch(ee) {}
       try { len_text = cd.documentElement.textContent.length; } catch(ee) {}
@@ -601,12 +614,22 @@ var CliqzUCrawl = {
  
       }catch(ee){};
 
+    // extract the canonical url if available
+    var link_tag = cd.getElementsByTagName('link');
+    for (var j=0;j<link_tag.length;j++) {
+            if (link_tag[j].getAttribute("rel") == "canonical") canonical_url = link_tag[j].href;
+    }
+
       try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){}
       
       try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
 
+      //Detect doorway pages
+      if(numlinks == 1 && cd.location){
+        CliqzUCrawl.eventDoorWayPage(cd);
+      }
 
-      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall };
+      var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
       return x;
     },       
     getCDByURL: function(url) {
