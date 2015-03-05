@@ -74,7 +74,7 @@ var CliqzUtils = {
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
       'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
-      'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
@@ -142,12 +142,11 @@ var CliqzUtils = {
 
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
-        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
-            backgroundColor: rule.b?"#" + rule.b:null,
+            backgroundColor: rule.b?rule.b:null,
             backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
@@ -159,9 +158,13 @@ var CliqzUtils = {
     }
 
     result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
-    result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
-
-    result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
+    result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
+    
+    var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
+        buttonClass = BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]?BRANDS_DATABASE.buttons[colorID]:10
+    
+    result.buttonsClass = "cliqz-brands-button-" + buttonClass
+    result.style = "background-color: #" + result.backgroundColor + ";color:" + result.color + ";"
 
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 
@@ -172,11 +175,12 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(req.status != 200 && req.status != 0 /* local files */){
+      var statusClass = Math.floor(req.status / 100);
+      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
+        callback && callback(req);
+      } else {
         CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
         onerror && onerror();
-      } else {
-        callback && callback(req);
       }
     }
     req.onerror = function(){
@@ -264,8 +268,8 @@ var CliqzUtils = {
       }
   },
   log: function(msg, key){
-    if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showDebugLogsIgnore', "[]"))
+    if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
+      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
         CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
     }

@@ -254,19 +254,34 @@ var CliqzHistoryPattern = {
     return res;
   },
 
-  // Calculates the share of the most common domain in given patterns
+  // Calculates the _weighted_ share of the most common domain in given patterns
   maxDomainShare: function(patterns) {
+    var patternCount = patterns.length; 
+    // boost the first X domain entries (i.e., within boostRange)
+    var boostRange = 3;
+    // weight for the first X entries, all other entries have weight of 1;
+    // this makes the first X entries as important as the remaining (N - X) entries
+    var boostFactor = (patternCount - boostRange) / (1 * boostRange);
+    
+    // make sure the first results do not become less important, which happens if
+    // if there are only very few patterns (i.e, patternCount < boostRange * 2)
+    boostFactor = Math.max(1, boostFactor);
+  
     var domains = [];
+    var index = 0;
     for (var key in patterns) {
       var url = patterns[key].url;
       var domain = this.domainFromUrl(url, false);
+      // assign a higher weight to this domain entry if it is one of the first N entries
+      var weightedCount = index < boostRange ? boostFactor : 1;
       if (!domains[domain]) {
-        domains[domain] = 1;
+        domains[domain] = weightedCount;
       } else {
         var cnt = 1;
         if(patterns[key].cnt) cnt = patterns[key].cnt;
-        domains[domain] += cnt;
+        domains[domain] += weightedCount;
       }
+      index++;
     }
     var max = 0.0;
     var cnt = 0.0;
@@ -278,6 +293,7 @@ var CliqzHistoryPattern = {
         domain = key;
       }
     }
+
     return [domain, max / cnt];
   },
   sortPatterns: function(desc, key) {
@@ -746,8 +762,7 @@ var CliqzHistoryPattern = {
   createInstantResult: function(res, searchString) {
     // if url set has already been prepared (e.g., in the case of rule-based clustering)
     if(res.urls) {
-      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString);
-      instant.data = res;
+      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString, res);
       instant.comment += " (history rules cluster!)"
       instant.data.template = "pattern-h2";
 
@@ -760,17 +775,16 @@ var CliqzHistoryPattern = {
 
       if (searchString.length == 0) {
         // special case for user request of top sites from history
-        var instant = Result.generic('cliqz-pattern', ""/*results[0].url*/, null, results[0].title, null, searchString);
+        var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results_cluster")
         instant.data.url = results[0].url;
         instant.comment += " (history top sites)!";
         instant.data.template = "pattern-h1";
         instant.data.generic = true;
-        logExtra = 'h1-';
-      } else if (results.length == 1) {
-        var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
-        instant.comment += " (history single)!"
-        instant.data.kind = "H";
+      // } else if (results.length == 1) {
+      //   var instant = Result.generic('favicon', results[0].url, null, results[0].title, null, searchString);
+      //   instant.comment += " (history single)!"
+      //   instant.data.kind = "H";
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
@@ -778,15 +792,13 @@ var CliqzHistoryPattern = {
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
-        logExtra = 'h2-';
       } else {
-        var instant = Result.generic('cliqz-pattern', ""/*results[0].url*/, null, results[0].title, null, searchString);
+        var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results")
         instant.data.url = instant.val;
         instant.comment += " (history)!";
         instant.data.template = "pattern-h3";
         instant.data.generic = true;
-        logExtra = 'h3-';
       }
 
       instant.data.urls = [];
@@ -805,7 +817,7 @@ var CliqzHistoryPattern = {
           domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
           vdate: CliqzHistoryPattern.formatDate(results[i].date),
           title: results[i].title,
-          extra: "history-"+ logExtra + i,
+          extra: "history-" + i,
           favicon: favicon,
         });
         if ((instant.data.urls.length > 9 && instant.data.template == "pattern-h1") ||

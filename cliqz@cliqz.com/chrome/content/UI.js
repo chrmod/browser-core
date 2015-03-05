@@ -29,7 +29,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo', 'EZ-category', 'feedback'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     tpl = {},
     IC = 'cqz-result-box', // result item class
@@ -49,6 +49,10 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
     ;
 
+function lg(msg){
+    CliqzUtils.log(msg, 'CLIQZ.UI');
+}
+
 var UI = {
     tpl: {},
     showDebug: false,
@@ -58,37 +62,22 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     init: function(){
-
-        Object.keys(TEMPLATES).forEach(function(tpl_name){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
-                UI.tpl[tpl_name] = Handlebars.compile(res.response);
-
-            });
-        });
-
-        for (var i in MESSAGE_TEMPLATES) {
-          (function(tpl_name){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl_name + '.tpl', function(res){
-                UI.tpl[tpl_name] = Handlebars.compile(res.response);
-            });
-          })(MESSAGE_TEMPLATES[i]);
-        }
-
-
-
-        for(var v in VERTICALS){
-            (function(vName){
-                CliqzUtils.httpGet(TEMPLATES_PATH + vName + '.tpl', function(res){
-                    UI.tpl[vName] = Handlebars.compile(res.response);
+        function fetchTemplate(tName, isPartial) {
+            try {
+                CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
+                    if(isPartial === true)
+                        Handlebars.registerPartial(tName, res.response);
+                    else
+                        UI.tpl[tName] = Handlebars.compile(res.response);
                 });
-            })(VERTICALS[v]);
-        };
-
-        PARTIALS.forEach(function(tpl){
-            CliqzUtils.httpGet(TEMPLATES_PATH + tpl + '.tpl', function(res){
-                 Handlebars.registerPartial(tpl, res.response);
-            });
-        });
+            } catch(e){
+                lg('ERROR loading template ' + tName);
+            }
+        }
+        Object.keys(TEMPLATES).forEach(fetchTemplate);
+        MESSAGE_TEMPLATES.forEach(fetchTemplate);
+        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
+        PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
 
@@ -158,8 +147,8 @@ var UI = {
       var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
-        isInstant: lastRes && lastRes.isInstant,
-        width: CLIQZ.Core.urlbar.clientWidth
+        isInstant: lastRes && lastRes.isInstant//,
+        //width: CLIQZ.Core.urlbar.clientWidth
       });
       CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
       CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
@@ -189,14 +178,18 @@ var UI = {
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
 
+        var width = Math.max(CLIQZ.Core.urlbar.clientWidth,500)
+
         // set the width
-        gCliqzBox.style.width = (res.width +1) + 'px';
+        gCliqzBox.style.width = width + 1 + "px"
+        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
-
-
+        // find out if scrolling is possible
+        CliqzAutocomplete.resultsOverflowHeight =
+            gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
 
         return currentResults;
     },
@@ -212,7 +205,6 @@ var UI = {
       }
     },
     animateHistory: false,
-    lastDrawnQuery: null,
     clearDropdownOnRedraw: false,
     redrawResultHTML: function(newHTML) {
       var $ = CLIQZ.Core.jQuery;
@@ -224,6 +216,8 @@ var UI = {
       // Extract old/new results
       var oldResults = $('.cqz-result-box', oldBox);
       var newResults = $('.cqz-result-box', newBox);
+      var curResults = $('.cqz-result-box', box);
+      var max = curResults.length > newResults.length ? curResults.length : newResults.length;
 
       if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
         for(var i=0; i<newResults.length; i++) {
@@ -236,25 +230,24 @@ var UI = {
                 $(this).replaceWith(newResults[i]);
                 $(oldChild).fadeIn("slow");
             });
-          } else if(curUrls != newUrls) {
+          } else if(!UI.urlListsEqual(curUrls, newUrls)) {
             box.replaceChild(newResults[i], box.children[i]);
           }
           var newChild = box.children[i];
           if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
             oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
             newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
-              newChild.style.height = "101px";
+              newChild.style.height = "95px";
               UI.animateHistory = true;
           }
         }
         return;
       }
-      UI.lastDrawnQuery = CliqzAutocomplete.lastSearch;
 
 
       // Fade out for old results
       var fadeoutTime = 0;
-      for(var i=0; i<oldResults.length; i++) {
+      /*for(var i=0; i<oldResults.length; i++) {
         var item = box.children[i];
         var curUrls = UI.extractResultUrls(item.innerHTML);
         var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
@@ -266,7 +259,7 @@ var UI = {
           }, 150);
           fadeoutTime = 150;
         }
-      }
+      }*/
 
       var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       $(box).html(newHTML);
@@ -276,7 +269,7 @@ var UI = {
       var historyDelay = 0;
       if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
       firstResult.children[0].className.indexOf("h2") != -1) {
-        firstResult.style.height = "101px";
+        firstResult.style.height = "95px";
         $(firstResult).animate({
           "height": "202px"
         }, 600);
@@ -284,7 +277,7 @@ var UI = {
         historyDelay = 600;
       }
 
-      var delay = fadeoutTime;
+      var delay = 0;
       for(var i=0; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
@@ -300,7 +293,7 @@ var UI = {
         } else {
           var curUrls = UI.extractResultUrls(oldRes.innerHTML);
           var newUrls = UI.extractResultUrls(newRes.innerHTML);
-          if (curUrls != newUrls &&
+          if (!UI.urlListsEqual(curUrls, newUrls) &&
             (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i != 0)) {
             newRes.style.opacity = 0;
             setTimeout(function(r){
@@ -317,11 +310,24 @@ var UI = {
     },
     // Returns a concatenated string of all urls in a result list
     extractResultUrls: function(str) {
-      var match = str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
-      var res = "";
-      if(match)
-        for(var i=1;i<match.length;i++) res += match[i];
-      return res;
+      return str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
+    },
+    urlListsEqual: function(a, b) {
+      var s, l, m;
+      if(a.length > b.length) {
+        s = b;
+        l = a;
+      } else {
+        s = a;
+        l = b;
+      }
+
+      for(var i=0; i<s.length; i++) {
+        if (l.indexOf(s[i]) == -1) {
+          return false;
+        }
+      }
+      return true;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -358,20 +364,21 @@ var UI = {
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
-            case UP:
-                var nextEl = pos > 0 ? allArrowable[pos-1]: null;
-                setResultSelection(nextEl, true, true, true);
-                trackArrowNavigation(nextEl);
-                return true;
-            break;
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
-            case DOWN:
-                if(pos != allArrowable.length - 1){
-                    var nextEl = allArrowable[pos+1];
-                    setResultSelection(nextEl, true, false, true);
-                    trackArrowNavigation(nextEl);
+                // move up if SHIFT key is held down
+                if (ev.shiftKey) {
+                    selectPrevResult(pos, allArrowable);
+                } else {
+                    selectNextResult(pos, allArrowable);
                 }
+                return true;
+            case UP:
+                selectPrevResult(pos, allArrowable);
+                return true;
+            break;
+            case DOWN:
+                selectNextResult(pos, allArrowable);
                 return true;
             break;
             case ENTER:
@@ -1434,6 +1441,22 @@ var smooth_scroll_to = function(element, target, duration) {
     });
 }
 
+function selectNextResult(pos, allArrowable) {
+    if (pos != allArrowable.length - 1) {
+        var nextEl = allArrowable[pos + 1];
+        setResultSelection(nextEl, true, false, true);
+        trackArrowNavigation(nextEl);
+    }
+}
+
+function selectPrevResult(pos, allArrowable) {
+    if (pos >= 0) {
+        var nextEl = allArrowable[pos - 1];
+        setResultSelection(nextEl, true, true, true);
+        trackArrowNavigation(nextEl);
+    }
+}
+
 var lastScroll = 0;
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
@@ -1456,6 +1479,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
+
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
         var scroll = parseInt(offset/303) * 303;
         if(!mouseOver && scroll != lastScroll) {//smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
@@ -1611,6 +1635,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
+      source: getResultKind(item),
       current_position: -1
     });
   }
