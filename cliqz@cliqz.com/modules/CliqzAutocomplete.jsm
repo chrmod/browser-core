@@ -344,14 +344,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.pushResults(this.searchString);
                 }
             },
-            sendSuggestionsSignal: function(suggestions) {
-                var action = {
-                    type: 'activity',
-                    action: 'suggestions',
-                    count:  (suggestions || []).length
-                };
-                CliqzUtils.track(action);
-            },
             pushTimeoutCallback: function(params) {
                 CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
                 this.pushResults(params);
@@ -460,27 +452,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
-            // handles suggested queries
-            cliqzSuggestionFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = JSON.parse(req.response);
-                    this.mixedResults.suggestedCalcResult = null;
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_suggest", Date.now() - this.startTime);
-
-                    // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
-                    if(q.trim().indexOf("=") != 0 && response.length >1 &&
-                            response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
-                        this.mixedResults.suggestedCalcResult = response[1].shift().replace("=", "").trim();
-                    }
-
-                    this.mixedResults.suggestionsRecieved = true;
-                    this.cliqzSuggestions = response[1];
-                    CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
-                    this.sendSuggestionsSignal(this.cliqzSuggestions);
-                }
-            },
             cliqzBundesligaCallback: function(res, q) {
                 this.cliqzBundesliga = res;
                 this.pushResults(q);
@@ -569,7 +540,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.cliqzSuggestions = null;
                 this.cliqzBundesliga = null;
                 this.instant = [];
                 this.historyBackfill = [];
@@ -589,7 +559,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
-                this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
@@ -600,7 +569,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results and suggestions
+                    // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
 
                     // if spell correction, no suggestions
@@ -617,7 +586,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
                         urlbar.mInputField.value = searchString;
                     } else {
-                        CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                        //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
                     // begin history pattern search
                     CliqzHistoryPattern.detectPattern(searchString);
@@ -634,7 +603,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
                     this.cliqzCountry = "";
-                    this.cliqzSuggestions = [];
                     this.customResults = [];
                     this.cliqzBundesliga = [];
                     CliqzAutocomplete.resetSpellCorr();
@@ -708,7 +676,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return;
                 }
                 action.suggestions_recived =  this.suggestionsRecieved;
-                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
                 action.suggested = this.suggestedCalcResult != null;
                 action.calculator = calcAnswer != null;
                 this.suggestionsRecieved = false;

@@ -108,8 +108,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
-        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
-        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
@@ -475,7 +473,7 @@ CLIQZ.Core = CLIQZ.Core || {
     autocompleteQuery: function(firstResult, firstTitle){
         var urlBar = CLIQZ.Core.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
-            // TODO: temp fix for flickering, 
+            // TODO: temp fix for flickering,
             // need to make it compatible with auto suggestion
             urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
         }

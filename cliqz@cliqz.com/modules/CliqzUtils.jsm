@@ -52,7 +52,6 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
-  SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
 //  RESULTS_PROVIDER:               'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
   RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
@@ -72,8 +71,8 @@ var CliqzUtils = {
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
 
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
-      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
@@ -87,10 +86,6 @@ var CliqzUtils = {
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
   init: function(win){
-    //use a different suggestion API
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
-      //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
-    }
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -491,19 +486,6 @@ var CliqzUtils = {
       return true;
     }
   },
-  _suggestionsReq: null,
-  getSuggestions: function(q, callback){
-    var locales = CliqzLanguage.state();
-    var local_param = "";
-    if(locales.length > 0)
-      local_param = "&hl=" + encodeURIComponent(locales[0]);
-
-    CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
-      function(res){
-        callback && callback(res, q);
-      }
-    );
-  },
   _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
@@ -579,7 +561,6 @@ var CliqzUtils = {
     else if(type.indexOf('favicon') == 0 ||
             type.indexOf('history') == 0) return ['H'].concat(CliqzUtils.encodeCliqzResultType(type));
 
-    else if(type === 'cliqz-suggestions') return ['S'];
     // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 

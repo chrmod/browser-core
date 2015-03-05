@@ -27,7 +27,6 @@ function getSuperType(result){
 
 var Result = {
     CLIQZR: 'cliqz-results',
-    CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
     CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
