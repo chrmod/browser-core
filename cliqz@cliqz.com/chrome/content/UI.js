@@ -207,22 +207,22 @@ var UI = {
           // Replace with animation if type changes, e.g. history -> entity
           if(oldChild.getAttribute("type") != newResults[i].getAttribute("type") &&
           (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
-            $(oldChild).fadeOut("slow", function(){
+            $(oldChild).fadeOut("normal", function(){
                 $(this).replaceWith(newResults[i]);
-                $(oldChild).fadeIn("slow");
+                $(oldChild).fadeIn("normal");
             });
           // Replace without animation if urls are the same
           } else if(!UI.urlListsEqual(curUrls, newUrls)) {
             box.replaceChild(newResults[i], box.children[i]);
           }
           // Check if history size changed and set flag for animation
-          /*var newChild = box.children[i];
+          var newChild = box.children[i];
           if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
             oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
             newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
               newChild.style.height = "95px";
               UI.animateHistory = true;
-          }*/
+          }
         }
         return;
       }
@@ -234,7 +234,7 @@ var UI = {
       // History animation
       var firstResult = newResults[0];
       var historyDelay = 0;
-      /*if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
+      if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
       firstResult.children[0].className.indexOf("h2") != -1) {
         firstResult.style.height = "95px";
         $(firstResult).animate({
@@ -242,7 +242,7 @@ var UI = {
         }, 600);
         UI.animateHistory = false;
         historyDelay = 600;
-      }*/
+      }
 
       // Result animation
       var delay = 0;
@@ -255,7 +255,7 @@ var UI = {
           setTimeout(function(r){
           $(r).stop().animate({
             "opacity": "1"
-          }, 400)}, delay, newRes);
+          }, 200)}, delay, newRes);
           delay += 100;
         } else if(oldRes && !newRes) {
           // No animation here because element is already removed
@@ -270,7 +270,7 @@ var UI = {
             setTimeout(function(r){
             $(r).stop().animate({
               "opacity": "1"
-            }, 400)}, delay, newRes);
+            }, 200)}, delay, newRes);
             delay += 100;
           }
         }
