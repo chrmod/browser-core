@@ -1410,7 +1410,6 @@ function selectPrevResult(pos, allArrowable) {
     }
 }
 
-var lastScroll = 0;
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
@@ -1435,12 +1434,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
         var scroll = parseInt(offset/303) * 303;
-        if(!mouseOver && scroll != lastScroll) {//smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
-          CLIQZ.Core.jQuery(gCliqzBox.resultsBox).animate({
-              scrollTop: scroll
-           }, 800);
-           lastScroll = scroll;
-        }
+        if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
         target.setAttribute('arrow', 'true');
         arrow.style.top = (offset + target.offsetHeight/2 - 7) + 'px';
