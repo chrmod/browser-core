@@ -1400,6 +1400,44 @@ function onEnter(ev, item){
   return true;
 }
 
+function enginesClick(ev){
+    var engineName;
+    var el = ev.target;
+
+    if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
+        var engine;
+        if(engine = Services.search.getEngineByName(engineName)){
+            var urlbar = CLIQZ.Core.urlbar,
+                userInput = urlbar.value;
+
+            // avoid autocompleted urls
+            if(urlbar.selectionStart &&
+               urlbar.selectionEnd &&
+               urlbar.selectionStart != urlbar.selectionEnd){
+                userInput = userInput.slice(0, urlbar.selectionStart);
+            }
+
+            var url = engine.getSubmission(userInput).uri.spec,
+                action = {
+                    type: 'activity',
+                    action: 'visual_hash_tag',
+                    engine: ev.target.getAttribute('engineCode') || -1
+                };
+
+            if(ev.metaKey || ev.ctrlKey){
+                CLIQZ.Core.openLink(url, true);
+                action.new_tab = true;
+            } else {
+                gBrowser.selectedBrowser.contentDocument.location = url;
+                CLIQZ.Core.popup.closePopup();
+                action.new_tab = false;
+            }
+
+            CliqzUtils.track(action);
+        }
+    }
+}
+
 function trackArrowNavigation(el){
     var action = {
         type: 'activity',
