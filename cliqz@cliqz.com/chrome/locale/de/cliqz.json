@@ -315,7 +315,7 @@
       "message":"Meintest Du wirklich "
     },
     "result_filter": {
-      "message":"Ergebnisfilter"
+      "message":"Anstößige Inhalte"
     },
     "age": {
         "message": "Alter"
@@ -330,19 +330,19 @@
       "message":"Meine Top-Seiten"
     },
     "adultInfo": {
-        "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
+        "message": "Anstößige Inhalte wurden automatisch blockiert."
     },
     "adultAction": {
         "message": "Alle Ergebnisse anzeigen?"
     },
     "adultConservative": {
-      "message":"strikt"
+      "message":"blockieren"
     },
     "adultModerate": {
-      "message":"moderat"
+      "message":"filtern"
     },
     "adultLiberal": {
-      "message":"kein Filter"
+      "message":"immer anzeigen"
     },
     "yes": {
         "message": "Ja"
