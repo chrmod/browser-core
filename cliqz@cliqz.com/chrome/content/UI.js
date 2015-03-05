@@ -256,26 +256,10 @@ var UI = {
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value, element) {
+    entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
-        var provider_name = element.getAttribute("search-provider");
-        var search_url = element.getAttribute("search-url");
-        var search_engine = Services.search.getEngineByName(provider_name);
-        var google_url = search_url + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
-
-        var action_type = element.getAttribute("logg-action-type");
-        var signal = {
-          type: 'activity',
-          action: action_type
-        };
-        CliqzUtils.track(signal);
+        navigateToEZinput(element);
       }
     },
     animationEnd: 0,
@@ -387,6 +371,28 @@ var UI = {
     sessionEnd: sessionEnd,
 };
 
+
+function navigateToEZinput(element){
+    var provider_name = element.getAttribute("search-provider"),
+        search_url = element.getAttribute("search-url"),
+        value = element.value,
+        search_engine = Services.search.getEngineByName(provider_name),
+        dest_url = search_url + value;
+
+    if (search_engine) {
+        dest_url = search_engine.getSubmission(value).uri.spec
+    }
+    openUILink(dest_url);
+    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.popup.hidePopup();
+
+    var action_type = element.getAttribute("logg-action-type");
+    var signal = {
+      type: 'activity',
+      action: action_type
+    };
+    CliqzUtils.track(signal);
+}
 
 function selectWord(input, direction) {
   var start = 0, end = 0;
@@ -942,12 +948,11 @@ function messageClick(ev) {
       /*********************************/
       /* BEGIN "Handle message clicks" */
 
-      if (action) {
-        if (action == 'adult') {
-          /* Adult message */
+      switch (action) {
+        case 'adult':
           handleAdultClick(ev);
-        }
-        else if (action == 'disable-cliqz') {
+          break;
+        case 'disable-cliqz':
           // "Cliqz is not optimized for your country" message */
           var state = ev.originalTarget.getAttribute('state');
           switch(state) {
@@ -970,6 +975,7 @@ function messageClick(ev) {
                   break;
               default:
                   break;
+            break;
           }
           CliqzUtils.track({
             type: 'setting',
@@ -977,7 +983,9 @@ function messageClick(ev) {
             value: state
           });
           setTimeout(CliqzUtils.refreshButtons, 0);
-        }
+            break;
+        default:
+            break;
       }
       /* Propagate event up the DOM tree */
       el = el.parentElement;
@@ -1053,44 +1061,42 @@ function resultClick(ev){
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
-            // Stop click event propagation
-            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
-              break;
-            }
-            // copy calculator answer to clipboard
-            if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
-                const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                           .getService(Components.interfaces.nsIClipboardHelper);
-                gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
-                document.getElementById('calc-copied-msg').style.display = "";
-                document.getElementById('calc-copy-msg').style.display = "none";
-            }
-            /*
-             * Hides the current element and displays one of its siblings that
-             * was specified in the toggle-with attribute.
-             */
-            if (el.getAttribute('cliqz-action') == 'toggle') {
-                var toggleId = el.getAttribute('toggle-id');
-                var context = el.getAttribute('toggle-context');
-                if (toggleId && context) {
-                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
-                    var ancestor = closest(el, '.' + context);
-                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
-                    for (var i = 0; i < toggleElements.length; i++) {
-                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
-                            toggleElements[i].style.display = "";
-                        } else {
-                            toggleElements[i].style.display = "none";
-                        }
-                    }
+            switch(el.getAttribute('cliqz-action')) {
+                case 'stop-click-event-propagation':
+                    return;
+                case 'copy-calc-answer':
+                    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                               .getService(Components.interfaces.nsIClipboardHelper);
+                    gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                    document.getElementById('calc-copied-msg').style.display = "";
+                    document.getElementById('calc-copy-msg').style.display = "none";
                     break;
-                }
+                case 'toggle':
+                    var toggleId = el.getAttribute('toggle-id');
+                    var context = el.getAttribute('toggle-context');
+                    if (toggleId && context) {
+                        var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                        var ancestor = closest(el, '.' + context);
+                        var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                        for (var i = 0; i < toggleElements.length; i++) {
+                            if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                                toggleElements[i].style.display = "";
+                            } else {
+                                toggleElements[i].style.display = "none";
+                            }
+                        }
+                        return;
+                    }
+                case 'searchEZbutton':
+                    ev.preventDefault();
+                    navigateToEZinput($('input',el));
+                    return;
+                case 'alternative-search-engine':
+                    enginesClick(ev);
+                    break;
+                default:
+                    break;
             }
-
-            if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
-              enginesClick(ev);
-              break;
-            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
