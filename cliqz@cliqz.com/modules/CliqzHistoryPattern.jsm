@@ -256,17 +256,17 @@ var CliqzHistoryPattern = {
 
   // Calculates the _weighted_ share of the most common domain in given patterns
   maxDomainShare: function(patterns) {
-    var patternCount = patterns.length; 
+    var patternCount = patterns.length;
     // boost the first X domain entries (i.e., within boostRange)
     var boostRange = 3;
     // weight for the first X entries, all other entries have weight of 1;
     // this makes the first X entries as important as the remaining (N - X) entries
     var boostFactor = (patternCount - boostRange) / (1 * boostRange);
-    
+
     // make sure the first results do not become less important, which happens if
     // if there are only very few patterns (i.e, patternCount < boostRange * 2)
     boostFactor = Math.max(1, boostFactor);
-  
+
     var domains = [];
     var index = 0;
     for (var key in patterns) {
@@ -752,18 +752,17 @@ var CliqzHistoryPattern = {
       return CliqzUtils.getLocalizedString("ago1Minute");
     }
     if (diff < 3600) {
-      return CliqzUtils.getLocalizedString("agoXMinutes").replace('{}', parseInt(diff / 60));
+      return CliqzUtils.getLocalizedString("agoXMinutes", parseInt(diff / 60));
     }
     if (diff < 3600 * 24) {
-      return CliqzUtils.getLocalizedString("agoXHours").replace('{}', parseInt(diff / 3600));
+      return CliqzUtils.getLocalizedString("agoXHours", parseInt(diff / 3600));
     }
-    return CliqzUtils.getLocalizedString("agoXDays").replace('{}', parseInt(diff / (3600 * 24)));
+    return CliqzUtils.getLocalizedString("agoXDays", parseInt(diff / (3600 * 24)));
   },
   createInstantResult: function(res, searchString) {
     // if url set has already been prepared (e.g., in the case of rule-based clustering)
     if(res.urls) {
-      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString);
-      instant.data = res;
+      var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString, res);
       instant.comment += " (history rules cluster!)"
       instant.data.template = "pattern-h2";
 

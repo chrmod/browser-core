@@ -68,7 +68,7 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
+        if(false && upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
             var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
                             CliqzUtils.getPref('changelogURL') :
                             CliqzUtils.CHANGELOG;
@@ -135,9 +135,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');

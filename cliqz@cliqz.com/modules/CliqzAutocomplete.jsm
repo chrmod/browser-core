@@ -20,14 +20,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
-  'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
@@ -230,7 +224,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
-                CliqzTimings.add("search_history", (now - this.startTime));
 
                 //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
                 //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
@@ -344,14 +337,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.pushResults(this.searchString);
                 }
             },
-            sendSuggestionsSignal: function(suggestions) {
-                var action = {
-                    type: 'activity',
-                    action: 'suggestions',
-                    count:  (suggestions || []).length
-                };
-                CliqzUtils.track(action);
-            },
             pushTimeoutCallback: function(params) {
                 CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
                 this.pushResults(params);
@@ -387,8 +372,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        if(this.startTime)
-                            CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
                         this.resultsTimer = null;
                         this.historyTimer = null;
@@ -424,16 +407,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
-                    if(this.startTime)
-                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime);
 
                     var json = JSON.parse(req.response);
                     results = json.result || [];
                     country = json.country;
                     this.cliqzResultsExtra = []
+
                     if(json.images && json.images.results && json.images.results.length >0){
-                        this.cliqzResultsExtra =
-                            json.images.results.map(Result.cliqzExtra);
+                        var imgs = json.images.results.filter(function(r){
+                            //ignore empty results
+                            return Object.keys(r).length != 0;
+                        });
+
+                        this.cliqzResultsExtra =imgs.map(Result.cliqzExtra);
                     }
 
                     var hasExtra = function(el){
@@ -460,49 +446,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
-            // handles suggested queries
-            cliqzSuggestionFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = JSON.parse(req.response);
-                    this.mixedResults.suggestedCalcResult = null;
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_suggest", Date.now() - this.startTime);
-
-                    // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
-                    if(q.trim().indexOf("=") != 0 && response.length >1 &&
-                            response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
-                        this.mixedResults.suggestedCalcResult = response[1].shift().replace("=", "").trim();
-                    }
-
-                    this.mixedResults.suggestionsRecieved = true;
-                    this.cliqzSuggestions = response[1];
-                    CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
-                    this.sendSuggestionsSignal(this.cliqzSuggestions);
-                }
-            },
-            cliqzBundesligaCallback: function(res, q) {
-                this.cliqzBundesliga = res;
-                this.pushResults(q);
-            },
-
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
             // mixes backend results, entity zones, history and custom results
             mixResults: function(only_instant) {
-                var maxResults = prefs.getIntPref('maxRichResults');
-
                 var results = Mixer.mix(
                             this.searchString,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
                             this.historyBackfill,
-                            this.cliqzBundesliga,
                             this.customResults,
-                            maxResults,
                             only_instant
                     );
 
@@ -572,8 +528,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.cliqzSuggestions = null;
-                this.cliqzBundesliga = null;
                 this.instant = [];
                 this.historyBackfill = [];
 
@@ -591,18 +545,16 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.mixedResults.suggestionsRecieved = false;
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
-                this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
-                this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results and suggestions
+                    // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
 
                     // if spell correction, no suggestions
@@ -619,26 +571,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
                         urlbar.mInputField.value = searchString;
                     } else {
-                        CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                        //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
                     // begin history pattern search
                     CliqzHistoryPattern.detectPattern(searchString);
 
-                    // Fetch bundesliga only if search contains trigger
-                    if(CliqzBundesliga.isBundesligaSearch(searchString)) {
-                        CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
-                    } else {
-                        this.cliqzBundesliga = [];
-                    }
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
                     this.cliqzCountry = "";
-                    this.cliqzSuggestions = [];
                     this.customResults = [];
-                    this.cliqzBundesliga = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
 
@@ -710,7 +654,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     return;
                 }
                 action.suggestions_recived =  this.suggestionsRecieved;
-                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
                 action.suggested = this.suggestedCalcResult != null;
                 action.calculator = calcAnswer != null;
                 this.suggestionsRecieved = false;
