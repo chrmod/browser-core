@@ -13,6 +13,7 @@
     <div>
       <div class="cqz-ez-search-box"
            style="{{#with logo}}border-color: {{backgroundColor}}; background-color: {{backgroundColor}}; {{/with}}"
+           cliqz-action="searchEZbutton"
            >
         <input
           dont-close="true" type="text" class="cqz-ez-search-box-input"
@@ -20,7 +21,7 @@
           search-url="{{data.search_url}}"
           search-provider="{{data.search_provider}}"
           logg-action-type="{{data.logg_action_type}}"
-          onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this.value, this)"
+          onkeydown="CLIQZ.UI.entitySearchKeyDown(event, this)"
         />
       </div>
     </div>

@@ -304,7 +304,8 @@
     background-color: #3E86FC;
     background-position: right 5px center;
     background-size: 15px 15px;
-    background-image: url(http://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg)
+    background-image: url(http://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg);
+    cursor: pointer;
 }
 
 #cliqz-results .cqz-ez-search-box-input {
