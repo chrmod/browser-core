@@ -31,9 +31,7 @@ var BTN_ID = 'cliqz-button',
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'session': '',
-        'dnt': false, // if set to true the extension will not send safe browsing signals
-        'telemetry': true //statistics
+        'session': ''
     },
     init: function(){
         Extension.unloadModules();
