@@ -748,12 +748,12 @@ function constructImage(data){
                     while ((i < images.length + 1) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                         var slice = images.slice(0, i);
                         var h = getheight(slice, size, IM_SEARCH_CONF.IMAGES_MARGIN);
-                        console.log('height: '+h + ', max height:' + effect_max_height);
+                        // console.log('height: '+h + ', max height:' + effect_max_height);
                         if (h < effect_max_height) {
                             setheight(slice, h, IM_SEARCH_CONF.IMAGES_MARGIN);
                             effect_max_height =  effect_max_height - h + max_height;
                             tmp.push.apply(tmp, slice);
-                            console.log('height: '+h);
+                            // console.log('height: '+h);
                             n++;
                             images = images.slice(i);
                             continue w;
