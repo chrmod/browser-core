@@ -1,8 +1,7 @@
 <div class='cqz-ez-btns'>
 {{#each data.categories}}
     <div
-      class="cqz-ez-btn"
-      style="background-color: #EFEFEF; color: black"
+      class="cqz-ez-btn {{ ../logo.buttonsClass }}"
       url="{{ this.url }}"
       extra="cat-{{ @index }}" arrow="false" selectable=''>
       {{ this.title }}

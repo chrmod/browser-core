@@ -25,20 +25,15 @@ var BTN_ID = 'cliqz-button',
     //toolbar
     searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
     //next element in the toolbar
-    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext',
-    timerRef;
+    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext';
 
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
         'session': '',
-        'showQueryDebug': false, // show query debug information next to results
-        'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 290, // popup/dropdown height in pixels
         'dnt': false, // if set to true the extension will not send safe browsing signals
         'telemetry': true //statistics
-//      'inPrivateWindows': true, // enables extension in private mode
     },
     init: function(){
         Extension.unloadModules();
@@ -47,6 +42,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -72,7 +68,7 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(true || upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
+        if(false && upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
             var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
                             CliqzUtils.getPref('changelogURL') :
                             CliqzUtils.CHANGELOG;
@@ -97,6 +93,8 @@ var Extension = {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+
+        CliqzCategories.destroy();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -137,7 +135,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
@@ -152,6 +149,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -196,15 +194,7 @@ var Extension = {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
     cleanPossibleOldVersions: function(win){
-        //temporary method
-        delete win.CliqzUtils;
-        delete win.CliqzHistoryManager;
-        delete win.CliqzAutocomplete;
-        delete win.CliqzLanguage;
-        delete win.ResultProviders;
-        delete win.CliqzTimings;
-        delete win.CliqzABTests;
-        delete win.CliqzSearchHistory;
+        //
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -328,11 +318,6 @@ var Extension = {
         } else {
             CliqzUtils.createQbutton(win, menupopup);
         }
-    },
-    openTab: function(doc, url){
-        var tBrowser = doc.getElementById('content');
-        var tab = tBrowser.addTab(url);
-        tBrowser.selectedTab = tab;
     },
     unloadFromWindow: function(win){
         try {

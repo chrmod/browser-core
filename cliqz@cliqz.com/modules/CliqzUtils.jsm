@@ -25,9 +25,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
-//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-//  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -63,19 +60,20 @@ var CliqzUtils = {
   LOG:                            'https://logging.cliqz.com',
   CLIQZ_URL:                      'https://beta.cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
-  TUTORIAL_URL:                   'chrome://cliqz/content/offboarding.html',
+  TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
   CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
+  UNINSTALL:                      'https://beta.cliqz.com/home/offboarding',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
 
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1, 'engines': 1,
-      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'suggestions': 1, 'text': 1, 'series': 1,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
-      'entity-generic-history': 2, 'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
@@ -89,10 +87,6 @@ var CliqzUtils = {
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
   init: function(win){
-    //use a different suggestion API
-    if(CliqzUtils.cliqzPrefs.prefHasUserValue('suggestionAPI')){
-      //CliqzUtils.SUGGESTIONS = CliqzUtils.getPref('suggestionAPI');
-    }
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -115,12 +109,15 @@ var CliqzUtils = {
         });
     }
 
-    if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+    //if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
+
+    // Ensure prefs are set to our custom values
+    CliqzUtils.setOurOwnPrefs();
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
@@ -135,20 +132,20 @@ var CliqzUtils = {
         result = {},
         domains = BRANDS_DATABASE.domains
 
+
+
     if(base.length == 0)
       return result;
 
     if (base == "IP") result = { text: "IP", backgroundColor: "#ff0" }
 
     else if (domains[base]) {
-      CliqzUtils.log(domains);
       for (var i=0,imax=domains[base].length;i<imax;i++) {
-        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
-            backgroundColor: rule.b?"#" + rule.b:null,
+            backgroundColor: rule.b?rule.b:null,
             backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
@@ -160,9 +157,14 @@ var CliqzUtils = {
     }
 
     result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
-    result.backgroundColor = result.backgroundColor || "#" + BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
+    result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
 
-    result.style = "background-color:" + result.backgroundColor + ";color:" + result.color + ";"
+    var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
+        buttonClass = BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]?BRANDS_DATABASE.buttons[colorID]:10
+
+    result.buttonsClass = "cliqz-brands-button-" + buttonClass
+    result.style = "background-color: #" + result.backgroundColor + ";color:" + (result.color || '#fff') + ";"
+
 
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
 
@@ -173,11 +175,12 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      if(req.status != 200 && req.status != 0 /* local files */){
+      var statusClass = Math.floor(req.status / 100);
+      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
+        callback && callback(req);
+      } else {
         CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
         onerror && onerror();
-      } else {
-        callback && callback(req);
       }
     }
     req.onerror = function(){
@@ -265,8 +268,8 @@ var CliqzUtils = {
       }
   },
   log: function(msg, key){
-    if(CliqzUtils && CliqzUtils.getPref('showDebugLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showDebugLogsIgnore', "[]"))
+    if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
+      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
         CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
     }
@@ -284,6 +287,9 @@ var CliqzUtils = {
           ret += space.charAt(Math.floor(Math.random() * sLen));
 
       return ret;
+  },
+  hash: function(s){
+    return s.split('').reduce(function(a,b){ return (((a<<4)-a)+b.charCodeAt(0)) & 0xEFFFFFF}, 0)
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
@@ -486,19 +492,6 @@ var CliqzUtils = {
       return true;
     }
   },
-  _suggestionsReq: null,
-  getSuggestions: function(q, callback){
-    var locales = CliqzLanguage.state();
-    var local_param = "";
-    if(locales.length > 0)
-      local_param = "&hl=" + encodeURIComponent(locales[0]);
-
-    CliqzUtils._suggestionsReq = CliqzUtils.httpGet(CliqzUtils.SUGGESTIONS + encodeURIComponent(q) + local_param,
-      function(res){
-        callback && callback(res, q);
-      }
-    );
-  },
   _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
@@ -555,7 +548,7 @@ var CliqzUtils = {
   },
   encodeCountry: function() {
     //international result not supported
-    return '';
+    return '&force_country=true';
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
@@ -574,7 +567,6 @@ var CliqzUtils = {
     else if(type.indexOf('favicon') == 0 ||
             type.indexOf('history') == 0) return ['H'].concat(CliqzUtils.encodeCliqzResultType(type));
 
-    else if(type === 'cliqz-suggestions') return ['S'];
     // cliqz type = "cliqz-custom sources-X"
     else if(type.indexOf('cliqz-custom') == 0) return type.substr(21);
 
@@ -657,7 +649,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.getPref('telemetry', false))return;
+    if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
@@ -711,7 +703,6 @@ var CliqzUtils = {
     CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
   },
   pushTrackCallback: function(req){
-    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     try {
       var response = JSON.parse(req.response);
 
@@ -725,7 +716,6 @@ var CliqzUtils = {
   pushTrackError: function(req){
     // pushTrack failed, put data back in queue to be sent again later
     CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    //CliqzTimings.add("send_log", Date.now() - CliqzUtils._track_start)
     CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
@@ -825,15 +815,26 @@ var CliqzUtils = {
   getLanguage: function(win){
     return CliqzUtils.LANGS[CliqzUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
   },
+  //  gets a key and a dynamic of parameters
+  //  eg: getLocalizedString('sentence', 'John', 'biggest', 'fotball')
+  //  if the localized sentence is = '{} is the {} {} player' the output will be 'John is the biggest football player'
   getLocalizedString: function(key){
+    var ret = key;
+
     if (CliqzUtils.currLocale != null && CliqzUtils.locale[CliqzUtils.currLocale]
             && CliqzUtils.locale[CliqzUtils.currLocale][key]) {
-        return CliqzUtils.locale[CliqzUtils.currLocale][key].message;
+        ret = CliqzUtils.locale[CliqzUtils.currLocale][key].message;
     } else if (CliqzUtils.locale['default'] && CliqzUtils.locale['default'][key]) {
-        return CliqzUtils.locale['default'][key].message;
-    } else {
-        return key;
+        ret = CliqzUtils.locale['default'][key].message;
     }
+
+    if(arguments.length>1){
+      for(var i=1;i<arguments.length;i++){
+        ret = ret.replace('{}', arguments[i]);
+      }
+    }
+
+    return ret;
   },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
@@ -1020,7 +1021,7 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 
     return urlbar.value.length == 0;
   },
@@ -1032,8 +1033,6 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    } else {
-      CliqzUtils.log("maxRichResults backup already exists; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
   },
   /** Reset the user's preferences that we changed. */
@@ -1049,6 +1048,11 @@ var CliqzUtils = {
     } else {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
+  },
+  openTabInWindow: function(win, url){
+      var tBrowser = win.document.getElementById('content');
+      var tab = tBrowser.addTab(url);
+      tBrowser.selectedTab = tab;
   },
   //Q button
   refreshButtons: function(){
@@ -1076,10 +1080,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1119,7 +1123,7 @@ var CliqzUtils = {
       else {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
-      menupopup.appendChild(CliqzUtils.createHumanMenu(doc));
+      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -1141,8 +1145,7 @@ var CliqzUtils = {
             }
             item.addEventListener('command', function(event) {
                 ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                // keep reference to timer to avoid garbage collection
-                timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -1172,7 +1175,7 @@ var CliqzUtils = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            timerRef = CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -1190,8 +1193,9 @@ var CliqzUtils = {
 
         return item
     },
-    createHumanMenu: function(doc){
-        var menu = doc.createElement('menu'),
+    createHumanMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
             menuPopup = doc.createElement('menupopup');
 
         menu.setAttribute('label', 'Human Web');
@@ -1218,7 +1222,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        Extension.openTab(doc, 'https://beta.cliqz.com/support/#common-questions');
+                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
                     }
             )
         );
@@ -1237,6 +1241,12 @@ var CliqzUtils = {
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CliqzUtils.refreshButtons();
+
+        CliqzUtils.track({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
       });
       return button;
     },
