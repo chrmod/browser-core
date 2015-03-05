@@ -358,7 +358,6 @@ function reuseMeFromComponentsXML(_this,skipAutoFill){
             results: data,
             width: CLIQZ.Core.urlbar.clientWidth
           });
-          CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
           if (!skipAutoFill) CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(data[0].url));
 
           $('#search-dropdown').show();

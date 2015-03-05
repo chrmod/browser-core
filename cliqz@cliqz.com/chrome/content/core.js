@@ -31,9 +31,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
   'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
@@ -118,10 +115,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
-        
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
-        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/logo.css');
-        // CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/generated.css');
+
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
         var popup = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "panel");
@@ -164,8 +159,6 @@ CLIQZ.Core = CLIQZ.Core || {
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
         CliqzAutocomplete.init();
-
-        CliqzTimings.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -294,7 +287,6 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzLanguage;
             delete window.ResultProviders;
             delete window.CliqzCategories;
-            delete window.CliqzTimings;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
@@ -383,7 +375,6 @@ CLIQZ.Core = CLIQZ.Core || {
             if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
 
-        CLIQZ.Core.handleTimings();
         CliqzABTests.check();
 
         //executed after the services are fetched
@@ -420,14 +411,6 @@ CLIQZ.Core = CLIQZ.Core || {
                 CliqzUtils.track(info);
             });
         });
-    },
-    // Reset collection of timing data at regular intervals, send log if pref set.
-    handleTimings: function() {
-        CliqzTimings.send_log("result", 1000);
-        CliqzTimings.send_log("search_history", 200);
-        CliqzTimings.send_log("search_cliqz", 1000);
-        CliqzTimings.send_log("search_suggest", 500);
-        CliqzTimings.send_log("send_log", 2000);
     },
     showUninstallMessage: function(currentVersion){
         var UNINSTALL_PREF = 'uninstallVersion',
@@ -487,7 +470,7 @@ CLIQZ.Core = CLIQZ.Core || {
     autocompleteQuery: function(firstResult, firstTitle){
         var urlBar = CLIQZ.Core.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
-            // TODO: temp fix for flickering, 
+            // TODO: temp fix for flickering,
             // need to make it compatible with auto suggestion
             urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
         }

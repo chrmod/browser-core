@@ -29,12 +29,6 @@
     "urlBarLastSearch":{
         "message":"↵  "
     },
-    "noResultTitle":{
-        "message": "we don't have great results this time."
-    },
-    "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:"
-    },
     "noResults": {
         "message":"Aucun résultat"
     },

@@ -18,7 +18,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
     MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
     VERTICALS = {
-        //'b': 'bundesliga',
         //'s': 'shopping',
         //'g': 'gaming'  ,
         'n': 'news'    ,
@@ -100,31 +99,11 @@ var UI = {
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
 
-
         box.addEventListener('mousemove', resultMove);
         gCliqzBox.resultsBox = resultsBox;
 
-        var suggestionBox = document.getElementById('cliqz-suggestion-box', box);
-        suggestionBox.addEventListener('click', suggestionClick);
-        gCliqzBox.suggestionBox = suggestionBox;
-        var enginesBox = document.getElementById('cliqz-engines-box', box);
-        enginesBox.addEventListener('click', enginesClick);
-
-        gCliqzBox.enginesBox = enginesBox;
 
         handlePopupHeight(box);
-
-        // wait for the search engine to initialize
-        // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService
-        // FF16+
-        if(Services.search.init != null){
-            Services.search.init(function(){
-                gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
-            });
-        }
-        else {
-            gCliqzBox.enginesBox.innerHTML = UI.tpl.engines(ResultProviders.getSearchEngines());
-        }
     },
     handleResults: function(){
       var popup = CLIQZ.Core.urlbar.popup,
@@ -144,14 +123,15 @@ var UI = {
             data: lastRes && lastRes.getDataAt(i),
           });
       }
+
       var currentResults = CLIQZ.UI.results({
         q: q,
         results: data,
-        isInstant: lastRes && lastRes.isInstant//,
-        //width: CLIQZ.Core.urlbar.clientWidth
+        isInstant: lastRes && lastRes.isInstant
       });
-      CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-      CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+
+      if(currentResults.results && currentResults.results.length > 0)
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
     results: function(res){
         if (!gCliqzBox)
@@ -326,27 +306,6 @@ var UI = {
         var result;
         if(result =$('.' + IC + filter, gCliqzBox))
             result.innerHTML = UI.tpl[template](data);
-    },
-    suggestions: function(suggestions, q){
-        //CliqzUtils.log(JSON.stringify(CliqzAutocomplete.spellCorr), 'spellcorr')
-        if (!gCliqzBox)
-            return;
-        if(suggestions){
-            if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
-                gCliqzBox.suggestionBox.innerHTML = UI.tpl.spellcheck({
-                    wrong: suggestions[1]
-                });
-
-            } else {
-                gCliqzBox.suggestionBox.innerHTML = UI.tpl.suggestions({
-                    // do not show a suggestion is it is exactly the query
-                    suggestions: suggestions.filter(function(s){ return s != q; }),
-                    q:q
-                });
-            }
-        } else {
-            gCliqzBox.suggestionBox.innerHTML = '';
-        }
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
@@ -900,7 +859,6 @@ function getFirstVertical(type){
 
 function getPartial(type){
     if(type === 'cliqz-images') return 'images';
-    if(type === 'cliqz-bundesliga') return 'bundesliga';
     if(type === 'cliqz-cluster') return 'clustering';
     if(type.indexOf('cliqz-pattern') === 0) return 'pattern';
     if(type === 'cliqz-series') return 'series';
@@ -997,6 +955,10 @@ function enhanceResults(res){
         if(r.data && r.data.generic) {// this entry combines several domains, so show CLIQZ logo
             r.logo.logo_url = "https://cliqz.com"; // Clicking on the logo should take the user here
             r.logo.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(r.logo.logo_url)).style;
+            if(r.logo.style.indexOf('background-image') == -1){
+                //add local cliqz image if there is no internet
+                r.logo.style += ";background-image:url(chrome://cliqzres/content/skin/img/cliqzLogo.svg)"
+            }
             r.logo.add_logo_url = true;
         }
 
@@ -1520,79 +1482,6 @@ function resultMove(ev){
     }
 }
 
-function selectSuggestion(suggestions, right, pos){
-    function isValid(el){
-        return el.offsetTop == suggestions[0].offsetTop;
-    }
-
-    var el, next = right? 'nextElementSibling' : 'previousElementSibling';
-    if(pos)el = suggestions[pos][next];
-    else el = suggestions[right ? 0 : suggestions.length-1];
-
-    while(el && !isValid(el)) el = el[next];
-
-    if(el){
-        el.setAttribute('selected', 'true');
-        return el.getAttribute('idx');
-    } else {
-        return -1;
-    }
-}
-
-function suggestionNavigation(ev){
-    var box = gCliqzBox.suggestionBox,
-        suggestions = box.children,
-        action = {
-            type: 'activity',
-            action: 'tab_key',
-            current_position : -1
-        },
-        selected = $('.cliqz-suggestion[selected="true"]', box);
-
-        if(selected) selected.removeAttribute('selected');
-
-        action.current_position = selectSuggestion(suggestions, !ev.shiftKey, selected && selected.getAttribute('idx'))
-
-        action.direction = ev.shiftKey? 'left' : 'right';
-        CliqzUtils.track(action);
-}
-
-function suggestionClick(ev){
-    if(ev && ev.target){
-        var suggestionVal = ev.target.getAttribute('val') || ev.target.parentNode.getAttribute('val');
-
-        //spell corrector
-        if (CliqzAutocomplete.spellCorr.on && !CliqzAutocomplete.spellCorr.override) {
-            var extra = ev.target.getAttribute('extra') || ev.target.parentNode.getAttribute('extra');
-            if (extra=='wrong') {
-                // user don't like our suggestion
-                var action = {
-                    type: 'activity',
-                    action: 'correct_back'
-                };
-                CliqzUtils.track(action);
-                CliqzAutocomplete.spellCorr.override = true;
-            }
-        } else { // regular query suggestion
-            var action = {
-                type: 'activity',
-                action: 'suggestion_click',
-                query_length: CLIQZ.Core.urlbar.value.length,
-                current_position: ev.target.getAttribute('idx') ||
-                                  ev.target.parentNode.getAttribute('idx') ||
-                                  -1,
-            };
-
-            CliqzUtils.track(action);
-        }
-
-        if(suggestionVal){
-            CLIQZ.Core.urlbar.mInputField.focus();
-            CLIQZ.Core.urlbar.mInputField.setUserInput(suggestionVal.trim());
-        }
-    }
-}
-
 function onEnter(ev, item){
   var urlbar = CLIQZ.Core.urlbar;
   var input = urlbar.mInputField.value;
@@ -1758,7 +1647,7 @@ function registerHelpers(){
 
         while (slot = AGO_CEILINGS[i++])
             if (seconds < slot[0])
-                return CliqzUtils.getLocalizedString(slot[1]).replace('{}', parseInt(seconds / slot[2]))
+                return CliqzUtils.getLocalizedString(slot[1], parseInt(seconds / slot[2]))
         return '';
     });
 
@@ -1788,8 +1677,8 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('local', function(key, v1, v2 ) {
-        return CliqzUtils.getLocalizedString(key).replace('{}', v1).replace('{}', v2);
+    Handlebars.registerHelper('local', function() {
+        return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
     Handlebars.registerHelper('local_number', function(val) {
@@ -1863,36 +1752,12 @@ function registerHelpers(){
         return new Handlebars.SafeString(UI.tpl.emphasis(out));
     });
 
-    Handlebars.registerHelper('suggestionEmphasis', function(text, q) {
-        if(!text || !q ) return text;
-
-        if(text.indexOf(q) == 0){
-            var out = [q, text.substr(q.length)]
-            return new Handlebars.SafeString(UI.tpl.emphasis(out));
-        } else return text
-    });
-
-    Handlebars.registerHelper('video_provider', function(host) {
-        if(host.indexOf('youtube') === 0)
-          return "YouTube";
-    });
-
     Handlebars.registerHelper('hasimage', function(image) {
         if(image && image.src &&
             !(image.src.indexOf('xing') !== -1 && image.src.indexOf('nobody_') !==-1))
             return true;
         else
             return false
-    });
-
-    Handlebars.registerHelper('video_views', function(views) {
-        if(views > 1e8)
-          return "100mio";
-        if(views > 1e7)
-          return "10mio";
-        if(views > 1e6)
-          return "1mio";
-        return false;
     });
 
     Handlebars.registerHelper('date', function(date) {
@@ -1928,41 +1793,6 @@ function registerHelpers(){
             "is": lvalue == rvalue,
             "starts_with": lvalue.indexOf(rvalue) == 0
         }[operator];
-    });
-
-    Handlebars.registerHelper('twitter_image_id', function(title) {
-        // Because we have different colored twitter images we want to "randomly"
-        // match them with users that don't have a picture
-        var random = 0;
-        for (var i = 0; i < title.length; i++) {
-          random += title.charCodeAt(i);
-        }
-        return random % 7 // We have only 0 - 6 images
-
-    });
-
-    Handlebars.registerHelper('is_twitter', function(url) {
-        var twitter_url_regex = /^https?:\/\/twitter\.com/;
-        if(url.match(twitter_url_regex))
-          return true;
-        else
-          return false;
-    });
-
-    Handlebars.registerHelper('is_facebook', function(url) {
-        var twitter_url_regex = /^https?:\/\/(www\.)?facebook\.com/;
-        if(url.match(twitter_url_regex))
-          return true;
-        else
-          return false;
-    });
-
-    Handlebars.registerHelper('is_xing', function(url) {
-        var twitter_url_regex = /^https?:\/\/(www\.)?xing\.com/;
-        if(url.match(twitter_url_regex))
-          return true;
-        else
-          return false;
     });
 
     Handlebars.registerHelper('nameify', function(str) {

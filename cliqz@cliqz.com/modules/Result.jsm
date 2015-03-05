@@ -27,9 +27,7 @@ function getSuperType(result){
 
 var Result = {
     CLIQZR: 'cliqz-results',
-    CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
-    CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
@@ -108,7 +106,7 @@ var Result = {
     cliqzExtra: function(result){
         result.data.subType = result.subType;
         result.data.trigger_urls = result.trigger_urls;
-        
+
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value
@@ -177,7 +175,8 @@ var Result = {
 
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
-                richData: result.snippet.rich_data
+                richData: result.snippet.rich_data,
+                adult: result.snippet.adult || false
             },
             source = getSuperType(result) || result.source;
 
