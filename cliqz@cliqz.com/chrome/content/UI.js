@@ -212,62 +212,49 @@ var UI = {
       var oldBox = $(box).clone();
       var newBox = $(box).clone();
       $(newBox).html(newHTML);
+      if(getResultSelection() && getResultSelection().getAttribute("extra") == "history-0") var reselect = true;
 
       // Extract old/new results
       var oldResults = $('.cqz-result-box', oldBox);
       var newResults = $('.cqz-result-box', newBox);
-      var curResults = $('.cqz-result-box', box);
-      var max = curResults.length > newResults.length ? curResults.length : newResults.length;
 
+      // Process Instant Results
       if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
         for(var i=0; i<newResults.length; i++) {
           var oldChild = oldResults[i];
           var curUrls = UI.extractResultUrls(oldChild.innerHTML);
           var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
+          // Replace with animation if type changes, e.g. history -> entity
           if(oldChild.getAttribute("type") != newResults[i].getAttribute("type") &&
           (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
             $(oldChild).fadeOut("slow", function(){
                 $(this).replaceWith(newResults[i]);
                 $(oldChild).fadeIn("slow");
             });
+          // Replace without animation if urls are the same
           } else if(!UI.urlListsEqual(curUrls, newUrls)) {
             box.replaceChild(newResults[i], box.children[i]);
           }
-          var newChild = box.children[i];
+          // Check if history size changed and set flag for animation
+          /*var newChild = box.children[i];
           if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
             oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
             newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
               newChild.style.height = "95px";
               UI.animateHistory = true;
-          }
+          }*/
         }
         return;
       }
 
-
-      // Fade out for old results
-      var fadeoutTime = 0;
-      /*for(var i=0; i<oldResults.length; i++) {
-        var item = box.children[i];
-        var curUrls = UI.extractResultUrls(item.innerHTML);
-        var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
-        if (item.getAttribute("type").indexOf("cliqz-pattern") == -1 && curUrls != newUrls) {
-          // Animate
-          item.style.opacity = 1;
-          $(item).animate({
-            "opacity": "0"
-          }, 150);
-          fadeoutTime = 150;
-        }
-      }*/
-
       var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       $(box).html(newHTML);
       newResults = $('.cqz-result-box', box);
-      var firstResult = newResults[0];
 
+      // History animation
+      var firstResult = newResults[0];
       var historyDelay = 0;
-      if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
+      /*if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
       firstResult.children[0].className.indexOf("h2") != -1) {
         firstResult.style.height = "95px";
         $(firstResult).animate({
@@ -275,12 +262,14 @@ var UI = {
         }, 600);
         UI.animateHistory = false;
         historyDelay = 600;
-      }
+      }*/
 
+      // Result animation
       var delay = 0;
       for(var i=0; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
+        // New result
         if(!oldRes && newRes) {
           newRes.style.opacity = 0;
           setTimeout(function(r){
@@ -290,11 +279,13 @@ var UI = {
           delay += 100;
         } else if(oldRes && !newRes) {
           // No animation here because element is already removed
+        // Replaced result
         } else {
           var curUrls = UI.extractResultUrls(oldRes.innerHTML);
           var newUrls = UI.extractResultUrls(newRes.innerHTML);
+          // Only animate if urls are not equal
           if (!UI.urlListsEqual(curUrls, newUrls) &&
-            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i != 0)) {
+            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i !== 0)) {
             newRes.style.opacity = 0;
             setTimeout(function(r){
             $(r).stop().animate({
@@ -304,6 +295,9 @@ var UI = {
           }
         }
       }
+      if(reselect) UI.selectFirstElement();
+
+      // Update redraw timer
       var nextDraw = Date.now() + delay + (delay>0?400:0) + historyDelay;
       if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
       UI.nextRedraw += 100;
@@ -321,11 +315,8 @@ var UI = {
         s = a;
         l = b;
       }
-
       for(var i=0; i<s.length; i++) {
-        if (l.indexOf(s[i]) == -1) {
-          return false;
-        }
+        if (l.indexOf(s[i]) == -1) return false;
       }
       return true;
     },
