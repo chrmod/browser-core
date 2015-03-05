@@ -143,7 +143,6 @@ var CliqzUtils = {
 
     else if (domains[base]) {
       for (var i=0,imax=domains[base].length;i<imax;i++) {
-        CliqzUtils.log("")
         var rule = domains[base][i] // r = rule, b = background-color, l = logo, t = text, c = color
 
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {

@@ -1471,6 +1471,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
+      source: getResultKind(item),
       current_position: -1
     });
   }
