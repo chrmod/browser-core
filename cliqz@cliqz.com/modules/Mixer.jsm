@@ -38,7 +38,7 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, customResults, only_instant){
 		var results = [];
 
         if(!instant)

@@ -23,9 +23,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
-  'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
@@ -416,9 +413,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     country = json.country;
                     this.cliqzResultsExtra = []
 
-                    if(json.images && json.images.results && json.images.results.length >0)
-                        this.cliqzResultsExtra =
-                            json.images.results.map(Result.cliqzExtra);
+                    if(json.images && json.images.results && json.images.results.length >0){
+                        var imgs = json.images.results.filter(function(r){
+                            //ignore empty results
+                            return Object.keys(r).length != 0;
+                        });
+
+                        this.cliqzResultsExtra =imgs.map(Result.cliqzExtra);
+                    }
 
                     var hasExtra = function(el){
                         if(!el || !el.results || el.results.length == 0) return false;
@@ -444,11 +446,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
-            cliqzBundesligaCallback: function(res, q) {
-                this.cliqzBundesliga = res;
-                this.pushResults(q);
-            },
-
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -461,7 +458,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra,
                             this.instant,
                             this.historyBackfill,
-                            this.cliqzBundesliga,
                             this.customResults,
                             only_instant
                     );
@@ -532,7 +528,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.cliqzBundesliga = null;
                 this.instant = [];
                 this.historyBackfill = [];
 
@@ -554,7 +549,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
-                this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
@@ -583,12 +577,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     // begin history pattern search
                     CliqzHistoryPattern.detectPattern(searchString);
 
-                    // Fetch bundesliga only if search contains trigger
-                    if(CliqzBundesliga.isBundesligaSearch(searchString)) {
-                        CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
-                    } else {
-                        this.cliqzBundesliga = [];
-                    }
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
@@ -596,7 +584,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.cliqzResultsExtra = [];
                     this.cliqzCountry = "";
                     this.customResults = [];
-                    this.cliqzBundesliga = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
 
