@@ -723,11 +723,6 @@ function constructImage(data){
 
     }
 
-    // function resize(images, width) {
-    //     setheight(images, getheight(images, width));
-    // }
-
-
     function process_images_result(res, max_height) {
         // Processing images to fit with max_height and
         var tmp = [];
