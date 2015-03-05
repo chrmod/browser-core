@@ -68,6 +68,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+#cliqz-results .transition { -moz-transition: all 0.3s ease; transition: all 0.3s ease; }
 #cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-h1 { height: 302px; }
 #cliqz-results .cqz-result-h2 { height: 201px; }
@@ -84,8 +85,6 @@
 	border-radius: 0 3px 0 0;
 	transform: rotate(42deg);
 
-	-moz-transition: all 0.3s ease;
-    transition: all 0.3s ease;
     -moz-backface-visibility: hidden;
     backface-visibility: hidden;
 }
@@ -127,12 +126,6 @@
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
-}
-
-/* custom logo definitions */
-#cliqz-results .cliqz-brand-logo, .cliqz-brand-logo {
-	-moz-transition: all 0.3s ease;
-    transition: all 0.3s ease;
 }
 
 #cliqz-results .cqz-result-logo {
@@ -236,8 +229,6 @@
     background-position: center;
     background-size: contain;
     cursor: pointer;
-    -moz-transition: all 0.3s ease;
-    transition: all 0.3s ease;
 }
 #cliqz-results .cqz-ez-generic-opt:hover div {
     height: 69px;
@@ -329,6 +320,12 @@
     color: white;
     background-size: auto 36px;
     background-position: center 9px;
+    cursor: pointer;
+}
+
+#cliqz-results .cqz-ez-search-app:hover {
+    background-size: auto 40px;
+    background-position: center 7px;
 }
 
 /*  ez celeb */

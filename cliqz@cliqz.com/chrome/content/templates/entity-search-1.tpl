@@ -1,9 +1,9 @@
 <!-- Resize to include history -->
-<div 
-  {{#if data.urls}} 
+<div
+  {{#if data.urls}}
     class="cqz-result-h1 cqz-result-padding cqz-result-pattern"
   {{else}}
-    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"  
+    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"
   {{/if}}
 >
   <div class="cqz-ez-title cqz-ez-search-title">
@@ -28,7 +28,7 @@
   <div>
     {{#each data.links}}
       <div
-        class="cqz-ez-search-app"
+        class="cqz-ez-search-app transition"
         style="background-color: {{this.background_color_icon}}; background-image: url({{this.icon_url}})"
         url="{{this.url}}"
         extra="link-{{this.logg_as}}"

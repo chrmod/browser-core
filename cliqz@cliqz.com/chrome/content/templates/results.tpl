@@ -17,4 +17,4 @@
 	{{/unless}}
 {{/each}}
 
-<div class='cqz-result-selected'></div>
+<div class='cqz-result-selected transition'></div>
