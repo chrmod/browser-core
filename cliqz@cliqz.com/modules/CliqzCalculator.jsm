@@ -129,27 +129,5 @@ var CliqzCalculator = {
         catch(err) {
             return false
         }
-    },
-
-    isSame: function(suggestion, answer){
-      if (answer == null || suggestion == null){
-        return false;
-      }
-
-      suggestion = suggestion.toString().trim().toLowerCase().split(" ")[0];
-      answer = answer.toString().trim().toLowerCase().split(" ")[0];
-
-      // google start showing in E notation after 10^10, we show after 10^21
-      // invest more if this is an issue
-      // if(suggestion.indexOf("e")){
-      //   CliqzUtils.log(Number(suggestion).toString, "Long number");
-      // }
-
-      var dotPos = answer.indexOf(".");
-      if(dotPos != -1){
-        answer = answer.slice(0, dotPos + 3);
-        suggestion = suggestion.slice(0, dotPos + 3);
-      }
-      return answer == suggestion;
     }
 }

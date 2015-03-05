@@ -9,7 +9,7 @@
                   style="{{style}}"
                   engine="{{name}}"
                   engineCode="{{code}}"
-                  cliqz-action="alternative-search-engine"></div>
+                  cliqz-action="alternative-search-engine">{{ text }}</div>
         {{/each}}
     </div>
     <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />

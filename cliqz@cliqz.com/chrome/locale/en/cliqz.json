@@ -39,7 +39,7 @@
         "message": "we don't have great results this time."
     },
     "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:"
+        "message":"press enter to search on {}, or try one of these:"
     },
     "noResults": {
         "message":"No results"
@@ -309,7 +309,7 @@
       "message":"Did you really mean "
     },
     "result_filter": {
-      "message":"Result filter"
+      "message":"Explicit content"
     },
     "age": {
         "message": "Age"
@@ -324,19 +324,19 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Some adult content has been hidden."
+        "message": "Explicit content has been hidden."
     },
     "adultAction": {
         "message": "Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"Conservative"
+      "message":"block"
     },
     "adultModerate": {
-      "message":"Moderate"
+      "message":"filter"
     },
     "adultLiberal": {
-      "message":"Liberal"
+      "message":"always show"
     },
     "yes": {
         "message": "Yes"
