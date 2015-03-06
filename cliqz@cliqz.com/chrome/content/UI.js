@@ -188,7 +188,6 @@ var UI = {
       var oldBox = box.cloneNode(true);
       var newBox = box.cloneNode(true);
       newBox.innerHTML = newHTML;
-      CliqzHistory.test = getResultSelection();
       if(getResultSelection()) var reselect = true;
 
       // Extract old/new results
