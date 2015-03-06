@@ -447,7 +447,7 @@ var CliqzUtils = {
   },
   shouldLoad: function(window){
     //always loads, even in private windows
-    return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
+    return true;
   },
   isPrivate: function(window) {
     try {
@@ -483,7 +483,7 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
-    if(CliqzUtils.cliqzPrefs.getBoolPref('dnt'))return;
+    if(CliqzUtils.getPref('telemetry', false))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 

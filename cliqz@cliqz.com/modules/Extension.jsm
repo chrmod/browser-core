@@ -80,9 +80,7 @@ var Extension = {
 
         // open changelog on update
         if(upgrade && CliqzUtils.getPref('showChangelog', false)){
-            var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
-                            CliqzUtils.getPref('changelogURL') :
-                            CliqzUtils.CHANGELOG;
+            var clURL = CliqzUtils.getPref('changelogURL', CliqzUtils.CHANGELOG);
             CliqzUtils.openOrReuseAnyTab(clURL, CliqzUtils.UPDATE_URL, false);
         }
     },
