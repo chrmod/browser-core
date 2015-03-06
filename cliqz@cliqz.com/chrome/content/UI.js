@@ -188,7 +188,10 @@ var UI = {
       var oldBox = box.cloneNode(true);
       var newBox = box.cloneNode(true);
       newBox.innerHTML = newHTML;
-      if(getResultSelection() && getResultSelection().getAttribute("extra") == "history-0") var reselect = true;
+      CliqzHistory.test = getResultSelection();
+      if(getResultSelection() && (getResultSelection().getAttribute("extra") == "history-0" ||
+      getResultSelection().getAttribute("class") == "cqz-ez-title"))
+        var reselect = true;
 
       // Extract old/new results
       var oldResults = oldBox.getElementsByClassName("cqz-result-box");
@@ -218,7 +221,6 @@ var UI = {
           }
         }
         if(reselect) UI.selectFirstElement();
-        UI.nextRedraw += 100;
         return;
       }
 
