@@ -153,7 +153,6 @@ var UI = {
             UI.lastDispatch = now;
             UI.dispatchRedraw(UI.tpl.results(currentResults), now);
           }
-            //gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -1437,8 +1436,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = el;
-
-        //arrow.className = arrow.className.replace("notransition", "");
 
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
