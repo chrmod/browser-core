@@ -66,10 +66,9 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(false && upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
-            var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
-                            CliqzUtils.getPref('changelogURL') :
-                            CliqzUtils.CHANGELOG;
+
+        if(false && upgrade && CliqzUtils.getPref('showChangelog', false)){
+            var clURL = CliqzUtils.getPref('changelogURL', CliqzUtils.CHANGELOG);
             CliqzUtils.openOrReuseAnyTab(clURL, CliqzUtils.UPDATE_URL, false);
         }
     },
