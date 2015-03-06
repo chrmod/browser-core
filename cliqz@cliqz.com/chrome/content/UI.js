@@ -218,6 +218,7 @@ var UI = {
           }
         }
         if(reselect) UI.selectFirstElement();
+        UI.nextRedraw += 100;
         return;
       }
 
