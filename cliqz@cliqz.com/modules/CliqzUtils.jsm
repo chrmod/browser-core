@@ -13,6 +13,8 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -78,8 +80,8 @@ var CliqzUtils = {
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
-  _log: Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService),
+  /*_log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),*/
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -265,7 +267,7 @@ var CliqzUtils = {
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
+        console.log("CLIQZ " + (new Date()).toISOString() + (key?" " + key:""),msg);
     }
   },
   getDay: function() {
