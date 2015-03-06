@@ -184,19 +184,16 @@ var UI = {
         UI.redrawResultHTML(html);
       }
     },
-    animateHistory: false,
-    clearDropdownOnRedraw: false,
     redrawResultHTML: function(newHTML) {
-      var $ = CLIQZ.Core.jQuery;
       var box = gCliqzBox.resultsBox;
-      var oldBox = $(box).clone();
-      var newBox = $(box).clone();
-      $(newBox).html(newHTML);
+      var oldBox = box.cloneNode(true);
+      var newBox = box.cloneNode(true);
+      newBox.innerHTML = newHTML;
       if(getResultSelection() && getResultSelection().getAttribute("extra") == "history-0") var reselect = true;
 
       // Extract old/new results
-      var oldResults = $('.cqz-result-box', oldBox);
-      var newResults = $('.cqz-result-box', newBox);
+      var oldResults = oldBox.getElementsByClassName("cqz-result-box");
+      var newResults = newBox.getElementsByClassName("cqz-result-box");
 
       // Process Instant Results
       if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
@@ -205,45 +202,29 @@ var UI = {
           var curUrls = UI.extractResultUrls(oldChild.innerHTML);
           var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
           // Replace with animation if type changes, e.g. history -> entity
-          if(oldChild.getAttribute("type") != newResults[i].getAttribute("type") &&
+          if(!UI.urlListsEqual(curUrls, newUrls) &&
           (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
-            $(oldChild).fadeOut("normal", function(){
-                $(this).replaceWith(newResults[i]);
-                $(oldChild).fadeIn("normal");
-            });
-          // Replace without animation if urls are the same
+            // Replace animation
+            newResults[i].style.opacity = 1;
+            newResults[i].className += " fadeOut";
+            setTimeout(function(n, o) {
+              box.replaceChild(n, o);
+              n.className = n.className.replace("fadeOut", "");
+              n.style.opacity = 0;
+              n.className += " fadeIn";
+            }, 200, newResults[i], box.children[i]);
+          // Replace without animation if urls are not the same
           } else if(!UI.urlListsEqual(curUrls, newUrls)) {
             box.replaceChild(newResults[i], box.children[i]);
           }
-          // Check if history size changed and set flag for animation
-          /*var newChild = box.children[i];
-          if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
-            oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
-            newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
-              newChild.style.height = "95px";
-              UI.animateHistory = true;
-          }*/
         }
         if(reselect) UI.selectFirstElement();
         return;
       }
 
       var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
-      $(box).html(newHTML);
-      newResults = $('.cqz-result-box', box);
-
-      // History animation
-      /*var firstResult = newResults[0];
-      var historyDelay = 0;
-      if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
-      firstResult.children[0].className.indexOf("h2") != -1) {
-        firstResult.style.height = "95px";
-        $(firstResult).animate({
-          "height": "202px"
-        }, 600);
-        UI.animateHistory = false;
-        historyDelay = 600;
-      }*/
+      box.innerHTML = newHTML;
+      newResults = box.getElementsByClassName("cqz-result-box");
 
       // Result animation
       var delay = 0;
@@ -253,10 +234,7 @@ var UI = {
         // New result
         if(!oldRes && newRes) {
           newRes.style.opacity = 0;
-          setTimeout(function(r){
-          $(r).stop().animate({
-            "opacity": "1"
-          }, 200)}, delay, newRes);
+          setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
           delay += 100;
         } else if(oldRes && !newRes) {
           // No animation here because element is already removed
@@ -268,10 +246,7 @@ var UI = {
           if (!UI.urlListsEqual(curUrls, newUrls) &&
             (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i !== 0)) {
             newRes.style.opacity = 0;
-            setTimeout(function(r){
-            $(r).stop().animate({
-              "opacity": "1"
-            }, 200)}, delay, newRes);
+            setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
             delay += 100;
           }
         }

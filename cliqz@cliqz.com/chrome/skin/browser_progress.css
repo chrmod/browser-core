@@ -13,3 +13,19 @@
   -ms-transition: none !important;
   transition: none !important;
 }
+
+.fadeIn {
+  opacity:1 !important;
+  -webkit-transition : all 0.2s ease-in !important;
+  -moz-transition : all 0.2s ease-in !important;
+  -o-transition : all 0.2s ease-in !important;
+  transition : all 0.2s ease-in !important;
+}
+
+.fadeOut {
+  opacity:0 !important;
+  -webkit-transition : all 0.2s ease-out !important;
+  -moz-transition : all 0.2s ease-out !important;
+  -o-transition : all 0.2s ease-out !important;
+  transition : all 0.2s ease-out !important;
+}
