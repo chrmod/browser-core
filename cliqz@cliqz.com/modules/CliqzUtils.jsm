@@ -325,7 +325,8 @@ var CliqzUtils = {
     var indexOfColon = host.indexOf(":");
 
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
-      [host, port] = [host.substr(0,indexOfColon), host.substr(indexOfColon+1)];
+      port = host.substr(indexOfColon+1);
+      host = host.substr(0,indexOfColon);
     }
     else if (isIPv6) {
       // If an IPv6 address has a port number, it will be right after a closing bracket ] : format [ip_v6]:port

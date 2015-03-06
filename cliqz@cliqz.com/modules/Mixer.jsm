@@ -50,11 +50,14 @@ var Mixer = {
         if(!cliqz)
             cliqz = [];
 
+        var _res;
         if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-          var [history_trans, cluster_data] = [history, null];
+           _res = [history, null];
         } else {
-          var [history_trans, cluster_data] = CliqzClusterHistory.cluster(history);
+          _res = CliqzClusterHistory.cluster(history);
         }
+        var history_trans = _res[0];
+        var cluster_data = _res[1];
 
 		/// 1) put each result into a bucket
         var bucketHistoryDomain = [],
@@ -69,7 +72,7 @@ var Mixer = {
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
         var instant_new = [];
-        for(let i=0; i < cliqz.length; i++) {
+        for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
@@ -84,7 +87,7 @@ var Mixer = {
 
                 // Do any of the sublinks match?
                 if(instant[0].style == 'cliqz-pattern') {
-                    for(let u = 0; u < instant[0].data.urls; u++) {
+                    for(var u = 0; u < instant[0].data.urls; u++) {
                         var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
@@ -108,8 +111,8 @@ var Mixer = {
         
         cliqz = cliqz_new;
 
-        for (let i = 0; history_trans && i < history_trans.length; i++) {
-            let style = history_trans[i]['style'],
+        for (var i = 0; history_trans && i < history_trans.length; i++) {
+            var style = history_trans[i]['style'],
                 value = history_trans[i]['value'],
                 image = history_trans[i]['image'],
                 comment = history_trans[i]['comment'],
@@ -121,8 +124,8 @@ var Mixer = {
             }
 
             // Deduplicate: check if this result is also in the cache results
-            let cacheIndex = -1;
-            for(let i in cliqz || []) {
+            var cacheIndex = -1;
+            for(var i in cliqz || []) {
                 if(cliqz[i].url == label) {
                     // combine sources
                     var tempResult = Result.cliqz(cliqz[i]);
@@ -145,7 +148,7 @@ var Mixer = {
                 // if also found in cache, remove so it is not added to cache-only bucket
                 cliqz.splice(cacheIndex, 1);
             } else {
-                let urlparts = CliqzUtils.getDetailsFromUrl(label);
+                var urlparts = CliqzUtils.getDetailsFromUrl(label);
 
                 if(bookmark) {
                     bucketBookmark.push(Result.generic(style, value, image, comment, label, q));
@@ -160,7 +163,7 @@ var Mixer = {
             }
         }
 
-        for(let i in cliqz || []) {
+        for(var i in cliqz || []) {
             bucketCache.push(Result.cliqz(cliqz[i]));
         }
 
@@ -170,19 +173,19 @@ var Mixer = {
 
             // the top history with matching domain will be show already via instant-serve
             // all bucketBookmarksCache
-            for(let i = 0; i < bucketBookmarkCache.length; i++) {
+            for(var i = 0; i < bucketBookmarkCache.length; i++) {
                 bucketBookmarkCache[i].comment += " (bookmark and vertical: " + bucketBookmarkCache[i].query + ")!";
                 results.push(bucketBookmarkCache[i]);
             }
 
             // all bucketBookmarks
-            for(let i = 0; i < bucketBookmark.length; i++) {
+            for(var i = 0; i < bucketBookmark.length; i++) {
                 bucketBookmark[i].comment += " (bookmark: " + bucketBookmark[i].query + ")!";
                 results.push(bucketBookmark[i]);
             }
 
             // all bucketHistoryCache
-            for(let i = 0; i < bucketHistoryCache.length; i++) {
+            for(var i = 0; i < bucketHistoryCache.length; i++) {
                 bucketHistoryCache[i].comment += " (history and vertical: " + bucketHistoryCache[i].query + ")!";
                 results.push(bucketHistoryCache[i]);
             }
@@ -194,25 +197,25 @@ var Mixer = {
             }
 
             // top 2 of bucketHistoryDomain
-            for(let i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
+            for(var i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
                 bucketHistoryDomain[i].comment += " (top history domain)!";
                 results.push(bucketHistoryDomain[i]);
             }
 
             // rest of bucketCache
-            for(let i = 1; i < bucketCache.length && i < 10; i++) {
+            for(var i = 1; i < bucketCache.length && i < 10; i++) {
                 bucketCache[i].comment += " (vertical: " + bucketCache[i].query + ")!";
                 results.push(bucketCache[i]);
             }
 
             // rest of bucketHistoryDomain
-            for(let i = 2; i < bucketHistoryDomain.length; i++) {
+            for(var i = 2; i < bucketHistoryDomain.length; i++) {
                 bucketHistoryDomain[i].comment += " (history domain)!";
                 results.push(bucketHistoryDomain[i]);
             }
 
             // all bucketHistoryOther
-            for(let i = 0; i < bucketHistoryOther.length; i++) {
+            for(var i = 0; i < bucketHistoryOther.length; i++) {
                 bucketHistoryOther[i].comment += " (history other)!";
                 results.push(bucketHistoryOther[i]);
             }
@@ -269,8 +272,8 @@ var Mixer = {
                 results[0].style = "cliqz-extra";
 
                 // combine data from the two entries:
-                for (let [key, value] in Iterator(cliqzExtra[0].data))
-                    results[0].data[key] = value;
+                for (var _res in Iterator(cliqzExtra[0].data))
+                    results[0].data[_res[0]] = _res[1];
 
                 // use special combined template
                 results[0].data.template = "entity-generic-history";

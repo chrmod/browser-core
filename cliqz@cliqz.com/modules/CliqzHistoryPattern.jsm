@@ -46,7 +46,7 @@ var CliqzHistoryPattern = {
     CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
     query = query.split(" ")[0];
-    let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
+    var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     this.data = [];
     this.pattern = [];
     this.SQL
@@ -151,7 +151,8 @@ var CliqzHistoryPattern = {
     var query = history.searchString;
 
     // attempt rule-based clustering first
-    var [history_left, cluster_data] = CliqzClusterHistory.cluster(history);
+    var clustered_result = CliqzClusterHistory.cluster(history);
+    var cluster_data = clustered_result[1];
 
     if(cluster_data) {
       CliqzHistoryPattern.firefoxHistory = [];
@@ -214,13 +215,17 @@ var CliqzHistoryPattern = {
     // Remove patterns with same title
     patterns = CliqzHistoryPattern.removeDuplicates(patterns);
     // Move base domain to top
-    [patterns, baseUrl] = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
+    var adjustedResults = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
+    patterns = adjustedResults[0];
+    baseUrl = adjustedResults[1];
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false);
 
     // Add base domain if above threshold
     if ((DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "cliqz") && share[1] > 0.5 && res.filteredResults().length > 3) {
       // Check if base domain changed due to filtering
-      var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(res.filteredResults(), query);
+      adjustedResults = CliqzHistoryPattern.adjustBaseDomain(res.filteredResults(), query);
+      tmpResults = adjustedResults[0];
+      tmpBaseUrl = adjustedResults[1];
       if(tmpBaseUrl != baseUrl) {
         res.results = tmpResults;
         baseUrl = tmpBaseUrl;
@@ -660,10 +665,10 @@ var CliqzHistoryPattern = {
         handleError: function(error) {},
 
         handleResult: function(resultSet) {
-          let row;
+          var row;
           while (row = resultSet.getNextRow()) {
             // Read out the desired columns from the row into an object
-            let result;
+            var result;
             if (columns != null) {
               // For just a single column, make the result that column
               if (columns.length == 1) {
@@ -844,7 +849,7 @@ var CliqzHistoryPattern = {
   // Extract earliest and latest entry of Firefox history
   historyTimeFrame: function(callback) {
     Cu.import('resource://gre/modules/PlacesUtils.jsm');
-    let history = [];
+    var history = [];
     var min, max;
     this.SQL
       ._execute(
