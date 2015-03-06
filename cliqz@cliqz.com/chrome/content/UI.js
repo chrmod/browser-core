@@ -80,7 +80,7 @@ var UI = {
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug');
     },
     main: function(box){
         gCliqzBox = box;
