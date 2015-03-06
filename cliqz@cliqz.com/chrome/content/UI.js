@@ -68,7 +68,7 @@ var UI = {
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
@@ -135,7 +135,7 @@ var UI = {
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
 
         // find out if scrolling is possible
-        CliqzAutocomplete.resultsOverflowHeight = 
+        CliqzAutocomplete.resultsOverflowHeight =
             gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
     },
     // redraws a result
