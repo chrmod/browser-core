@@ -432,9 +432,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return el.results.length != 0;
                     }
 
-                    if(hasExtra(json.extra))
+                    if(hasExtra(json.extra)) {
                         this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-
+                    }
                     this.latency.cliqz = json.duration;
 
                     this.cliqzResults = results.filter(function(r){
@@ -543,7 +543,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);

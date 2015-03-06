@@ -48,6 +48,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
+  SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
@@ -67,7 +68,7 @@ var CliqzUtils = {
   BRANDS_DATABASE_VERSION:        1423762658427,
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
+      'generic': 1, 'images_beta': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
