@@ -224,6 +224,7 @@ var UI = {
               UI.animateHistory = true;
           }*/
         }
+        if(reselect) UI.selectFirstElement();
         return;
       }
 
@@ -1432,7 +1433,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         var offset = target.offsetTop;
 
-        if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
+        if(target.className.indexOf("cliqz-pattern") != -1 && $('.cliqz-pattern', gCliqzBox))
+          offset += $('.cliqz-pattern', gCliqzBox).parentNode.parentNode.offsetTop;
         var scroll = parseInt(offset/303) * 303;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
