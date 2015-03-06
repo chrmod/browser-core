@@ -38,7 +38,7 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, customResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, customResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -125,7 +125,8 @@ var Mixer = {
         })
 
         // Find any entity zone in the results and cache them for later use
-        for(var i=0; i < (cliqzExtra || []).length; i++){
+        // go backwards to be sure to cache the newest (which will be first in the list)
+        for(var i=(cliqzExtra || []).length - 1; i >= 0; i--){
             var r = cliqzExtra[i];
             if(r.style == 'cliqz-extra'){
                 if(r.val != "" && r.data.subType){
@@ -141,12 +142,12 @@ var Mixer = {
                     }
                 }
             }
-        } 
+        }
 
         // Take the first entry and see if we can trigger an EZ with it,
         // this will override an EZ sent by backend.
         if(results.length > 0) {
-            
+
             var url = results[0].val;
             // if there is no url associated with the first result, try to find it inside
             if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
@@ -216,28 +217,21 @@ var Mixer = {
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
-            var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
-            var title = CliqzUtils.getLocalizedString('noResultTitle'),
-                msg = CliqzUtils.getLocalizedString('noResultMessage'),
-                current_search_engine = Services.search.currentEngine.name;
-
             var alternative_search_engines_data = [// default
-                                {"name": "DuckDuckGo", "code": null, "style":"", "base_url": "https://duckduckgo.com"}, //, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
-                                {"name": "Bing", "code": null, "style":"", "base_url": "http://www.bing.com/search?q=&pc=MOZI"}, //, "logo": path+"Bing.svg", "background-color": "#ffc802"},
-                                {"name": "Google", "code": null, "style":"", "base_url": "http://www.google.de"}, //, "logo": path+"google.svg", "background-color": "#5ea3f9"},
-                                {"name": "Google Images", "code":null, "style":"", "base_url": "http://images.google.de/"}, //: "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
-                                {"name": "Google Maps", "code": null, "style":"", "base_url": "http://maps.google.de/"} //, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
-                            ],
-                alt_s_e;
+                {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+                {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
+                {"name": "Google", "base_url": "http://www.google.de"},
+                {"name": "Google Images", "base_url": "http://images.google.de/"},
+                {"name": "Google Maps", "base_url": "http://maps.google.de/"}
+            ];
 
             for (var i = 0; i< alternative_search_engines_data.length; i++){
-                alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
+                var alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
                 if (typeof alt_s_e != 'undefined'){
                     alternative_search_engines_data[i].code = alt_s_e.code;
                     var url = alternative_search_engines_data[i].base_url || alt_s_e.base_url;
-                    var urlDetails = CliqzUtils.getDetailsFromUrl(url);
-                    var logoDetails = CliqzUtils.getLogoDetails(urlDetails);
-                    alternative_search_engines_data[i].style = logoDetails.style;
+                    alternative_search_engines_data[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+                    alternative_search_engines_data[i].text = alt_s_e.prefix.slice(1);
                 }
             }
 
@@ -247,10 +241,11 @@ var Mixer = {
                         data:
                         {
                             template:'noResult',
-                            text_line1: title,
-                            text_line2: msg.replace("...", current_search_engine),
+                            text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                            text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
                             "search_engines": alternative_search_engines_data,
-                            "cliqz_logo": path+"EZ-no-results-cliqz.svg"
+                            //use local image in case of no internet connection
+                            "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
                         },
                         subType: JSON.stringify({empty:true})
                     }

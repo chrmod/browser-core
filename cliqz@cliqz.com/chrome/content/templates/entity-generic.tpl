@@ -3,7 +3,7 @@
   {{#if data.urls}}
     class="cqz-result-h1 cqz-result-padding cqz-result-pattern"
   {{else}}
-    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"  
+    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"
   {{/if}}
 >
     {{#if debug}}
@@ -14,7 +14,7 @@
             {{name}}
             <div class="after" style="background-image: url({{icon}})"></div>
         </div>
-        
+
         <div class="cqz-ez-generic-elems">
             <div class="cqz-ez-generic-box">
                 {{#each actions }}
@@ -29,7 +29,11 @@
                 <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
                      extra="link-{{ @index }}">
-                     <div style="background-image: url({{ icon }});"></div>
+                     <div
+                        style="background-image: url({{ icon }});"
+                        class="transition"
+                     >
+                     </div>
                     {{ title }}
                 </div>
             {{/each}}

@@ -31,9 +31,7 @@ var BTN_ID = 'cliqz-button',
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'session': '',
-        'dnt': false, // if set to true the extension will not send safe browsing signals
-        'telemetry': true //statistics
+        'session': ''
     },
     init: function(){
         Extension.unloadModules();
@@ -135,9 +133,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
