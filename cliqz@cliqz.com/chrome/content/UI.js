@@ -216,13 +216,13 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
           // Check if history size changed and set flag for animation
-          var newChild = box.children[i];
+          /*var newChild = box.children[i];
           if (i == 0 && oldChild && oldChild.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
             oldChild.children[0].className.indexOf("h3") != -1 && newChild &&
             newChild.getAttribute("type").indexOf("cliqz-extra") == -1) {
               newChild.style.height = "95px";
               UI.animateHistory = true;
-          }
+          }*/
         }
         return;
       }
@@ -232,7 +232,7 @@ var UI = {
       newResults = $('.cqz-result-box', box);
 
       // History animation
-      var firstResult = newResults[0];
+      /*var firstResult = newResults[0];
       var historyDelay = 0;
       if (UI.animateHistory && firstResult && firstResult.getAttribute("type").indexOf("cliqz-pattern") != -1 &&
       firstResult.children[0].className.indexOf("h2") != -1) {
@@ -242,7 +242,7 @@ var UI = {
         }, 600);
         UI.animateHistory = false;
         historyDelay = 600;
-      }
+      }*/
 
       // Result animation
       var delay = 0;
@@ -278,7 +278,7 @@ var UI = {
       if(reselect) UI.selectFirstElement();
 
       // Update redraw timer
-      var nextDraw = Date.now() + delay + (delay>0?400:0) + historyDelay;
+      var nextDraw = Date.now() + delay + (delay>0?400:0);
       if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
       UI.nextRedraw += 100;
     },
