@@ -22,7 +22,6 @@ function getheight(images, width, margin) {
     width -= margin * images.length; //images  margin
     var h = 0;
     for (var i = 0; i < images.length; ++i) {
-        // console.log(' Debug:'+JSON.stringify(images[i].thumb))
         if ('thumb' in images[i]){
             h += (images[i].thumb.width || default_width) / (images[i].thumb.height || default_height);
         } else {
@@ -51,8 +50,7 @@ function setheight(images, height, margin) {
 
     // Collecting sub-pixel error
     var error = estim_width - parseInt(verif_width)
-    // console.log('estimation error:' + error + ', images nbr:' + images.length);
-
+ 
     if (error>0) {
         //var int_error = parseInt(Math.abs(Math.ceil(error)));
         // distribute the error on first images each take 1px
@@ -74,11 +72,8 @@ function setheight(images, height, margin) {
     //    var width_float = height * images[i].image_width /images[i].image_height;
     //    verify += (images[i].width + IMAGES_MARGIN);
     // }
-    // console.log('global width (verif): '+ verify+', verify (float):'+ verif_width +', int verify (float):'+ parseInt(verif_width));
-
+  
 }
-
-
 
 
 var CliqzImages = {
@@ -90,17 +85,13 @@ var CliqzImages = {
         'OFFSET': 30, // Offset for the title (should be set automatically)
         'MARGIN':2,
         'CELL_HEIGHT':100
-    }
-    ,
+    },
     test: function(){
         CliqzUtils.log('(empty test)', CliqzImages.LOG_KEY);
         return true;
     },
-
-    // Image search layout
-
     process_images_result : function (res, max_height, width) {
-        // Processing images to fit with max_height and
+        // Processing images to fit with max_height and width
         var tmp = [];
         var data = null;
         var effect_max_height = max_height;
@@ -110,29 +101,23 @@ var CliqzImages = {
                 data = r.data;
             }
             if (r.vertical == 'images_beta' && data && data.template == 'images_beta') {
-                var size =  width ; //res.width  - (CliqzUtils.isWindows(window)?20:15); 
-                // CLIQZ.Core.urlbar.clientWidth
+                var size =  width ;
                 var n = 0;
                 var images = data.items;
                 CliqzUtils.log('(empty test)', CliqzImages.LOG_KEY);
-                
-                // CliqzUtils.log('- Global width: '+ size + ', verif: '+ res.width
-                //              +', images nbr: '+images.length, , CliqzImages.LOG_KEY); // TODO Define which is the better src for width f(time, scroll_bar_styles)
                 w: while ((images.length > 0) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                     if (n==0){
                         effect_max_height = Math.min(max_height, (IM_SEARCH_CONF.CELL_HEIGHT-IM_SEARCH_CONF.OFFSET));
-                        //CliqzUtils.log('(line 1) effect_max_height: ' + effect_max_height, , CliqzImages.LOG_KEY);
                     }
                     var i = 1;
                     while ((i < images.length + 1) && (n<IM_SEARCH_CONF.IMAGES_LINES)){
                         var slice = images.slice(0, i);
                         var h = getheight(slice, size, IM_SEARCH_CONF.IMAGES_MARGIN);
-                        CliqzUtils.log('height: '+h + ', max height:' + effect_max_height, CliqzImages.LOG_KEY);
+                        // CliqzUtils.log('height: '+h + ', max height:' + effect_max_height, CliqzImages.LOG_KEY);
                         if (h < effect_max_height) {
                             setheight(slice, h, IM_SEARCH_CONF.IMAGES_MARGIN);
                             effect_max_height =  effect_max_height - h + max_height;
                             tmp.push.apply(tmp, slice);
-                            // CliqzUtils.log('height: '+h), CliqzImages.LOG_KEY;
                             n++;
                             images = images.slice(i);
                             continue w;
@@ -146,11 +131,8 @@ var CliqzImages = {
                 }
                 res.results[k].data.items = tmp;
                 res.results[k].data.lines = n;
-                // console.log('lines: '+n); // should be <= IM_SEARCH_CONF.IMAGES_LINES
+                // CliqzUtils.log('lines: '+n, CliqzImages.LOG_KEY); // should be <= IM_SEARCH_CONF.IMAGES_LINES
             }
         }
     }
-
-    // end image-search layout
-
 }
