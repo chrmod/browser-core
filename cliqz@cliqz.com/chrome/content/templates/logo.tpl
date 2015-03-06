@@ -3,7 +3,8 @@
 		newtab='true'
 		class='cliqz-brand-logo
 		       cqz-result-logo
-		       cqz-vert-center'
+		       cqz-vert-center
+		       transition'
 	    {{#if add_logo_url}}
 			url="{{logo_url}}"
 		{{/if}}
