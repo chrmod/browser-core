@@ -397,5 +397,32 @@
     },
     "cliqz_stock_minutes_ago": {
        "message": "Minuten früher"
+    },
+    "cliqz_whatiscliqz_title": {
+       "message": "Was ist Cliqz?"
+    },
+    "cliqz_whatiscliqz_text": {
+       "message": "CLIQZ for Firefox zeigt dir Website-Vorschläge direkt im Browser. So navigierst du mit Highspeed durchs Web. Surfen statt suchen!"
+    },
+    "cliqz_whatiscliqz_link": {
+       "message": "Hier mehr erfahren."
+    },
+    "cliqz_individual_title": {
+       "message": "Einzigartig. So wie du."
+    },
+    "cliqz_individual_text": {
+       "message": "CLIQZ bringt dich auf die smarte Art direkt zu deinen persönlichen Lieblingsseiten. Maßgeschneiderte Abkürzungen nur für dich."
+    },
+    "cliqz_individual_link": {
+       "message": "Hier mehr erfahren."
+    },
+    "cliqz_safe_title": {
+       "message": "Mehr Schutz"
+    },
+    "cliqz_safe_text": {
+       "message": "CLIQZ erkennt Phishing- und andere schädliche Websites. Und zeigt diese gar nicht erst an."
+    },
+    "cliqz_safe_link": {
+       "message": "Hier mehr erfahren."
     }
 }

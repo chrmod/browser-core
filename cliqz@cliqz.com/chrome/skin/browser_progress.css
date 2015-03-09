@@ -6,3 +6,69 @@
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 8px;
 }
+
+#cliqz-results .EZ-Cliqz-Footer .cqz-ez-btn.big {
+    width: 100%;
+    display: block;
+}
+
+#cliqz-results .EZ-Cliqz-Footer .cqz-ez-btn {
+    margin-right: 2px;
+}
+
+#cliqz-results .explanation {
+    height: 200px;
+}
+
+#cliqz-results .explanation, #cliqz-results .helpfulcontent {
+    width: 25%;
+}
+
+#cliqz-results .explanation .inner {
+    padding: 12px 0 12px 24px;
+    margin-left: 24px;
+    border-left: 1px #eee solid;
+    height: 180px;
+}
+
+#cliqz-results .explanation:last-child .inner {
+    padding: 12px 24px 12px 24px;
+}
+
+#cliqz-results .explanation h3 {
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#cliqz-results .explanation .explanation__description {
+    white-space: normal;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.5;
+    max-height: 100px;
+}
+
+#cliqz-results .explanation .explanation__link {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 20px;
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#cliqz-results .cqz-result-h2 {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    align-content: stretch;
+}
+
+#cliqz-results .helpfulcontent {
+    min-width: 220px;
+}
