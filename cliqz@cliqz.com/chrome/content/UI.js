@@ -1439,6 +1439,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
+        UI.lastSelectedUrl = "";
         clearResultSelection();
     }
 }
