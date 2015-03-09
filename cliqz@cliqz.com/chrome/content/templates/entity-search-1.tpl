@@ -26,7 +26,7 @@
       </div>
     </div>
   {{/unless}}
-  <div>
+  <div class="cqz-ez-search-app-box">
     {{#each data.links}}
       <div
         class="cqz-ez-search-app transition"
