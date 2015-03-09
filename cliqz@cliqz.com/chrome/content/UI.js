@@ -80,7 +80,7 @@ var UI = {
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.getPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
@@ -130,7 +130,10 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(currentResults.results && currentResults.results.length > 0)
+      if(!currentResults.results[0].url && currentResults.results[0].type == "cliqz-pattern")
+        currentResults.results[0].url = currentResults.results[0].data.urls[0].href;
+
+      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
     results: function(res){
@@ -188,7 +191,6 @@ var UI = {
       var oldBox = box.cloneNode(true);
       var newBox = box.cloneNode(true);
       newBox.innerHTML = newHTML;
-      if(getResultSelection()) var reselect = true;
 
       // Extract old/new results
       var oldResults = oldBox.getElementsByClassName("cqz-result-box");
@@ -217,7 +219,7 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
-        if(reselect) UI.selectFirstElement();
+        if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
         return;
       }
 
@@ -250,7 +252,7 @@ var UI = {
           }
         }
       }
-      if(reselect) UI.selectFirstElement();
+      if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
 
       // Update redraw timer
       var nextDraw = Date.now() + delay + (delay>0?400:0);
@@ -330,7 +332,6 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                UI.lastSelectedUrl = null;
                 if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
@@ -1392,11 +1393,11 @@ function selectPrevResult(pos, allArrowable) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+  CliqzHistory.test=el;
     if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(target.className.indexOf("cliqz-pattern-title") != -1) return;
         if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection

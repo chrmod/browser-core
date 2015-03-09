@@ -1,5 +1,5 @@
 <!-- Resize to include history -->
-<div  
+<div
   {{#if data.urls}}
     class='cqz-result-h1 cqz-result-padding cqz-result-pattern'
   {{else}}
@@ -10,7 +10,7 @@
         <div class='cqz-result-debug'>{{ debug }}</div>
     {{/if}}
     {{#with data}}
-        <div class="cqz-ez-title cqz-ez-banking-title" selectable=''>
+        <div class="cqz-ez-title cqz-ez-banking-title">
           {{name}}
         </div>
         <div class="cqz-ez-banking-elems">
@@ -20,7 +20,6 @@
                         class="cqz-ez-btn {{ ../../logo.buttonsClass }}"
                         url="{{url}}"
                         arrow="false"
-                        selectable=''
                         extra='action-{{ @index }}'
                         >{{title}}</div>
                 {{/each}}

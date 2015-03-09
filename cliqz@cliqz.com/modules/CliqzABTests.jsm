@@ -59,9 +59,8 @@ var CliqzABTests = CliqzABTests || {
             });
     },
     retrieve: function(callback) {
-        var url = CliqzABTests.URL + encodeURIComponent(
-                CliqzUtils.cliqzPrefs.getCharPref('session'));
-        //req.overrideMimeType('application/json');
+        var url = CliqzABTests.URL + encodeURIComponent(CliqzUtils.getPref('session',''));
+
         var onerror = function(){ CliqzUtils.log("failed to get AB test data",
                                                  "CliqzABTests.retrieve") }
 

@@ -8,7 +8,7 @@
         </div>
     {{/if}}
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>{{ emphasis title text 2 true }}</div>
+        <div class='cqz-result-title overflow'>{{ emphasis title text 2 true }}</div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
