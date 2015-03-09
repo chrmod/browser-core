@@ -21,7 +21,7 @@
                     <div
                         class="cqz-ez-btn {{ ../../logo.buttonsClass }}"
                         extra="action-{{ @index }}"
-                        url="{{url}}" arrow="false" selectable=''
+                        url="{{url}}" arrow="false"
                         >{{ title }}</div>
                 {{/each}}
             </div>

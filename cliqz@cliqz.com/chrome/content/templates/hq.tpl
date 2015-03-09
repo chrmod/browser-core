@@ -12,7 +12,7 @@
     {{/if}}
 
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
         </div>
         <div class='cqz-result-desc
