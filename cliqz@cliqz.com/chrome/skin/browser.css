@@ -206,6 +206,7 @@
 #cliqz-results .cqz-ez-title.custom-after::after { display: none; }
 #cliqz-results .cqz-ez-title:hover { text-decoration: underline; }
 #cliqz-results .cqz-ez-generic-elems, #cliqz-results .cqz-ez-generic-box, #cliqz-results .cqz-ez-generic-opt { height: 132px; }
+#cliqz-results .cqz-ez-generic-elems { padding-right: 70px; }
 #cliqz-results .cqz-ez-generic-box { float: left; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn { display: block; }
 #cliqz-results .cqz-ez-generic-opt {
