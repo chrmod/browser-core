@@ -296,7 +296,7 @@
 #cliqz-results .cqz-ez-search-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg); }
 #cliqz-results .cqz-ez-search-box {
     border: 1px solid #3E86FC;
-    max-width: 371px;
+    max-width: 361px;
     height: 26px;
     margin: 4px 0 17px 0px;
     border-radius: 0 3px 3px 0;
@@ -317,6 +317,10 @@
     cursor: text;
 }
 
+#cliqz-results .cqz-ez-search-app-box {
+    height: 85px;
+    padding-right: 55px;
+}
 #cliqz-results .cqz-ez-search-app {
     float: left;
     width: 85px;
