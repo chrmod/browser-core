@@ -8,7 +8,7 @@
            arrow="false">
         <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
-          <div class="entity-story-title" selectable=''>{{ title }}</div>
+          <div class="entity-story-title">{{ title }}</div>
           <div class="entity-story-comment">{{ time }}</div>
         </div>
       </div>

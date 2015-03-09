@@ -77,7 +77,7 @@ var UI = {
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
@@ -127,7 +127,7 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(currentResults.results && currentResults.results.length > 0)
+      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
     results: function(res){

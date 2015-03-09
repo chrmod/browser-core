@@ -3,7 +3,7 @@
     <div
       class="cqz-ez-btn {{ ../logo.buttonsClass }}"
       url="{{ this.url }}"
-      extra="cat-{{ @index }}" arrow="false" selectable=''>
+      extra="cat-{{ @index }}" arrow="false">
       {{ this.title }}
     </div>
 {{/each}}

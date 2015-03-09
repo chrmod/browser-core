@@ -23,9 +23,6 @@
     "btnRegion":{
         "message": "Pays de recherche"
     },
-    "btnShare":{
-        "message": "Partager avec CLIQZ"
-    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
