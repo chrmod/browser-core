@@ -174,8 +174,22 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
-            pos = allArrowable.indexOf(sel);
+            //allArrowable should be cached
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
+
+        allArrowable = allArrowable.filter(function(el){
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+        });
+
+        var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
