@@ -1264,11 +1264,9 @@ function selectNextResult(pos, allArrowable) {
 }
 
 function selectPrevResult(pos, allArrowable) {
-    if (pos > 0) {
-        var nextEl = allArrowable[pos - 1];
-        setResultSelection(nextEl, true, true, true);
-        trackArrowNavigation(nextEl);
-    }
+    var nextEl = allArrowable[pos - 1];
+    setResultSelection(nextEl, true, true, true);
+    trackArrowNavigation(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
