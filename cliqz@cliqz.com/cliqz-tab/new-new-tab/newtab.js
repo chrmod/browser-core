@@ -150,7 +150,7 @@ var HistoryController = {
 var $container = $('#history-lis').packery({
     columnWidth: "#history-lis > .sample",
     rowHeight: 70,
-    gutter: 10,
+    gutter: 15,
     itemSelector: "#history-lis > a"
 });
         
