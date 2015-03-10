@@ -72,7 +72,6 @@ var UI = {
         }
         Object.keys(TEMPLATES).forEach(fetchTemplate);
         MESSAGE_TEMPLATES.forEach(fetchTemplate);
-        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
         PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
