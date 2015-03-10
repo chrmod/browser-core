@@ -432,6 +432,7 @@ function closeResults(event, force) {
       if (newActive.getAttribute("dont-close") != "true") {
         forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
+        gBrowser.selectedTab.linkedBrowser.focus();
       }
     }, 0);
 }
