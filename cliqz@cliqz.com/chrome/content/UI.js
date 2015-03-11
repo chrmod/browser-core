@@ -1026,19 +1026,21 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(el && el.getAttribute('url')){
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
+          extra = el.getAttribute('extra'), //extra data about the link
+          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
               query_length: CliqzAutocomplete.lastSearch.length,
               inner_link: el.className ? el.className != IC : false, //link inside the result or the actual result
               position_type: getResultKind(el),
-              extra: el.getAttribute('extra'), //extra data about the link
+              extra: extra,
               search: CliqzUtils.isSearch(url),
               has_image: el.getAttribute('hasimage') || false,
               clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-              result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+              result_order: result_order,
               v: 1
           };
       for(var key in extraData) {
@@ -1046,7 +1048,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       }
       CliqzUtils.track(action);
       CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);

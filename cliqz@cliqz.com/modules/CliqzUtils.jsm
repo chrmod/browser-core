@@ -658,19 +658,19 @@ var CliqzUtils = {
     }
   },
 
-  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    CliqzUtils.setResultOrder(resultOrder);
     CliqzUtils.httpGet(
       (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
       encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' +
-      encodeURIComponent(queryAutocompleted) : '') +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
-      (resultUrl ? '&u=' +
-      encodeURIComponent(resultUrl) : '') +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
       CliqzUtils.encodeQuerySession() +
       CliqzUtils.encodeQuerySeq() +
-      CliqzUtils.encodeResultOrder());
-
+      CliqzUtils.encodeResultOrder() +
+      (extra ? '&e=' + extra : '')
+    );
     CliqzUtils.setResultOrder('');
   },
 
