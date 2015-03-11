@@ -174,8 +174,22 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
-            pos = allArrowable.indexOf(sel);
+            //allArrowable should be cached
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
+
+        allArrowable = allArrowable.filter(function(el){
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+        });
+
+        var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
@@ -432,6 +446,7 @@ function closeResults(event, force) {
       if (newActive.getAttribute("dont-close") != "true") {
         forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
+        gBrowser.selectedTab.linkedBrowser.focus();
       }
     }, 0);
 }
@@ -1264,11 +1279,9 @@ function selectNextResult(pos, allArrowable) {
 }
 
 function selectPrevResult(pos, allArrowable) {
-    if (pos > 0) {
-        var nextEl = allArrowable[pos - 1];
-        setResultSelection(nextEl, true, true, true);
-        trackArrowNavigation(nextEl);
-    }
+    var nextEl = allArrowable[pos - 1];
+    setResultSelection(nextEl, true, true, true);
+    trackArrowNavigation(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1337,6 +1350,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
+  var newTab = ev.metaKey || ev.ctrlKey;
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
@@ -1365,7 +1379,8 @@ function onEnter(ev, item){
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
       source: getResultKind(item),
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
   }
   // Google
@@ -1390,18 +1405,20 @@ function onEnter(ev, item){
       action: "result_enter",
       position_type: ['inbar_url'],
       urlbar_time: urlbar_time,
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
-      urlbar_time: urlbar_time
+      urlbar_time: urlbar_time,
+      new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input);
+  CLIQZ.Core.openLink(input, newTab);
   return true;
 }
 

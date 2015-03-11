@@ -644,7 +644,7 @@ var CliqzUtils = {
   track: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
-    CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
+    CliqzUtils.log(msg, 'Utils.track');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
