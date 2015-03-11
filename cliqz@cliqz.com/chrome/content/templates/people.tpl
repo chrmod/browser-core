@@ -14,7 +14,7 @@
          {{#if image.src}}
             style="width: calc(85% - 60px); position:relative;"
          {{/if}}>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ data.richData.full_name }}
         </div>
         <div class='cqz-result-url overflow

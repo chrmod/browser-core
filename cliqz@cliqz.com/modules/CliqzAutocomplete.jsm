@@ -97,7 +97,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     getResultsOrder: function(results){
         return results.map(function(r){
-            return CliqzUtils.encodeResultType(r.style || r.type);
+            return r.data.kind;
         });
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component

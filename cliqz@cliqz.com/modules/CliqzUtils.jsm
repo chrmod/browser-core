@@ -13,6 +13,8 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -51,7 +53,6 @@ var CliqzUtils = {
   SUGGESTIONS:                    'https://www.google.com/complete/search?client=firefox&q=',
   RESULTS_PROVIDER:              'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.clyqz.com/mixer?q=',//
 //  RESULTS_PROVIDER:               'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/id_to_snippet?q=', //
-//  RESULTS_PROVIDER:              'http://ec2-54-87-139-191.compute-1.amazonaws.com/api/v1/results?country=de&q=wikipedia%20',//
   RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -74,17 +75,16 @@ var CliqzUtils = {
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
-      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3, 'entity-video': 3,
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
-      'hq12': 1
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
   },
-
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
-  _log: Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService),
+  /*_log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),*/
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -129,7 +129,7 @@ var CliqzUtils = {
           return parseddomain.indexOf(rule) != -1
         },
         result = {},
-        domains = BRANDS_DATABASE.domains
+        domains = BRANDS_DATABASE.domains;
 
 
 
@@ -270,7 +270,7 @@ var CliqzUtils = {
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
+        console.log("CLIQZ " + (new Date()).toISOString() + (key?" " + key:""),msg);
     }
   },
   getDay: function() {
@@ -611,7 +611,7 @@ var CliqzUtils = {
   },
   shouldLoad: function(window){
     //always loads, even in private windows
-    return true; //CliqzUtils.cliqzPrefs.getBoolPref('inPrivateWindows') || !CliqzUtils.isPrivate(window);
+    return true;
   },
   isPrivate: function(window) {
     try {
@@ -646,7 +646,7 @@ var CliqzUtils = {
   track: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
-    CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
+    CliqzUtils.log(msg, 'Utils.track');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
@@ -660,19 +660,19 @@ var CliqzUtils = {
     }
   },
 
-  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    CliqzUtils.setResultOrder(resultOrder);
     CliqzUtils.httpGet(
       (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
       encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' +
-      encodeURIComponent(queryAutocompleted) : '') +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
-      (resultUrl ? '&u=' +
-      encodeURIComponent(resultUrl) : '') +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
       CliqzUtils.encodeQuerySession() +
       CliqzUtils.encodeQuerySeq() +
-      CliqzUtils.encodeResultOrder());
-
+      CliqzUtils.encodeResultOrder() +
+      (extra ? '&e=' + extra : '')
+    );
     CliqzUtils.setResultOrder('');
   },
 

@@ -14,25 +14,25 @@
         <script src="newtab.js"></script>
     </head>
     <body>
+        <div class="background"></div>
+            
         <div id="history-popup">
             Shortcut removed. <span id="history-undo">Undo</span> or <span id="history-undo-all">Restore All</span>
             <div class="dismiss"></div>
         </div>
-        
+
         <div class="white-cover" style="height: 100%">
-            <div class="background">
-                <div class="container search-container">
-                    <div class="row">
-                        <div class="history-lis" id="history-lis">
-                            <div class="sample"></div>
-                        </div>
+            <div class="container search-container">
+                <div class="row">
+                    <div class="history-lis" id="history-lis">
+                        <div class="sample"></div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- templates -->
-        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template" selectable="selectable">
+        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template">
             <div class="history-row">
                 <div class="close"></div>
                 <div class="pin"></div>
@@ -49,5 +49,7 @@
                 <div class="item item3"></div>
             </div>
         </a>
+        
+        <div id="add"></div>
     </body>
 </html>

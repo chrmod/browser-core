@@ -72,12 +72,11 @@ var UI = {
         }
         Object.keys(TEMPLATES).forEach(fetchTemplate);
         MESSAGE_TEMPLATES.forEach(fetchTemplate);
-        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
         PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
@@ -127,7 +126,7 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(currentResults.results && currentResults.results.length > 0)
+      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
     results: function(res){
@@ -175,8 +174,22 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
-            pos = allArrowable.indexOf(sel);
+            //allArrowable should be cached
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
+
+        allArrowable = allArrowable.filter(function(el){
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+        });
+
+        var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
@@ -256,26 +269,10 @@ var UI = {
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value, element) {
+    entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
-        var provider_name = element.getAttribute("search-provider");
-        var search_url = element.getAttribute("search-url");
-        var search_engine = Services.search.getEngineByName(provider_name);
-        var google_url = search_url + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
-
-        var action_type = element.getAttribute("logg-action-type");
-        var signal = {
-          type: 'activity',
-          action: action_type
-        };
-        CliqzUtils.track(signal);
+        navigateToEZinput(element);
       }
     },
     animationEnd: 0,
@@ -388,6 +385,28 @@ var UI = {
 };
 
 
+function navigateToEZinput(element){
+    var provider_name = element.getAttribute("search-provider"),
+        search_url = element.getAttribute("search-url"),
+        value = element.value,
+        search_engine = Services.search.getEngineByName(provider_name),
+        dest_url = search_url + value;
+
+    if (search_engine) {
+        dest_url = search_engine.getSubmission(value).uri.spec
+    }
+    openUILink(dest_url);
+    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.popup.hidePopup();
+
+    var action_type = element.getAttribute("logg-action-type");
+    var signal = {
+      type: 'activity',
+      action: action_type
+    };
+    CliqzUtils.track(signal);
+}
+
 function selectWord(input, direction) {
   var start = 0, end = 0;
   var cursor = UI.cursor;
@@ -427,6 +446,7 @@ function closeResults(event, force) {
       if (newActive.getAttribute("dont-close") != "true") {
         forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
+        gBrowser.selectedTab.linkedBrowser.focus();
       }
     }, 0);
 }
@@ -942,12 +962,11 @@ function messageClick(ev) {
       /*********************************/
       /* BEGIN "Handle message clicks" */
 
-      if (action) {
-        if (action == 'adult') {
-          /* Adult message */
+      switch (action) {
+        case 'adult':
           handleAdultClick(ev);
-        }
-        else if (action == 'disable-cliqz') {
+          break;
+        case 'disable-cliqz':
           // "Cliqz is not optimized for your country" message */
           var state = ev.originalTarget.getAttribute('state');
           switch(state) {
@@ -970,6 +989,7 @@ function messageClick(ev) {
                   break;
               default:
                   break;
+            break;
           }
           CliqzUtils.track({
             type: 'setting',
@@ -977,7 +997,9 @@ function messageClick(ev) {
             value: state
           });
           setTimeout(CliqzUtils.refreshButtons, 0);
-        }
+            break;
+        default:
+            break;
       }
       /* Propagate event up the DOM tree */
       el = el.parentElement;
@@ -1004,19 +1026,21 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(el && el.getAttribute('url')){
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
+          extra = el.getAttribute('extra'), //extra data about the link
+          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
               query_length: CliqzAutocomplete.lastSearch.length,
               inner_link: el.className ? el.className != IC : false, //link inside the result or the actual result
               position_type: getResultKind(el),
-              extra: el.getAttribute('extra'), //extra data about the link
+              extra: extra,
               search: CliqzUtils.isSearch(url),
               has_image: el.getAttribute('hasimage') || false,
               clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-              result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+              result_order: result_order,
               v: 1
           };
       for(var key in extraData) {
@@ -1024,7 +1048,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       }
       CliqzUtils.track(action);
       CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
@@ -1053,44 +1077,42 @@ function resultClick(ev){
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
-            // Stop click event propagation
-            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
-              break;
-            }
-            // copy calculator answer to clipboard
-            if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
-                const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                           .getService(Components.interfaces.nsIClipboardHelper);
-                gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
-                document.getElementById('calc-copied-msg').style.display = "";
-                document.getElementById('calc-copy-msg').style.display = "none";
-            }
-            /*
-             * Hides the current element and displays one of its siblings that
-             * was specified in the toggle-with attribute.
-             */
-            if (el.getAttribute('cliqz-action') == 'toggle') {
-                var toggleId = el.getAttribute('toggle-id');
-                var context = el.getAttribute('toggle-context');
-                if (toggleId && context) {
-                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
-                    var ancestor = closest(el, '.' + context);
-                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
-                    for (var i = 0; i < toggleElements.length; i++) {
-                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
-                            toggleElements[i].style.display = "";
-                        } else {
-                            toggleElements[i].style.display = "none";
-                        }
-                    }
+            switch(el.getAttribute('cliqz-action')) {
+                case 'stop-click-event-propagation':
+                    return;
+                case 'copy-calc-answer':
+                    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                               .getService(Components.interfaces.nsIClipboardHelper);
+                    gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                    document.getElementById('calc-copied-msg').style.display = "";
+                    document.getElementById('calc-copy-msg').style.display = "none";
                     break;
-                }
+                case 'toggle':
+                    var toggleId = el.getAttribute('toggle-id');
+                    var context = el.getAttribute('toggle-context');
+                    if (toggleId && context) {
+                        var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                        var ancestor = closest(el, '.' + context);
+                        var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                        for (var i = 0; i < toggleElements.length; i++) {
+                            if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                                toggleElements[i].style.display = "";
+                            } else {
+                                toggleElements[i].style.display = "none";
+                            }
+                        }
+                        return;
+                    }
+                case 'searchEZbutton':
+                    ev.preventDefault();
+                    navigateToEZinput($('input',el));
+                    return;
+                case 'alternative-search-engine':
+                    enginesClick(ev);
+                    break;
+                default:
+                    break;
             }
-
-            if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
-              enginesClick(ev);
-              break;
-            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1259,11 +1281,9 @@ function selectNextResult(pos, allArrowable) {
 }
 
 function selectPrevResult(pos, allArrowable) {
-    if (pos > 0) {
-        var nextEl = allArrowable[pos - 1];
-        setResultSelection(nextEl, true, true, true);
-        trackArrowNavigation(nextEl);
-    }
+    var nextEl = allArrowable[pos - 1];
+    setResultSelection(nextEl, true, true, true);
+    trackArrowNavigation(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1332,6 +1352,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
+  var newTab = ev.metaKey || ev.ctrlKey;
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
@@ -1360,7 +1381,8 @@ function onEnter(ev, item){
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
       source: getResultKind(item),
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
   }
   // Google
@@ -1385,18 +1407,20 @@ function onEnter(ev, item){
       action: "result_enter",
       position_type: ['inbar_url'],
       urlbar_time: urlbar_time,
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
-      urlbar_time: urlbar_time
+      urlbar_time: urlbar_time,
+      new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input);
+  CLIQZ.Core.openLink(input, newTab);
   return true;
 }
 
