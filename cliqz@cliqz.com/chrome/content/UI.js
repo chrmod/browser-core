@@ -1350,6 +1350,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
+  var newTab = ev.metaKey || ev.ctrlKey;
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
@@ -1378,7 +1379,8 @@ function onEnter(ev, item){
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
       source: getResultKind(item),
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
   }
   // Google
@@ -1403,18 +1405,20 @@ function onEnter(ev, item){
       action: "result_enter",
       position_type: ['inbar_url'],
       urlbar_time: urlbar_time,
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
-      urlbar_time: urlbar_time
+      urlbar_time: urlbar_time,
+      new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input);
+  CLIQZ.Core.openLink(input, newTab);
   return true;
 }
 
