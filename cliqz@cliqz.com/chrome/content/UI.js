@@ -711,11 +711,10 @@ function getDebugMsg(fullTitle){
 
 // tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
 function getTags(fullTitle){
-    var tags, title;
-    [, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
+    var res = fullTitle.match(/^(.+) \u2013 (.+)$/);
 
     // Each tag is split by a comma in an undefined order, so sort it
-    return [title, tags.split(",").sort()]
+    return [res[0], res[1].split(",").sort()]
 }
 
 function unEscapeUrl(url){
@@ -759,13 +758,18 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            [r.title, r.debug] = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title)
+            r.title = _tmp[0];
+            r.debug = _tmp[1];
             if(!UI.showDebug)
                 r.debug = null;
 
             //extract tags from title
-            if(r.type.split(' ').indexOf('tag') != -1)
-                [r.title, r.tags] = getTags(r.title);
+            if(r.type.split(' ').indexOf('tag') != -1) {
+                _tmp = getTags(r.title);
+                r.title = _tmp[0];
+                r.tags = _tmp[1];
+            }
         }
 
         if(r.data.generic) // this entry combines several domains, so show CLIQZ logo
@@ -1530,6 +1534,9 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('nameify', function(str) {
+        if (str.length == 0) {
+            return "";
+        }
         return str[0].toUpperCase() + str.slice(1);
     });
 
