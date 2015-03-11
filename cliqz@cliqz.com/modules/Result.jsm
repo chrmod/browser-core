@@ -19,7 +19,7 @@ function log(msg){
 
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
-    if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
+    if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
         return result.snippet.rich_data.type
     }
     return null;
@@ -27,9 +27,7 @@ function getSuperType(result){
 
 var Result = {
     CLIQZR: 'cliqz-results',
-    CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
-    CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
@@ -106,16 +104,33 @@ var Result = {
         }
     },
     cliqzExtra: function(result){
+        result.data.subType = result.subType;
+        result.data.trigger_urls = result.trigger_urls;
+
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value
             null, //image -> favico
-            null,
+            result.data.title,
             null, //label
             result.q, //query
             result.data,
             result.subType
         );
+    },
+    // Combine two results into a new result
+    combine: function(cliqz, generic) {
+        var tempCliqzResult = Result.cliqz(cliqz);
+        var ret = Result.clone(generic);
+        ret.style = CliqzUtils.combineSources(ret.style, tempCliqzResult.style);
+        ret.data.kind = (ret.data.kind || []).concat(tempCliqzResult.data.kind || []);
+        ret.comment = ret.comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+        return ret;
+    },
+    clone: function(entry) {
+        var ret = Result.generic(entry.style, entry.val, null, entry.comment, entry.label, entry.query, null);
+        ret.data = JSON.parse(JSON.stringify(entry.data)); // nasty way of cloning an object
+        return ret;
     },
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
@@ -125,7 +140,7 @@ var Result = {
         //    www.google.*/url? - for redirects
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
-           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+           (urlparts.extra.indexOf("/search?") == 0 || urlparts.extra.indexOf("/url?") == 0)) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -133,7 +148,7 @@ var Result = {
         // Filter all like:
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
+           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -160,7 +175,8 @@ var Result = {
 
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
-                richData: result.snippet.rich_data
+                richData: result.snippet.rich_data,
+                adult: result.snippet.adult || false
             },
             source = getSuperType(result) || result.source;
 

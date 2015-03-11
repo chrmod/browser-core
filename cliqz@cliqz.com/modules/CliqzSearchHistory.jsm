@@ -55,10 +55,15 @@ var CliqzSearchHistory = {
 
     /* Puts the query in the dropdown and opens it. */
     returnToLastSearch: function (ev) {
-        var window_id = CliqzUtils.getWindowID();
+        var urlBar = this.windows[CliqzUtils.getWindowID()].urlbar;
 
-        this.windows[window_id].urlbar.mInputField.focus();
-        this.windows[window_id].urlbar.mInputField.setUserInput(ev.target.query);
+        urlBar.mInputField.focus();
+        urlBar.mInputField.setUserInput(ev.target.query);
+
+        CliqzUtils.setTimeout(function(){
+            if(urlBar.selectionStart == 0 && urlBar.selectionEnd == urlBar.value.length)
+                urlBar.setSelectionRange(urlBar.value.length, urlBar.value.length);
+        },0);
 
         var action = {
             type: 'activity',

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic' rel='stylesheet' type='text/css' />
+        <link href="newtab.css" rel="stylesheet" media="screen" />
+        <!--<link href="chrome://cliqzres/content/skin/browser.css" rel="stylesheet" media="screen" />-->
+        <link href="chrome://cliqzres/content/skin/browser.css" rel="stylesheet" media="screen" />
+        <link href="chrome://cliqzres/content/skin/browser_progress.css" rel="stylesheet" media="screen" />
+
+        <link href="http://cdn.cliqz.com/libs/animate/animate.css" rel="stylesheet" media="screen" />
+
+        <script src="http://cdn.cliqz.com/libs/jquery/jquery-2.1.1.min.js"></script>
+        <script src="http://cdn.cliqz.com/libs/sortable/sortable.js"></script>
+
+        <script>
+
+        </script>
+
+        <script src="chrome://cliqz/content/core.js"></script>
+        <script src="chrome://cliqz/content/UI.js"></script>
+        <script src="chrome://cliqz/content/libs/handlebars-v1.3.0.js"></script>
+        <script src="newtab.js"></script>
+    </head>
+    <body>
+        <div id="history-popup">
+            Shortcut removed. <span id="history-undo">Undo</span> or <span id="history-undo-all">Restore All</span>
+            <div class="dismiss"></div>
+        </div>
+
+        <div class="white-cover" style="height: 100%">
+            <div class="background">
+                <div class="container search-container">
+                    <div class="row">
+                        <div id="qa"></div>
+                        <div class="search-box">
+                            <input id="search" autocomplete="off" class='input-box'/>
+                            <div role="menu" aria-labelledby="search" style="display: none;" id="search-dropdown"></div>
+                        </div>
+                        <div id="news"></div>
+                        <div class="history-lis" id="history-lis"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- templates -->
+        <a href="/" target="_top" class="hidden mostvisited" id="history-row-template">
+            <div class="history-row">
+                <div class="close"></div>
+                <div class="pin"></div>
+                <div class='history-icon cliqz-brand-logo transition'></div>
+                <div class='history-desc'>
+                    <div class='history-title ellipsis'></div>
+                    <div class='history-url ellipsis hovered'></div>
+                    <div class='history-url ellipsis blurred'></div>
+                </div>
+                <br style="clear:both" />
+            </div>
+        </a>
+        <a target="_top" class="hidden" id="news-item-template">
+            <div class="title"></div>
+            <div class="time"></div>
+        </a>
+        <a target="_top" class="hidden" id="qa-item-template">
+            <div class="cliqz-brand-logo transition icon"></div>
+            <div class="title ellipsis"></div>
+        </a>
+    </body>
+</html>

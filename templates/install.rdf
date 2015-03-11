@@ -14,7 +14,7 @@
 		{% if beta == 'True' %}
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
 		{% else %}
-		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
+		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/ui/latest.rdf</em:updateURL>
 		{% endif %}
 
 		<em:description>Cliqz hilft Dir beim Finden im Internet.

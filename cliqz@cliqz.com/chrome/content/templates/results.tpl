@@ -1,9 +1,14 @@
 {{#each results}}
 	{{#unless invalid}}
-		<div class='cliqz-result-item-box'
+		<div class='cqz-result-box'
 			type='{{ type }}'
 			kind='{{ data.kind }}'
-			url='{{ url }}'
+			{{#if url}}
+				url='{{ url }}'
+				{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
+					arrow="false"
+				{{/unless}}
+			{{/if}}
 			idx='{{ @index }}'
 			hasimage='{{ hasimage image }}'
 			>
@@ -11,3 +16,5 @@
 		</div>
 	{{/unless}}
 {{/each}}
+
+<div class='cqz-result-selected transition'></div>

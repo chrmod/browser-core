@@ -96,7 +96,8 @@ var ResultProviders = {
                     prefix: ResultProviders.getShortcut(engine.name),
                     name: engine.name,
                     icon: engine.iconURI.spec,
-                    code: ResultProviders.getEngineCode(engine.name)
+                    code: ResultProviders.getEngineCode(engine.name),
+                    base_url: engine.searchForm
                 }
 
 

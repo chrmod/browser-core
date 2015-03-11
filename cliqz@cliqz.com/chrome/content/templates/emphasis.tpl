@@ -1,5 +1,1 @@
-{{#each this}}{{#even @index ~}}
-	<em>{{this}}</em>
-{{~ else ~}}
-	{{this}}
-{{~/even}}{{/each}}
+{{#each this}}{{#even @index ~}}<em>{{this}}</em>{{~ else ~}}{{this}}{{~/even}}{{/each}}
