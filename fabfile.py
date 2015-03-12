@@ -156,14 +156,13 @@ def publish(beta='True', version=None):
     local("rm  %s" % update_manifest_file_name)
 
     # Provide a link to the latest stable version
-    if not (beta == 'True'):
-        latest_template = env.get_template(latest_html_file_name)
-        output_from_parsed_template = latest_template.render(download_link=download_link)
-        with open(latest_html_file_name, "wb") as f:
-            f.write(output_from_parsed_template.encode("utf-8"))
-        local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
-                                                path_to_s3))
-        local("rm  %s" % latest_html_file_name)
+    latest_template = env.get_template(latest_html_file_name)
+    output_from_parsed_template = latest_template.render(download_link=download_link)
+    with open(latest_html_file_name, "wb") as f:
+        f.write(output_from_parsed_template.encode("utf-8"))
+    local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
+                                            path_to_s3))
+    local("rm  %s" % latest_html_file_name)
 
 
 @task
