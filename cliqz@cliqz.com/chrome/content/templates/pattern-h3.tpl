@@ -1,5 +1,5 @@
-<div class='cqz-result-h3 cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title cliqz-pattern-title-h3 overflow'>
+<div class='cqz-result-h3 cqz-result-padding cqz-result-pattern'>
+      <div class='cqz-ez-title cliqz-pattern-title-h3 overflow'>
           {{ data.title }}
       </div>
       <div class='cliqz-pattern'>

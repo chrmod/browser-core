@@ -97,7 +97,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     getResultsOrder: function(results){
         return results.map(function(r){
-            return CliqzUtils.encodeResultType(r.style || r.type);
+            return r.data.kind;
         });
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
@@ -638,27 +638,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
-                this.addCalculatorSignal(action);
-
                 CliqzUtils.track(action);
-            },
-            addCalculatorSignal: function(action) {
-                var calcAnswer = null,
-                    cResults = this.customResults;
-
-                if(cResults && cResults.length > 0 &&
-                        cResults[0].style == Result.CLIQZE &&
-                        cResults[0].data.template == 'calculator'){
-                    calcAnswer = cResults[0].data.answer;
-                }
-                if (calcAnswer == null && this.suggestedCalcResult == null){
-                    return;
-                }
-                action.suggestions_recived =  this.suggestionsRecieved;
-                action.suggested = this.suggestedCalcResult != null;
-                action.calculator = calcAnswer != null;
-                this.suggestionsRecieved = false;
-                this.suggestedCalcResult = null;
             }
         }
     }

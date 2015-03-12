@@ -53,7 +53,7 @@
     height: 303px;
     position: relative;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 /* common classes */
@@ -70,6 +70,7 @@
 }
 #cliqz-results .transition { -moz-transition: all 0.3s ease; transition: all 0.3s ease; }
 #cliqz-results .nopadding { padding: 0 }
+#cliqz-results .cqz-result-padding { padding: 16px 22px; box-sizing: border-box; }
 #cliqz-results .cqz-result-h1 { height: 302px; }
 #cliqz-results .cqz-result-h2 { height: 201px; }
 #cliqz-results .cqz-result-h3 {	height: 100px; }
@@ -206,6 +207,7 @@
 #cliqz-results .cqz-ez-title.custom-after::after { display: none; }
 #cliqz-results .cqz-ez-title:hover { text-decoration: underline; }
 #cliqz-results .cqz-ez-generic-elems, #cliqz-results .cqz-ez-generic-box, #cliqz-results .cqz-ez-generic-opt { height: 132px; }
+#cliqz-results .cqz-ez-generic-elems { padding-right: 70px; }
 #cliqz-results .cqz-ez-generic-box { float: left; }
 #cliqz-results .cqz-ez-generic-box .cqz-ez-btn { display: block; }
 #cliqz-results .cqz-ez-generic-opt {
@@ -296,7 +298,7 @@
 #cliqz-results .cqz-ez-search-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg); }
 #cliqz-results .cqz-ez-search-box {
     border: 1px solid #3E86FC;
-    max-width: 371px;
+    max-width: 361px;
     height: 26px;
     margin: 4px 0 17px 0px;
     border-radius: 0 3px 3px 0;
@@ -317,6 +319,10 @@
     cursor: text;
 }
 
+#cliqz-results .cqz-ez-search-app-box {
+    height: 85px;
+    padding-right: 55px;
+}
 #cliqz-results .cqz-ez-search-app {
     float: left;
     width: 85px;
@@ -393,11 +399,11 @@
 #cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
-#cliqz-results .EZ-weather-img { background-position: center center; background-size: 62px 62px; height: 62px; margin: 16px 0 }
+#cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 16px 0 }
 #cliqz-results .ez-weather .cqz-result-h2 { position: relative }
 
 /* history */
-#cliqz-results .cqz-result-pattern { padding: 16px 22px; box-sizing: border-box; }
+#cliqz-results .cqz-result-pattern { }
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 14px;
 }

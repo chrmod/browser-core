@@ -1,9 +1,9 @@
 <!-- Resize to include history -->
 <div
   {{#if data.urls}}
-    class="cqz-result-h1 cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h1 cqz-result-padding"
   {{else}}
-    class="cqz-result-h2 cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h2 cqz-result-padding"
   {{/if}}
 >
     {{#if debug}}

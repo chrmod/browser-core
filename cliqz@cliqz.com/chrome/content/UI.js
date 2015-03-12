@@ -75,7 +75,6 @@ var UI = {
         }
         Object.keys(TEMPLATES).forEach(fetchTemplate);
         MESSAGE_TEMPLATES.forEach(fetchTemplate);
-        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
         PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
@@ -154,7 +153,10 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+            if(CliqzUtils.getPref("animations", false))
+              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+            else
+              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
           }
 
         //might be unset at the first open
@@ -209,10 +211,12 @@ var UI = {
             newResults[i].style.opacity = 1;
             newResults[i].className += " fadeOut";
             setTimeout(function(n, o) {
-              box.replaceChild(n, o);
-              n.className = n.className.replace("fadeOut", "");
-              n.style.opacity = 0;
-              n.className += " fadeIn";
+              if(o.parentNode == box) {
+                box.replaceChild(n, o);
+                n.className = n.className.replace("fadeOut", "");
+                n.style.opacity = 0;
+                n.className += " fadeIn";
+              }
             }, 200, newResults[i], box.children[i]);
           // Replace without animation if urls are not the same
           } else if(!UI.urlListsEqual(curUrls, newUrls)) {
@@ -286,8 +290,22 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
-            pos = allArrowable.indexOf(sel);
+            //allArrowable should be cached
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
+
+        allArrowable = allArrowable.filter(function(el){
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+        });
+
+        var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
@@ -553,6 +571,7 @@ function closeResults(event, force) {
       if (newActive.getAttribute("dont-close") != "true") {
         forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
+        gBrowser.selectedTab.linkedBrowser.focus();
       }
     }, 0);
 }
@@ -1132,19 +1151,21 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(el && el.getAttribute('url')){
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
+          extra = el.getAttribute('extra'), //extra data about the link
+          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
               query_length: CliqzAutocomplete.lastSearch.length,
               inner_link: el.className ? el.className != IC : false, //link inside the result or the actual result
               position_type: getResultKind(el),
-              extra: el.getAttribute('extra'), //extra data about the link
+              extra: extra,
               search: CliqzUtils.isSearch(url),
               has_image: el.getAttribute('hasimage') || false,
               clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-              result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+              result_order: result_order,
               v: 1
           };
       for(var key in extraData) {
@@ -1152,7 +1173,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       }
       CliqzUtils.track(action);
       CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
@@ -1385,11 +1406,14 @@ function selectNextResult(pos, allArrowable) {
 }
 
 function selectPrevResult(pos, allArrowable) {
-    if (pos >= 0) {
+    var nextEl = allArrowable[pos - 1];
+    setResultSelection(nextEl, true, true, true);
+    trackArrowNavigation(nextEl);
+    /*if (pos >= 0) {
         var nextEl = allArrowable[pos - 1];
         setResultSelection(nextEl, true, true, true);
         trackArrowNavigation(nextEl);
-    }
+    }*/
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1464,6 +1488,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
+  var newTab = ev.metaKey || ev.ctrlKey;
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
@@ -1492,7 +1517,8 @@ function onEnter(ev, item){
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
       source: getResultKind(item),
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
   }
   // Google
@@ -1517,18 +1543,20 @@ function onEnter(ev, item){
       action: "result_enter",
       position_type: ['inbar_url'],
       urlbar_time: urlbar_time,
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
-      urlbar_time: urlbar_time
+      urlbar_time: urlbar_time,
+      new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input);
+  CLIQZ.Core.openLink(input, newTab);
   return true;
 }
 

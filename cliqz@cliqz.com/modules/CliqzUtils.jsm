@@ -13,6 +13,8 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import("resource://gre/modules/devtools/Console.jsm");
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -48,8 +50,9 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
-  RESULT_PROVIDER_ALWAYS_BM:      false,
+  RESULTS_PROVIDER:              'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.clyqz.com/mixer?q=',//
+//  RESULTS_PROVIDER:               'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/id_to_snippet?q=', //
+  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -72,14 +75,15 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ': 2,  'weatherEZ': 2, 'commicEZ': 3},
-
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
+  },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
-  _log: Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService),
+  /*_log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),*/
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -91,7 +95,7 @@ var CliqzUtils = {
     if(!brand_loaded){
       brand_loaded = true;
 
-      var config = this.getPref("config_logoVersion"), dev = this.getPref("brands-database-version")
+      var config = this.getPref("config_logoVersion"), dev = this.getPref("brands-database-version");
 
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
@@ -124,7 +128,7 @@ var CliqzUtils = {
           return parseddomain.indexOf(rule) != -1
         },
         result = {},
-        domains = BRANDS_DATABASE.domains
+        domains = BRANDS_DATABASE.domains;
 
 
 
@@ -150,7 +154,7 @@ var CliqzUtils = {
       }
     }
 
-    result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
+    result.text = result.text || (baseCore.length > 1 ? ((baseCore[0].toUpperCase() + baseCore[1].toLowerCase())) : "")
     result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
 
     var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
@@ -265,7 +269,7 @@ var CliqzUtils = {
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CliqzUtils._log.logStringMessage("CLIQZ " + (new Date()).toISOString() + " " + key + ' : ' + msg);
+        console.log("CLIQZ " + (new Date()).toISOString() + (key?" " + key:""),msg);
     }
   },
   getDay: function() {
@@ -641,7 +645,7 @@ var CliqzUtils = {
   track: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
-    CliqzUtils.log(JSON.stringify(msg), 'Utils.track');
+    CliqzUtils.log(msg, 'Utils.track');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
@@ -655,19 +659,19 @@ var CliqzUtils = {
     }
   },
 
-  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl) {
+  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    CliqzUtils.setResultOrder(resultOrder);
     CliqzUtils.httpGet(
       (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
       encodeURIComponent(query) +
-      (queryAutocompleted ? '&a=' +
-      encodeURIComponent(queryAutocompleted) : '') +
+      (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
-      (resultUrl ? '&u=' +
-      encodeURIComponent(resultUrl) : '') +
+      (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
       CliqzUtils.encodeQuerySession() +
       CliqzUtils.encodeQuerySeq() +
-      CliqzUtils.encodeResultOrder());
-
+      CliqzUtils.encodeResultOrder() +
+      (extra ? '&e=' + extra : '')
+    );
     CliqzUtils.setResultOrder('');
   },
 
