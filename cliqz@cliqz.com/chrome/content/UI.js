@@ -132,11 +132,12 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(!currentResults.results[0].url && currentResults.results[0].type == "cliqz-pattern")
-        currentResults.results[0].url = currentResults.results[0].data.urls[0].href;
+      var curResAll = currentResults.results
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+        curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
 
       XULBrowserWindow.updateStatusField();
     },
@@ -561,7 +562,6 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    gCliqzBox.resultsBox.innerHTML ="";
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
@@ -1329,7 +1329,7 @@ function clearTextSelection() {
     interrupted
  */
 var smooth_scroll_to = function(element, target, duration) {
-    if(!Promise || typeof Promise != 'function'){ // older FF
+    if(typeof Promisse == 'undefined' || typeof Promise != 'function'){ // older FF
         //should we do our own animation?
         element.scrollTop = Math.round(target);
         return;
