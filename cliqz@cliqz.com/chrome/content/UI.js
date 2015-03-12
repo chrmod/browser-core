@@ -1329,7 +1329,7 @@ function clearTextSelection() {
     interrupted
  */
 var smooth_scroll_to = function(element, target, duration) {
-    if(!Promise || typeof Promise != 'function'){ // older FF
+    if(typeof Promisse == 'undefined' || typeof Promise != 'function'){ // older FF
         //should we do our own animation?
         element.scrollTop = Math.round(target);
         return;
