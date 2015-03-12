@@ -94,6 +94,9 @@ var UI = {
 
 
         resultsBox.addEventListener('mouseup', resultClick);
+        resultsBox.addEventListener('mouseout', function(){
+            XULBrowserWindow.updateStatusField();
+        });
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -134,6 +137,8 @@ var UI = {
 
       if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+
+      XULBrowserWindow.updateStatusField();
     },
     results: function(res){
         if (!gCliqzBox)
@@ -1476,6 +1481,12 @@ function resultMove(ev){
         clearTextSelection();
         setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
+
+        if(!el) return;
+        var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? 'TAB:' + el.getAttribute('url'): '',
+            deepUrl = ev.originalTarget.hasAttribute('show-status') && ev.originalTarget.getAttribute('url'),
+            arrowUrl = el.hasAttribute('arrow') ? el.getAttribute('url') : '';
+        XULBrowserWindow.setOverLink(newTab || deepUrl || arrowUrl);
     }
 }
 
@@ -1682,12 +1693,13 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
-    Handlebars.registerHelper('local_number', function(val) {
-        if(!val)return null;
+    Handlebars.registerHelper('views_helper', function(val) {
+        if(!val || val == '-1')return '';
+
         try {
-            return parseFloat(val).toLocaleString();
+            return parseFloat(val).toLocaleString() + ' ' + CliqzUtils.getLocalizedString('views');
         } catch(e) {
-            return val
+            return ''
         }
     });
 

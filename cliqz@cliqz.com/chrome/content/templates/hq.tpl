@@ -31,7 +31,7 @@
 		{{#if data.richData.additional_sources}}
 			<div class="cqz-one-line" style="margin-top: 5px;">
 			{{#each data.richData.additional_sources}}
-				<span url='{{url}}'
+				<span url='{{url}}' show-status='true'
 					 extra='sources{{ @index }}'
 				     class='cqz-link'>
 					{{title}}
