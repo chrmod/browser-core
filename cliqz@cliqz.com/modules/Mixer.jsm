@@ -59,7 +59,7 @@ var Mixer = {
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
-        if(q.len > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
+        if(q.length > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
             if(cliqz && cliqz.length > 0) {
                 if(cliqz[0].extra) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
