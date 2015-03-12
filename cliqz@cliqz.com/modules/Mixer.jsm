@@ -38,7 +38,7 @@ var Mixer = {
     init: function() {
         // nothing
     },
-	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, customResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
 		var results = [];
 
         if(!instant)
@@ -51,7 +51,6 @@ var Mixer = {
         // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
         // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
         // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
         CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
         // extract the entity zone accompanying the first cliqz result, if any
