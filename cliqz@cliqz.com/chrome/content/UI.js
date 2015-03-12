@@ -1693,12 +1693,13 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
-    Handlebars.registerHelper('local_number', function(val) {
-        if(!val)return null;
+    Handlebars.registerHelper('views_helper', function(val) {
+        if(!val || val == '-1')return '';
+
         try {
-            return parseFloat(val).toLocaleString();
+            return parseFloat(val).toLocaleString() + ' ' + CliqzUtils.getLocalizedString('views');
         } catch(e) {
-            return val
+            return ''
         }
     });
 
