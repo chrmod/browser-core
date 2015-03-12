@@ -172,49 +172,61 @@ var Mixer = {
         // limit to one entity zone
         cliqzExtra = cliqzExtra.slice(0, 1);
 
-        // add extra (fun search) results at the beginning
+        // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
-            CliqzUtils.log("EZ (" + cliqzExtra[0].data.trigger_method + ") for " + cliqzExtra[0].val, "Mixer");
 
-            // Remove entity links form history
-            if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
-                var mainUrl = cliqzExtra[0].val;
-                var history = results[0].data.urls;
-                CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
-                // Go through entity data and search for urls
-                for(var k in cliqzExtra[0].data) {
-                    for(var l in cliqzExtra[0].data[k]) {
-                        if(cliqzExtra[0].data[k][l].url) {
-                            CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+            // Did we already make a 'bet' on a url from history that does not match this EZ?
+            if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
+               CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
+                // do not show the EZ
+                CliqzUtils.log("History cluster " + results[0].val + " does not match EZ " + cliqzExtra[0].val, "Mixer");
+            } else {
+                CliqzUtils.log("EZ (" + cliqzExtra[0].data.trigger_method + ") for " + cliqzExtra[0].val, "Mixer");
+
+                // Remove entity links form history
+                if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
+                    var mainUrl = cliqzExtra[0].val;
+                    var history = results[0].data.urls;
+                    CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
+                    // Go through entity data and search for urls
+                    for(var k in cliqzExtra[0].data) {
+                        for(var l in cliqzExtra[0].data[k]) {
+                            if(cliqzExtra[0].data[k][l].url) {
+                                CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+                            }
                         }
                     }
+                    // Change size or remove history if necessary
+                    if(history.length == 0) {
+                        CliqzUtils.log("No history left after deduplicating with EZ links.")
+                        results.splice(0,1);
+                    }
+                    else if(history.length == 2) results[0].data.template = "pattern-h3";
                 }
-                // Change size or remove history if necessary
-                if(history.length == 0) results.splice(0,1);
-                else if(history.length == 2) results[0].data.template = "pattern-h3";
-            }
 
-            // if the first result is a history cluster and
-            // there is an EZ of a supported types then make a combined entry
-            if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
-              Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
+                // if the first result is a history cluster and
+                // there is an EZ of a supported types then make a combined entry
+                if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
+                   Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1 &&
+                   CliqzHistoryPattern.generalizeUrl(results[0].val, true) == CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true) ) {
 
-                var temp_history = results[0];
-                var old_kind = temp_history.data.kind;
-                results[0] = cliqzExtra[0];
-                results[0].data.kind = (results[0].data.kind || []).concat(old_kind || []);
-                results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
-            }
-            // Convert 2/3 size history into 1/3 to place below EZ
-            else if(results.length > 0 &&
-                    results[0].data && results[0].data.template == "pattern-h2" &&
-                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
-                results[0].data.template = "pattern-h3";
-                // limit number of URLs
-                results[0].data.urls = (results[0].data.urls || []).slice(0,2);
-                results = cliqzExtra.concat(results);
-            } else {
-                results = cliqzExtra.concat(results);
+                    var temp_history = results[0];
+                    var old_kind = temp_history.data.kind;
+                    results[0] = cliqzExtra[0];
+                    results[0].data.kind = (results[0].data.kind || []).concat(old_kind || []);
+                    results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
+                }
+                // Convert 2/3 size history into 1/3 to place below EZ
+                else if(results.length > 0 &&
+                        results[0].data && results[0].data.template == "pattern-h2" &&
+                        CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
+                    results[0].data.template = "pattern-h3";
+                    // limit number of URLs
+                    results[0].data.urls = (results[0].data.urls || []).slice(0,2);
+                    results = cliqzExtra.concat(results);
+                } else {
+                    results = cliqzExtra.concat(results);
+                }
             }
         }
 
