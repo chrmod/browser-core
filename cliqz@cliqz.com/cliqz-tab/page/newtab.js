@@ -74,7 +74,10 @@ var NewsController = {
                 }
             }
             catch(e) {
-                alert(e)
+                // Try again after one second
+                setTimeout(function() {
+                  NewsController.init();
+                  }, 1000);
             }
         });
     }

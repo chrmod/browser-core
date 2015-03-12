@@ -11,6 +11,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
+
+
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
@@ -56,6 +58,7 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInputTime: 0,
     lastInput: "",
+    lastSelectedUrl: null,
     mouseOver: false,
     init: function(){
         function fetchTemplate(tName, isPartial) {
@@ -126,6 +129,9 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
+      if(!currentResults.results[0].url && currentResults.results[0].type == "cliqz-pattern")
+        currentResults.results[0].url = currentResults.results[0].data.urls[0].href;
+
       if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
     },
@@ -144,8 +150,14 @@ var UI = {
         currentResults = enhanceResults(res);
         process_images_result(res, 120); // Images-layout for Cliqz-Images-Search
 
-        if(gCliqzBox.resultsBox)
-            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+        if(gCliqzBox.resultsBox) {
+            var now = Date.now();
+            UI.lastDispatch = now;
+            if(CliqzUtils.getPref("animations", false))
+              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+            else
+              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+          }
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -164,6 +176,110 @@ var UI = {
             gCliqzBox.resultsBox.scrollHeight - gCliqzBox.resultsBox.clientHeight;
 
         return currentResults;
+    },
+    nextRedraw: 0,
+    lastDispatch: 0,
+    dispatchRedraw: function(html, id) {
+      var now = Date.now();
+      if(id != UI.lastDispatch) return;
+      if(now < UI.nextRedraw) {
+        setTimeout(UI.dispatchRedraw, 100, html, id);
+      } else {
+        UI.redrawResultHTML(html);
+      }
+    },
+    redrawResultHTML: function(newHTML) {
+      var box = gCliqzBox.resultsBox;
+      var oldBox = box.cloneNode(true);
+      var newBox = box.cloneNode(true);
+      newBox.innerHTML = newHTML;
+
+      // Extract old/new results
+      var oldResults = oldBox.getElementsByClassName("cqz-result-box");
+      var newResults = newBox.getElementsByClassName("cqz-result-box");
+
+      // Process Instant Results
+      if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
+        for(var i=0; i<newResults.length; i++) {
+          var oldChild = oldResults[i];
+          var curUrls = UI.extractResultUrls(oldChild.innerHTML);
+          var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
+          // Replace with animation if type changes, e.g. history -> entity
+          if(!UI.urlListsEqual(curUrls, newUrls) &&
+          (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
+            // Replace animation
+            newResults[i].style.opacity = 1;
+            newResults[i].className += " fadeOut";
+            setTimeout(function(n, o) {
+              if(o.parentNode == box) {
+                box.replaceChild(n, o);
+                n.className = n.className.replace("fadeOut", "");
+                n.style.opacity = 0;
+                n.className += " fadeIn";
+              }
+            }, 200, newResults[i], box.children[i]);
+          // Replace without animation if urls are not the same
+          } else if(!UI.urlListsEqual(curUrls, newUrls)) {
+            box.replaceChild(newResults[i], box.children[i]);
+          }
+        }
+        if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+        return;
+      }
+
+      var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
+      box.innerHTML = newHTML;
+      newResults = box.getElementsByClassName("cqz-result-box");
+
+      // Result animation
+      var delay = 0;
+      for(var i=0; i<max; i++) {
+        var oldRes = oldResults[i];
+        var newRes = newResults[i];
+        // New result
+        if(!oldRes && newRes) {
+          newRes.style.opacity = 0;
+          setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
+          delay += 100;
+        } else if(oldRes && !newRes) {
+          // No animation here because element is already removed
+        // Replaced result
+        } else {
+          var curUrls = UI.extractResultUrls(oldRes.innerHTML);
+          var newUrls = UI.extractResultUrls(newRes.innerHTML);
+          // Only animate if urls are not equal
+          if (!UI.urlListsEqual(curUrls, newUrls) &&
+            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i !== 0)) {
+            newRes.style.opacity = 0;
+            setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
+            delay += 100;
+          }
+        }
+      }
+      if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+
+      // Update redraw timer
+      var nextDraw = Date.now() + delay + (delay>0?400:0);
+      if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
+      UI.nextRedraw += 100;
+    },
+    // Returns a concatenated string of all urls in a result list
+    extractResultUrls: function(str) {
+      return str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
+    },
+    urlListsEqual: function(a, b) {
+      var s, l, m;
+      if(a.length > b.length) {
+        s = b;
+        l = a;
+      } else {
+        s = a;
+        l = b;
+      }
+      for(var i=0; i<s.length; i++) {
+        if (l.indexOf(s[i]) == -1) return false;
+      }
+      return true;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -260,10 +376,12 @@ var UI = {
                     CliqzUtils.track(signal);
                 }
                 UI.preventFirstElementHighlight = true;
+                UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
             default:
                 UI.lastInput = "";
+                UI.nextRedraw = Date.now()+150;
                 UI.preventFirstElementHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
@@ -277,6 +395,11 @@ var UI = {
     },
     animationEnd: 0,
     selectFirstElement: function() {
+      // Skip timeout if element was selected before
+      if ($('[arrow]', gCliqzBox) && UI.lastSelectedUrl == $('[arrow]', gCliqzBox).getAttribute("url")) {
+        setResultSelection($('[arrow]', gCliqzBox), true, false);
+        return;
+      }
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
@@ -288,6 +411,7 @@ var UI = {
           }
         }
       },300);
+
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
@@ -432,6 +556,7 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
+    gCliqzBox.resultsBox.innerHTML ="";
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
@@ -1226,7 +1351,7 @@ var smooth_scroll_to = function(element, target, duration) {
         if(point <= start) { return 0; }
         if(point >= end) { return 1; }
         var x = (point - start) / (end - start); // interpolation
-        return x*x*(3 - 2*x);
+        return x*x*x*(x*(x*6 - 15) + 10);//x*x*(3 - 2*x);
     }
 
     return new Promise(function(resolve, reject) {
@@ -1237,7 +1362,7 @@ var smooth_scroll_to = function(element, target, duration) {
         // This is like a think function from a game loop
         var scroll_frame = function() {
             if(element.scrollTop != previous_top) {
-                reject("interrupted");
+                //reject("interrupted");
                 return;
             }
 
@@ -1291,7 +1416,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(target.className.indexOf("cliqz-pattern-title") != -1) return;
         if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
@@ -1302,12 +1426,16 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
             el.removeAttribute('arrow');
             target.setAttribute('url', el.getAttribute('url'));
         }
+        arrow.className = arrow.className.replace(" notransition", "");
+        if(!mouseOver && el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
+        UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
+
         if(target.className.indexOf("cliqz-pattern") != -1) {
-            var context;
-            if(context = $('.cqz-result-pattern', gCliqzBox))
-                offset += context.parentElement.offsetTop;
+          var context;
+          if(context = $('.cqz-result-pattern', gCliqzBox))
+            offset += context.parentElement.offsetTop;
         }
         var scroll = parseInt(offset/303) * 303;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
@@ -1333,6 +1461,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
+        UI.lastSelectedUrl = "";
         clearResultSelection();
     }
 }
