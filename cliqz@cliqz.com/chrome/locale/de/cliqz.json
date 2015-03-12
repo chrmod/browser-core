@@ -397,5 +397,11 @@
     },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
+    },
+    "Click anywhere to copy":{
+        "message": "Klicken zum Kopieren"
+    },
+    "Copied":{
+        "message": "kopiert"
     }
 }
