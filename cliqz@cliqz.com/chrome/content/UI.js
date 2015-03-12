@@ -562,7 +562,6 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    gCliqzBox.resultsBox.innerHTML ="";
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
