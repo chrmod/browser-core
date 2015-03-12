@@ -132,11 +132,12 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(!currentResults.results[0].url && currentResults.results[0].type == "cliqz-pattern")
-        currentResults.results[0].url = currentResults.results[0].data.urls[0].href;
+      var curResAll = currentResults.results
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+        curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
 
       XULBrowserWindow.updateStatusField();
     },
