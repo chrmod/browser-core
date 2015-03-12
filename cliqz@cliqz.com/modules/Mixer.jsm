@@ -202,9 +202,10 @@ var Mixer = {
                 // remove any BM results covered by EZ
                 var results_new = [];
                 for(let i=0; i < results.length; i++) {
-                    if(results[i].style.indexOf("cliqz-results") == 0)
-                        if(CliqzHistoryPattern.generalizeUrl(results[i].val) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
-                            results_new.push(results[i]);
+                    if(results[i].style.indexOf("cliqz-pattern") == 0)
+                        results_new.push(results[i]);
+                    else if(CliqzHistoryPattern.generalizeUrl(results[i].val) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                        results_new.push(results[i]);
                 }
                 results = results_new;
 
