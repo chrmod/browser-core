@@ -59,11 +59,13 @@ var Mixer = {
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
-        if(cliqz && cliqz.length > 0) {
-            if(cliqz[0].extra) {
-                var extra = Result.cliqzExtra(cliqz[0].extra);
-                extra.data.trigger_method = "backend_url";
-                cliqzExtra.push(extra);
+        if(q.len > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
+            if(cliqz && cliqz.length > 0) {
+                if(cliqz[0].extra) {
+                    var extra = Result.cliqzExtra(cliqz[0].extra);
+                    extra.data.trigger_method = "backend_url";
+                    cliqzExtra.push(extra);
+                }
             }
         }
 
@@ -118,17 +120,6 @@ var Mixer = {
             results.push(Result.cliqz(cliqz[i]));
         }
 
-// NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
-// Consider taking some ideas from this function but not all.
-        results = Filter.deduplicate(results, -1, 1, 1);
-
-        //allow maximum 3 BM results
-        var cliqzRes = 0;
-        results = results.filter(function(r){
-            if(r.style.indexOf('cliqz-results ') == 0) cliqzRes++;
-            return cliqzRes <= 3;
-        })
-
         // Find any entity zone in the results and cache them for later use
         // go backwards to be sure to cache the newest (which will be first in the list)
         for(var i=(cliqzExtra || []).length - 1; i >= 0; i--){
@@ -169,6 +160,10 @@ var Mixer = {
             }
         }
 
+// NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
+// Consider taking some ideas from this function but not all.
+        results = Filter.deduplicate(results, -1, 1, 1);
+
         // limit to one entity zone
         cliqzExtra = cliqzExtra.slice(0, 1);
 
@@ -204,6 +199,15 @@ var Mixer = {
                     else if(history.length == 2) results[0].data.template = "pattern-h3";
                 }
 
+                // remove any BM results covered by EZ
+                var results_new = [];
+                for(let i=0; i < results.length; i++) {
+                    if(results[i].style.indexOf("cliqz-results") == 0)
+                        if(CliqzHistoryPattern.generalizeUrl(results[i].val) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                            results_new.push(results[i]);
+                }
+                results = results_new;
+
                 // if the first result is a history cluster and
                 // there is an EZ of a supported types then make a combined entry
                 if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
@@ -234,6 +238,13 @@ var Mixer = {
         if(customResults && customResults.length > 0) {
             results = customResults.concat(results);
         }
+
+        //allow maximum 3 BM results
+        var cliqzRes = 0;
+        results = results.filter(function(r){
+            if(r.style.indexOf('cliqz-results ') == 0) cliqzRes++;
+            return cliqzRes <= 3;
+        })
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
