@@ -200,7 +200,9 @@ var Mixer = {
               Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
 
                 var temp_history = results[0];
+                var old_kind = temp_history.data.kind;
                 results[0] = cliqzExtra[0];
+                results[0].data.kind = (results[0].data.kind || []).concat(old_kind || []);
                 results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
             }
             // Convert 2/3 size history into 1/3 to place below EZ
