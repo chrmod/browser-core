@@ -23,7 +23,13 @@ function getheight(images, width, margin) {
     var h = 0;
     for (var i = 0; i < images.length; ++i) {
         if ('thumb' in images[i]){
-            h += (images[i].thumb.width || default_width) / (images[i].thumb.height || default_height);
+            try {
+                h += (images[i].thumb.width) / (images[i].thumb.height);
+            }
+            catch(err) {
+                CliqzUtils.log('thumbs dim pb. '+err.message, CliqzImages.LOG_KEY);
+                h += IM_SEARCH_CONF.DEFAULT_THUMB.width/IM_SEARCH_CONF.DEFAULT_THUMB.height;
+            }
         } else {
             h += IM_SEARCH_CONF.DEFAULT_THUMB.width/IM_SEARCH_CONF.DEFAULT_THUMB.height;
         }
@@ -37,7 +43,14 @@ function setheight(images, height, margin) {
     for (var i = 0; i < images.length; ++i) {
         var width_float = null
         if ('thumb' in images[i]){
-            width_float = (height * images[i].thumb.width) /images[i].thumb.height;
+            try {
+                width_float = (height * images[i].thumb.width) /images[i].thumb.height;
+            }
+            catch(err) {
+                CliqzUtils.log('thumbs dim pb. '+err.message, CliqzImages.LOG_KEY);
+                width_float = (height * IM_SEARCH_CONF.DEFAULT_THUMB.width) /IM_SEARCH_CONF.DEFAULT_THUMB.height;
+            }
+
         } else {
             width_float = (height * IM_SEARCH_CONF.DEFAULT_THUMB.width) /IM_SEARCH_CONF.DEFAULT_THUMB.height;
         }
@@ -50,7 +63,7 @@ function setheight(images, height, margin) {
 
     // Collecting sub-pixel error
     var error = estim_width - parseInt(verif_width)
- 
+
     if (error>0) {
         //var int_error = parseInt(Math.abs(Math.ceil(error)));
         // distribute the error on first images each take 1px
@@ -72,7 +85,7 @@ function setheight(images, height, margin) {
     //    var width_float = height * images[i].image_width /images[i].image_height;
     //    verify += (images[i].width + IMAGES_MARGIN);
     // }
-  
+
 }
 
 
