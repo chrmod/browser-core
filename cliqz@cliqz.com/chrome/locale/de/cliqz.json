@@ -1,4 +1,7 @@
 {
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
     },
