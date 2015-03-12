@@ -394,5 +394,8 @@
     },
     "cliqz_stock_minutes_ago": {
        "message": "Minuten früher"
+    },
+    "publish_date": {
+        "message": "Veröffentlichungsdatum"
     }
 }

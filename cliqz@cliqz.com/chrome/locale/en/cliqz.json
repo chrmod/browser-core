@@ -397,5 +397,8 @@
     },
     "btnActivateCliqz": {
       "message": "Activate Cliqz"
+    },
+    "publish_date": {
+        "message": "Publish date"
     }
 }
