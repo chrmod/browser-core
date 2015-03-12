@@ -1353,6 +1353,7 @@ function resultMove(ev){
         setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
 
+        if(!el) return;
         var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? 'TAB:' + el.getAttribute('url'): '',
             deepUrl = ev.originalTarget.hasAttribute('show-status') && ev.originalTarget.getAttribute('url'),
             arrowUrl = el.hasAttribute('arrow') ? el.getAttribute('url') : '';

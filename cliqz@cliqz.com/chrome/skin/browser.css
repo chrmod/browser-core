@@ -140,7 +140,7 @@
 #cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
-#cliqz-results .cqz-ez-btns { margin: 13px 0px 18px; height: 30px; }
+#cliqz-results .cqz-ez-btns { margin: 13px 0px 18px; height: 30px; padding-right: 60px; }
 #cliqz-results .cqz-ez-btn {
     border-radius: 3px;
     cursor: pointer;
@@ -260,7 +260,7 @@
 #cliqz-results .cqz-ez-banking-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
 /* ez news, video, portal */
-#cliqz-results .entity-stories { margin-left: -22px; }
+#cliqz-results .entity-stories { margin-left: -22px; padding-right: 75px; }
 #cliqz-results .entity-story { position: relative; height: 54px; padding: 5px 0 5px 22px; }
 #cliqz-results .entity-story * {  cursor: pointer; }
 #cliqz-results .entity-story-image {
