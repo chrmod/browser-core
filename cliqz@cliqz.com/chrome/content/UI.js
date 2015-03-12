@@ -1483,7 +1483,7 @@ function resultMove(ev){
         lastMoveTime = Date.now();
 
         if(!el) return;
-        var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? 'TAB:' + el.getAttribute('url'): '',
+        var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')): '',
             deepUrl = ev.originalTarget.hasAttribute('show-status') && ev.originalTarget.getAttribute('url'),
             arrowUrl = el.hasAttribute('arrow') ? el.getAttribute('url') : '';
         XULBrowserWindow.setOverLink(newTab || deepUrl || arrowUrl);
