@@ -53,11 +53,17 @@ var Mixer = {
         // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
         CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
+        // set trigger method for EZs returned from RH
+        for(var i=0; i < (cliqzExtra || []).length; i++) {
+            cliqzExtra[i].data.trigger_method = "rh_query";
+        }
+
         // extract the entity zone accompanying the first cliqz result, if any
         if(cliqz && cliqz.length > 0) {
             if(cliqz[0].extra) {
-                cliqzExtra.push(Result.cliqzExtra(cliqz[0].extra));
-                CliqzUtils.log("EZ found in result for " + cliqz[0].url, "Mixer");
+                var extra = Result.cliqzExtra(cliqz[0].extra);
+                extra.data.trigger_method = "backend_url";
+                cliqzExtra.push(extra);
             }
         }
 
@@ -129,12 +135,10 @@ var Mixer = {
             var r = cliqzExtra[i];
             if(r.style == 'cliqz-extra'){
                 if(r.val != "" && r.data.subType){
-                    CliqzUtils.log(JSON.stringify(r));
                     var eztype = JSON.parse(r.data.subType).ez;
                     var trigger_urls = r.data.trigger_urls || [];
                     if(eztype && trigger_urls.length > 0) {
                         for(var j=0; j < trigger_urls.length; j++) {
-                            CliqzUtils.log("EZ " + eztype + " <-- " + trigger_urls[j]);
                             Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
                         Mixer.ezCache[eztype] = r;
@@ -143,9 +147,10 @@ var Mixer = {
             }
         }
 
-        // Take the first entry and see if we can trigger an EZ with it,
+        // Take the first entry (if history) and see if we can trigger an EZ with it,
         // this will override an EZ sent by backend.
-        if(results.length > 0) {
+        if(results.length > 0 && results[0].data && results[0].data.template &&
+           results[0].data.template.indexOf("pattern") == 0) {
 
             var url = results[0].val;
             // if there is no url associated with the first result, try to find it inside
@@ -158,7 +163,7 @@ var Mixer = {
                 // TODO: perhaps only use this cached data if newer than certain age
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
-                    CliqzUtils.log("Triggering EZ based on local cache with " + url, "Mixer");
+                    ez.data.trigger_method = "history_url";
                     cliqzExtra = [ez];
                 }
             }
@@ -169,6 +174,8 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
+            CliqzUtils.log("EZ (" + cliqzExtra[0].data.trigger_method + ") for " + cliqzExtra[0].val, "Mixer");
+
             // Remove entity links form history
             if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
                 var mainUrl = cliqzExtra[0].val;
