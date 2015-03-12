@@ -461,7 +461,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.customResults,
                             only_instant
                     );
-
+                CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
                 this.mixedResults.setResults(results);
@@ -643,6 +643,3 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
-
-
-

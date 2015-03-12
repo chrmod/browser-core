@@ -792,6 +792,7 @@ var CliqzHistoryPattern = {
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
+        results.shift();
       } else {
         var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results")

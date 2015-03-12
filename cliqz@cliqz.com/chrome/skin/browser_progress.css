@@ -10,3 +10,26 @@
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 8px;
 }
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+.fadeIn {
+  opacity:1 !important;
+  -webkit-transition : all 0.2s ease-in !important;
+  -moz-transition : all 0.2s ease-in !important;
+  -o-transition : all 0.2s ease-in !important;
+  transition : all 0.2s ease-in !important;
+}
+
+.fadeOut {
+  opacity:0 !important;
+  -webkit-transition : all 0.2s ease-out !important;
+  -moz-transition : all 0.2s ease-out !important;
+  -o-transition : all 0.2s ease-out !important;
+  transition : all 0.2s ease-out !important;
+}
