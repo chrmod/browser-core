@@ -130,7 +130,7 @@ def publish(beta='True', version=None):
             return
     else:
         if not console.confirm('You are going to update the extension '\
-                               'for ALL users. Do you want to continue?'):
+                               'for ALL newUI users. Do you want to continue?'):
             return
 
     update_manifest_file_name = "latest.rdf"
