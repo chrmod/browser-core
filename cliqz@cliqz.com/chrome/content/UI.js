@@ -11,8 +11,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
-  'chrome://cliqzmodules/content/CliqzImages.jsm');
+//XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
+//  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
 (function(ctx) {
 
@@ -165,9 +165,9 @@ var UI = {
 
         currentResults = enhanceResults(res);
         // Images-layout for Cliqz-Images-Search
-        CliqzImages.process_images_result(res,
-           CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
-                                          CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
+        //CliqzImages.process_images_result(res,
+        //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
+        //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
 
         if(gCliqzBox.resultsBox) {
