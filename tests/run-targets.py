@@ -24,6 +24,7 @@ pgreen = lambda msg: sys.stdout.write(colored(msg, 'green') + '\n')
 
 
 class ssh_api(object):
+
     def __init__(self, os, ip, port=22, user='vagrant',
         key_path='~/.vagrant.d/insecure_private_key', version='', **kwargs):
         self.os = os
