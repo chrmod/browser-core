@@ -292,7 +292,6 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     popupClose: function(){
         CliqzAutocomplete.isPopupOpen = false;
-        CliqzAutocomplete.resetSpellCorr();
         CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
     },
@@ -348,6 +347,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
         }
         CliqzAutocomplete.lastFocusTime = null;
+        CliqzAutocomplete.resetSpellCorr();
         CLIQZ.UI.sessionEnd();
     },
     urlbarEvent: function(ev) {

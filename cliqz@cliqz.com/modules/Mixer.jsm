@@ -31,6 +31,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
 
 CliqzUtils.init();
 
+// enriches data kind
+function kindEnricher(data, newKindParams) {
+    var parts = data.kind && data.kind[0] && data.kind[0].split('|');
+    if(parts.length == 2){
+        try{
+            var kind = JSON.parse(parts[1]);
+            for(var p in newKindParams)
+                kind[p] = newKindParams[p];
+            data.kind[0] = parts[0] + '|' + JSON.stringify(kind);
+        } catch(e){}
+    }
+}
+
 var Mixer = {
     ezCache: {},
     ezURLs: {},
@@ -55,15 +68,15 @@ var Mixer = {
 
         // set trigger method for EZs returned from RH
         for(var i=0; i < (cliqzExtra || []).length; i++) {
-            cliqzExtra[i].data.trigger_method = "rh_query";
+            kindEnricher(cliqzExtra[i].data, { 'trigger_method': 'rh_query' });
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
-        if(q.len > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
+        if(q.length > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
             if(cliqz && cliqz.length > 0) {
                 if(cliqz[0].extra) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
-                    extra.data.trigger_method = "backend_url";
+                    kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
                 }
             }
@@ -154,7 +167,7 @@ var Mixer = {
                 // TODO: perhaps only use this cached data if newer than certain age
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
-                    ez.data.trigger_method = "history_url";
+                    kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
                 }
             }
@@ -176,7 +189,7 @@ var Mixer = {
                 // do not show the EZ
                 CliqzUtils.log("History cluster " + results[0].val + " does not match EZ " + cliqzExtra[0].val, "Mixer");
             } else {
-                CliqzUtils.log("EZ (" + cliqzExtra[0].data.trigger_method + ") for " + cliqzExtra[0].val, "Mixer");
+                CliqzUtils.log("EZ (" + cliqzExtra[0].data.kind + ") for " + cliqzExtra[0].val, "Mixer");
 
                 // Remove entity links form history
                 if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {

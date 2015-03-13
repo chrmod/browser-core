@@ -132,11 +132,12 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(!currentResults.results[0].url && currentResults.results[0].type == "cliqz-pattern")
-        currentResults.results[0].url = currentResults.results[0].data.urls[0].href;
+      var curResAll = currentResults.results
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+        curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(currentResults.results && currentResults.results.length > 0 && currentResults.results[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
 
       XULBrowserWindow.updateStatusField();
     },
@@ -410,7 +411,8 @@ var UI = {
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd && gCliqzBox) {
+          if (!UI.preventFirstElementHighlight && time > UI.animationEnd
+            && gCliqzBox && CliqzAutocomplete.highlightFirstElement) {
             UI.animationEnd = (new Date()).getTime() + 330;
             setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
@@ -561,7 +563,6 @@ function sessionEnd(){
 var forceCloseResults = false;
 function closeResults(event, force) {
     var urlbar = CLIQZ.Core.urlbar;
-    gCliqzBox.resultsBox.innerHTML ="";
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
@@ -1056,7 +1057,7 @@ function getResultPosition(el){
 }
 
 function getResultKind(el){
-    return getResultOrChildAttr(el, 'kind').split(',');
+    return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 function getResultOrChildAttr(el, attr){
@@ -1321,33 +1322,17 @@ function clearTextSelection() {
     title && (title.style.textDecoration = "none");
 }
 
-/**
-    Smoothly scroll element to the given target (element.scrollTop)
-    for the given duration
-
-    Returns a promise that's fulfilled when done, or rejected if
-    interrupted
- */
-var smooth_scroll_to = function(element, target, duration) {
-    if(!Promise || typeof Promise != 'function'){ // older FF
-        //should we do our own animation?
-        element.scrollTop = Math.round(target);
-        return;
-    }
-
+function smooth_scroll_to(element, target, duration) {
     target = Math.round(target);
     duration = Math.round(duration);
-    if (duration < 0) {
-        return Promise.reject("bad duration");
-    }
+    if (duration < 0) return
     if (duration === 0) {
         element.scrollTop = target;
-        return Promise.resolve();
+        return
     }
 
     var start_time = Date.now();
     var end_time = start_time + duration;
-
     var start_top = element.scrollTop;
     var distance = target - start_top;
 
@@ -1359,47 +1344,32 @@ var smooth_scroll_to = function(element, target, duration) {
         return x*x*x*(x*(x*6 - 15) + 10);//x*x*(3 - 2*x);
     }
 
-    return new Promise(function(resolve, reject) {
-        // This is to keep track of where the element's scrollTop is
-        // supposed to be, based on what we're doing
-        var previous_top = element.scrollTop;
+    var previous_top = element.scrollTop;
 
-        // This is like a think function from a game loop
-        var scroll_frame = function() {
-            if(element.scrollTop != previous_top) {
-                //reject("interrupted");
-                return;
-            }
+    // This is like a think function from a game loop
+    var scroll_frame = function() {
+        if(element.scrollTop != previous_top) return;
 
-            // set the scrollTop for this frame
-            var now = Date.now();
-            var point = smooth_step(start_time, end_time, now);
-            var frameTop = Math.round(start_top + (distance * point));
-            element.scrollTop = frameTop;
+        // set the scrollTop for this frame
+        var now = Date.now();
+        var point = smooth_step(start_time, end_time, now);
+        var frameTop = Math.round(start_top + (distance * point));
+        element.scrollTop = frameTop;
 
-            // check if we're done!
-            if(now >= end_time) {
-                resolve();
-                return;
-            }
+        // check if we're done!
+        if(now >= end_time) return;
 
-            // If we were supposed to scroll but didn't, then we
-            // probably hit the limit, so consider it done; not
-            // interrupted.
-            if(element.scrollTop === previous_top
-                && element.scrollTop !== frameTop) {
-                resolve();
-                return;
-            }
-            previous_top = element.scrollTop;
+        // If we were supposed to scroll but didn't, then we
+        // probably hit the limit, so consider it done; not
+        // interrupted.
+        if(element.scrollTop === previous_top && element.scrollTop !== frameTop) return;
+        previous_top = element.scrollTop;
 
-            // schedule next frame for execution
-            setTimeout(scroll_frame, 0);
-        }
-
-        // boostrap the animation process
+        // schedule next frame for execution
         setTimeout(scroll_frame, 0);
-    });
+    }
+    // boostrap the animation process
+    setTimeout(scroll_frame, 0);
 }
 
 function selectNextResult(pos, allArrowable) {
@@ -1471,6 +1441,24 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     }
 }
 
+function getStatus(ev, el){
+  var oTarget = ev.originalTarget;
+
+  return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
+          CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''
+     )
+     ||
+     //deepUrl
+     (oTarget.hasAttribute('show-status') &&
+        (oTarget.getAttribute('url')
+          ||
+         oTarget.parentElement.hasAttribute('show-status') && oTarget.parentElement.getAttribute('url'))
+     )
+     ||
+     //arrowUrl
+     (el.hasAttribute('arrow') ? el.getAttribute('url') : '');
+}
+
 var lastMoveTime = Date.now();
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
@@ -1483,10 +1471,7 @@ function resultMove(ev){
         lastMoveTime = Date.now();
 
         if(!el) return;
-        var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')): '',
-            deepUrl = ev.originalTarget.hasAttribute('show-status') && ev.originalTarget.getAttribute('url'),
-            arrowUrl = el.hasAttribute('arrow') ? el.getAttribute('url') : '';
-        XULBrowserWindow.setOverLink(newTab || deepUrl || arrowUrl);
+        XULBrowserWindow.setOverLink(getStatus(ev, el));
     }
 }
 
@@ -1814,6 +1799,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    Handlebars.registerHelper('kind_printer', function(kind) {
+        //we need to join with semicolon to avoid conflicting with the comma from json objects
+        return kind.join(';');
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};

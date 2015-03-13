@@ -130,13 +130,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get defaultIndex() { return this._defaultIndex; },
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
-            getValueAt: function(index) { return this._results[index].val; },
+            getValueAt: function(index) { return (this._results[index] || {}).val; },
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
-            getCommentAt: function(index) { return this._results[index].comment; },
-            getStyleAt: function(index) { return this._results[index].style; },
+            getCommentAt: function(index) { return (this._results[index] || {}).comment; },
+            getStyleAt: function(index) { return (this._results[index] || {}).style; },
             getImageAt: function (index) { return ''; },
-            getLabelAt: function(index) { return this._results[index].label; },
-            getDataAt: function(index) { return this._results[index].data; },
+            getLabelAt: function(index) { return (this._results[index] || {}).label; },
+            getDataAt: function(index) { return (this._results[index] || {}).data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
 
