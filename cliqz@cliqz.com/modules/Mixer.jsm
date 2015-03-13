@@ -167,6 +167,7 @@ var Mixer = {
                 // TODO: perhaps only use this cached data if newer than certain age
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
+                    ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
                 }
