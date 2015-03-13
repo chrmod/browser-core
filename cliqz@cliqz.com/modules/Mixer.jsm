@@ -189,7 +189,7 @@ var Mixer = {
                 // do not show the EZ
                 CliqzUtils.log("History cluster " + results[0].val + " does not match EZ " + cliqzExtra[0].val, "Mixer");
             } else {
-                CliqzUtils.log("EZ (" + cliqzExtra[0].data.trigger_method + ") for " + cliqzExtra[0].val, "Mixer");
+                CliqzUtils.log("EZ (" + cliqzExtra[0].data.kind + ") for " + cliqzExtra[0].val, "Mixer");
 
                 // Remove entity links form history
                 if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
