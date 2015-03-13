@@ -1246,7 +1246,7 @@ var CliqzUCrawl = {
     trkTimer: null,
     track: function(msg, instantPush) {
       if (!CliqzUCrawl) return; //might be called after the module gets unloaded
-      if (CliqzUtils.cliqzPrefs.getBoolPref('dnt')) return;
+      if (CliqzUtils.getPref('dnt', false)) return;
 
       msg.ts = (new Date()).getTime();
       msg.ver = CliqzUCrawl.VERSION;
