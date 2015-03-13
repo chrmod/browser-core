@@ -100,7 +100,6 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzCategories.init();
         }
 
-        CLIQZ.UI.init();
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
@@ -118,6 +117,8 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = popup;
+
+        CLIQZ.UI.init();
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');

@@ -52,6 +52,19 @@ function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
+function fetchTemplate(tName, isPartial) {
+    try {
+        CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
+            if(isPartial === true)
+                Handlebars.registerPartial(tName, res.response);
+            else
+                UI.tpl[tName] = Handlebars.compile(res.response);
+        });
+    } catch(e){
+        lg('ERROR loading template ' + tName);
+    }
+}
+
 var UI = {
     tpl: {},
     showDebug: false,
@@ -61,18 +74,13 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     init: function(){
-        function fetchTemplate(tName, isPartial) {
-            try {
-                CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
-                    if(isPartial === true)
-                        Handlebars.registerPartial(tName, res.response);
-                    else
-                        UI.tpl[tName] = Handlebars.compile(res.response);
-                });
-            } catch(e){
-                lg('ERROR loading template ' + tName);
+        //patch this method to avoid any caching FF might do for components.xml
+        CLIQZ.Core.popup._appendCurrentResult = function(){
+            if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
+              CLIQZ.UI.handleResults();
             }
         }
+
         Object.keys(TEMPLATES).forEach(fetchTemplate);
         MESSAGE_TEMPLATES.forEach(fetchTemplate);
         PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
