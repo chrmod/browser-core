@@ -5,15 +5,16 @@
     {{/if}}
     {{#if image.src}}
         <div class="cqz-image cqz-image-round" style="
+                    position:relative;
                     background-image: url({{ image.src }});
                     width: 54px;">
         </div>
     {{/if}}
     <div class='cqz-result-center cqz-vert-center'
          {{#if image.src}}
-            style="width: calc(85% - 60px)"
+            style="width: calc(85% - 60px); position:relative;"
          {{/if}}>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ data.richData.full_name }}
         </div>
         <div class='cqz-result-url overflow
@@ -21,7 +22,7 @@
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.path text 2 true }}
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
         {{#with data.richData}}
             <div class='cqz-result-desc overflow'>

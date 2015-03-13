@@ -124,7 +124,6 @@ function messageType(to){
                 var width = urlBar.getBoundingClientRect().width;
                 urlBar.popup.setAttribute("width", width > 100 ? width : 100);
                 urlBar.popup.openPopup(urlBar, "after_start", 0, 0, false, true);
-                win.CLIQZ.UI.suggestions(['cliqz'], 'cl');
                 win.CLIQZ.UI.results({
                     results: results,
                     width: win.CLIQZ.Core.urlbar.clientWidth

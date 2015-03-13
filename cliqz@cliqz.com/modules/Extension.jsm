@@ -17,27 +17,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
     'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
 var BTN_ID = 'cliqz-button',
-    SHARE_BTN_ID = 'cliqz-share-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'extensions.cliqz.firstStartDone',
-    firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
     dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
     //toolbar
     searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
     //next element in the toolbar
-    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext',
-    timerRef;
+    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext';
 
 
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'session': '',
-        'showQueryDebug': false, // show query debug information next to results
-        'showDebugLogs': false, // show debug logs in console
-        'popupHeight': 290, // popup/dropdown height in pixels
-        'dnt': false, // if set to true the extension will not send any tracking signals
-//      'inPrivateWindows': true, // enables extension in private mode
+        'session': ''
     },
     init: function(){
         Extension.unloadModules();
@@ -46,6 +38,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -71,10 +64,9 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(true || upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
-            var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
-                            CliqzUtils.getPref('changelogURL') :
-                            CliqzUtils.CHANGELOG;
+
+        if(false && upgrade && CliqzUtils.getPref('showChangelog', false)){
+            var clURL = CliqzUtils.getPref('changelogURL', CliqzUtils.CHANGELOG);
             CliqzUtils.openOrReuseAnyTab(clURL, CliqzUtils.UPDATE_URL, false);
         }
     },
@@ -96,6 +88,8 @@ var Extension = {
             var win = enumerator.getNext();
             Extension.unloadFromWindow(win);
         }
+
+        CliqzCategories.destroy();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -136,9 +130,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzTimings.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzBundesliga.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
@@ -151,6 +143,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -195,15 +188,7 @@ var Extension = {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
     },
     cleanPossibleOldVersions: function(win){
-        //temporary method
-        delete win.CliqzUtils;
-        delete win.CliqzHistoryManager;
-        delete win.CliqzAutocomplete;
-        delete win.CliqzLanguage;
-        delete win.ResultProviders;
-        delete win.CliqzTimings;
-        delete win.CliqzABTests;
-        delete win.CliqzSearchHistory;
+        //
     },
     loadIntoWindow: function(win) {
         if (!win) return;
@@ -216,7 +201,15 @@ var Extension = {
             Extension.addButtons(win);
 
             try {
-                win.CLIQZ.Core.init();
+                if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
+                  win.CLIQZ.Core.init();
+                  CliqzUtils.log('Initialized', 'CORE');
+                }
+                // Always set urlbar and start whoAmI
+                // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
+                win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
+                win.CLIQZ.Core.whoAmI(true); //startup
+
             } catch(e) {Cu.reportError(e); }
         }
         else {
@@ -225,16 +218,16 @@ var Extension = {
     },
     addButtons: function(win){
         var doc = win.document;
+        if (!CliqzUtils.PREFERRED_LANGUAGE) {
+          // Need locale when cliqz is disabled
+          var nav = win.navigator;
+          CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
+          CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
+        }
         if (!win.Application.prefs.getValue(firstRunPref, false)) {
             win.Application.prefs.setValue(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
-        }
-
-        if (!win.Application.prefs.getValue(firstRunSharePref, false)) {
-            win.Application.prefs.setValue(firstRunSharePref, true);
-
-            ToolbarButtonManager.setDefaultPosition(SHARE_BTN_ID, 'nav-bar', 'downloads-button');
         }
 
         if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
@@ -273,124 +266,25 @@ var Extension = {
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
-
-        //share btn
-        let shareButton = win.document.createElement('toolbarbutton');
-        shareButton.setAttribute('id', SHARE_BTN_ID);
-        shareButton.setAttribute('label', 'CLIQZ Share');
-        shareButton.setAttribute('tooltiptext', 'CLIQZ Share');
-        shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
-
-        // localization mechanism might take a while to load.
-        // TODO: find better sollution
-        CliqzUtils.setTimeout(function(){
-            if(CliqzUtils){
-                shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
-                shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
-            }
-        }, 2000);
-
-        shareButton.addEventListener('command', function(ev) {
-            try{
-                var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via CLIQZ: ' + doc.title) +
-                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n CLIQZ Beta - http://cliqz.com');
-            } catch(e){}
-        }, false);
-
-        ToolbarButtonManager.restorePosition(doc, shareButton);
     },
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
         if(menupopup.children.length > 0) return;
-
-        var doc = win.document,
-            lang = CliqzUtils.getLanguage(win);
-
-        var menuitem1 = doc.createElement('menuitem');
-        menuitem1.setAttribute('id', 'cliqz_menuitem1');
-        menuitem1.setAttribute('label', 'Feedback');
-        menuitem1.addEventListener('command', function(event) {
-            win.Application.getExtensions(function(extensions) {
-                var beVersion = extensions.get('cliqz@cliqz.com').version;
-                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
-                    function success(req){
-                        var source = JSON.parse(req.response).shortName;
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
-                    },
-                    function error(){
-                        Extension.openTab(doc, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
-                    }
-                );
-
-            });
-        }, false);
-
-        var menuitem2 = doc.createElement('menuitem');
-        menuitem2.setAttribute('id', 'cliqz_menuitem2');
-        menuitem2.setAttribute('label', 'FAQ');
-        menuitem2.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/faq_' + lang + '.html');
-        }, false);
-
-        var menuitem4 = doc.createElement('menuitem');
-        menuitem4.setAttribute('id', 'cliqz_menuitem4');
-        menuitem4.setAttribute('label', CliqzUtils.getLocalizedString('btnPrivacy'));
-        menuitem4.addEventListener('command', function(event) {
-            Extension.openTab(doc, 'http://beta.cliqz.com/datenschutz_' + lang + '.html');
-        }, false);
-
-        var menuitem5 = doc.createElement('menuitem');
-        menuitem5.setAttribute('id', 'cliqz_menuitem5');
-        menuitem5.setAttribute('label',
-            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
-        );
-
-        //menuitem5.style.listStyleImage = CliqzNewTab.isCliqzNewTabShown()?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
-
-        menuitem5.addEventListener('command', function(event) {
-            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
-
-            CliqzNewTab.showCliqzNewTab(newvalue);
-
-            menuitem5.setAttribute('label',
-                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
-            );
-            //menuitem5.style.listStyleImage = newvalue?'url(chrome://cliqzres/content/skin/checkmark.png)':'';
-        }, false);
-
-        [menuitem1,menuitem2,menuitem4,menuitem5].forEach(function(item){
-            menupopup.appendChild(item);
-        });
-
         //https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIBrowserSearchService#moveEngine()
         //FF16+
         if(Services.search.init != null){
             Services.search.init(function(){
-                menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-                menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-                menupopup.appendChild(CliqzUtils.createLanguageOptions(doc));
+                CliqzUtils.createQbutton(win, menupopup);
             });
         } else {
-            menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-            menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-            menupopup.appendChild(CliqzUtils.createLanguageOptions(doc));
+            CliqzUtils.createQbutton(win, menupopup);
         }
-    },
-    openTab: function(doc, url){
-        var tBrowser = doc.getElementById('content');
-        var tab = tBrowser.addTab(url);
-        tBrowser.selectedTab = tab;
     },
     unloadFromWindow: function(win){
         try {
             if(win && win.document){
                 var btn;
                 if(btn = win.document.getElementById('cliqz-button')){
-                    btn.parentNode.removeChild(btn);
-                }
-                if(btn = win.document.getElementById('cliqz-share-button')){
                     btn.parentNode.removeChild(btn);
                 }
             }

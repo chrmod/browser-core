@@ -1,6 +1,18 @@
-<div class='cqz-result-h3'>
+<div class='{{wikiEZ_height data.richData}}'>
+    {{#if data.richData.images }}
+    {{#if data.richData.images.length}}
+        <div class='cqz-celeb-images' style='padding: 18px'>
+          {{#each data.richData.images}}
+            {{#if (limit_images_shown @index 5)}}
+            <img src='{{this}}' class='cqz-celeb-image' />
+            {{/if}}
+          {{/each}}
+        </div>
+    {{/if}}
+    {{/if}}
+
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
         </div>
         <div class='cqz-result-desc
