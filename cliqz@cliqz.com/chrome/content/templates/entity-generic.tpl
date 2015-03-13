@@ -28,8 +28,10 @@
             {{#each links }}
                 <div class="cqz-ez-generic-box cqz-ez-generic-opt overflow"
                      url="{{ url }}"
+                     show-status='true'
                      extra="link-{{ @index }}">
                      <div
+                        show-status='true'
                         style="background-image: url({{ icon }});"
                         class="transition"
                      >
