@@ -1,12 +1,12 @@
 <!-- Resize to include history -->
-<div 
+<div
   {{#if data.urls}}
-    class="cqz-result-h1 ez-portal cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h1 ez-portal cqz-result-padding"
   {{else}}
-    class="cqz-result-h2 ez-portal cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h2 ez-portal cqz-result-padding"
   {{/if}}
 >
-  <div class="cqz-ez-title" selectable=''>{{data.name}}</div>
+  <div class="cqz-ez-title">{{data.name}}</div>
 
   <div class="entity-portal-stories">
     {{#each data.items}}
@@ -16,7 +16,7 @@
            arrow="false">
         <div class="entity-portal-story-image" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-portal-story-description" >
-          <div class="entity-portal-story-title" selectable=''>{{ title }}</div>
+          <div class="entity-portal-story-title">{{ title }}</div>
         </div>
       </div>
     {{/each}}

@@ -1,4 +1,7 @@
 {
+    "openInNewTab":{
+        "message": "{} (open in new tab)"
+    },
     "whatIsCliqz":{
         "message": "What is CLIQZ?"
     },
@@ -23,9 +26,6 @@
     "btnRegion":{
         "message": "Local Results"
     },
-    "btnShare":{
-        "message": "CLIQZ Share"
-    },
     "btnSafeSearch":{
         "message": "Take part"
     },
@@ -36,7 +36,7 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": "we don't have great results this time."
+        "message": "We don't have great results this time."
     },
     "noResultMessage":{
         "message":"press enter to search on {}, or try one of these:"

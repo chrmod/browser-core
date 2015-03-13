@@ -1,3 +1,7 @@
+/* -----------------------
+* @COMMENT:
+*   + Plz check the hp.tpl for wikipedia with images. thuy@cliqz.com. 12Mar2015
+/* -----------------------
 
 /* New class: for entity-generic-history to separate list of history entries from EZ material. */
 #cliqz-results .cliqz-history-results { margin-top: 16px; }
@@ -6,6 +10,7 @@
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 8px;
 }
+
 
 /* Images search (beta) */
 
@@ -112,4 +117,28 @@
     top: -60%;
     left:5px;
     z-index: 5;
+}
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+.fadeIn {
+  opacity:1 !important;
+  -webkit-transition : all 0.2s ease-in !important;
+  -moz-transition : all 0.2s ease-in !important;
+  -o-transition : all 0.2s ease-in !important;
+  transition : all 0.2s ease-in !important;
+}
+
+.fadeOut {
+  opacity:0 !important;
+  -webkit-transition : all 0.2s ease-out !important;
+  -moz-transition : all 0.2s ease-out !important;
+  -o-transition : all 0.2s ease-out !important;
+  transition : all 0.2s ease-out !important;
 }

@@ -1,7 +1,12 @@
 <div class='{{wikiEZ_height data.richData}}'>
     {{#if data.richData.images }}
     {{#if data.richData.images.length}}
-        <div class='cqz-celeb-images' style='padding: 18px'>
+        <div class='cqz-celeb-images' style="padding-bottom: 18px">
+          {{#if data.richData.map}}
+            <div url="{{data.richData.map.search_url}}" style="float:left" >
+                <img src="{{data.richData.map.url}}" alt="{{data.richData.map.alt_text}}" class='cqz-celeb-image'/>
+            </div>
+          {{/if}}
           {{#each data.richData.images}}
             {{#if (limit_images_shown @index 5)}}
             <img src='{{this}}' class='cqz-celeb-image' />
@@ -12,7 +17,7 @@
     {{/if}}
 
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
         </div>
         <div class='cqz-result-desc
@@ -26,7 +31,7 @@
 		{{#if data.richData.additional_sources}}
 			<div class="cqz-one-line" style="margin-top: 5px;">
 			{{#each data.richData.additional_sources}}
-				<span url='{{url}}'
+				<span url='{{url}}' show-status='true'
 					 extra='sources{{ @index }}'
 				     class='cqz-link'>
 					{{title}}

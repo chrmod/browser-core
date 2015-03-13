@@ -54,6 +54,18 @@ function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
+function fetchTemplate(tName, isPartial) {
+    try {
+        CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
+            if(isPartial === true)
+                Handlebars.registerPartial(tName, res.response);
+            else
+                UI.tpl[tName] = Handlebars.compile(res.response);
+        });
+    } catch(e){
+        lg('ERROR loading template ' + tName);
+    }
+}
 
 var UI = {
     tpl: {},
@@ -61,28 +73,23 @@ var UI = {
     preventFirstElementHighlight: false,
     lastInputTime: 0,
     lastInput: "",
+    lastSelectedUrl: null,
     mouseOver: false,
     init: function(){
-        function fetchTemplate(tName, isPartial) {
-            try {
-                CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
-                    if(isPartial === true)
-                        Handlebars.registerPartial(tName, res.response);
-                    else
-                        UI.tpl[tName] = Handlebars.compile(res.response);
-                });
-            } catch(e){
-                lg('ERROR loading template ' + tName);
+        //patch this method to avoid any caching FF might do for components.xml
+        CLIQZ.Core.popup._appendCurrentResult = function(){
+            if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
+              CLIQZ.UI.handleResults();
             }
         }
+
         Object.keys(TEMPLATES).forEach(fetchTemplate);
         MESSAGE_TEMPLATES.forEach(fetchTemplate);
-        for(var v in VERTICALS) fetchTemplate(VERTICALS[v]);
         PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 
         registerHelpers();
 
-        UI.showDebug = CliqzUtils.cliqzPrefs.getBoolPref('showQueryDebug');
+        UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
@@ -97,6 +104,9 @@ var UI = {
 
 
         resultsBox.addEventListener('mouseup', resultClick);
+        resultsBox.addEventListener('mouseout', function(){
+            XULBrowserWindow.updateStatusField();
+        });
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -132,8 +142,14 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      if(currentResults.results && currentResults.results.length > 0)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(currentResults.results[0].url), currentResults.results[0].title);
+      var curResAll = currentResults.results
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+        curResAll[0].url = curResAll[0].data.urls[0].href;
+
+      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
+
+      XULBrowserWindow.updateStatusField();
     },
     results: function(res){
         if (!gCliqzBox)
@@ -154,8 +170,14 @@ var UI = {
                                           CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
 
-        if(gCliqzBox.resultsBox)
-            gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+        if(gCliqzBox.resultsBox) {
+            var now = Date.now();
+            UI.lastDispatch = now;
+            if(CliqzUtils.getPref("animations", false))
+              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+            else
+              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+          }
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -175,6 +197,110 @@ var UI = {
 
         return currentResults;
     },
+    nextRedraw: 0,
+    lastDispatch: 0,
+    dispatchRedraw: function(html, id) {
+      var now = Date.now();
+      if(id != UI.lastDispatch) return;
+      if(now < UI.nextRedraw) {
+        setTimeout(UI.dispatchRedraw, 100, html, id);
+      } else {
+        UI.redrawResultHTML(html);
+      }
+    },
+    redrawResultHTML: function(newHTML) {
+      var box = gCliqzBox.resultsBox;
+      var oldBox = box.cloneNode(true);
+      var newBox = box.cloneNode(true);
+      newBox.innerHTML = newHTML;
+
+      // Extract old/new results
+      var oldResults = oldBox.getElementsByClassName("cqz-result-box");
+      var newResults = newBox.getElementsByClassName("cqz-result-box");
+
+      // Process Instant Results
+      if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
+        for(var i=0; i<newResults.length; i++) {
+          var oldChild = oldResults[i];
+          var curUrls = UI.extractResultUrls(oldChild.innerHTML);
+          var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
+          // Replace with animation if type changes, e.g. history -> entity
+          if(!UI.urlListsEqual(curUrls, newUrls) &&
+          (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
+            // Replace animation
+            newResults[i].style.opacity = 1;
+            newResults[i].className += " fadeOut";
+            setTimeout(function(n, o) {
+              if(o.parentNode == box) {
+                box.replaceChild(n, o);
+                n.className = n.className.replace("fadeOut", "");
+                n.style.opacity = 0;
+                n.className += " fadeIn";
+              }
+            }, 200, newResults[i], box.children[i]);
+          // Replace without animation if urls are not the same
+          } else if(!UI.urlListsEqual(curUrls, newUrls)) {
+            box.replaceChild(newResults[i], box.children[i]);
+          }
+        }
+        if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+        return;
+      }
+
+      var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
+      box.innerHTML = newHTML;
+      newResults = box.getElementsByClassName("cqz-result-box");
+
+      // Result animation
+      var delay = 0;
+      for(var i=0; i<max; i++) {
+        var oldRes = oldResults[i];
+        var newRes = newResults[i];
+        // New result
+        if(!oldRes && newRes) {
+          newRes.style.opacity = 0;
+          setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
+          delay += 100;
+        } else if(oldRes && !newRes) {
+          // No animation here because element is already removed
+        // Replaced result
+        } else {
+          var curUrls = UI.extractResultUrls(oldRes.innerHTML);
+          var newUrls = UI.extractResultUrls(newRes.innerHTML);
+          // Only animate if urls are not equal
+          if (!UI.urlListsEqual(curUrls, newUrls) &&
+            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i !== 0)) {
+            newRes.style.opacity = 0;
+            setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
+            delay += 100;
+          }
+        }
+      }
+      if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+
+      // Update redraw timer
+      var nextDraw = Date.now() + delay + (delay>0?400:0);
+      if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
+      UI.nextRedraw += 100;
+    },
+    // Returns a concatenated string of all urls in a result list
+    extractResultUrls: function(str) {
+      return str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
+    },
+    urlListsEqual: function(a, b) {
+      var s, l, m;
+      if(a.length > b.length) {
+        s = b;
+        l = a;
+      } else {
+        s = a;
+        l = b;
+      }
+      for(var i=0; i<s.length; i++) {
+        if (l.indexOf(s[i]) == -1) return false;
+      }
+      return true;
+    },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
     redrawResult: function(filter, template, data){
@@ -184,8 +310,22 @@ var UI = {
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
-            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox)),
-            pos = allArrowable.indexOf(sel);
+            //allArrowable should be cached
+            allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
+
+        allArrowable = allArrowable.filter(function(el){
+            if(!el.getAttribute('arrow-if-visible')) return true;
+
+            // check if the element is visible
+            //
+            // for now this check is enough but we might be forced to switch to a
+            // more generic approach - maybe using document.elementFromPoint(x, y)
+            if(el.offsetLeft + el.offsetWidth > el.parentElement.offsetWidth)
+                return false
+            return true;
+        });
+
+        var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
         switch(ev.keyCode) {
@@ -256,50 +396,43 @@ var UI = {
                     CliqzUtils.track(signal);
                 }
                 UI.preventFirstElementHighlight = true;
+                UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
             default:
                 UI.lastInput = "";
+                UI.nextRedraw = Date.now()+150;
                 UI.preventFirstElementHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
         }
     },
-    entitySearchKeyDown: function(event, value, element) {
+    entitySearchKeyDown: function(event, element) {
       if(event.keyCode==13) {
-        var provider_name = element.getAttribute("search-provider");
-        var search_url = element.getAttribute("search-url");
-        var search_engine = Services.search.getEngineByName(provider_name);
-        var google_url = search_url + value
-        if (search_engine) {
-          var google_url = search_engine.getSubmission(value).uri.spec
-        }
-        openUILink(google_url);
-        CLIQZ.Core.forceCloseResults = true;
-        CLIQZ.Core.popup.hidePopup();
         event.preventDefault();
-
-        var action_type = element.getAttribute("logg-action-type");
-        var signal = {
-          type: 'activity',
-          action: action_type
-        };
-        CliqzUtils.track(signal);
+        navigateToEZinput(element);
       }
     },
     animationEnd: 0,
     selectFirstElement: function() {
+      // Skip timeout if element was selected before
+      if ($('[arrow]', gCliqzBox) && UI.lastSelectedUrl == $('[arrow]', gCliqzBox).getAttribute("url")) {
+        setResultSelection($('[arrow]', gCliqzBox), true, false);
+        return;
+      }
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd && gCliqzBox) {
+          if (!UI.preventFirstElementHighlight && time > UI.animationEnd
+            && gCliqzBox && CliqzAutocomplete.highlightFirstElement) {
             UI.animationEnd = (new Date()).getTime() + 330;
             setResultSelection($('[arrow]', gCliqzBox), true, false);
           }
         }
       },300);
+
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
@@ -397,6 +530,28 @@ var UI = {
 };
 
 
+function navigateToEZinput(element){
+    var provider_name = element.getAttribute("search-provider"),
+        search_url = element.getAttribute("search-url"),
+        value = element.value,
+        search_engine = Services.search.getEngineByName(provider_name),
+        dest_url = search_url + value;
+
+    if (search_engine) {
+        dest_url = search_engine.getSubmission(value).uri.spec
+    }
+    openUILink(dest_url);
+    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.popup.hidePopup();
+
+    var action_type = element.getAttribute("logg-action-type");
+    var signal = {
+      type: 'activity',
+      action: action_type
+    };
+    CliqzUtils.track(signal);
+}
+
 function selectWord(input, direction) {
   var start = 0, end = 0;
   var cursor = UI.cursor;
@@ -436,6 +591,7 @@ function closeResults(event, force) {
       if (newActive.getAttribute("dont-close") != "true") {
         forceCloseResults = true;
         CLIQZ.Core.popup.hidePopup();
+        gBrowser.selectedTab.linkedBrowser.focus();
       }
     }, 0);
 }
@@ -813,7 +969,7 @@ function getResultPosition(el){
 }
 
 function getResultKind(el){
-    return getResultOrChildAttr(el, 'kind').split(',');
+    return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 function getResultOrChildAttr(el, attr){
@@ -849,12 +1005,11 @@ function messageClick(ev) {
       /*********************************/
       /* BEGIN "Handle message clicks" */
 
-      if (action) {
-        if (action == 'adult') {
-          /* Adult message */
+      switch (action) {
+        case 'adult':
           handleAdultClick(ev);
-        }
-        else if (action == 'disable-cliqz') {
+          break;
+        case 'disable-cliqz':
           // "Cliqz is not optimized for your country" message */
           var state = ev.originalTarget.getAttribute('state');
           switch(state) {
@@ -877,6 +1032,7 @@ function messageClick(ev) {
                   break;
               default:
                   break;
+            break;
           }
           CliqzUtils.track({
             type: 'setting',
@@ -884,7 +1040,9 @@ function messageClick(ev) {
             value: state
           });
           setTimeout(CliqzUtils.refreshButtons, 0);
-        }
+            break;
+        default:
+            break;
       }
       /* Propagate event up the DOM tree */
       el = el.parentElement;
@@ -911,19 +1069,21 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(el && el.getAttribute('url')){
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
+          extra = el.getAttribute('extra'), //extra data about the link
+          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
               query_length: CliqzAutocomplete.lastSearch.length,
               inner_link: el.className ? el.className != IC : false, //link inside the result or the actual result
               position_type: getResultKind(el),
-              extra: el.getAttribute('extra'), //extra data about the link
+              extra: extra,
               search: CliqzUtils.isSearch(url),
               has_image: el.getAttribute('hasimage') || false,
               clustering_override: lr && lr._results[0] && lr._results[0].override ? true : false,
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
-              result_order: currentResults.results.map(function(r){ return r.data.kind; }),
+              result_order: result_order,
               v: 1
           };
       for(var key in extraData) {
@@ -931,7 +1091,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       }
       CliqzUtils.track(action);
       CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
-          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
+          CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
@@ -960,44 +1120,42 @@ function resultClick(ev){
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
-            // Stop click event propagation
-            if(el.getAttribute('cliqz-action') == 'stop-click-event-propagation'){
-              break;
-            }
-            // copy calculator answer to clipboard
-            if(el.getAttribute('cliqz-action') == 'copy-calc-answer'){
-                const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                           .getService(Components.interfaces.nsIClipboardHelper);
-                gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
-                document.getElementById('calc-copied-msg').style.display = "";
-                document.getElementById('calc-copy-msg').style.display = "none";
-            }
-            /*
-             * Hides the current element and displays one of its siblings that
-             * was specified in the toggle-with attribute.
-             */
-            if (el.getAttribute('cliqz-action') == 'toggle') {
-                var toggleId = el.getAttribute('toggle-id');
-                var context = el.getAttribute('toggle-context');
-                if (toggleId && context) {
-                    var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
-                    var ancestor = closest(el, '.' + context);
-                    var toggleElements = $$("[" + toggleAttr + "]", ancestor);
-                    for (var i = 0; i < toggleElements.length; i++) {
-                        if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
-                            toggleElements[i].style.display = "";
-                        } else {
-                            toggleElements[i].style.display = "none";
-                        }
-                    }
+            switch(el.getAttribute('cliqz-action')) {
+                case 'stop-click-event-propagation':
+                    return;
+                case 'copy-calc-answer':
+                    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                               .getService(Components.interfaces.nsIClipboardHelper);
+                    gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                    document.getElementById('calc-copied-msg').style.display = "";
+                    document.getElementById('calc-copy-msg').style.display = "none";
                     break;
-                }
+                case 'toggle':
+                    var toggleId = el.getAttribute('toggle-id');
+                    var context = el.getAttribute('toggle-context');
+                    if (toggleId && context) {
+                        var toggleAttr = el.getAttribute('toggle-attr') || 'cliqz-toggle';
+                        var ancestor = closest(el, '.' + context);
+                        var toggleElements = $$("[" + toggleAttr + "]", ancestor);
+                        for (var i = 0; i < toggleElements.length; i++) {
+                            if (toggleElements[i].getAttribute(toggleAttr) == toggleId) {
+                                toggleElements[i].style.display = "";
+                            } else {
+                                toggleElements[i].style.display = "none";
+                            }
+                        }
+                        return;
+                    }
+                case 'searchEZbutton':
+                    ev.preventDefault();
+                    navigateToEZinput($('input',el));
+                    return;
+                case 'alternative-search-engine':
+                    enginesClick(ev);
+                    break;
+                default:
+                    break;
             }
-
-            if (el.getAttribute('cliqz-action') == 'alternative-search-engine') {
-              enginesClick(ev);
-              break;
-            };
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
@@ -1076,33 +1234,17 @@ function clearTextSelection() {
     title && (title.style.textDecoration = "none");
 }
 
-/**
-    Smoothly scroll element to the given target (element.scrollTop)
-    for the given duration
-
-    Returns a promise that's fulfilled when done, or rejected if
-    interrupted
- */
-var smooth_scroll_to = function(element, target, duration) {
-    if(!Promise || typeof Promise != 'function'){ // older FF
-        //should we do our own animation?
-        element.scrollTop = Math.round(target);
-        return;
-    }
-
+function smooth_scroll_to(element, target, duration) {
     target = Math.round(target);
     duration = Math.round(duration);
-    if (duration < 0) {
-        return Promise.reject("bad duration");
-    }
+    if (duration < 0) return
     if (duration === 0) {
         element.scrollTop = target;
-        return Promise.resolve();
+        return
     }
 
     var start_time = Date.now();
     var end_time = start_time + duration;
-
     var start_top = element.scrollTop;
     var distance = target - start_top;
 
@@ -1111,50 +1253,35 @@ var smooth_scroll_to = function(element, target, duration) {
         if(point <= start) { return 0; }
         if(point >= end) { return 1; }
         var x = (point - start) / (end - start); // interpolation
-        return x*x*(3 - 2*x);
+        return x*x*x*(x*(x*6 - 15) + 10);//x*x*(3 - 2*x);
     }
 
-    return new Promise(function(resolve, reject) {
-        // This is to keep track of where the element's scrollTop is
-        // supposed to be, based on what we're doing
-        var previous_top = element.scrollTop;
+    var previous_top = element.scrollTop;
 
-        // This is like a think function from a game loop
-        var scroll_frame = function() {
-            if(element.scrollTop != previous_top) {
-                reject("interrupted");
-                return;
-            }
+    // This is like a think function from a game loop
+    var scroll_frame = function() {
+        if(element.scrollTop != previous_top) return;
 
-            // set the scrollTop for this frame
-            var now = Date.now();
-            var point = smooth_step(start_time, end_time, now);
-            var frameTop = Math.round(start_top + (distance * point));
-            element.scrollTop = frameTop;
+        // set the scrollTop for this frame
+        var now = Date.now();
+        var point = smooth_step(start_time, end_time, now);
+        var frameTop = Math.round(start_top + (distance * point));
+        element.scrollTop = frameTop;
 
-            // check if we're done!
-            if(now >= end_time) {
-                resolve();
-                return;
-            }
+        // check if we're done!
+        if(now >= end_time) return;
 
-            // If we were supposed to scroll but didn't, then we
-            // probably hit the limit, so consider it done; not
-            // interrupted.
-            if(element.scrollTop === previous_top
-                && element.scrollTop !== frameTop) {
-                resolve();
-                return;
-            }
-            previous_top = element.scrollTop;
+        // If we were supposed to scroll but didn't, then we
+        // probably hit the limit, so consider it done; not
+        // interrupted.
+        if(element.scrollTop === previous_top && element.scrollTop !== frameTop) return;
+        previous_top = element.scrollTop;
 
-            // schedule next frame for execution
-            setTimeout(scroll_frame, 0);
-        }
-
-        // boostrap the animation process
+        // schedule next frame for execution
         setTimeout(scroll_frame, 0);
-    });
+    }
+    // boostrap the animation process
+    setTimeout(scroll_frame, 0);
 }
 
 function selectNextResult(pos, allArrowable) {
@@ -1166,11 +1293,9 @@ function selectNextResult(pos, allArrowable) {
 }
 
 function selectPrevResult(pos, allArrowable) {
-    if (pos > 0) {
-        var nextEl = allArrowable[pos - 1];
-        setResultSelection(nextEl, true, true, true);
-        trackArrowNavigation(nextEl);
-    }
+    var nextEl = allArrowable[pos - 1];
+    setResultSelection(nextEl, true, true, true);
+    trackArrowNavigation(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1178,7 +1303,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(target.className.indexOf("cliqz-pattern-title") != -1) return;
         if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
@@ -1189,9 +1313,17 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
             el.removeAttribute('arrow');
             target.setAttribute('url', el.getAttribute('url'));
         }
+        arrow.className = arrow.className.replace(" notransition", "");
+        if(!mouseOver && el.getAttribute("url") == UI.lastSelectedUrl) arrow.className += " notransition";
+        UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
-        if(target.className.indexOf("cliqz-pattern") != -1) offset += $('.cqz-result-pattern', gCliqzBox).parentNode.offsetTop;
+
+        if(target.className.indexOf("cliqz-pattern") != -1) {
+          var context;
+          if(context = $('.cqz-result-pattern', gCliqzBox))
+            offset += context.parentElement.offsetTop;
+        }
         var scroll = parseInt(offset/303) * 303;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
@@ -1216,8 +1348,27 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
+        UI.lastSelectedUrl = "";
         clearResultSelection();
     }
+}
+
+function getStatus(ev, el){
+  var oTarget = ev.originalTarget;
+
+  return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
+          CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''
+     )
+     ||
+     //deepUrl
+     (oTarget.hasAttribute('show-status') &&
+        (oTarget.getAttribute('url')
+          ||
+         oTarget.parentElement.hasAttribute('show-status') && oTarget.parentElement.getAttribute('url'))
+     )
+     ||
+     //arrowUrl
+     (el.hasAttribute('arrow') ? el.getAttribute('url') : '');
 }
 
 var lastMoveTime = Date.now();
@@ -1230,6 +1381,9 @@ function resultMove(ev){
         clearTextSelection();
         setResultSelection(el, false, false, false, true);
         lastMoveTime = Date.now();
+
+        if(!el) return;
+        XULBrowserWindow.setOverLink(getStatus(ev, el));
     }
 }
 
@@ -1239,6 +1393,7 @@ function onEnter(ev, item){
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
+  var newTab = ev.metaKey || ev.ctrlKey;
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
@@ -1267,7 +1422,8 @@ function onEnter(ev, item){
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
       position_type: ['inbar_url'],
       source: getResultKind(item),
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
   }
   // Google
@@ -1292,19 +1448,59 @@ function onEnter(ev, item){
       action: "result_enter",
       position_type: ['inbar_url'],
       urlbar_time: urlbar_time,
-      current_position: -1
+      current_position: -1,
+      new_tab: newTab
     });
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
     logUIEvent(UI.keyboardSelection, "result", {
       action: "result_enter",
-      urlbar_time: urlbar_time
+      urlbar_time: urlbar_time,
+      new_tab: newTab
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input);
+  CLIQZ.Core.openLink(input, newTab);
   return true;
+}
+
+function enginesClick(ev){
+    var engineName;
+    var el = ev.target;
+
+    if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
+        var engine;
+        if(engine = Services.search.getEngineByName(engineName)){
+            var urlbar = CLIQZ.Core.urlbar,
+                userInput = urlbar.value;
+
+            // avoid autocompleted urls
+            if(urlbar.selectionStart &&
+               urlbar.selectionEnd &&
+               urlbar.selectionStart != urlbar.selectionEnd){
+                userInput = userInput.slice(0, urlbar.selectionStart);
+            }
+
+            var url = engine.getSubmission(userInput).uri.spec,
+                action = {
+                    type: 'activity',
+                    action: 'visual_hash_tag',
+                    engine: ev.target.getAttribute('engineCode') || -1
+                };
+
+            if(ev.metaKey || ev.ctrlKey){
+                CLIQZ.Core.openLink(url, true);
+                action.new_tab = true;
+            } else {
+                gBrowser.selectedBrowser.contentDocument.location = url;
+                CLIQZ.Core.popup.closePopup();
+                action.new_tab = false;
+            }
+
+            CliqzUtils.track(action);
+        }
+    }
 }
 
 function trackArrowNavigation(el){
@@ -1394,12 +1590,13 @@ function registerHelpers(){
         return CliqzUtils.getLocalizedString.apply(null, arguments);
     });
 
-    Handlebars.registerHelper('local_number', function(val) {
-        if(!val)return null;
+    Handlebars.registerHelper('views_helper', function(val) {
+        if(!val || val == '-1')return '';
+
         try {
-            return parseFloat(val).toLocaleString();
+            return parseFloat(val).toLocaleString() + ' ' + CliqzUtils.getLocalizedString('views');
         } catch(e) {
-            return val
+            return ''
         }
     });
 
@@ -1514,6 +1711,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    Handlebars.registerHelper('kind_printer', function(kind) {
+        //we need to join with semicolon to avoid conflicting with the comma from json objects
+        return kind.join(';');
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};

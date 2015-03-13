@@ -16,6 +16,7 @@
             <img
             	src='{{img}}'
             	url='{{url}}'
+                show-status='true'
             	class='cqz-celeb-social'
                 extra='social-{{ @index }}' />
          {{/each}}

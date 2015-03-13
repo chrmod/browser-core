@@ -17,10 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
     'chrome://cliqz-tab/content/CliqzNewTab.jsm');
 
 var BTN_ID = 'cliqz-button',
-    SHARE_BTN_ID = 'cliqz-share-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'extensions.cliqz.firstStartDone',
-    firstRunSharePref = 'extensions.cliqz.firstStartDoneShare',
     dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
     //toolbar
     searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
@@ -31,9 +29,7 @@ var BTN_ID = 'cliqz-button',
 var Extension = {
     BASE_URI: 'chrome://cliqz/content/',
     PREFS: {
-        'session': '',
-        'dnt': false, // if set to true the extension will not send safe browsing signals
-        'telemetry': true //statistics
+        'session': ''
     },
     init: function(){
         Extension.unloadModules();
@@ -68,10 +64,9 @@ var Extension = {
         Services.ww.registerNotification(Extension.windowWatcher);
 
         // open changelog on update
-        if(false && upgrade /*&& CliqzUtils.getPref('showChangelog', false)*/){
-            var clURL = CliqzUtils.cliqzPrefs.prefHasUserValue('changelogURL') ?
-                            CliqzUtils.getPref('changelogURL') :
-                            CliqzUtils.CHANGELOG;
+
+        if(false && upgrade && CliqzUtils.getPref('showChangelog', false)){
+            var clURL = CliqzUtils.getPref('changelogURL', CliqzUtils.CHANGELOG);
             CliqzUtils.openOrReuseAnyTab(clURL, CliqzUtils.UPDATE_URL, false);
         }
     },
@@ -235,12 +230,6 @@ var Extension = {
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
         }
 
-        if (!win.Application.prefs.getValue(firstRunSharePref, false)) {
-            win.Application.prefs.setValue(firstRunSharePref, true);
-
-            ToolbarButtonManager.setDefaultPosition(SHARE_BTN_ID, 'nav-bar', 'downloads-button');
-        }
-
         if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
             //try to hide quick search
             try{
@@ -277,33 +266,6 @@ var Extension = {
         }, false);
 
         ToolbarButtonManager.restorePosition(doc, button);
-
-        //share btn
-        let shareButton = win.document.createElement('toolbarbutton');
-        shareButton.setAttribute('id', SHARE_BTN_ID);
-        shareButton.setAttribute('label', 'CLIQZ Share');
-        shareButton.setAttribute('tooltiptext', 'CLIQZ Share');
-        shareButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        shareButton.style.listStyleImage = 'url(chrome://cliqzres/content/skin/share_btn.png)';
-
-        // localization mechanism might take a while to load.
-        // TODO: find better sollution
-        CliqzUtils.setTimeout(function(){
-            if(CliqzUtils){
-                shareButton.setAttribute('label', CliqzUtils.getLocalizedString('btnShare'));
-                shareButton.setAttribute('tooltiptext', CliqzUtils.getLocalizedString('btnShare'));
-            }
-        }, 2000);
-
-        shareButton.addEventListener('command', function(ev) {
-            try{
-                var doc =  win.document.getElementById('content').selectedTab.linkedBrowser.contentDocument;
-                win.location.href = 'mailto:?subject=' + encodeURIComponent('Via CLIQZ: ' + doc.title) +
-                                    '&body=' + encodeURIComponent(doc.URL + ' \r\n \r\n -- \r\n CLIQZ Beta - http://cliqz.com');
-            } catch(e){}
-        }, false);
-
-        ToolbarButtonManager.restorePosition(doc, shareButton);
     },
     // creates the menu items at first click
     createMenuifEmpty: function(win, menupopup){
@@ -323,9 +285,6 @@ var Extension = {
             if(win && win.document){
                 var btn;
                 if(btn = win.document.getElementById('cliqz-button')){
-                    btn.parentNode.removeChild(btn);
-                }
-                if(btn = win.document.getElementById('cliqz-share-button')){
                     btn.parentNode.removeChild(btn);
                 }
             }

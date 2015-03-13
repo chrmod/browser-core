@@ -1,4 +1,7 @@
 {
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
     },
@@ -22,9 +25,6 @@
     },
     "btnRegion":{
         "message": "Regionale Ergebnisse"
-    },
-    "btnShare":{
-        "message": "CLIQZ Share"
     },
     "btnSafeSearch":{
         "message": "Ich nehme teil"

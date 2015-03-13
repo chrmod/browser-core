@@ -1,6 +1,6 @@
 <div class='cqz-result-h3'>
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>
+        <div class='cqz-result-title overflow'>
             {{ emphasis title text 2 true }}
         </div>
         <div class='cqz-result-url overflow

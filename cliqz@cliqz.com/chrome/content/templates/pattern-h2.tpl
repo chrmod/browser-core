@@ -1,8 +1,8 @@
-<div class='cqz-result-h2 cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title cliqz-pattern-title-h2 overflow' selectable=''>
+<div class='cqz-result-h2 cqz-result-padding cqz-result-pattern'>
+      <div class='cqz-ez-title cliqz-pattern-title-h2 overflow' arrow='false' url='{{data.url}}'>
           {{ data.title }}
       </div>
-      <div>
+      <div class='cliqz-pattern'>
         {{#each data.urls}}
         <div class='cliqz-pattern-element overflow'
             {{#if favicon }}
@@ -14,7 +14,7 @@
              domain='{{domain}}'
              extra='{{extra}}'
              arrow="false">
-            <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
+            <div class='cliqz-pattern-element-title'>{{ title }}</div>
             <div class='cliqz-pattern-element-link'>{{ link }}</div>
         </div>
         {{/each}}
