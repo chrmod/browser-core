@@ -13,7 +13,7 @@
 
 
 /* Images search (beta) */
-
+/*
 #cliqz-results .cqz-result-images {
      padding: 3px 0px 0px 15px;
     -moz-box-sizing: border-box;
@@ -91,9 +91,7 @@
 #cliqz-results .cqz-result-images .cliqz-image-hilight{
     display: none;
     white-space: normal;
-    /* word-wrap: break-word; */
     overflow: hidden;
-    /* text-overflow: ellipsis; */
     color: rgba(255, 255, 255, 1);
     background-color: rgba(0,0,0,0.65);
     position: absolute;
@@ -118,6 +116,7 @@
     left:5px;
     z-index: 5;
 }
+*/
 
 .notransition {
   -webkit-transition: none !important;
