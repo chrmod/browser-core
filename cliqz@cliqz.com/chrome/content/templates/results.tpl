@@ -10,14 +10,11 @@
 				{{/unless}}
 			{{/if}}
 			idx='{{ @index }}'
-			style="width:{{../width}}px"
 			hasimage='{{ hasimage image }}'
 			>
 			{{partial vertical}}
 		</div>
 	{{/unless}}
 {{/each}}
-{{#if showAdult}}
-	{{>adult}}
-{{/if}}
-<div class='cqz-result-selected'></div>
+
+<div class='cqz-result-selected transition'></div>

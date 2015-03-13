@@ -59,9 +59,8 @@ var CliqzABTests = CliqzABTests || {
             });
     },
     retrieve: function(callback) {
-        var url = CliqzABTests.URL + encodeURIComponent(
-                CliqzUtils.cliqzPrefs.getCharPref('session'));
-        //req.overrideMimeType('application/json');
+        var url = CliqzABTests.URL + encodeURIComponent(CliqzUtils.getPref('session',''));
+
         var onerror = function(){ CliqzUtils.log("failed to get AB test data",
                                                  "CliqzABTests.retrieve") }
 
@@ -115,6 +114,9 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1023_B":
                 CliqzUtils.setPref("localSpellCheck", true);
+                break;
+            case "1024_B":
+                CliqzUtils.setPref("categoryAssessment", true);
                 break;
 
 
@@ -238,6 +240,9 @@ var CliqzABTests = CliqzABTests || {
             case "1023_A":
             case "1023_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                break;
+            case "1024_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
 
             default:

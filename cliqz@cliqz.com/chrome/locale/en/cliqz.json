@@ -6,7 +6,7 @@
         "message": "What is CLIQZ? <-- try it yourself, eg: 'weather new york'"
     },
     "settings":{
-        "message": "Settings"
+        "message": "SETTINGS"
     },
     "btnPrivacy":{
         "message": "Privacy Policy"
@@ -23,17 +23,20 @@
     "btnRegion":{
         "message": "Local Results"
     },
-    "btnShare":{
-        "message": "CLIQZ Share"
+    "btnSafeSearch":{
+        "message": "Take part"
+    },
+    "btnSafeSearchDesc":{
+        "message": "What is this?"
     },
     "urlBarLastSearch":{
         "message":"↵  "
     },
     "noResultTitle":{
-        "message": "we don't have great results this time."
+        "message": "We don't have great results this time."
     },
     "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:."
+        "message":"press enter to search on {}, or try one of these:"
     },
     "noResults": {
         "message":"No results"
@@ -303,7 +306,7 @@
       "message":"Did you really mean "
     },
     "result_filter": {
-      "message":"Result filter"
+      "message":"Explicit content"
     },
     "age": {
         "message": "Age"
@@ -318,19 +321,19 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Some adult content has been hidden."
+        "message": "Explicit content has been hidden."
     },
     "adultAction": {
         "message": "Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"Conservative"
+      "message":"block"
     },
     "adultModerate": {
-      "message":"Moderate"
+      "message":"filter"
     },
     "adultLiberal": {
-      "message":"Liberal"
+      "message":"always show"
     },
     "yes": {
         "message": "Yes"
@@ -364,5 +367,35 @@
     },
     "cliqz_privacy":{
         "message": "Privacy"
+    },
+    "cliqz_stock_open": {
+        "message": "Open"
+    },
+    "cliqz_stock_high": {
+        "message": "High"
+    },
+    "cliqz_stock_low": {
+        "message": "Low"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Market Cap."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "P/E ratio(ttm)"
+    },
+    "cliqz_stock_minutes_ago": {
+       "message": "minutes ago"
+    },
+    "OutOfCoverageWarning": {
+       "message": "CLIQZ’s results for your country are not so \"gut\" yet. We will get better outside of Germany soon."
+    },
+    "keep-cliqz": {
+      "message": "OK"
+    },
+    "disable-cliqz": {
+      "message": "Disable Cliqz"
+    },
+    "btnActivateCliqz": {
+      "message": "Activate Cliqz"
     }
 }

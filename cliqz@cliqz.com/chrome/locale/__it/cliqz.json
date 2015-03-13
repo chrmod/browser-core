@@ -17,17 +17,8 @@
     "btnRegion":{
         "message": "Localizzazione dei risultati"
     },
-    "btnShare":{
-        "message": "CLIQZ Share"
-    },
     "urlBarLastSearch":{
         "message":"↵  "
-    },
-    "noResultTitle":{
-        "message": "we don't have great results this time."
-    },
-    "noResultMessage":{
-        "message":"press enter to search on ..., or try one of these:."
     },
     "noResults": {
         "message":"Nessun risultato"

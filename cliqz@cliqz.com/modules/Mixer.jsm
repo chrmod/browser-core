@@ -34,39 +34,33 @@ CliqzUtils.init();
 var Mixer = {
     ezCache: {},
     ezURLs: {},
+    EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
         // nothing
     },
-	mix: function(q, history, cliqz, cliqzExtra, instant, history_backfill, bundesligaResults, maxResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, history_backfill, customResults, only_instant){
 		var results = [];
-
-        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
-        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
-        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
 
         if(!instant)
             instant = [];
         if(!cliqz)
             cliqz = [];
+        if(!cliqzExtra)
+            cliqzExtra = [];
 
-        var _res;
-        if (CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
-           _res = [history, null];
-        } else {
-          _res = CliqzClusterHistory.cluster(history);
+        // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
+        // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
+        // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
+        // CliqzUtils.log("backfill:   " + JSON.stringify(history_backfill), "Mixer");
+        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+
+        // extract the entity zone accompanying the first cliqz result, if any
+        if(cliqz && cliqz.length > 0) {
+            if(cliqz[0].extra) {
+                cliqzExtra.push(Result.cliqzExtra(cliqz[0].extra));
+                CliqzUtils.log("EZ found in result for " + cliqz[0].url, "Mixer");
+            }
         }
-        var history_trans = _res[0];
-        var cluster_data = _res[1];
-
-		/// 1) put each result into a bucket
-        var bucketHistoryDomain = [],
-            bucketHistoryOther = [],
-            bucketCache = [],
-            bucketHistoryCache = [],
-            bucketHistoryCluster = [],
-            bucketBookmark = [],
-            bucketBookmarkCache = [];
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
@@ -81,13 +75,15 @@ var Mixer = {
                 var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
                 if(cl_url == instant_url) {
                     var temp = Result.combine(cliqz[i], instant[0]);
-                    instant_new.push(temp);
+                    // don't keep this one if we already have one entry like this
+                    if(instant_new.length == 0)
+                        instant_new.push(temp);
                     duplicate = true;
                 }
 
                 // Do any of the sublinks match?
                 if(instant[0].style == 'cliqz-pattern') {
-                    for(var u = 0; u < instant[0].data.urls; u++) {
+                    for(var u in instant[0].data.urls) {
                         var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
@@ -108,206 +104,134 @@ var Mixer = {
         if(instant_new.length == 0 && instant.length > 0)
             instant_new.push(Result.clone(instant[0]));
         instant = instant_new;
-        
+
         cliqz = cliqz_new;
 
-        for (var i = 0; history_trans && i < history_trans.length; i++) {
-            var style = history_trans[i]['style'],
-                value = history_trans[i]['value'],
-                image = history_trans[i]['image'],
-                comment = history_trans[i]['comment'],
-                label = history_trans[i]['label'];
+        var results = instant;
 
-            var bookmark = false;
-            if (style.indexOf('tag') == 0 || style.indexOf('bookmark') == 0) {
-                bookmark = true;
-            }
-
-            // Deduplicate: check if this result is also in the cache results
-            var cacheIndex = -1;
-            for(var i in cliqz || []) {
-                if(cliqz[i].url == label) {
-                    // combine sources
-                    var tempResult = Result.cliqz(cliqz[i]);
-                    tempResult.style = CliqzUtils.combineSources(style, tempResult.style);
-                    tempResult.data.kind = CliqzUtils.encodeResultType(style).concat(tempResult.data.kind);;
-                    //use the title from history/bookmark - might be manually changed - eg: for tag results
-                    if(comment) tempResult.comment = comment;
-
-                    if (bookmark)
-                        bucketBookmarkCache.push(tempResult);
-                    else
-                        bucketHistoryCache.push(tempResult);
-
-                    cacheIndex = i;
-                    break;
-                }
-            }
-
-            if(cacheIndex >= 0) {
-                // if also found in cache, remove so it is not added to cache-only bucket
-                cliqz.splice(cacheIndex, 1);
-            } else {
-                var urlparts = CliqzUtils.getDetailsFromUrl(label);
-
-                if(bookmark) {
-                    bucketBookmark.push(Result.generic(style, value, image, comment, label, q));
-                }
-                else if(Result.isValid(label, urlparts)) {
-                    // Assign to different buckets if the search string occurs in hostname
-                    if(urlparts.host.toLowerCase().indexOf(q) !=-1)
-                        bucketHistoryDomain.push(Result.generic(style, value, image, comment, label, q));
-                    else
-                        bucketHistoryOther.push(Result.generic(style, value, image, comment, label, q));
-                }
-            }
+        for(let i = 0; i < cliqz.length; i++) {
+            results.push(Result.cliqz(cliqz[i]));
         }
 
-        for(var i in cliqz || []) {
-            bucketCache.push(Result.cliqz(cliqz[i]));
-        }
+// NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
+// Consider taking some ideas from this function but not all.
+        results = Filter.deduplicate(results, -1, 1, 1);
 
-        /// 2) Prepare final result list from buckets
-
-        if(!only_instant) { // do not mix in everything is this is only for instant result
-
-            // the top history with matching domain will be show already via instant-serve
-            // all bucketBookmarksCache
-            for(var i = 0; i < bucketBookmarkCache.length; i++) {
-                bucketBookmarkCache[i].comment += " (bookmark and vertical: " + bucketBookmarkCache[i].query + ")!";
-                results.push(bucketBookmarkCache[i]);
-            }
-
-            // all bucketBookmarks
-            for(var i = 0; i < bucketBookmark.length; i++) {
-                bucketBookmark[i].comment += " (bookmark: " + bucketBookmark[i].query + ")!";
-                results.push(bucketBookmark[i]);
-            }
-
-            // all bucketHistoryCache
-            for(var i = 0; i < bucketHistoryCache.length; i++) {
-                bucketHistoryCache[i].comment += " (history and vertical: " + bucketHistoryCache[i].query + ")!";
-                results.push(bucketHistoryCache[i]);
-            }
-
-            // top 1 of bucketCache
-            if(bucketCache.length > 0) {
-                bucketCache[0].comment += " (top vertical: " + bucketCache[0].query + ")!";
-                results.push(bucketCache[0]);
-            }
-
-            // top 2 of bucketHistoryDomain
-            for(var i = 0; i < Math.min(bucketHistoryDomain.length, 2); i++) {
-                bucketHistoryDomain[i].comment += " (top history domain)!";
-                results.push(bucketHistoryDomain[i]);
-            }
-
-            // rest of bucketCache
-            for(var i = 1; i < bucketCache.length && i < 10; i++) {
-                bucketCache[i].comment += " (vertical: " + bucketCache[i].query + ")!";
-                results.push(bucketCache[i]);
-            }
-
-            // rest of bucketHistoryDomain
-            for(var i = 2; i < bucketHistoryDomain.length; i++) {
-                bucketHistoryDomain[i].comment += " (history domain)!";
-                results.push(bucketHistoryDomain[i]);
-            }
-
-            // all bucketHistoryOther
-            for(var i = 0; i < bucketHistoryOther.length; i++) {
-                bucketHistoryOther[i].comment += " (history other)!";
-                results.push(bucketHistoryOther[i]);
-            }
-
-            // add external bundesliga API results
-            if(bundesligaResults && bundesligaResults.length > 0)
-                results = bundesligaResults.concat(results);
-        }
-
-        var unfiltered = instant.concat(results);
-        results = Filter.deduplicate(unfiltered, -1, 1, 1);
+        //allow maximum 3 BM results
+        var cliqzRes = 0;
+        results = results.filter(function(r){
+            if(r.style.indexOf('cliqz-results ') == 0) cliqzRes++;
+            return cliqzRes <= 3;
+        })
 
         // Find any entity zone in the results and cache them for later use
-        if(cliqzExtra && cliqzExtra.length > 0) {
-            for(var i=0; i < cliqzExtra.length; i++){
-                var r = cliqzExtra[i];
-                if(r.style == 'cliqz-extra'){
-                    if(r.val != "" && r.data.subType){
-                        var eztype = JSON.parse(r.data.subType).ez;
-
-                        if(eztype) {
-                            CliqzUtils.log("Caching EZ " + eztype, "Mixer")
-                            Mixer.ezCache[eztype] = r;
-                            var temp_url = CliqzHistoryPattern.generalizeUrl(r.val, true);
-                            Mixer.ezURLs[temp_url] = eztype;
+        // go backwards to be sure to cache the newest (which will be first in the list)
+        for(var i=(cliqzExtra || []).length - 1; i >= 0; i--){
+            var r = cliqzExtra[i];
+            if(r.style == 'cliqz-extra'){
+                if(r.val != "" && r.data.subType){
+                    CliqzUtils.log(JSON.stringify(r));
+                    var eztype = JSON.parse(r.data.subType).ez;
+                    var trigger_urls = r.data.trigger_urls || [];
+                    if(eztype && trigger_urls.length > 0) {
+                        for(var j=0; j < trigger_urls.length; j++) {
+                            CliqzUtils.log("EZ " + eztype + " <-- " + trigger_urls[j]);
+                            Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
+                        Mixer.ezCache[eztype] = r;
                     }
                 }
             }
-        } else if(results.length > 0) {
-            // Take the first entry and see if we can trigger an EZ with it
-            var url = CliqzHistoryPattern.generalizeUrl(results[0].label, true);
-            CliqzUtils.log("Check if url triggers EZ: " + url, "Mixer");
+        }
+
+        // Take the first entry and see if we can trigger an EZ with it,
+        // this will override an EZ sent by backend.
+        if(results.length > 0) {
+
+            var url = results[0].val;
+            // if there is no url associated with the first result, try to find it inside
+            if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
+                url = results[0].data.urls[0].href;
+
+            url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
-                CliqzUtils.log("Yes, it is cached? ID: "  + Mixer.ezURLs[url], "Mixer");
+                // TODO: update cached EZ from rich-header-server
+                // TODO: perhaps only use this cached data if newer than certain age
                 var ez = Mixer.ezCache[Mixer.ezURLs[url]];
                 if(ez) {
-                    CliqzUtils.log("Yes, here it is: " + JSON.stringify(ez), "Mixer");
+                    CliqzUtils.log("Triggering EZ based on local cache with " + url, "Mixer");
                     cliqzExtra = [ez];
                 }
             }
         }
 
+        // limit to one entity zone
+        cliqzExtra = cliqzExtra.slice(0, 1);
+
         // add extra (fun search) results at the beginning
         if(cliqzExtra && cliqzExtra.length > 0) {
+            // Remove entity links form history
+            if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
+                var mainUrl = cliqzExtra[0].val;
+                var history = results[0].data.urls;
+                CliqzHistoryPattern.removeUrlFromResult(history, mainUrl);
+                // Go through entity data and search for urls
+                for(var k in cliqzExtra[0].data) {
+                    for(var l in cliqzExtra[0].data[k]) {
+                        if(cliqzExtra[0].data[k][l].url) {
+                            CliqzHistoryPattern.removeUrlFromResult(history, cliqzExtra[0].data[k][l].url);
+                        }
+                    }
+                }
+                // Change size or remove history if necessary
+                if(history.length == 0) results.splice(0,1);
+                else if(history.length == 2) results[0].data.template = "pattern-h3";
+            }
 
-            // if the first result is a history cluster,
-            // combine it with the entity zone
-            if(CliqzUtils.getPref('newCombinedEZ') &&
-               results.length > 0 && 
-               results[0].data && results[0].data.template == "pattern-h2" &&
-               cliqzExtra[0].data.template == "entity-generic") {
+            // if the first result is a history cluster and
+            // there is an EZ of a supported types then make a combined entry
+            if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
+              Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1) {
 
-                results[0].style = "cliqz-extra";
-
-                // combine data from the two entries:
-                for (var _res in Iterator(cliqzExtra[0].data))
-                    results[0].data[_res[0]] = _res[1];
-
-                // use special combined template
-                results[0].data.template = "entity-generic-history";
-
+                var temp_history = results[0];
+                results[0] = cliqzExtra[0];
+                results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
+            }
+            // Convert 2/3 size history into 1/3 to place below EZ
+            else if(results.length > 0 &&
+                    results[0].data && results[0].data.template == "pattern-h2" &&
+                    CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
+                results[0].data.template = "pattern-h3";
                 // limit number of URLs
-                results[0].data.urls = results[0].data.urls.slice(0,4);
-                results = [results[0]];
-
+                results[0].data.urls = (results[0].data.urls || []).slice(0,2);
+                results = cliqzExtra.concat(results);
             } else {
                 results = cliqzExtra.concat(results);
             }
         }
 
+        // Add custom results to the beginning if there are any
+        if(customResults && customResults.length > 0) {
+            results = customResults.concat(results);
+        }
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
-            var path = "http://cdn.cliqz.com/extension/EZ/noResult/";
-            var title = CliqzUtils.getLocalizedString('noResultTitle'),
-                msg = CliqzUtils.getLocalizedString('noResultMessage'),
-                current_search_engine = Services.search.currentEngine.name;
-
             var alternative_search_engines_data = [// default
-                                {"name": "DuckDuckGo", "code": null, "logo": path+"duckduckgo.svg", "background-color": "#ff5349"},
-                                {"name": "Bing", "code": null, "logo": path+"Bing.svg", "background-color": "#ffc802"},
-                                {"name": "Google", "code": null, "logo": path+"google.svg", "background-color": "#5ea3f9"},
-                                {"name": "Google Images", "code": null, "logo": path+"google-images-unofficial.svg", "background-color": "#56eac6"},
-                                {"name": "Google Maps", "code": null, "logo": path+"google-maps-unofficial.svg", "background-color": "#5267a2"}
-                            ],
-                alt_s_e;
+                {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+                {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
+                {"name": "Google", "base_url": "http://www.google.de"},
+                {"name": "Google Images", "base_url": "http://images.google.de/"},
+                {"name": "Google Maps", "base_url": "http://maps.google.de/"}
+            ];
 
             for (var i = 0; i< alternative_search_engines_data.length; i++){
-                alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
+                var alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
                 if (typeof alt_s_e != 'undefined'){
                     alternative_search_engines_data[i].code = alt_s_e.code;
+                    var url = alternative_search_engines_data[i].base_url || alt_s_e.base_url;
+                    alternative_search_engines_data[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+                    alternative_search_engines_data[i].text = alt_s_e.prefix.slice(1);
                 }
             }
 
@@ -317,10 +241,11 @@ var Mixer = {
                         data:
                         {
                             template:'noResult',
-                            text_line1: title,
-                            text_line2: msg.replace("...", current_search_engine),
+                            text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                            text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
                             "search_engines": alternative_search_engines_data,
-                            "cliqz_logo": path+"EZ-no-results-cliqz.svg"
+                            //use local image in case of no internet connection
+                            "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
                         },
                         subType: JSON.stringify({empty:true})
                     }
@@ -328,30 +253,7 @@ var Mixer = {
             );
         }
 
-        // getMax 3 results height
-        var new_results = [];
-        var i =0;
-        for(i=0; i<results.length && i<3; i++){
-            new_results.push(results[i]);
-            if((results[i].style == 'cliqz-extra' || (results[i].style.indexOf('cliqz-pattern') == 0)) && results[i].data){
-                i += (CliqzUtils.TEMPLATES[results[i].data.template]-1);
-            }
-        }
-
-        // // TEMPORARY: add in empty entries to fill up three
-        // for(var j=i; j<3; j++) {
-        //     new_results.push(Result.generic('favicon', " ", null, " ", " ", q));
-        // }
-
-        results = new_results;
-
-        // // Then add in full history backfill
-        // if(!only_instant)
-        //     results = results.concat(history_backfill);
-
-        // CliqzUtils.log("results:   " + JSON.stringify(results), "Mixer");
-
-        return [results, unfiltered];
+        return results;
     }
 }
 

@@ -19,7 +19,7 @@ function log(msg){
 
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
-    if(result.source == 'bm' && result.snippet && result.snippet.rich_data){
+    if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
         return result.snippet.rich_data.type
     }
     return null;
@@ -27,9 +27,7 @@ function getSuperType(result){
 
 var Result = {
     CLIQZR: 'cliqz-results',
-    CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
-    CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
@@ -107,7 +105,8 @@ var Result = {
     },
     cliqzExtra: function(result){
         result.data.subType = result.subType;
-        
+        result.data.trigger_urls = result.trigger_urls;
+
         return Result.generic(
             Result.CLIQZE, //style
             result.url, //value
@@ -141,7 +140,7 @@ var Result = {
         //    www.google.*/url? - for redirects
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
-           (urlparts.path.indexOf("/search?") == 0 || urlparts.path.indexOf("/url?") == 0)) {
+           (urlparts.extra.indexOf("/search?") == 0 || urlparts.extra.indexOf("/url?") == 0)) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -149,7 +148,7 @@ var Result = {
         // Filter all like:
         //    www.bing.com/search?
         if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.path.indexOf("/search?") == 0) {
+           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -176,7 +175,8 @@ var Result = {
 
         var urlparts = CliqzUtils.getDetailsFromUrl(result.url),
             resp = {
-                richData: result.snippet.rich_data
+                richData: result.snippet.rich_data,
+                adult: result.snippet.adult || false
             },
             source = getSuperType(result) || result.source;
 

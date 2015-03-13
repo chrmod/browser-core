@@ -1,0 +1,8 @@
+
+/* New class: for entity-generic-history to separate list of history entries from EZ material. */
+#cliqz-results .cliqz-history-results { margin-top: 16px; }
+
+/* Overrides corresponding line in browsers.css */
+#cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
+    margin-bottom: 8px;
+}
