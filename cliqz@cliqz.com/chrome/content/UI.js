@@ -1056,7 +1056,7 @@ function getResultPosition(el){
 }
 
 function getResultKind(el){
-    return getResultOrChildAttr(el, 'kind').split(',');
+    return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 function getResultOrChildAttr(el, attr){
@@ -1471,6 +1471,24 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     }
 }
 
+function getStatus(ev, el){
+  var oTarget = ev.originalTarget;
+
+  return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
+          CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''
+     )
+     ||
+     //deepUrl
+     (oTarget.hasAttribute('show-status') &&
+        (oTarget.getAttribute('url')
+          ||
+         oTarget.parentElement.hasAttribute('show-status') && oTarget.parentElement.getAttribute('url'))
+     )
+     ||
+     //arrowUrl
+     (el.hasAttribute('arrow') ? el.getAttribute('url') : '');
+}
+
 var lastMoveTime = Date.now();
 function resultMove(ev){
     if (Date.now() - lastMoveTime > 50) {
@@ -1483,10 +1501,7 @@ function resultMove(ev){
         lastMoveTime = Date.now();
 
         if(!el) return;
-        var newTab = ev.originalTarget.hasAttribute('newtab') && el.getAttribute('url') ? CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')): '',
-            deepUrl = ev.originalTarget.hasAttribute('show-status') && ev.originalTarget.getAttribute('url'),
-            arrowUrl = el.hasAttribute('arrow') ? el.getAttribute('url') : '';
-        XULBrowserWindow.setOverLink(newTab || deepUrl || arrowUrl);
+        XULBrowserWindow.setOverLink(getStatus(ev, el));
     }
 }
 
@@ -1814,6 +1829,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    Handlebars.registerHelper('kind_printer', function(kind) {
+        //we need to join with semicolon to avoid conflicting with the comma from json objects
+        return kind.join(';');
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
