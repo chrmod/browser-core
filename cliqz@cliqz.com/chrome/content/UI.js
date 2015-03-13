@@ -1056,7 +1056,7 @@ function getResultPosition(el){
 }
 
 function getResultKind(el){
-    return getResultOrChildAttr(el, 'kind').split(',');
+    return getResultOrChildAttr(el, 'kind').split(';');
 }
 
 function getResultOrChildAttr(el, attr){
@@ -1829,6 +1829,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
         return width - reduction;
+    });
+
+    Handlebars.registerHelper('kind_printer', function(kind) {
+        //we need to join with semicolon to avoid conflicting with the comma from json objects
+        return kind.join(';');
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
