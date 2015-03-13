@@ -400,5 +400,14 @@
     },
     "btnActivateCliqz": {
       "message": "Activate Cliqz"
+    },
+    "publish_date": {
+        "message": "Publish date"
+    },
+    "Click anywhere to copy":{
+        "message": "Click anywhere to copy"
+    },
+    "Copied":{
+        "message": "Copied"
     }
 }
