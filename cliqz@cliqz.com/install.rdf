@@ -11,9 +11,9 @@
 		<em:bootstrap>true</em:bootstrap>
 
 		<!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
-		
+
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
-		
+
 
 		<em:description>Cliqz hilft Dir beim Finden im Internet.
 
