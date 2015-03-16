@@ -25,6 +25,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 var CliqzUCrawl = {
     VERSION: '0.06',
+    TAG:'new-ui',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
     debug: true,
@@ -1250,6 +1251,7 @@ var CliqzUCrawl = {
 
       msg.ts = (new Date()).getTime();
       msg.ver = CliqzUCrawl.VERSION;
+      msg.tag = CliqzUCrawl.TAG;
 
       CliqzUCrawl.trk.push(msg);
       CliqzUtils.clearTimeout(CliqzUCrawl.trkTimer);
