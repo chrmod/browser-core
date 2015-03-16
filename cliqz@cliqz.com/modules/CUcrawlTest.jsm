@@ -38,7 +38,7 @@ var CUcrawlTest = {
     VERSION: 'moz-test 0.01',
     WAIT_TIME: 2000,
     LOG_KEY: 'moz-test-ucrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
