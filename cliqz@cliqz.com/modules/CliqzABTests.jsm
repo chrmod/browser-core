@@ -12,6 +12,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
+  'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
@@ -76,7 +79,9 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
-
+            case "1017_A":
+                CliqzUtils.setPref("safeBrowsing", true);
+                break;
             case "1019_A":
                 CliqzUtils.setPref("newHistory", false);
                 break;
@@ -118,7 +123,9 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
-
+            case "1025_B":
+                CliqzUtils.setPref("safeBrowsingMoz", true);
+                break;
 
             default:
                 rule_executed = false;
@@ -216,10 +223,9 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
-            case "1016_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
-                CliqzAutocomplete.spellCorrectionDict = {};
-                break;
+            case "1017_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
+                CliqzUCrawl.outOfABTest();
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
@@ -243,6 +249,10 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1024_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
+                break;
+            case "1025_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
+                CUcrawlTest.outOfABTest();
                 break;
 
             default:

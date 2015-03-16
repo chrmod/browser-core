@@ -36,6 +36,8 @@ var Extension = {
 
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.import('chrome://cliqzmodules/content/CUcrawlTest.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
@@ -47,7 +49,19 @@ var Extension = {
 
         CliqzClusterHistory.init();
     },
-    load: function(upgrade){
+    load: function(upgrade, oldVersion, newVersion){
+        if(oldVersion == '0.5.65'){
+            try{ Extension.unload(false, false); } catch(e){}
+            Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+            Cu.import('chrome://cliqzmodules/content/CUcrawlTest.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+            Cu.import('resource://gre/modules/Services.jsm');
+
+        }
+
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -63,6 +77,10 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
+        if(CliqzUtils.getPref("safeBrowsingMoz", false)){
+            CUcrawlTest.initAtBrowser();
+        }
+
         // open changelog on update
 
         if(false && upgrade && CliqzUtils.getPref('showChangelog', false)){
@@ -71,6 +89,10 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
+        if(CliqzUtils.getPref("safeBrowsingMoz", false)){
+            CUcrawlTest.destroyAtBrowser();
+        }
+
         if(uninstall){
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
@@ -141,6 +163,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CUcrawlTest.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
@@ -292,6 +315,7 @@ var Extension = {
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;
+
         }catch(e){Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {

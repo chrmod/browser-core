@@ -1092,6 +1092,17 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.track(action);
       CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
+
+      if(!CliqzUtils.isPrivateResultType(action.position_type)){
+          if (CliqzUCrawl && CliqzUCrawl.queryCache) {
+              CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
+          }
+      }
+      else{
+          if (CliqzUCrawl && CliqzUCrawl.queryCache) {
+              CliqzUCrawl.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
+          }
+      }
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
@@ -1108,7 +1119,6 @@ function resultClick(ev){
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){
@@ -1345,7 +1355,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = el;
-
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
         UI.lastSelectedUrl = "";

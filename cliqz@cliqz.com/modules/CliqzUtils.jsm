@@ -55,6 +55,7 @@ var CliqzUtils = {
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
+  SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   LOG:                            'https://logging.cliqz.com',
   CLIQZ_URL:                      'https://beta.cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
@@ -67,7 +68,6 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1423762658427,
-
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -657,7 +657,6 @@ var CliqzUtils = {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
     }
   },
-
   trackResult: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     CliqzUtils.setResultOrder(resultOrder);
     CliqzUtils.httpGet(
@@ -744,6 +743,9 @@ var CliqzUtils = {
     if (i >= 0) {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
+  },
+  setInterval: function(func, timeout, param) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
   },
   setTimeout: function(func, timeout, param) {
     return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
@@ -922,6 +924,14 @@ var CliqzUtils = {
   },
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
+  },
+  clone: function(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    }
+    return copy;
   },
   performance: {
     backend: function(delay){

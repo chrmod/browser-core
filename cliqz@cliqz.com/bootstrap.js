@@ -7,8 +7,14 @@ Cm.QueryInterface(Ci.nsIComponentRegistrar);
 XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
   'chrome://cliqzmodules/content/Extension.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
+  'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawlTest',
+  'chrome://cliqzmodules/content/CUcrawlTest.jsm');
+
 function startup(aData, aReason) {
-    Extension.load(aReason == ADDON_UPGRADE);
+    Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
     Cm.registerFactory(
         AboutURL.prototype.classID,
         AboutURL.prototype.classDescription,
@@ -18,6 +24,8 @@ function startup(aData, aReason) {
 }
 
 function shutdown(aData, aReason) {
+    CliqzUCrawl.destroy();
+    CUcrawlTest.destroy();
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
@@ -26,7 +34,10 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
+
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
+    Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+    Cu.unload('chrome://cliqzmodules/content/CUcrawlTest.jsm');
 
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 }
