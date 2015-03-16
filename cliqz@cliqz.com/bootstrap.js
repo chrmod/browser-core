@@ -8,7 +8,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
   'chrome://cliqzmodules/content/Extension.jsm');
 
 function startup(aData, aReason) {
-    Extension.load(aReason == ADDON_UPGRADE);
+    Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
     Cm.registerFactory(
         AboutURL.prototype.classID,
         AboutURL.prototype.classDescription,
