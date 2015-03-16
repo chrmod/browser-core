@@ -18,7 +18,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
-    MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
     VERTICALS = {
         //'s': 'shopping',
         //'g': 'gaming'  ,
@@ -899,8 +899,25 @@ function enhanceResults(res){
     }
     else if (notSupported()) {
       updateMessageState("show", {
-          "bad_results_warning": {}
+          "footer-message": getNotSupported()
        });
+    }
+    else if(CliqzUtils.getPref('changeLogState', 0) == 1){
+      updateMessageState("show", {
+        "footer-message": {
+          message: CliqzUtils.getLocalizedString('updateMessage'),
+          options: [{
+              text: CliqzUtils.getLocalizedString('updatePage'),
+              action: 'update-show',
+              state: 'default'
+            }, {
+              text: CliqzUtils.getLocalizedString('updateDismiss'),
+              action: 'update-dismiss',
+              state: 'gray'
+            }
+          ]
+        }
+      });
     }
     else {
       updateMessageState("hide");
@@ -918,6 +935,23 @@ function notSupported(r){
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
     return lang != 'de' && lang.split('-')[0] != 'de';
+}
+
+function getNotSupported(){
+  return {
+    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    type: 'cqz-message-alert',
+    options: [{
+        text: CliqzUtils.getLocalizedString('keep-cliqz'),
+        action: 'keep-cliqz',
+        state: 'success'
+      }, {
+        text: CliqzUtils.getLocalizedString('disable-cliqz'),
+        action: 'disable-cliqz',
+        state: 'error'
+      }
+    ]
+  }
 }
 
  /*
@@ -943,7 +977,7 @@ function notSupported(r){
                 "adult": {
                     "adultConfig": CliqzUtils.getAdultFilterState()
                 },
-                "bad_results_warning": {
+                "footer-message": {
                   // Template has no arguments.
                 }
              });
@@ -1009,10 +1043,11 @@ function messageClick(ev) {
         case 'adult':
           handleAdultClick(ev);
           break;
-        case 'disable-cliqz':
+        case 'footer-message-action':
           // "Cliqz is not optimized for your country" message */
           var state = ev.originalTarget.getAttribute('state');
           switch(state) {
+              //not supported country
               case 'disable-cliqz':
                   CliqzUtils.setPref("cliqz_core_disabled", true);
                   updateMessageState("hide");
@@ -1029,6 +1064,15 @@ function messageClick(ev) {
                   updateMessageState("hide");
                   // Lets us know that the user has ignored the warning
                   CliqzUtils.setPref('ignored_location_warning', true);
+                  break;
+
+
+              //changelog
+              case 'update-show':
+                  CLIQZ.Core.openLink(CliqzUtils.CHANGELOG, true);
+              case 'update-dismiss':
+                  updateMessageState("hide");
+                  CliqzUtils.setPref('changeLogState', 2);
                   break;
               default:
                   break;
@@ -1186,7 +1230,7 @@ function handleAdultClick(ev){
             updateMessageState("hide");
             if (user_location != "de" && !ignored_location_warning)
               updateMessageState("show", {
-                  "bad_results_warning": {}
+                  "footer-message": getNotSupported()
               });
             break;
         case 'no':
@@ -1195,7 +1239,7 @@ function handleAdultClick(ev){
             updateMessageState("hide");
             if (user_location != "de" && !ignored_location_warning)
               updateMessageState("show", {
-                  "bad_results_warning": {}
+                  "footer-message": getNotSupported()
                });
             break;
         default:
@@ -1206,7 +1250,7 @@ function handleAdultClick(ev){
                 UI.handleResults();
                 if (user_location != "de" && !ignored_location_warning)
                   updateMessageState("show", {
-                      "bad_results_warning": {}
+                      "footer-message": getNotSupported()
                    });
             }
             else {
