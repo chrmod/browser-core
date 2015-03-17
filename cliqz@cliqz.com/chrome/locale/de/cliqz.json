@@ -406,5 +406,14 @@
     },
     "Copied":{
         "message": "kopiert"
+    },
+    "updateMessage":{
+        "message": "CLIQZ ist jetzt noch schöner, noch direkter, noch sicherer."
+    },
+    "updatePage":{
+        "message": "Mehr erfahren"
+    },
+    "updateDismiss":{
+        "message": "Nachricht schließen"
     }
 }
