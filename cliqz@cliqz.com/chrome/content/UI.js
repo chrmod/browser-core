@@ -906,6 +906,7 @@ function enhanceResults(res){
       updateMessageState("show", {
         "footer-message": {
           message: CliqzUtils.getLocalizedString('updateMessage'),
+          telemetry: 'changelog',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
               action: 'update-show',
@@ -940,6 +941,7 @@ function notSupported(r){
 function getNotSupported(){
   return {
     message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    telemetry: 'international',
     type: 'cqz-message-alert',
     options: [{
         text: CliqzUtils.getLocalizedString('keep-cliqz'),
@@ -1080,7 +1082,7 @@ function messageClick(ev) {
           }
           CliqzUtils.track({
             type: 'setting',
-            setting: 'international',
+            setting: el.getAttribute('cliqz-telemetry'),
             value: state
           });
           setTimeout(CliqzUtils.refreshButtons, 0);
