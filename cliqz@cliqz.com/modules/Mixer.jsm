@@ -115,6 +115,7 @@ var Mixer = {
 
 // NOTE: Simple deduplication is done above, which is much less aggressive than the following function.
 // Consider taking some ideas from this function but not all.
+        debugger;
         results = Filter.deduplicate(results, -1, 1, 1);
 
         //allow maximum 3 BM results
