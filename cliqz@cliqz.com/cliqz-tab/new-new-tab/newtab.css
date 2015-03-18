@@ -14,13 +14,30 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
 .hidden { display: none; }
 .ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; }
 
+#add {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 40px;
+    height: 40px;
+    background: url(add-card-btn.svg) no-repeat;
+    background-size: cover;
+    cursor: pointer;
+}
+
 /* containers */
 .background {
-  background-color: #ecf0f1;
-  min-height: 100%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
+    background-color: #ecf0f1;
+    min-height: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    filter: blur(1px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 .search-container { padding-top: 100px; margin: 0 auto; box-sizing: border-box; }
 @media (min-width: 768px) { .search-container { width: 750px; } }
@@ -49,26 +66,26 @@ a, a:hover, a:visited { color: inherit; text-decoration: inherit; }
 }
 
 .news-domain {
-    height: calc(70px * 2 + 10px);
+    height: calc(70px * 2 + 15px);
 }
 .news-domain .news-section {
-    margin-top: 10px;
-    height: 70px;
+    height: 76px;
     position: relative;
     transform-style: preserve-3d;
     animation: cycle 27s linear infinite;
     animation-direction: normal;
 }
 .news-section .item {
-    height: 70px;
+    height: 88px;
     padding: 15px 10px;
     box-sizing: border-box;
     position: absolute;
     backface-visibility: hidden;
+    line-height: 1.3em;
 }
-.news-domain .news-section .item1 { transform: rotateX(0deg) translateZ(20px); }
-.news-domain .news-section .item2 { transform: rotateX(120deg) translateZ(20px); }
-.news-domain .news-section .item3 { transform: rotateX(240deg) translateZ(20px); }
+.news-domain .news-section .item1 { transform: rotateX(0deg) translateZ(25px); }
+.news-domain .news-section .item2 { transform: rotateX(120deg) translateZ(25px); }
+.news-domain .news-section .item3 { transform: rotateX(240deg) translateZ(25px); }
 
 @-moz-keyframes cycle{
   0%{

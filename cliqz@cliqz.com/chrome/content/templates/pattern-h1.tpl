@@ -1,8 +1,8 @@
-<div class='cqz-result-h1 cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title cliqz-pattern-title-h1 overflow'>
+<div class='cqz-result-h1 cqz-result-padding cqz-result-pattern'>
+      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'>
           {{ data.title }}
       </div>
-      <div>
+      <div class='cliqz-pattern'>
         {{#each data.urls}}
         <div class='cliqz-pattern-element overflow'
             {{#if favicon }}
@@ -14,7 +14,7 @@
              extra='{{extra}}'
              domain='{{domain}}'
              arrow="false">
-            <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
+            <div class='cliqz-pattern-element-title'>{{ title }}</div>
             <div class='cliqz-pattern-element-link'>{{ link }}</div>
         </div>
         {{/each}}

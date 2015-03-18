@@ -1,3 +1,7 @@
+/* -----------------------
+* @COMMENT:
+*   + Plz check the hp.tpl for wikipedia with images. thuy@cliqz.com. 12Mar2015
+/* -----------------------
 
 /* New class: for entity-generic-history to separate list of history entries from EZ material. */
 #cliqz-results .cliqz-history-results { margin-top: 16px; }
@@ -5,4 +9,135 @@
 /* Overrides corresponding line in browsers.css */
 #cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 8px;
+}
+
+
+/* Images search (beta) */
+/*
+#cliqz-results .cqz-result-images {
+     padding: 3px 0px 0px 15px;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#cliqz-results .cqz-result-images-1 {
+     height: 101px;
+}
+
+#cliqz-results .cqz-result-images-2 {
+     height: 202px;
+}
+
+#cliqz-results .cqz-result-images-3 {
+     height: 303px;
+}
+
+#cliqz-results .cqz-result-images .cqz-ez-images-title {
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-block;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+#cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-result-images .cqz-ez-images-title .after {
+    display: inline-block;
+    background-size: auto 16px;
+    background-position: 4px 2px;
+    background-repeat: no-repeat;
+    content: "";
+    width: 999999999999999px;
+    height: 18px;
+    vertical-align: top;
+}
+
+#cliqz-results .cqz-result-images .cqz-ez-images-title::after {
+  background-image: url(http://cdn.cliqz.com/extension/EZ/images/camera.png);
+}
+
+
+#cliqz-results .cqz-result-images .cliqz-images {
+}
+
+
+#cliqz-results .cqz-result-images .cliqz-image-item {
+    display: inline-block;
+    float: left;
+    position: relative;
+    padding: 1px 2px 1px 2px;
+    border-radius: 10px;
+
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-item img{
+    display: block;
+    border-radius: 10px;
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-item:hover .cliqz-image-hilight {display: block;}
+
+
+#cliqz-results .cqz-result-images .cliqz-image-hidden{
+    background-color: black;
+    filter: url(chrome://cliqzres/content/skin/blur.svg#blur);
+    filter: blur(10px);
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-clear{
+    display: block;
+    border-radius: 10px;
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-hilight{
+    display: none;
+    white-space: normal;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 1);
+    background-color: rgba(0,0,0,0.65);
+    position: absolute;
+    font-family: Courier New;
+    font-size:9px;
+    bottom: +10px;
+    z-index: 1;
+}
+
+
+#cliqz-results .cqz-result-images .cliqz-image-item > .cliqz-image-hilight:hover{
+    text-overflow:inherit;
+    overflow:visible;
+    display:hidden;
+}
+
+#cliqz-results .cqz-result-images .cliqz-image-report{
+    white-space: word-wrap;
+    overflow: hidden;
+    position: relative;
+    top: -60%;
+    left:5px;
+    z-index: 5;
+}
+*/
+
+.notransition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+.fadeIn {
+  opacity:1 !important;
+  -webkit-transition : all 0.2s ease-in !important;
+  -moz-transition : all 0.2s ease-in !important;
+  -o-transition : all 0.2s ease-in !important;
+  transition : all 0.2s ease-in !important;
+}
+
+.fadeOut {
+  opacity:0 !important;
+  -webkit-transition : all 0.2s ease-out !important;
+  -moz-transition : all 0.2s ease-out !important;
+  -o-transition : all 0.2s ease-out !important;
+  transition : all 0.2s ease-out !important;
 }

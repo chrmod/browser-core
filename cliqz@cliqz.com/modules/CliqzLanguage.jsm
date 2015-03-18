@@ -42,7 +42,7 @@ var CliqzLanguage = {
             result_position: result_position,
             v: 1
         };
-        CliqzUtils.track(action)
+        CliqzUtils.telemetry(action)
     },
 
     listener: {
@@ -241,7 +241,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.cliqzPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.getPref('locale',''));
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();

@@ -2,7 +2,7 @@
 	{{#unless invalid}}
 		<div class='cqz-result-box'
 			type='{{ type }}'
-			kind='{{ data.kind }}'
+			kind='{{ kind_printer data.kind }}'
 			{{#if url}}
 				url='{{ url }}'
 				{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
@@ -17,4 +17,4 @@
 	{{/unless}}
 {{/each}}
 
-<div class='cqz-result-selected'></div>
+<div class='cqz-result-selected transition'></div>

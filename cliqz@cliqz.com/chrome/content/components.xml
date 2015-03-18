@@ -16,13 +16,16 @@
           this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
           this.setAttribute("onpopuphiding", "CLIQZ.UI.closeResults(event)");
           CLIQZ.UI.main(this.cliqzBox);
+
+          // adds "title" attribute support
+          this.cliqzBox.setAttribute('tooltip','aHTMLTooltip');
         ]]>
       </constructor>
       <property name="selectedIndex"
                 onget="return 0;">
         <setter>
           <![CDATA[
-            //cliqz shadowing
+            //mask default FF
           ]]>
         </setter>
       </property>
@@ -53,9 +56,7 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
-            if(this._matchCount > 0 && this.mInput){
-              CLIQZ.UI.handleResults();
-            }
+            //this method should be patched in UI.js
           ]]>
         </body>
       </method>

@@ -7,7 +7,7 @@
                  extra='{{extra}}'
                  domain='{{domain}}'
                  arrow="false">
-                <div class='cliqz-pattern-element-title' selectable=''>{{ title }}</div>
+                <div class='cliqz-pattern-element-title'>{{ title }}</div>
                 <div class='cliqz-pattern-element-link'>{{ link }}</div>
             </div>
         {{/each}}
