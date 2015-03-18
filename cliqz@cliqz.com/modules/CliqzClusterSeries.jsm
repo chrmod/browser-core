@@ -466,7 +466,7 @@ var CliqzClusterSeries = {
             regex: 'general',
             query_length: q.length
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     }
 
     if (maxDomain != null && maxDomainLen > 4 && q.length < 6) {
@@ -476,7 +476,7 @@ var CliqzClusterSeries = {
             regex: 'strict',
             query_length: q.length
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     }
 
     if (maxDomain!=null && maxDomainLen>4) {
@@ -506,7 +506,7 @@ var CliqzClusterSeries = {
             };
             seriesUrls = domains[maxDomain];
         }
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
 
         /* Use seriesUrls from now on. */
         var itemType = parseInt(seriesUrls[0][2].slice(4));

@@ -54,7 +54,7 @@ var Extension = {
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
-        this.track = CliqzUtils.track;
+        this.telemetry = CliqzUtils.telemetry;
 
         CliqzClusterHistory.init();
     },

@@ -129,7 +129,7 @@ var CliqzABTests = CliqzABTests || {
                 action: 'enter',
                 name: abtest
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
 
             return true;
        } else {
@@ -255,7 +255,7 @@ var CliqzABTests = CliqzABTests || {
                 name: abtest,
                 disable: disable
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
             return true;
        } else {
             return false;

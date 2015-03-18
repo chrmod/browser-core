@@ -46,7 +46,7 @@ var CliqzRedirect = {
                                 result_type: CliqzUtils.encodeResultType(r.style || r.type),
                                 v: 1
                             }
-                            CliqzUtils.track(action);
+                            CliqzUtils.telemetry(action);
                         }
                     }
                 }

@@ -184,7 +184,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
     sendResultsDoneSignal: function(resultsDisplayTime) {
-        // reduced traffic: only track if result was shown long enough (e.g., 0.5s)
+        // reduced traffic: only consider telemetry data if result was shown long enough (e.g., 0.5s)
         if (resultsDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
             var action = {
                 type: 'activity',
@@ -194,7 +194,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 results_overflow_height: CliqzAutocomplete.resultsOverflowHeight,
                 can_user_scroll: CliqzAutocomplete.resultsOverflowHeight > 0
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
         }
     },
     initResults: function(){
@@ -482,7 +482,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     action: 'key_stroke',
                     current_length: searchString.length
                 };
-                CliqzUtils.track(action);
+                CliqzUtils.telemetry(action);
 
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
@@ -509,7 +509,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         action: 'spell_correction',
                         current_length: searchString.length
                     }
-                    CliqzUtils.track(action);
+                    CliqzUtils.telemetry(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
                 }
@@ -621,12 +621,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.markResultsDone(Date.now());
                 }
 
-                // keep a track of if the popup was open for last result
+                // remembers if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
-                CliqzUtils.track(action);
+                CliqzUtils.telemetry(action);
             }
         }
     }
