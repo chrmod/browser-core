@@ -1,5 +1,5 @@
-<div class='cqz-result-h1 cqz-result-padding cqz-result-pattern'>
-      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'>
+<div class='cqz-result-h3 cqz-result-padding cqz-result-pattern'>
+      <div class='cqz-ez-title cliqz-pattern-title-h3 overflow' url='{{data.url}}' arrow='false'>
           {{ data.title }}
       </div>
       <div class='cliqz-pattern'>
@@ -11,8 +11,8 @@
               style='padding-left: 0px;'
              {{/if}}
              url='{{href}}' shortUrl='{{link}}'
-             extra='{{extra}}'
              domain='{{domain}}'
+             extra='{{extra}}'
              arrow="false">
             <div class='cliqz-pattern-element-title'>{{ title }}</div>
             <div class='cliqz-pattern-element-link'>{{ link }}</div>

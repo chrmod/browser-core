@@ -50,9 +50,8 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.clyqz.com/mixer?q=',//
-//  RESULTS_PROVIDER:               'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/mixer?q=',//'http://rich-header-server.fbt.co/id_to_snippet?q=', //
-  RESULT_PROVIDER_ALWAYS_BM:      false/*,true*/,
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header-server.fbt.co/mixer?q=',//
+  RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
@@ -70,9 +69,9 @@ var CliqzUtils = {
   BRANDS_DATABASE_VERSION:        1423762658427,
 
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
-      'generic': 1, 'images': 1, 'main': 1, 'results': 1, 'text': 1, 'series': 1,
+      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
-      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1,
+      'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
@@ -154,7 +153,7 @@ var CliqzUtils = {
       }
     }
 
-    result.text = result.text || (baseCore[0].toUpperCase() + baseCore[1].toLowerCase())
+    result.text = result.text || (baseCore.length > 1 ? ((baseCore[0].toUpperCase() + baseCore[1].toLowerCase())) : "")
     result.backgroundColor = result.backgroundColor || BRANDS_DATABASE.palette[base.split("").reduce(function(a,b){ return a + b.charCodeAt(0) },0) % BRANDS_DATABASE.palette.length]
 
     var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
@@ -680,7 +679,7 @@ var CliqzUtils = {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
-    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(CliqzUtils._resultOrder) : '';
+    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
   },
 
   _track_req: null,

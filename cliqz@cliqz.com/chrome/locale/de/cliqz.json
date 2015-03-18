@@ -1,4 +1,7 @@
 {
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
     },
@@ -403,5 +406,14 @@
     },
     "Copied":{
         "message": "kopiert"
+    },
+    "updateMessage":{
+        "message": "CLIQZ ist jetzt noch schöner, noch direkter, noch sicherer."
+    },
+    "updatePage":{
+        "message": "Mehr erfahren"
+    },
+    "updateDismiss":{
+        "message": "Nachricht schließen"
     }
 }

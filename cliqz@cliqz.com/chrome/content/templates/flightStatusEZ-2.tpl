@@ -8,7 +8,7 @@
    <div class="flightStatusEZ-plane-position">
        <img class="flightStatusEZ-plane-position-plane-img" src="{{plane_icon}}" />
        <div class="flightStatusEZ-plane-position-bar">
-           <div class="flightStatusEZ-plane-position-dot" style="left:{{plane_position}}%"></div>
+           <div class="flightStatusEZ-plane-position-dot" style="left:{{plane_position}}%; background:{{status_color}}"></div>
        </div>
    </div>
 

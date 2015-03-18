@@ -130,13 +130,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get defaultIndex() { return this._defaultIndex; },
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
-            getValueAt: function(index) { return this._results[index].val; },
+            getValueAt: function(index) { return (this._results[index] || {}).val; },
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
-            getCommentAt: function(index) { return this._results[index].comment; },
-            getStyleAt: function(index) { return this._results[index].style; },
+            getCommentAt: function(index) { return (this._results[index] || {}).comment; },
+            getStyleAt: function(index) { return (this._results[index] || {}).style; },
             getImageAt: function (index) { return ''; },
-            getLabelAt: function(index) { return this._results[index].label; },
-            getDataAt: function(index) { return this._results[index].data; },
+            getLabelAt: function(index) { return (this._results[index] || {}).label; },
+            getDataAt: function(index) { return (this._results[index] || {}).data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
 
@@ -207,7 +207,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyTimer: null,
             historyTimeout: false,
             instant: [],
-            historyBackfill: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -321,13 +320,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     else
                         this.instant = [];
 
-                    // Create backfill result
-                    var backfill = CliqzHistoryPattern.createBackfillResult(res, this.searchString);
-                    if(backfill)
-                        this.historyBackfill = [backfill];
-                    else
-                        this.historyBackfill = [];
-
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
                         latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
@@ -380,7 +372,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.instant = [];
-                        this.backFill = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -432,9 +423,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return el.results.length != 0;
                     }
 
-                    if(hasExtra(json.extra))
+                    if(hasExtra(json.extra)) {
                         this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-
+                    }
                     this.latency.cliqz = json.duration;
 
                     this.cliqzResults = results.filter(function(r){
@@ -457,11 +448,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
-                            this.historyBackfill,
                             this.customResults,
                             only_instant
                     );
-
+                CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
                 this.mixedResults.setResults(results);
@@ -529,7 +519,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.instant = [];
-                this.historyBackfill = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
@@ -543,7 +532,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
@@ -643,6 +631,3 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
-
-
-

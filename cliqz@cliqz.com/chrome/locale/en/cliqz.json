@@ -1,4 +1,7 @@
 {
+    "openInNewTab":{
+        "message": "{} (open in new tab)"
+    },
     "whatIsCliqz":{
         "message": "What is CLIQZ?"
     },
@@ -47,7 +50,7 @@
     "moreResults":{
         "message":"more ..."
     },
-    "customSearch":{
+    "numResults":{
         "message":"Search <b><i>{}</i></b> on {}"
     },
     "peoplePositionAt":{
@@ -406,5 +409,14 @@
     },
     "Copied":{
         "message": "Copied"
+    },
+    "updateMessage":{
+        "message": "CLIQZ has just updated to the latest, greatest version."
+    },
+    "updatePage":{
+        "message": "See What’s New"
+    },
+    "updateDismiss":{
+        "message": "Dismiss"
     }
 }

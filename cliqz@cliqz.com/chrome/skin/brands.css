@@ -3,6 +3,7 @@
     width: 2.5em !important;
     height: 2.5em !important;
     padding: 0.37em !important;
+    -moz-box-sizing: border-box !important;
     box-sizing: border-box !important;
     border-radius: 50% !important;
     /* text properties */

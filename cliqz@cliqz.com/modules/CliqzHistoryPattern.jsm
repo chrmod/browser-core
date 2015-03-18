@@ -788,10 +788,11 @@ var CliqzHistoryPattern = {
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
-        instant.data.title = domain[0].toUpperCase() + domain.substr(1) + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster");
+        instant.data.title = CliqzHistoryPattern.generalizeUrl(results[0].url, true)/*domain[0].toUpperCase() + domain.substr(1)*/ + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster");
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
+        results.shift();
       } else {
         var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         instant.data.title = CliqzUtils.getLocalizedString("history_results")
@@ -841,43 +842,6 @@ var CliqzHistoryPattern = {
         return;
       }
     }
-  },
-  // Create a full-sized unfiltered history entry for use as second-page backfill results
-  createBackfillResult: function(res, searchString) {
-    if(res.results.length == 0)
-      return [];
-
-    var results = res.results;
-    if(!results[0]) return null;
-    var backfill = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
-    backfill.data.title = CliqzUtils.getLocalizedString("history_results")
-    backfill.data.url = backfill.val;
-    backfill.comment += " (history)!";
-    backfill.data.template = "pattern-h1";
-    backfill.data.generic = true;
-
-    backfill.data.urls = [];
-    for (var i = 0; i < results.length; i++) {
-      var domain = CliqzHistoryPattern.generalizeUrl(results[i].url, true);
-      if (domain.indexOf("/") != -1) {
-        domain = domain.split('/')[0];
-      }
-      var url = results[i].url;
-      if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
-      var favicon = res.cluster ? "" : "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain;
-
-      backfill.data.urls.push({
-        href: results[i].url,
-        link: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true),
-        domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url), true).split("/")[0],
-        vdate: CliqzHistoryPattern.formatDate(results[i].date),
-        title: results[i].title,
-        favicon: favicon,
-      });
-      if(backfill.data.urls.length > 10)
-        break;
-      }
-      return backfill;
   },
   // Extract earliest and latest entry of Firefox history
   historyTimeFrame: function(callback) {
