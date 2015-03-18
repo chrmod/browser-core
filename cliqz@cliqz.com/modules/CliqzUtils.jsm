@@ -182,7 +182,9 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      var statusClass = Math.floor(req.status / 100);
+      if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
+
+      var statusClass = parseInt(req.status / 100);
       if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
         callback && callback(req);
       } else {
