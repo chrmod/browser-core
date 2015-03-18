@@ -45,7 +45,8 @@ var VERTICAL_ENCODINGS = {
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
-    BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false;
+    BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false,
+    MINUTE = 60*1e3;
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
@@ -99,11 +100,20 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      CliqzUtils.httpGet(
-        "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
-        function(req){
-          BRANDS_DATABASE = JSON.parse(req.response);
-        });
+      var brandsDataUrl = "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+          retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
+
+      (function getLogoDB(){
+          CliqzUtils && CliqzUtils.httpGet(brandsDataUrl,
+          function(req){ BRANDS_DATABASE = JSON.parse(req.response); },
+          function(){
+            var retry;
+            if(retry = retryPattern.pop()){
+              CliqzUtils.setTimeout(getLogoDB, retry);
+            }
+          }
+          , MINUTE/2);
+      })();
     }
 
     //if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
@@ -172,7 +182,9 @@ var CliqzUtils = {
     req.open(method, url, true);
     req.overrideMimeType('application/json');
     req.onload = function(){
-      var statusClass = Math.floor(req.status / 100);
+      if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
+
+      var statusClass = parseInt(req.status / 100);
       if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
         callback && callback(req);
       } else {
@@ -641,10 +653,10 @@ var CliqzUtils = {
   },
   trk: [],
   trkTimer: null,
-  track: function(msg, instantPush) {
+  telemetry: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
-    CliqzUtils.log(msg, 'Utils.track');
+    CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
@@ -652,13 +664,13 @@ var CliqzUtils = {
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
     if(instantPush || CliqzUtils.trk.length % 100 == 0){
-      CliqzUtils.pushTrack();
+      CliqzUtils.pushTelemetry();
     } else {
-      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTrack, 60000);
+      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
     }
   },
 
-  trackResult: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+  resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     CliqzUtils.setResultOrder(resultOrder);
     CliqzUtils.httpGet(
       (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
@@ -682,47 +694,47 @@ var CliqzUtils = {
     return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
   },
 
-  _track_req: null,
-  _track_sending: [],
-  _track_start: undefined,
-  TRACK_MAX_SIZE: 500,
-  pushTrack: function() {
-    if(CliqzUtils._track_req) return;
+  _telemetry_req: null,
+  _telemetry_sending: [],
+  _telemetry_start: undefined,
+  TELEMETRY_MAX_SIZE: 500,
+  pushTelemetry: function() {
+    if(CliqzUtils._telemetry_req) return;
 
     // put current data aside in case of failure
-    CliqzUtils._track_sending = CliqzUtils.trk.slice(0);
+    CliqzUtils._telemetry_sending = CliqzUtils.trk.slice(0);
     CliqzUtils.trk = [];
 
-    CliqzUtils._track_start = Date.now();
+    CliqzUtils._telemetry_start = Date.now();
 
-    CliqzUtils.log('push tracking data: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    CliqzUtils._track_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTrackCallback, JSON.stringify(CliqzUtils._track_sending), CliqzUtils.pushTrackError);
+    CliqzUtils.log('push telemetry data: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
+    CliqzUtils._telemetry_req = CliqzUtils.httpPost(CliqzUtils.LOG, CliqzUtils.pushTelemetryCallback, JSON.stringify(CliqzUtils._telemetry_sending), CliqzUtils.pushTelemetryError);
   },
-  pushTrackCallback: function(req){
+  pushTelemetryCallback: function(req){
     try {
       var response = JSON.parse(req.response);
 
       if(response.new_session){
         CliqzUtils.setPref('session', response.new_session);
       }
-      CliqzUtils._track_sending = [];
-      CliqzUtils._track_req = null;
+      CliqzUtils._telemetry_sending = [];
+      CliqzUtils._telemetry_req = null;
     } catch(e){}
   },
-  pushTrackError: function(req){
-    // pushTrack failed, put data back in queue to be sent again later
-    CliqzUtils.log('push tracking failed: ' + CliqzUtils._track_sending.length + ' elements', "CliqzUtils.pushTrack");
-    CliqzUtils.trk = CliqzUtils._track_sending.concat(CliqzUtils.trk);
+  pushTelemetryError: function(req){
+    // pushTelemetry failed, put data back in queue to be sent again later
+    CliqzUtils.log('push telemetry failed: ' + CliqzUtils._telemetry_sending.length + ' elements', "CliqzUtils.pushTelemetry");
+    CliqzUtils.trk = CliqzUtils._telemetry_sending.concat(CliqzUtils.trk);
 
     // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TRACK_MAX_SIZE + 100;
+    var slice_pos = CliqzUtils.trk.length - CliqzUtils.TELEMETRY_MAX_SIZE + 100;
     if(slice_pos > 0){
-      CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzUtils.pushTrack");
+      CliqzUtils.log('discarding ' + slice_pos + ' old telemetry data', "CliqzUtils.pushTelemetry");
       CliqzUtils.trk = CliqzUtils.trk.slice(slice_pos);
     }
 
-    CliqzUtils._track_sending = [];
-    CliqzUtils._track_req = null;
+    CliqzUtils._telemetry_sending = [];
+    CliqzUtils._telemetry_req = null;
   },
   // references to all the timers to avoid garbage collection before firing
   // automatically removed when fired
@@ -902,7 +914,7 @@ var CliqzUtils = {
         var win = enumerator.getNext();
         //win.CLIQZ.Core.restart(true);
         if(win.CLIQZ && win.CLIQZ.Core){
-          win.CLIQZ.Core.destroy(true);
+          win.CLIQZ.Core.unload(true);
           win.CLIQZ.Core.init();
         }
     }
@@ -1021,17 +1033,16 @@ var CliqzUtils = {
 
     return urlbar.value.length == 0;
   },
-  /** Modify the user's Firefox preferences -- always do a backup! */
+  /** Change some prefs for a better cliqzperience -- always do a backup! */
   setOurOwnPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...", "CliqzUtils.setOurOwnPrefs");
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
     }
   },
-  /** Reset the user's preferences that we changed. */
+  /** Reset changed prefs on uninstall */
   resetOriginalPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (cliqzBackup) {
@@ -1238,7 +1249,7 @@ var CliqzUtils = {
         CliqzUtils.setPref("cliqz_core_disabled", false);
         CliqzUtils.refreshButtons();
 
-        CliqzUtils.track({
+        CliqzUtils.telemetry({
           type: 'setting',
           setting: 'international',
           value: 'activate'

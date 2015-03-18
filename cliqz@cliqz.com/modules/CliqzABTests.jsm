@@ -129,7 +129,7 @@ var CliqzABTests = CliqzABTests || {
                 action: 'enter',
                 name: abtest
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
 
             return true;
        } else {
@@ -192,10 +192,8 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("showNoResults");
                 break;
             case "1011_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
                 break;
             case "1012_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
                 break;
             case "1013_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("sessionLogging");
@@ -255,7 +253,7 @@ var CliqzABTests = CliqzABTests || {
                 name: abtest,
                 disable: disable
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
             return true;
        } else {
             return false;

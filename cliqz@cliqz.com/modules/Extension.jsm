@@ -54,7 +54,7 @@ var Extension = {
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
-        this.track = CliqzUtils.track;
+        this.telemetry = CliqzUtils.telemetry;
 
         CliqzClusterHistory.init();
     },
@@ -99,7 +99,7 @@ var Extension = {
             Extension.unloadFromWindow(win);
         }
 
-        CliqzCategories.destroy();
+        CliqzCategories.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -143,7 +143,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
@@ -298,7 +297,7 @@ var Extension = {
                     btn.parentNode.removeChild(btn);
                 }
             }
-            win.CLIQZ.Core.destroy(false);
+            win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;
