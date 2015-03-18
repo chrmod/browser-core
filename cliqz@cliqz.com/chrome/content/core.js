@@ -145,6 +145,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        var urlBarGo = document.getElementById('urlbar-go-button');
+        CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
+        urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + CLIQZ.Core._urlbarGoButtonClick);
+
         // preferences
         //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
@@ -253,8 +257,7 @@ CLIQZ.Core = CLIQZ.Core || {
         gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
-        // restore preferences
-        //CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
+        document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
 
         CliqzAutocomplete.unload();
         CliqzRedirect.unload();
@@ -345,6 +348,18 @@ CLIQZ.Core = CLIQZ.Core || {
             action: 'urlbar_' + ev
         };
 
+        CliqzUtils.telemetry(action);
+    },
+    urlbarGoClick: function(){
+        //we somehow break default FF -> on goclick the autocomplete doesnt get considered
+        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.mInputField.value;
+
+        var action = {
+            type: 'activity',
+            position_type: ['inbar_' + (CliqzUtils.isUrl(CLIQZ.Core.urlbar.mInputField.value)? 'url': 'query')],
+            autocompleted: CliqzAutocomplete.lastAutocompleteType,
+            action: 'urlbar_go_click'
+        };
         CliqzUtils.telemetry(action);
     },
     _whoAmItimer: null,
