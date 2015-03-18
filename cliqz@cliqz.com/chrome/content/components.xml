@@ -25,7 +25,7 @@
                 onget="return 0;">
         <setter>
           <![CDATA[
-            //cliqz shadowing
+            //mask default FF
           ]]>
         </setter>
       </property>
