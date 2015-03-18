@@ -221,12 +221,12 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
-    // force component reload at install/uninstall
+    // trigger component reload at install/uninstall
     reloadComponent: function(el) {
         return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
-    destroy: function(soft){
+    unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
@@ -256,8 +256,8 @@ CLIQZ.Core = CLIQZ.Core || {
         // restore preferences
         //CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
 
-        CliqzAutocomplete.destroy();
-        CliqzRedirect.destroy();
+        CliqzAutocomplete.unload();
+        CliqzRedirect.unload();
 
         // remove listners
         if ('gBrowser' in window) {
@@ -284,7 +284,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     restart: function(soft){
-        CLIQZ.Core.destroy(soft);
+        CLIQZ.Core.unload(soft);
         CLIQZ.Core.init();
     },
     popupOpen: function(){

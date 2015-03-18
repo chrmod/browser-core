@@ -541,7 +541,7 @@ function navigateToEZinput(element){
         dest_url = search_engine.getSubmission(value).uri.spec
     }
     openUILink(dest_url);
-    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.allowDDtoClose = true;
     CLIQZ.Core.popup.hidePopup();
 
     var action_type = element.getAttribute("logg-action-type");
@@ -574,14 +574,14 @@ function sessionEnd(){
     adultMessage = 0; //show message in the next session
 }
 
-var forceCloseResults = false;
-function closeResults(event, force) {
+var allowDDtoClose = false;
+function closeResults(event) {
     var urlbar = CLIQZ.Core.urlbar;
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
-    if (forceCloseResults || force) {
-        forceCloseResults = false;
+    if (allowDDtoClose) {
+        allowDDtoClose = false;
         return;
     }
 
@@ -589,7 +589,7 @@ function closeResults(event, force) {
     setTimeout(function(){
       var newActive = document.activeElement;
       if (newActive.getAttribute("dont-close") != "true") {
-        forceCloseResults = true;
+        allowDDtoClose = true;
         CLIQZ.Core.popup.hidePopup();
         gBrowser.selectedTab.linkedBrowser.focus();
       }
@@ -1058,7 +1058,7 @@ function messageClick(ev) {
                   //remove cliqz from all windows
                   while (enumerator.hasMoreElements()) {
                       var win = enumerator.getNext();
-                      win.CLIQZ.Core.destroy(true);
+                      win.CLIQZ.Core.unload(true);
                   }
                   CliqzUtils.refreshButtons();
                   break;

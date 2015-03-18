@@ -99,7 +99,7 @@ var Extension = {
             Extension.unloadFromWindow(win);
         }
 
-        CliqzCategories.destroy();
+        CliqzCategories.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -297,7 +297,7 @@ var Extension = {
                     btn.parentNode.removeChild(btn);
                 }
             }
-            win.CLIQZ.Core.destroy(false);
+            win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;

@@ -28,13 +28,13 @@ var CliqzCategories = {
 
 		log('init');
 	},
-	destroy: function(){
+	unload: function(){
 		sendData();
 		CliqzUtils.clearTimeout(t0);
 		CliqzUtils.clearTimeout(tH);
 		CliqzUtils.clearTimeout(tD);
 
-		log('destroyed');
+		log('unloaded');
 	}
 }
 

@@ -85,7 +85,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
         CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
     },
-    destroy: function() {
+    unload: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
         var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
@@ -380,7 +380,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.mixResults(true);
 
-                        // force update as offen as possible if new results are ready
+                        // try to update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
 

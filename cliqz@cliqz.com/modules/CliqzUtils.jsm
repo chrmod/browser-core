@@ -912,7 +912,7 @@ var CliqzUtils = {
         var win = enumerator.getNext();
         //win.CLIQZ.Core.restart(true);
         if(win.CLIQZ && win.CLIQZ.Core){
-          win.CLIQZ.Core.destroy(true);
+          win.CLIQZ.Core.unload(true);
           win.CLIQZ.Core.init();
         }
     }
@@ -1031,17 +1031,16 @@ var CliqzUtils = {
 
     return urlbar.value.length == 0;
   },
-  /** Modify the user's Firefox preferences -- always do a backup! */
+  /** Change some prefs for a better cliqzperience -- always do a backup! */
   setOurOwnPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-      CliqzUtils.log("maxRichResults backup does not exist yet: changing value...", "CliqzUtils.setOurOwnPrefs");
       CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
     }
   },
-  /** Reset the user's preferences that we changed. */
+  /** Reset changed prefs on uninstall */
   resetOriginalPrefs: function() {
     var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (cliqzBackup) {

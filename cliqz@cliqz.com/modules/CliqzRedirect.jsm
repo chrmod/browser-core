@@ -59,7 +59,7 @@ var CliqzRedirect = {
     removeHttpObserver: function() {
         CliqzRedirect.activityDistributor.removeObserver(CliqzRedirect.httpObserver);
     },
-    destroy: function() {
+    unload: function() {
         CliqzRedirect.removeHttpObserver();
     }
 }
