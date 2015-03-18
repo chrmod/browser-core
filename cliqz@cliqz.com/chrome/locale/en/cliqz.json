@@ -50,7 +50,7 @@
     "moreResults":{
         "message":"more ..."
     },
-    "numResults":{
+    "customSearch":{
         "message":"Search <b><i>{}</i></b> on {}"
     },
     "peoplePositionAt":{
