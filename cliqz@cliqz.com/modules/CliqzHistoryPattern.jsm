@@ -106,7 +106,7 @@ var CliqzHistoryPattern = {
             //else groupedPatterns[url].isPattern = false;
           }
         }
-        // Move patterns in front (force higher priority than single urls)
+        // Move patterns in front (give higher priority than single urls)
         //groupedPatterns = CliqzHistoryPattern.pushPatternsToFront(groupedPatterns)
         //                    .sort(CliqzHistoryPattern.sortPatterns(true, 'cnt'));
 

@@ -386,14 +386,14 @@ var UI = {
                             type: 'activity',
                             action: 'del_correct_back'
                         };
-                        CliqzUtils.track(signal);
+                        CliqzUtils.telemetry(signal);
                     }
                 } else {
                     var signal = {
                         type: 'activity',
                         action: 'keystroke_del'
                     };
-                    CliqzUtils.track(signal);
+                    CliqzUtils.telemetry(signal);
                 }
                 UI.preventFirstElementHighlight = true;
                 UI.lastSelectedUrl = "";
@@ -541,7 +541,7 @@ function navigateToEZinput(element){
         dest_url = search_engine.getSubmission(value).uri.spec
     }
     openUILink(dest_url);
-    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.allowDDtoClose = true;
     CLIQZ.Core.popup.hidePopup();
 
     var action_type = element.getAttribute("logg-action-type");
@@ -549,7 +549,7 @@ function navigateToEZinput(element){
       type: 'activity',
       action: action_type
     };
-    CliqzUtils.track(signal);
+    CliqzUtils.telemetry(signal);
 }
 
 function selectWord(input, direction) {
@@ -574,14 +574,14 @@ function sessionEnd(){
     adultMessage = 0; //show message in the next session
 }
 
-var forceCloseResults = false;
-function closeResults(event, force) {
+var allowDDtoClose = false;
+function closeResults(event) {
     var urlbar = CLIQZ.Core.urlbar;
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
-    if (forceCloseResults || force) {
-        forceCloseResults = false;
+    if (allowDDtoClose) {
+        allowDDtoClose = false;
         return;
     }
 
@@ -589,7 +589,7 @@ function closeResults(event, force) {
     setTimeout(function(){
       var newActive = document.activeElement;
       if (newActive.getAttribute("dont-close") != "true") {
-        forceCloseResults = true;
+        allowDDtoClose = true;
         CLIQZ.Core.popup.hidePopup();
         gBrowser.selectedTab.linkedBrowser.focus();
       }
@@ -1058,7 +1058,7 @@ function messageClick(ev) {
                   //remove cliqz from all windows
                   while (enumerator.hasMoreElements()) {
                       var win = enumerator.getNext();
-                      win.CLIQZ.Core.destroy(true);
+                      win.CLIQZ.Core.unload(true);
                   }
                   CliqzUtils.refreshButtons();
                   break;
@@ -1080,7 +1080,7 @@ function messageClick(ev) {
                   break;
             break;
           }
-          CliqzUtils.track({
+          CliqzUtils.telemetry({
             type: 'setting',
             setting: el.getAttribute('cliqz-telemetry'),
             value: state
@@ -1135,8 +1135,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       for(var key in extraData) {
         action[key] = extraData[key];
       }
-      CliqzUtils.track(action);
-      CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+      CliqzUtils.telemetry(action);
+      CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
     }
     CliqzHistory.updateQuery(query);
@@ -1252,7 +1252,7 @@ function handleAdultClick(ev){
 
     }
     if(state && state != 'options'){ //optionsBtn
-        CliqzUtils.track({
+        CliqzUtils.telemetry({
             type: 'setting',
             setting: 'adultFilter',
             value: state
@@ -1334,14 +1334,14 @@ function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
         setResultSelection(nextEl, true, false, true);
-        trackArrowNavigation(nextEl);
+        arrowNavigationTelemetry(nextEl);
     }
 }
 
 function selectPrevResult(pos, allArrowable) {
     var nextEl = allArrowable[pos - 1];
     setResultSelection(nextEl, true, true, true);
-    trackArrowNavigation(nextEl);
+    arrowNavigationTelemetry(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1544,12 +1544,12 @@ function enginesClick(ev){
                 action.new_tab = false;
             }
 
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
         }
     }
 }
 
-function trackArrowNavigation(el){
+function arrowNavigationTelemetry(el){
     var action = {
         type: 'activity',
         action: 'arrow_key',
@@ -1564,7 +1564,7 @@ function trackArrowNavigation(el){
         var url = getResultOrChildAttr(el, 'url');
         action.search = CliqzUtils.isSearch(url);
     }
-    CliqzUtils.track(action);
+    CliqzUtils.telemetry(action);
 }
 
 var AGO_CEILINGS=[
