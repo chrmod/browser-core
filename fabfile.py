@@ -145,8 +145,10 @@ def publish(beta='True', version=None):
         version = get_version(beta)
     if beta == 'True':
         download_link = "https://s3.amazonaws.com/cdncliqz/update/beta/%s" % output_file_name
+        download_link_latest_html = "http://cdn2.cliqz.com/update/beta/%s" % output_file_name
     else:
         download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
+        download_link_latest_html = "http://cdn2.cliqz.com/update/%s" % output_file_name
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
@@ -158,7 +160,7 @@ def publish(beta='True', version=None):
     # Provide a link to the latest stable version
     if not (beta == 'True'):
         latest_template = env.get_template(latest_html_file_name)
-        output_from_parsed_template = latest_template.render(download_link=download_link)
+        output_from_parsed_template = latest_template.render(download_link=download_link_latest_html)
         with open(latest_html_file_name, "wb") as f:
             f.write(output_from_parsed_template.encode("utf-8"))
         local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
