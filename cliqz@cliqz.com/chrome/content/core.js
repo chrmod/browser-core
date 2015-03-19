@@ -184,6 +184,8 @@ CLIQZ.Core = CLIQZ.Core || {
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
+        CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
     },
@@ -271,6 +273,8 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
+        CLIQZ.Core.urlbar.removeEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+
 
         try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
@@ -597,5 +601,20 @@ CLIQZ.Core = CLIQZ.Core || {
             action: 'keyboardShortcut',
             value: val
         });
+    },
+    handleUrlbarTextDrop: function(ev){
+        var dTypes = ev.dataTransfer.types;
+        if (dTypes.indexOf && dTypes.indexOf("text/plain") !== -1 ||
+            dTypes.contains && dTypes.contains("text/plain") !== -1){
+            // open dropdown on text drop
+            var inputField = CLIQZ.Core.urlbar.mInputField, val = inputField.value;
+            inputField.setUserInput('');
+            inputField.setUserInput(val);
+
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'textdrop'
+            });
+        }
     }
 };
