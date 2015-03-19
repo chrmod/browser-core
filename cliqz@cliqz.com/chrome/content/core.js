@@ -185,6 +185,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+        CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
@@ -274,6 +275,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.removeEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+        CLIQZ.Core.urlbar.removeEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
 
         try {
@@ -616,5 +618,15 @@ CLIQZ.Core = CLIQZ.Core || {
                 action: 'textdrop'
             });
         }
+    },
+    handlePasteEvent: function(ev){
+        //wait for the value to change
+        setTimeout(function(){
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'paste',
+                current_length: ev.target.value.length
+            });
+        }, 0);
     }
 };
