@@ -22,7 +22,7 @@
       <div class="entity-search-container-app" style="background-color: {{this.background_color_icon}}"
            url="{{this.url}}" type="X" extra="entity-search-{{this.logg_as}}">
         <div><img class="entity-search-app-image" src="{{this.icon_url}}"/></div>
-        <div class="entity-search-container-app-text" style="background-color: {{this.background_color_text}};">{{this.text}}</div>
+        <div class="entity-search-container-app-text" style="background-color: {{this.background_color_icon}};">{{this.text}}</div>
       </div>
     {{/each}}
   </div>
