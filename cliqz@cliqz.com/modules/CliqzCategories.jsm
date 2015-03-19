@@ -28,13 +28,13 @@ var CliqzCategories = {
 
 		log('init');
 	},
-	destroy: function(){
+	unload: function(){
 		sendData();
 		CliqzUtils.clearTimeout(t0);
 		CliqzUtils.clearTimeout(tH);
 		CliqzUtils.clearTimeout(tD);
 
-		log('destroyed');
+		log('unloaded');
 	}
 }
 
@@ -49,7 +49,7 @@ function sendData(){
 		};
 		CliqzUtils.setPref('cat', '{}');
 
-		CliqzUtils.track(action);
+		CliqzUtils.telemetry(action);
 	}
 
 	tD = CliqzUtils.setTimeout(sendData, SEND_INTERVAL)
@@ -93,7 +93,7 @@ function sendHistoricalData(){
 				};
 				CliqzUtils.setPref('cat', '{}');
 
-				CliqzUtils.track(action);
+				CliqzUtils.telemetry(action);
 		      }
 		    )
 	}

@@ -151,6 +151,10 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
+        var urlBarGo = document.getElementById('urlbar-go-button');
+        CLIQZ.Core._urlbarGoButtonClick = urlBarGo.getAttribute('onclick');
+        urlBarGo.setAttribute('onclick', "CLIQZ.Core.urlbarGoClick(); " + CLIQZ.Core._urlbarGoButtonClick);
+
         // preferences
         //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
@@ -238,12 +242,12 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
-    // force component reload at install/uninstall
+    // trigger component reload at install/uninstall
     reloadComponent: function(el) {
         return el && el.parentNode && el.parentNode.insertBefore(el, el.nextSibling)
     },
     // restoring
-    destroy: function(soft){
+    unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
@@ -270,11 +274,10 @@ CLIQZ.Core = CLIQZ.Core || {
         gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
-        // restore preferences
-        //CLIQZ.Core.popup.style.maxHeight = CLIQZ.Core._popupMaxHeight;
+        document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
 
-        CliqzAutocomplete.destroy();
-        CliqzRedirect.destroy();
+        CliqzAutocomplete.unload();
+        CliqzRedirect.unload();
 
 
         // remove listeners
@@ -329,7 +332,7 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     restart: function(soft){
-        CLIQZ.Core.destroy(soft);
+        CLIQZ.Core.unload(soft);
         CLIQZ.Core.init();
     },
     popupOpen: function(){
@@ -347,7 +350,7 @@ CLIQZ.Core = CLIQZ.Core || {
             action: 'dropdown_' + (open ? 'open' : 'close')
         };
 
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     },
     urlbarfocus: function() {
         //try to 'heat up' the connection
@@ -359,10 +362,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 1){
-            //if test is active trigger it
-            CliqzUtils.setPref("showPremiumResults", 2);
-        }
         if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
             var urlbar = CLIQZ.Core.urlbar.mInputField.value;
             var search = urlbar;
@@ -382,14 +381,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CLIQZ.Core.urlbarEvent('blur');
 
-        if(CliqzUtils.getPref("showPremiumResults", -1) == 2){
-            CliqzUtils.cliqzPrefs.clearUserPref("showPremiumResults");
-        }
-
-        if(CliqzUtils.getPref("showAdResults", -1) == 2){
-            //if test is active trigger it
-            CliqzUtils.cliqzPrefs.clearUserPref("showAdResults");
-        }
         CliqzAutocomplete.lastFocusTime = null;
         CliqzAutocomplete.resetSpellCorr();
         CLIQZ.UI.sessionEnd();
@@ -400,7 +391,19 @@ CLIQZ.Core = CLIQZ.Core || {
             action: 'urlbar_' + ev
         };
 
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
+    },
+    urlbarGoClick: function(){
+        //we somehow break default FF -> on goclick the autocomplete doesnt get considered
+        CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.mInputField.value;
+
+        var action = {
+            type: 'activity',
+            position_type: ['inbar_' + (CliqzUtils.isUrl(CLIQZ.Core.urlbar.mInputField.value)? 'url': 'query')],
+            autocompleted: CliqzAutocomplete.lastAutocompleteType,
+            action: 'urlbar_go_click'
+        };
+        CliqzUtils.telemetry(action);
     },
     _whoAmItimer: null,
     whoAmI: function(startup){
@@ -442,7 +445,7 @@ CLIQZ.Core = CLIQZ.Core || {
                         defaultSearchEngine: defaultSearchEngine
                     };
 
-                CliqzUtils.track(info);
+                CliqzUtils.telemetry(info);
             });
         });
     },

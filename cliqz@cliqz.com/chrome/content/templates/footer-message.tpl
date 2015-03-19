@@ -2,7 +2,7 @@
   <div class="cqz-message {{type}}">
     {{message}}
   </div>
-  <div style="float:right" cliqz-action="footer-message-action">
+  <div style="float:right" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
   	{{#each options}}
     	<span class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}">{{ text }}</span>
     {{/each}}

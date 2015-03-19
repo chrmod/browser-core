@@ -48,7 +48,7 @@ function eventLog(ev){
         action: ev
     };
 
-    Extension.track(action, true);
+    Extension.telemetry(action, true);
 }
 
 function install(aData, aReason) {
