@@ -1663,7 +1663,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('log', function(value, key) {
-        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
+        console.log('TEMPLATE LOG HELPER', value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {

@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 ez-news cqz-result-padding">
-  <div class="cqz-ez-title" selectable=''>{{data.name}}</div>
+  <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
   <div class="entity-stories">
     {{#each data.news}}
       <div class="entity-story"
