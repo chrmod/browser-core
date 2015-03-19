@@ -402,7 +402,6 @@
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 16px 0 }
-#cliqz-results .ez-weather .cqz-result-h2 { position: relative }
 
 /* history */
 #cliqz-results .cqz-result-pattern { }
