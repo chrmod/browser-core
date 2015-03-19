@@ -306,7 +306,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Did you really mean "
+      "message":"Did you really mean <b>{}</b>"
     },
     "result_filter": {
       "message":"Explicit content"

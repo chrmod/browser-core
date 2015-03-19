@@ -306,7 +306,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Meintest Du wirklich "
+      "message":"Meintest Du wirklich <b>{}</b>"
     },
     "result_filter": {
       "message":"Anstößige Inhalte"
