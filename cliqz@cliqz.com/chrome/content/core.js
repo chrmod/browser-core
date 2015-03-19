@@ -183,6 +183,7 @@ CLIQZ.Core = CLIQZ.Core || {
             }, false);
         }
 
+        window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
     },
@@ -268,6 +269,8 @@ CLIQZ.Core = CLIQZ.Core || {
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
 
         try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
@@ -578,5 +581,21 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     getQuerySession: function() {
         return _querySession;
+    },
+    handleKeyboardShortcuts: function(ev) {
+        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey)){
+            CLIQZ.Core.urlbar.focus();
+            CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
+
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+    },
+    handleKeyboardShortcutsAction: function(val){
+        CliqzUtils.telemetry({
+            type: 'activity',
+            action: 'keyboardShortcut',
+            value: val
+        });
     }
 };
