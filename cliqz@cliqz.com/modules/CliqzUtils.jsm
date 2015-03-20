@@ -1017,7 +1017,8 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
+    // IMPORTANT! Please test newtab search if you change the line below:
+    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
 
     return urlbar.value.length == 0;
   },
