@@ -338,6 +338,11 @@ CLIQZ.Core = CLIQZ.Core || {
             CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
             CLIQZ.Core.urlbar.mInputField.value = urlbar;
         }
+
+        if(CLIQZ.Core.urlbar.value.trim().length == 0){
+            //link to historydropmarker
+            document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+        }
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();

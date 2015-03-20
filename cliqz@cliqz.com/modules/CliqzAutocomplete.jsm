@@ -32,6 +32,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'NewTabUtils',
+  'resource://gre/modules/NewTabUtils.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -212,6 +214,34 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
                 this.historyTimeout = true;
                 this.onSearchResult({}, this.historyResults);
+            },
+            fetchTopSites: function(){
+                var results = NewTabUtils.links.getLinks().slice(0, 5);
+                if(results.length>0){
+                    var top = Result.generic('cliqz-pattern', '', null, '', null, '');
+                    top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
+                    top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
+                    top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
+                    top.data.url = results[0].url;
+                    top.data.template = 'pattern-h1';
+                    top.data.urls = results.map(function(r, i){
+                        var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
+                            logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+
+                        return {
+                          url: r.url,
+                          href: r.url.replace(urlDetails.path, ''),
+                          link: r.url.replace(urlDetails.path, ''),
+                          name: urlDetails.name,
+                          text: logoDetails.text,
+                          style: logoDetails.style,
+                          extra: "top-sites-" + i
+                        }
+                    });
+                    this.cliqzResultsExtra = [top];
+                }
+                this.historyTimeout = true;
+                this.pushResults(this.searchString);
             },
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
@@ -576,10 +606,15 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
 
                 // trigger history search
-                this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
-                CliqzUtils.clearTimeout(this.historyTimer);
-                this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
-                this.historyTimeout = false;
+                if(searchString.trim().length == 0){
+                    this.fetchTopSites = this.fetchTopSites.bind(this);
+                    NewTabUtils.links.populateCache(this.fetchTopSites)
+                } else {
+                    this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
+                    CliqzUtils.clearTimeout(this.historyTimer);
+                    this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+                    this.historyTimeout = false;
+                }
             },
 
             /**

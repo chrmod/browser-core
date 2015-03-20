@@ -418,5 +418,11 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
+    },
+    "topSitesMessage":{
+        "message": "Choose a shortcut to one of your favorite sites, or <br/> begin typing in the bar to find what you're looking for!"
+    },
+    "topSitesTitle":{
+        "message": "Your Sites"
     }
 }
