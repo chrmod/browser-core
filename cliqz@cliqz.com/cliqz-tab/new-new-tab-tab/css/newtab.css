@@ -1,0 +1,257 @@
+/* common */
+body, html { height: 100%; }
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.2;
+}
+.prototype, .view, .none { display: none; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; -o-text-overflow: ellipsis; }
+
+#shuffle {
+    position: fixed;
+    bottom: 25px;
+    right: 160px;
+    cursor: pointer;
+    z-index: 2;
+    background: white;
+    padding: 11px;
+}
+
+#settings {
+    position: fixed;
+    bottom: 25px;
+    right: 80px;
+    cursor: pointer;
+    z-index: 2;
+    background: white;
+    padding: 11px;
+}
+
+#add {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 40px;
+    height: 40px;
+    background: url(../add-card-btn.svg) no-repeat;
+    background-size: cover;
+    cursor: pointer;
+    z-index: 2;
+}
+#add-popup {
+    position: fixed;
+    bottom: 75px;
+    right: 25px;
+    background: white;
+    padding: 10px;
+    z-index: 2;
+    box-sizing: border-box;
+    border-radius: 3px;
+    display: none;
+}
+#add-popup-tabs { margin-bottom: 12px; }
+#add-popup-tabs input { display: none; }
+#add-popup-tabs label { margin-right: 10px; display: inline-block}
+#add-popup-tabs input:checked + label { text-decoration: underline}
+
+#add-popup-logo { padding: 8px 11px 0px 0px; float: left; }
+#add-popup-logo > .cliqz-brands-logo { font-size: 18px; }
+#add-popup-controls { width: 200px; float: left; }
+#add-popup-title, #add-popup-url { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 2px 5px; }
+#add-popup-ok, #add-popup-cancel { width: 40%; float: right; }
+
+#add-popup-content-widget > div {
+    float: left; 
+    width: 200px; 
+    height: 100px; 
+    background: yellow; 
+    border: 1px solid black;
+    margin: 5px;
+}
+
+/* containers */
+#background {
+    position: fixed;
+    background: #ecf0f1 no-repeat center center;
+    background-size: cover;
+    /* filter: blur(1px); */
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+}
+#top {
+    height: calc(100% - 25px * 2 - 40px);
+    width: 100%;
+    overflow: hidden;
+}
+#wrap {
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+    display: table;
+    table-layout: fixed;
+    position: relative;
+}
+#content {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0 40px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* grid */
+[draggable=true] { -khtml-user-drag: element; } /* safari fix */
+#grid { position: relative; width: 100%; }
+#grid > div { position: absolute; }
+#grid > div.target { opacity: 0.5; }
+#grid > div { -webkit-transition: left 0.4s, top 0.4s, width 0.4s; transition: left 0.4s, top 0.4s, width 0.4s; }
+
+.card {
+    position: relative;
+    background: white;
+    overflow: hidden;
+    border-radius: 3px 3px;
+    padding: 12px;
+    box-sizing: border-box;
+}
+.card .close-button { 
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    display: none;
+    height: 20px;
+    width: 20px;
+    background: url(http://cdn.cliqz.com/extension/newtab/history-items/close.svg) no-repeat center center;
+    z-index: 10;
+}
+.card:hover .close-button { display: block }
+.card .close-button:hover { background-image: url(http://cdn.cliqz.com/extension/newtab/history-items/close-red.svg); }
+.card, .card * { cursor: pointer }
+.card .cliqz-brands-logo { font-size: 20px; float: left; margin-right: 12px; }
+.card .title { padding-top: 2px; font-size: 18px; }
+.card .url { margin-top: 4px; font-size: 14px; color: #cccccc }
+
+
+.card .news {
+    height: 50px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation-direction: normal;
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+}
+.card .news.animated { animation: cycle 15s linear infinite; }
+.card .news.animated:hover { animation-play-state: paused; }
+.card .news-item {
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    position: absolute;
+    backface-visibility: hidden;
+    line-height: 1.3em;
+    box-sizing: border-box;
+    overflow: hidden;
+    background: -moz-linear-gradient(top, rgba(214,249,255,1) 0%, rgba(158,232,250,1) 100%);
+}
+.card .news-item:nth-child(2) { transform: rotateX(0deg) translateZ(14px); }
+.card .news-item:nth-child(3) { transform: rotateX(120deg) translateZ(14px); }
+.card .news-item:nth-child(4) { transform: rotateX(240deg) translateZ(14px); }
+
+@-moz-keyframes cycle{
+  0%{
+    -moz-transform: rotateX(0deg);
+  }
+  28.5714%{
+    -moz-transform: rotateX(0deg);
+  }
+  33.3333%{
+    -moz-transform: rotateX(-120deg);
+  }
+  61.9047%{
+    -moz-transform: rotateX(-120deg);
+  }
+  66.6666%{
+    -moz-transform: rotateX(-240deg);
+  }
+  95.238%{
+    -moz-transform: rotateX(-240deg);
+  }
+  100%{
+    -moz-transform: rotateX(-360deg);
+  }
+}
+
+.card-weather .image {
+    background: no-repeat center center;
+    background-size: cover;
+    width: 50px;
+    height: 50px;
+    float: left;
+    margin-right: 12px;
+}
+
+.card-message {
+    background: rgb(245,73,143);
+    color: white;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.card-datetime { font-size: 40px; text-align: center; }
+
+/* search */
+.search-box {
+    margin-bottom: 10px;
+}
+
+#search {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #cccccc;
+    padding: 0 15px;
+    font-family: "Lato", sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    outline: 0;
+    box-sizing: border-box;
+}
+
+/* placeholder */
+::-webkit-input-placeholder { color: #777; font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; } /* webkit */
+::-moz-placeholder { color: #777;  font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; } /* Firefox 19+ */
+:-moz-placeholder { color: #777; font-size: 14px; font-weight: 300; font-family: "Lato", sans-serif; } /* Firefox 18- */
+
+#search-dropdown {
+    position: absolute;
+    z-index: 1;
+    background-color: white;
+    color:black;
+    overflow: hidden;
+    border: 1px solid #cccccc;
+    margin-top: 2px;
+    border-bottom: 0;
+    box-sizing: border-box;
+    display: none;
+}
+
+.result[selected="selected"] {
+    color: #262626;
+    text-decoration: none;
+    background-color: #f5f5f5;
+}
