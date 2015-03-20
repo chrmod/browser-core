@@ -141,3 +141,10 @@
   -o-transition : all 0.2s ease-out !important;
   transition : all 0.2s ease-out !important;
 }
+
+.slideIn {
+  transition: 0.7s !important;
+  -moz-transition: 0.7s !important;
+  left: 0 !important;
+  opacity:1 !important;
+}
