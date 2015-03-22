@@ -47,7 +47,8 @@ var CliqzUCrawl = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://localhost/scrapePatterns?ddd',
+    //patternsURL: 'http://localhost/scrapePatterns?ddd',
+    patternsURL: 'chrome://cliqz/content/extractPatterns/patterns',
     searchCache: {},
     parseUri: function (str) {
         //var o   = parseUri.options,
