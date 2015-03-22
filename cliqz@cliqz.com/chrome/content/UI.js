@@ -148,7 +148,16 @@ var UI = {
             }
         }
 
+
         currentResults = enhanceResults(res);
+
+        //CliqzUtils.log(currentResults.results, "ALL RESULTS");
+        // Results that are not ready (extra results, for which we received a callback_url)
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
+        CliqzUtils.log(JSON.stringify(currentResults), "RESULT SAMPLE");
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
+        CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
+        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
         //CliqzImages.process_images_result(res,
         //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
@@ -158,9 +167,15 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.redrawResultHTML(CliqzHandlebars.tplCache.results(currentResults), res.q);
-            //UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
-          }
+
+            if(CliqzUtils.getPref("animations", false))
+              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+            else
+              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+
+            UI.loadAsyncResult(asyncResults);
+        }
+
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -182,7 +197,56 @@ var UI = {
     },
     nextRedraw: 0,
     lastDispatch: 0,
-    dispatchRedraw: function(html, id, q) {
+
+
+    loadAsyncResult: function(res) {
+      CliqzUtils.log('then', 'then');
+      if (res && res.length > 0) {
+        for (var i in res) {
+          var r = res[i];
+          var query = r.text;
+          //CliqzUtils.log(r,"LOADINGASYNC");
+          CliqzUtils.httpGet(r.data.__callback_url__, function(req) {
+              //CliqzUtils.log(r, "GOT SOME RESULTS");
+              var resp = undefined;
+              try {
+                resp = JSON.parse(req.response).results[0];
+                //CliqzUtils.log(resp, "FINAL RESPONSE");
+              }
+              catch(err) {
+                res.splice(i,1);
+              }
+              //CliqzUtils.log(r.text, "Here's the query");
+              //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
+              if (resp &&  CLIQZ.Core.urlbar.value == query) {
+                var kind = r.data.kind;
+                r.data = resp.data;
+                r.url = resp.url;
+                r.data.kind = kind;
+                r.data.subType = resp.subType;
+                r.data.trigger_urls = resp.trigger_urls;
+                currentResults.results.unshift(r);
+                if(gCliqzBox.resultsBox) {
+                    var now = Date.now();
+                    UI.lastDispatch = now;
+                    if(CliqzUtils.getPref("animations", false))
+                      UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+                    else
+                      gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+                }
+              }
+              else {
+                res.splice(i,1);
+              }
+
+          });
+        }
+
+
+      }
+
+    },
+    dispatchRedraw: function(html, id) {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
