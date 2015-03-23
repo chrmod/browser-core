@@ -8,6 +8,9 @@
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
   'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+
 (function(ctx) {
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
@@ -756,6 +759,7 @@ function resultClick(ev){
             CliqzHistory.updateQuery(query);
 
             CLIQZ.Core.openLink(url, newTab);
+            CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
 
             CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", "result");
@@ -969,6 +973,7 @@ function onEnter(ev, item){
 
         CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || urlBar.value, false);
+        CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url || urlBar.value);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
