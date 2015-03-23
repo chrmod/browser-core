@@ -318,7 +318,7 @@ var CliqzUtils = {
       url = url.split('://')[1];
 
     // removes the www.
-    if(cleanWWW && url.indexOf('www.') == 0)
+    if(cleanWWW && url.toLowerCase().indexOf('www.') == 0)
       url = url.slice(4);
 
     return url;
