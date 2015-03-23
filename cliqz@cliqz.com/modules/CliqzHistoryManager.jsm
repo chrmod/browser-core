@@ -61,27 +61,7 @@ var CliqzHistoryManager = {
             "FROM moz_places h " + 
             "LEFT JOIN moz_inputhistory i ON i.place_id = h.id AND i.input = :input_text " + 
             "WHERE url = :page_url ";
-
-        CliqzUtils.log('input: ' + input, 'CLIQZ.HISTORY_MANAGER');
-        CliqzUtils.log('url: ' + url + ', ' + url.length, 'CLIQZ.HISTORY_MANAGER');
-
-        CliqzUtils.log('checking id...', 'CLIQZ.HISTORY_MANAGER');        
-        var temp = "SELECT h.id FROM moz_places h WHERE h.url = :page_url ";
-        this.PlacesInterestsStorage
-            ._execute(
-                temp,
-                ['id'],
-                function(result) {
-                    CliqzUtils.log('id: ' + result, 'CLIQZ.HISTORY_MANAGER');
-                },
-                {
-                    page_url: url
-                }
-            )
-            .then(function() {
-                CliqzUtils.log('checked id', 'CLIQZ.HISTORY_MANAGER');
-            });
-
+        
         CliqzUtils.setTimeout(function() {
             CliqzHistoryManager.PlacesInterestsStorage
                 ._execute(
@@ -95,7 +75,7 @@ var CliqzHistoryManager = {
                     }
                 )
                 .then(function() {
-                    CliqzUtils.log('updated moz_inputhistory', 'CLIQZ.HISTORY_MANAGER');
+                    //CliqzUtils.log('updated moz_inputhistory', 'CLIQZ.HISTORY_MANAGER');
                 })
             },
             // wait a bit before updating moz_inputhistory; otherwise, the URL might
@@ -119,12 +99,10 @@ var CliqzHistoryManager = {
             }
             statement.executeAsync({
                 handleCompletion: function(reason)  {
-                  CliqzUtils.log('complete: ' + reason, 'CLIQZ.HISTORY_MANAGER');
                   onThen();
                 },
 
                 handleError: function(error)  {
-                    CliqzUtils.log('error: ' + error, 'CLIQZ.HISTORY_MANAGER');
                 },
 
                 handleResult: function(resultSet)  {
