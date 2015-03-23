@@ -1,0 +1,428 @@
+{
+    "urlPatterns": [
+        "\\.google\\..*?[#?&;]q=[^$&]+",
+        ".search.yahoo\\..*?[#?&;]p=[^$&]+",
+        ".linkedin.*?\\/pub\\/dir+",
+        "\\.bing\\..*?[#?&;]q=[^$&]+",
+        ".*"
+    ],
+    "searchEngines": [
+        "0",
+        "1",
+        "3"
+    ],
+    "scrape": {
+        "0": {
+            ".r": {
+                "t": {
+                    "item": "a",
+                    "type": "arr",
+                    "etype": "textContent",
+                    "keyName": "t"
+                },
+                "u": {
+                    "item": "a",
+                    "type": "arr",
+                    "etype": "href",
+                    "keyName": "u"
+                }
+            },
+            ".med #search": {
+                "q": {
+                    "item": "#ires",
+                    "type": "searchQuery",
+                    "etype": "data-async-context",
+                    "keyName": "q",
+                    "functionsApplied": [
+                        [
+                            "splitF",
+                            "query:",
+                            1
+                        ]
+                    ]
+                }
+            },
+            "#tads .ads-ad": {
+                "u": {
+                    "item": "a[class|=r-taw]",
+                    "type": "multiple",
+                    "etype": "href",
+                    "keyName": "u",
+                    "functionsApplied": [
+                        [
+                            "parseU",
+                            "qs",
+                            "adurl"
+                        ]
+                    ]
+                }
+            },
+            "#mbEnd .ads-ad": {
+                "u": {
+                    "item": "a[class|=r-rhscol]",
+                    "type": "multiple",
+                    "etype": "href",
+                    "keyName": "u",
+                    "functionsApplied": [
+                        [
+                            "parseU",
+                            "qs",
+                            "adurl"
+                        ]
+                    ]
+                }
+            },
+            ".pla-unit": {
+                "u": {
+                    "item": "._vT a",
+                    "type": "multiple",
+                    "etype": "href",
+                    "keyName": "u",
+                    "functionsApplied": [
+                        [
+                            "parseU",
+                            "qs",
+                            "adurl"
+                        ]
+                    ]
+                }
+            },
+            "qurl": {
+                "qurl": {
+                    "type": "standard",
+                    "etype": "url",
+                    "keyName": "qurl"
+                }
+            },
+            "ctry": {
+                "ctry": {
+                    "type": "standard",
+                    "etype": "ctry",
+                    "keyName": "ctry"
+                }
+            }
+        },
+        "1": {
+            ".dd.algo": {
+                "t": {
+                    "item": "h3 [href]",
+                    "type": "arr",
+                    "etype": "text",
+                    "keyName": "t"
+                },
+                "u": {
+                    "item": "h3 [href]",
+                    "type": "arr",
+                    "etype": "href",
+                    "keyName": "u",
+                    "functionsApplied": [
+                        [
+                            "splitF",
+                            "RU=",
+                            1
+                        ],
+                        [
+                            "splitF",
+                            "RK=0/",
+                            0
+                        ]
+                    ]
+                }
+            },
+            ".sbq-w": {
+                "q": {
+                    "item": "#yschsp",
+                    "type": "searchQuery",
+                    "etype": "value",
+                    "keyName": "query"
+                }
+            },
+            "qurl": {
+                "qurl": {
+                    "type": "standard",
+                    "etype": "url",
+                    "keyName": "qurl"
+                }
+            },
+            "ctry": {
+                "ctry": {
+                    "type": "standard",
+                    "etype": "ctry",
+                    "keyName": "ctry"
+                }
+            }
+        },
+        "2": {
+            ".vcard": {
+                "img": {
+                    "item": ".photo",
+                    "type": "arr",
+                    "etype": "src",
+                    "keyName": "imgl"
+                },
+                "fullName": {
+                    "item": ".profile-photo",
+                    "type": "arr",
+                    "etype": "title",
+                    "keyName": "fn"
+                },
+                "profileLink": {
+                    "item": "h2 strong a",
+                    "type": "arr",
+                    "etype": "href",
+                    "keyName": "pl"
+                },
+                "currentWork": {
+                    "item": ".vcard-expanded .current-content span",
+                    "type": "arr",
+                    "etype": "textContent",
+                    "keyName": "cw"
+                }
+            },
+            "ctry": {
+                "ctry": {
+                    "type": "standard",
+                    "etype": "ctry",
+                    "keyName": "ctry"
+                }
+            }
+        },
+        "3": {
+            ".b_algo": {
+                "t": {
+                    "item": "h2 [href]",
+                    "type": "arr",
+                    "etype": "text",
+                    "keyName": "t"
+                },
+                "u": {
+                    "item": "h2 [href]",
+                    "type": "arr",
+                    "etype": "href",
+                    "keyName": "u"
+                }
+            },
+            "#sb_form": {
+                "q": {
+                    "item": "#sb_form_q",
+                    "type": "searchQuery",
+                    "etype": "value",
+                    "keyName": "query"
+                }
+            },
+            "qurl": {
+                "qurl": {
+                    "type": "standard",
+                    "etype": "url",
+                    "keyName": "qurl"
+                }
+            },
+            "ctry": {
+                "ctry": {
+                    "type": "standard",
+                    "etype": "ctry",
+                    "keyName": "ctry"
+                }
+            }
+        },
+        "4": {
+            "#errorPageContainer": {
+                "reason": {
+                    "item": "#errorTitle h1",
+                    "type": "arr",
+                    "etype": "id",
+                    "keyName": "reason",
+                    "required": "yes"
+                }
+            },
+            "qurl": {
+                "qurl": {
+                    "type": "standard",
+                    "etype": "url",
+                    "keyName": "qurl"
+                }
+            },
+            "ctry": {
+                "ctry": {
+                    "type": "standard",
+                    "etype": "ctry",
+                    "keyName": "ctry"
+                }
+            }
+        }
+    },
+    "payloads": {
+        "0": {
+            ".r": {
+                "type": "query",
+                "results": "clustered",
+                "action": "query",
+                "fields": [
+                    [
+                        ".r",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        ".med #search",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ],
+                    [
+                        "ctry",
+                        "ctry"
+                    ]
+                ]
+            },
+            "#tads .ads-ad": {
+                "type": "query",
+                "results": "clustered",
+                "action": "ads_A",
+                "fields": [
+                    [
+                        "#tads .ads-ad",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        ".med #search",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ]
+                ]
+            },
+            "#mbEnd .ads-ad": {
+                "type": "query",
+                "results": "clustered",
+                "action": "ads_B",
+                "fields": [
+                    [
+                        "#mbEnd .ads-ad",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        ".med #search",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ]
+                ]
+            },
+            ".pla-unit": {
+                "type": "query",
+                "results": "clustered",
+                "action": "ads_C",
+                "fields": [
+                    [
+                        ".pla-unit",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        ".med #search",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ]
+                ]
+            }
+        },
+        "1": {
+            ".dd.algo": {
+                "type": "query",
+                "results": "clustered",
+                "action": "new_query",
+                "fields": [
+                    [
+                        ".dd.algo",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        ".sbq-w",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ],
+                    [
+                        "ctry",
+                        "ctry"
+                    ]
+                ]
+            }
+        },
+        "2": {
+            ".vcard": {
+                "type": "single",
+                "results": "single",
+                "action": "linkedin"
+            }
+        },
+        "3": {
+            ".b_algo": {
+                "type": "query",
+                "results": "clustered",
+                "action": "query",
+                "fields": [
+                    [
+                        ".b_algo",
+                        "r",
+                        "join"
+                    ],
+                    [
+                        "#sb_form",
+                        "q"
+                    ],
+                    [
+                        "qurl",
+                        "qurl"
+                    ],
+                    [
+                        "ctry",
+                        "ctry"
+                    ]
+                ]
+            }
+        },
+        "4": {
+            "#errorPageContainer": {
+                "type": "single",
+                "results": "custom",
+                "action": "maliciousUrl",
+                "fields": [
+                    [
+                        "qurl",
+                        "qurl"
+                    ],
+                    [
+                        "#errorPageContainer",
+                        "reason"
+                    ],
+                    [
+                        "ctry",
+                        "ctry"
+                    ]
+                ]
+            }
+        }
+    },
+    "idMapping": {
+        "0": "go",
+        "1": "ya",
+        "2": "lnkd",
+        "3": "bing"
+    }
+}
