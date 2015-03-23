@@ -25,7 +25,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
-var DATA_SOURCE = "firefox_cluster";
+var DATA_SOURCE = "firefox_cluster",
+    FF_DEF_FAVICON = 'chrome://mozapps/skin/places/defaultFavicon.png',
+    Q_DEF_FAVICON = 'chrome://cliqzres/content/skin/defaultFavicon.png';
 
 var CliqzHistoryPattern = {
   PATTERN_DETECTION_ENABLED: true,
@@ -185,6 +187,7 @@ var CliqzHistoryPattern = {
       for (var i = 0; i < history.matchCount; i++) {
         var pattern = {};
         pattern.url = history.getValueAt(i);
+        pattern.favicon = history.getImageAt(i);
         pattern.url = CliqzUtils.cleanMozillaActions(pattern.url);
         pattern.title = history.getCommentAt(i);
         if (pattern.title.length == 0) {
@@ -217,7 +220,7 @@ var CliqzHistoryPattern = {
   },
   // Process patterns
   preparePatterns: function(patterns, query) {
-    var baseUrl, orig_query = query;
+    var baseUrl, orig_query = query, favicon;
     if (query.indexOf("://") != -1) query = query.substr(query.indexOf("://")+3);
     query = query.toLowerCase().replace("www.", "");
     // Filter patterns that don't match search
@@ -226,7 +229,7 @@ var CliqzHistoryPattern = {
     // Remove patterns with same title
     patterns = CliqzHistoryPattern.removeDuplicates(patterns);
     // Move base domain to top
-    [patterns, baseUrl] = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
+    [patterns, baseUrl, favicon] = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false);
 
     // Add base domain if above threshold
@@ -236,7 +239,7 @@ var CliqzHistoryPattern = {
       if(tmpBaseUrl != baseUrl) {
         baseUrl = tmpBaseUrl;
       }
-      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
+      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
     } else {
@@ -248,7 +251,7 @@ var CliqzHistoryPattern = {
 
     // Add base domain if not clustered
     if (patterns && !res.cluster && baseUrl && baseUrl.indexOf(query) === 0) {
-      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl);
+      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
     }
     res.results = CliqzHistoryPattern.removeDuplicates(res.results);
     return res;
@@ -373,7 +376,7 @@ var CliqzHistoryPattern = {
     if (patterns.length < 2) {
       return null;
     }
-    var scores = [];
+    var scores = {}
 
     for (var key in patterns) {
       var url1 = CliqzHistoryPattern.generalizeUrl(patterns[key].url, true);
@@ -400,6 +403,7 @@ var CliqzHistoryPattern = {
     }
     var basePattern = null;
     var baseUrl = null;
+    var favicon = null;
     var commonDomain = CliqzHistoryPattern.findCommonDomain(patterns);
 
     query = CliqzHistoryPattern.generalizeUrl(query, true);
@@ -407,19 +411,17 @@ var CliqzHistoryPattern = {
       var url = CliqzHistoryPattern.generalizeUrl(patterns[key].url, true);
       if (url.indexOf(query) === 0) {
         baseUrl = url;
+        favicon = patterns[key].favicon;
         break;
       }
     }
 
     if (!baseUrl) {
       baseUrl = CliqzHistoryPattern.generalizeUrl(patterns[0].url, true);
+      favicon = patterns[0].favicon;
     }
 
-    if (commonDomain) {
-      baseUrl = commonDomain;
-    } else if  (baseUrl.indexOf('/') != -1) {
-      baseUrl = baseUrl.split('/')[0];
-    }
+    baseUrl = commonDomain || baseUrl.split('/')[0];
 
     for (var i = 0; i < patterns.length; i++) {
       var pUrl = CliqzHistoryPattern.generalizeUrl(patterns[i].url, true);
@@ -440,10 +442,10 @@ var CliqzHistoryPattern = {
     for (var key in patterns) {
       if (patterns[key] != basePattern) newPatterns.push(patterns[key]);
     }
-    return [newPatterns, baseUrl];
+    return [newPatterns, baseUrl, favicon];
   },
   // Add base domain of given result to top of patterns
-  addBaseDomain: function(patterns, baseUrl) {
+  addBaseDomain: function(patterns, baseUrl, favicon) {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
     if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
     // Add base domain if not in list
@@ -452,7 +454,8 @@ var CliqzHistoryPattern = {
       if (!title) return;
       patterns.unshift({
         title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
-        url: baseUrl
+        url: baseUrl,
+        favicon: favicon
       });
     }
     return baseUrl;
@@ -810,7 +813,8 @@ var CliqzHistoryPattern = {
         }
         var url = results[i].url;
         if (url[url.length - 1] == '/') url = url.substring(0, url.length - 1);
-        var favicon = res.cluster ? "" : "http://ux2.fbt.co/brand/favicon?fallback=true&q=" + domain;
+
+        var favicon = !res.cluster && (results[i].favicon == FF_DEF_FAVICON ? Q_DEF_FAVICON : results[i].favicon);
 
         instant.data.urls.push({
           href: results[i].url,
