@@ -47,7 +47,7 @@ var CliqzUCrawl = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'chrome://cliqz/content/extractPatterns/patterns',
+    patternsURL: 'http://cdn.cliqz.com/safeBrowsing/patterns',
     searchCache: {},
     parseUri: function (str) {
         //var o   = parseUri.options,
@@ -1683,7 +1683,6 @@ var CliqzUCrawl = {
     checkURL: function(cd){
         var url = cd.location.href;
         var pageContent = cd;
-        var reref = /\.google\..*?\/(?:url|aclk)\?/;
         //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
         //scrap(4, pageContent)
         for(var i=0;i<CliqzUCrawl.rArray.length;i++){
@@ -1695,10 +1694,6 @@ var CliqzUCrawl = {
                 if (CliqzUCrawl.debug) {
                     CliqzUtils.log('Continue further after search engines ', CliqzUCrawl.LOG_KEY);
                 }
-            }
-            else if (reref.test(url)){
-                // This is special case for google ref.
-                return;
             }
       }
     },
@@ -1722,10 +1717,6 @@ var CliqzUCrawl = {
                     }
                     return -1;
                 }
-            }
-            else if (reref.test(url)){
-                // This is special case for google ref.
-                return 0;
             }
         }
     },
