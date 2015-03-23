@@ -988,6 +988,14 @@ var CliqzUCrawl = {
         }
       }
 
+      //Load patterns config
+        if ((CliqzUCrawl.counter/CliqzUCrawl.tmult) % (60 * 60 * 24) == 0) {
+            if (CliqzUCrawl.debug) {
+                CliqzUtils.log('Load pattern config', CliqzUCrawl.LOG_KEY);
+            }
+            CliqzUCrawl.loadContentExtraction();
+      }
+
       CliqzUCrawl.counter += 1;
 
     },
