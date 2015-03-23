@@ -954,6 +954,7 @@ function onEnter(ev, item){
 
     if(popupOpen && index != -1){
         var url = CliqzUtils.cleanMozillaActions(item.getAttribute('url'));
+        var uncleaned_url = url
         action.position_type = getResultKind(item);
         action.search = CliqzUtils.isSearch(url);
         if (action.position_type == 'C' && CliqzUtils.getPref("logCluster", false)) { // if this is a clustering result, we track the clustering domain
@@ -973,7 +974,7 @@ function onEnter(ev, item){
 
         CLIQZ.Core.urlbar.value = ""; // Force immediate change of urlbar
         CLIQZ.Core.openLink(url || urlBar.value, false);
-        CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url || urlBar.value);
+        CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, uncleaned_url);
         CliqzUtils.trackResult(query, queryAutocompleted, index,
             CliqzUtils.isPrivateResultType(action.position_type) ? '' : url);
 
