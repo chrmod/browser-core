@@ -228,7 +228,7 @@
         "4": {
             "#errorPageContainer": {
                 "reason": {
-                    "item": "#errorTitle h1",
+                    "item": "h1[id^=errorTitleText_]",
                     "type": "arr",
                     "etype": "id",
                     "keyName": "reason",
@@ -342,7 +342,7 @@
             ".dd.algo": {
                 "type": "query",
                 "results": "clustered",
-                "action": "new_query",
+                "action": "query",
                 "fields": [
                     [
                         ".dd.algo",

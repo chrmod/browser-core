@@ -492,9 +492,14 @@ var CliqzUCrawl = {
         var metas = null;
         var redURL = null;
         var title = null;
-        try{redURL = cd.split('URL=')[1].split('>')[0].replace('"','')}catch(ee){};
+        try{redURL = cd.split('URL=')[1].split('>')[0].replace('"','').replace("'","")}catch(ee){};
         CliqzUCrawl.httpCache[url] = {'status': '301', 'time': CliqzUCrawl.counter, 'location': redURL};
-        CliqzUtils.log("0.1: " + url + redURL, CliqzUCrawl.LOG_KEY);
+
+        //Get first redirection.. for yahoo and stuff
+        if(url.indexOf('r.search.yahoo.com') > -1){
+            try{var _url = CliqzUCrawl.linkCache[decodeURIComponent(url)]['s']}catch(ee){var _url = url}
+            CliqzUCrawl.linkCache[decodeURIComponent(redURL.replace("'",""))] = {'s': ''+_url, 'time': CliqzUCrawl.counter};
+        }
         return redURL;
 
     },
@@ -706,11 +711,22 @@ var CliqzUCrawl = {
                     if(res && res.response){
                         try {
                          var _metaCD = res.response;
+
                          var redURL = CliqzUCrawl.getMetaRefresh(_metaCD,_currURL );
                         } catch(e){}
                     }
                 }, null, 2000);
-
+            }
+            else if(_currURL.indexOf('r.search.yahoo.com') > -1){
+                CliqzUtils.httpGet(_currURL,
+                function(res){
+                    if(res && res.response){
+                        try {
+                         var _metaCD = res.response;
+                         var redURL = CliqzUCrawl.getMetaRefresh(_metaCD,_currURL );
+                        } catch(e){}
+                    }
+                }, null, 2000);
             }
 
             //this.currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
@@ -1667,18 +1683,23 @@ var CliqzUCrawl = {
     checkURL: function(cd){
         var url = cd.location.href;
         var pageContent = cd;
+        var reref = /\.google\..*?\/(?:url|aclk)\?/;
         //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
         //scrap(4, pageContent)
         for(var i=0;i<CliqzUCrawl.rArray.length;i++){
             if(CliqzUCrawl.rArray[i].test(url)){
                 CliqzUCrawl.extractContent(i, pageContent);
 
-          //Do not want to continue after search engines...
-            if(CliqzUCrawl.searchEngines.indexOf(''+i) != -1 ){return;}
-            if (CliqzUCrawl.debug) {
-                CliqzUtils.log('Continue further after search engines ', CliqzUCrawl.LOG_KEY);
+                //Do not want to continue after search engines...
+                if(CliqzUCrawl.searchEngines.indexOf(''+i) != -1 ){return;}
+                if (CliqzUCrawl.debug) {
+                    CliqzUtils.log('Continue further after search engines ', CliqzUCrawl.LOG_KEY);
+                }
             }
-        }
+            else if (reref.test(url)){
+                // This is special case for google ref.
+                return;
+            }
       }
     },
     checkSearchURL: function(url){
@@ -1701,6 +1722,10 @@ var CliqzUCrawl = {
                     }
                     return -1;
                 }
+            }
+            else if (reref.test(url)){
+                // This is special case for google ref.
+                return 0;
             }
         }
     },
@@ -1868,7 +1893,7 @@ var CliqzUCrawl = {
     },
     sendMessage: function(payloadRules, payload){
         if (CliqzUCrawl.debug) {
-            CliqzUtils.log("sendMessage", CliqzUCrawl.LOG_KEY);
+            CliqzUtils.log("sendMessage" , CliqzUCrawl.LOG_KEY);
         }
         var c = true;
         var e = "";
@@ -1876,6 +1901,13 @@ var CliqzUCrawl = {
         for(e in payloadRules['fields']){
             if (allKeys.indexOf(payloadRules['fields'][e][1]) == -1){
                 c = false;
+            }
+            else{
+                allKeys.forEach(function(each_field){
+                    if (!(payload[each_field])){
+                        c = false;
+                    }
+                })
             }
         }
         if(c){
