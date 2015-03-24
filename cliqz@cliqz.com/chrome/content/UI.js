@@ -49,7 +49,12 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
+
+    // The number of times to attempt loading smart CLIQZ results asynchronously
+    smartCliqzMaxAttempts = 5,
+    // The number of milliseconds to wait after each attempt
+    smartCliqzWaitTime = 150
     ;
 
 function lg(msg){
@@ -155,6 +160,9 @@ var UI = {
         // Results that are not ready (extra results, for which we received a callback_url)
         var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
         CliqzUtils.log(JSON.stringify(currentResults), "RESULT SAMPLE");
+        var query = currentResults.q;
+        if (!query)
+          query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
         CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
         //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
@@ -172,7 +180,8 @@ var UI = {
               UI.dispatchRedraw(UI.tpl.results(currentResults), now);
             else
               gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
-
+            var tag = "ASYNC RESULTS " + query;
+            CliqzUtils.log(JSON.stringify(asyncResults), tag);
             UI.loadAsyncResult(asyncResults);
         }
 
@@ -206,7 +215,8 @@ var UI = {
           var r = res[i];
           var query = r.text;
           //CliqzUtils.log(r,"LOADINGASYNC");
-          CliqzUtils.httpGet(r.data.__callback_url__, function(req) {
+          var loop_count = 0;
+          var async_callback = function(req) {
               //CliqzUtils.log(r, "GOT SOME RESULTS");
               var resp = undefined;
               try {
@@ -220,26 +230,40 @@ var UI = {
               //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
               if (resp &&  CLIQZ.Core.urlbar.value == query) {
                 var kind = r.data.kind;
-                r.data = resp.data;
-                r.url = resp.url;
-                r.data.kind = kind;
-                r.data.subType = resp.subType;
-                r.data.trigger_urls = resp.trigger_urls;
-                currentResults.results.unshift(r);
-                if(gCliqzBox.resultsBox) {
-                    var now = Date.now();
-                    UI.lastDispatch = now;
-                    if(CliqzUtils.getPref("animations", false))
-                      UI.dispatchRedraw(UI.tpl.results(currentResults), now);
-                    else
-                      gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+                if ("__callback_url__" in resp.data ) {
+                    // If the result is again a promise, retry.
+                    if (loop_count < smartCliqzMaxAttempts) {
+                      setTimeout(function() {
+                        loop_count += 1;
+                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
+                      }, smartCliqzWaitTime);
+                    }
+                }
+                else {
+                  r.data = resp.data;
+                  r.url = resp.url;
+                  r.data.kind = kind;
+                  r.data.subType = resp.subType;
+                  r.data.trigger_urls = resp.trigger_urls;
+                  currentResults.results.unshift(r);
+
+                  if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
+                      var now = Date.now();
+                      UI.lastDispatch = now;
+                      if(CliqzUtils.getPref("animations", false))
+                        UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+                      else
+                        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+                  }
                 }
               }
               else {
                 res.splice(i,1);
               }
 
-          });
+          };
+          CliqzUtils.httpGet(r.data.__callback_url__, async_callback, async_callback);
         }
 
 
@@ -396,7 +420,7 @@ var UI = {
             break;
             case RIGHT:
             case LEFT:
-                var urlbar = CLIQZ.Core.urlbar;
+                var urlbar = Montauban;
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
