@@ -1165,7 +1165,7 @@ function resultClick(ev){
               action: "result_click",
               new_tab: newTab
             }, CliqzAutocomplete.lastSearch);
-            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));            
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZ.Core.openLink(url, newTab);
             CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
