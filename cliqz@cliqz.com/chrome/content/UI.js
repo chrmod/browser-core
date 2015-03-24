@@ -1359,7 +1359,9 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
+
+        if(!target.hasAttribute('arrow-override') &&
+          el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
         clearResultSelection();
@@ -1670,7 +1672,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('log', function(value, key) {
-        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
+        console.log('TEMPLATE LOG HELPER', value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
@@ -1683,7 +1685,7 @@ function registerHelpers(){
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+/),
+            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t; }),
             lowerText = text.toLowerCase(),
             out, high = false;
 

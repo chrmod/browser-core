@@ -200,6 +200,10 @@ CLIQZ.Core = CLIQZ.Core || {
             }, false);
         }
 
+        window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
+        CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+        CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
+
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
     },
@@ -311,6 +315,11 @@ CLIQZ.Core = CLIQZ.Core || {
 
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
+        CLIQZ.Core.urlbar.removeEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
+        CLIQZ.Core.urlbar.removeEventListener('paste', CLIQZ.Core.handlePasteEvent);
+
 
         try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
@@ -539,13 +548,13 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.highlightFirstElement = false;
 
         // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern;
-        if(!firstResult && lastPattern && lastPattern.filteredResults().length > 1)
-          firstResult = lastPattern.filteredResults()[0].url;
+        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern.filteredResults();
+        if(!firstResult && lastPattern && fRes.length > 1)
+          firstResult = fRes[0].url;
 
         var r, endPoint = urlBar.value.length;
         var lastPattern = CliqzAutocomplete.lastPattern;
-        var results = lastPattern ? lastPattern.filteredResults() : [];
+        var results = lastPattern ? fRes : [];
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
@@ -621,5 +630,46 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     getQuerySession: function() {
         return _querySession;
+    },
+    handleKeyboardShortcuts: function(ev) {
+        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey)){
+            CLIQZ.Core.urlbar.focus();
+            CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
+
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+    },
+    handleKeyboardShortcutsAction: function(val){
+        CliqzUtils.telemetry({
+            type: 'activity',
+            action: 'keyboardShortcut',
+            value: val
+        });
+    },
+    handleUrlbarTextDrop: function(ev){
+        var dTypes = ev.dataTransfer.types;
+        if (dTypes.indexOf && dTypes.indexOf("text/plain") !== -1 ||
+            dTypes.contains && dTypes.contains("text/plain") !== -1){
+            // open dropdown on text drop
+            var inputField = CLIQZ.Core.urlbar.mInputField, val = inputField.value;
+            inputField.setUserInput('');
+            inputField.setUserInput(val);
+
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'textdrop'
+            });
+        }
+    },
+    handlePasteEvent: function(ev){
+        //wait for the value to change
+        setTimeout(function(){
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'paste',
+                current_length: ev.target.value.length
+            });
+        }, 0);
     }
 };
