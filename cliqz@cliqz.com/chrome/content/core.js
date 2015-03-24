@@ -505,13 +505,13 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.highlightFirstElement = false;
 
         // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern;
-        if(!firstResult && lastPattern && lastPattern.filteredResults().length > 1)
-          firstResult = lastPattern.filteredResults()[0].url;
+        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern.filteredResults();
+        if(!firstResult && lastPattern && fRes.length > 1)
+          firstResult = fRes[0].url;
 
         var r, endPoint = urlBar.value.length;
         var lastPattern = CliqzAutocomplete.lastPattern;
-        var results = lastPattern ? lastPattern.filteredResults() : [];
+        var results = lastPattern ? fRes : [];
 
         // try to update misspelings like ',' or '-'
         if (CLIQZ.Core.cleanUrlBarValue(urlBar.value).toLowerCase() != urlBar.value.toLowerCase()) {
