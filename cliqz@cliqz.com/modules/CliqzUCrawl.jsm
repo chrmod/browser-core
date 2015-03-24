@@ -47,7 +47,7 @@ var CliqzUCrawl = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://cdn.cliqz.com/safeBrowsing/patterns',
+    patternsURL: 'http://cdn.cliqz.com/safe-browsing/patterns',
     searchCache: {},
     parseUri: function (str) {
         //var o   = parseUri.options,
