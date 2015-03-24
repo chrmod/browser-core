@@ -2,6 +2,9 @@
 
 /*
     check mockserver/server.py for mocks !
+
+    VERY IMPORTANT !!!
+    Avoid polluting the logs - all the tests should not send logs to production logging systems
 */
 
 var {assert} = require('lib/assertions');
