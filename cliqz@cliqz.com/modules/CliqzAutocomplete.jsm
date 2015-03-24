@@ -223,7 +223,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
                     top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
                     top.data.url = results[0].url;
-                    top.data.template = 'pattern-h1';
+                    top.data.template = 'topsites';
                     top.data.urls = results.map(function(r, i){
                         var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
                             logoDetails = CliqzUtils.getLogoDetails(urlDetails);
@@ -606,7 +606,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
 
                 // trigger history search
-                if(searchString.trim().length == 0){
+                if(searchString.trim().length == 0 && CliqzAutocomplete.sessionStart){
+                    CliqzAutocomplete.sessionStart = false;
                     this.fetchTopSites = this.fetchTopSites.bind(this);
                     NewTabUtils.links.populateCache(this.fetchTopSites)
                 } else {

@@ -1,27 +1,23 @@
-<div class='cqz-result-h1 cqz-result-padding'>
-  {{#with data}}
-    <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
-        {{ title }}
-        <div class="after" style="background-image: url({{icon}})"></div>
-    </div>
-    <div class="ez-no-result">
-      <div class="logos">
-          {{#each urls}}
-              <div class="items">
-                <div class="cliqz-brand-logo transition"
-                      style="{{style}}"
-                      title="{{link}}"
-                      extra="{{extra}}"
-                      url="{{url}}"
-                      >{{ text }}
-
-                      </div>
-                <div class="item-name">{{nameify name}}</div>
-              </div>
-          {{/each}}
+<div class='cqz-result-h1 cqz-result-padding cqz-result-pattern'>
+      <div class='cqz-ez-title cliqz-pattern-title-h1 overflow'>
+          {{ data.title }}
       </div>
-      <div class="h2">{{{ message }}}</div>
-      <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
-  </div>
-  {{/with}}
+      <div class='cliqz-pattern'>
+        {{#each data.urls}}
+        <div class='cliqz-pattern-element overflow'
+            {{#if favicon }}
+             style='background-image: url({{ favicon }})'
+             {{else}}
+              style='padding-left: 0px;'
+             {{/if}}
+             url='{{href}}' shortUrl='{{link}}'
+             extra='{{extra}}'
+             domain='{{domain}}'
+             arrow="false">
+            <div class='cliqz-pattern-element-title'>{{ title }}</div>
+            <div class='cliqz-pattern-element-link'>{{ link }}</div>
+        </div>
+        {{/each}}
+    </div>
+    {{>logo}}
 </div>

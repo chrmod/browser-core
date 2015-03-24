@@ -58,7 +58,7 @@ CLIQZ.Core = CLIQZ.Core || {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'click'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
@@ -316,7 +316,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzUtils.telemetry(action);
     },
-    urlbarfocus: function() {
+    urlbarfocus: function(ev) {
         //try to 'heat up' the connection
         CliqzUtils.pingCliqzResults();
 
@@ -326,22 +326,17 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
-        if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
-            var urlbar = CLIQZ.Core.urlbar.mInputField.value;
-            var search = urlbar;
-            if (CliqzUtils.isUrl(search)) {
-              search = search.replace("www.", "");
-                if(search.indexOf("://") != -1) search = search.substr(search.indexOf("://")+3);
-                if(search.indexOf("/") != -1) search = search.split("/")[0];
-            }
-            CLIQZ.Core.urlbar.mInputField.setUserInput(search);
+        if(/*CliqzUtils.getPref('newUrlFocus') == true && */CLIQZ.Core.urlbar.value.trim().length > 0) {
+            //var urlbar = CLIQZ.Core.urlbar.mInputField.value;
+            //var search = urlbar;
+            //if (CliqzUtils.isUrl(search)) {
+            //  search = search.replace("www.", "");
+            //    if(search.indexOf("://") != -1) search = search.substr(search.indexOf("://")+3);
+            //    if(search.indexOf("/") != -1) search = search.split("/")[0];
+            //}
+            //CLIQZ.Core.urlbar.mInputField.setUserInput(search);
             CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
-            CLIQZ.Core.urlbar.mInputField.value = urlbar;
-        }
-
-        if(CLIQZ.Core.urlbar.value.trim().length == 0){
-            //link to historydropmarker
-            document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+            //CLIQZ.Core.urlbar.mInputField.value = urlbar;
         }
     },
     urlbarblur: function(ev) {
@@ -427,6 +422,13 @@ CLIQZ.Core = CLIQZ.Core || {
         if(currentVersion && lastUninstallVersion != currentVersion){
             CliqzUtils.setPref(UNINSTALL_PREF, currentVersion);
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
+        }
+    },
+    urlbarclick: function(ev){
+        if(ev.originalTarget.localName != 'dropmarker' && CLIQZ.Core.urlbar.value.trim().length == 0){
+            //link to historydropmarker
+            CliqzAutocomplete.sessionStart = true;
+            document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
         }
     },
     urlbarkeydown: function(ev){
