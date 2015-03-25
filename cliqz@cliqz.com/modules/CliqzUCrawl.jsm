@@ -1417,7 +1417,8 @@ var CliqzUCrawl = {
                       callback(priv);
                     });
                   }
-                  else callback(false);
+                  else {callback(false)};
+                }
                 else {
                   // set to private (becasue we are not sure so beter safe than sorry),
                   // there is a loop of length > 10 between a <- b <- .... <- a, so if we do not
