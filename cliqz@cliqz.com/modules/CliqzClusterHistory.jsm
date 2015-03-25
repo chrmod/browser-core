@@ -315,17 +315,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
                         // apply title
                         var new_title = CliqzClusterHistory.extract_with_regex(matching[m], rules[r].title);
-                        if(new_title)
-                            entry.title = new_title;
-                        else
-                            entry.title = matching[m].title;
+                        entry.title = new_title || matching[m].title;
 
                         // rewrite the url
                         var new_url = CliqzClusterHistory.rewrite_url(matching[m], rules[r].url);
-                        if(new_url)
-                            entry.url = new_url;
-                        else
-                            entry.url = matching[m].url;
+                        entry.url = new_url || matching[m].url;
 
                         entry.old_urls = [matching[m].url];
 
