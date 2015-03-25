@@ -28,7 +28,7 @@ var CliqzUCrawl = {
     TAG:'new-ui',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
