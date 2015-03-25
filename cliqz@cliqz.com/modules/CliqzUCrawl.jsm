@@ -28,7 +28,7 @@ var CliqzUCrawl = {
     TAG:'new-ui',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -1334,7 +1334,7 @@ var CliqzUCrawl = {
       var d2 = CliqzUCrawl.parseURL(url2).hostname.replace('www.','');
       return d1==d2;
     },
-    isPrivate: function(url, callback) {
+    isPrivate: function(url, depth, callback) {
       // returns 1 is private (because of checked, of because the referrer is private)
       // returns 0 if public
       // returns -1 if not checked yet, handled as public in this cases,
@@ -1342,8 +1342,6 @@ var CliqzUCrawl = {
       var res = [];
       var st = CliqzUCrawl.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
       st.params.url = url;
-
-      // CliqzUCrawl.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
       var res = [];
       st.executeAsync({
         handleResult: function(aResultSet) {
@@ -1363,12 +1361,20 @@ var CliqzUCrawl = {
           else {
             if (res.length == 1) {
               if (res[0].ref!='' && res[0].ref!=null) {
-                if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
-                  CliqzUCrawl.isPrivate(res[0].ref, function(priv) {
-                    callback(priv);
-                  });
+                if (depth < 10) {
+                  if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
+                    CliqzUCrawl.isPrivate(res[0].ref, depth+1, function(priv) {
+                      callback(priv);
+                    });
+                  }
+                  else callback(false);
+                else {
+                  // set to private (becasue we are not sure so beter safe than sorry),
+                  // there is a loop of length > 10 between a <- b <- .... <- a, so if we do not
+                  // break recursion it will continue to do the SELECT forever
+                  //
+                  callback(true);
                 }
-                else callback(false);
               }
               else {
                 callback(false);
@@ -1557,7 +1563,8 @@ var CliqzUCrawl = {
     },
     listOfUnchecked: function(cap, sec_old, callback) {
       var tt = new Date().getTime();
-      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
+      var stmt = CliqzUCrawl.dbConn.createAsyncStatement("SELECT url, hash FROM usafe WHERE checked = :checked and last_visit < :last_visit LIMIT :cap;");
+      stmt.params.cap = cap;
       stmt.params.last_visit = (tt - sec_old*1000);
       stmt.params.checked = 0;
 
@@ -1589,7 +1596,7 @@ var CliqzUCrawl = {
         var url = listOfUncheckedUrls[i][0];
         var hash = listOfUncheckedUrls[i][1];
 
-        CliqzUCrawl.isPrivate(url, function(isPrivate) {
+        CliqzUCrawl.isPrivate(url, 0, function(isPrivate) {
           if (isPrivate) {
             var st = CliqzUCrawl.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
             st.params.url = url;
