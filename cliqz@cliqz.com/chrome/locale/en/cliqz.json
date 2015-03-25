@@ -409,5 +409,14 @@
     },
     "Copied":{
         "message": "Copied"
+    },
+    "updateMessage":{
+        "message": "CLIQZ has just updated to the latest, greatest version."
+    },
+    "updatePage":{
+        "message": "See What’s New"
+    },
+    "updateDismiss":{
+        "message": "Dismiss"
     }
 }

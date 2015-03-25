@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
@@ -18,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 
 
 var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
-    MESSAGE_TEMPLATES = ['adult', 'bad_results_warning'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
     VERTICALS = {
         //'s': 'shopping',
         //'g': 'gaming'  ,
@@ -386,14 +389,14 @@ var UI = {
                             type: 'activity',
                             action: 'del_correct_back'
                         };
-                        CliqzUtils.track(signal);
+                        CliqzUtils.telemetry(signal);
                     }
                 } else {
                     var signal = {
                         type: 'activity',
                         action: 'keystroke_del'
                     };
-                    CliqzUtils.track(signal);
+                    CliqzUtils.telemetry(signal);
                 }
                 UI.preventFirstElementHighlight = true;
                 UI.lastSelectedUrl = "";
@@ -541,7 +544,7 @@ function navigateToEZinput(element){
         dest_url = search_engine.getSubmission(value).uri.spec
     }
     openUILink(dest_url);
-    CLIQZ.Core.forceCloseResults = true;
+    CLIQZ.Core.allowDDtoClose = true;
     CLIQZ.Core.popup.hidePopup();
 
     var action_type = element.getAttribute("logg-action-type");
@@ -549,7 +552,7 @@ function navigateToEZinput(element){
       type: 'activity',
       action: action_type
     };
-    CliqzUtils.track(signal);
+    CliqzUtils.telemetry(signal);
 }
 
 function selectWord(input, direction) {
@@ -574,14 +577,14 @@ function sessionEnd(){
     adultMessage = 0; //show message in the next session
 }
 
-var forceCloseResults = false;
-function closeResults(event, force) {
+var allowDDtoClose = false;
+function closeResults(event) {
     var urlbar = CLIQZ.Core.urlbar;
 
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
-    if (forceCloseResults || force) {
-        forceCloseResults = false;
+    if (allowDDtoClose) {
+        allowDDtoClose = false;
         return;
     }
 
@@ -589,7 +592,7 @@ function closeResults(event, force) {
     setTimeout(function(){
       var newActive = document.activeElement;
       if (newActive.getAttribute("dont-close") != "true") {
-        forceCloseResults = true;
+        allowDDtoClose = true;
         CLIQZ.Core.popup.hidePopup();
         gBrowser.selectedTab.linkedBrowser.focus();
       }
@@ -899,8 +902,26 @@ function enhanceResults(res){
     }
     else if (notSupported()) {
       updateMessageState("show", {
-          "bad_results_warning": {}
+          "footer-message": getNotSupported()
        });
+    }
+    else if(CliqzUtils.getPref('changeLogState', 0) == 1){
+      updateMessageState("show", {
+        "footer-message": {
+          message: CliqzUtils.getLocalizedString('updateMessage'),
+          telemetry: 'changelog',
+          options: [{
+              text: CliqzUtils.getLocalizedString('updatePage'),
+              action: 'update-show',
+              state: 'default'
+            }, {
+              text: CliqzUtils.getLocalizedString('updateDismiss'),
+              action: 'update-dismiss',
+              state: 'gray'
+            }
+          ]
+        }
+      });
     }
     else {
       updateMessageState("hide");
@@ -918,6 +939,24 @@ function notSupported(r){
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
     return lang != 'de' && lang.split('-')[0] != 'de';
+}
+
+function getNotSupported(){
+  return {
+    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    telemetry: 'international',
+    type: 'cqz-message-alert',
+    options: [{
+        text: CliqzUtils.getLocalizedString('keep-cliqz'),
+        action: 'keep-cliqz',
+        state: 'success'
+      }, {
+        text: CliqzUtils.getLocalizedString('disable-cliqz'),
+        action: 'disable-cliqz',
+        state: 'error'
+      }
+    ]
+  }
 }
 
  /*
@@ -943,7 +982,7 @@ function notSupported(r){
                 "adult": {
                     "adultConfig": CliqzUtils.getAdultFilterState()
                 },
-                "bad_results_warning": {
+                "footer-message": {
                   // Template has no arguments.
                 }
              });
@@ -1009,10 +1048,11 @@ function messageClick(ev) {
         case 'adult':
           handleAdultClick(ev);
           break;
-        case 'disable-cliqz':
+        case 'footer-message-action':
           // "Cliqz is not optimized for your country" message */
           var state = ev.originalTarget.getAttribute('state');
           switch(state) {
+              //not supported country
               case 'disable-cliqz':
                   CliqzUtils.setPref("cliqz_core_disabled", true);
                   updateMessageState("hide");
@@ -1021,7 +1061,7 @@ function messageClick(ev) {
                   //remove cliqz from all windows
                   while (enumerator.hasMoreElements()) {
                       var win = enumerator.getNext();
-                      win.CLIQZ.Core.destroy(true);
+                      win.CLIQZ.Core.unload(true);
                   }
                   CliqzUtils.refreshButtons();
                   break;
@@ -1030,13 +1070,22 @@ function messageClick(ev) {
                   // Lets us know that the user has ignored the warning
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
+
+
+              //changelog
+              case 'update-show':
+                  CLIQZ.Core.openLink(CliqzUtils.CHANGELOG, true);
+              case 'update-dismiss':
+                  updateMessageState("hide");
+                  CliqzUtils.setPref('changeLogState', 2);
+                  break;
               default:
                   break;
             break;
           }
-          CliqzUtils.track({
+          CliqzUtils.telemetry({
             type: 'setting',
-            setting: 'international',
+            setting: el.getAttribute('cliqz-telemetry'),
             value: state
           });
           setTimeout(CliqzUtils.refreshButtons, 0);
@@ -1089,8 +1138,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       for(var key in extraData) {
         action[key] = extraData[key];
       }
-      CliqzUtils.track(action);
-      CliqzUtils.trackResult(query, queryAutocompleted, getResultPosition(el),
+      CliqzUtils.telemetry(action);
+      CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
 
       if(!CliqzUtils.isPrivateResultType(action.position_type)){
@@ -1126,7 +1175,9 @@ function resultClick(ev){
               action: "result_click",
               new_tab: newTab
             }, CliqzAutocomplete.lastSearch);
-            CLIQZ.Core.openLink(CliqzUtils.cleanMozillaActions(el.getAttribute('url')), newTab);
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
+            CLIQZ.Core.openLink(url, newTab);
+            CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
@@ -1186,7 +1237,7 @@ function handleAdultClick(ev){
             updateMessageState("hide");
             if (user_location != "de" && !ignored_location_warning)
               updateMessageState("show", {
-                  "bad_results_warning": {}
+                  "footer-message": getNotSupported()
               });
             break;
         case 'no':
@@ -1195,7 +1246,7 @@ function handleAdultClick(ev){
             updateMessageState("hide");
             if (user_location != "de" && !ignored_location_warning)
               updateMessageState("show", {
-                  "bad_results_warning": {}
+                  "footer-message": getNotSupported()
                });
             break;
         default:
@@ -1206,7 +1257,7 @@ function handleAdultClick(ev){
                 UI.handleResults();
                 if (user_location != "de" && !ignored_location_warning)
                   updateMessageState("show", {
-                      "bad_results_warning": {}
+                      "footer-message": getNotSupported()
                    });
             }
             else {
@@ -1216,7 +1267,7 @@ function handleAdultClick(ev){
 
     }
     if(state && state != 'options'){ //optionsBtn
-        CliqzUtils.track({
+        CliqzUtils.telemetry({
             type: 'setting',
             setting: 'adultFilter',
             value: state
@@ -1298,14 +1349,14 @@ function selectNextResult(pos, allArrowable) {
     if (pos != allArrowable.length - 1) {
         var nextEl = allArrowable[pos + 1];
         setResultSelection(nextEl, true, false, true);
-        trackArrowNavigation(nextEl);
+        arrowNavigationTelemetry(nextEl);
     }
 }
 
 function selectPrevResult(pos, allArrowable) {
     var nextEl = allArrowable[pos - 1];
     setResultSelection(nextEl, true, true, true);
-    trackArrowNavigation(nextEl);
+    arrowNavigationTelemetry(nextEl);
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
@@ -1313,7 +1364,9 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
+
+        if(!target.hasAttribute('arrow-override') &&
+          el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
         clearResultSelection();
@@ -1471,6 +1524,7 @@ function onEnter(ev, item){
   }
 
   CLIQZ.Core.openLink(input, newTab);
+  CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
 
@@ -1507,12 +1561,12 @@ function enginesClick(ev){
                 action.new_tab = false;
             }
 
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
         }
     }
 }
 
-function trackArrowNavigation(el){
+function arrowNavigationTelemetry(el){
     var action = {
         type: 'activity',
         action: 'arrow_key',
@@ -1527,7 +1581,7 @@ function trackArrowNavigation(el){
         var url = getResultOrChildAttr(el, 'url');
         action.search = CliqzUtils.isSearch(url);
     }
-    CliqzUtils.track(action);
+    CliqzUtils.telemetry(action);
 }
 
 var AGO_CEILINGS=[
@@ -1624,7 +1678,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('log', function(value, key) {
-        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
+        console.log('TEMPLATE LOG HELPER', value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
@@ -1637,7 +1691,7 @@ function registerHelpers(){
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+/),
+            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t; }),
             lowerText = text.toLowerCase(),
             out, high = false;
 

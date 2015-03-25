@@ -1,6 +1,6 @@
 <div class="cqz-result-h2 ez-weather">
     {{#with data}}
-        <div class='cqz-ez-title'>{{ returned_location }}</div>
+        <div class='cqz-ez-title' arrow-override=''>{{ returned_location }}</div>
 
         <div class='EZ-weather-container'>
             <div class='EZ-weather-date'>{{ todayWeekday }}</div>
