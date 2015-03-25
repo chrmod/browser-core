@@ -1,7 +1,7 @@
 """
     Manages packaging, deplyment and testing of the navigation extension.
 """
-
+import re
 import urllib2
 import xml.etree.ElementTree as ET
 
@@ -191,3 +191,27 @@ def unit_test():
 def clean():
     """Clean directory from .xpi files"""
     local("rm  *.xpi")
+
+
+@task
+def cool():
+    import os, os.path
+    target = ['js', 'jsm', 'css', 'html']
+    ext_root = os.path.dirname(os.path.realpath(__file__)) +'/cliqz@cliqz.com'
+    for root, dirs, files in os.walk(ext_root):
+        for f in files:
+            if f.split('.')[-1] in target:
+                print 'processing ' + f
+                with open(root + '/' + f, 'r+') as handler:
+                    content = handler.read()
+                    handler.seek(0)
+                    handler.truncate()
+                    handler.write(comment_killer(content))
+                    return
+
+            else:
+                print 'ignore ' + f
+
+import jsstrip
+def comment_killer(s):
+    return jsstrip.strip(s, False, False, True, True)
