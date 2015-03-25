@@ -45,11 +45,112 @@ function kindEnricher(data, newKindParams) {
 }
 
 var Mixer = {
+    ezCategoriesCache: {},
     ezCache: {},
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
         // nothing
+    },
+    getEzIdFromExtra: function (extra) {
+        try {
+            return JSON.parse(extra.data.subType).ez;
+        } catch (e) {
+            CliqzUtils.log('unable to get EZ id from extra: ' + e, 'Mixer');
+            return false;
+        }
+    },
+    getEzCategoriesFromBackend: function (ezId) {
+        if (this.ezCategoriesCache[ezId]) {
+            return this.ezCategoriesCache[ezId];
+        }
+
+        this.fetchEzCategoriesFromBackend(ezId);
+
+        return false;
+    },
+    fetchEzCategoriesFromBackend: function (ezId) {
+        var idToSnippetUrl = 
+            'http://rich-header-server.clyqz.com/id_to_snippet?q=' + ezId;
+        try {
+            CliqzUtils.httpGet(idToSnippetUrl,
+                function success(req) {
+                    try { 
+                        var data = JSON.parse(req.response).extra.results[0].data;
+                        Mixer.ezCategoriesCache[ezId] = 
+                            Mixer.parseEzCategoriesFromBackend(data);
+
+                        // TODO: does this run async?
+                        Mixer.updateEzCategoriesWithHistory(Mixer.ezCategoriesCache[ezId]);
+                    } catch (e) {
+                        CliqzUtils.log('unable to extract categories from EZ snippet: ' + e, 'Mixer');
+                    }
+                },
+                function error() {
+                    CliqzUtils.log('unable to fetch EZ categories from backend: http get failed', 'Mixer');
+                });
+        } catch (e) {
+            CliqzUtils.log('unable to fetch EZ categories from backend: ' + e, 'Mixer');
+        }
+    },
+    parseEzCategoriesFromBackend: function (data) {
+        var categories = data.categories;
+        for (var i = 0; i < categories.length; i++) {
+            categories[i].order = i;
+            categories[i].historyMatchCount = 0;
+            categories[i].genUrl =
+                CliqzHistoryPattern.generalizeUrl(categories[i].url);
+        }
+        return {
+            domain: data.domain,
+            categories: categories
+        };
+    },
+    fetchVisitedUrlsFromHistory: function (domain, daysBack) {
+        if (!daysBack) {
+            daysBack = 30;
+        }
+
+        var historyService = Components
+            .classes["@mozilla.org/browser/nav-history-service;1"]
+            .getService(Components.interfaces.nsINavHistoryService);
+
+        var options = historyService.getNewQueryOptions();
+
+        var query = historyService.getNewQuery();
+        query.domain = domain;
+        query.beginTimeReference = query.TIME_RELATIVE_NOW;
+        query.beginTime = -1 * daysBack * 24 * 60 * 60 * 1000000;
+        query.endTimeReference = query.TIME_RELATIVE_NOW;
+        query.endTime = 0;
+
+        var result = historyService.executeQuery(query, options);
+
+        var cont = result.root;
+        cont.containerOpen = true;
+
+        var urls = [];
+        for (var i = 0; i < cont.childCount; i ++) {
+             urls[i] = cont.getChild(i).uri;
+        }
+
+        return urls;
+    },
+    updateEzCategoriesWithHistory: function (ezCategoriesBackend) {
+        var categoriesBackend = 
+            ezCategoriesBackend.categories;
+        var visitedUrls = 
+            this.fetchVisitedUrlsFromHistory(ezCategoriesBackend.domain);
+
+        for (var u = 0; u < visitedUrls.length; u ++) {
+             var url = 
+                CliqzHistoryPattern.generalizeUrl(visitedUrls[u]);
+             for (var c = 0; c < categoriesBackend.length; c++) {
+                if (url.indexOf(categoriesBackend[c].genUrl) > -1) {
+                    categoriesBackend[c].historyMatchCount++;
+                }
+             }
+        }
     },
 	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
 		var results = [];
@@ -183,6 +284,31 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
+
+            if (cliqzExtra[0].data.news) {
+                var ezId = this.getEzIdFromExtra(cliqzExtra[0]);
+                if (ezId) {
+                    var cat = this.getEzCategoriesFromBackend(ezId);
+                    if (cat) {
+                        var categories = cat.categories;
+                        // sort descending by history match count and original order
+                        categories.sort(function compare(a, b) {
+                            if (a.historyMatchCount != b.historyMatchCount) {
+                                // descending
+                                return b.historyMatchCount - a.historyMatchCount;
+                            } else {
+                                // ascending
+                                return a.order - b.order;
+                            }
+                        });
+                        for (var j = 0; j < categories.length; j++) {
+                            CliqzUtils.log('match count ' + categories[j].genUrl + ': ' + categories[j].historyMatchCount, 'Mixer');
+                        }
+                        cliqzExtra[0].data.categories = categories.slice(0, 5);
+                    }
+                }
+            }
+            
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
