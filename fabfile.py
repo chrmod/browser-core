@@ -1,7 +1,7 @@
 """
     Manages packaging, deplyment and testing of the navigation extension.
 """
-import re
+
 import urllib2
 import xml.etree.ElementTree as ET
 import os, os.path
@@ -15,6 +15,7 @@ import jsstrip
 
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
+PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/ui/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
@@ -57,14 +58,6 @@ def package(beta='True', version=None):
     if version is None:
         version = get_version(beta)
 
-    # If we have changes stash them
-    # for beta builds we apply them before the packaging
-    # for non beta we ignore uncommited changes
-
-    branch_dirty = local("git diff --shortstat", capture=True)
-    if branch_dirty:
-        local("git stash")
-
     # If we are not doing a beta release we need to checkout the latest stable tag
     if not (beta == 'True'):
         with hide('output'):
@@ -73,6 +66,10 @@ def package(beta='True', version=None):
             local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
             # Get the name of the current branch so we can get back on it
             branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
+            # If we have changes stash them before checkout
+            branch_dirty = local("git diff --shortstat", capture=True)
+            if branch_dirty:
+                local("git stash")
             if checkout:
                 local("git checkout %s" % (version))
 
@@ -88,34 +85,22 @@ def package(beta='True', version=None):
 
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
-    with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
+    local("cp -R %s %s" % (PATH_TO_EXTENSION, PATH_TO_EXTENSION_TEMP))
+    with lcd(PATH_TO_EXTENSION_TEMP):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
-
-            # package uncommited changes for beta versions
-            if branch_dirty and (beta == 'True'):
-                local("git stash apply")
-
-            # clean comments
             comment_cleaner()
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
-
-            # revert cleaning
-            local("git reset --hard")
-            if not (beta == 'True'):
-                local("git checkout %s" % (version))
-
             local("mv  %s .." % output_file_name)  # Move back to root folder
-
-    # undo all the uncommited changes
-    if branch_dirty:
-        local("git stash apply")
+    #local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not (beta == 'True'):
         with hide('output'):
             if checkout:
                 local("git checkout %s" % branch)
+            if branch_dirty:
+                local("git stash pop")
 
     return output_file_name
 
@@ -194,7 +179,7 @@ def test():
     """Run mozmill tests from tests folder."""
     firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
     tests_folder = 'tests/mozmill/'
-    output_file_name = package('False')
+    output_file_name = package()
     local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
                                                         firefox_binary_path))
 
@@ -204,7 +189,7 @@ def unit_test():
     """Run mozmill tests from unit test folder."""
     firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
     tests_folder = 'tests/mozmill/unit/'
-    output_file_name = package('False')
+    output_file_name = package()
     local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
                                                         firefox_binary_path))
 
@@ -221,7 +206,7 @@ def comment_cleaner():
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
     print 'CommentCleaner - Start'
-    ext_root = os.path.dirname(os.path.realpath(__file__)) +'/cliqz@cliqz.com'
+    ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + PATH_TO_EXTENSION_TEMP
     for root, dirs, files in os.walk(ext_root):
         for f in files:
             if f.split('.')[-1] in target and f not in ignore:
