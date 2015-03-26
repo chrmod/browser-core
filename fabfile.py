@@ -57,6 +57,14 @@ def package(beta='True', version=None):
     if version is None:
         version = get_version(beta)
 
+    # If we have changes stash them
+    # for beta builds we apply them before the packaging
+    # for non beta we ignore uncommited changes
+
+    branch_dirty = local("git diff --shortstat", capture=True)
+    if branch_dirty:
+        local("git stash")
+
     # If we are not doing a beta release we need to checkout the latest stable tag
     if not (beta == 'True'):
         with hide('output'):
@@ -65,10 +73,6 @@ def package(beta='True', version=None):
             local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
             # Get the name of the current branch so we can get back on it
             branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
-            # If we have changes stash them before checkout
-            branch_dirty = local("git diff --shortstat", capture=True)
-            if branch_dirty:
-                local("git stash")
             if checkout:
                 local("git checkout %s" % (version))
 
@@ -87,23 +91,31 @@ def package(beta='True', version=None):
     with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
-            #clean comments for non beta packages
+
+            # package uncommited changes for beta versions
+            if branch_dirty and (beta == 'True'):
+                local("git stash apply")
+
+            # clean comments
             comment_cleaner()
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
-            #revert cleaning
+
+            # revert cleaning
             local("git reset --hard")
             if not (beta == 'True'):
                 local("git checkout %s" % (version))
 
             local("mv  %s .." % output_file_name)  # Move back to root folder
 
+    # undo all the uncommited changes
+    if branch_dirty:
+        local("git stash apply")
+
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not (beta == 'True'):
         with hide('output'):
             if checkout:
                 local("git checkout %s" % branch)
-            if branch_dirty:
-                local("git stash pop")
 
     return output_file_name
 
