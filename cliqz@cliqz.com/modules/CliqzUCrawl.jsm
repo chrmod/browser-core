@@ -743,8 +743,8 @@ var CliqzUCrawl = {
                 //if (requery.test(activeURL) && !reref.test(activeURL)) {
 
                 //if (CliqzUCrawl.checkIfSearchURL(activeURL)){
-                var se = CliqzUCrawl.checkSearchURL(activeURL);     
-                if (se > -1){  
+                var se = CliqzUCrawl.checkSearchURL(activeURL);
+                if (se > -1){
                   currwin.setTimeout(function(currURLAtTime) {
 
                     // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
@@ -856,14 +856,14 @@ var CliqzUCrawl = {
                     }
 
                     //Check if the page is not a search engine:
-                    
-                    var se = CliqzUCrawl.checkSearchURL(currURL);     
-                   
-                    
+
+                    var se = CliqzUCrawl.checkSearchURL(currURL);
+
+
                     if (se == -1){
                         CliqzUCrawl.checkURL(cd);
                     }
-                    
+
                     var x = CliqzUCrawl.getPageData(cd);
 
                     if (CliqzUCrawl.state['v'][currURL] != null) {
@@ -1282,7 +1282,7 @@ var CliqzUCrawl = {
                                     .getService(Components.interfaces.nsIHttpActivityDistributor);
 
         activityDistributor.addObserver(CliqzUCrawl.httpObserver);
-        //Needs to be more generic. 
+        //Needs to be more generic.
         CliqzUCrawl.loadContentExtraction();
 
     },
@@ -1548,8 +1548,8 @@ var CliqzUCrawl = {
       // CliqzUtils.log("URL?? " + url + " " + requery.test(url) + " " + reref.test(url), CliqzUCrawl.LOG_KEY);
 
 
-      var se = CliqzUCrawl.checkSearchURL(url);     
-      if (se > -1 || reref.test(url)){ 
+      var se = CliqzUCrawl.checkSearchURL(url);
+      if (se > -1 || reref.test(url)){
         return
       }
       //if (requery.test(url) || reref.test(url)) return;
@@ -1691,8 +1691,10 @@ var CliqzUCrawl = {
     },
     loadContentExtraction: function(){
         //Check health
-        CliqzUtils.httpGet(CliqzUCrawl.patternsURL, 
+        CliqzUtils.httpGet(CliqzUCrawl.patternsURL,
           function success(req){
+            if(!CliqzUCrawl) return;
+
             var patternConfig = JSON.parse(req.response);
             CliqzUCrawl.searchEngines = patternConfig["searchEngines"];
             CliqzUCrawl.extractRules = patternConfig["scrape"];
@@ -1704,7 +1706,7 @@ var CliqzUCrawl = {
             })
           },
           function error(res){
-            CliqzUtils.log('Error loading config. ', CliqzUCrawl.LOG_KEY) 
+            CliqzUtils.log('Error loading config. ', CliqzUCrawl.LOG_KEY)
             });
     },
     checkURL: function(cd){
@@ -1774,10 +1776,10 @@ var CliqzUCrawl = {
 
                         if(rules[key][each_key]['etype'] == 'ctry'){
                             try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-                            innerDict[each_key] = [location];                
+                            innerDict[each_key] = [location];
                         }
 
-                        
+
                     }
                     else if(rules[key][each_key]['type'] == 'searchQuery'){
                         urlArray = CliqzUCrawl._getAttribute(cd,key,rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'],(rules[key][each_key]['functionsApplied'] || null))
@@ -1823,7 +1825,7 @@ var CliqzUCrawl = {
         var arr = [];
         var refineFuncMappings = {
            "splitF":CliqzUCrawl.refineSplitFunc,
-           "parseU":CliqzUCrawl.refineParseURIFunc  
+           "parseU":CliqzUCrawl.refineParseURIFunc
         }
         var rootElement = Array.prototype.slice.call(cd.querySelectorAll(parentItem));
         for(var i=0;i<rootElement.length;i++){
@@ -1865,11 +1867,11 @@ var CliqzUCrawl = {
                         try{payload[e[1]] = scrapeResults[e[0]][0][e[1]]}catch(ee){};
                         CliqzUCrawl.sendMessage(payloadRules, payload)
                     })
-            }               
+            }
             else if (payloadRules['type'] == 'query' && payloadRules['results'] == 'clustered'){
                 var payload = {};
                 payloadRules['fields'].forEach(function(e){
-                    if (e.length > 2){  
+                    if (e.length > 2){
                         var joinArr = {};
                         for(var i=0;i<scrapeResults[e[0]].length;i++){
                                 joinArr['' + i] = scrapeResults[e[0]][i];
@@ -1942,7 +1944,7 @@ var CliqzUCrawl = {
 
             return decodeURIComponent(splitString);
         }
-    },   
+    },
     refineParseURIFunc: function(url, extractType, keyName){
         var result = CliqzUCrawl.parseUri(url);
         if(extractType == 'key'){
@@ -1956,7 +1958,7 @@ var CliqzUCrawl = {
         else if(extractType == 'qs'){
             if(result['queryKey'][keyName]){
                 return decodeURIComponent(result['queryKey'][keyName]);
-            } 
+            }
             else{
                 return url;
             }
@@ -1966,6 +1968,6 @@ var CliqzUCrawl = {
     refineReplaceFunc: function(replaceString, replaceWhat, replaceWith ){
         var result = decodeURIComponent(replaceString.replace("",replaceWhat,replaceWith));
         return result;
-    }        
+    }
 };
 

@@ -124,7 +124,7 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
             case "1025_B":
-                CliqzUtils.setPref("safeBrowsingMoz", true);
+                //CliqzUtils.setPref("safeBrowsingMoz", true);
                 break;
 
             default:
@@ -252,7 +252,6 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1025_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
-                CUcrawlTest.outOfABTest();
                 break;
 
             default:

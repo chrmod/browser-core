@@ -37,7 +37,6 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-        Cu.import('chrome://cliqzmodules/content/CUcrawlTest.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
@@ -52,7 +51,6 @@ var Extension = {
             Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-            Cu.import('chrome://cliqzmodules/content/CUcrawlTest.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
             Cu.import('resource://gre/modules/Services.jsm');
@@ -74,10 +72,6 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
-        if(CliqzUtils.getPref("safeBrowsingMoz", false)){
-            CUcrawlTest.initAtBrowser();
-        }
-
         // open changelog on update
         if(upgrade && CliqzUtils.getPref('showChangelog', false)){
             var clURL = CliqzUtils.getPref('changelogURL', CliqzUtils.CHANGELOG);
@@ -85,10 +79,6 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
-        if(CliqzUtils.getPref("safeBrowsingMoz", false)){
-            CUcrawlTest.destroyAtBrowser();
-        }
-
         if(uninstall){
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
@@ -160,7 +150,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CUcrawlTest.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
 
