@@ -29,6 +29,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSmartCliqzCache',
+    'chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+
 CliqzUtils.init();
 
 // enriches data kind
@@ -247,6 +250,8 @@ var Mixer = {
                             Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
                         Mixer.ezCache[eztype] = r;
+
+                        CliqzSmartCliqzCache.store(r);
                     }
                 }
             }
@@ -266,7 +271,8 @@ var Mixer = {
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
                 // TODO: perhaps only use this cached data if newer than certain age
-                var ez = Mixer.ezCache[Mixer.ezURLs[url]];
+                //var ez = Mixer.ezCache[Mixer.ezURLs[url]];
+                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
@@ -302,7 +308,7 @@ var Mixer = {
                             }
                         });
                         for (var j = 0; j < categories.length; j++) {
-                            CliqzUtils.log('match count ' + categories[j].genUrl + ': ' + categories[j].historyMatchCount, 'Mixer');
+                            //CliqzUtils.log('match count ' + categories[j].genUrl + ': ' + categories[j].historyMatchCount, 'Mixer');
                         }
                         cliqzExtra[0].data.categories = categories.slice(0, 5);
                     }
