@@ -83,7 +83,6 @@ var ResultProviders = {
                 results = [calcRes];
             }
         }
-
         return [q, results];
     },
     getSearchEngines: function(){

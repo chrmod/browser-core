@@ -2,7 +2,7 @@
 	{{#unless invalid}}
 		<div class='cqz-result-box'
 			type='{{ type }}'
-			kind='{{ data.kind }}'
+			kind='{{ kind_printer data.kind }}'
 			{{#if url}}
 				url='{{ url }}'
 				{{#unless (logic type 'starts_with' 'cliqz-pattern')}}

@@ -7,8 +7,8 @@
                  extra='{{extra}}'
                  domain='{{domain}}'
                  arrow="false">
-                <div class='cliqz-pattern-element-title'>{{ title }}</div>
-                <div class='cliqz-pattern-element-link'>{{ link }}</div>
+                <div class='cliqz-pattern-element-title'>{{ emphasis title ../../text 2 true }}</div>
+                <div class='cliqz-pattern-element-link'>{{ emphasis link ../../text 2 true }}</div>
             </div>
         {{/each}}
     </div>

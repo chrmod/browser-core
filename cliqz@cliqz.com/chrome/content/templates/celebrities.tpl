@@ -2,10 +2,10 @@
 	{{#with data}}
 	<div class='cqz-celeb-images'>
          {{#each images}}
-            <img src='{{this}}' class='cqz-celeb-image' newtab="true" url="{{ get_array_element ../images_meta @index 'ref_url'}}" />
+            <img src='{{this}}' class='cqz-celeb-image' url="{{ get_array_element ../images_meta @index 'ref_url'}}" />
          {{/each}}
     </div>
-    <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false">
+    <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false" arrow-override=''>
     	{{ emphasis name ../text 2 true }} ({{ocupation}})<span> - Wikipedia</span>
     </div>
     <div class='cqz-celeb-desc'>
@@ -16,6 +16,7 @@
             <img
             	src='{{img}}'
             	url='{{url}}'
+                show-status='true'
             	class='cqz-celeb-social'
                 extra='social-{{ @index }}' />
          {{/each}}
