@@ -19,33 +19,64 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
-	_smartCliqzCache: { },
+var Cache = function (life) {
+	this._cache = { };
+	this._life = life * 1000;
+};
+
+Cache.prototype.store = function (key, value, time) {
+	time = time || Date.now();
+
+	if (this.isNew(key, value, time)) {
+		this._cache[key] = {
+			time: time,
+			value: value
+		};
+	}
+};
+
+Cache.prototype.retrieve = function (key) {
+	if (!this.isCached(key)) {
+		return false;
+	}
+	return this._cache[key].value;
+};
+
+Cache.prototype.isCached = function (key) {
+	return this._cache.hasOwnProperty(key);
+};
+
+Cache.prototype.isNew = function (key, value, time) {
+	return !this.isCached(key) || 
+		(time > this._cache[key].time);
+};
+
+Cache.prototype.isStale = function (key) {
+	return (Date.now() - this._cache[key].time) > life;
+};
+
+var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
 	_customDataCache: { },
+	_smartCliqzCache: new Cache(60),
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
 		var id = this.getId(smartCliqz);
 
-		var cached = this.retrieve(id, false);
-		if (!cached) { // || smartCliqz.data.ts > cached.data.ts) {			
-			this._smartCliqzCache[id] = smartCliqz;
-			if (this.isNews(smartCliqz)) {
-				this._prepareCustomData(id);
-			}
+		// TODO: use timestamp from SmartCliqz
+		this._smartCliqzCache.store(id, smartCliqz);
+		if (this.isNews(smartCliqz)) {
+			// start preparing to be ready as soon as possible
+			this._prepareCustomData(id);
 		}
 	},
 	// returns SmartCliqz from cache (false if not found)
 	retrieve: function (id) {
-		if (this._smartCliqzCache.hasOwnProperty(id)) {
-			this._log('retrieve: id ' + id);
-			return this._smartCliqzCache[id];
-		}
-		return false;
+		return this._smartCliqzCache.retrieve(id);
 	},
 	// returns _customized_ SmartCliqz from cache (false if not found)
 	retrieveCustomized: function (id) {
-		var smartCliqz = this.retrieve(id);
+		var smartCliqz = this._smartCliqzCache.retrieve(id);
 		if (smartCliqz && this.isNews(smartCliqz)) {			
 			this._customizeSmartCliqz(smartCliqz);
 		}
@@ -90,8 +121,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		// TODO: check using hasOwnProperty
 		// TODO: check for expiration and mark dirty
 		if (this._customDataCache[id]) {
-			this._log('_prepareCustomData: ' + id + ' already cached')
-			return;
+			if (this._customDataCache[id].bestBefore > Date.now) {
+				this._log('_prepareCustomData: ' + id + ' expired')	
+			} else {
+				this._log('_prepareCustomData: ' + id + ' already cached')	
+				return;
+			}
 		}
 
 		this._log('_prepareCustomData: preparing for id ' + id);
@@ -137,8 +172,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-				// TODO: store timestamp
                 _this._customDataCache[id] = {
+                	bestBefore: _this._addTimeToDate(Date.now(), 'second', 10),
                 	categories: categories.slice(0, 5)
                 };
 
@@ -204,6 +239,19 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	        		' URLs for domain ' + domain);
 	        callback(urls);
         }, 0);
+	},
+	_addTimeToDate: function(date, interval, units) {
+		var future = new Date(date);		  
+		switch(interval.toLowerCase()) {
+			case 'year'   :  future.setFullYear(future.getFullYear() + units);  break;			
+			case 'month'  :  future.setMonth(future.getMonth() + units);  break;
+			case 'week'   :  future.setDate(future.getDate() + 7 * units);  break;
+			case 'day'    :  future.setDate(future.getDate() + units);  break;
+			case 'hour'   :  future.setTime(future.getTime() + units * 3600000);  break;
+			case 'minute' :  future.setTime(future.getTime() + units * 60000);  break;
+			case 'second' :  future.setTime(future.getTime() + units * 1000);  break;
+		}
+		return future;
 	},
 	// log helper
 	_log: function (msg) {
