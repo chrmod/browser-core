@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var Cache = function (life) {
 	this._cache = { };
-	this._life = life * 1000;
+	this._life = life ? life * 1000 : false;
 };
 
 Cache.prototype.store = function (key, value, time) {
@@ -52,12 +52,13 @@ Cache.prototype.isNew = function (key, value, time) {
 };
 
 Cache.prototype.isStale = function (key) {
-	return (Date.now() - this._cache[key].time) > life;
+	return !this._life || !this.isCached(key) ||
+		(Date.now() - this._cache[key].time) > this._life;
 };
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
-	_customDataCache: { },
-	_smartCliqzCache: new Cache(60),
+	_smartCliqzCache: new Cache(),
+	_customDataCache: new Cache(10),
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -65,8 +66,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		// TODO: use timestamp from SmartCliqz
 		this._smartCliqzCache.store(id, smartCliqz);
-		if (this.isNews(smartCliqz)) {
-			// start preparing to be ready as soon as possible
+		if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {
+			this._log('store: found stale data for id ' + id);
 			this._prepareCustomData(id);
 		}
 	},
@@ -95,9 +96,15 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		var id = this.getId(smartCliqz);
 		
 		// TODO: check for expiration and mark dirty
-		if (this._customDataCache[id]) {
+		if (this._customDataCache.isCached(id)) {
 			this._injectCustomData(smartCliqz, 
-				this._customDataCache[id]);
+				this._customDataCache.retrieve(id));
+
+			if (this._customDataCache.isStale(id)) {
+				this._log(
+					'_customizeSmartCliqz: found stale data for ' + id);
+				this._prepareCustomData(id);
+			}
 		} else {
 			this._log(
 				'_customizeSmartCliqz: custom data not ready yet for ' + id);
@@ -117,18 +124,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	},
 	// prepares and stores custom data for SmartCliqz with given id (async.),
 	// (if custom data has not been prepared before and has not expired)
-	_prepareCustomData: function (id) {
-		// TODO: check using hasOwnProperty
-		// TODO: check for expiration and mark dirty
-		if (this._customDataCache[id]) {
-			if (this._customDataCache[id].bestBefore > Date.now) {
-				this._log('_prepareCustomData: ' + id + ' expired')	
-			} else {
-				this._log('_prepareCustomData: ' + id + ' already cached')	
-				return;
-			}
-		}
-
+	_prepareCustomData: function (id) {		
 		this._log('_prepareCustomData: preparing for id ' + id);
 		// TODO: only execute if currently not running (lock array)
 		
@@ -172,11 +168,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-                _this._customDataCache[id] = {
-                	bestBefore: _this._addTimeToDate(Date.now(), 'second', 10),
-                	categories: categories.slice(0, 5)
-                };
-
+                _this._customDataCache.store(id, { categories: categories.slice(0, 5) });
                 _this._log('_prepareCustomData: done preparing for id ' + id);
 			})
 		});
