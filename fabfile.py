@@ -205,7 +205,7 @@ def clean():
 @task
 def comment_cleaner():
     target = ['js', 'jsm', 'html']
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) +'/cliqz@cliqz.com'
