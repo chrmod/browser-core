@@ -1,10 +1,14 @@
-function GridController(db,newsdomains){
+function GridController(db,newsdomains,cities){
     var _this = this,
         prototypes = {},
         container = null
     
     var use = function(prototype){
-        return prototypes[prototype].clone().removeClass("prototype")
+        var block = prototypes[prototype].clone().removeClass("prototype")
+        
+        block.find(".prototype").remove()
+        
+        return block
     }
     
     this.makeid = function(){
@@ -14,11 +18,8 @@ function GridController(db,newsdomains){
     this.makeCard = function(height,name,data){
         var card = {
             height: height,
-            element: $("<div class='card'>").data("id",data.id).append(
+            element: $("<div class='card invisible'>").data("id",data.id).append(
                 use("close-button").click(function(e){
-                    e.preventDefault()
-                    e.stopPropagation()
-
                     _this.remove($(this).parent())
                 }),
                 use(name)
@@ -31,6 +32,15 @@ function GridController(db,newsdomains){
         return card
     }
     
+    this.redirect = function(url){
+        /*
+        _this.animate($("#content"),"zoomOut").then(function(e){
+            e.hide()
+        })
+        */
+        $.redirect(url)
+    }
+    
     this.pushCard = function(data) {    
         var card
         
@@ -41,28 +51,91 @@ function GridController(db,newsdomains){
                 case "weather":
                     card = this.makeCard(1,"card-weather",data)
                     
-                    var render = function() {
+                    var selected
+                    
+                    var render = function(attempt) {
+                        selected = -1
+                        
                         if (data.store.city) {
-                            card.view("main")
+                            card.view("loader")
 
                             $.pget(WEATHER_SOURCE,{ q: "wetter " + data.store.city })
                             .then(function(data){
-                                var result = data.results[0].data
-                                
-                                card.element.find(".image").css("background-image","url(" + result.todayIcon + ")")
-                                card.element.find(".title").text(result.returned_location)
-                                card.element.find(".temperature").text(
-                                    result.todayTemp + " (" + result.todayMax + " - " + result.todayMin + ")"
-                                )
+                                try {
+                                    card.view("main")
+                                    
+                                    var result = data.results[0].data
+
+                                    card.element.find(".image").css("background-image","url(" + result.todayIcon + ")")
+                                    card.element.find(".title").text(result.returned_location)
+                                    card.element.find(".temperature").text(result.todayTemp)
+                                }
+                                catch(ex) {
+                                    if (attempt && attempt < 3) {
+                                        setTimeout(function(){
+                                            render(attempt?attempt + 1:1)
+                                        },3000)
+                                    }
+                                }
                             })
                         }
                         else card.view("settings")
                     }
                     
-                    card.element.find(".card-weather-city-ok").click(function(){
-                        data.store.city = $(this).siblings(".card-weather-city-input").val()
+                    var chooseCity = function(element){
+                        $("#citieslist").hide()
+                        data.store.city = $(element).data("city")
                         _this.save()
                         render()
+                    }
+                    
+                    card.element.find(".city-input").keyup(function(e){
+                        if ([13,38,40].indexOf(e.keyCode) + 1) return false
+                        
+                        var value = this.value.toLowerCase(),
+                            found = cities.filter(function(e){ return e.citylower.indexOf(value) == 0 })
+                                          .sort(function(a,b){ return a.city < b.city })
+                                          .slice(0,3)
+                                          .map(function(e){
+                                              return $("<div>").text(e.city).data("city",e.city).click(function(){
+                                                  chooseCity(this)
+                                              })
+                                          }),
+                            $this = $(this),
+                            offset = $this.offset()
+
+                        if (found.length) {
+                            $("#citieslist").show().html("").append(found).css({
+                                width: $this.outerWidth() + "px",
+                                top: offset.top + $this.outerHeight() + "px",
+                                left: offset.left + "px"
+                            })
+                        }
+                        else $("#citieslist").hide()
+                    }).keydown(function(e){
+                        switch(e.keyCode) {
+                            case 38: 
+                                if (selected > -1) {
+                                    $("#citieslist > div").eq(selected--).removeAttr("selected")
+                                    $("#citieslist > div").eq(selected).attr("selected","selected")
+                                }
+                                
+                                return false;
+                            case 40: 
+                                if (selected < 2) {
+                                    $("#citieslist > div").eq(selected++).removeAttr("selected")
+                                    $("#citieslist > div").eq(selected).attr("selected","selected")
+                                }
+                                
+                                return false;
+                            case 13:
+                                if (selected > -1) {
+                                    chooseCity($("#citieslist > div").eq(selected))
+                                }
+                                
+                                return false;
+                            default: return true;
+                        }
                     })
                     
                     render()
@@ -72,19 +145,39 @@ function GridController(db,newsdomains){
                     card = this.makeCard(1,"card-message",data)
                     
                     break;
-                case "datetime": 
-                    card = this.makeCard(1,"card-datetime",data)
+                case "clock": 
+                    card = this.makeCard(1,"card-clock",data)
+                    
+                    var gethand = function(value,fullcircle){
+                        return value * 2 * Math.PI / fullcircle
+                    }
+                    
+                    for (i=0;i<12;i++) {
+                        var item = use("notch").appendTo(card.element.find(".clock"))
+                        
+                        item.css("transform","rotateZ(" + gethand(i,12) + "rad)")
+                    }
                     
                     var tick = function(){
                         var d = new Date(),
+                            days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"],
+                            months = ["Januar", "Februar", "März", "April", "Mai", "Juni",
+                                      "Juli", "August", "September", "Oktober", "November", "Dezember"],
                             lpad = function(n){
                                 var ns = n.toString()
                                 
                                 return ns.length == 1?"0" + ns.toString():ns
                             },
-                            string = lpad(d.getHours()) + ":" + lpad(d.getMinutes()) + ":" + lpad(d.getSeconds());
+                            hour = gethand(d.getHours() + d.getMinutes() / 60,12),
+                            minute = gethand(d.getMinutes() + d.getSeconds() / 60,60),
+                            second = gethand(d.getSeconds(),60)
                         
-                        card.element.children(".card-datetime").text(string)
+                        card.element.find(".hand-hour").css("transform","rotateZ(" + hour + "rad)")
+                        card.element.find(".hand-minute").css("transform","rotateZ(" + minute + "rad)")
+                        card.element.find(".hand-second").css("transform","rotateZ(" + second + "rad)")
+                        
+                        card.element.find(".title").text(lpad(d.getHours()) + ":" + lpad(d.getMinutes()))
+                        card.element.find(".subtitle").text(days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()])
                     }
                     
                     tick()
@@ -122,12 +215,12 @@ function GridController(db,newsdomains){
                             for (var i=0;i<news[nd].length;i++) {
                                 var item = use("news-item").appendTo(newscontainer)
 
-                                item.text(news[nd][i].title);
-
+                                item.find(".td").text(news[nd][i].title);
+                                
                                 (function(item,url){
                                     item.attr("url",url).click(function(e){
                                         e.stopPropagation()
-                                        $.redirect(url)
+                                        _this.redirect(url)
                                     })
                                 })(item,news[nd][i].url)
                             }
@@ -156,6 +249,21 @@ function GridController(db,newsdomains){
         return card
     }
     
+    this.animate = function(element,effect){
+        return new Promise(function(resolve,reject){
+            var e = $(element)
+            
+            e.addClass(effect + " animated")
+             .one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',function(){ 
+                 resolve(e)
+                 
+                 setTimeout(function(){
+                     e.removeClass(effect + " animated")
+                 },100)
+             })
+        })
+    }
+    
     this.save = function(){
         browser.writefile(CARDS_DB,JSON.stringify(this.db))
     }
@@ -167,7 +275,13 @@ function GridController(db,newsdomains){
         this.db.push(newcard)
         this.save()
         
-        container.grid("add",this.pushCard(newcard))
+        var card
+        
+        container.grid("add",card = this.pushCard(newcard))
+        
+        this.animate(card.element.removeClass("invisible"),"bounceIn")
+        
+        return card
     }
     
     this.remove = function(card){
@@ -225,8 +339,24 @@ function GridController(db,newsdomains){
             function(){ _this.move() }
         )
         
+        var cards = $("#grid > div"),
+            array = Array.apply(null,new Array(cards.length)).map(function(e,i){ return i }).shuffle()
+        
+        for (var i=0;i<array.length;i++)
+            (function(index){ 
+                setTimeout(function(){
+                    _this.animate(cards.eq(array[index]).removeClass("invisible"),"bounceIn")
+                },i * 50);
+            })(i);
+        
         $("#shuffle").click(function(){
             container.grid("shuffle")
+        })
+        
+        $("body").click(function(e){
+            var target = $(e.target)
+            
+            if (!target.filter(".city-input").length) $("#citieslist").hide()
         })
     }
     

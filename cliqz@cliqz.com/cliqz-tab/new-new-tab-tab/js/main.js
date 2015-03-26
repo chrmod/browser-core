@@ -1,10 +1,13 @@
 var WEATHER_SOURCE = "http://rich-header-server.clyqz.com/map",
-    NEWS_DOMAINS_SOURCE = "http://news-swimlane-470360987.us-east-1.elb.amazonaws.com/news-domains-list",
-    NEWS_ARTICLES_SOURCE = "http://news-swimlane-470360987.us-east-1.elb.amazonaws.com/articles",
+    WEATHER_CITIES = "",
+    NEWS_SOURCE = "http://news-swimlane-2066568083.us-east-1.elb.amazonaws.com",
+    NEWS_DOMAINS_SOURCE = NEWS_SOURCE + "/news-domains-list",
+    NEWS_ARTICLES_SOURCE = NEWS_SOURCE + "/articles",
     CARDS_DB = "cards.json",
     NEWS_DOMAINS_DB = "news-domains.json",
     db = null,
-    news_domains_cache = null
+    news_domains_cache = null,
+    citieslist = null
 
 // create cliqz folder if not exists
 browser.cliqzdir()
@@ -58,6 +61,9 @@ browser.cliqzdir()
             }
             // if news domains are not cached then get it
             else return getdomains()
+        }),
+        $.pget("cities.json",null,null,"text").then(function(data){
+            citieslist = JSON.parse(data).cities.map(function(e){ e.citylower = e.city.toLowerCase(); return e })
         })
     ])
 })
@@ -66,9 +72,14 @@ browser.cliqzdir()
 })
 .then(function(){
     $(function(){
-        $("#search").cliqz("#search-dropdown")
+        // $("#search").cliqz("#search-dropdown")
+        
+        var urlbar = CliqzUtils.getWindow().document.getElementById("urlbar")
+        
+        $("#search").attr("placeholder",urlbar.placeholder).click(function(){ urlbar.focus() })
+        
         $("#background").background()
 
-        var gc = new GridController(db,news_domains_cache), popup = new AddCardPopup(gc)
+        var gc = new GridController(db,news_domains_cache,citieslist), popup = new AddCardPopup(gc)
     })
 })

@@ -34,30 +34,23 @@
     <body>
         <div id="background"></div>
         
-        <div id="shuffle">shuffle</div>
-        <div id="settings">settings</div>
+        <div id="shuffle"></div>
         
         <div id="add"></div>
         <div id="add-popup">
-            <div id="add-popup-tabs">
-                <input id="aptu1" name="add-popup-tab" value="url" type="radio" checked="checked" />
-                <label for="aptu1">URLs</label>
-                <input id="aptu2" name="add-popup-tab" value="widget" type="radio" />
-                <label for="aptu2">Widgets</label>
+            <div id="add-popup-buttons">
+                <div id="add-popup-shortcut">Shortcut</div>
+                <div id="add-popup-weather">Weather</div>
+                <div id="add-popup-clock">Clock</div>
             </div>
-            <div id="add-popup-content-url">
+            <div id="add-popup-content-shortcut">
                 <div id="add-popup-logo"><div class="cliqz-brands-logo"></div></div>
                 <div id="add-popup-controls">
-                    <input id="add-popup-url" placeholder="url" />
-                    <input id="add-popup-title" placeholder="title" />
-                    <input type="button" value="OK" id="add-popup-ok" />
-                    <input type="button" value="Cancel" id="add-popup-cancel" />
+                    <input id="add-popup-url" class="input" placeholder="url" />
+                    <input id="add-popup-title" class="input" placeholder="custom title" />
+                    <div id="add-popup-ok">OK</div>
+                    <div id="add-popup-cancel">Cancel</div>
                 </div>
-            </div>
-            <div id="add-popup-content-widget" class="none">
-                <div id="add-popup-weather">Weather widget</div>
-                <div id="add-popup-message">Message widget</div>
-                <div id="add-popup-datetime">Datetime widget</div>
             </div>
         </div>
 
@@ -65,7 +58,7 @@
             <div id="wrap">
                 <div id="content">
                     <div class="search-box">
-                        <input id="search" autocomplete="off" autofocus="true" />
+                        <input id="search" autocomplete="off" />
                         <div role="menu" aria-labelledby="search" id="search-dropdown"></div>
                     </div>
                     <div id="grid"></div>
@@ -75,39 +68,57 @@
 
         <!-- cards prototypes -->
         <div class="card-url prototype">
-            <div class="cliqz-brands-logo"></div>
+            <div class="cliqz-brands-logo side-image"></div>
             <div class="title ellipsis"></div>
-            <div class="url ellipsis"></div>
+            <div class="subtitle url ellipsis"></div>
         </div>
         
         <div class="card-news prototype">
-            <div class="cliqz-brands-logo"></div>
+            <div class="cliqz-brands-logo side-image"></div>
             <div class="title ellipsis"></div>
-            <div class="url ellipsis"></div>
+            <div class="subtitle url ellipsis"></div>
             <div class="news">
-                <div class="news-item prototype"></div>
+                <div class="news-item-dummy"></div>
+                <div class="news-item prototype">
+                    <div class="table">
+                        <div class="td"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
         <div class="card-weather prototype">
             <div class="settings view">
-                <div>Type the city name and press OK:</div>
-                <input class="card-weather-city-input" placeholder="city name" />
-                <button class="card-weather-city-ok">OK</button>
+                <div class="image side-image"></div>
+                <input class="input city-input" placeholder="Wetter für ..." />
             </div>
             <div class="main view">
-                <div class="image"></div>
+                <div class="image side-image"></div>
                 <div class="title"></div>
-                <div class="temperature"></div>
+                <div class="subtitle temperature"></div>
             </div>
+            <div class="loader view"></div>
         </div>
         
         <div class="card-message prototype">
-            Hello, new-new-tab-tab speaking! Did you clean your teeth today?
+            Welcome back! Did you know that chicken day is on Thursday?
         </div>
         
-        <div class="card-datetime prototype"></div>
+        <div class="card-clock prototype">
+            <div class="clock side-image">
+                <div class="notch prototype">
+                    <div></div>
+                </div>
+                <div class="hand-hour"></div>
+                <div class="hand-minute"></div>
+                <div class="hand-second"></div>
+            </div>
+            <div class="title"></div>
+            <div class="subtitle"></div>
+        </div>
         
         <div class="close-button prototype"></div>
+        
+        <div id="citieslist"></div>
     </body>
 </html>

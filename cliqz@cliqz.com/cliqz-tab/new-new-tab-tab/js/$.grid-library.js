@@ -24,8 +24,8 @@
         var _this = this
         
         this.currentdrag = null
-        this.eheight = 74
-        this.gap = 10
+        this.eheight = 86
+        this.gap = 12
         this.resizedelay = 100
         
         this.lastresize = false

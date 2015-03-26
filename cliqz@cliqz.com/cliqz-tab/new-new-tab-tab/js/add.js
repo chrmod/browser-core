@@ -11,13 +11,16 @@ function AddCardPopup(gc) {
         this.popup.hide()
         this.title.val("")
         this.url.val("")
+        this.showlogo()
     }
 
     this.showlogo = function(){
         var urlinfo = CliqzUtils.getDetailsFromUrl(_this.completeurl(this.url.val())),
-            logoinfo = CliqzUtils.getLogoDetails(urlinfo)
-
-        $("#add-popup-logo > div").text(logoinfo.text).attr("style",logoinfo.style)
+            logoinfo = CliqzUtils.getLogoDetails(urlinfo),
+            logo = $("#add-popup-logo > div")
+        
+        if (logoinfo.backgroundColor) logo.text(logoinfo.text).attr("style",logoinfo.style).css("border","0")
+        else logo.text("").removeAttr("style")
     }
     
     this.completeurl = function(url){
@@ -27,26 +30,24 @@ function AddCardPopup(gc) {
     this.init = function(){
         $("#add").click(function(){ _this.show(); _this.url.focus() })
         
-        $("#add-popup-tabs input").click(function(){
-            $("[id^='add-popup-content-']").hide().filter("#add-popup-content-" + this.value).show()
-        })
-        
         $("#add-popup-weather").click(function(){
-            gc.add({
-                widget: "weather"
-            })
+            var card = gc.add({ widget: "weather" })
+            
+            card.element.find(".city-input").focus()
+            
+            _this.hide()
         })
         
         $("#add-popup-message").click(function(){
-            gc.add({
-                widget: "message"
-            })
+            gc.add({ widget: "message" })
+            
+            _this.hide()
         })
         
-        $("#add-popup-datetime").click(function(){
-            gc.add({
-                widget: "datetime"
-            })
+        $("#add-popup-clock").click(function(){
+            gc.add({ widget: "clock" })
+            
+            _this.hide()
         })
         
         $("#add-popup-cancel").click(function(){ _this.hide() })
