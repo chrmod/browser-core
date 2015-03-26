@@ -68,7 +68,7 @@ def package(beta='True', version=None):
             # If we have changes stash them before checkout
             branch_dirty = local("git diff --shortstat", capture=True)
             if branch_dirty:
-                abort("you need to have a clean branch for packaging a non beta version !")
+                local("git stash")
             if checkout:
                 local("git checkout %s" % (version))
 
@@ -88,12 +88,13 @@ def package(beta='True', version=None):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             #clean comments for non beta packages
-            if not (beta == 'True'):
-                comment_cleaner()
+            comment_cleaner()
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             #revert cleaning
+            local("git reset --hard")
             if not (beta == 'True'):
-                local("git reset --hard")
+                local("git checkout %s" % (version))
+
             local("mv  %s .." % output_file_name)  # Move back to root folder
 
     # If we checked out a earlier commit we need to go back to master/HEAD
