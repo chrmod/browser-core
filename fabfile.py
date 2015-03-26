@@ -93,7 +93,7 @@ def package(beta='True', version=None):
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             #revert cleaning
             if not (beta == 'True'):
-                local("git checkout %s" % (version))
+                local("git reset --hard")
             local("mv  %s .." % output_file_name)  # Move back to root folder
 
     # If we checked out a earlier commit we need to go back to master/HEAD
