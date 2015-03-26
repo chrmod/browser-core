@@ -251,14 +251,13 @@ div#add-popup-shortcut {
 
 .card-clock { font-size: 40px; }
 .card-clock .clock { 
-    height: 51px;
+    height: 50px;
     width: 50px;
     background: #fafafa;
     border: 1px solid #333333;
     position: relative;
     border-radius: 50% 50%;
     box-sizing: border-box;
-    transform: rotateZ(-90deg)
 }
 .card-clock .clock .hand-hour, .card-clock .clock .hand-minute, .card-clock .clock .hand-second, .card-clock .notch {
     width: 15px;
@@ -271,7 +270,7 @@ div#add-popup-shortcut {
 } 
 .card-clock .clock .hand-minute { width: 20px; }
 .card-clock .clock .hand-second { width: 20px; height: 1px; top: 25px; background: #d7011d; } 
-.card-clock .notch { width: 24px; height: 1px; background: none }
+.card-clock .notch { top: 23px; width: 24px; height: 1px; background: none }
 .card-clock .notch div { width: 2px; height: 100%; float: right; background: #333333; }
 
 /* search */

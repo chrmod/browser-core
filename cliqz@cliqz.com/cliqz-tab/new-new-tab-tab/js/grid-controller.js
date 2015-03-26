@@ -149,7 +149,7 @@ function GridController(db,newsdomains,cities){
                     card = this.makeCard(1,"card-clock",data)
                     
                     var gethand = function(value,fullcircle){
-                        return value * 2 * Math.PI / fullcircle
+                        return value * 2 * Math.PI / fullcircle - Math.PI / 2
                     }
                     
                     for (i=0;i<12;i++) {
