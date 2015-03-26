@@ -58,7 +58,8 @@ Cache.prototype.isStale = function (key) {
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
 	_smartCliqzCache: new Cache(),
-	_customDataCache: new Cache(10),
+	_customDataCache: new Cache(4),
+	_customDataCacheLock: { },
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -124,8 +125,14 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	},
 	// prepares and stores custom data for SmartCliqz with given id (async.),
 	// (if custom data has not been prepared before and has not expired)
-	_prepareCustomData: function (id) {		
-		this._log('_prepareCustomData: preparing for id ' + id);
+	_prepareCustomData: function (id) {
+		if (this._customDataCacheLock[id]) {
+			this._log('_prepareCustomData: already running for id ' + id);
+			return;
+		} else {
+			this._log('_prepareCustomData: preparing for id ' + id);
+			this._customDataCacheLock[id] = true;
+		}
 		// TODO: only execute if currently not running (lock array)
 		
 		// (1) fetch template from rich header
@@ -169,7 +176,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 });
 
                 _this._customDataCache.store(id, { categories: categories.slice(0, 5) });
-                _this._log('_prepareCustomData: done preparing for id ' + id);
+                _this._customDataCacheLock[id] = false;
+                _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
 	},
