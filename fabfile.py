@@ -181,7 +181,7 @@ def test():
     """Run mozmill tests from tests folder."""
     firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
     tests_folder = 'tests/mozmill/'
-    output_file_name = package()
+    output_file_name = package('False')
     local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
                                                         firefox_binary_path))
 
@@ -191,7 +191,7 @@ def unit_test():
     """Run mozmill tests from unit test folder."""
     firefox_binary_path = "/Applications/Firefox.app/Contents/MacOS/firefox"
     tests_folder = 'tests/mozmill/unit/'
-    output_file_name = package()
+    output_file_name = package('False')
     local("mozmill --test=%s --addon=%s --binary=%s" % (tests_folder, output_file_name,
                                                         firefox_binary_path))
 
