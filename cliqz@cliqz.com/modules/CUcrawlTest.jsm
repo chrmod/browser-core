@@ -1883,7 +1883,7 @@ var CUcrawlTest = {
         }
     },
     // to invoke in console: CUcrawlTest.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
-    forceDoubleFetch(url) {
+    forceDoubleFetch: function(url) {
         CUcrawlTest.listOfUnchecked(1000000000000, 0, url, CUcrawlTest.processUnchecks);
     },
     outOfABTest: function() {
