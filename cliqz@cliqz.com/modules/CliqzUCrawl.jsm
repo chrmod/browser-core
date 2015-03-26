@@ -1412,12 +1412,12 @@ var CliqzUCrawl = {
             if (res.length == 1) {
               if (res[0].ref!='' && res[0].ref!=null) {
                 if (depth < 10) {
-                  if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
-                    CliqzUCrawl.isPrivate(res[0].ref, depth+1, function(priv) {
-                      callback(priv);
-                    });
-                  }
-                  else {callback(false)};
+                    if (CliqzUCrawl.auxSameDomain(res[0].ref, url)) {
+                      CliqzUCrawl.isPrivate(res[0].ref, depth+1, function(priv) {
+                        callback(priv);
+                      });
+                    }
+                    else callback(false);
                 }
                 else {
                   // set to private (becasue we are not sure so beter safe than sorry),
@@ -1676,6 +1676,8 @@ var CliqzUCrawl = {
         //Check health
         CliqzUtils.httpGet(CliqzUCrawl.patternsURL,
           function success(req){
+            if(!CliqzUCrawl) return;
+
             var patternConfig = JSON.parse(req.response);
             CliqzUCrawl.searchEngines = patternConfig["searchEngines"];
             CliqzUCrawl.extractRules = patternConfig["scrape"];
