@@ -1352,29 +1352,46 @@ var CliqzUCrawl = {
     // Stolen from modules/CliqzHistory
     // *********************************************************
     initDB: function() {
-      CliqzUtils.log('Exists DB?: ' +  FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists(), CliqzUCrawl.LOG_KEY);
-      if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
-        if (CliqzUCrawl.dbConn==null) {
-          CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
+        if (CliqzUCrawl.debug) {
+            CliqzUtils.log('Exists DB?: ' +  FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists(), CliqzUCrawl.LOG_KEY);
         }
-        return;
-      }
-      else {
-        CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
-        var usafe = "create table usafe(\
-            url VARCHAR(255) PRIMARY KEY NOT NULL,\
-            ref VARCHAR(255),\
-            last_visit INTEGER,\
-            first_visit INTEGER,\
-            hash VARCHAR(2048), \
-            reason VARCHAR(256), \
-            private BOOLEAN DEFAULT 0,\
-            checked BOOLEAN DEFAULT 0 \
-            )";
 
-        CliqzUCrawl.dbConn.executeSimpleSQL(usafe);
-      }
+        if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
+            if (CliqzUCrawl.dbConn==null) {
+                CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
+            }
 
+            try{
+                var usafe = "create table if not exists usafe(\
+                    url VARCHAR(255) PRIMARY KEY NOT NULL,\
+                    ref VARCHAR(255),\
+                    last_visit INTEGER,\
+                    first_visit INTEGER,\
+                    hash VARCHAR(2048), \
+                    reason VARCHAR(256), \
+                    private BOOLEAN DEFAULT 0,\
+                    checked BOOLEAN DEFAULT 0 \
+                    )";
+                CliqzUCrawl.dbConn.executeSimpleSQL(usafe);
+            }
+            catch(ee){return};
+            return;
+          }
+          else {
+            CliqzUCrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
+            var usafe = "create table usafe(\
+                url VARCHAR(255) PRIMARY KEY NOT NULL,\
+                ref VARCHAR(255),\
+                last_visit INTEGER,\
+                first_visit INTEGER,\
+                hash VARCHAR(2048), \
+                reason VARCHAR(256), \
+                private BOOLEAN DEFAULT 0,\
+                checked BOOLEAN DEFAULT 0 \
+                )";
+
+            CliqzUCrawl.dbConn.executeSimpleSQL(usafe);
+          }
     },
     dbConn: null,
     auxSameDomain: function(url1, url2) {
