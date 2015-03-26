@@ -89,10 +89,10 @@ def package(beta='True', version=None):
     with lcd(PATH_TO_EXTENSION_TEMP):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
-            comment_cleaner()
+            comment_cleaner(PATH_TO_EXTENSION_TEMP)
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             local("mv  %s .." % output_file_name)  # Move back to root folder
-    #local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
+    local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not (beta == 'True'):
@@ -201,12 +201,12 @@ def clean():
 
 
 @task
-def comment_cleaner():
+def comment_cleaner(path=PATH_TO_EXTENSION):
     target = ['js', 'jsm', 'html']
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
     print 'CommentCleaner - Start'
-    ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + PATH_TO_EXTENSION_TEMP
+    ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
     for root, dirs, files in os.walk(ext_root):
         for f in files:
             if f.split('.')[-1] in target and f not in ignore:
