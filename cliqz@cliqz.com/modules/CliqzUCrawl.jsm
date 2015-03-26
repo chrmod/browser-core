@@ -27,7 +27,7 @@ var CliqzUCrawl = {
     VERSION: '0.07',
     WAIT_TIME: 2000,
     LOG_KEY: 'CliqzUCrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
