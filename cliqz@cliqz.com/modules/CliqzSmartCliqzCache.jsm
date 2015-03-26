@@ -14,6 +14,8 @@ var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -25,16 +27,25 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	store: function (smartCliqz) {
 		var id = this.getId(smartCliqz);
 
-		var cached = this.retrieve(id);
+		var cached = this.retrieve(id, false);
 		if (!cached) { // || smartCliqz.data.ts > cached.data.ts) {			
-			this._smartCliqzCache[id] = smartCliqz;
-			// this._prepareCustomData(id);
+			CliqzSmartCliqzCache._smartCliqzCache[id] = smartCliqz;
+			CliqzSmartCliqzCache._prepareCustomData(id);
 		}
 	},
-	// returns customized SmartCliqz from cache (undefined if not found)
+	// returns SmartCliqz from cache (false if not found)
 	retrieve: function (id) {
-		this._smartCliqzCache[id] && this._customizeSmartCliqz(id);
-		return this._smartCliqzCache[id];
+		if (CliqzSmartCliqzCache._smartCliqzCache.hasOwnProperty(id)) {
+			CliqzSmartCliqzCache._log('retrieve: id ' + id);
+			return CliqzSmartCliqzCache._smartCliqzCache[id];
+		}
+		return false;
+	},
+	// returns _customized_ SmartCliqz from cache (false if not found)
+	retrieveCustomized: function (id) {
+		var smartCliqz = CliqzSmartCliqzCache.retrieve(id);
+		smartCliqz && CliqzSmartCliqzCache._customizeSmartCliqz(smartCliqz);
+		return smartCliqz;
 	},
 	// extracts id from SmartCliqz
 	getId: function (smartCliqz) {
@@ -45,53 +56,61 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
 	// if news, re-orders categories based on visit frequency
-	_customizeSmartCliqz: function (id) {
-		var smartCliqz = this.retrieve(id);
-		if (!this.isNews(smartCliqz)) {
+	_customizeSmartCliqz: function (smartCliqz) {
+		var id = CliqzSmartCliqzCache.getId(smartCliqz);
+		if (!CliqzSmartCliqzCache.isNews(smartCliqz)) {
+			CliqzSmartCliqzCache._log('_customizeSmartCliqz: not news ' + id);
 			return smartCliqz;
 		}
-
-		var _this = this;
 		
 		// TODO: check for expiration and mark dirty
-		if (this._customDataCache[id]) {
-			this._injectCustomData(smartCliqz, this._customDataCache[id].data);
+		if (CliqzSmartCliqzCache._customDataCache[id]) {
+			CliqzSmartCliqzCache._injectCustomData(smartCliqz, 
+				CliqzSmartCliqzCache._customDataCache[id]);
 		} else {
-			// not yet ready: wait (was initiated on store)
+			CliqzSmartCliqzCache._log(
+				'_customizeSmartCliqz: custom data not ready yet for ' + id);
 		}
 	},
-	// replaces all keys from custom data in SmartCliqz 
+	// replaces all keys from custom data in SmartCliqz data
 	_injectCustomData: function (smartCliqz, customData) {
+		var id = CliqzSmartCliqzCache.getId(smartCliqz);
+		CliqzSmartCliqzCache._log('_injectCustomData: injecting for id ' + id);
 		for (var key in customData) {
-			if (customData.hasOwnProperty(key)) {
-				smartCliqz[key] = customData[key];
+			if (customData.hasOwnProperty(key)) {				
+				smartCliqz.data[key] = customData[key];
+				CliqzSmartCliqzCache._log('_injectCustomData: injecting key ' + key);
 			}
 		}
+		CliqzSmartCliqzCache._log('_injectCustomData: done injecting for id ' + id);
 	},
 	// prepares and stores custom data for SmartCliqz with given id (async.)
-	// if custom data has not been prepared before and has not expired
+	// (if custom data has not been prepared before and has not expired)
 	_prepareCustomData: function (id) {
+		// TODO: check using hasOwnProperty
 		// TODO: check for expiration and mark dirty
 		if (this._customDataCache[id]) {
+			CliqzSmartCliqzCache._log('_prepareCustomData: ' + id + ' already cached')
 			return;
 		}
 
+		CliqzSmartCliqzCache._log('_prepareCustomData: preparing for id ' + id);
 		// TODO: only exceute if currently not running (lock array)
 		var _this = this;
 
 		// (1) fetch template from rich header
 		this._fetchSmartCliqz(id, function callback(smartCliqz) {
-			var id = this.getId(smartCliqz);
-			var domain = smartCliqz.domain;
+			var id = _this.getId(smartCliqz);
+			var domain = smartCliqz.data.domain;
 
 			// (2) fetch history for SmartCliqz domain
 			_this._fetchVisitedUrls(domain, function callback(urls) {
 
 				// (3) re-order template categories based on history
-				var categories = smartCliqz.categories;
+				var categories = smartCliqz.data.categories;
 
 				// add some information to facilitate re-ordering
-				for (var j; j < categories.length; j++) {
+				for (var j = 0; j < categories.length; j++) {
 					categories[j].genUrl =
 						CliqzHistoryPattern.generalizeUrl(categories[j].url);
 					categories[j].matchCount = 0;
@@ -99,10 +118,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				}
 
 				// count category-visit matches (visit url contains category url)
-				for (var i; i < urls.length; i++) {
+				for (var i = 0; i < urls.length; i++) {
 					var url = 
                 		CliqzHistoryPattern.generalizeUrl(urls[i]);
-					for (var j; j < categories.length; j++) {
+					for (var j = 0; j < categories.length; j++) {
 						if (url.indexOf(categories[j].genUrl) > -1) {
 		                    categories[j].matchCount++;
 		                }
@@ -119,27 +138,43 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 });
 
 				// TODO: store timestamp
-                _this._customDataCache[id] = categories;
+                _this._customDataCache[id] = {
+                	categories: categories.slice(0, 5)
+                };
+
+                CliqzSmartCliqzCache._log('_prepareCustomData: done preparing for id ' + id);
 			})
 		});
 	},
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
+		CliqzSmartCliqzCache._log('_fetchSmartCliqz: start fetching for id ' + id);
+
 		var serviceUrl = 
             'http://rich-header-server.clyqz.com/id_to_snippet?q=' + id;
 
         CliqzUtils.httpGet(serviceUrl,
         	function success(req) {
         		var smartCliqz = 
-        			JSON.parse(req.response).extra.results[0].data;
+        			JSON.parse(req.response).extra.results[0];
+        		// match data structure if big machine results
+        		smartCliqz.data.subType = smartCliqz.subType;
+        		CliqzSmartCliqzCache._log('_fetchSmartCliqz: done fetching for id ' + id);
         		callback(smartCliqz);
         	});
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
 	_fetchVisitedUrls: function (domain, callback) {
+		CliqzSmartCliqzCache._log('_fetchVisitedUrls: start fetching for domain ' + domain);
+
 		var historyService = Components
             .classes["@mozilla.org/browser/nav-history-service;1"]
             .getService(Components.interfaces.nsINavHistoryService);
+
+        if (!historyService) {
+        	CliqzSmartCliqzCache._log('_fetchVisitedUrls: history service not available');
+        	return;
+        }
 
         var options = historyService.getNewQueryOptions();
 
@@ -150,7 +185,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
         query.endTimeReference = query.TIME_RELATIVE_NOW;
         query.endTime = 0;
 
-        setTimeout(function fetch() {
+        CliqzUtils.setTimeout(function fetch() {
         	var result = 
         		historyService.executeQuery(query, options);
 
@@ -159,9 +194,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	        var urls = [];
 	        for (var i = 0; i < container.childCount; i ++) {
-	             urls[i] = cocontainernt.getChild(i).uri;
+	             urls[i] = container.getChild(i).uri;
 	        }
 
+	        CliqzSmartCliqzCache._log(
+	        		'_fetchVisitedUrls: done fetching ' +  urls.length + 
+	        		' URLs for domain ' + domain);
 	        callback(urls);
         }, 0);
 	},

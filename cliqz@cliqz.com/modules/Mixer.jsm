@@ -272,7 +272,8 @@ var Mixer = {
                 // TODO: update cached EZ from rich-header-server
                 // TODO: perhaps only use this cached data if newer than certain age
                 //var ez = Mixer.ezCache[Mixer.ezURLs[url]];
-                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
+                CliqzUtils.log('retrieving from cache', 'Mixer');
+                var ez = CliqzSmartCliqzCache.retrieveCustomized(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
@@ -291,7 +292,7 @@ var Mixer = {
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
 
-            if (cliqzExtra[0].data.news) {
+            /*if (cliqzExtra[0].data.news) {
                 var ezId = this.getEzIdFromExtra(cliqzExtra[0]);
                 if (ezId) {
                     var cat = this.getEzCategoriesFromBackend(ezId);
@@ -313,7 +314,7 @@ var Mixer = {
                         cliqzExtra[0].data.categories = categories.slice(0, 5);
                     }
                 }
-            }
+            }*/
             
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
