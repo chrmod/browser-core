@@ -19,7 +19,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
+var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_smartCliqzCache: { },
 	_customDataCache: { },
 
@@ -29,22 +29,22 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
 
 		var cached = this.retrieve(id, false);
 		if (!cached) { // || smartCliqz.data.ts > cached.data.ts) {			
-			_this._smartCliqzCache[id] = smartCliqz;
-			_this._prepareCustomData(id);
+			CliqzSmartCliqzCache._smartCliqzCache[id] = smartCliqz;
+			CliqzSmartCliqzCache._prepareCustomData(id);
 		}
 	},
 	// returns SmartCliqz from cache (false if not found)
 	retrieve: function (id) {
-		if (_this._smartCliqzCache.hasOwnProperty(id)) {
-			_this._log('retrieve: id ' + id);
-			return _this._smartCliqzCache[id];
+		if (CliqzSmartCliqzCache._smartCliqzCache.hasOwnProperty(id)) {
+			CliqzSmartCliqzCache._log('retrieve: id ' + id);
+			return CliqzSmartCliqzCache._smartCliqzCache[id];
 		}
 		return false;
 	},
 	// returns _customized_ SmartCliqz from cache (false if not found)
 	retrieveCustomized: function (id) {
-		var smartCliqz = _this.retrieve(id);
-		smartCliqz && _this._customizeSmartCliqz(smartCliqz);
+		var smartCliqz = CliqzSmartCliqzCache.retrieve(id);
+		smartCliqz && CliqzSmartCliqzCache._customizeSmartCliqz(smartCliqz);
 		return smartCliqz;
 	},
 	// extracts id from SmartCliqz
@@ -57,32 +57,32 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
 	},
 	// if news, re-orders categories based on visit frequency
 	_customizeSmartCliqz: function (smartCliqz) {
-		var id = _this.getId(smartCliqz);
-		if (!_this.isNews(smartCliqz)) {
-			_this._log('_customizeSmartCliqz: not news ' + id);
+		var id = CliqzSmartCliqzCache.getId(smartCliqz);
+		if (!CliqzSmartCliqzCache.isNews(smartCliqz)) {
+			CliqzSmartCliqzCache._log('_customizeSmartCliqz: not news ' + id);
 			return smartCliqz;
 		}
 		
 		// TODO: check for expiration and mark dirty
-		if (_this._customDataCache[id]) {
-			_this._injectCustomData(smartCliqz, 
-				_this._customDataCache[id]);
+		if (CliqzSmartCliqzCache._customDataCache[id]) {
+			CliqzSmartCliqzCache._injectCustomData(smartCliqz, 
+				CliqzSmartCliqzCache._customDataCache[id]);
 		} else {
-			_this._log(
+			CliqzSmartCliqzCache._log(
 				'_customizeSmartCliqz: custom data not ready yet for ' + id);
 		}
 	},
 	// replaces all keys from custom data in SmartCliqz data
 	_injectCustomData: function (smartCliqz, customData) {
-		var id = _this.getId(smartCliqz);
-		_this._log('_injectCustomData: injecting for id ' + id);
+		var id = CliqzSmartCliqzCache.getId(smartCliqz);
+		CliqzSmartCliqzCache._log('_injectCustomData: injecting for id ' + id);
 		for (var key in customData) {
 			if (customData.hasOwnProperty(key)) {				
 				smartCliqz.data[key] = customData[key];
-				_this._log('_injectCustomData: injecting key ' + key);
+				CliqzSmartCliqzCache._log('_injectCustomData: injecting key ' + key);
 			}
 		}
-		_this._log('_injectCustomData: done injecting for id ' + id);
+		CliqzSmartCliqzCache._log('_injectCustomData: done injecting for id ' + id);
 	},
 	// prepares and stores custom data for SmartCliqz with given id (async.)
 	// (if custom data has not been prepared before and has not expired)
@@ -90,11 +90,11 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
 		// TODO: check using hasOwnProperty
 		// TODO: check for expiration and mark dirty
 		if (this._customDataCache[id]) {
-			_this._log('_prepareCustomData: ' + id + ' already cached')
+			CliqzSmartCliqzCache._log('_prepareCustomData: ' + id + ' already cached')
 			return;
 		}
 
-		_this._log('_prepareCustomData: preparing for id ' + id);
+		CliqzSmartCliqzCache._log('_prepareCustomData: preparing for id ' + id);
 		// TODO: only exceute if currently not running (lock array)
 		var _this = this;
 
@@ -142,13 +142,13 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
                 	categories: categories.slice(0, 5)
                 };
 
-                _this._log('_prepareCustomData: done preparing for id ' + id);
+                CliqzSmartCliqzCache._log('_prepareCustomData: done preparing for id ' + id);
 			})
 		});
 	},
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
-		_this._log('_fetchSmartCliqz: start fetching for id ' + id);
+		CliqzSmartCliqzCache._log('_fetchSmartCliqz: start fetching for id ' + id);
 
 		var serviceUrl = 
             'http://rich-header-server.clyqz.com/id_to_snippet?q=' + id;
@@ -159,20 +159,20 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
         			JSON.parse(req.response).extra.results[0];
         		// match data structure if big machine results
         		smartCliqz.data.subType = smartCliqz.subType;
-        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
+        		CliqzSmartCliqzCache._log('_fetchSmartCliqz: done fetching for id ' + id);
         		callback(smartCliqz);
         	});
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
 	_fetchVisitedUrls: function (domain, callback) {
-		_this._log('_fetchVisitedUrls: start fetching for domain ' + domain);
+		CliqzSmartCliqzCache._log('_fetchVisitedUrls: start fetching for domain ' + domain);
 
 		var historyService = Components
             .classes["@mozilla.org/browser/nav-history-service;1"]
             .getService(Components.interfaces.nsINavHistoryService);
 
         if (!historyService) {
-        	_this._log('_fetchVisitedUrls: history service not available');
+        	CliqzSmartCliqzCache._log('_fetchVisitedUrls: history service not available');
         	return;
         }
 
@@ -197,7 +197,7 @@ var CliqzSmartCliqzCache = _this = CliqzSmartCliqzCache || {
 	             urls[i] = container.getChild(i).uri;
 	        }
 
-	        _this._log(
+	        CliqzSmartCliqzCache._log(
 	        		'_fetchVisitedUrls: done fetching ' +  urls.length + 
 	        		' URLs for domain ' + domain);
 	        callback(urls);
