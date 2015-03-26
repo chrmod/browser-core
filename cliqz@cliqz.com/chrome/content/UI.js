@@ -1682,7 +1682,7 @@ function registerHelpers(){
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t; }),
+            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
             lowerText = text.toLowerCase(),
             out, high = false;
 
