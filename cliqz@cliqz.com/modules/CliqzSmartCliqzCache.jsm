@@ -29,22 +29,26 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		var cached = this.retrieve(id, false);
 		if (!cached) { // || smartCliqz.data.ts > cached.data.ts) {			
-			CliqzSmartCliqzCache._smartCliqzCache[id] = smartCliqz;
-			CliqzSmartCliqzCache._prepareCustomData(id);
+			this._smartCliqzCache[id] = smartCliqz;
+			if (this.isNews(smartCliqz)) {
+				this._prepareCustomData(id);
+			}
 		}
 	},
 	// returns SmartCliqz from cache (false if not found)
 	retrieve: function (id) {
-		if (CliqzSmartCliqzCache._smartCliqzCache.hasOwnProperty(id)) {
-			CliqzSmartCliqzCache._log('retrieve: id ' + id);
-			return CliqzSmartCliqzCache._smartCliqzCache[id];
+		if (this._smartCliqzCache.hasOwnProperty(id)) {
+			this._log('retrieve: id ' + id);
+			return this._smartCliqzCache[id];
 		}
 		return false;
 	},
 	// returns _customized_ SmartCliqz from cache (false if not found)
 	retrieveCustomized: function (id) {
-		var smartCliqz = CliqzSmartCliqzCache.retrieve(id);
-		smartCliqz && CliqzSmartCliqzCache._customizeSmartCliqz(smartCliqz);
+		var smartCliqz = this.retrieve(id);
+		if (smartCliqz && this.isNews(smartCliqz)) {			
+			this._customizeSmartCliqz(smartCliqz);
+		}
 		return smartCliqz;
 	},
 	// extracts id from SmartCliqz
@@ -55,50 +59,46 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	isNews: function (smartCliqz) {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
-	// if news, re-orders categories based on visit frequency
+	// re-orders categories based on visit frequency
 	_customizeSmartCliqz: function (smartCliqz) {
-		var id = CliqzSmartCliqzCache.getId(smartCliqz);
-		if (!CliqzSmartCliqzCache.isNews(smartCliqz)) {
-			CliqzSmartCliqzCache._log('_customizeSmartCliqz: not news ' + id);
-			return smartCliqz;
-		}
+		var id = this.getId(smartCliqz);
 		
 		// TODO: check for expiration and mark dirty
-		if (CliqzSmartCliqzCache._customDataCache[id]) {
-			CliqzSmartCliqzCache._injectCustomData(smartCliqz, 
-				CliqzSmartCliqzCache._customDataCache[id]);
+		if (this._customDataCache[id]) {
+			this._injectCustomData(smartCliqz, 
+				this._customDataCache[id]);
 		} else {
-			CliqzSmartCliqzCache._log(
+			this._log(
 				'_customizeSmartCliqz: custom data not ready yet for ' + id);
 		}
 	},
 	// replaces all keys from custom data in SmartCliqz data
 	_injectCustomData: function (smartCliqz, customData) {
-		var id = CliqzSmartCliqzCache.getId(smartCliqz);
-		CliqzSmartCliqzCache._log('_injectCustomData: injecting for id ' + id);
+		var id = this.getId(smartCliqz);
+		this._log('_injectCustomData: injecting for id ' + id);
 		for (var key in customData) {
 			if (customData.hasOwnProperty(key)) {				
 				smartCliqz.data[key] = customData[key];
-				CliqzSmartCliqzCache._log('_injectCustomData: injecting key ' + key);
+				this._log('_injectCustomData: injecting key ' + key);
 			}
 		}
-		CliqzSmartCliqzCache._log('_injectCustomData: done injecting for id ' + id);
+		this._log('_injectCustomData: done injecting for id ' + id);
 	},
-	// prepares and stores custom data for SmartCliqz with given id (async.)
+	// prepares and stores custom data for SmartCliqz with given id (async.),
 	// (if custom data has not been prepared before and has not expired)
 	_prepareCustomData: function (id) {
 		// TODO: check using hasOwnProperty
 		// TODO: check for expiration and mark dirty
 		if (this._customDataCache[id]) {
-			CliqzSmartCliqzCache._log('_prepareCustomData: ' + id + ' already cached')
+			this._log('_prepareCustomData: ' + id + ' already cached')
 			return;
 		}
 
-		CliqzSmartCliqzCache._log('_prepareCustomData: preparing for id ' + id);
-		// TODO: only exceute if currently not running (lock array)
-		var _this = this;
-
+		this._log('_prepareCustomData: preparing for id ' + id);
+		// TODO: only execute if currently not running (lock array)
+		
 		// (1) fetch template from rich header
+		var _this = this;
 		this._fetchSmartCliqz(id, function callback(smartCliqz) {
 			var id = _this.getId(smartCliqz);
 			var domain = smartCliqz.data.domain;
@@ -142,37 +142,38 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 	categories: categories.slice(0, 5)
                 };
 
-                CliqzSmartCliqzCache._log('_prepareCustomData: done preparing for id ' + id);
+                _this._log('_prepareCustomData: done preparing for id ' + id);
 			})
 		});
 	},
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
-		CliqzSmartCliqzCache._log('_fetchSmartCliqz: start fetching for id ' + id);
+		this._log('_fetchSmartCliqz: start fetching for id ' + id);
 
 		var serviceUrl = 
             'http://rich-header-server.clyqz.com/id_to_snippet?q=' + id;
 
+        var _this = this;
         CliqzUtils.httpGet(serviceUrl,
         	function success(req) {
         		var smartCliqz = 
         			JSON.parse(req.response).extra.results[0];
         		// match data structure if big machine results
         		smartCliqz.data.subType = smartCliqz.subType;
-        		CliqzSmartCliqzCache._log('_fetchSmartCliqz: done fetching for id ' + id);
+        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
         		callback(smartCliqz);
         	});
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
 	_fetchVisitedUrls: function (domain, callback) {
-		CliqzSmartCliqzCache._log('_fetchVisitedUrls: start fetching for domain ' + domain);
+		this._log('_fetchVisitedUrls: start fetching for domain ' + domain);
 
 		var historyService = Components
             .classes["@mozilla.org/browser/nav-history-service;1"]
             .getService(Components.interfaces.nsINavHistoryService);
 
         if (!historyService) {
-        	CliqzSmartCliqzCache._log('_fetchVisitedUrls: history service not available');
+        	this._log('_fetchVisitedUrls: history service not available');
         	return;
         }
 
@@ -185,6 +186,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
         query.endTimeReference = query.TIME_RELATIVE_NOW;
         query.endTime = 0;
 
+        var _this = this;
         CliqzUtils.setTimeout(function fetch() {
         	var result = 
         		historyService.executeQuery(query, options);
@@ -197,7 +199,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	             urls[i] = container.getChild(i).uri;
 	        }
 
-	        CliqzSmartCliqzCache._log(
+	        _this._log(
 	        		'_fetchVisitedUrls: done fetching ' +  urls.length + 
 	        		' URLs for domain ' + domain);
 	        callback(urls);
