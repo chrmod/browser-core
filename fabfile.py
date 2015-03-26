@@ -4,11 +4,14 @@
 import re
 import urllib2
 import xml.etree.ElementTree as ET
+import os, os.path
 
 from fabric.contrib import console
 from fabric.api import task, local, lcd, hide
 from fabric.utils import abort
 from jinja2 import Environment, FileSystemLoader
+
+import jsstrip
 
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
@@ -65,7 +68,7 @@ def package(beta='True', version=None):
             # If we have changes stash them before checkout
             branch_dirty = local("git diff --shortstat", capture=True)
             if branch_dirty:
-                local("git stash")
+                abort("you need to have a clean branch for packaging a non beta version !")
             if checkout:
                 local("git checkout %s" % (version))
 
@@ -84,7 +87,13 @@ def package(beta='True', version=None):
     with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
+            #clean comments for non beta packages
+            if not (beta == 'True'):
+                comment_cleaner()
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
+            #revert cleaning
+            if not (beta == 'True'):
+                local("git checkout %s" % (version))
             local("mv  %s .." % output_file_name)  # Move back to root folder
 
     # If we checked out a earlier commit we need to go back to master/HEAD
@@ -194,24 +203,26 @@ def clean():
 
 
 @task
-def cool():
-    import os, os.path
-    target = ['js', 'jsm', 'css', 'html']
+def comment_cleaner():
+    target = ['js', 'jsm', 'html']
+    ignore = ['handlebars-v1.3.0.js', 'math.min.jsm']
+
+    print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) +'/cliqz@cliqz.com'
     for root, dirs, files in os.walk(ext_root):
         for f in files:
-            if f.split('.')[-1] in target:
-                print 'processing ' + f
+            if f.split('.')[-1] in target and f not in ignore:
+                print 'X',
                 with open(root + '/' + f, 'r+') as handler:
                     content = handler.read()
                     handler.seek(0)
                     handler.truncate()
-                    handler.write(comment_killer(content))
-                    return
-
+                    handler.write(js_comment_removal(content))
             else:
-                print 'ignore ' + f
+                print '.',
+    print
+    print 'CommentCleaner - Done'
 
-import jsstrip
-def comment_killer(s):
+
+def js_comment_removal(s):
     return jsstrip.strip(s, False, False, True, True)
