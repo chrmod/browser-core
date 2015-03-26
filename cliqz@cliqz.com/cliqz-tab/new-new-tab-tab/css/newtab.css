@@ -273,6 +273,19 @@ div#add-popup-shortcut {
 .card-clock .notch { top: 23px; width: 24px; height: 1px; background: none }
 .card-clock .notch div { width: 2px; height: 100%; float: right; background: #333333; }
 
+.card-default {
+    background: rgb(255,0,0);
+    color: white;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 18px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
 /* search */
 .search-box { margin-bottom: 10px; }
 #search {

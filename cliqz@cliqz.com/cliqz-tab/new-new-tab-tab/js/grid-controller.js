@@ -16,13 +16,22 @@ function GridController(db,newsdomains,cities){
     }
     
     this.makeCard = function(height,name,data){
+        var template
+        
+        try {
+            template = use(name)
+        }
+        catch(ex) {
+            template = use("card-default")
+        }
+        
         var card = {
             height: height,
             element: $("<div class='card invisible'>").data("id",data.id).append(
                 use("close-button").click(function(e){
                     _this.remove($(this).parent())
                 }),
-                use(name)
+                template
             ),
             view: function(name){
                 card.element.find(".view").hide().filter("." + name).show()
@@ -58,6 +67,8 @@ function GridController(db,newsdomains,cities){
                         
                         if (data.store.city) {
                             card.view("loader")
+                            
+                            var city = cities.filter(function(e){ return data.store.city == e.city })[0]
 
                             $.pget(WEATHER_SOURCE,{ q: "wetter " + data.store.city })
                             .then(function(data){
@@ -67,8 +78,15 @@ function GridController(db,newsdomains,cities){
                                     var result = data.results[0].data
 
                                     card.element.find(".image").css("background-image","url(" + result.todayIcon + ")")
-                                    card.element.find(".title").text(result.returned_location)
+                                    //card.element.find(".title").text(result.returned_location)
                                     card.element.find(".temperature").text(result.todayTemp)
+                                    
+                                    var title
+                                    
+                                    if (city) title = city.city + ", " + city.country
+                                    else title = result.returned_location
+                                    
+                                    card.element.find(".title").text(title)
                                 }
                                 catch(ex) {
                                     if (attempt && attempt < 3) {
@@ -184,7 +202,7 @@ function GridController(db,newsdomains,cities){
                     setInterval(tick,1000)
                     
                     break;
-                default: console.error("widget " + data.widget + " is not supported")
+                default:  card = this.makeCard(1,"card-default",data)
             }
         }
         else {
