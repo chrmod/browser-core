@@ -71,6 +71,11 @@ var CliqzCalculator = {
         'mass':{
             "base": 'g',
             'units': [
+                {'val': 102, 'names': ['kN', 'kn', 'kilonewton', 'kilonewtons']},
+                {'val': 1e9, 'names': ['kt', 'kilotonne', 'kilotonnes', 'kilotonnen']},
+                {'val': 1e6, 'names': ['t', 'tonne', 'tonnes', 'tonnen', 'metric ton', 'metric tons']},
+                {'val': 1e6, 'names': ['Mg', 'megagram', 'megagrams']},
+//                {'val': 100000, 'names': ['Ztr', 'ztr', 'q', 'centner', 'quintal', 'centners', 'quintals', 'zentner', 'zentners']},  // this is the Italien, Austria, .. versino. German version = 50kg
                 {'val': 1000, 'names': ['kg', 'kilogram', 'kilograms', 'kilogramme', 'kilogrammes', 'kilogramm', 'kilogramms']},
                 {'val': 100, 'names': ['hg', 'hectogram', 'hectograms', 'hectogramme', 'hectogrammes', 'hectogramm', 'hectogramms']},
                 {'val': 10, 'names': ['dag', 'decagram', 'decagrams', 'decagramme', 'decagrammes', 'decagramm', 'decagramms']},
@@ -79,11 +84,13 @@ var CliqzCalculator = {
                 {'val': 0.01, 'names': ['cg', 'centigram', 'centigrams', 'centigramme', 'centigrammes', 'centigramm', 'centigramms']},
                 {'val': 0.001, 'names': ['mg', 'milligram', 'milligrams', 'milligramme', 'milligrammes', 'milligramm', 'milligramms']},
                 {'val': 0.000001, 'names': ['mcg', 'microgram', 'micrograms', 'microgramme', 'microgrammes', 'microgramm', 'microgramms']},
+                {'val': 453.59237, 'names': ['lb', 'lbs', 'pound', 'pounds', 'pound-mass', 'pfund']},
+                {'val': 28.349523125, 'names': ['oz', 'ozs', 'ounce ', 'ounces', 'unze', 'unzen']},
+                {'val': 1.7718452, 'names': ['dr', 'dram', 'drams']},
+                {'val': 0.06479891, 'names': ['gr', 'grain', 'grains', 'Gran']}
             ]
         }
     },
-
-
 
     get: function(q){
       if (this.CALCULATOR_RES == null || this.CALCULATOR_RES == q){return null;}
@@ -148,7 +155,7 @@ var CliqzCalculator = {
              type = self.UNIT_CONVERSION_DATA.types[i];
             for (j =0; j<self.UNIT_CONVERSION_DATA[type].units.length; j++){
                 item = self.UNIT_CONVERSION_DATA[type].units[j];
-                if (item.names.indexOf(unit) > -1){
+                if (item.names.indexOf(unit) > -1 || item.names.indexOf(unit_) > -1){
                     is_unit = true;
                     return [type, is_unit, item];
                 }
