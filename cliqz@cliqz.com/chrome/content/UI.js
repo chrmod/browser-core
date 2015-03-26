@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
@@ -1162,7 +1165,9 @@ function resultClick(ev){
               action: "result_click",
               new_tab: newTab
             }, CliqzAutocomplete.lastSearch);
-            CLIQZ.Core.openLink(CliqzUtils.cleanMozillaActions(el.getAttribute('url')), newTab);
+            var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));            
+            CLIQZ.Core.openLink(url, newTab);
+            CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         } else if (el.getAttribute('cliqz-action')) {
@@ -1349,7 +1354,9 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
-        if(el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
+
+        if(!target.hasAttribute('arrow-override') &&
+          el.getElementsByClassName("cqz-ez-title").length != 0 && mouseOver) return;
 
         // Clear Selection
         clearResultSelection();
@@ -1508,6 +1515,7 @@ function onEnter(ev, item){
   }
 
   CLIQZ.Core.openLink(input, newTab);
+  CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
 
@@ -1661,7 +1669,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('log', function(value, key) {
-        console.log((key || 'TEMPLATE LOG HELPER:') + ' ' + value);
+        console.log('TEMPLATE LOG HELPER', value);
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
@@ -1674,7 +1682,7 @@ function registerHelpers(){
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+/),
+            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t; }),
             lowerText = text.toLowerCase(),
             out, high = false;
 
