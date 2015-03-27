@@ -1,4 +1,10 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
     "openInNewTab":{
         "message": "{} (open in new tab)"
     },
