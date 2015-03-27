@@ -19,8 +19,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-// life is time in seconds before entries are marked stale,
-// if life is not specified entries are good forever
+// this simple cache is a dictionary that addionally stores 
+// timestamps for each entry; life is time in seconds before 
+// entries are marked stale (if life is not specified entries 
+// are good forever); going stale has no immediate consequences
 var Cache = function (life) {
 	this._cache = { };
 	this._life = life ? life * 1000 : false;
@@ -58,16 +60,26 @@ Cache.prototype.isNew = function (key, value, time) {
 };
 
 // an entry is stale if it is not cached or has expired
-// (an entry can only expire if life is specified)
+// (an entry can only expire if life is specified); this
+// has no immediate consequences, but can be used from
+// outside to decide if this entry should be updated
 Cache.prototype.isStale = function (key) {
 	return !this.isCached(key) ||
 		(this._life && (Date.now() - this._cache[key].time) > this._life);
 };
 
+// updates time without replacing the entry
+Cache.prototype.refresh = function (key, time) {
+	time = time || Date.now();
+
+	if (this.isCached(key)) {
+		this._cache[key].time = time;
+	}
+}
+
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(4),
-	_customDataCacheLock: { },
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -134,15 +146,15 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// prepares and stores custom data for SmartCliqz with given id (async.),
 	// (if custom data has not been prepared before and has not expired)
 	_prepareCustomData: function (id) {
-		if (this._customDataCacheLock[id]) {
-			this._log('_prepareCustomData: already running for id ' + id);
-			return;
-		} else {
+		if (this._customDataCache.isStale(id)) {
+			// update time so that this method is not executed multiple
+			// times while not yet finished (runs asynchronously)
+			this._customDataCache.refresh(id);
 			this._log('_prepareCustomData: preparing for id ' + id);
-			this._customDataCacheLock[id] = true;
+		} else {
+			this._log('_prepareCustomData: already updated or in update progress ' + id);
 		}
-		// TODO: only execute if currently not running (lock array)
-		
+
 		// (1) fetch template from rich header
 		var _this = this;
 		this._fetchSmartCliqz(id, function callback(smartCliqz) {
@@ -183,8 +195,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-                _this._customDataCache.store(id, { categories: categories.slice(0, 5) });
-                _this._customDataCacheLock[id] = false;
+                _this._customDataCache.store(id, { categories: categories.slice(0, 5) });             
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
