@@ -48,6 +48,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
@@ -65,6 +66,7 @@ var Extension = {
             Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
             Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
             Cu.import('resource://gre/modules/Services.jsm');
@@ -161,6 +163,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');

@@ -10,6 +10,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
   'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
+  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+
+
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
     Cm.registerFactory(
@@ -22,6 +26,7 @@ function startup(aData, aReason) {
 
 function shutdown(aData, aReason) {
     CliqzUCrawl.destroy();
+    CliqzHumanWeb.destroy();
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
@@ -33,6 +38,7 @@ function shutdown(aData, aReason) {
 
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
     Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+    Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cm.unregisterFactory(AboutURL.prototype.classID, AboutURLFactory);
 }
 
