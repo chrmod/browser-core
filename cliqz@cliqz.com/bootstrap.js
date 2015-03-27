@@ -48,7 +48,7 @@ function uninstall(aData, aReason) {
 
 // ********************************************************************************************* //
 // new tab page
-const CLIQZ_TAB_URL = "chrome://cliqz-tab/content/new-new-tab-tab/newtab.html";
+const CLIQZ_TAB_URL = "chrome://cliqz-tab/content/page/newtab.html";
 
 function AboutURL() {}
 AboutURL.prototype = {

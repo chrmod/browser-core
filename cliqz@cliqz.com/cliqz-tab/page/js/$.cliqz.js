@@ -66,17 +66,14 @@
 
         this.attr("placeholder",CliqzUtils.getWindow().document.getElementById("urlbar").placeholder);
         
-        CLIQZ.UI.init()
         CLIQZ.Core.popup = dropdown[0]
         CLIQZ.Core.popup.closePopup = function(){}
         CLIQZ.Core.popup.hidePopup = function(){}
         CLIQZ.Core.popup.cliqzBox = dropdown[0]
-
-        //setTimeout(function(){
-            CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox)
-            CLIQZ.Core.urlbar = input[0];
-            CLIQZ.Core.urlbar.mInputField = input[0]
-        //},100);
+        CLIQZ.UI.init()
+        CLIQZ.UI.main(CLIQZ.Core.popup.cliqzBox)
+        CLIQZ.Core.urlbar = input[0];
+        CLIQZ.Core.urlbar.mInputField = input[0]
 
         var TAB = 9,
             ENTER = 13,

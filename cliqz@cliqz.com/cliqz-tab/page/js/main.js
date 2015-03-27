@@ -1,13 +1,15 @@
-var WEATHER_SOURCE = "http://rich-header-server.clyqz.com/map",
+var DEBUG_MODE_ON = false,
+    WEATHER_SOURCE = "http://rich-header-server.clyqz.com/map",
     WEATHER_CITIES = "",
-    NEWS_SOURCE = "http://news-swimlane-2066568083.us-east-1.elb.amazonaws.com",
+    NEWS_SOURCE = "http://news-test-swimlane.clyqz.com",
     NEWS_DOMAINS_SOURCE = NEWS_SOURCE + "/news-domains-list",
     NEWS_ARTICLES_SOURCE = NEWS_SOURCE + "/articles",
     CARDS_DB = "cards.json",
     NEWS_DOMAINS_DB = "news-domains.json",
     db = null,
     news_domains_cache = null,
-    citieslist = null
+    citieslist = null,
+    firstrun = false
 
 // create cliqz folder if not exists
 browser.cliqzdir()
@@ -30,6 +32,8 @@ browser.cliqzdir()
                     browser.history(function(history){
                         db = history.slice(0,10)
                         browser.writefile(CARDS_DB,JSON.stringify(db))
+                        
+                        firstrun = true
                         
                         resolve()
                     })
@@ -72,14 +76,23 @@ browser.cliqzdir()
 })
 .then(function(){
     $(function(){
-        // $("#search").cliqz("#search-dropdown")
-        
-        var urlbar = CliqzUtils.getWindow().document.getElementById("urlbar")
-        
-        $("#search").attr("placeholder",urlbar.placeholder).click(function(){ urlbar.focus() })
+        if (DEBUG_MODE_ON) $("#search").focus().cliqz($("#search-dropdown").addClass("debug-mode"))
+        else {
+            var urlbar = CliqzUtils.getWindow().document.getElementById("urlbar")
+
+            $("#search").attr("placeholder",urlbar.placeholder).click(function(){ urlbar.focus() })
+        }
         
         $("#background").background()
 
         var gc = new GridController(db,news_domains_cache,citieslist), popup = new AddCardPopup(gc)
+        
+        gc.add({ widget: "tutorial" })
+        
+        if (firstrun) {
+            gc.add({ widget: "message" })
+            gc.add({ widget: "countdown" })
+            gc.add({ widget: "tutorial" })
+        }
     })
 })

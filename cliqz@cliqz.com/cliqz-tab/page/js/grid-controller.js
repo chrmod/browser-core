@@ -70,16 +70,15 @@ function GridController(db,newsdomains,cities){
                             
                             var city = cities.filter(function(e){ return data.store.city == e.city })[0]
 
-                            $.pget(WEATHER_SOURCE,{ q: "wetter " + data.store.city })
+                            $.pget(WEATHER_SOURCE,{ q: "wetter " + data.store.city },null,"json")
                             .then(function(data){
                                 try {
-                                    card.view("main")
-                                    
                                     var result = data.results[0].data
+                                    
+                                    if (!result) throw Error("No result")
 
                                     card.element.find(".image").css("background-image","url(" + result.todayIcon + ")")
-                                    //card.element.find(".title").text(result.returned_location)
-                                    card.element.find(".temperature").text(result.todayTemp)
+                                    card.element.find(".temperature").text(result.todayTemp + " " + result.todayDescription)
                                     
                                     var title
                                     
@@ -87,12 +86,20 @@ function GridController(db,newsdomains,cities){
                                     else title = result.returned_location
                                     
                                     card.element.find(".title").text(title)
+                                    
+                                    card.view("main")
                                 }
                                 catch(ex) {
-                                    if (attempt && attempt < 3) {
+                                    if (!attempt || attempt && attempt < 3) {
                                         setTimeout(function(){
                                             render(attempt?attempt + 1:1)
                                         },3000)
+                                    }
+                                    else {
+                                        card.element.find(".error")
+                                                    .text("Das Wetter für " + city.city + ", " + city.country
+                                                                            + " ist derzeit nicht verfügbar")
+                                        card.view("error")
                                     }
                                 }
                             })
@@ -159,8 +166,42 @@ function GridController(db,newsdomains,cities){
                     render()
                     
                     break;
+                case "stickynote": 
+                    card = this.makeCard(1,"card-stickynote",data)
+                    
+                    break;
                 case "message": 
                     card = this.makeCard(1,"card-message",data)
+                    
+                    break;
+                case "countdown": 
+                    card = this.makeCard(1,"card-countdown",data)
+                    
+                    var days = Math.floor((new Date(2015,3,18).getTime() - new Date().getTime()) / (24 * 60 * 60 * 1000))
+                    
+                    card.element.children(".card-countdown").text("Launch in " + days + " days!")
+                    
+                    break;
+                case "tutorial": 
+                    card = this.makeCard(2,"card-tutorial",data)
+                    
+                    data.store.tip = data.store.tip || 1
+                    
+                    var button = card.element.find(".next-tip")
+                    
+                    var render = function() {
+                        card.view("tip-" + data.store.tip)
+                        
+                        if (data.store.tip == button.siblings().length) button.hide()
+                    }
+                    
+                    button.click(function(){
+                        data.store.tip ++
+                        _this.save()
+                        render()
+                    })
+                    
+                    render()
                     
                     break;
                 case "clock": 
@@ -224,7 +265,7 @@ function GridController(db,newsdomains,cities){
 
                 var newscontainer = card.element.find(".news")
 
-                $.pget(NEWS_ARTICLES_SOURCE,{ q: "news",num_results_per_domain: 3,num_domains: 1,extra_domains: newsdomain })
+                $.pget(NEWS_ARTICLES_SOURCE,{ q: "news",num_results_per_domain: 3,num_domains: 1,extra_domains: newsdomain },null,"json")
                 .then(function(data){
                     for (var i=0;i<data.data.news.length;i++) {
                         var news = data.data.news[i]
