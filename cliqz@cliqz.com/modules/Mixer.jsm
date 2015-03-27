@@ -48,8 +48,6 @@ function kindEnricher(data, newKindParams) {
 }
 
 var Mixer = {
-    ezCategoriesCache: {},
-    ezCache: {},
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
@@ -249,8 +247,6 @@ var Mixer = {
                         for(var j=0; j < trigger_urls.length; j++) {
                             Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
-                        Mixer.ezCache[eztype] = r;
-
                         CliqzSmartCliqzCache.store(r);
                     }
                 }
@@ -270,9 +266,7 @@ var Mixer = {
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age
-                //var ez = Mixer.ezCache[Mixer.ezURLs[url]];
-                CliqzUtils.log('retrieving from cache', 'Mixer');
+                // TODO: perhaps only use this cached data if newer than certain age                
                 var ez = CliqzSmartCliqzCache.retrieveCustomized(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
@@ -291,32 +285,7 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
-
-            /*if (cliqzExtra[0].data.news) {
-                var ezId = this.getEzIdFromExtra(cliqzExtra[0]);
-                if (ezId) {
-                    var cat = this.getEzCategoriesFromBackend(ezId);
-                    if (cat) {
-                        var categories = cat.categories;
-                        // sort descending by history match count and original order
-                        categories.sort(function compare(a, b) {
-                            if (a.historyMatchCount != b.historyMatchCount) {
-                                // descending
-                                return b.historyMatchCount - a.historyMatchCount;
-                            } else {
-                                // ascending
-                                return a.order - b.order;
-                            }
-                        });
-                        for (var j = 0; j < categories.length; j++) {
-                            //CliqzUtils.log('match count ' + categories[j].genUrl + ': ' + categories[j].historyMatchCount, 'Mixer');
-                        }
-                        cliqzExtra[0].data.categories = categories.slice(0, 5);
-                    }
-                }
-            }*/
             
-
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {

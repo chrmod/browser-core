@@ -2,7 +2,7 @@
 
 /*
  * This module caches SmartCliqz results in the extension. It
- * also customizes SmartCliqz results by re-ordering links
+ * also customizes news SmartCliqz results by re-ordering categories
  * based on the user's browsing history.
  *
  * author: Dominik Schmidt (cliqz)
@@ -87,8 +87,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	store: function (smartCliqz) {
 		var id = this.getId(smartCliqz);
 
-		// TODO: use timestamp from SmartCliqz
-		this._smartCliqzCache.store(id, smartCliqz);
+		this._smartCliqzCache.store(id, smartCliqz, 
+			this.getTimestamp(smartCliqz));
 
 		try {
 			if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
@@ -118,6 +118,13 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// extracts id from SmartCliqz
 	getId: function (smartCliqz) {
 		return JSON.parse(smartCliqz.data.subType).ez;
+	},
+	getTimestamp: function (smartCliqz) {
+		//this._log('getTimestamp: from smartCliqz ' + smartCliqz.data.ts);
+		//this._log('getTimestamp: extension time ' + Date.now());
+		//this._log('getTimestamp: from smartCliqz converted ' + new Date(smartCliqz.data.ts));
+
+		return smartCliqz.data.ts;
 	},
 	// returns true this is a news SmartCliqz
 	isNews: function (smartCliqz) {
