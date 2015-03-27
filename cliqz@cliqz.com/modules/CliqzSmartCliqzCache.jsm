@@ -81,7 +81,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
 
 	_smartCliqzCache: new Cache(),
-	_customDataCache: new Cache(3600), // refetch after an hour
+	_customDataCache: new Cache(3600), // re-customize after an hour
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -134,7 +134,6 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_customizeSmartCliqz: function (smartCliqz) {		
 		var id = this.getId(smartCliqz);
 		
-		// TODO: check for expiration and mark dirty
 		if (this._customDataCache.isCached(id)) {
 			this._injectCustomData(smartCliqz, 
 				this._customDataCache.retrieve(id));
@@ -146,7 +145,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			}
 		} else {
 			this._log(
-				'_customizeSmartCliqz: custom data not ready yet for ' + id);
+				'_customizeSmartCliqz: custom data not yet ready for ' + id);
 		}
 	},
 	// replaces all keys from custom data in SmartCliqz data
@@ -171,7 +170,11 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			this._log('_prepareCustomData: preparing for id ' + id);
 		} else {
 			this._log('_prepareCustomData: already updated or in update progress ' + id);
+			return;
 		}
+
+		// for stats
+		var oldCustomData = this._customDataCache.retrieve(id);	
 
 		// (1) fetch template from rich header
 		var _this = this;
@@ -183,7 +186,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			_this._fetchVisitedUrls(domain, function callback(urls) {
 
 				// (3) re-order template categories based on history
-				var categories = smartCliqz.data.categories;
+				var categories = smartCliqz.data.categories.slice();
 
 				// add some information to facilitate re-ordering
 				for (var j = 0; j < categories.length; j++) {
@@ -213,7 +216,14 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-                _this._customDataCache.store(id, { categories: categories.slice(0, 5) });             
+                categories = categories.slice(0, 5);
+
+                // send some stats
+                _this._sendStats(id, oldCustomData ? 
+                	oldCustomData.categories : smartCliqz.data.categories,
+                	categories, oldCustomData, urls);                         
+
+                _this._customDataCache.store(id, { categories: categories });             
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
@@ -252,6 +262,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
         var query = historyService.getNewQuery();
         query.domain = domain;
+        // 30 days from now
         query.beginTimeReference = query.TIME_RELATIVE_NOW;
         query.beginTime = -1 * 30 * 24 * 60 * 60 * 1000000;
         query.endTimeReference = query.TIME_RELATIVE_NOW;
@@ -275,6 +286,62 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	        		' URLs for domain ' + domain);
 	        callback(urls);
         }, 0);
+	},
+	_sendStats: function (id, oldCategories, newCategories, isRepeatedCustomization, urls) {
+		var stats = {
+			type: 'activity',
+			action: 'smart_cliqz_customization',
+			// SmartCliqz id
+			id: id,
+			// total number of URLs retrieved from history
+			urlCandidateCount: urls.length,
+			// number of URLs that produced a match within shown categories (currently 5)
+			urlMatchCount: 0,
+			// average number of URL matches across shown categories
+			urlMatchCountAvg: 0,
+			// standard deviation of URL matches across shown categories
+			urlMatchCountSd: 0,
+			// number of categories that changed (per position; swap counts twice)
+			categoriesPosChangeCount: 0,
+			// number of categories kept after re-ordering (positions might change)
+			categoriesKeptCount: 0,
+			// average position change of a kept categories
+			categoriesKeptPosChangeAvg: 0,
+			// true, if this customization is a re-customization
+			isRepeatedCustomization: isRepeatedCustomization
+		};
+
+		var oldPositions = { };
+		var length = Math.min(oldCategories.length, newCategories.length);
+
+    	for (var i = 0; i < length; i++) {
+    		stats.urlMatchCount += newCategories[i].matchCount;
+    		oldPositions[oldCategories[i].title] = i;
+
+    		if (newCategories[i].title != oldCategories[i].title) {
+    			stats.categoriesPosChangeCount++;
+    		}
+    	}
+    	stats.urlMatchCountAvg = stats.urlMatchCount / length;
+
+    	for (var i = 0; i < length; i++) {
+    		stats.urlMatchCountSd += 
+    			Math.pow(stats.urlMatchCountAvg - newCategories[i].matchCount, 2);
+    	}
+    	stats.urlMatchCountSd /= length;
+    	stats.urlMatchCountSd = Math.sqrt(stats.urlMatchCountSd);
+
+    	for (var i = 0; i < length; i++) { 
+    		if (oldPositions.hasOwnProperty(newCategories[i].title)) {
+    			stats.categoriesKeptCount++;
+    			stats.categoriesKeptPosChangeAvg += 
+    				Math.abs(i - oldPositions[newCategories[i].title]);
+    			
+    		}
+    	}
+    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount++;
+
+    	CliqzUtils.telemetry(stats);
 	},
 	// log helper
 	_log: function (msg) {
