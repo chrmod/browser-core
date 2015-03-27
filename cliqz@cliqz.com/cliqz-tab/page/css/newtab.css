@@ -237,7 +237,7 @@ div#add-popup-shortcut {
 #citieslist > div:hover, #citieslist > div[selected] { background: rgba(94,163,249,0.5) }
 
 .card-message {
-    background: rgb(245,73,143);
+    background: #5ea3f9;
     color: white;
     position: absolute;
     top: 0;
@@ -274,17 +274,19 @@ div#add-popup-shortcut {
 .card-clock .notch div { width: 2px; height: 100%; float: right; background: #333333; }
 
 .card-countdown {
-    background: purple;
+    background: #ffc802;
     color: white;
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 13px 18px 18px;
-    font-size: 16px;
+    padding: 24px 18px 18px;
+    font-size: 23px;
     line-height: 1.5;
+    text-align: center;
 }
+.card-countdown b { font-weight: bold; font-size: inherit }
 
 .card-stickynote {
     background: yellow;

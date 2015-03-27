@@ -31,9 +31,7 @@
         this.lastresize = false
         
         this.columnsSettings = function(width){
-            if (width < 600) return 2
-            if (width < 1200) return 3
-            return 4
+            return Math.max(Math.floor(width / 250),1)
         }
         
         this.elements = []

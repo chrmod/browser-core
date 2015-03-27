@@ -179,7 +179,7 @@ function GridController(db,newsdomains,cities){
                     
                     var days = Math.floor((new Date(2015,3,18).getTime() - new Date().getTime()) / (24 * 60 * 60 * 1000))
                     
-                    card.element.children(".card-countdown").text("Launch in " + days + " days!")
+                    card.element.children(".card-countdown").html("<b>" + days + "</b> days until launch")
                     
                     break;
                 case "tutorial": 
