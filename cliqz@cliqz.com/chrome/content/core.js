@@ -599,7 +599,7 @@ CLIQZ.Core = CLIQZ.Core || {
         return _querySession;
     },
     handleKeyboardShortcuts: function(ev) {
-        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey)){
+        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey) && !CLIQZ.Core.urlbar.focused){
             CLIQZ.Core.urlbar.focus();
             CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
 
