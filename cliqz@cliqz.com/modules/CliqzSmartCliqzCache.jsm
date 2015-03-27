@@ -269,19 +269,6 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	        callback(urls);
         }, 0);
 	},
-	_addTimeToDate: function(date, interval, units) {
-		var future = new Date(date);		  
-		switch(interval.toLowerCase()) {
-			case 'year'   :  future.setFullYear(future.getFullYear() + units);  break;			
-			case 'month'  :  future.setMonth(future.getMonth() + units);  break;
-			case 'week'   :  future.setDate(future.getDate() + 7 * units);  break;
-			case 'day'    :  future.setDate(future.getDate() + units);  break;
-			case 'hour'   :  future.setTime(future.getTime() + units * 3600000);  break;
-			case 'minute' :  future.setTime(future.getTime() + units * 60000);  break;
-			case 'second' :  future.setTime(future.getTime() + units * 1000);  break;
-		}
-		return future;
-	},
 	// log helper
 	_log: function (msg) {
 		CliqzUtils.log(msg, 'SmartCliqzCache');
