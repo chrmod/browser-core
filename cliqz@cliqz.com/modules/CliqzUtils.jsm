@@ -1030,8 +1030,10 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    // IMPORTANT! Please test newtab search if you change the line below:
-    var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;  
+      
+    // IMPORTANT! This is for debug on newtab
+    // var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
 
     return urlbar.value.length == 0;
   },
