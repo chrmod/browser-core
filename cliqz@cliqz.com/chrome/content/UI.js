@@ -1371,7 +1371,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
-
+        
+        if(el.hasAttribute('arrow-override')){
+          offset += closest(el, '.cqz-result-box').offsetTop;
+        }
+        
         if(target.className.indexOf("cliqz-pattern") != -1) {
           var context;
           if(context = $('.cqz-result-pattern', gCliqzBox))
