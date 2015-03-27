@@ -1371,7 +1371,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
-
+        
+        if(el.hasAttribute('arrow-override')){
+          offset += closest(el, '.cqz-result-box').offsetTop;
+        }
+        
         if(target.className.indexOf("cliqz-pattern") != -1) {
           var context;
           if(context = $('.cqz-result-pattern', gCliqzBox))
@@ -1682,7 +1686,7 @@ function registerHelpers(){
         if(!text || !q || q.length < (minQueryLength || 2)) return text;
 
         var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t; }),
+            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
             lowerText = text.toLowerCase(),
             out, high = false;
 

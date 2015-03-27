@@ -128,12 +128,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // if clusteredHistory return the normal history
             CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [historyTrans, null];
-
-        } else if (clusteredHistory['urls'].length < 4) {
-            // no URLs related to the site were found
-            CliqzClusterHistory.log('Clustering only found ' + clusteredHistory['urls'].length + 'related URLs, decided not to cluster.');
-            return [historyTrans, null];
-
         } else {
             return [historyTransRemained, clusteredHistory];
         }

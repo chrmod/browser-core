@@ -823,7 +823,7 @@ var CliqzHistoryPattern = {
         });
         if ((instant.data.urls.length > 9 && instant.data.template == "pattern-h1") ||
             (instant.data.urls.length > 5  && instant.data.template == "pattern-h2") ||
-            (instant.data.urls.length > 1  && instant.data.template == "pattern-h3")) {
+            (instant.data.urls.length > 2  && instant.data.template == "pattern-h3")) {
           break;
         }
       }
