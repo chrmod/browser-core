@@ -119,7 +119,7 @@ function GridController(db,newsdomains,cities){
                         
                         var value = this.value.toLowerCase(),
                             found = cities.filter(function(e){ return e.citylower.indexOf(value) == 0 })
-                                          .sort(function(a,b){ return a.city < b.city })
+                                          .sort(function(a,b){ return a.city > b.city })
                                           .slice(0,3)
                                           .map(function(e){
                                               return $("<div>").text(e.city).data("city",e.city).click(function(){
