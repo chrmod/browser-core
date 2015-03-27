@@ -87,10 +87,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		// TODO: use timestamp from SmartCliqz
 		this._smartCliqzCache.store(id, smartCliqz);
-		this._log('store: found stale data for id ' + id);
 
 		try {
 			if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+				this._log('store: found stale data for id ' + id);
 				this._prepareCustomData(id);
 			}
 		} catch (e) {
