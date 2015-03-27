@@ -8,9 +8,10 @@
                 <img src="{{data.richData.map.url}}" alt="{{data.richData.map.alt_text}}" class='cqz-celeb-image'/>
             </div>
           {{/if}}
+
           {{#each data.richData.images}}
             {{#if (limit_images_shown @index 5)}}
-            <img src='{{this}}' class='cqz-celeb-image'/>
+            <img src='{{this}}' class='cqz-celeb-image' onerror="this.style.display='none';"/>
             {{/if}}
           {{/each}}
         </div>
