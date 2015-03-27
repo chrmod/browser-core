@@ -19,11 +19,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+// life is time in seconds before entries are marked stale,
+// if life is not specified entries are good forever
 var Cache = function (life) {
 	this._cache = { };
 	this._life = life ? life * 1000 : false;
 };
 
+// stores entry only if it is newer than current entry,
+// current time is used if time is not specified 
 Cache.prototype.store = function (key, value, time) {
 	time = time || Date.now();
 
@@ -35,6 +39,7 @@ Cache.prototype.store = function (key, value, time) {
 	}
 };
 
+// returns cached entry or false if no entry exists for key
 Cache.prototype.retrieve = function (key) {
 	if (!this.isCached(key)) {
 		return false;
@@ -46,14 +51,17 @@ Cache.prototype.isCached = function (key) {
 	return this._cache.hasOwnProperty(key);
 };
 
+// returns true if there is no newer entry already cached for key
 Cache.prototype.isNew = function (key, value, time) {
 	return !this.isCached(key) || 
 		(time > this._cache[key].time);
 };
 
+// an entry is stale if it is not cached or has expired
+// (an entry can only expire if life is specified)
 Cache.prototype.isStale = function (key) {
-	return !this._life || !this.isCached(key) ||
-		(Date.now() - this._cache[key].time) > this._life;
+	return !this.isCached(key) ||
+		(this._life && (Date.now() - this._cache[key].time) > this._life);
 };
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
