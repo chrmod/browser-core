@@ -47,7 +47,7 @@ var CliqzHumanWeb = {
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
-    doubleFetchTimeInSec: 3600,
+    doubleFetchTimeInSec: 60,//3600,
     can_urls: {},
     deadFiveMts: 5,
     deadTwentyMts: 20,
@@ -345,7 +345,7 @@ var CliqzHumanWeb = {
             rq = CliqzHumanWeb.searchResults(activeURL, document);
             if (rq!=null) {
                 CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
-                CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
+                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
                 }
             }
         //Get yahoo result
@@ -353,7 +353,7 @@ var CliqzHumanWeb = {
             rq = CliqzHumanWeb.searchResults(activeURL, document);
             if (rq!=null) {
                 CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'yahoo'};
-                CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
+                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
                 }
             }
 
@@ -362,7 +362,7 @@ var CliqzHumanWeb = {
             rq = CliqzHumanWeb.searchResults(activeURL, document);
             if (rq!=null) {
                 CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'bing'};
-                CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
+                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
                 }
         }
         return rq
@@ -652,7 +652,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.validDoubleFetch(page_struct_before, data)) {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation", CliqzHumanWeb.LOG_KEY);
                     CliqzHumanWeb.setAsPublic(url);
-                    CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
                 else {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CliqzHumanWeb.LOG_KEY);
@@ -1080,7 +1080,7 @@ var CliqzHumanWeb = {
 
                 for(var i=0;i<v.length;i++) {
                     if (CliqzHumanWeb.UrlsCache.hasOwnProperty(v[i]['url'])) {
-                        CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
+                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
                     }
                 }
             }
@@ -1103,7 +1103,7 @@ var CliqzHumanWeb = {
                     if (CliqzHumanWeb.debug) {
                         CliqzUtils.log(JSON.stringify(doc,undefined,2), CliqzHumanWeb.LOG_KEY);
                     }
-                    CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'userTransition.search', 'payload': doc});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'userTransition.search', 'payload': doc});
                 }
                 delete CliqzHumanWeb.userTransitions['search'][query];
             }
@@ -1135,7 +1135,7 @@ var CliqzHumanWeb = {
             }
         }
 
-        // send them to track if needed
+        // send them to telemetry if needed
         var ll = CliqzHumanWeb.state['m'].length;
         if (ll > 0) {
             var v = CliqzHumanWeb.state['m'].slice(0, ll);
@@ -1143,26 +1143,22 @@ var CliqzHumanWeb = {
 
             for(var i=0;i<v.length;i++) {
                 if (CliqzHumanWeb.UrlsCache.hasOwnProperty(v[i]['url'])){
-                    CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
                 }
             }
-            // do a instant push on whatever is left on the track
-            CliqzHumanWeb.pushTrack();
+            // do a instant push on whatever is left on the telemetry
+            CliqzHumanWeb.pushTelemetry();
         }
     },
-    destroy: function() {
+    unload: function() {
         //debugger;
         if(!CliqzUtils.getPref("safeBrowsingMoz", false))return;
-
-        CliqzUtils.log('destroy', CliqzHumanWeb.LOG_KEY);
-
         // send all the data
         CliqzHumanWeb.pushAllData();
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
-        CliqzUtils.log('end_destroy', CliqzHumanWeb.LOG_KEY);
     },
-    destroyAtBrowser: function(){
+   unloadAtBrowser: function(){
         //var activityDistributor = Components.classes["@mozilla.org/network/http-activity-distributor;1"]
         //                              .getService(Components.interfaces.nsIHttpActivityDistributor);
         //CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
@@ -1412,7 +1408,7 @@ var CliqzHumanWeb = {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     },
     msgSanitize: function(msg){
-        CliqzUtils.log('Sanitize: ' , "CliqzHumanWeb.pushTrack");
+        CliqzUtils.log('Sanitize: ' , "CliqzHumanWeb.pushTelemetry");
 
         //Remove time
 
@@ -1421,7 +1417,7 @@ var CliqzHumanWeb = {
         delete msg.payload.tend;
         delete msg.payload.tin;
 
-        // FIXME: this cannot be here, track is only for sending logic. The object needs to be
+        // FIXME: this cannot be here, telemetry is only for sending logic. The object needs to be
         // handled beforehand!!!
         //Canonical URLs and Referrals.
 
@@ -1475,11 +1471,11 @@ var CliqzHumanWeb = {
 
     },
     // ****************************
-    // TRACK, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
+    // telemetry, PREFER NOT TO SHARE WITH CliqzUtils for safety, blatant rip-off though
     // ****************************
     trk: [],
     trkTimer: null,
-    track: function(msg, instantPush) {
+    telemetry: function(msg, instantPush) {
         if (!CliqzHumanWeb) return; //might be called after the module gets unloaded
         if (CliqzUtils.getPref('dnt', false)) return;
 
@@ -1488,46 +1484,46 @@ var CliqzHumanWeb = {
         if (msg) CliqzHumanWeb.trk.push(msg);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
         if(instantPush || CliqzHumanWeb.trk.length % 100 == 0){
-            CliqzHumanWeb.pushTrack();
+            CliqzHumanWeb.pushTelemetry();
         } else {
-            CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTrack, 60000);
+            CliqzHumanWeb.trkTimer = CliqzUtils.setTimeout(CliqzHumanWeb.pushTelemetry, 60000);
         }
     },
-    _track_req: null,
-    _track_sending: [],
-    _track_start: undefined,
-    TRACK_MAX_SIZE: 500,
-    pushTrack: function() {
-        if(CliqzHumanWeb._track_req) return;
+    _telemetry_req: null,
+    _telemetry_sending: [],
+    _telemetry_start: undefined,
+    telemetry_MAX_SIZE: 500,
+    pushTelemetry: function() {
+        if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb._track_sending = CliqzHumanWeb.trk.slice(0);
+        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
         CliqzHumanWeb.trk = [];
-        CliqzHumanWeb._track_start = (new Date()).getTime();
+        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
 
-        CliqzHumanWeb._track_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTrackCallback, JSON.stringify(CliqzHumanWeb._track_sending), CliqzHumanWeb.pushTrackError);
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
     },
-    pushTrackCallback: function(req){
+    pushTelemetryCallback: function(req){
         try {
             var response = JSON.parse(req.response);
-            CliqzHumanWeb._track_sending = [];
-            CliqzHumanWeb._track_req = null;
+            CliqzHumanWeb._telemetry_sending = [];
+            CliqzHumanWeb._telemetry_req = null;
         } catch(e){}
     },
-    pushTrackError: function(req){
-        // pushTrack failed, put data back in queue to be sent again later
-        CliqzUtils.log('push tracking failed: ' + CliqzHumanWeb._track_sending.length + ' elements', "CliqzHumanWeb.pushTrack");
-        CliqzHumanWeb.trk = CliqzHumanWeb._track_sending.concat(CliqzHumanWeb.trk);
+    pushTelemetryError: function(req){
+        // pushTelemetry failed, put data back in queue to be sent again later
+        CliqzUtils.log('push telemetrying failed: ' + CliqzHumanWeb._telemetry_sending.length + ' elements', "CliqzHumanWeb.pushTelemetry");
+        CliqzHumanWeb.trk = CliqzHumanWeb._telemetry_sending.concat(CliqzHumanWeb.trk);
 
         // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
-        var slice_pos = CliqzHumanWeb.trk.length - CliqzHumanWeb.TRACK_MAX_SIZE + 100;
+        var slice_pos = CliqzHumanWeb.trk.length - CliqzHumanWeb.telemetry_MAX_SIZE + 100;
         if(slice_pos > 0){
-            CliqzUtils.log('discarding ' + slice_pos + ' old tracking elements', "CliqzHumanWeb.pushTrack");
+            CliqzUtils.log('discarding ' + slice_pos + ' old telemetrying elements', "CliqzHumanWeb.pushTelemetry");
             CliqzHumanWeb.trk = CliqzHumanWeb.trk.slice(slice_pos);
         }
 
-        CliqzHumanWeb._track_sending = [];
-        CliqzHumanWeb._track_req = null;
+        CliqzHumanWeb._telemetry_sending = [];
+        CliqzHumanWeb._telemetry_req = null;
     },
     // ************************ Database ***********************
     // Stolen from modules/CliqzHistory

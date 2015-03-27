@@ -290,7 +290,7 @@ CLIQZ.Core = CLIQZ.Core || {
 
             //Remove indi.event handlers
             CliqzUCrawl.destroy();
-            CliqzHumanWeb.destroy();
+            CliqzHumanWeb.unload();
 
             var numTabs = window.gBrowser.tabContainer.childNodes.length;
             for (var i=0; i<numTabs; i++) {
