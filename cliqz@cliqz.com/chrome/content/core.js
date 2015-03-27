@@ -443,12 +443,12 @@ CLIQZ.Core = CLIQZ.Core || {
                     old = urlbar.mInputField.value,
                     start = urlbar.mInputField.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);
-                /* CliqzUtils.log('prevent default', 'Cliqz AS');
+                CliqzUtils.log('prevent default', 'Cliqz AS');
                 if (!CliqzAutosuggestion.active) {
                     urlbar.mInputField.setUserInput(query);
                     CliqzUtils.log('set new search to: ' + query, 'Cliqz AS');
-                } */
-                urlbar.mInputField.setUserInput(query);
+                }
+                // urlbar.mInputField.setUserInput(query);
                 urlbar.mInputField.value = old;
                 urlbar.mInputField.setSelectionRange(start+1, urlbar.mInputField.value.length);
                 ev.preventDefault();
@@ -495,7 +495,9 @@ CLIQZ.Core = CLIQZ.Core || {
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
             // need to make it compatible with auto suggestion
-            urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
+            CliqzUtils.log(urlBar.mInputField.value, 'CliqzAS');
+            // urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
+            CliqzUtils.log(urlBar.mInputField.value, 'CliqzAS')
         }
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){

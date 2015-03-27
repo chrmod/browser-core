@@ -375,16 +375,18 @@ var UI = {
                 if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
                     CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
                     CliqzAutosuggestion.active = false;
-                    urlbar.mInputField.setUserInput(urlbar.value);
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
                 }
                 return false;
             case DEL:
                 UI.lastInput = "";
                 var urlbar = CLIQZ.Core.urlbar;
+                var returnTrue = false;
                 if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
                     CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
                     CliqzAutosuggestion.active = false;
-                    urlbar.mInputField.setUserInput(urlbar.value);
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
+                    returnTrue = true;
                 }
                 if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
                     CliqzAutocomplete.spellCorr.override = true;

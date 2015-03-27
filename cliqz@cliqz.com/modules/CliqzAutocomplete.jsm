@@ -541,6 +541,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // spell correction
                 searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
+                CliqzUtils.log(searchString, 'CliqzAS');
                 CliqzAutocomplete.lastSearch = searchString;
 
                 if (!CliqzAutocomplete.spellCorr.override &&
