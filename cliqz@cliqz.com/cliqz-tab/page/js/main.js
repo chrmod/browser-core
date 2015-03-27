@@ -87,8 +87,6 @@ browser.cliqzdir()
 
         var gc = new GridController(db,news_domains_cache,citieslist), popup = new AddCardPopup(gc)
         
-        gc.add({ widget: "tutorial" })
-        
         if (firstrun) {
             gc.add({ widget: "message" })
             gc.add({ widget: "countdown" })
