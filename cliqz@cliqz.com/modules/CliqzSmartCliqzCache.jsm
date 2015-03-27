@@ -79,7 +79,7 @@ Cache.prototype.refresh = function (key, time) {
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
 	_smartCliqzCache: new Cache(),
-	_customDataCache: new Cache(4),
+	_customDataCache: new Cache(3600), // refetch after an hour
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -87,9 +87,14 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		// TODO: use timestamp from SmartCliqz
 		this._smartCliqzCache.store(id, smartCliqz);
-		if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {
-			this._log('store: found stale data for id ' + id);
-			this._prepareCustomData(id);
+		this._log('store: found stale data for id ' + id);
+
+		try {
+			if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+				this._prepareCustomData(id);
+			}
+		} catch (e) {
+			this._log('store: error while customizing data: ' + e);
 		}
 	},
 	// returns SmartCliqz from cache (false if not found)
@@ -99,8 +104,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// returns _customized_ SmartCliqz from cache (false if not found)
 	retrieveCustomized: function (id) {
 		var smartCliqz = this._smartCliqzCache.retrieve(id);
-		if (smartCliqz && this.isNews(smartCliqz)) {			
-			this._customizeSmartCliqz(smartCliqz);
+		try {
+			if (smartCliqz && this.isNews(smartCliqz)) {			
+				this._customizeSmartCliqz(smartCliqz);
+			}
+		} catch (e) {
+			this._log('retrieveCustomized: error while customizing data: ' + e);
 		}
 		return smartCliqz;
 	},
@@ -113,7 +122,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
 	// re-orders categories based on visit frequency
-	_customizeSmartCliqz: function (smartCliqz) {
+	_customizeSmartCliqz: function (smartCliqz) {		
 		var id = this.getId(smartCliqz);
 		
 		// TODO: check for expiration and mark dirty
