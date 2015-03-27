@@ -77,7 +77,9 @@ Cache.prototype.refresh = function (key, time) {
 	}
 }
 
-var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {	
+var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
+	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
+
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // refetch after an hour
 
@@ -213,11 +215,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_fetchSmartCliqz: function (id, callback) {
 		this._log('_fetchSmartCliqz: start fetching for id ' + id);
 
-		var serviceUrl = 
-            'http://rich-header-server.clyqz.com/id_to_snippet?q=' + id;
-
+		var endpointUrl = this.SMART_CLIQZ_ENDPOINT + id;
+       
         var _this = this;
-        CliqzUtils.httpGet(serviceUrl,
+        CliqzUtils.httpGet(endpointUrl,
         	function success(req) {
         		var smartCliqz = 
         			JSON.parse(req.response).extra.results[0];
