@@ -8,6 +8,7 @@
                 <img src="{{data.richData.map.url}}" alt="{{data.richData.map.alt_text}}" class='cqz-celeb-image'/>
             </div>
           {{/if}}
+
           {{#each data.richData.images}}
             {{#if (limit_images_shown @index 5)}}
             <img src='{{this}}' class='cqz-celeb-image' onerror="this.style.display='none';"/>
@@ -16,21 +17,28 @@
         </div>
     {{/if}}
     {{/if}}
-
-    <div class='cqz-result-center' >
-        <div class='cqz-result-title overflow'>
-            {{ emphasis title text 2 true }} <span>- {{nameify urlDetails.name}}</span>
+    
+    <div class='cqz-result-center' style="{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h2') }}margin-top: -5px{{/if}}">
+        <div class='cqz-result-title overflow'>{{ emphasis title text 2 true }}</div>
+        <div class='cqz-result-url overflow
+                    {{#if urlDetails.ssl }}
+                         cqz-result-url-ssl
+                    {{/if}}
+        '>
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc
+        <div class='cqz-result-desc overflow'>{{ emphasis data.description text 2 true }}</div>
+        
+        <!--<div class='cqz-result-desc
             {{#if data.richData.additional_sources.length }}
                 overflow
             {{/if}}
             '
         >
             {{ emphasis data.description text 2 true }}
-        </div>
+        </div>-->
 		{{#if data.richData.additional_sources}}
-			<div class="cqz-one-line" style="margin-top: 5px;">
+			<div class="cqz-one-line" style="margin-top: 5px;{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h3') }}display: none;{{/if}}">
 			{{#each data.richData.additional_sources}}
 				<span url='{{url}}' show-status='true'
 					 extra='sources{{ @index }}'
