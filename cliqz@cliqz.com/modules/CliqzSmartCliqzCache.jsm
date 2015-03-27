@@ -80,6 +80,7 @@ Cache.prototype.refresh = function (key, time) {
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
 
+	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
 
@@ -202,6 +203,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 		CliqzHistoryPattern.generalizeUrl(urls[i]);
 					for (var j = 0; j < categories.length; j++) {
 						if (url.indexOf(categories[j].genUrl) > -1) {
+							// TODO: check for subcategories, for example,
+							//       Spiegel "Soziales" has URL "wirtschaft/soziales",
+							//		 thus such entries are counted twice, for "Sozialez",
+							//		 but also for "Wirtschaft"
 		                    categories[j].matchCount++;
 		                }
 					}
