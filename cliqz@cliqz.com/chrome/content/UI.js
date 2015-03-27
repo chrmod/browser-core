@@ -1371,12 +1371,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
-
-        console.log("arrow-override","-")
         
         if(el.hasAttribute('arrow-override')){
-            console.log("arrow-override",closest(el, '.cqz-result-box').offsetTop)
-            
           offset += closest(el, '.cqz-result-box').offsetTop;
         }
         
@@ -1755,7 +1751,7 @@ function registerHelpers(){
         }[operator];
     });
 
-    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {console.log(lvalue,arguments)
+    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
         return {
             "|": lvalue | rvalue,
             "||": lvalue || rvalue,
