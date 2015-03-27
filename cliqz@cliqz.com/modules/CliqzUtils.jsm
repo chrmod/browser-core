@@ -1030,7 +1030,10 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;  
+      
+    // IMPORTANT! This is for debug on newtab
+    // var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
 
     return urlbar.value.length == 0;
   },
