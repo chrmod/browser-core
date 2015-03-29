@@ -1462,6 +1462,7 @@ function resultMove(ev){
 
 function onEnter(ev, item){
   var urlbar = CLIQZ.Core.urlbar;
+  urlbar.value = urlbar.mInputField.value;
   var input = urlbar.mInputField.value;
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
@@ -1480,8 +1481,9 @@ function onEnter(ev, item){
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
     if(CliqzHistoryPattern.generalizeUrl(lastAuto)
-    == CliqzHistoryPattern.generalizeUrl(input))
+    == CliqzHistoryPattern.generalizeUrl(input)) {
       input = lastAuto;
+    }
   }
 
   // Check for login url
@@ -1492,6 +1494,7 @@ function onEnter(ev, item){
       var login = input.substr(input.indexOf("://")+3, input.indexOf("@")-input.indexOf("://")-2);
       cleanInput = input.replace(login, "");
   }
+
   // Logging
   // Autocomplete
   if (CliqzHistoryPattern.generalizeUrl(lastAuto)
@@ -1518,6 +1521,7 @@ function onEnter(ev, item){
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = ResultProviders.isCustomQuery(input);
+
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }

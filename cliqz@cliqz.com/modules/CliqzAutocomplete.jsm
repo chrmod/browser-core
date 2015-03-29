@@ -458,6 +458,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                  If not, call the suggestion backend (asynchronously)
                  call the backend only if autocomplete alrealy in place
                  */
+                if (!CliqzUtils.getPref("queryExpansion", false)) {
+                    return searchString;
+                }
                 let urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
                 if (searchString.length > 2 &&  // auto suggestion should starts with min 3 char
                     urlbar.selectionStart === urlbar.selectionEnd &&  // nothing selected in urlbar
@@ -473,7 +476,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         searchString = cliqzAS;
                     }
                 }
-                if (CliqzAutosuggestion.CliqzTrieCount < 20000) {
+                if (CliqzAutosuggestion.CliqzTrieCount < 25000) {
                     CliqzUtils.log('Fetching suggestion for ' + searchString);
                     CliqzUtils.getAS(searchString, this.cliqzAutoSuggestionFetcher);
                 }
@@ -504,15 +507,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
-                // if (CliqzAutocomplete.lastAutocomplete) {
-                //     let lastACUrl = CliqzAutocomplete.lastAutocomplete.
-                //             replace('http://', '').replace('https://', '').replace('www.', '');
-                //     if (lastACUrl.indexOf(searchString) == 0) {
-                //         urlbar.mInputField.value = lastACUrl;
-                //         urlbar.mInputField.setSelectionRange(
-                //             searchString.length, lastACUrl.length);
-                //     }
-                // }
 
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
@@ -539,9 +533,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
 
-                // spell correction
                 searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
-                CliqzUtils.log(searchString, 'CliqzAS');
                 CliqzAutocomplete.lastSearch = searchString;
 
                 if (!CliqzAutocomplete.spellCorr.override &&

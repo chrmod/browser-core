@@ -164,41 +164,17 @@ var CliqzAutosuggestion = CliqzAutosuggestion || {
         let res, fullExpansion = false;
         let resUser = CliqzAutosuggestion.userTrie.findMax(pq);
         let resCliqz = CliqzAutosuggestion.CliqzTrie.findMax(pq);
-        CliqzUtils.log("userTrie: " + JSON.stringify(resUser), 'Cliqz AS');
-        CliqzUtils.log("CliqzTrie: " + JSON.stringify(resCliqz), 'Cliqz AS');
 
         if (resUser && resUser.count >= 3 &&
             resUser.count / resUser.total > 0.4 ) {
-                CliqzUtils.log('User:' + resUser.count / resUser.total, 'Cliqz AS');
                 return resUser.word;
             }
         if (resCliqz && (resCliqz.count + resCliqz.childrenCount) / resCliqz.total > 0.65 &&
-            resCliqz.count > 50) {
-            CliqzUtils.log('Cliqz: ' + resCliqz.count / resCliqz.total, 'Cliqz AS');
+            resCliqz.count > 15) {
             return resCliqz.word;
         }
-        return pq;  // word expansion maybe not really be good
+        return pq;
     },
-        /*
-        if (fullExpansion)
-            return res.word;
-        else {  // This is not a popular suggestion, we try to do a word by word expansion
-
-            if (res.word.length == pq.length)
-                return null;
-            // append all the space
-            for (let i=pq.length; i<res.word.length; i++) {
-                if (res.word[i] != ' ')
-                    break;
-                pq += ' ';
-            }
-            for (let i=pq.length; i<res.word.length; i++) {
-                if (res.word[i] == ' ')
-                    break;
-                pq += res.word[i];
-            }
-            return pq;
-         */
     SQL: {
         _execute: function(conn, sql, param, columns, onRow) {
             var sqlStatement = conn.createAsyncStatement(sql);
