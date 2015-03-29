@@ -1469,14 +1469,7 @@ function onEnter(ev, item){
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
   var newTab = ev.metaKey || ev.ctrlKey;
 
-  // reset not expanding list
-  CliqzAutosuggestion.notExpandTo = {};
-  // add query to userTrie when it's not a url (but why not?)
-  // TODO: when to store the query
-  // if (!CliqzUtils.isUrl(query)) {
-  //     CliqzAutosuggestion.userTrie.incr(query);
-  //     CliqzAutosuggestion.insertDB(query);
-  // }
+  CliqzAutosuggestion.notExpandTo = {};  // reset not expanding list
 
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
