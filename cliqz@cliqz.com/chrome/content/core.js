@@ -425,10 +425,14 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarclick: function(ev){
-        if(ev.originalTarget.localName != 'dropmarker' && CLIQZ.Core.urlbar.value.trim().length == 0){
-            //link to historydropmarker
-            CliqzAutocomplete.sessionStart = true;
-            document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+        if(ev.originalTarget.localName != 'dropmarker'){
+            if(CLIQZ.Core.urlbar.value.trim().length == 0){
+                //link to historydropmarker
+                CliqzAutocomplete.sessionStart = true;
+                document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+            } else {
+                CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+            }
         }
     },
     urlbarkeydown: function(ev){
