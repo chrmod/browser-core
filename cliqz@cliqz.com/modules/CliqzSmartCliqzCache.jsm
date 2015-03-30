@@ -12,6 +12,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
@@ -83,6 +84,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
+	_isCustomizationEnabledByDefault: false,
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -92,7 +94,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			this.getTimestamp(smartCliqz));
 
 		try {
-			if (this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+			if (this.isCustomizationEnabled() && 
+				this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+
 				this._log('store: found stale data for id ' + id);
 				this._prepareCustomData(id);
 			}
@@ -100,20 +104,20 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			this._log('store: error while customizing data: ' + e);
 		}
 	},
-	// returns SmartCliqz from cache (false if not found)
+	// returns SmartCliqz from cache (false if not found);
+	// customizes SmartCliqz if news and preference is set
 	retrieve: function (id) {
-		return this._smartCliqzCache.retrieve(id);
-	},
-	// returns _customized_ SmartCliqz from cache (false if not found)
-	retrieveCustomized: function (id) {
 		var smartCliqz = this._smartCliqzCache.retrieve(id);
-		try {
-			if (smartCliqz && this.isNews(smartCliqz)) {			
+
+		if (this.isCustomizationEnabled() && 
+			smartCliqz && this.isNews(smartCliqz)) {
+			try {	
 				this._customizeSmartCliqz(smartCliqz);
+			} catch (e) {
+				this._log('retrieveCustomized: error while customizing data: ' + e);
 			}
-		} catch (e) {
-			this._log('retrieveCustomized: error while customizing data: ' + e);
 		}
+
 		return smartCliqz;
 	},
 	// extracts id from SmartCliqz
@@ -130,6 +134,17 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// returns true this is a news SmartCliqz
 	isNews: function (smartCliqz) {
 		return (typeof smartCliqz.data.news != 'undefined');
+	},
+	isCustomizationEnabled: function() {
+		try {
+            var isEnabled =
+            	Services.prefs.getBoolPref("extensions.cliqz.enableNewsCustomization");
+            
+            return isEnabled === null ? 
+            	this._isCustomizationEnabledByDefault : isEnabled;
+        } catch(e) {        	
+            return this._isCustomizationEnabledByDefault;
+        }
 	},
 	// re-orders categories based on visit frequency
 	_customizeSmartCliqz: function (smartCliqz) {		

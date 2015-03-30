@@ -167,7 +167,7 @@ var Mixer = {
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
                 // TODO: perhaps only use this cached data if newer than certain age                
-                var ez = CliqzSmartCliqzCache.retrieveCustomized(Mixer.ezURLs[url]);
+                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
