@@ -63,13 +63,16 @@ var CliqzHistoryPattern = {
         CliqzHistoryPattern.dbConn,
         "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits " +
         "inner join ( " +
-        "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > " + CliqzHistoryPattern.timeFrame + " and " +
+        "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > :time_frame and " +
         "(visits.url like :param or visits.last_query like :param or urltitles.title like :param ) " +
         "group by visits.last_query_date " +
         ") as matches  " +
         "on visits.last_query_date = matches.last_query_date " +
         "left outer join urltitles on urltitles.url = visits.url order by visits.visit_date",
-        "%" + this.escapeSQL(query) + "%",
+        {
+          query: "%" + this.escapeSQL(query) + "%",
+          time_frame: CliqzHistoryPattern.timeFrame
+        },
         ["sdate", "query", "url", "vdate", "title"],
         function(result) {
           try {
@@ -664,21 +667,19 @@ var CliqzHistoryPattern = {
     }
   },
   SQL: {
-    _execute: function PIS__execute(conn, sql, param, columns, onRow) {
-      var sqlStatement = conn.createAsyncStatement(sql);
-      if(param) {
-        sqlStatement.params.param = param;
+    _execute: function PIS__execute(conn, sql, params, columns, onRow) {
+      var statement = conn.createAsyncStatement(sql);
+      if(params){
+          for(var key in params) {
+            statement.params[key] = params[key];
+          }
       }
-      var statement = sqlStatement,
-        onThen, //called after the async operation is finalized
+      var onThen, //called after the async operation is finalized
         promiseMock = {
           then: function(func) {
             onThen = func;
           }
         };
-        if(param) {
-          statement.params.param = param;
-        }
 
       statement.executeAsync({
         handleCompletion: function(reason) {
