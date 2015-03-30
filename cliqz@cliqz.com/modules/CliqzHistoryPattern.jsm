@@ -64,7 +64,7 @@ var CliqzHistoryPattern = {
         "select distinct visits.last_query_date as sdate, visits.last_query as query, visits.url as url, visits.visit_date as vdate, urltitles.title as title from visits " +
         "inner join ( " +
         "select visits.last_query_date from visits, urltitles where visits.url = urltitles.url and visits.last_query_date > :time_frame and " +
-        "(visits.url like :param or visits.last_query like :param or urltitles.title like :param ) " +
+        "(visits.url like :query or visits.last_query like :query or urltitles.title like :query ) " +
         "group by visits.last_query_date " +
         ") as matches  " +
         "on visits.last_query_date = matches.last_query_date " +
