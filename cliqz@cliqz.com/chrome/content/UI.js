@@ -206,7 +206,7 @@ var UI = {
       var now = Date.now();
       if(id != UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(UI.dispatchRedraw, 100, html, id);
+        setTimeout(function(){ UI.dispatchRedraw(); }, 100, html, id);
       } else {
         UI.redrawResultHTML(html);
       }
@@ -1088,7 +1088,7 @@ function messageClick(ev) {
             setting: el.getAttribute('cliqz-telemetry'),
             value: state
           });
-          setTimeout(CliqzUtils.refreshButtons, 0);
+          setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
             break;
         default:
             break;
@@ -1263,7 +1263,7 @@ function handleAdultClick(ev){
             value: state
         });
     }
-    setTimeout(CliqzUtils.refreshButtons, 0);
+    setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
 }
 
 function getResultSelection(){
@@ -1329,10 +1329,10 @@ function smooth_scroll_to(element, target, duration) {
         previous_top = element.scrollTop;
 
         // schedule next frame for execution
-        setTimeout(scroll_frame, 0);
+        setTimeout(function(){ scroll_frame(); }, 0);
     }
     // boostrap the animation process
-    setTimeout(scroll_frame, 0);
+    setTimeout(function(){ scroll_frame(); }, 0);
 }
 
 function selectNextResult(pos, allArrowable) {
