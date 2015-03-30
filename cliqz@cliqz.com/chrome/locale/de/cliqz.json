@@ -409,5 +409,11 @@
     },
     "updateDismiss":{
         "message": "Nachricht schließen"
+    },
+    "topSitesMessage":{
+        "message": "Wähle eine Deiner meistbesuchten Seiten hier, <br/> oder fang' einfach an oben in der Leiste zu tippen um woanders hinzugehen!"
+    },
+    "topSitesTitle":{
+        "message": "Meine Top-Seiten"
     }
 }
