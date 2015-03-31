@@ -1,6 +1,6 @@
 <div class="cqz-result-h1 ez-news ez-news-toggle cqz-result-padding">
   <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
-  
+
   <input type="radio" id="actual" class="latest" name="news-switcher" checked="checked" />
   <div class="entity-stories latest">
     {{#each data.news.Latest}}
@@ -32,12 +32,12 @@
       </div>
     {{/each}}
   </div>
-  
-  <div class="switcher">
+
+  <div class="switcher" cliqz-action="stop-click-event-propagation">
     <label for="actual" class="latest">Aktuell</label>
     <label for="trends" class="trends">Trends</label>
   </div>
-  
+
   {{>EZ-category}}
   {{>logo}}
   {{>feedback}}
