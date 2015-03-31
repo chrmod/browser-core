@@ -425,7 +425,8 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarclick: function(ev){
-        if(ev.originalTarget.localName != 'dropmarker'){
+        //only consider the URLbar not the other icons in the urlbar
+        if(ev.originalTarget.className == 'anonymous-div'){
             if(CLIQZ.Core.urlbar.value.trim().length == 0){
                 //link to historydropmarker
                 CliqzAutocomplete.sessionStart = true;
