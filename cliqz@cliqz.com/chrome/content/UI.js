@@ -1779,6 +1779,11 @@ function registerHelpers(){
         //we need to join with semicolon to avoid conflicting with the comma from json objects
         return kind ? kind.join(';'): '';
     });
+
+    Handlebars.registerHelper('links_or_sources', function(richData) {
+        return (richData.internal_links && richData.internal_links.length > 0) ?
+                  richData.internal_links : richData.additional_sources
+    });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
 ctx.CLIQZ.UI = UI;
