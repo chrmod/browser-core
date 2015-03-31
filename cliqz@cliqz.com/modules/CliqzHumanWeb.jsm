@@ -55,6 +55,14 @@ var CliqzHumanWeb = {
     userTransitions: {
         search: {}
     },
+    searchEngines: [], //Variable for content extraction fw.
+    rArray: [], //Variable for content extraction fw.
+    extractRules: {}, //Variable for content extraction fw.
+    payloads: {}, //Variable for content extraction fw.
+    messageTemplate: {},
+    idMappings: {},
+    patternsURL: 'http://cdn.cliqz.com/safe-browsing/patterns',
+    searchCache: {},
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
     userTransitionsSearchSession: 5*60,
@@ -499,7 +507,7 @@ var CliqzHumanWeb = {
         // compares the structure of the page when rendered in Firefox with the structure of
         // the page after.
 
-
+        debugger;
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CliqzHumanWeb.LOG_KEY);
             CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CliqzHumanWeb.LOG_KEY);
@@ -551,6 +559,9 @@ var CliqzHumanWeb = {
             var vt1 = t1.split(' ').filter(function(el) {el.length>1});
             var vt2 = t2.split(' ').filter(function(el) {el.length>1});;
 
+            //var vt1 = t1.split(' ').filter(function(el) {return el.length>1});
+            //var vt2 = t2.split(' ').filter(function(el) {return el.length>1});;
+
             jc = CliqzHumanWeb.auxIntersection(vt1,vt2).length / CliqzHumanWeb.auxUnion(vt1,vt2).length;
             if (jc <= 0.5) {
 
@@ -559,10 +570,14 @@ var CliqzHumanWeb = {
                 var tt1 = t1.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
                 var tt2 = t2.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
 
-                if ((tt1.length > t1.length*0.5) && ((tt1.length > t1.length*0.5))) {
+                if ((tt1.length > t1.length*0.5) && ((tt2.length > t2.length*0.5))) {
                     // if we have not decreased the titles by more than 50%
+
                     var vtt1 = tt1.split(' ').filter(function(el) {el.length>1});
                     var vtt2 = tt2.split(' ').filter(function(el) {el.length>1});
+
+                    //var vtt1 = tt1.split(' ').filter(function(el) {return el.length>1});
+                    //var vtt2 = tt2.split(' ').filter(function(el) {return el.length>1});
                     jc = CliqzHumanWeb.auxIntersection(vtt1,vtt2).length / CliqzHumanWeb.auxUnion(vtt1,vtt2).length;
                     // we are more demanding on the title overlap now
                     if (jc <= 0.80) {
@@ -647,15 +662,15 @@ var CliqzHumanWeb = {
 
             CliqzHumanWeb.auxGetPageData(url, function(data) {
 
-                if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation", CliqzHumanWeb.LOG_KEY);
+                if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
 
                 if (CliqzHumanWeb.validDoubleFetch(page_struct_before, data)) {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation", CliqzHumanWeb.LOG_KEY);
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
                     CliqzHumanWeb.setAsPublic(url);
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
                 else {
-                    if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CliqzHumanWeb.LOG_KEY);
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match" + url, CliqzHumanWeb.LOG_KEY);
                     CliqzHumanWeb.setAsPrivate(url);
                 }
             },
@@ -1086,6 +1101,14 @@ var CliqzHumanWeb = {
             }
         }
 
+        //Load patterns config
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 24) == 0) {
+            if (CliqzHumanWeb.debug) {
+                CliqzUtils.log('Load pattern config', CliqzHumanWeb.LOG_KEY);
+            }
+            CliqzHumanWeb.loadContentExtraction();
+        }
+
         CliqzHumanWeb.counter += 1;
 
     },
@@ -1382,6 +1405,7 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.pacemakerId = CliqzUtils.setInterval(CliqzHumanWeb.pacemaker, CliqzHumanWeb.tpace, null);
         }
 
+        CliqzHumanWeb.loadContentExtraction();
 
         /*
 
@@ -1899,5 +1923,287 @@ var CliqzHumanWeb = {
                     .getService(Components.interfaces.nsIWindowWatcher);
         try{var win = ww.openWindow(null, "chrome://ucrawlmodules/content/debugInterface",
                         "debugInterface", null, null);}catch(ee){CliqzUtils.log(ee,'debugInterface')}
+    },
+    loadContentExtraction: function(){
+        //Check health
+        CliqzUtils.httpGet(CliqzHumanWeb.patternsURL,
+          function success(req){
+            if(!CliqzHumanWeb) return;
+
+            var patternConfig = JSON.parse(req.response);
+            CliqzHumanWeb.searchEngines = patternConfig["searchEngines"];
+            CliqzHumanWeb.extractRules = patternConfig["scrape"];
+            CliqzHumanWeb.payloads = patternConfig["payloads"];
+            CliqzHumanWeb.idMappings = patternConfig["idMapping"];
+            CliqzHumanWeb.rArray = [];
+            patternConfig["urlPatterns"].forEach(function(e){
+              CliqzHumanWeb.rArray.push(new RegExp(e));
+            })
+          },
+          function error(res){
+            CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
+            });
+    },
+    checkURL: function(cd){
+        var url = cd.location.href;
+        var pageContent = cd;
+        //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
+        //scrap(4, pageContent)
+        for(var i=0;i<CliqzHumanWeb.rArray.length;i++){
+            if(CliqzHumanWeb.rArray[i].test(url)){
+                CliqzHumanWeb.extractContent(i, pageContent);
+
+                //Do not want to continue after search engines...
+                if(CliqzHumanWeb.searchEngines.indexOf(''+i) != -1 ){return;}
+                if (CliqzHumanWeb.debug) {
+                    CliqzUtils.log('Continue further after search engines ', CliqzHumanWeb.LOG_KEY);
+                }
+            }
+      }
+    },
+    checkSearchURL: function(url){
+        //var url = cd.location.href;
+        //var pageContent = cd;
+        //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
+        //scrap(4, pageContent)
+        var idx = null;
+        var reref = /\.google\..*?\/(?:url|aclk)\?/;
+        for(var i=0;i<CliqzHumanWeb.rArray.length;i++){
+            if(CliqzHumanWeb.rArray[i].test(url)){
+                //Do not want to continue after search engines... && !reref.test(url)
+                if(CliqzHumanWeb.searchEngines.indexOf(''+i) != -1 ){;
+                    idx = i;
+                    return idx;
+                }
+                else{
+                    if (CliqzHumanWeb.debug) {
+                        CliqzUtils.log('Not search engine ' + i + CliqzHumanWeb.searchEngines, CliqzHumanWeb.LOG_KEY);
+                    }
+                    return -1;
+                }
+            }
+        }
+    },
+    extractContent: function(ind, cd){
+        var scrapeResults = {};
+        var eventMsg = {};
+        var rules = {};
+        var key = "";
+        var rule = "";
+        rules = CliqzHumanWeb.extractRules[ind];
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log('rules' + rules + ind, CliqzHumanWeb.LOG_KEY);
+        }
+        var urlArray = [];
+        var titleArray = [];
+        for(key in rules){
+            var _keys = Object.keys(rules[key]);
+            if (CliqzHumanWeb.debug) {
+                CliqzUtils.log('keys' + _keys, CliqzHumanWeb.LOG_KEY);
+            }
+            var innerDict = {};
+            _keys.forEach(function(each_key){
+                    if(rules[key][each_key]['type'] == 'standard'){
+
+                        //Depending on etype, currently only supporting url. Maybe ctry too.
+                        if(rules[key][each_key]['etype'] == 'url'){
+                            var qurl = cd.location.href;
+                            innerDict[each_key] = [qurl];
+                        }
+
+                        if(rules[key][each_key]['etype'] == 'ctry'){
+                            try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                            innerDict[each_key] = [location];
+                        }
+
+
+                    }
+                    else if(rules[key][each_key]['type'] == 'searchQuery'){
+                        urlArray = CliqzHumanWeb._getAttribute(cd,key,rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'],(rules[key][each_key]['functionsApplied'] || null))
+                        //console.log(urlArray);
+                        innerDict[each_key] = urlArray;
+                        CliqzHumanWeb.searchCache[ind] = {'q' : urlArray[0], 't' : CliqzHumanWeb.idMappings[ind]};
+                    }
+                    else{
+                        urlArray = CliqzHumanWeb._getAttribute(cd,key,rules[key][each_key]['item'], rules[key][each_key]['etype'], rules[key][each_key]['keyName'],(rules[key][each_key]['functionsApplied'] || null))
+                        //console.log(urlArray);
+                        innerDict[each_key] = urlArray;
+                    }
+            })
+
+            if(CliqzHumanWeb.messageTemplate[ind]){
+                CliqzHumanWeb.messageTemplate[ind][key] = innerDict;
+            }
+            else{
+                CliqzHumanWeb.messageTemplate[ind] = {};
+                CliqzHumanWeb.messageTemplate[ind][key] = innerDict;
+
+            }
+
+            //Check if array has values.
+            var _mergeArr = CliqzHumanWeb.mergeArr(CliqzHumanWeb.messageTemplate[ind][key]);
+            if(_mergeArr.length > 0){
+                scrapeResults[key] = _mergeArr;
+            }
+        }
+
+        for(rule in CliqzHumanWeb.payloads[ind]){
+            CliqzHumanWeb.createPayload(scrapeResults, ind, rule)
+        }
+    },
+    mergeArr: function(arrS){
+        var messageList = [];
+        var allKeys = [];
+        allKeys =  Object.keys(arrS);
+        arrS[allKeys[0]].forEach(function(e,idx){var innerDict ={};messageList.push(allKeys.map(function(e,_idx,arr){innerDict[e]=arrS[e][idx];return innerDict})[0])})
+        return messageList;
+    },
+    _getAttribute: function(cd,parentItem,item,attrib,keyName,functionsApplied){
+        var arr = [];
+        var refineFuncMappings = {
+           "splitF":CliqzHumanWeb.refineSplitFunc,
+           "parseU":CliqzHumanWeb.refineParseURIFunc
+        }
+        var rootElement = Array.prototype.slice.call(cd.querySelectorAll(parentItem));
+        for(var i=0;i<rootElement.length;i++){
+            var val = rootElement[i].querySelector(item);
+            if (val){
+                //Not Null
+                var innerDict = {};
+                var attribVal = val[attrib] || val.getAttribute(attrib);
+
+                // Check if the value needs to be refined or not.
+                if(functionsApplied){
+                    attribVal = functionsApplied.reduce(function(attribVal, e){
+                        return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                    },attribVal)
+
+                }
+                arr.push(innerDict[keyName] = attribVal);
+            }
+            else{
+                var innerDict = {}
+                arr.push(innerDict[keyName] = val);
+            }
+        }
+        return arr;
+    },
+    createPayload: function(scrapeResults, idx, key){
+        try{
+            var payloadRules = CliqzHumanWeb.payloads[idx][key];
+            if (payloadRules['type'] == 'single' && payloadRules['results'] == 'single' ){
+                scrapeResults[key].forEach(function(e){
+                    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                    e['ctry'] = location;
+                    CliqzHumanWeb.sendMessage(payloadRules, e)
+                })
+            }
+            else if (payloadRules['type'] == 'single' && payloadRules['results'] == 'custom' ){
+                    var payload = {};
+                    payloadRules['fields'].forEach(function(e){
+                        try{payload[e[1]] = scrapeResults[e[0]][0][e[1]]}catch(ee){};
+                        CliqzHumanWeb.sendMessage(payloadRules, payload)
+                    })
+            }
+            else if (payloadRules['type'] == 'query' && payloadRules['results'] == 'clustered'){
+                var payload = {};
+                payloadRules['fields'].forEach(function(e){
+                    if (e.length > 2){
+                        var joinArr = {};
+                        for(var i=0;i<scrapeResults[e[0]].length;i++){
+                                joinArr['' + i] = scrapeResults[e[0]][i];
+                        }
+                        payload[e[1]] = joinArr;
+                    }
+                    else{
+                        payload[e[1]] = scrapeResults[e[0]][0][e[1]];
+                    }
+
+                })
+                CliqzHumanWeb.sendMessage(payloadRules, payload);
+            }
+            else if (payloadRules['type'] == 'query' && payloadRules['results'] == 'scattered'){
+                var payload = {};
+                payloadRules['fields'].forEach(function(e){
+                    if (e.length > 2){
+                        var joinArr = {};
+                        var counter = 0;
+                        e[0].forEach(function(eachPattern){
+                            for(var i=0;i<scrapeResults[eachPattern].length;i++){
+                                joinArr['' + counter] = scrapeResults[eachPattern][i];
+                                counter += 1;
+                            }
+                        })
+                        if(Object.keys(joinArr).length > 0){
+                            payload[e[1]] = joinArr;
+                        }
+                    }
+                    else{
+                        payload[e[1]] = scrapeResults[e[0]][0][e[1]];
+                    }
+
+                })
+                CliqzHumanWeb.sendMessage(payloadRules, payload)
+            }
+    }
+    catch(ee){}
+    },
+    sendMessage: function(payloadRules, payload){
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log("sendMessage" , CliqzHumanWeb.LOG_KEY);
+        }
+        var c = true;
+        var e = "";
+        var allKeys =  Object.keys(payload);
+        for(e in payloadRules['fields']){
+            if (allKeys.indexOf(payloadRules['fields'][e][1]) == -1){
+                c = false;
+            }
+            else{
+                allKeys.forEach(function(each_field){
+                    if (!(payload[each_field])){
+                        c = false;
+                    }
+                })
+            }
+        }
+        if(c){
+            CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': payloadRules['action'], 'payload':payload})
+        }
+        CliqzHumanWeb.messageTemplate = {};
+    },
+    refineSplitFunc: function(splitString, splitON, arrPos){
+        var result = splitString.split(splitON)[arrPos];
+        if(result){
+            return decodeURIComponent(result);
+        }
+        else{
+
+            return decodeURIComponent(splitString);
+        }
+    },
+    refineParseURIFunc: function(url, extractType, keyName){
+        var result = CliqzHumanWeb.parseUri(url);
+        if(extractType == 'key'){
+            if(result[keyName]){
+                return decodeURIComponent(result[keyName]);
+            }
+            else{
+                return url;
+            }
+        }
+        else if(extractType == 'qs'){
+            if(result['queryKey'][keyName]){
+                return decodeURIComponent(result['queryKey'][keyName]);
+            }
+            else{
+                return url;
+            }
+        }
+
+    },
+    refineReplaceFunc: function(replaceString, replaceWhat, replaceWith ){
+        var result = decodeURIComponent(replaceString.replace("",replaceWhat,replaceWith));
+        return result;
     }
 };
