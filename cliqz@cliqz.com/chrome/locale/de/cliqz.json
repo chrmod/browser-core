@@ -324,10 +324,10 @@
         "message": "Nationalität"
     },
     "history_results": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "history_results_cluster": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "adultInfo": {
         "message": "Anstößige Inhalte wurden automatisch blockiert."
