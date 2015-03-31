@@ -159,12 +159,12 @@ var UI = {
         //CliqzUtils.log(currentResults.results, "ALL RESULTS");
         // Results that are not ready (extra results, for which we received a callback_url)
         var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
-        CliqzUtils.log(JSON.stringify(currentResults), "RESULT SAMPLE");
+        //CliqzUtils.log(JSON.stringify(currentResults), "RESULT SAMPLE");
         var query = currentResults.q;
         if (!query)
           query = "";
         currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
-        CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
+        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
         //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
         //CliqzImages.process_images_result(res,
@@ -235,7 +235,7 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
                     }
