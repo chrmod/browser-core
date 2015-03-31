@@ -10,7 +10,7 @@
               <div class="items">
                 <div class="cliqz-brand-logo transition"
                       style="{{style}}"
-                      title="{{link}}"
+                      show-status=""
                       extra="{{extra}}"
                       url="{{url}}"
                       >{{ text }}
