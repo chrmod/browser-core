@@ -1,5 +1,5 @@
 {{#with data}}
-	<div class='cliqz-history-results'>
+	<div class='cliqz-history-results cqz-3-history-results'>
         {{#each urls}}
             <div class='cliqz-pattern-element overflow'
                  style='padding-left: 0px;'

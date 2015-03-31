@@ -13,8 +13,6 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Components.utils.import("resource://gre/modules/devtools/Console.jsm");
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -51,7 +49,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -75,15 +73,15 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
   genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch),
-  /*_log: Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService),*/
+  _log: Components.classes['@mozilla.org/consoleservice;1']
+      .getService(Components.interfaces.nsIConsoleService),
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -278,9 +276,12 @@ var CliqzUtils = {
   },
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
-      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', "[]"))
+      var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        console.log("CLIQZ " + (new Date()).toISOString() + (key?" " + key:""),msg);
+        CliqzUtils._log.logStringMessage(
+          'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
+          (typeof msg == 'object'? JSON.stringify(msg): msg)
+        );
     }
   },
   getDay: function() {
@@ -317,7 +318,7 @@ var CliqzUtils = {
       url = url.split('://')[1];
 
     // removes the www.
-    if(cleanWWW && url.indexOf('www.') == 0)
+    if(cleanWWW && url.toLowerCase().indexOf('www.') == 0)
       url = url.slice(4);
 
     return url;
@@ -1030,7 +1031,6 @@ var CliqzUtils = {
   },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
-
     return urlbar.value.length == 0;
   },
   /** Change some prefs for a better cliqzperience -- always do a backup! */
@@ -1101,28 +1101,6 @@ var CliqzUtils = {
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
-
-        /*
-        NEW TAB
-
-        var menuitem5 = doc.createElement('menuitem');
-        menuitem5.setAttribute('id', 'cliqz_menuitem5');
-        menuitem5.setAttribute('label',
-            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
-        );
-
-        menuitem5.addEventListener('command', function(event) {
-            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
-
-            CliqzNewTab.showCliqzNewTab(newvalue);
-
-            menuitem5.setAttribute('label',
-                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
-            );
-        }, false);
-        */
-
-
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));

@@ -52,22 +52,4 @@ def tutorial():
     return 'Cliqz-Results Mock Server\n'
 
 if __name__ == '__main__':
-    import sys
-    import os.path
-    from OpenSSL import SSL
-
-    def rel_loc(file_name):
-        current_dir = os.path.dirname(__file__)
-        return os.path.join(current_dir, file_name)
-
-    context = SSL.Context(SSL.SSLv23_METHOD)
-    context.use_privatekey_file(rel_loc('google.key'))
-    context.use_certificate_file(rel_loc('google.cert'))
-
-    port = int(sys.argv[1])
-
-    if port == 80:
-        app.run(host='0.0.0.0', port=80, debug=True)
-
-    if port == 443:
-        app.run(host='0.0.0.0', port=443, debug=True, ssl_context=context)
+    app.run(host='0.0.0.0', port=80, debug=True)
