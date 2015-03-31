@@ -321,7 +321,7 @@
       "message":"Besuchte Webseiten"
     },
     "history_results_cluster": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "adultInfo": {
         "message": "Anstößige Inhalte wurden automatisch blockiert."
@@ -411,7 +411,7 @@
         "message": "Nachricht schließen"
     },
     "topSitesMessage":{
-        "message": "Wähle eine Deiner meist-besuchten Webseiten hier, <br/> oder fang' einfach an oben in der Leiste zu tippen um woanders hinzugehen!"
+        "message": "Wähle eine Deiner meist-besuchten Webseiten, <br/> oder tipp' oben in die Leiste um woanders hinzugehen!"
     },
     "topSitesTitle":{
         "message": "Meine meist-besuchten Webseiten"
