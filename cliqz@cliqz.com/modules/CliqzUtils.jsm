@@ -1030,11 +1030,7 @@ var CliqzUtils = {
     return data;
   },
   isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;  
-      
-    // IMPORTANT! This is for debug on newtab
-    // var urlbar = CliqzUtils.getWindow().document.commandDispatcher.focusedWindow.document.activeElement;
-
+    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
     return urlbar.value.length == 0;
   },
   /** Change some prefs for a better cliqzperience -- always do a backup! */
@@ -1105,28 +1101,6 @@ var CliqzUtils = {
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
-
-        /*
-        NEW TAB
-
-        var menuitem5 = doc.createElement('menuitem');
-        menuitem5.setAttribute('id', 'cliqz_menuitem5');
-        menuitem5.setAttribute('label',
-            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
-        );
-
-        menuitem5.addEventListener('command', function(event) {
-            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
-
-            CliqzNewTab.showCliqzNewTab(newvalue);
-
-            menuitem5.setAttribute('label',
-                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
-            );
-        }, false);
-        */
-
-
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));

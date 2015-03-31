@@ -43,9 +43,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-  'chrome://cliqz-tab/content/CliqzNewTab.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
@@ -92,7 +89,6 @@ CLIQZ.Core = CLIQZ.Core || {
 
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
-        CliqzNewTab.init(window);
         CliqzHistory.initDB();
 
         //CliqzHistoryPattern.preloadColors();
