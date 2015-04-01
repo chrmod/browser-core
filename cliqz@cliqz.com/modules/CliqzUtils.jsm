@@ -1110,7 +1110,8 @@ var CliqzUtils = {
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
 
-      menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
+      menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle', 'News Toggle'));
+      menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'localSpellCheck', 'SpellCheck - Requires restart!'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
