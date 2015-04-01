@@ -416,12 +416,14 @@ CLIQZ.Core = CLIQZ.Core || {
         console.log('aa', ev.originalTarget);
         if(ev.originalTarget.className == 'anonymous-div' ||
             ev.originalTarget.className.indexOf('urlbar-input-box') != 0){
-            if(CLIQZ.Core.urlbar.value.trim().length == 0){
+            var urlBar = CLIQZ.Core.urlbar;
+            if(urlBar.value.trim().length == 0){
                 //link to historydropmarker
                 CliqzAutocomplete.sessionStart = true;
-                document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+                document.getAnonymousElementByAttribute(urlBar, "anonid", "historydropmarker").showPopup();
             } else {
-                CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+                CLIQZ.Core.popup._openAutocompletePopup(urlBar, urlBar);
+                urlBar.setSelectionRange(0, urlBar.mInputField.value.length)
             }
         }
     },
