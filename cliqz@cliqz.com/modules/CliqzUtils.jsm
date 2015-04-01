@@ -61,6 +61,7 @@ var CliqzUtils = {
   INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
   CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
   UNINSTALL:                      'https://beta.cliqz.com/home/offboarding',
+  AS_PROVIDER:                    'http://suggestions-zhonghao.fbt.co/api/suggestions-json?q=',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
@@ -529,6 +530,13 @@ var CliqzUtils = {
       function(res){
         callback && callback(res, q);
       }
+    );
+  },
+  _acReq: null,
+  getAS: function(q, callback) {
+    CliqzUtils._acReq = CliqzUtils.httpGet(
+      CliqzUtils.AS_PROVIDER + encodeURIComponent(q),
+      function(res) {callback && callback(res, q);}
     );
   },
   // IP driven configuration

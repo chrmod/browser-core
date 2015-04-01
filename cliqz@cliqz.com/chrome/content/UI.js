@@ -330,7 +330,7 @@ var UI = {
 
         var pos = allArrowable.indexOf(sel);
 
-        UI.lastInputTime = (new Date()).getTime()
+        UI.lastInputTime = Date.now();
         switch(ev.keyCode) {
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
@@ -360,7 +360,7 @@ var UI = {
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
+                    CliqzAutocomplete.spellCorr.override = true;
                 }
 
                 return true;
@@ -371,10 +371,25 @@ var UI = {
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
             case BACKSPACE:
+                var urlbar = CLIQZ.Core.urlbar;
+                if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
+                    CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
+                    CliqzAutosuggestion.active = false;
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
+                }
+                return false;
             case DEL:
                 UI.lastInput = "";
+                var urlbar = CLIQZ.Core.urlbar;
+                var returnTrue = false;
+                if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
+                    CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
+                    CliqzAutosuggestion.active = false;
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
+                    returnTrue = true;
+                }
                 if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
-                    CliqzAutocomplete.spellCorr.override = true
+                    CliqzAutocomplete.spellCorr.override = true;
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
                     var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
@@ -575,6 +590,7 @@ function selectWord(input, direction) {
 //called on urlbarBlur
 function sessionEnd(){
     adultMessage = 0; //show message in the next session
+    CliqzAutosuggestion.notExpandTo = {};  //reset auto suggestion blacklist
 }
 
 var allowDDtoClose = false;
@@ -1180,7 +1196,7 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
+    CliqzAutosuggestion.notExpandTo = {};  // reset autosuggestion black list
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1480,17 +1496,21 @@ function resultMove(ev){
 
 function onEnter(ev, item){
   var urlbar = CLIQZ.Core.urlbar;
+  urlbar.value = urlbar.mInputField.value;
   var input = urlbar.mInputField.value;
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
   var urlbar_time = CliqzAutocomplete.lastFocusTime ? (new Date()).getTime() - CliqzAutocomplete.lastFocusTime: null;
   var newTab = ev.metaKey || ev.ctrlKey;
 
+  CliqzAutosuggestion.notExpandTo = {};  // reset not expanding list
+
   // Check if protocols match
   if(input.indexOf("://") == -1 && lastAuto.indexOf("://") != -1) {
     if(CliqzHistoryPattern.generalizeUrl(lastAuto)
-    == CliqzHistoryPattern.generalizeUrl(input))
+    == CliqzHistoryPattern.generalizeUrl(input)) {
       input = lastAuto;
+    }
   }
 
   // Check for login url
@@ -1528,6 +1548,7 @@ function onEnter(ev, item){
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = ResultProviders.isCustomQuery(input);
+
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }

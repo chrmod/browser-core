@@ -32,6 +32,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutosuggestion',
+  'chrome://cliqzmodules/content/CliqzAutosuggestion.jsm');
+
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -63,6 +66,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'override': false,
         'pushed': null
     },
+    _lastKey: 0,
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
@@ -115,7 +119,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             'correctBack': {},
             'override': false,
             'pushed': null
-        }
+        };
     },
     initProvider: function(){
         CliqzAutocomplete.ProviderAutoCompleteResultCliqz.prototype = {
@@ -335,7 +339,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // checks if all the results are ready or if the timeout is exceeded
             pushResults: function(q) {
-                //CliqzUtils.log('q' + " " + JSON.stringify(CliqzAutocomplete.cliqzSuggestions), 'spellcorr');
                 // special case: user has deleted text from urlbar
 
                 if(q.length != 0 && CliqzUtils.isUrlBarEmpty())
@@ -437,6 +440,48 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
+            cliqzAutoSuggestionFetcher: function(req, q) {
+                /* handles cliqz auto suggestion queries and update autosuggestion list
+                 */
+                let response = JSON.parse(req.response);
+                for (let i=0; i<response.length; i++) {
+                    CliqzUtils.log('candidate word: ' + response[i].value, 'Cliqz AS');
+                    if (response[i].score < 10 || CliqzAutosuggestion.CliqzTrie.exists(response[i].value))
+                        continue;
+                    CliqzAutosuggestion.CliqzTrieCount += 1;
+                    CliqzUtils.log('pushing word: ' + response[i].value, 'Cliqz AS');
+                    CliqzAutosuggestion.CliqzTrie.incr(response[i].value, response[i].score);
+                }
+            },
+            cliqzAutoSuggest: function(searchString) {
+                /* Check if there is a suggestion from local Trie.
+                 If not, call the suggestion backend (asynchronously)
+                 call the backend only if autocomplete alrealy in place
+                 */
+                if (!CliqzUtils.getPref("queryExpansion", false)) {
+                    return searchString;
+                }
+                let urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+                if (searchString.length > 2 &&  // auto suggestion should starts with min 3 char
+                    urlbar.selectionStart === urlbar.selectionEnd &&  // nothing selected in urlbar
+                    CliqzAutocomplete._lastKey !== 46 && CliqzAutocomplete._lastKey !== 8) {  // don't autocomplete if last key is delete or backspace
+                    CliqzUtils.log('Searching autosuggestion', 'Cliqz AS');
+                    let cliqzAS = CliqzAutosuggestion.findSuggestion(searchString);
+                    if (cliqzAS && cliqzAS != searchString &&
+                        !(cliqzAS in CliqzAutosuggestion.notExpandTo)) {  // there is auto suggetsion
+                        CliqzUtils.log('Auto suggestion to: ' + cliqzAS, 'Cliqz AS');
+                        CliqzAutosuggestion.active = true;
+                        urlbar.mInputField.value = cliqzAS;
+                        urlbar.mInputField.setSelectionRange(searchString.length, cliqzAS.length);
+                        searchString = cliqzAS;
+                    }
+                }
+                if (CliqzAutosuggestion.CliqzTrieCount < 25000) {
+                    CliqzUtils.log('Fetching suggestion for ' + searchString);
+                    CliqzUtils.getAS(searchString, this.cliqzAutoSuggestionFetcher);
+                }
+                return searchString;
+            },
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
@@ -461,6 +506,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
+                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
+
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastResult = null;
@@ -476,7 +523,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
-
                 var action = {
                     type: 'activity',
                     action: 'key_stroke',
@@ -486,10 +532,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
+
+                searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
                 CliqzAutocomplete.lastSearch = searchString;
 
-                // spell correction
-                var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
                 if (!CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
                     urlbar.selectionEnd == urlbar.value.length) {
@@ -504,7 +550,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.wrongSearchString = searchString;
                 if (newSearchString != searchString) {
                     // the local spell checker kicks in
-                    var action = {
+                    action = {
                         type: 'activity',
                         action: 'spell_correction',
                         current_length: searchString.length
@@ -525,10 +571,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.searchStringSuggest = null;
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
-                        this.searchString,
-                        Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
-                        -2, // blocks autocomplete
-                        '');
+                    this.searchString,
+                    Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
+                    -2,  // blocks autocomplete
+                    '');
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
@@ -538,10 +584,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+                this.cliqzAutoSuggestionFetcher = this.cliqzAutoSuggestionFetcher.bind(this);
+                this.cliqzAutoSuggest = this.cliqzAutoSuggest.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
-                CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
                     // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
@@ -581,7 +628,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
                 this.historyTimeout = false;
             },
-
             /**
             * Stops an asynchronous search that is in progress
             */

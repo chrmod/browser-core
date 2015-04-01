@@ -15,6 +15,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutosuggestion',
+  'chrome://cliqzmodules/content/CliqzAutosuggestion.jsm');
 
 
 var CliqzLanguage = {
@@ -63,6 +65,15 @@ var CliqzLanguage = {
             var LR =  CliqzAutocomplete.lastResult['_results'];
 
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
+                // adding query to userTrie
+                let tmpurl = this.currentURL;
+                if (this.currentURL.indexOf('#') > -1) {
+                    tmpurl = '#' + this.currentURL.split('#')[1];
+                }
+                let query = tmpurl.match(/[f#?&;]q=([^$&]+)/)[1];
+                query = decodeURIComponent(query.replace(/\+/g, ' '));
+                CliqzAutosuggestion.userTrie.incr(query);
+                CliqzAutosuggestion.insertDB(query);
                 CliqzAutocomplete.afterQueryCount += 1;
             }
 
@@ -72,7 +83,6 @@ var CliqzLanguage = {
                 if (m) {
                     var dest_url = CliqzUtils.cleanUrlProtocol(decodeURIComponent(m[1]), true),
                         found = false;
-
 
                     for (var i=0; i < LR.length; i++) {
                         var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);

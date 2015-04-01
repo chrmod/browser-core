@@ -43,6 +43,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutosuggestion',
+  'chrome://cliqzmodules/content/CliqzAutosuggestion.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
@@ -436,12 +439,12 @@ CLIQZ.Core = CLIQZ.Core || {
                     old = urlbar.mInputField.value,
                     start = urlbar.mInputField.selectionStart;
                 query = query.slice(0, urlbar.selectionStart) + String.fromCharCode(ev.charCode);
-                /* CliqzUtils.log('prevent default', 'Cliqz AS');
+                CliqzUtils.log('prevent default', 'Cliqz AS');
                 if (!CliqzAutosuggestion.active) {
                     urlbar.mInputField.setUserInput(query);
                     CliqzUtils.log('set new search to: ' + query, 'Cliqz AS');
-                } */
-                urlbar.mInputField.setUserInput(query);
+                }
+                // urlbar.mInputField.setUserInput(query);
                 urlbar.mInputField.value = old;
                 urlbar.mInputField.setSelectionRange(start+1, urlbar.mInputField.value.length);
                 ev.preventDefault();
@@ -488,7 +491,9 @@ CLIQZ.Core = CLIQZ.Core || {
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
             // need to make it compatible with auto suggestion
-            urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
+            CliqzUtils.log(urlBar.mInputField.value, 'CliqzAS');
+            // urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
+            CliqzUtils.log(urlBar.mInputField.value, 'CliqzAS')
         }
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
@@ -534,8 +539,13 @@ CLIQZ.Core = CLIQZ.Core || {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         if (autocomplete.autocomplete) {
+            let startSelectPos = autocomplete.selectionStart;
+            // in case something was selected already
+            if (urlBar.mInputField.selectionStart < autocomplete.selectionStart) {
+                startSelectPos = urlBar.mInputField.selectionStart;
+            }
             urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
+            urlBar.setSelectionRange(startSelectPos, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
             CLIQZ.UI.cursor = autocomplete.selectionStart;
 
@@ -585,7 +595,7 @@ CLIQZ.Core = CLIQZ.Core || {
         return _querySession;
     },
     handleKeyboardShortcuts: function(ev) {
-        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey)){
+        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey) && !CLIQZ.Core.urlbar.focused){
             CLIQZ.Core.urlbar.focus();
             CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
 
