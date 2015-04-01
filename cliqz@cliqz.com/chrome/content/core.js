@@ -412,9 +412,8 @@ CLIQZ.Core = CLIQZ.Core || {
     },
     urlbarclick: function(ev){
         //only consider the URLbar not the other icons in the urlbar
-        console.log('aa', ev.originalTarget);
         if(ev.originalTarget.className == 'anonymous-div' ||
-            ev.originalTarget.className.indexOf('urlbar-input-box') != 0){
+            ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
             var urlBar = CLIQZ.Core.urlbar;
             if(urlBar.value.trim().length == 0){
                 //link to historydropmarker

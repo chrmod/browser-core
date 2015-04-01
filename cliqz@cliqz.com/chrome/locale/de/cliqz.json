@@ -421,5 +421,11 @@
     },
     "newsToggleTrends":{
         "message": "Trends"
+    },
+    "topSitesMessage":{
+        "message": "Wähle eine Deiner meist-besuchten Webseiten, <br/> oder tipp' oben in die Leiste um woanders hinzugehen!"
+    },
+    "topSitesTitle":{
+        "message": "Meine meist-besuchten Webseiten"
     }
 }
