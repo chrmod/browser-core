@@ -424,5 +424,11 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
+    },
+    "newsToggleLatest":{
+        "message": "Latest"
+    },
+    "newsToggleTrends":{
+        "message": "Trending"
     }
 }

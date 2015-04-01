@@ -49,8 +49,8 @@
 
   {{#if (pref 'news-toggle')}}
     <div class="switcher" cliqz-action="news-toggle">
-      <label for="actual" class="latest">Aktuell</label>
-      <label for="trends" class="trends">Trends</label>
+      <label for="actual" class="latest">{{local 'newsToggleLatest'}}</label>
+      <label for="trends" class="trends">{{local 'newsToggleTrends'}}</label>
     </div>
   {{/if}}
 
