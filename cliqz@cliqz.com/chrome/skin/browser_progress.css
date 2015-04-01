@@ -163,7 +163,7 @@
 }
 
 #cliqz-results .ez-news-toggle .entity-stories { display: none; }
-#cliqz-results .ez-news-toggle .switcher { position: absolute; top: 22px; right: 22px; }
+#cliqz-results .ez-news-toggle .switcher { position: absolute; top: 14px; right: 22px; }
 #cliqz-results .ez-news-toggle label { color: rgb(207,207,207); font-size: 18px; float: left; cursor: pointer; }
 #cliqz-results .ez-news-toggle label.latest { right: 122px; text-align: right; }
 #cliqz-results .ez-news-toggle label.trends { overflow: visible; position: relative; }
@@ -196,3 +196,16 @@
 }
 #cliqz-results .ez-news-toggle input.trends:checked ~ .switcher > label.trends:after { left: 1px; }
 #cliqz-results .ez-news-toggle input:checked + div { display: block; }
+#cliqz-results .ez-news-toggle .entity-story-comment { position: relative; }
+#cliqz-results .ez-news-toggle .twitter-likes {
+    position: absolute;
+    background: url(http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg) no-repeat left center;
+    background-size: 20px 20px;
+    height: 20px;
+    left: 200px;
+    bottom: 0;
+    padding-left: 26px;
+    color: #49C0F2;
+    padding-left: 26px;
+    line-height: 19px;
+}
