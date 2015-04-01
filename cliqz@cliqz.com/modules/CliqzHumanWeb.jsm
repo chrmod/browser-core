@@ -14,12 +14,6 @@ Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-//
-// original name in the standalone ucrawl extension
-// git@github.com:mozilla/ucrawl.git
-//
-//XPCOMUtils.defineLazyModuleGetter(this, 'Ucrawlutils',
-//  'chrome://ucrawlmodules/content/Ucrawlutils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -29,7 +23,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
 //CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
-//CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
+CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 //CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
 //CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
 
@@ -173,27 +167,6 @@ var CliqzHumanWeb = {
 
         // check for certain patterns, wp-admin  /admin[?#] login[.?#] logout[.?#] edit[.?#] [&?#]sharing [&?#]share WebLogic [&?#]url [&?#]u [&?#]red /url[?#]
         // if they match any, return true
-
-
-    },
-    createTable: function(reason){
-        CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
-        var usafe = "create table usafe(\
-                url VARCHAR(255) PRIMARY KEY NOT NULL,\
-                ref VARCHAR(255),\
-                last_visit INTEGER,\
-                first_visit INTEGER,\
-                hash VARCHAR(2048), \
-                reason VARCHAR(256), \
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0, \
-                payload VARCHAR(3000) \
-                )";
-
-        try{
-            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe)
-        }catch(ee){};
-
 
 
     },
@@ -556,11 +529,8 @@ var CliqzHumanWeb = {
 
         if (t1!=t2) {
             // check if they differ only in one term (defined by spaces)
-            var vt1 = t1.split(' ').filter(function(el) {el.length>1});
-            var vt2 = t2.split(' ').filter(function(el) {el.length>1});;
-
-            //var vt1 = t1.split(' ').filter(function(el) {return el.length>1});
-            //var vt2 = t2.split(' ').filter(function(el) {return el.length>1});;
+            var vt1 = t1.split(' ').filter(function(el) {return el.length>1});
+            var vt2 = t2.split(' ').filter(function(el) {return el.length>1});;
 
             jc = CliqzHumanWeb.auxIntersection(vt1,vt2).length / CliqzHumanWeb.auxUnion(vt1,vt2).length;
             if (jc <= 0.5) {
@@ -573,11 +543,9 @@ var CliqzHumanWeb = {
                 if ((tt1.length > t1.length*0.5) && ((tt2.length > t2.length*0.5))) {
                     // if we have not decreased the titles by more than 50%
 
-                    var vtt1 = tt1.split(' ').filter(function(el) {el.length>1});
-                    var vtt2 = tt2.split(' ').filter(function(el) {el.length>1});
+                    var vtt1 = tt1.split(' ').filter(function(el) {return el.length>1});
+                    var vtt2 = tt2.split(' ').filter(function(el) {return el.length>1});
 
-                    //var vtt1 = tt1.split(' ').filter(function(el) {return el.length>1});
-                    //var vtt2 = tt2.split(' ').filter(function(el) {return el.length>1});
                     jc = CliqzHumanWeb.auxIntersection(vtt1,vtt2).length / CliqzHumanWeb.auxUnion(vtt1,vtt2).length;
                     // we are more demanding on the title overlap now
                     if (jc <= 0.80) {
@@ -840,14 +808,6 @@ var CliqzHumanWeb = {
 
             if (activeURL.indexOf('about:')!=0) {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
-                    // we check for privacy, if not private the function will add the url
-                    // to the UrlsCache
-                    CliqzHumanWeb.getPageFromDB(activeURL, function(page) {
-                        if ((page!=null) && (page.checked==1) && (page.private==0)) {
-                            CliqzHumanWeb.UrlsCache[activeURL] = true;
-                        }
-                    });
-
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
                     if (CliqzHumanWeb.checkIfSearchURL(activeURL)){
 
@@ -1094,9 +1054,7 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
 
                 for(var i=0;i<v.length;i++) {
-                    if (CliqzHumanWeb.UrlsCache.hasOwnProperty(v[i]['url'])) {
-                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
-                    }
+                    CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                 }
             }
         }
@@ -1165,9 +1123,7 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
 
             for(var i=0;i<v.length;i++) {
-                if (CliqzHumanWeb.UrlsCache.hasOwnProperty(v[i]['url'])){
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': v[i]});
-                }
+                CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
             }
             // do a instant push on whatever is left on the telemetry
             CliqzHumanWeb.pushTelemetry();
@@ -1553,25 +1509,14 @@ var CliqzHumanWeb = {
     // Stolen from modules/CliqzHistory
     // *********************************************************
     initDB: function() {
-        if ( FileUtils.getFile("ProfD", ["moz.test.dbusafe"]).exists() ) {
+        if ( FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
-                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
-                //Load the public url's cache:
-                //CliqzHumanWeb.checkTableExists()
-                //if(CliqzHumanWeb.checkTableExists() == true){
-
-                //}
-                //else{
-                //    CliqzHumanWeb.createTable();
-                //}
-
-                //var checkTable = "select name from sqlite_master where type='table' and name='usafe'";
-                //CliqzUtils.log('Exists table?: ' + CliqzHumanWeb.dbConn.executeSimpleSQL(checkTable),CliqzHumanWeb.LOG_KEY);
+                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));_KEY);
             }
             return;
         }
         else {
-            CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.test.dbusafe"]));
+            CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));
             var usafe = "create table usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
                 ref VARCHAR(255),\
@@ -1624,11 +1569,10 @@ var CliqzHumanWeb = {
             }
         });
     },
-    isPrivate: function(url, callback) {
+    isPrivate: function(url, depth, callback) {
         // returns 1 is private (because of checked, of because the referrer is private)
         // returns 0 if public
         // returns -1 if not checked yet, handled as public in this cases,
-
         var res = [];
         var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
         st.params.url = url;
@@ -1652,24 +1596,34 @@ var CliqzHumanWeb = {
                 }
                 else {
                     if (res.length == 1) {
-                        // the urls already exists in the DB, it has been seen before
                         if (res[0].ref!='' && res[0].ref!=null) {
-                            if (CliqzHumanWeb.auxSameDomain(res[0].ref, url)) {
-                                CliqzHumanWeb.isPrivate(res[0].ref, function(priv) {
+                        // the urls already exists in the DB, it has been seen before
+                            if (depth < 10) {
+                                if (CliqzHumanWeb.auxSameDomain(res[0].ref, url)) {
+                                    CliqzHumanWeb.isPrivate(res[0].ref, depth+1, function(priv) {
                                     callback(priv);
-                                });
+                                    });
+                                }
+                                else callback(false);
                             }
-                            else callback(false);
+                            else {
+                                // set to private (becasue we are not sure so beter safe than sorry),
+                                // there is a loop of length > 10 between a <- b <- .... <- a, so if we do not
+                                // break recursion it will continue to do the SELECT forever
+                                //
+                                callback(true);
+                            }
                         }
                         else {
                             callback(false);
                         }
                     }
-                else {
-                    callback(true);
-                }
+                    else {
+                        callback(true);
+                    }
             }
-        }});
+        }
+        });
     },
     parseHostname: function(hostname) {
         var o = {'hostname': null, 'username': '', 'password': '', 'port': null};
@@ -1747,14 +1701,14 @@ var CliqzHumanWeb = {
 
 
 
-        var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked FROM usafe WHERE url = :url");
+        var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private FROM usafe WHERE url = :url");
         stmt.params.url = url;
 
         var res = [];
         stmt.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                    res.push({'url': row.getResultByName("url"), 'checked': row.getResultByName("checked")});
+                    res.push({'url': row.getResultByName("url"), 'checked': row.getResultByName("checked"), 'ft' :row.getResultByName('ft'), 'private' :row.getResultByName('private') });
                 }
             },
             handleError: function(aError) {
@@ -1805,29 +1759,29 @@ var CliqzHumanWeb = {
 
                         while (st.executeStep()) {};
                     }
-                    /*
-                    else if ((res.length > 0)) {
-                        CliqzUtils.log(JSON.stringify(paylobj || {}), CliqzHumanWeb.LOG_KEY);
-
-                        var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET payload = :payload WHERE url = :url");
-                        st.params.url = url;
-                        st.params.payload = JSON.stringify(paylobj || {});
-                        while (st.executeStep()) {};
-                    }
-                    */
                     else {
-                        //CliqzUtils.log("Res == 0, pushing in DB: " + tt + url + JSON.stringify(paylobj || {}), CliqzHumanWeb.LOG_KEY);
-                        // we have seen it, if it's has been already checked, then ignore, if not, let's update the last_visit
                         if (res[0]['checked']==0) {
-                            var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload WHERE url = :url");
-                            st.params.url = url;
-                            st.params.last_visit = tt;
-                            st.params.payload = JSON.stringify(paylobj || {});
-                            while (st.executeStep()) {};
+                                //Since not checked it is still the ft.
+                                if(res[0]['ft']==1){
+                                    paylobj['ft'] = true;
+                                }
+                                var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload WHERE url = :url");
+                                st.params.url = url;
+                                st.params.last_visit = tt;
+                                st.params.payload = JSON.stringify(paylobj || {});
+                                while (st.executeStep()) {};
                         }
-
+                        else{
+                            if (res[0]['checked']==1 && res[0]['private'] == 0) {
+                                var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload, checked = :checked WHERE url = :url");
+                                st.params.url = url;
+                                st.params.last_visit = tt;
+                                st.params.payload = JSON.stringify(paylobj || {});
+                                st.params.checked = 0;
+                                while (st.executeStep()) {};
+                            }
+                        }
                     }
-
                 }
             }
         });
@@ -1846,8 +1800,6 @@ var CliqzHumanWeb = {
         st.params.checked = 1;
         st.params.private = 0;
         while (st.executeStep()) {};
-        // Update the main cache
-        CliqzHumanWeb.UrlsCache[url] = true;
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
         var tt = new Date().getTime();
@@ -1921,7 +1873,7 @@ var CliqzHumanWeb = {
     debugInterface: function() {
         var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
                     .getService(Components.interfaces.nsIWindowWatcher);
-        try{var win = ww.openWindow(null, "chrome://ucrawlmodules/content/debugInterface",
+        try{var win = ww.openWindow(null, "chrome://cliqzmodules/content/debugInterface",
                         "debugInterface", null, null);}catch(ee){CliqzUtils.log(ee,'debugInterface')}
     },
     loadContentExtraction: function(){
