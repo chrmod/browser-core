@@ -1250,8 +1250,12 @@ function resultClick(ev){
                     break;
                 case 'news-toggle':
                     setTimeout(function(){
-                      var trends = document.getElementById('trends', el.parentElement).checked;
-                      CliqzUtils.setPref('news-toggle-state', trends);
+                      var trends = document.getElementById('trends', el.parentElement).checked,
+                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'));
+
+                      trending[el.getAttribute('data-domain')] = trends
+
+                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(tre));
                     }, 0)
                     return;
                 default:
@@ -1842,6 +1846,11 @@ function registerHelpers(){
 
     Handlebars.registerHelper('pref', function(key) {
         return CliqzUtils.getPref(key, false);
+    });
+
+    Handlebars.registerHelper('isTrending', function(domain) {
+        var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'))
+        return trending[domain];
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};

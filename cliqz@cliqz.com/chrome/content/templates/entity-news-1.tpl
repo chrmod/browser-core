@@ -2,7 +2,7 @@
   <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
 
   <input type="radio" id="actual" class="latest" name="news-switcher"
-    {{#unless (pref 'news-toggle-state')}}
+    {{#unless (isTrending data.domain)}}
       checked="checked"
     {{/unless}}
   />
@@ -25,7 +25,7 @@
   </div>
 
   <input type="radio" id="trends" class="trends" name="news-switcher"
-    {{#if (pref 'news-toggle-state')}}
+    {{#if (isTrending data.domain)}}
       checked="checked"
     {{/if}}
   />
@@ -48,7 +48,7 @@
   </div>
 
   {{#if (pref 'news-toggle')}}
-    <div class="switcher" cliqz-action="news-toggle">
+    <div class="switcher" cliqz-action="news-toggle" data-domain="{{data.domain}}">
       <label for="actual" class="latest">{{local 'newsToggleLatest'}}</label>
       <label for="trends" class="trends">{{local 'newsToggleTrends'}}</label>
     </div>

@@ -510,7 +510,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.highlightFirstElement = false;
 
         // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern.filteredResults();
+        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern && lastPattern.filteredResults();
         if(!firstResult && lastPattern && fRes.length > 1)
           firstResult = fRes[0].url;
 
