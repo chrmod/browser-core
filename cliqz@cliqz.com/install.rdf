@@ -4,16 +4,16 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>Cliqz Beta</em:name>
-		<em:version>0.5.41.1b1188</em:version>
+		<em:version>0.6.11</em:version>
 
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
 		<!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
-		
+
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
-		
+
 
 		<em:description>Cliqz hilft Dir beim Finden im Internet.
 
