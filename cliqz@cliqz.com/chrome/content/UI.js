@@ -1255,7 +1255,7 @@ function resultClick(ev){
 
                       trending[el.getAttribute('data-domain')] = trends
 
-                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(tre));
+                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
                     }, 0)
                     return;
                 default:
