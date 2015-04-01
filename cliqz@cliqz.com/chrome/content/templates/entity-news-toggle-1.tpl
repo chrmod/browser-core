@@ -11,7 +11,10 @@
         <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
           <div class="entity-story-title">{{ title }}</div>
-          <div class="entity-story-comment">{{ time }}</div>
+          <div class="entity-story-comment">
+            {{ time }}
+            <div class="twitter-likes">{{ tweet_count }}</div>
+          </div>
         </div>
       </div>
     {{/each}}
@@ -27,7 +30,10 @@
         <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
           <div class="entity-story-title">{{ title }}</div>
-          <div class="entity-story-comment">{{ time }}</div>
+          <div class="entity-story-comment">
+            {{ time }}
+            <div class="twitter-likes">{{ tweet_count }}</div>
+          </div>
         </div>
       </div>
     {{/each}}
