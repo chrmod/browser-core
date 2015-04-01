@@ -264,7 +264,7 @@
 #cliqz-results .cqz-ez-banking-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
 /* ez news, video, portal */
-#cliqz-results .entity-stories { margin-left: -22px; padding-right: 75px; }
+#cliqz-results .entity-stories { margin-left: -22px; padding-right: 75px; height: 192px; }
 #cliqz-results .entity-story { position: relative; height: 54px; padding: 5px 0 5px 22px; }
 #cliqz-results .entity-story * {  cursor: pointer; }
 #cliqz-results .entity-story-image {

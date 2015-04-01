@@ -1204,6 +1204,12 @@ function resultClick(ev){
                 case 'alternative-search-engine':
                     enginesClick(ev);
                     break;
+                case 'news-toggle':
+                    setTimeout(function(){
+                      var trends = document.getElementById('trends', el.parentElement).checked;
+                      CliqzUtils.setPref('news-toggle-state', trends);
+                    }, 0)
+                    return;
                 default:
                     break;
             }
@@ -1783,6 +1789,10 @@ function registerHelpers(){
     Handlebars.registerHelper('links_or_sources', function(richData) {
         return (richData.internal_links && richData.internal_links.length > 0) ?
                   richData.internal_links : richData.additional_sources
+    });
+
+    Handlebars.registerHelper('pref', function(key) {
+        return CliqzUtils.getPref(key, false);
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
