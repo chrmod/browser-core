@@ -411,6 +411,8 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarclick: function(ev){
+        if(!CliqzUtils.getPref('topSites', false)) return;
+
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
             ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {

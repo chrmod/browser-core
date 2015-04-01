@@ -1121,7 +1121,7 @@ var CliqzUtils = {
       menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle', 'News Toggle'));
       menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'localSpellCheck', 'SpellCheck - Requires restart!'));
       menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'queryExpansion'));
-
+      menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'topSites'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),

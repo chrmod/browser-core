@@ -653,7 +653,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
 
                 // trigger history search
-                if(searchString.trim().length == 0 && CliqzAutocomplete.sessionStart){
+                if(searchString.trim().length == 0 && CliqzAutocomplete.sessionStart && CliqzUtils.getPref('topSites', false)){
                     CliqzAutocomplete.sessionStart = false;
                     this.fetchTopSites = this.fetchTopSites.bind(this);
                     NewTabUtils.links.populateCache(this.fetchTopSites)
