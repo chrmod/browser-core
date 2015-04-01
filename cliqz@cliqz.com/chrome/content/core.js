@@ -325,19 +325,6 @@ CLIQZ.Core = CLIQZ.Core || {
         CLIQZ.Core.triggerLastQ = false;
         CliqzUtils.setQuerySession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
-
-        if(/*CliqzUtils.getPref('newUrlFocus') == true && */CLIQZ.Core.urlbar.value.trim().length > 0) {
-            //var urlbar = CLIQZ.Core.urlbar.mInputField.value;
-            //var search = urlbar;
-            //if (CliqzUtils.isUrl(search)) {
-            //  search = search.replace("www.", "");
-            //    if(search.indexOf("://") != -1) search = search.substr(search.indexOf("://")+3);
-            //    if(search.indexOf("/") != -1) search = search.split("/")[0];
-            //}
-            //CLIQZ.Core.urlbar.mInputField.setUserInput(search);
-            CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
-            //CLIQZ.Core.urlbar.mInputField.value = urlbar;
-        }
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();
@@ -425,13 +412,18 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     urlbarclick: function(ev){
-        if(ev.originalTarget.localName != 'dropmarker'){
-            if(CLIQZ.Core.urlbar.value.trim().length == 0){
+        //only consider the URLbar not the other icons in the urlbar
+        console.log('aa', ev.originalTarget);
+        if(ev.originalTarget.className == 'anonymous-div' ||
+            ev.originalTarget.className.indexOf('urlbar-input-box') != 0){
+            var urlBar = CLIQZ.Core.urlbar;
+            if(urlBar.value.trim().length == 0){
                 //link to historydropmarker
                 CliqzAutocomplete.sessionStart = true;
-                document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker").showPopup();
+                document.getAnonymousElementByAttribute(urlBar, "anonid", "historydropmarker").showPopup();
             } else {
-                CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+                CLIQZ.Core.popup._openAutocompletePopup(urlBar, urlBar);
+                urlBar.setSelectionRange(0, urlBar.mInputField.value.length)
             }
         }
     },
