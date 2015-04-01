@@ -268,7 +268,6 @@ var CliqzHumanWeb = {
         var _res = null;
         var query = null;
         var res = {};
-        res['t'] = CliqzHumanWeb.getTime();//new Date().getTime();
         res['r'] = {};
         try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
         res['ctry'] = location;
@@ -480,7 +479,7 @@ var CliqzHumanWeb = {
         // compares the structure of the page when rendered in Firefox with the structure of
         // the page after.
 
-        debugger;
+
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CliqzHumanWeb.LOG_KEY);
             CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CliqzHumanWeb.LOG_KEY);
@@ -521,71 +520,76 @@ var CliqzHumanWeb = {
             }
         }
 
-
         // compare that titles are equal, if not equal, use the jaccard coefficient, decline if <=0.5
         var t1 = struct_bef['t'] || '';
         var t2 = struct_aft['t'] || '';
         var jc = 1.0;
 
         if (t1!=t2) {
-            // check if they differ only in one term (defined by spaces)
+
             var vt1 = t1.split(' ').filter(function(el) {return el.length>1});
-            var vt2 = t2.split(' ').filter(function(el) {return el.length>1});;
+            var vt2 = t2.split(' ').filter(function(el) {return el.length>1});
 
             jc = CliqzHumanWeb.auxIntersection(vt1,vt2).length / CliqzHumanWeb.auxUnion(vt1,vt2).length;
-            if (jc <= 0.5) {
 
-                // one last check, perhaps it's an encoding issue
+            if (Math.max(vt1.length, vt2.length) <= 4) {
+                // the longest titles is 4 tokens long, the, we are a bit flexible on title differences
+                if (jc >= 0.5) return true;
+                else return false;
+            }
+            else {
+                // the longest titles has 4 or more tokens, be more restrictive
+                if (jc <= 0.5) {
+                    // one last check, perhaps it's an encoding issue
 
-                var tt1 = t1.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
-                var tt2 = t2.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
+                    var tt1 = t1.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
+                    var tt2 = t2.replace(/[^A-Za-z 0-9 \.,\?""!@#\$%\^&\*\(\)-_=\+;:<>\/\\\|\}\{\[\]`~]*/g, '');
 
-                if ((tt1.length > t1.length*0.5) && ((tt2.length > t2.length*0.5))) {
-                    // if we have not decreased the titles by more than 50%
-
-                    var vtt1 = tt1.split(' ').filter(function(el) {return el.length>1});
-                    var vtt2 = tt2.split(' ').filter(function(el) {return el.length>1});
-
-                    jc = CliqzHumanWeb.auxIntersection(vtt1,vtt2).length / CliqzHumanWeb.auxUnion(vtt1,vtt2).length;
-                    // we are more demanding on the title overlap now
-                    if (jc <= 0.80) {
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap after ascii", CliqzHumanWeb.LOG_KEY);
-                        return false;
+                    if ((tt1.length > t1.length*0.5) && ((tt2.length > t2.length*0.5))) {
+                        // if we have not decreased the titles by more than 50%
+                        var vtt1 = tt1.split(' ').filter(function(el) {return el.length>1});
+                        var vtt2 = tt2.split(' ').filter(function(el) {return el.length>1});
+                        jc = CliqzHumanWeb.auxIntersection(vtt1,vtt2).length / CliqzHumanWeb.auxUnion(vtt1,vtt2).length;
+                        // we are more demanding on the title overlap now
+                        if (jc <= 0.80) {
+                            if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap after ascii", CliqzHumanWeb.LOG_KEY);
+                            return false;
+                        }
+                    }
+                    else {
+                      if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap", CliqzHumanWeb.LOG_KEY);
+                      return false;
                     }
                 }
-                else {
-                  if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail title overlap", CliqzHumanWeb.LOG_KEY);
-                  return false;
+
+                // if the titles are not a perfect match then check for more structural things like number of inputs
+                // that are type password and number of forms. This is prone to false positives because when not logged in
+                // legitimate sites something prompt you to register
+
+                // if had no password inputs before and it has after, decline
+                if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] != 0)) {
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail nip", CliqzHumanWeb.LOG_KEY);
+                    return false;
                 }
+
+                // if had no forms before and it has after, decline
+                if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] != 0)) {
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CliqzHumanWeb.LOG_KEY);
+                    return false;
+                }
+
+                return true;
             }
         }
-
-
-        if (jc < 1.0) {
-            // if the titles are not a perfect match then check for more structural things like number of inputs
-            // that are type password and number of forms. This is prone to false positives because when not logged in
-            // legitimate sites something prompt you to register
-
-
-            // if had no password inputs before and it has after, decline
-            if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] != 0)) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail nip", CliqzHumanWeb.LOG_KEY);
-                return false;
-            }
-
-            // if had no forms before and it has after, decline
-            if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] != 0)) {
-                if (CliqzHumanWeb.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CliqzHumanWeb.LOG_KEY);
-                return false;
-            }
-
+        else {
+            // exactly same title
+            return true;
         }
 
-
-        return true;
+        return false;
 
     },
-    doubleFetch: function(url, page_struct_before, page_doc) {
+    doubleFetch: function(url, page_doc) {
 
         // one last validation whether should be fetchable or not. If we cannot send that URL because it's
         // private/suspicious/search_result page/etc. we can mark it as private directly
@@ -632,9 +636,15 @@ var CliqzHumanWeb = {
 
                 if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
 
-                if (CliqzHumanWeb.validDoubleFetch(page_struct_before, data)) {
+                if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data)) {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
                     CliqzHumanWeb.setAsPublic(url);
+                    CliqzHumanWeb.setAsPublic(url);
+                    //
+                    // we need to modify the 'x' field of page_doc to substitute any structural information about
+                    // the page content by the data coming from the doubleFetch (no session)
+                    //
+                    page_doc['x'] = data;                    
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
                 else {
@@ -867,8 +877,7 @@ var CliqzHumanWeb = {
 
 
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral,
-                            'tbeg':CliqzHumanWeb.getTime()};
+                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
@@ -999,15 +1008,11 @@ var CliqzHumanWeb = {
 
                         if (CliqzHumanWeb.state['v'][url]['tend']==null) {
                             CliqzHumanWeb.state['v'][url]['tend'] = tt;
-                            CliqzHumanWeb.state['v'][url]['tfin'] = CliqzHumanWeb.getTime();
                         }
 
                         if ((tt - CliqzHumanWeb.state['v'][url]['tend']) > CliqzHumanWeb.deadFiveMts*60*1000) {
                             // move to "dead pages" after 5 minutes
                             CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
-
-                            //CliqzUtils.log("Deleted: moved to dead pages after 5 mts.",CliqzHumanWeb.LOG_KEY);
-                            CliqzUtils.log(CliqzHumanWeb.state['m'],CliqzHumanWeb.LOG_KEY);
                             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                             delete CliqzHumanWeb.state['v'][url];
                         }
@@ -1018,7 +1023,6 @@ var CliqzHumanWeb = {
                             // unless it was opened more than 20 minutes ago, if so, let's move it to dead pages
 
                             CliqzHumanWeb.state['v'][url]['tend'] = null;
-                            CliqzHumanWeb.state['v'][url]['tfin'] = null;
                             CliqzHumanWeb.state['v'][url]['too_long'] = true;
                             CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
                             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
@@ -1080,7 +1084,7 @@ var CliqzHumanWeb = {
                 //
                 if (CliqzHumanWeb.userTransitions['search'][query]['data'].length > 1) {
                     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-                    var doc = {'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'], 't': CliqzHumanWeb.getTime(), 'ctry': location};
+                    var doc = {'q': query, 'sources': CliqzHumanWeb.userTransitions['search'][query]['data'],'ctry': location};
                     if (CliqzHumanWeb.debug) {
                         CliqzUtils.log(JSON.stringify(doc,undefined,2), CliqzHumanWeb.LOG_KEY);
                     }
@@ -1108,7 +1112,6 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.state['v'][url]) {
                 if (CliqzHumanWeb.state['v'][url]['tend']==null) {
                     CliqzHumanWeb.state['v'][url]['tend'] = tt;
-                    CliqzHumanWeb.state['v'][url]['tfin'] = CliqzHumanWeb.getTime();
                 }
 
                 CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
@@ -1331,7 +1334,7 @@ var CliqzHumanWeb = {
     windowsRef: [],
     windowsMem: {},
     init: function(window) {
-        CliqzUtils.log("Init function called:", CliqzHumanWeb.LOG_KEY)
+        if (CliqzHumanWeb.debug) CliqzUtils.log("Init function called:", CliqzHumanWeb.LOG_KEY)
         CliqzHumanWeb.initDB();
         var win_id = CliqzUtils.getWindowID()
 
@@ -1394,12 +1397,25 @@ var CliqzHumanWeb = {
 
         msg.ts = CliqzHumanWeb.getTime();
 
-        delete msg.payload.tend;
-        delete msg.payload.tin;
+        if (msg.action == 'page') {
+            if(msg.payload.tend  && msg.payload.tin){
+                var duration = msg.payload.tend - msg.payload.tin;
+                if (CliqzHumanWeb.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CliqzHumanWeb.LOG_KEY);
+            }
+            else{
+                var duration = null;
+                if (CliqzHumanWeb.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CliqzHumanWeb.LOG_KEY);
+            }
+
+            msg.payload['dur'] = duration;
+
+            delete msg.payload.tend;
+            delete msg.payload.tin;
+        }
 
         // FIXME: this cannot be here, telemetry is only for sending logic. The object needs to be
         // handled beforehand!!!
-        //Canonical URLs and Referrals.
+        // Canonical URLs and Referrals.
 
         if(CliqzHumanWeb.can_urls[msg.payload.url]){
             msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
@@ -1492,13 +1508,11 @@ var CliqzHumanWeb = {
     },
     pushTelemetryError: function(req){
         // pushTelemetry failed, put data back in queue to be sent again later
-        CliqzUtils.log('push telemetrying failed: ' + CliqzHumanWeb._telemetry_sending.length + ' elements', "CliqzHumanWeb.pushTelemetry");
         CliqzHumanWeb.trk = CliqzHumanWeb._telemetry_sending.concat(CliqzHumanWeb.trk);
 
         // Remove some old entries if too many are stored, to prevent unbounded growth when problems with network.
         var slice_pos = CliqzHumanWeb.trk.length - CliqzHumanWeb.telemetry_MAX_SIZE + 100;
         if(slice_pos > 0){
-            CliqzUtils.log('discarding ' + slice_pos + ' old telemetrying elements', "CliqzHumanWeb.pushTelemetry");
             CliqzHumanWeb.trk = CliqzHumanWeb.trk.slice(slice_pos);
         }
 
@@ -1511,7 +1525,7 @@ var CliqzHumanWeb = {
     initDB: function() {
         if ( FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
-                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));_KEY);
+                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]))
             }
             return;
         }
@@ -1525,7 +1539,8 @@ var CliqzHumanWeb = {
                 reason VARCHAR(256), \
                 private BOOLEAN DEFAULT 0,\
                 checked BOOLEAN DEFAULT 0, \
-                payload VARCHAR(4096) \
+                payload VARCHAR(4096), \
+                ft BOOLEAN DEFAULT 1 \
             )";
 
             CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
@@ -1795,10 +1810,11 @@ var CliqzHumanWeb = {
         // Update the private cache
     },
     setAsPublic: function(url) {
-        var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
+        var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private, ft = :ft WHERE url = :url")
         st.params.url = url;
         st.params.checked = 1;
         st.params.private = 0;
+        st.params.ft = 0;
         while (st.executeStep()) {};
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
@@ -1806,13 +1822,15 @@ var CliqzHumanWeb = {
         var stmt = null;
         if (fixed_url == null) {
             // all urls
-            stmt = CliqzHumanWeb.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit;");
+            stmt = CliqzHumanWeb.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE last_visit < :last_visit and private = :private and checked = :checked LIMIT :cap;");
         }
         else {
-            stmt = CliqzHumanWeb.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE checked = :checked and last_visit < :last_visit and url = :url;");
+            stmt = CliqzHumanWeb.dbConn.createAsyncStatement("SELECT url, payload FROM usafe WHERE last_visit < :last_visit and url = :url and private = :private and checked = :checked LIMIT :cap;");
             stmt.params.url = fixed_url;
         }
         stmt.params.last_visit = (tt - sec_old*1000);
+        stmt.params.private = 0;
+        stmt.params.cap = cap;        
         stmt.params.checked = 0;
 
         var res = [];
@@ -1841,19 +1859,18 @@ var CliqzHumanWeb = {
             var page_doc = listOfUncheckedUrls[i][1];
             var page_struct_before = page_doc['x'];
 
-            CliqzHumanWeb.isPrivate(url, function(isPrivate) {
+            CliqzHumanWeb.isPrivate(url, 0,function(isPrivate) {
                 if (isPrivate) {
-                    var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private WHERE url = :url");
+                    var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private , ft = :ft WHERE url = :url");
                     st.params.url = url;
                     st.params.checked = 1;
                     st.params.private = 1;
+                    st.params.ft = 0;
                     st.params.reason = 'priv. st.';
                     while (st.executeStep()) {};
-                    // Update the Public urls' cache.
-                    delete CliqzHumanWeb.UrlsCache[url];
                 }
                 else {
-                    CliqzHumanWeb.doubleFetch(url, page_struct_before, page_doc);
+                    CliqzHumanWeb.doubleFetch(url, page_doc);
                 }
             });
         }
