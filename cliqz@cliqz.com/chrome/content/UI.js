@@ -886,8 +886,27 @@ function enhanceResults(res){
 
     }
 
+    var spelC = CliqzAutocomplete.spellCorr;
+    if (spelC.on && !spelC.override) {
+        var s = CLIQZ.Core.urlbar.mInputField.value;
+        for(var c in spelC.correctBack){
+            s = s.split(c).join('<i>' + spelC.correctBack[c] + '</i>');
+        }
+        updateMessageState("show", {
+            "footer-message": {
+              message: CliqzUtils.getLocalizedString('spell_correction', s),
+              telemetry: 'spellcorrect',
+              options: [{
+                  text: CliqzUtils.getLocalizedString('yes'),
+                  action: 'spellcorrect',
+                  state: 'default'
+                }
+              ]
+            }
+        });
+    }
     //filter adult results
-    if(adult) {
+    else if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
@@ -1071,6 +1090,15 @@ function messageClick(ev) {
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
 
+              case 'spellcorrect':
+                var s = CLIQZ.Core.urlbar.value;
+                for(var c in CliqzAutocomplete.spellCorr.correctBack){
+                    s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                }
+                CLIQZ.Core.urlbar.mInputField.setUserInput(s);
+                CliqzAutocomplete.spellCorr.override = true;
+                updateMessageState("hide");
+                break;
 
               //changelog
               case 'update-show':
