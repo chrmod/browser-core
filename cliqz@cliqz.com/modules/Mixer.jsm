@@ -235,7 +235,7 @@ var Mixer = {
                     var old_kind = temp_history.data.kind;
                     results[0] = cliqzExtra[0];
                     results[0].data.kind = (results[0].data.kind || []).concat(old_kind || []);
-                    results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
+                    results[0].data.urls = (temp_history.data.urls || []).slice(0,3);
                 }
                 // Convert 2/3 size history into 1/3 to place below EZ
                 else if(results.length > 0 &&
@@ -243,7 +243,7 @@ var Mixer = {
                         CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
                     results[0].data.template = "pattern-h3";
                     // limit number of URLs
-                    results[0].data.urls = (results[0].data.urls || []).slice(0,2);
+                    results[0].data.urls = (results[0].data.urls || []).slice(0,3);
                     results = cliqzExtra.concat(results);
                 } else {
                     results = cliqzExtra.concat(results);
@@ -278,7 +278,7 @@ var Mixer = {
                     {"name": "Google Maps", "base_url": "http://maps.google.de/"}
                 ],
                 chosen = new Array();
-            
+
             for (var i = 0; i< se.length; i++){
                 var alt_s_e = ResultProviders.getSearchEngines()[se[i].name];
                 if (typeof alt_s_e != 'undefined'){
@@ -286,7 +286,7 @@ var Mixer = {
                     var url = se[i].base_url || alt_s_e.base_url;
                     se[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
                     se[i].text = alt_s_e.prefix.slice(1);
-                    
+
                     chosen.push(se[i])
                 }
             }
