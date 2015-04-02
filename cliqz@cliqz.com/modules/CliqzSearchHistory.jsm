@@ -95,13 +95,15 @@ var CliqzSearchHistory = {
     },
 
     showLastQuery: function(q){
-        var window_id = CliqzUtils.getWindowID(),
-            lq = this.windows[window_id].lastSearchElement;
+        if (!CliqzUtils.getPref('topSites', false)) {
+            var window_id = CliqzUtils.getWindowID(),
+                lq = this.windows[window_id].lastSearchElement;
 
-        this.windows[window_id].searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
-        lq.textContent = q;
-        lq.tooltipText = q;
-        lq.query = q;
+            this.windows[window_id].searchHistoryContainer.className = 'cliqz-urlbar-Last-search-container';
+            lq.textContent = q;
+            lq.tooltipText = q;
+            lq.query = q;
+        }
     },
 
     tabChanged: function(ev){
