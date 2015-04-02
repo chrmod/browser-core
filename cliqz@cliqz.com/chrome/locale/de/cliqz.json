@@ -1,4 +1,10 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
     "openInNewTab":{
         "message": "{} (in neuem Tab öffnen)"
     },
@@ -318,10 +324,10 @@
         "message": "Nationalität"
     },
     "history_results": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "history_results_cluster": {
-      "message":"Meine Top-Seiten"
+      "message":"Besuchte Seiten"
     },
     "adultInfo": {
         "message": "Anstößige Inhalte wurden automatisch blockiert."

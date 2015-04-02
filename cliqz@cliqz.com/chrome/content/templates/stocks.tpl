@@ -1,4 +1,4 @@
-<div class="cqz-result-h2 cqz-result-padding">
+<div class="cqz-result-h2">
   <div class="cqz-ez-title cqz-ez-stock-title">
       {{data.message.Name}}
   </div>

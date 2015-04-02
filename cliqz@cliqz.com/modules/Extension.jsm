@@ -13,9 +13,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
-
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'extensions.cliqz.firstStartDone',
@@ -87,7 +84,6 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
-                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -151,7 +147,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
 
         // Remove this observer here to correct bug in 0.5.57

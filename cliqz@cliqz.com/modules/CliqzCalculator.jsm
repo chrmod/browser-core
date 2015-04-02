@@ -38,7 +38,7 @@ var CliqzCalculator = {
 
     UNIT_CONVERSION_DATA: {  // http://en.wikipedia.org/wiki/Conversion_of_units
                              // http://www.convert-me.com/en/convert/length/
-        'types': ['length'],
+        'types': ['length', 'mass'],
         'length':{
             'base': 'm',
             'units':[
@@ -67,10 +67,30 @@ var CliqzCalculator = {
                 {'val': 1852.216, 'names': ['sm', 'Seemeile']},
                 {'val': 185.2, 'names': ['cbl', 'cable length', "cable'slength", 'Kabel', 'Kabellänge']}
             ]
+        },
+        'mass':{
+            "base": 'g',
+            'units': [
+                {'val': 102, 'names': ['kN', 'kn', 'kilonewton', 'kilonewtons']},
+                {'val': 1e9, 'names': ['kt', 'kilotonne', 'kilotonnes', 'kilotonnen']},
+                {'val': 1e6, 'names': ['t', 'tonne', 'tonnes', 'tonnen', 'metric ton', 'metric tons']},
+                {'val': 1e6, 'names': ['Mg', 'megagram', 'megagrams']},
+//                {'val': 100000, 'names': ['Ztr', 'ztr', 'q', 'centner', 'quintal', 'centners', 'quintals', 'zentner', 'zentners']},  // this is the Italien, Austria, .. versino. German version = 50kg
+                {'val': 1000, 'names': ['kg', 'kilogram', 'kilograms', 'kilogramme', 'kilogrammes', 'kilogramm', 'kilogramms']},
+                {'val': 100, 'names': ['hg', 'hectogram', 'hectograms', 'hectogramme', 'hectogrammes', 'hectogramm', 'hectogramms']},
+                {'val': 10, 'names': ['dag', 'decagram', 'decagrams', 'decagramme', 'decagrammes', 'decagramm', 'decagramms']},
+                {'val': 1, 'names': ['g', 'gram', 'grams', 'gramme', 'grammes', 'gramm', 'gramms']},
+                {'val': 0.1, 'names': ['dg', 'decigram', 'decigrams', 'decigramme', 'decigrammes', 'decigramm', 'decigramms']},
+                {'val': 0.01, 'names': ['cg', 'centigram', 'centigrams', 'centigramme', 'centigrammes', 'centigramm', 'centigramms']},
+                {'val': 0.001, 'names': ['mg', 'milligram', 'milligrams', 'milligramme', 'milligrammes', 'milligramm', 'milligramms']},
+                {'val': 0.000001, 'names': ['mcg', 'microgram', 'micrograms', 'microgramme', 'microgrammes', 'microgramm', 'microgramms']},
+                {'val': 453.59237, 'names': ['lb', 'lbs', 'pound', 'pounds', 'pound-mass', 'pfund']},
+                {'val': 28.349523125, 'names': ['oz', 'ozs', 'ounce ', 'ounces', 'unze', 'unzen']},
+                {'val': 1.7718452, 'names': ['dr', 'dram', 'drams']},
+                {'val': 0.06479891, 'names': ['gr', 'grain', 'grains', 'Gran']}
+            ]
         }
     },
-
-
 
     get: function(q){
       if (this.CALCULATOR_RES == null || this.CALCULATOR_RES == q){return null;}
@@ -125,17 +145,17 @@ var CliqzCalculator = {
                       }
                   }
               );
-
     },
 
-    find_unit_in_data: function(unit){
+    find_unit_in_data: function(unit_){
         var self = this;
         var type = '', is_unit = false, item=null, i, j;
+        var unit = unit_.toLowerCase();
         for (i=0; i<self.UNIT_CONVERSION_DATA.types.length; i++){
              type = self.UNIT_CONVERSION_DATA.types[i];
             for (j =0; j<self.UNIT_CONVERSION_DATA[type].units.length; j++){
                 item = self.UNIT_CONVERSION_DATA[type].units[j];
-                if (item.names.indexOf(unit) > -1){
+                if (item.names.indexOf(unit) > -1 || item.names.indexOf(unit_) > -1){
                     is_unit = true;
                     return [type, is_unit, item];
                 }
@@ -174,7 +194,7 @@ var CliqzCalculator = {
 
             unit1 = unit1.slice(idx, unit1.length).trim();
             unit1_info = this.find_unit_in_data(unit1);
-            if (!unit1_info[1] || unit1_info[0] !== unit2[0]){return false}
+            if (!unit1_info[1] || unit1_info[0] !== unit2[0]){return false}  // if not unit of the same type, e.g. 1km to g should not return result
 
             this.IS_UNIT_CONVERTER = true;
             var cv = parseFloat(unit1_info[2].val/unit2[2].val);
