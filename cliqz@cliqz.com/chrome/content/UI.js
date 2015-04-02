@@ -1860,6 +1860,9 @@ function registerHelpers(){
 
     Handlebars.registerHelper('isTrending', function(domain) {
         var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'))
+        if (!trending.hasOwnProperty(domain)) {
+          trending[domain] = true; // default is "trending"
+        }
         return trending[domain];
     });
 }
