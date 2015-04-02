@@ -264,7 +264,6 @@ var CliqzHistory = {
     },
     onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
     onTitleChanged: function(aURI, aPageTitle) {},
-    onBeforeDeleteURI: function(aURI) {},
     onDeleteURI: function(aURI) {
       CliqzHistory.deleteVisit(aURI.spec);
     },

@@ -206,7 +206,7 @@ var UI = {
       var now = Date.now();
       if(id != UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(UI.dispatchRedraw, 100, html, id);
+        setTimeout(function(){ UI.dispatchRedraw(); }, 100, html, id);
       } else {
         UI.redrawResultHTML(html);
       }
@@ -1088,7 +1088,7 @@ function messageClick(ev) {
             setting: el.getAttribute('cliqz-telemetry'),
             value: state
           });
-          setTimeout(CliqzUtils.refreshButtons, 0);
+          setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
             break;
         default:
             break;
@@ -1263,7 +1263,7 @@ function handleAdultClick(ev){
             value: state
         });
     }
-    setTimeout(CliqzUtils.refreshButtons, 0);
+    setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
 }
 
 function getResultSelection(){
@@ -1329,10 +1329,10 @@ function smooth_scroll_to(element, target, duration) {
         previous_top = element.scrollTop;
 
         // schedule next frame for execution
-        setTimeout(scroll_frame, 0);
+        setTimeout(function(){ scroll_frame(); }, 0);
     }
     // boostrap the animation process
-    setTimeout(scroll_frame, 0);
+    setTimeout(function(){ scroll_frame(); }, 0);
 }
 
 function selectNextResult(pos, allArrowable) {
@@ -1371,11 +1371,11 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
         UI.lastSelectedUrl = el.getAttribute("url");
 
         var offset = target.offsetTop;
-        
+
         if(el.hasAttribute('arrow-override')){
           offset += closest(el, '.cqz-result-box').offsetTop;
         }
-        
+
         if(target.className.indexOf("cliqz-pattern") != -1) {
           var context;
           if(context = $('.cqz-result-pattern', gCliqzBox))
@@ -1777,7 +1777,12 @@ function registerHelpers(){
 
     Handlebars.registerHelper('kind_printer', function(kind) {
         //we need to join with semicolon to avoid conflicting with the comma from json objects
-        return kind.join(';');
+        return kind ? kind.join(';'): '';
+    });
+
+    Handlebars.registerHelper('links_or_sources', function(richData) {
+        return (richData.internal_links && richData.internal_links.length > 0) ?
+                  richData.internal_links : richData.additional_sources
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
