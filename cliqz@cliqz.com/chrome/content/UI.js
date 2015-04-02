@@ -1249,14 +1249,24 @@ function resultClick(ev){
                     enginesClick(ev);
                     break;
                 case 'news-toggle':
-                    setTimeout(function(){
-                      var trends = document.getElementById('trends', el.parentElement).checked,
+                    setTimeout(function(){                      
+                      var newTrends = document.getElementById('trends', el.parentElement).checked,
                           trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'));
+                      var dataDomain = el.getAttribute('data-domain');
+                      var oldTrends = trending[dataDomain];
 
-                      trending[el.getAttribute('data-domain')] = trends
-
+                      trending[dataDomain] = newTrends
+                      
                       CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
-                    }, 0)
+
+                      CliqzUtils.telemetry({
+                        type: 'activity',
+                        action: 'news-toggle',
+                        data_domain: dataDomain,
+                        old_setting: oldTrends ? 'trends' : 'latest',
+                        new_setting: newTrends ? 'trends' : 'latest'
+                      });
+                    }, 0);
                     return;
                 default:
                     break;
