@@ -16,8 +16,7 @@
         <div class="entity-story-description">
           <div class="entity-story-title">{{ title }}</div>
           <div class="entity-story-comment">
-            {{ time }}
-            <div class="twitter-likes">{{ tweet_count }}</div>
+            {{ time }}            
           </div>
         </div>
       </div>
