@@ -32,6 +32,12 @@
 
 /* ------- END FLIGHT STATUS EZ thuy@cliqz.com*/
 
+
+/* --------- Emergency contact -> text.tpl  thuy@cliqz.com -------- */
+#cliqz-results .ez-text-msg .title { font-size: 25px; margin-top: -3px; }
+#cliqz-results .ez-text-msg .expression { font-size: 25px; margin-top: 10px; color: #999999 }
+/* --------- END Emergency contact -> text.tpl  thuy@cliqz.com -------- */
+
 /* Images search (beta) */
 /*
 #cliqz-results .cqz-result-images {
