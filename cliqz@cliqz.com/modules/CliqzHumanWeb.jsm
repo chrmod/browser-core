@@ -26,7 +26,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 //CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
 //CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
-
+var refineFuncMappings ;
 
 var CliqzHumanWeb = {
     VERSION: '1.0',
@@ -55,7 +55,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://cdn.cliqz.com/safe-browsing/patterns',
+    patternsURL: 'http://localhost/patterns',//'http://cdn.cliqz.com/safe-browsing/patterns',
     searchCache: {},
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -212,7 +212,7 @@ var CliqzHumanWeb = {
                 var status = ho['status'];
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
-                if (status=='301') {
+                if (status=='301' || status == '302') {
                   CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
                 }
 
@@ -220,7 +220,7 @@ var CliqzHumanWeb = {
                   CliqzHumanWeb.httpCache401[url] = {'time': CliqzHumanWeb.counter};
                 }
 
-              } catch(ee){}
+              } catch(ee){if (CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
         }
     },
     linkCache: {},
@@ -230,6 +230,18 @@ var CliqzHumanWeb = {
           delete CliqzHumanWeb.linkCache[key];
         }
       }
+    },
+    getRedirects: function(url, res) {
+        var res = res || []
+        for(var key in CliqzHumanWeb.httpCache) {
+            if (CliqzHumanWeb.httpCache[key]['location']!=null && CliqzHumanWeb.httpCache[key]['status']=='301') {
+                if (CliqzHumanWeb.httpCache[key]['location']==url) {;
+                    res.unshift(key)
+                    CliqzHumanWeb.getRedirects(key, res);
+                }
+            }
+        }
+        return res;
     },
     scrapeQuery: function(currURL, document) {
         try {
@@ -664,6 +676,21 @@ var CliqzHumanWeb = {
         }
 
     },
+    getMetaRefresh: function(cd, url){
+        var metas = null;
+        var redURL = null;
+        var title = null;
+        try{redURL = cd.split('URL=')[1].split('>')[0].replace('"','').replace("'","")}catch(ee){};
+        CliqzHumanWeb.httpCache[url] = {'status': '301', 'time': CliqzHumanWeb.counter, 'location': redURL};
+
+        //Get first redirection.. for yahoo and stuff
+        if(url.indexOf('r.search.yahoo.com') > -1){
+            try{var _url = CliqzHumanWeb.linkCache[decodeURIComponent(url)]['s']}catch(ee){var _url = url}
+            CliqzHumanWeb.linkCache[decodeURIComponent(redURL.replace("'",""))] = {'s': ''+_url, 'time': CliqzHumanWeb.counter};
+        }
+        return redURL;
+
+    },
     getPageData: function(url, cd) {
 
         var len_html = null;
@@ -806,6 +833,33 @@ var CliqzHumanWeb = {
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
             var currwin = CliqzUtils.getWindow();
+            var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
+
+
+            //This needs to go away. Should get the content from contentDocument, but it is coming as null right now.
+            if(_currURL.indexOf('t.co/') > -1){
+                CliqzUtils.httpGet(_currURL,
+                function(res){
+                    if(res && res.response){
+                        try {
+                         var _metaCD = res.response;
+
+                         var redURL = CliqzHumanWeb.getMetaRefresh(_metaCD,_currURL );
+                        } catch(e){}
+                    }
+                }, null, 2000);
+            }
+            else if(_currURL.indexOf('r.search.yahoo.com') > -1){
+                CliqzUtils.httpGet(_currURL,
+                function(res){
+                    if(res && res.response){
+                        try {
+                         var _metaCD = res.response;
+                         var redURL = CliqzHumanWeb.getMetaRefresh(_metaCD,_currURL );
+                        } catch(e){}
+                    }
+                }, null, 2000);
+            }
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
             CliqzHumanWeb.lastActiveAll = CliqzHumanWeb.counter;
@@ -819,9 +873,8 @@ var CliqzHumanWeb = {
             if (activeURL.indexOf('about:')!=0) {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
-                    if (CliqzHumanWeb.checkIfSearchURL(activeURL)){
-
-
+                    var se = CliqzHumanWeb.checkSearchURL(activeURL);
+                    if (se > -1){
                         currwin.setTimeout(function(currURLAtTime) {
 
                             // HERE THERE WAS AN ADDITION IF FOR THE OBJECT
@@ -844,12 +897,16 @@ var CliqzHumanWeb = {
 
                                     }
 
-                                    var rq = null;
-                                    rq = CliqzHumanWeb.getSearchData(searchURL, document);
-                                    CliqzHumanWeb.userSearchTransition(rq);
+                                    //var rq = null;
+                                    //rq = CliqzHumanWeb.getSearchData(searchURL, document);
 
+                                    // TBF : Currently with the new framework, this is not working.
+                                    //CliqzHumanWeb.userSearchTransition(rq);
+                                    //Under testing
 
-                                }
+                                    CliqzHumanWeb.checkURL(document);
+                                    CliqzHumanWeb.queryCache[searchURL] = {'d': 0, 'q': CliqzHumanWeb.searchCache[se]['q'], 't': CliqzHumanWeb.searchCache[se]['t']};
+                                }                                
                                 catch(ee) {
                                     // silent fail
                                     if (CliqzHumanWeb.debug) {
@@ -870,14 +927,39 @@ var CliqzHumanWeb = {
 
                     var referral = null;
                     var qreferral = null;
+
+
                     if (CliqzHumanWeb.linkCache[activeURL] != null) {
                         //referral = CliqzHumanWeb.maskURL(CliqzHumanWeb.linkCache[activeURL]['s']);
                         referral = CliqzHumanWeb.linkCache[activeURL]['s'];
                     }
 
 
+                    //Get redirect chain
+                    var red = [];
+                    red = CliqzHumanWeb.getRedirects(activeURL, red);
+                    if(red.length == 0){
+                        red = null;
+                    }
+
+                    //Set referral for the first redirect in the chain.
+                    if (red && referral == null) {
+                            var redURL = red[0];
+                            var refURL = CliqzHumanWeb.linkCache[redURL];
+                            if(refURL){
+                                referral = refURL['s'];
+                            }
+
+                            //Update query cache with the redirected URL
+
+                            if (CliqzHumanWeb.queryCache[redURL]) {
+                                CliqzHumanWeb.queryCache[activeURL] = CliqzHumanWeb.queryCache[redURL];
+                            }
+                    }
+
+
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral};
+                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red':red};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
@@ -924,6 +1006,16 @@ var CliqzHumanWeb = {
                                     CliqzUtils.log("CANNOT GET THE CONTENT OF : " + currURL, CliqzHumanWeb.LOG_KEY);
                                 }
                                 return;
+                            }
+
+                            //Check if the page is not a search engine:
+
+                            var se = CliqzHumanWeb.checkSearchURL(currURL);
+
+
+                            if (se == -1){
+                                CliqzHumanWeb.checkURL(cd);
+                            
                             }
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
@@ -1057,9 +1149,11 @@ var CliqzHumanWeb = {
                 var v = CliqzHumanWeb.state['m'].slice(0, ll);
                 CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
 
+                /*
                 for(var i=0;i<v.length;i++) {
                     CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                 }
+                */
             }
         }
 
@@ -1125,9 +1219,12 @@ var CliqzHumanWeb = {
             var v = CliqzHumanWeb.state['m'].slice(0, ll);
             CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
 
+            // Need to fix this why or why not add it to DB. If needed to add then we should use state['m'] not state['v']
+            /*
             for(var i=0;i<v.length;i++) {
                 CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
             }
+            */
             // do a instant push on whatever is left on the telemetry
             CliqzHumanWeb.pushTelemetry();
         }
@@ -1334,6 +1431,13 @@ var CliqzHumanWeb = {
     windowsRef: [],
     windowsMem: {},
     init: function(window) {
+        refineFuncMappings = {
+           "splitF":CliqzHumanWeb.refineSplitFunc,
+           "parseU":CliqzHumanWeb.refineParseURIFunc,
+           "maskU":CliqzHumanWeb.refineMaskUrl
+        };
+
+
         if (CliqzHumanWeb.debug) CliqzUtils.log("Init function called:", CliqzHumanWeb.LOG_KEY)
         CliqzHumanWeb.initDB();
         var win_id = CliqzUtils.getWindowID()
@@ -1738,7 +1842,7 @@ var CliqzHumanWeb = {
                         // we never seen it, let's add it
                         paylobj['ft'] = true;
 
-                        if (CliqzHumanWeb.debug) CliqzUtils.log("insert Pagepayload" + CliqzHumanWeb.state['v'][url] ,CliqzHumanWeb.LOG_KEY);
+                        //if (CliqzHumanWeb.debug) CliqzUtils.log("insert Pagepayload" + CliqzHumanWeb.state['v'][url] ,CliqzHumanWeb.LOG_KEY);
 
                         var st = CliqzHumanWeb.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload)");
                         st.params.url = url;
@@ -1959,6 +2063,7 @@ var CliqzHumanWeb = {
         var rules = {};
         var key = "";
         var rule = "";
+
         rules = CliqzHumanWeb.extractRules[ind];
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('rules' + rules + ind, CliqzHumanWeb.LOG_KEY);
@@ -1977,6 +2082,15 @@ var CliqzHumanWeb = {
                         //Depending on etype, currently only supporting url. Maybe ctry too.
                         if(rules[key][each_key]['etype'] == 'url'){
                             var qurl = cd.location.href;
+                            var functionsApplied = (rules[key][each_key]['functionsApplied'] || null);
+                            // Check if the value needs to be refined or not.
+                            if(functionsApplied){
+                                qurl = functionsApplied.reduce(function(attribVal, e){
+                                    return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                                },qurl)
+                            }
+                            
+
                             innerDict[each_key] = [qurl];
                         }
 
@@ -2029,10 +2143,6 @@ var CliqzHumanWeb = {
     },
     _getAttribute: function(cd,parentItem,item,attrib,keyName,functionsApplied){
         var arr = [];
-        var refineFuncMappings = {
-           "splitF":CliqzHumanWeb.refineSplitFunc,
-           "parseU":CliqzHumanWeb.refineParseURIFunc
-        }
         var rootElement = Array.prototype.slice.call(cd.querySelectorAll(parentItem));
         for(var i=0;i<rootElement.length;i++){
             var val = rootElement[i].querySelector(item);
@@ -2137,7 +2247,7 @@ var CliqzHumanWeb = {
             }
         }
         if(c){
-            CliqzHumanWeb.track({'type': CliqzHumanWeb.msgType, 'action': payloadRules['action'], 'payload':payload})
+            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': payloadRules['action'], 'payload':payload})
         }
         CliqzHumanWeb.messageTemplate = {};
     },
@@ -2173,6 +2283,10 @@ var CliqzHumanWeb = {
     },
     refineReplaceFunc: function(replaceString, replaceWhat, replaceWith ){
         var result = decodeURIComponent(replaceString.replace("",replaceWhat,replaceWith));
+        return result;
+    },
+    refineMaskUrl: function(url){
+        var result = CliqzHumanWeb.maskURL(url);
         return result;
     }
 };
