@@ -1,10 +1,9 @@
 <div class="cqz-result-h1 ez-news ez-news-toggle cqz-result-padding">
   <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
-
   <input type="radio" id="actual" class="latest" name="news-switcher"
-    {{#unless (isTrending data.domain)}}
+    {{#if (isLatest data.subType)}}
       checked="checked"
-    {{/unless}}
+    {{/if}}
   />
   <div class="entity-stories latest">
     {{#each data.news}}
@@ -16,7 +15,7 @@
         <div class="entity-story-description">
           <div class="entity-story-title">{{ title }}</div>
           <div class="entity-story-comment">
-            {{ time }}            
+            {{ time }}
           </div>
         </div>
       </div>
@@ -24,9 +23,9 @@
   </div>
 
   <input type="radio" id="trends" class="trends" name="news-switcher"
-    {{#if (isTrending data.domain)}}
+    {{#unless (isLatest data.subType)}}
       checked="checked"
-    {{/if}}
+    {{/unless}}
   />
   <div class="entity-stories trends">
     {{#each data.trending}}
@@ -47,7 +46,7 @@
   </div>
 
   {{#if (pref 'news-toggle')}}
-    <div class="switcher" cliqz-action="news-toggle" data-domain="{{data.domain}}">
+    <div class="switcher" cliqz-action="news-toggle" data-subType="{{data.subType}}">
       <label for="actual" class="latest">{{local 'newsToggleLatest'}}</label>
       <label for="trends" class="trends">{{local 'newsToggleTrends'}}</label>
     </div>

@@ -1249,22 +1249,22 @@ function resultClick(ev){
                     enginesClick(ev);
                     break;
                 case 'news-toggle':
-                    setTimeout(function(){                      
-                      var newTrends = document.getElementById('trends', el.parentElement).checked,
-                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'));
-                      var dataDomain = el.getAttribute('data-domain');
-                      var oldTrends = trending[dataDomain];
+                    setTimeout(function(){
+                      var newLatest = document.getElementById('actual', el.parentElement).checked,
+                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                          ezID = JSON.parse(el.getAttribute('data-subType')).ez,
+                          oldLatest = latest[ezID];
 
-                      trending[dataDomain] = newTrends
-                      
-                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
+                      latest[ezID] = newLatest
+
+                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
 
                       CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'news-toggle',
-                        data_domain: dataDomain,
-                        old_setting: oldTrends ? 'trends' : 'latest',
-                        new_setting: newTrends ? 'trends' : 'latest'
+                        ezID: ezID,
+                        old_setting: oldLatest ? 'latest': 'trends',
+                        new_setting: newLatest ? 'latest': 'trends'
                       });
                     }, 0);
                     return;
@@ -1858,12 +1858,14 @@ function registerHelpers(){
         return CliqzUtils.getPref(key, false);
     });
 
-    Handlebars.registerHelper('isTrending', function(domain) {
-        var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}'))
-        if (!trending.hasOwnProperty(domain)) {
-          trending[domain] = true; // default is "trending"
+    Handlebars.registerHelper('isLatest', function(subType) {
+        try {
+          var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+              ezID = JSON.parse(subType).ez;
+          return latest[ezID];
+        } catch(e){
+          return false;
         }
-        return trending[domain];
     });
 }
 ctx.CLIQZ = ctx.CLIQZ || {};
