@@ -256,7 +256,7 @@ var UI = {
           delay += 100;
         }
       }
-      var t = Date.now() + delay + (delay>0?700:0);
+      var t = Date.now() + delay + (delay>0?100:0);
       if(t > UI.nextRedraw) UI.nextRedraw = t;
       if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
     },
