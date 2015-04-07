@@ -317,6 +317,9 @@ var UI = {
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
 
         allArrowable = allArrowable.filter(function(el){
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
             if(!el.getAttribute('arrow-if-visible')) return true;
 
             // check if the element is visible
