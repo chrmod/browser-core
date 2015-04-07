@@ -1,28 +1,21 @@
-<!-- Resize to include history -->
-<div
-  {{#if data.urls}}
-    class="cqz-result-h1 ez-portal cqz-result-padding"
-  {{else}}
-    class="cqz-result-h2 ez-portal cqz-result-padding"
-  {{/if}}
->
-  <div class="cqz-ez-title">{{data.name}}</div>
-
-  <div class="entity-portal-stories">
-    {{#each data.items}}
-      <div class="entity-portal-story"
-           url="{{ link }}"
+<div class="cqz-result-h1 ez-news cqz-result-padding">
+  <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
+  {{>EZ-category}}
+  <div class="entity-stories">
+    {{#each data.news}}
+      <div class="entity-story"
+           url="{{ url }}"
            extra="entry-{{ @index }}"
            arrow="false">
-        <div class="entity-portal-story-image" style="background-image: url({{ thumbnail }})"></div>
-        <div class="entity-portal-story-description" >
-          <div class="entity-portal-story-title">{{ title }}</div>
+        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-description">
+          <div class="entity-story-title">{{ title }}</div>
+          <div class="entity-story-comment">{{ time }}</div>
         </div>
       </div>
     {{/each}}
   </div>
-  {{>EZ-category}}
-  {{>EZ-history}}
+
   {{>logo}}
   {{>feedback}}
 </div>

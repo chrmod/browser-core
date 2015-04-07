@@ -424,5 +424,74 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
+    },
+    "ez_video-popular": {
+      "message": "Popular"
+    },
+    "ez_video-dashboard": {
+      "message": "Dashboard"
+    },
+    "ez_video-upload": {
+      "message": "Uploads"
+    },
+    "ez_video-categories": {
+      "message": "Categories"
+    },
+    "ez_video-my_subscriptions": {
+      "message": "My Subscriptions"
+    },
+    "ez_video-most_watched": {
+      "message": "Most Watched"
+    },
+    "ez_video-music": {
+      "message": "Music"
+    },
+    "ez_video-newest": {
+      "message": "Newest"
+    },
+    "ez_video-on_demand": {
+      "message": "On Demand"
+    },
+    "ez_video-series": {
+      "message": "Series"
+    },
+    "ez_video-staff_picks": {
+      "message": "Staff Picks"
+    },
+    "ez_video-tv": {
+      "message": "TV"
+    },
+    "ez_video-tv_and_series": {
+      "message": "TV & Series"
+    },
+    "ez_video-top_100": {
+      "message": "Top 100"
+    },
+    "ez_video-recently_watched": {
+      "message": "Recently Watched"
+    },
+    "ez_video-funny": {
+      "message": "Funny"
+    },
+    "ez_video-ingenious": {
+      "message": "Ingenious"
+    },
+    "ez_video-fascinating": {
+      "message": "Fascinating"
+    },
+    "ez_video-courageous": {
+      "message": "Courageous"
+    },
+    "ez_video-recommended": {
+      "message": "Recommended"
+    },
+    "ez_video-most_commented":  {
+        "message": "Most Commented"
+    },
+    "ez_video-ranking": {
+        "message": "Popular"
+    },
+    "ez_video-trending": {
+        "message":"Trending"
     }
 }

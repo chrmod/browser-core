@@ -415,5 +415,75 @@
     },
     "updateDismiss":{
         "message": "Nachricht schließen"
+    },
+    "ez_video-popular": {
+      "message": "Beliebt"
+    },
+    "ez_video-dashboard": {
+      "message": "Dashboard"
+    },
+    "ez_video-upload": {
+      "message": "Hochladen"
+    },
+    "ez_video-categories": {
+      "message": "Kategorien"
+    },
+    "ez_video-my_subscriptions": {
+      "message": "Meine Abos"
+    },
+    "ez_video-most_watched": {
+      "message": "Meist gesehen"
+    },
+    "ez_video-music": {
+      "message": "Music"
+    },
+    "ez_video-newest": {
+      "message": "Neueste"
+    },
+    "ez_video-on_demand": {
+      "message": "On Demand"
+    },
+    "ez_video-series": {
+      "message": "Serien"
+    },
+    "ez_video-staff_picks": {
+      "message": "Staff Picks"
+    },
+    "ez_video-tv": {
+      "message": "TV"
+    },
+    "ez_video-tv_and_series": {
+      "message": "TV & Serien"
+    },
+    "ez_video-top_100": {
+      "message": "Top 100"
+    },
+    "ez_video-recently_watched": {
+      "message": "Zuletzt Angesehen"
+    },
+    "ez_video-funny": {
+      "message": "Lustige"
+    },
+    "ez_video-ingenious": {
+      "message": "Geniale"
+    },
+    "ez_video-fascinating": {
+      "message": "Faszinierende"
+    },
+    "ez_video-courageous": {
+      "message": "Mutige"
+    },
+
+    "ez_video-recommended": {
+      "message": "Empfohlen"
+    },
+    "ez_video-most_commented":  {
+        "message": "Meist Kommentiert"
+    },
+    "ez_video-ranking": {
+        "message": "Beliebt"
+    },
+    "ez_video-trending": {
+        "message":"Trending"
     }
 }
