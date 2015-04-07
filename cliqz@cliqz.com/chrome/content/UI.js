@@ -1174,7 +1174,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = el.getAttribute('extra'), //extra data about the link
-          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
+          result_order = currentResults.results.map(function(r){ return r.data && r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),

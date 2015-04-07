@@ -58,7 +58,7 @@ CLIQZ.Core = CLIQZ.Core || {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'click'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
@@ -410,9 +410,8 @@ CLIQZ.Core = CLIQZ.Core || {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
-    urlbarclick: function(ev){
-        if(!CliqzUtils.getPref('topSites', false)) return;
-
+    urlbarmousedown: function(ev){
+        if(CLIQZ.Core.urlbar.focused || !CliqzUtils.getPref('topSites', false)) return;
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
             ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
