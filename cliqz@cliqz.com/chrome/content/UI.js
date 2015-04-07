@@ -378,8 +378,9 @@ var UI = {
                 if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
                     CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
                     CliqzAutosuggestion.active = false;
-                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, urlbar.mInputField.selectionStart));
                 }
+                spellCorrectRejection();
                 return false;
             case DEL:
                 UI.lastInput = "";
@@ -388,27 +389,11 @@ var UI = {
                 if (urlbar.mInputField.selectionStart !== urlbar.mInputField.selectionEnd) {
                     CliqzAutosuggestion.notExpandTo[urlbar.mInputField.value] = 1;
                     CliqzAutosuggestion.active = false;
-                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, mInputField.selectionStart));
+                    urlbar.mInputField.setUserInput(urlbar.mInputField.value.slice(0, urlbar.mInputField.selectionStart));
                     returnTrue = true;
                 }
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
-                    CliqzAutocomplete.spellCorr.override = true;
-                    // correct back the last word if it was changed
-                    var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
-                    var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
-                    CliqzUtils.log(JSON.stringify(words), 'spellcorr');
-                    CliqzUtils.log(JSON.stringify(wrongWords), 'spellcorr');
-                    CliqzUtils.log(words[words.length-1].length, 'spellcorr');
-                    if (words[words.length-1].length == 0 && words[words.length-2] != wrongWords[wrongWords.length-2]) {
-                        CliqzUtils.log('hi', 'spellcorr');
-                        words[words.length-2] = wrongWords[wrongWords.length-2];
-                        CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
-                        var signal = {
-                            type: 'activity',
-                            action: 'del_correct_back'
-                        };
-                        CliqzUtils.telemetry(signal);
-                    }
+                if (spellCorrectRejection()){
+                  //
                 } else {
                     var signal = {
                         type: 'activity',
@@ -550,6 +535,29 @@ var UI = {
     sessionEnd: sessionEnd
 };
 
+function spellCorrectRejection(){
+  if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+      CliqzAutocomplete.spellCorr.override = true;
+      // correct back the last word if it was changed
+      var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
+      var wrongWords = CliqzAutocomplete.lastSuggestions[1].split(' ');
+      CliqzUtils.log(JSON.stringify(words), 'spellcorr');
+      CliqzUtils.log(JSON.stringify(wrongWords), 'spellcorr');
+      CliqzUtils.log(words[words.length-1].length, 'spellcorr');
+      if (words[words.length-1].length == 0 && words[words.length-2] != wrongWords[wrongWords.length-2]) {
+          CliqzUtils.log('hi', 'spellcorr');
+          words[words.length-2] = wrongWords[wrongWords.length-2];
+          CLIQZ.Core.urlbar.mInputField.value = words.join(' ');
+          var signal = {
+              type: 'activity',
+              action: 'del_correct_back'
+          };
+          CliqzUtils.telemetry(signal);
+      }
+      return true;
+  }
+  return false;
+}
 
 function navigateToEZinput(element){
     var provider_name = element.getAttribute("search-provider"),

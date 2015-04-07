@@ -566,7 +566,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 searchString = this.cliqzAutoSuggest(searchString); // check if there is a possible Autosuggestion
                 CliqzAutocomplete.lastSearch = searchString;
 
-                if (!CliqzAutocomplete.spellCorr.override &&
+                if (!CliqzAutosuggestion.active &&
+                    !CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
                     urlbar.selectionEnd == urlbar.value.length) {
                     var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
