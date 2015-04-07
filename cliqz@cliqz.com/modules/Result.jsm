@@ -135,12 +135,11 @@ var Result = {
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
         // Google Filters
-        // Filter all like:
-        //    www.google.*/search?
-        //    www.google.*/url? - for redirects
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
-           (urlparts.extra.indexOf("/search?") == 0 || urlparts.extra.indexOf("/url?") == 0)) {
+           (urlparts.extra.indexOf("/search") != -1 || // "/search?" for regular SERPS and ".*/search/.*" for maps
+            urlparts.extra.indexOf("/url?") == 0 ||    // www.google.*/url? - for redirects
+            urlparts.extra.indexOf("q=") != -1 )) {    // for instant search results
             log("Discarding result page from history: " + url)
             return false;
         }

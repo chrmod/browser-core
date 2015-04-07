@@ -42,7 +42,7 @@ var CliqzLanguage = {
             result_position: result_position,
             v: 1
         };
-        CliqzUtils.track(action)
+        CliqzUtils.telemetry(action)
     },
 
     listener: {

@@ -1,12 +1,19 @@
 'use strict';
 
+/*
+
+    VERY IMPORTANT !!!
+    Avoid polluting the logs - all the tests should not send logs to production logging systems
+
+*/
+
 var {assert} = require('../lib/assertions');
 var setupModule = function (module) {
     module.controller = mozmill.getBrowserController();
     module.CLIQZ = controller.window.CLIQZ;
 
     //mock the tracking to avoid noise
-    controller.window.CliqzUtils.track = function(){ };
+    controller.window.CliqzUtils.telemetry = function(){ };
 
     module.CliqzUtils = controller.window.CliqzUtils;
 }

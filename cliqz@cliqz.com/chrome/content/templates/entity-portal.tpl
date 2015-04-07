@@ -1,9 +1,9 @@
 <!-- Resize to include history -->
 <div
   {{#if data.urls}}
-    class="cqz-result-h1 ez-portal cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h1 ez-portal cqz-result-padding"
   {{else}}
-    class="cqz-result-h2 ez-portal cqz-result-padding cqz-result-pattern"
+    class="cqz-result-h2 ez-portal cqz-result-padding"
   {{/if}}
 >
   <div class="cqz-ez-title">{{data.name}}</div>

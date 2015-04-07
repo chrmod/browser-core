@@ -11,7 +11,7 @@
         </div>
         <div class="entity-story-description" >
           <div class="entity-story-title">{{ title }}</div>
-          {{#if (local_number views )}} <div class="entity-story-comment">{{ local_number views }} views</div> {{/if}}
+          <div class="entity-story-comment">{{ views_helper views}}</div>
         </div>
       </div>
     {{/each}}

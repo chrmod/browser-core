@@ -128,12 +128,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // if clusteredHistory return the normal history
             CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [historyTrans, null];
-
-        } else if (clusteredHistory['urls'].length < 4) {
-            // no URLs related to the site were found
-            CliqzClusterHistory.log('Clustering only found ' + clusteredHistory['urls'].length + 'related URLs, decided not to cluster.');
-            return [historyTrans, null];
-
         } else {
             return [historyTransRemained, clusteredHistory];
         }
@@ -315,17 +309,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
                         // apply title
                         var new_title = CliqzClusterHistory.extract_with_regex(matching[m], rules[r].title);
-                        if(new_title)
-                            entry.title = new_title;
-                        else
-                            entry.title = matching[m].title;
+                        entry.title = new_title || matching[m].title;
 
                         // rewrite the url
                         var new_url = CliqzClusterHistory.rewrite_url(matching[m], rules[r].url);
-                        if(new_url)
-                            entry.url = new_url;
-                        else
-                            entry.url = matching[m].url;
+                        entry.url = new_url || matching[m].url;
 
                         entry.old_urls = [matching[m].url];
 

@@ -85,7 +85,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
         CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
     },
-    destroy: function() {
+    unload: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
         var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
@@ -97,7 +97,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     getResultsOrder: function(results){
         return results.map(function(r){
-            return CliqzUtils.encodeResultType(r.style || r.type);
+            return r.data.kind;
         });
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
@@ -130,13 +130,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get defaultIndex() { return this._defaultIndex; },
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
-            getValueAt: function(index) { return this._results[index].val; },
+            getValueAt: function(index) { return (this._results[index] || {}).val; },
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
-            getCommentAt: function(index) { return this._results[index].comment; },
-            getStyleAt: function(index) { return this._results[index].style; },
+            getCommentAt: function(index) { return (this._results[index] || {}).comment; },
+            getStyleAt: function(index) { return (this._results[index] || {}).style; },
             getImageAt: function (index) { return ''; },
-            getLabelAt: function(index) { return this._results[index].label; },
-            getDataAt: function(index) { return this._results[index].data; },
+            getLabelAt: function(index) { return (this._results[index] || {}).label; },
+            getDataAt: function(index) { return (this._results[index] || {}).data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
 
@@ -184,7 +184,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
     sendResultsDoneSignal: function(resultsDisplayTime) {
-        // reduced traffic: only track if result was shown long enough (e.g., 0.5s)
+        // reduced traffic: only consider telemetry data if result was shown long enough (e.g., 0.5s)
         if (resultsDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
             var action = {
                 type: 'activity',
@@ -194,7 +194,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 results_overflow_height: CliqzAutocomplete.resultsOverflowHeight,
                 can_user_scroll: CliqzAutocomplete.resultsOverflowHeight > 0
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
         }
     },
     initResults: function(){
@@ -207,7 +207,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyTimer: null,
             historyTimeout: false,
             instant: [],
-            historyBackfill: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -323,13 +322,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     else
                         this.instant = [];
 
-                    // Create backfill result
-                    var backfill = CliqzHistoryPattern.createBackfillResult(res, this.searchString);
-                    if(backfill)
-                        this.historyBackfill = [backfill];
-                    else
-                        this.historyBackfill = [];
-
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
                         latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
@@ -382,7 +374,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.instant = [];
-                        this.backFill = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -391,7 +382,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.mixResults(true);
 
-                        // force update as offen as possible if new results are ready
+                        // try to update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
 
@@ -434,9 +425,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return el.results.length != 0;
                     }
 
-                    if(hasExtra(json.extra))
+                    if(hasExtra(json.extra)) {
                         this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-
+                    }
                     this.latency.cliqz = json.duration;
 
                     this.cliqzResults = results.filter(function(r){
@@ -459,11 +450,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
-                            this.historyBackfill,
                             this.customResults,
                             only_instant
                     );
-
+                CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
                 this.mixedResults.setResults(results);
@@ -495,7 +485,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     action: 'key_stroke',
                     current_length: searchString.length
                 };
-                CliqzUtils.track(action);
+                CliqzUtils.telemetry(action);
 
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
@@ -524,7 +514,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         action: 'spell_correction',
                         current_length: searchString.length
                     }
-                    CliqzUtils.track(action);
+                    CliqzUtils.telemetry(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
                 }
@@ -534,7 +524,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.instant = [];
-                this.historyBackfill = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
@@ -548,7 +537,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
@@ -638,36 +626,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.markResultsDone(Date.now());
                 }
 
-                // keep a track of if the popup was open for last result
+                // remembers if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
-                this.addCalculatorSignal(action);
-
-                CliqzUtils.track(action);
-            },
-            addCalculatorSignal: function(action) {
-                var calcAnswer = null,
-                    cResults = this.customResults;
-
-                if(cResults && cResults.length > 0 &&
-                        cResults[0].style == Result.CLIQZE &&
-                        cResults[0].data.template == 'calculator'){
-                    calcAnswer = cResults[0].data.answer;
-                }
-                if (calcAnswer == null && this.suggestedCalcResult == null){
-                    return;
-                }
-                action.suggestions_recived =  this.suggestionsRecieved;
-                action.suggested = this.suggestedCalcResult != null;
-                action.calculator = calcAnswer != null;
-                this.suggestionsRecieved = false;
-                this.suggestedCalcResult = null;
+                CliqzUtils.telemetry(action);
             }
         }
     }
 }
-
-
-

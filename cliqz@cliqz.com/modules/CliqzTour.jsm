@@ -66,7 +66,7 @@ var CliqzTour = {
             type: 'activity',
             action: 'offboarding_tour',
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
         start('wobble');
     },
     pageShown: function(active) {
@@ -75,7 +75,7 @@ var CliqzTour = {
             action: 'offboarding_shown',
             tour_active: active
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     },
     pageClosed: function(time) {
         var action = {
@@ -83,7 +83,7 @@ var CliqzTour = {
             type: 'activity',
             action: 'offboarding_closed',
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     }
 };
 

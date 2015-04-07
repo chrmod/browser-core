@@ -1,4 +1,13 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
     },
@@ -118,12 +127,6 @@
     },
     "offMessage":{
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
-    },
-    "cliqzPremiumTitle":{
-        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
-    },
-    "cliqzPremiumDesc":{
-        "message": "Upgrade testen für nur 3,99 €/Mo"
     },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
@@ -321,10 +324,10 @@
         "message": "Nationalität"
     },
     "history_results": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "history_results_cluster": {
-      "message":"Meine Top-Seiten"
+      "message":"Besuchte Seiten"
     },
     "adultInfo": {
         "message": "Anstößige Inhalte wurden automatisch blockiert."
@@ -394,5 +397,23 @@
     },
     "cliqz_stock_minutes_ago": {
        "message": "Minuten früher"
+    },
+    "publish_date": {
+        "message": "Veröffentlichungsdatum"
+    },
+    "Click anywhere to copy":{
+        "message": "Klicken zum Kopieren"
+    },
+    "Copied":{
+        "message": "kopiert"
+    },
+    "updateMessage":{
+        "message": "CLIQZ ist jetzt noch schöner, noch direkter, noch sicherer."
+    },
+    "updatePage":{
+        "message": "Mehr erfahren"
+    },
+    "updateDismiss":{
+        "message": "Nachricht schließen"
     }
 }

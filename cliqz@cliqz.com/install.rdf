@@ -4,7 +4,7 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>Cliqz Beta</em:name>
-		<em:version>0.6.01.1b0</em:version>
+		<em:version>0.6.04.1b77</em:version>
 
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
@@ -29,7 +29,7 @@ Derzeit verfügbar für Firefox
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
 				<em:minVersion>10.0</em:minVersion>
-				<em:maxVersion>36.*</em:maxVersion>
+				<em:maxVersion>37.*</em:maxVersion>
 
 			</Description>
 		</em:targetApplication>
