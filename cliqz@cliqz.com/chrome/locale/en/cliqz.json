@@ -392,9 +392,6 @@
     "cliqz_stock_pe_ratio": {
         "message": "P/E ratio(ttm)"
     },
-    "cliqz_stock_minutes_ago": {
-       "message": "minutes ago"
-    },
     "OutOfCoverageWarning": {
        "message": "CLIQZ’s results for your country are not so \"gut\" yet. We will get better outside of Germany soon."
     },

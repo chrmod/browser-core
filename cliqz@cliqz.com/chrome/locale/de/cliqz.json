@@ -393,10 +393,7 @@
         "message": "Marktkapit."
     },
     "cliqz_stock_pe_ratio": {
-        "message": "P/E ratio(ttm)"
-    },
-    "cliqz_stock_minutes_ago": {
-       "message": "Minuten früher"
+        "message": "KGV (ttm)"
     },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
