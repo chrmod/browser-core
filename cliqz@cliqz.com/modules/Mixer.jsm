@@ -29,6 +29,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSmartCliqzCache',
+    'chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+
 CliqzUtils.init();
 
 // enriches data kind
@@ -45,7 +48,6 @@ function kindEnricher(data, newKindParams) {
 }
 
 var Mixer = {
-    ezCache: {},
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
@@ -145,7 +147,7 @@ var Mixer = {
                         for(var j=0; j < trigger_urls.length; j++) {
                             Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
-                        Mixer.ezCache[eztype] = r;
+                        CliqzSmartCliqzCache.store(r);
                     }
                 }
             }
@@ -164,8 +166,8 @@ var Mixer = {
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age
-                var ez = Mixer.ezCache[Mixer.ezURLs[url]];
+                // TODO: perhaps only use this cached data if newer than certain age                
+                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
@@ -183,7 +185,7 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
-
+            
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
