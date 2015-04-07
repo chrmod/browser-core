@@ -1,14 +1,9 @@
 'use strict';
 /*
- * This module keeps track of the last queries made in a tab and shows
+ * This module remembers the last queries made in a tab and shows
  * them when appropiate
  *
  */
-
-
-// TODO: The "Letzte eingabe" button needs a better architecture
-// What we do now is a bit hacky. Because we need to track the state of many
-// different windows we get the current window object in every function.
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -70,7 +65,7 @@ var CliqzSearchHistory = {
             action: 'last_search'
         };
 
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     },
 
     /* */

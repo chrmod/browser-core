@@ -1,4 +1,13 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
+    "openInNewTab":{
+        "message": "{} (open in new tab)"
+    },
     "whatIsCliqz":{
         "message": "What is CLIQZ?"
     },
@@ -397,5 +406,23 @@
     },
     "btnActivateCliqz": {
       "message": "Activate Cliqz"
+    },
+    "publish_date": {
+        "message": "Publish date"
+    },
+    "Click anywhere to copy":{
+        "message": "Click anywhere to copy"
+    },
+    "Copied":{
+        "message": "Copied"
+    },
+    "updateMessage":{
+        "message": "CLIQZ has just updated to the latest, greatest version."
+    },
+    "updatePage":{
+        "message": "See What’s New"
+    },
+    "updateDismiss":{
+        "message": "Dismiss"
     }
 }
