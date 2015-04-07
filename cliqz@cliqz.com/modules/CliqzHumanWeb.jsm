@@ -691,6 +691,18 @@ var CliqzHumanWeb = {
         return redURL;
 
     },
+    eventDoorWayPage: function(cd){
+        var payload = {};
+        var url = cd.location.href;
+        var doorwayURL = cd.getElementsByTagName('a')[0].href;
+        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        var orignalDomain = CliqzHumanWeb.parseUri(url).host;
+        var dDomain = CliqzHumanWeb.parseUri(doorwayURL).host;
+        if(orignalDomain == dDomain) return;
+        payload = {"url":url, "durl":doorwayURL,"ctry": location};
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'doorwaypage', 'payload': payload});
+
+    },
     getPageData: function(url, cd) {
 
         var len_html = null;
@@ -725,6 +737,12 @@ var CliqzHumanWeb = {
         } catch(ee) {}
 
         try { forms = cd.getElementsByTagName('form'); } catch(ee) {}
+
+        //Detect doorway pages
+        // TBF : Need to make detecting of doorway page more strong. Currently lot of noise getting through.
+        if(numlinks == 1 && cd.location){
+            CliqzHumanWeb.eventDoorWayPage(cd);
+        }
 
         var metas = cd.getElementsByTagName('meta');
 
