@@ -48,6 +48,7 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
+  IFRAME_SHOW:                    false,
   HOST:                           'https://beta.cliqz.com',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,

@@ -424,9 +424,8 @@
 #cliqz-results .cliqz-pattern-element-title { color: #8c275f; max-width: 50%; display: inline-block; cursor: pointer; }
 #cliqz-results .cliqz-pattern-element-link { max-width: 30%; margin-left: 8px; color: #cccccc; display: inline-block; }
 #cliqz-results .cliqz-pattern-logo { background-image: url(chrome://cliqzres/content/skin/cliqz.png); background-color: #efefef }
-#cliqz-results .cqz-3-history-results .cliqz-pattern-element { margin: -4px 0 6px; padding: 0; }
+#cliqz-results .cqz-3-history-results .cliqz-pattern-element { margin: -4px 0 12px; padding: 0; }
 #cliqz-results .cqz-3-history-results .cliqz-pattern-element:nth-of-type(1n+4) {display: none;}
-#cliqz-results .cqz-3-history-results .cliqz-pattern-element * { font-size: 18px; }
 #cliqz-results .cqz-ez-generic .cqz-3-history-results { margin-top: 21px; }
 #cliqz-results .cqz-ez-generic .cqz-3-history-results .cliqz-pattern-element { margin-bottom: 9px; }
 
