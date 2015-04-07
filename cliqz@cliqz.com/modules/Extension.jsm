@@ -13,9 +13,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
-
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
     firstRunPref = 'extensions.cliqz.firstStartDone',
@@ -54,7 +51,7 @@ var Extension = {
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
-        this.track = CliqzUtils.track;
+        this.telemetry = CliqzUtils.telemetry;
 
         CliqzClusterHistory.init();
     },
@@ -87,7 +84,6 @@ var Extension = {
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
-                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -99,7 +95,7 @@ var Extension = {
             Extension.unloadFromWindow(win);
         }
 
-        CliqzCategories.destroy();
+        CliqzCategories.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -143,7 +139,6 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCalculator.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzClusterSeries.jsm');
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
@@ -152,8 +147,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -298,7 +293,7 @@ var Extension = {
                     btn.parentNode.removeChild(btn);
                 }
             }
-            win.CLIQZ.Core.destroy(false);
+            win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             win.CLIQZ = null;
             win.CLIQZResults = null;

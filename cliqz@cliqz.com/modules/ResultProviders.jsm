@@ -61,6 +61,7 @@ var ResultProviders = {
     getCustomResults: function(q){
         var results = null;
         var customQuery = ResultProviders.isCustomQuery(q);
+
         if(customQuery){
             results = [
                 Result.generic(

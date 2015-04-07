@@ -1,9 +1,9 @@
 <!-- Resize to include history -->
 <div
   {{#if data.urls}}
-    class="cqz-result-h1 cqz-result-padding"
+    class="cqz-result-h1 cqz-result-padding cqz-ez-generic"
   {{else}}
-    class="cqz-result-h2 cqz-result-padding"
+    class="cqz-result-h2 cqz-result-padding cqz-ez-generic"
   {{/if}}
 >
     {{#if debug}}
@@ -11,7 +11,7 @@
     {{/if}}
     {{#with data}}
         <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
-            {{name}}
+            {{ emphasis name ../text 2 true }}
             <div class="after" style="background-image: url({{icon}})"></div>
         </div>
 

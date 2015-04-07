@@ -29,6 +29,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSmartCliqzCache',
+    'chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+
 CliqzUtils.init();
 
 // enriches data kind
@@ -45,7 +48,6 @@ function kindEnricher(data, newKindParams) {
 }
 
 var Mixer = {
-    ezCache: {},
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     init: function() {
@@ -145,7 +147,7 @@ var Mixer = {
                         for(var j=0; j < trigger_urls.length; j++) {
                             Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
-                        Mixer.ezCache[eztype] = r;
+                        CliqzSmartCliqzCache.store(r);
                     }
                 }
             }
@@ -164,8 +166,8 @@ var Mixer = {
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age
-                var ez = Mixer.ezCache[Mixer.ezURLs[url]];
+                // TODO: perhaps only use this cached data if newer than certain age                
+                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
@@ -183,7 +185,7 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
-
+            
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
@@ -233,7 +235,7 @@ var Mixer = {
                     var old_kind = temp_history.data.kind;
                     results[0] = cliqzExtra[0];
                     results[0].data.kind = (results[0].data.kind || []).concat(old_kind || []);
-                    results[0].data.urls = (temp_history.data.urls || []).slice(0,4);
+                    results[0].data.urls = (temp_history.data.urls || []).slice(0,3);
                 }
                 // Convert 2/3 size history into 1/3 to place below EZ
                 else if(results.length > 0 &&
@@ -241,7 +243,7 @@ var Mixer = {
                         CliqzUtils.TEMPLATES[cliqzExtra[0].data.template] == 2) {
                     results[0].data.template = "pattern-h3";
                     // limit number of URLs
-                    results[0].data.urls = (results[0].data.urls || []).slice(0,2);
+                    results[0].data.urls = (results[0].data.urls || []).slice(0,3);
                     results = cliqzExtra.concat(results);
                 } else {
                     results = cliqzExtra.concat(results);
@@ -249,8 +251,8 @@ var Mixer = {
             }
         }
 
-        // Change history cluster size if there are only two links and it is h2
-        if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length == 2) {
+        // Change history cluster size if there are less than three links and it is h2
+        if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
         }
 
@@ -268,21 +270,24 @@ var Mixer = {
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
-            var alternative_search_engines_data = [// default
-                {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-                {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
-                {"name": "Google", "base_url": "http://www.google.de"},
-                {"name": "Google Images", "base_url": "http://images.google.de/"},
-                {"name": "Google Maps", "base_url": "http://maps.google.de/"}
-            ];
+            var se = [// default
+                    {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+                    {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
+                    {"name": "Google", "base_url": "http://www.google.de"},
+                    {"name": "Google Images", "base_url": "http://images.google.de/"},
+                    {"name": "Google Maps", "base_url": "http://maps.google.de/"}
+                ],
+                chosen = new Array();
 
-            for (var i = 0; i< alternative_search_engines_data.length; i++){
-                var alt_s_e = ResultProviders.getSearchEngines()[alternative_search_engines_data[i].name];
+            for (var i = 0; i< se.length; i++){
+                var alt_s_e = ResultProviders.getSearchEngines()[se[i].name];
                 if (typeof alt_s_e != 'undefined'){
-                    alternative_search_engines_data[i].code = alt_s_e.code;
-                    var url = alternative_search_engines_data[i].base_url || alt_s_e.base_url;
-                    alternative_search_engines_data[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
-                    alternative_search_engines_data[i].text = alt_s_e.prefix.slice(1);
+                    se[i].code = alt_s_e.code;
+                    var url = se[i].base_url || alt_s_e.base_url;
+                    se[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+                    se[i].text = alt_s_e.prefix.slice(1);
+
+                    chosen.push(se[i])
                 }
             }
 
@@ -294,7 +299,7 @@ var Mixer = {
                             template:'noResult',
                             text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
                             text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
-                            "search_engines": alternative_search_engines_data,
+                            "search_engines": chosen,
                             //use local image in case of no internet connection
                             "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
                         },
