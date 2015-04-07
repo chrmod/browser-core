@@ -1186,7 +1186,13 @@ function resultClick(ev){
                     setTimeout(function(){
                       var trends = document.getElementById('trends', el.parentElement).checked;
                       CliqzUtils.setPref('news-toggle-state', trends);
-                    }, 0)
+                      CliqzUtils.telemetry({
+                        type: 'activity',
+                        action: 'news-toggle',
+                        setting: trends ? 'trends' : 'latest'
+                      });
+                    }, 0);
+                    
                     return;
                 default:
                     break;
