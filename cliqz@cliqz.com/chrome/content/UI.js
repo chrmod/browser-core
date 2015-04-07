@@ -1594,6 +1594,11 @@ var AGO_CEILINGS=[
 ];
 
 function registerHelpers(){
+    Handlebars.registerHelper('show_main_iframe', function(){
+        if (CliqzUtils.IFRAME_SHOW)
+            return "inherit";
+        return "none";
+    });
     Handlebars.registerHelper('partial', function(name, options) {
         var template = UI.tpl[name] || UI.tpl.empty;
         return new Handlebars.SafeString(template(this));

@@ -1,6 +1,6 @@
 /* -----------------------
 * @COMMENT:
-*   + Plz check the hp.tpl for wikipedia with images. thuy@cliqz.com. 12Mar2015
+*   + Plz check the hp.tpl for wikipedia with images. 12Mar2015
 /* -----------------------
 
 /* New class: for entity-generic-history to separate list of history entries from EZ material. */
@@ -12,7 +12,7 @@
 }
 
 
-/* ------- FLIGHT STATUS EZ thuy@cliqz.com*/
+/* ------- FLIGHT STATUS EZ ----------*/
 #cliqz-results .flightStatusEZ-flightNumber {color:#333333; font-size: 18px; overflow: hidden;}
 #cliqz-results .flightStatusEZ-flightStatus {color:#C9C9C9; font-size: 12px;}
 
@@ -30,13 +30,13 @@
 #cliqz-results .flightStatusEZ-arrival{float:right}
 #cliqz-results .flightStatusEZ-depart-arrival-name{color:#333333}
 
-/* ------- END FLIGHT STATUS EZ thuy@cliqz.com*/
+/* ------- END FLIGHT STATUS EZ -------*/
 
 
-/* --------- Emergency contact -> text.tpl  thuy@cliqz.com -------- */
+/* --------- Emergency contact -> text.tpl -------- */
 #cliqz-results .ez-text-msg .title { font-size: 25px; margin-top: -3px; }
 #cliqz-results .ez-text-msg .expression { font-size: 25px; margin-top: 10px; color: #999999 }
-/* --------- END Emergency contact -> text.tpl  thuy@cliqz.com -------- */
+/* --------- END Emergency contact -> text.tpl -------- */
 
 /* Images search (beta) */
 /*
