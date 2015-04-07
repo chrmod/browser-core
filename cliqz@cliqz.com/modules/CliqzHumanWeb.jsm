@@ -1207,7 +1207,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.state['v'][url]['tend']==null) {
                     CliqzHumanWeb.state['v'][url]['tend'] = tt;
                 }
-
+                CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                 CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
                 delete CliqzHumanWeb.state['v'][url];
             }

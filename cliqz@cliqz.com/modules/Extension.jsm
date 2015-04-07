@@ -87,6 +87,8 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
+        CliqzHumanWeb.initAtBrowser();
+
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
