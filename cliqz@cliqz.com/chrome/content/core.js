@@ -532,8 +532,9 @@ CLIQZ.Core = CLIQZ.Core || {
         if (!CliqzUtils.isUrl(results[0].url)) return;
 
         // Detect autocomplete
-        var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
 
+        var autocorrectedVal = urlBar.mInputField.value.substr(0, urlBar.selectionStart), //autocorrect might hit in before
+            autocomplete = CliqzHistoryPattern.autocompleteTerm(autocorrectedVal, results[0], true);
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
             return;
