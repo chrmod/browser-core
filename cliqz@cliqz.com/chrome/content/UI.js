@@ -176,10 +176,7 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            //if(CliqzUtils.getPref("animations", false))
-              UI.dispatchRedraw(UI.tpl.results(currentResults), now, res.q);
-            //else
-            //  gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+            UI.dispatchRedraw(UI.tpl.results(currentResults), now, res.q);
           }
 
         //might be unset at the first open
@@ -204,9 +201,9 @@ var UI = {
     lastDispatch: 0,
     dispatchRedraw: function(html, id, q) {
       var now = Date.now();
-      if(id != UI.lastDispatch) return;
+      if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(function(){ UI.dispatchRedraw(); }, 100, html, id);
+        setTimeout(UI.dispatchRedraw, 100, html, id, q);
       } else {
         UI.redrawResultHTML(html, q);
       }
