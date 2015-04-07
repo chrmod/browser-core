@@ -306,6 +306,7 @@ CLIQZ.Core = CLIQZ.Core || {
         CliqzAutocomplete.isPopupOpen = false;
         CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
+        CLIQZ.UI.popupClosed = true;
     },
     popupEvent: function(open) {
         var action = {

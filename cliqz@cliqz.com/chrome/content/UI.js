@@ -176,10 +176,7 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            if(CliqzUtils.getPref("animations", false))
-              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
-            else
-              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+            UI.dispatchRedraw(UI.tpl.results(currentResults), now, res.q);
           }
 
         //might be unset at the first open
@@ -202,17 +199,23 @@ var UI = {
     },
     nextRedraw: 0,
     lastDispatch: 0,
-    dispatchRedraw: function(html, id) {
+    dispatchRedraw: function(html, id, q) {
       var now = Date.now();
-      if(id != UI.lastDispatch) return;
+      if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(function(){ UI.dispatchRedraw(); }, 100, html, id);
+        setTimeout(UI.dispatchRedraw, 100, html, id, q);
       } else {
-        UI.redrawResultHTML(html);
+        UI.redrawResultHTML(html, q);
       }
     },
-    redrawResultHTML: function(newHTML) {
+    lastInstantLength: 0,
+    lastQuery: "",
+    redrawResultHTML: function(newHTML, query) {
       var box = gCliqzBox.resultsBox;
+
+      if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";
+      if(query) UI.lastQuery = query;
+
       var oldBox = box.cloneNode(true);
       var newBox = box.cloneNode(true);
       newBox.innerHTML = newHTML;
@@ -221,28 +224,14 @@ var UI = {
       var oldResults = oldBox.getElementsByClassName("cqz-result-box");
       var newResults = newBox.getElementsByClassName("cqz-result-box");
 
+      if (CliqzAutocomplete.lastResultIsInstant) UI.lastInstantLength = newResults.length;
       // Process Instant Results
       if (CliqzAutocomplete.lastResultIsInstant && newResults.length <= oldResults.length) {
         for(var i=0; i<newResults.length; i++) {
           var oldChild = oldResults[i];
           var curUrls = UI.extractResultUrls(oldChild.innerHTML);
           var newUrls = newResults[i] ? UI.extractResultUrls(newResults[i].innerHTML) : null;
-          // Replace with animation if type changes, e.g. history -> entity
-          if(!UI.urlListsEqual(curUrls, newUrls) &&
-          (oldChild.getAttribute("type").indexOf("cliqz-pattern") == -1 || newResults[i].getAttribute("type").indexOf("cliqz-pattern") == -1)) {
-            // Replace animation
-            newResults[i].style.opacity = 1;
-            newResults[i].className += " fadeOut";
-            setTimeout(function(n, o) {
-              if(o.parentNode == box) {
-                box.replaceChild(n, o);
-                n.className = n.className.replace("fadeOut", "");
-                n.style.opacity = 0;
-                n.className += " fadeIn";
-              }
-            }, 200, newResults[i], box.children[i]);
-          // Replace without animation if urls are not the same
-          } else if(!UI.urlListsEqual(curUrls, newUrls)) {
+          if(!UI.urlListsEqual(curUrls, newUrls)) {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
@@ -250,41 +239,26 @@ var UI = {
         return;
       }
 
+
       var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       box.innerHTML = newHTML;
       newResults = box.getElementsByClassName("cqz-result-box");
 
       // Result animation
       var delay = 0;
-      for(var i=0; i<max; i++) {
+      for(var i=UI.lastInstantLength; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
-        // New result
-        if(!oldRes && newRes) {
+        if(i != 0 && !oldRes && newRes && newRes.getAttribute("type").indexOf("cliqz-pattern") == -1) {
+          //newRes.style.left = "-500px";
           newRes.style.opacity = 0;
           setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
           delay += 100;
-        } else if(oldRes && !newRes) {
-          // No animation here because element is already removed
-        // Replaced result
-        } else {
-          var curUrls = UI.extractResultUrls(oldRes.innerHTML);
-          var newUrls = UI.extractResultUrls(newRes.innerHTML);
-          // Only animate if urls are not equal
-          if (!UI.urlListsEqual(curUrls, newUrls) &&
-            (newRes.getAttribute("type").indexOf("cliqz-pattern") == -1 || i !== 0)) {
-            newRes.style.opacity = 0;
-            setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
-            delay += 100;
-          }
         }
       }
+      var t = Date.now() + delay + (delay>0?700:0);
+      if(t > UI.nextRedraw) UI.nextRedraw = t;
       if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
-
-      // Update redraw timer
-      var nextDraw = Date.now() + delay + (delay>0?400:0);
-      if(nextDraw>UI.nextRedraw) UI.nextRedraw = nextDraw;
-      UI.nextRedraw += 100;
     },
     // Returns a concatenated string of all urls in a result list
     extractResultUrls: function(str) {
@@ -333,7 +307,11 @@ var UI = {
 
         var pos = allArrowable.indexOf(sel);
 
-        UI.lastInputTime = Date.now();
+        UI.lastInputTime = (new Date()).getTime()
+        if(UI.popupClosed) {
+          gCliqzBox.resultsBox.innerHTML = "";
+          UI.popupClosed = false;
+        }
         switch(ev.keyCode) {
             case TAB:
                 if (!CLIQZ.Core.popup.mPopupOpen) return false;
@@ -407,7 +385,7 @@ var UI = {
                 return false;
             default:
                 UI.lastInput = "";
-                UI.nextRedraw = Date.now()+150;
+                UI.nextRedraw = (Date.now() + 150 > UI.nextRedraw) ? (Date.now() + 150) : UI.nextRedraw;
                 UI.preventFirstElementHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
@@ -1674,6 +1652,11 @@ var AGO_CEILINGS=[
 ];
 
 function registerHelpers(){
+    Handlebars.registerHelper('show_main_iframe', function(){
+        if (CliqzUtils.IFRAME_SHOW)
+            return "inherit";
+        return "none";
+    });
     Handlebars.registerHelper('partial', function(name, options) {
         var template = UI.tpl[name] || UI.tpl.empty;
         return new Handlebars.SafeString(template(this));
