@@ -168,6 +168,13 @@
   transition : all 0.2s ease-out !important;
 }
 
+.slideIn {
+  transition: 0.7s !important;
+  -moz-transition: 0.7s !important;
+  left: 0 !important;
+  opacity:1 !important;
+}
+
 #cliqz-results .ez-news-toggle .entity-stories { display: none; }
 #cliqz-results .ez-news-toggle .switcher { position: absolute; top: 14px; right: 22px; }
 #cliqz-results .ez-news-toggle label { color: rgb(207,207,207); font-size: 18px; float: left; cursor: pointer; }
