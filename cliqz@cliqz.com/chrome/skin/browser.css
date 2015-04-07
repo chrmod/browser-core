@@ -100,7 +100,8 @@
 #cliqz-results .cqz-result-title * { font-size: inherit; }
 #cliqz-results .cqz-result-title span { color: #cccccc; }
 /* unvisited result - cliqz */
-#cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title { color: #506bb8; }
+#cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title,
+#cliqz-results .cqz-result-box[type="cliqz-extra"] .cqz-result-title { color: #506bb8; }
 
 #cliqz-results .cqz-result-url { display: inline-block; color: #999999; margin-top: 6px; }
 #cliqz-results .cqz-result-url-ssl { padding-left: 13px; background: url(chrome://cliqzres/content/skin/lock_light.png) no-repeat 2px 5px; }
