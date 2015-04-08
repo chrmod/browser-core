@@ -28,6 +28,184 @@ CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 //CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
 var refineFuncMappings ;
 
+function md5cycle(x, k) {
+    var a = x[0], b = x[1], c = x[2], d = x[3];
+
+    a = ff(a, b, c, d, k[0], 7, -680876936);
+    d = ff(d, a, b, c, k[1], 12, -389564586);
+    c = ff(c, d, a, b, k[2], 17,  606105819);
+    b = ff(b, c, d, a, k[3], 22, -1044525330);
+    a = ff(a, b, c, d, k[4], 7, -176418897);
+    d = ff(d, a, b, c, k[5], 12,  1200080426);
+    c = ff(c, d, a, b, k[6], 17, -1473231341);
+    b = ff(b, c, d, a, k[7], 22, -45705983);
+    a = ff(a, b, c, d, k[8], 7,  1770035416);
+    d = ff(d, a, b, c, k[9], 12, -1958414417);
+    c = ff(c, d, a, b, k[10], 17, -42063);
+    b = ff(b, c, d, a, k[11], 22, -1990404162);
+    a = ff(a, b, c, d, k[12], 7,  1804603682);
+    d = ff(d, a, b, c, k[13], 12, -40341101);
+    c = ff(c, d, a, b, k[14], 17, -1502002290);
+    b = ff(b, c, d, a, k[15], 22,  1236535329);
+
+    a = gg(a, b, c, d, k[1], 5, -165796510);
+    d = gg(d, a, b, c, k[6], 9, -1069501632);
+    c = gg(c, d, a, b, k[11], 14,  643717713);
+    b = gg(b, c, d, a, k[0], 20, -373897302);
+    a = gg(a, b, c, d, k[5], 5, -701558691);
+    d = gg(d, a, b, c, k[10], 9,  38016083);
+    c = gg(c, d, a, b, k[15], 14, -660478335);
+    b = gg(b, c, d, a, k[4], 20, -405537848);
+    a = gg(a, b, c, d, k[9], 5,  568446438);
+    d = gg(d, a, b, c, k[14], 9, -1019803690);
+    c = gg(c, d, a, b, k[3], 14, -187363961);
+    b = gg(b, c, d, a, k[8], 20,  1163531501);
+    a = gg(a, b, c, d, k[13], 5, -1444681467);
+    d = gg(d, a, b, c, k[2], 9, -51403784);
+    c = gg(c, d, a, b, k[7], 14,  1735328473);
+    b = gg(b, c, d, a, k[12], 20, -1926607734);
+
+    a = hh(a, b, c, d, k[5], 4, -378558);
+    d = hh(d, a, b, c, k[8], 11, -2022574463);
+    c = hh(c, d, a, b, k[11], 16,  1839030562);
+    b = hh(b, c, d, a, k[14], 23, -35309556);
+    a = hh(a, b, c, d, k[1], 4, -1530992060);
+    d = hh(d, a, b, c, k[4], 11,  1272893353);
+    c = hh(c, d, a, b, k[7], 16, -155497632);
+    b = hh(b, c, d, a, k[10], 23, -1094730640);
+    a = hh(a, b, c, d, k[13], 4,  681279174);
+    d = hh(d, a, b, c, k[0], 11, -358537222);
+    c = hh(c, d, a, b, k[3], 16, -722521979);
+    b = hh(b, c, d, a, k[6], 23,  76029189);
+    a = hh(a, b, c, d, k[9], 4, -640364487);
+    d = hh(d, a, b, c, k[12], 11, -421815835);
+    c = hh(c, d, a, b, k[15], 16,  530742520);
+    b = hh(b, c, d, a, k[2], 23, -995338651);
+
+    a = ii(a, b, c, d, k[0], 6, -198630844);
+    d = ii(d, a, b, c, k[7], 10,  1126891415);
+    c = ii(c, d, a, b, k[14], 15, -1416354905);
+    b = ii(b, c, d, a, k[5], 21, -57434055);
+    a = ii(a, b, c, d, k[12], 6,  1700485571);
+    d = ii(d, a, b, c, k[3], 10, -1894986606);
+    c = ii(c, d, a, b, k[10], 15, -1051523);
+    b = ii(b, c, d, a, k[1], 21, -2054922799);
+    a = ii(a, b, c, d, k[8], 6,  1873313359);
+    d = ii(d, a, b, c, k[15], 10, -30611744);
+    c = ii(c, d, a, b, k[6], 15, -1560198380);
+    b = ii(b, c, d, a, k[13], 21,  1309151649);
+    a = ii(a, b, c, d, k[4], 6, -145523070);
+    d = ii(d, a, b, c, k[11], 10, -1120210379);
+    c = ii(c, d, a, b, k[2], 15,  718787259);
+    b = ii(b, c, d, a, k[9], 21, -343485551);
+
+    x[0] = add32(a, x[0]);
+    x[1] = add32(b, x[1]);
+    x[2] = add32(c, x[2]);
+    x[3] = add32(d, x[3]);
+
+}
+
+function cmn(q, a, b, x, s, t) {
+    a = add32(add32(a, q), add32(x, t));
+    return add32((a << s) | (a >>> (32 - s)), b);
+}
+
+function ff(a, b, c, d, x, s, t) {
+    return cmn((b & c) | ((~b) & d), a, b, x, s, t);
+}
+
+function gg(a, b, c, d, x, s, t) {
+    return cmn((b & d) | (c & (~d)), a, b, x, s, t);
+}
+
+function hh(a, b, c, d, x, s, t) {
+    return cmn(b ^ c ^ d, a, b, x, s, t);
+}
+
+function ii(a, b, c, d, x, s, t) {
+    return cmn(c ^ (b | (~d)), a, b, x, s, t);
+}
+
+function md51(s) {
+    var txt = '';
+    var n = s.length;
+    var state = [1732584193, -271733879, -1732584194, 271733878];
+    var i;
+    for (i=64; i<=s.length; i+=64) {
+        md5cycle(state, md5blk(s.substring(i-64, i)));
+    }
+    s = s.substring(i-64);
+    var tail = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+    for (var i=0; i<s.length; i++)
+        tail[i>>2] |= s.charCodeAt(i) << ((i%4) << 3);
+        tail[i>>2] |= 0x80 << ((i%4) << 3);
+        if (i > 55) {
+            md5cycle(state, tail);
+            for (i=0; i<16; i++) tail[i] = 0;
+        }
+    tail[14] = n*8;
+    md5cycle(state, tail);
+    return state;
+}
+
+/* there needs to be support for Unicode here,
+ * unless we pretend that we can redefine the MD-5
+ * algorithm for multi-byte characters (perhaps
+ * by adding every four 16-bit characters and
+ * shortening the sum to 32 bits). Otherwise
+ * I suggest performing MD-5 as if every character
+ * was two bytes--e.g., 0040 0025 = @%--but then
+ * how will an ordinary MD-5 sum be matched?
+ * There is no way to standardize text to something
+ * like UTF-8 before transformation; speed cost is
+ * utterly prohibitive. The JavaScript standard
+ * itself needs to look at this: it should start
+ * providing access to strings as preformed UTF-8
+ * 8-bit unsigned value arrays.
+ */
+function md5blk(s) { /* I figured global was faster.   */
+    var md5blks = [], i; /* Andy King said do it this way. */
+        for (i=0; i<64; i+=4) {
+        md5blks[i>>2] = s.charCodeAt(i)
+        + (s.charCodeAt(i+1) << 8)
+        + (s.charCodeAt(i+2) << 16)
+        + (s.charCodeAt(i+3) << 24);
+    }
+    return md5blks;
+}
+
+var hex_chr = '0123456789abcdef'.split('');
+
+function rhex(n)
+{
+    var s='', j=0;
+    for(; j<4; j++)
+        s += hex_chr[(n >> (j * 8 + 4)) & 0x0F]
+        + hex_chr[(n >> (j * 8)) & 0x0F];
+    return s;
+}
+
+function hex(x) {
+    for (var i=0; i<x.length; i++)
+        x[i] = rhex(x[i]);
+    return x.join('');
+}
+
+function md5(s) {
+    return hex(md51(s));
+}
+
+/* this function is much faster,
+so if possible we use it. Some IEs
+are the only ones I know of that
+need the idiotic second function,
+generated by an if clause.  */
+
+function add32(a, b) {
+    return (a + b) & 0xFFFFFFFF;
+}
+
 var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
@@ -966,7 +1144,7 @@ var CliqzHumanWeb = {
 
                         }, CliqzHumanWeb.WAIT_TIME, activeURL);
                     }
-
+                    CliqzUtils.log("location change ", CliqzHumanWeb.LOG_KEY);
 
                     var status = null;
 
@@ -1410,8 +1588,6 @@ var CliqzHumanWeb = {
                     })
                 }
                 CliqzHumanWeb.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzHumanWeb.counter};
-                //Need a better fix, can't locate the cache.
-                //CliqzHumanWeb.addURLtoDB(activeURL, CliqzHumanWeb.state['v'][activeURL]['ref'], CliqzHumanWeb.state['v'][activeURL]);
             }
         }
 
@@ -1694,11 +1870,14 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]))
+                CliqzHumanWeb.createTable();
             }
             return;
         }
         else {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));
+            CliqzHumanWeb.createTable();
+            /*
             var usafe = "create table usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
                 ref VARCHAR(255),\
@@ -1711,7 +1890,15 @@ var CliqzHumanWeb = {
                 ft BOOLEAN DEFAULT 1 \
             )";
 
+            var hash_usafe = "create table hashusafe(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
+                private BOOLEAN DEFAULT 0,\
+                checked BOOLEAN DEFAULT 0 \
+            )";
+
             CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
+            CliqzHumanWeb.dbConn.executeSimpleSQL(hashusafe);
+            */
         }
 
     },
@@ -1730,6 +1917,37 @@ var CliqzHumanWeb = {
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
                     res.push({"url": row.getResultByName("url"), "ref": row.getResultByName("ref"), "private": row.getResultByName("private"), "checked": row.getResultByName("checked")});
+                }
+            },
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                callback(true);
+            },
+            handleCompletion: function(aReason) {
+                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    callback(null);
+                }
+                else {
+                    if (res.length == 1) {
+                        callback(res[0]);
+                    }
+                    else {
+                        callback(null);
+                    }
+                }
+            }
+        });
+    },
+    getPageFromHashTable: function(url, callback) {
+        var res = [];
+        var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashusafe WHERE hash = :hash");
+        st.params.hash = md5(url);
+        var res = [];
+        st.executeAsync({
+            handleResult: function(aResultSet) {
+                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+                    res.push({"hash": row.getResultByName("hash"), "private": row.getResultByName("private"), "checked": row.getResultByName("checked")});
                 }
             },
             handleError: function(aError) {
@@ -1882,12 +2100,25 @@ var CliqzHumanWeb = {
         //
         if (requery.test(url) || reref.test(url) || yrequery.test(url) || brequery.test(url) || rysearch.test(url)) return;
 
+        //Check if url is in hashtable
+        var ft = 1;
+        CliqzHumanWeb.getPageFromHashTable(url, function(_res) {
+            if (_res) {
+                ft = 0;
+            }
+            else{
+                // we never seen it, let's add it
+                 paylobj['ft'] = true;
+            }
+        })
+
 
 
         var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private FROM usafe WHERE url = :url");
         stmt.params.url = url;
 
         var res = [];
+        CliqzUtils.log("in add url ", CliqzHumanWeb.LOG_KEY);
         stmt.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
@@ -1903,16 +2134,12 @@ var CliqzHumanWeb = {
                 }
                 else {
                     if (res.length == 0) {
-                        // we never seen it, let's add it
-                        paylobj['ft'] = true;
-
-                        //if (CliqzHumanWeb.debug) CliqzUtils.log("insert Pagepayload" + CliqzHumanWeb.state['v'][url] ,CliqzHumanWeb.LOG_KEY);
-
-                        var st = CliqzHumanWeb.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload)");
+                        var st = CliqzHumanWeb.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload, ft) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload, :ft)");
                         st.params.url = url;
                         st.params.ref = ref;
                         st.params.last_visit = tt;
                         st.params.first_visit = tt;
+                        st.params.ft = ft;
                         st.params.payload = JSON.stringify(paylobj || {});
 
                         if (paylobj['x']==null) {
@@ -1941,6 +2168,7 @@ var CliqzHumanWeb = {
                         }
 
                         while (st.executeStep()) {};
+                        res = [];
                     }
                     else {
                         if (res[0]['checked']==0) {
@@ -1970,20 +2198,34 @@ var CliqzHumanWeb = {
         });
     },
     setAsPrivate: function(url) {
-        var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private WHERE url = :url");
+        var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        st.params.checked = 1;
-        st.params.private = 1;
         while (st.executeStep()) {};
-        // Update the private cache
+        if(CliqzHumanWeb.state['v'][url]){
+            delete CliqzHumanWeb.state['v'][url];
+        }
+
+
+        //Add has in the hashusafe table
+        var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
+        hash_st.params.hash = md5(url);
+        hash_st.params.private = 1;
+        while (hash_st.executeStep()) {};
     },
     setAsPublic: function(url) {
-        var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET checked = :checked, private = :private, ft = :ft WHERE url = :url")
+        var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
         st.params.url = url;
-        st.params.checked = 1;
-        st.params.private = 0;
-        st.params.ft = 0;
         while (st.executeStep()) {};
+        if(CliqzHumanWeb.state['v'][url]){
+            delete CliqzHumanWeb.state['v'][url];
+        }
+
+        //Add has in the hashusafe table
+        var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
+        hash_st.params.hash = md5(url);
+        hash_st.params.private = 0;
+        while (hash_st.executeStep()) {};
+
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
         var tt = new Date().getTime();
@@ -2352,5 +2594,28 @@ var CliqzHumanWeb = {
     refineMaskUrl: function(url){
         var result = CliqzHumanWeb.maskURL(url);
         return result;
+    },
+    createTable: function(){
+            var usafe = "create table if not exists usafe(\
+                url VARCHAR(255) PRIMARY KEY NOT NULL,\
+                ref VARCHAR(255),\
+                last_visit INTEGER,\
+                first_visit INTEGER,\
+                reason VARCHAR(256), \
+                private BOOLEAN DEFAULT 0,\
+                checked BOOLEAN DEFAULT 0, \
+                payload VARCHAR(4096), \
+                ft BOOLEAN DEFAULT 1 \
+            )";
+
+            var hash_usafe = "create table if not exists hashusafe(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
+                private BOOLEAN DEFAULT 0,\
+                checked BOOLEAN DEFAULT 0 \
+            )";
+
+            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
+            CliqzHumanWeb.dbConn.executeSimpleSQL(hash_usafe);
+
     }
 };
