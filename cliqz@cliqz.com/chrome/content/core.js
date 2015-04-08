@@ -28,8 +28,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 //  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -284,7 +284,7 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
-            delete window.ResultProviders;
+            delete window.CliqzResultProviders;
             delete window.CliqzCategories;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;

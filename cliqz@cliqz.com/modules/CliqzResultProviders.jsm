@@ -5,7 +5,7 @@
  *
  */
 
-var EXPORTED_SYMBOLS = ['ResultProviders'];
+var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -53,14 +53,14 @@ var INIT_KEY = 'newProvidersAdded',
 // https://developers.google.com/custom-search/docs/xml_results#hlsp
 
 
-var ResultProviders = {
+var CliqzResultProviders = {
     init: function(){
         // creates shortcuts for all the engines
         this.getSearchEngines();
     },
     getCustomResults: function(q){
         var results = null;
-        var customQuery = ResultProviders.isCustomQuery(q);
+        var customQuery = CliqzResultProviders.isCustomQuery(q);
 
         if(customQuery){
             results = [
@@ -93,10 +93,10 @@ var ResultProviders = {
             var engine = defEngines[i];
             if(engine.hidden != true && engine.iconURI){
                 engines[engine.name] = {
-                    prefix: ResultProviders.getShortcut(engine.name),
+                    prefix: CliqzResultProviders.getShortcut(engine.name),
                     name: engine.name,
                     icon: engine.iconURI.spec,
-                    code: ResultProviders.getEngineCode(engine.name),
+                    code: CliqzResultProviders.getEngineCode(engine.name),
                     base_url: engine.searchForm
                 }
 
@@ -145,7 +145,7 @@ var ResultProviders = {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
                 queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
-                engineCode: ResultProviders.getEngineCode(MAPPING[start])
+                engineCode: CliqzResultProviders.getEngineCode(MAPPING[start])
             };
         } else if(MAPPING.hasOwnProperty(end)) {
             var uq = q.substring(0, q.length - end.length - 1);
@@ -153,7 +153,7 @@ var ResultProviders = {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
                 queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec,
-                engineCode: ResultProviders.getEngineCode(MAPPING[end])
+                engineCode: CliqzResultProviders.getEngineCode(MAPPING[end])
             };
         }
 
@@ -165,7 +165,7 @@ var ResultProviders = {
             if(MAPPING[key] === name)
                 return key;
 
-		return ResultProviders.createShortcut(name);
+		return CliqzResultProviders.createShortcut(name);
 	},
 	// create a unique shortcut
 	createShortcut: function(name){
@@ -223,4 +223,4 @@ if (!CliqzUtils.getPref(INIT_KEY, false)) {
     }
 }
 
-ResultProviders.init();
+CliqzResultProviders.init();

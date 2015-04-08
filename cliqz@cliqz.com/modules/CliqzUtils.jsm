@@ -16,8 +16,8 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -1115,7 +1115,7 @@ var CliqzUtils = {
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = ResultProviders.getSearchEngines(),
+            engines = CliqzResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
@@ -1131,7 +1131,7 @@ var CliqzUtils = {
                 item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
             }
             item.addEventListener('command', function(event) {
-                ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
                 CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 

@@ -1192,7 +1192,7 @@ function resultClick(ev){
                         setting: trends ? 'trends' : 'latest'
                       });
                     }, 0);
-                    
+
                     return;
                 default:
                     break;
@@ -1483,7 +1483,7 @@ function onEnter(ev, item){
     });
     CLIQZ.Core.triggerLastQ = true;
 
-    var customQuery = ResultProviders.isCustomQuery(input);
+    var customQuery = CliqzResultProviders.isCustomQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }

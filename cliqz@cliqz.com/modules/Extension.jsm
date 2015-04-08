@@ -10,8 +10,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+    'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
@@ -142,7 +142,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
-        Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');

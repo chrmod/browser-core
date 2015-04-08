@@ -26,8 +26,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+    'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSmartCliqzCache',
     'chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
@@ -166,7 +166,7 @@ var Mixer = {
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if(Mixer.ezURLs[url]) {
                 // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age                
+                // TODO: perhaps only use this cached data if newer than certain age
                 var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
                 if(ez) {
                     ez = Result.clone(ez);
@@ -185,7 +185,7 @@ var Mixer = {
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
         if(cliqzExtra && cliqzExtra.length > 0) {
-            
+
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
@@ -280,7 +280,7 @@ var Mixer = {
                 chosen = new Array();
 
             for (var i = 0; i< se.length; i++){
-                var alt_s_e = ResultProviders.getSearchEngines()[se[i].name];
+                var alt_s_e = CliqzResultProviders.getSearchEngines()[se[i].name];
                 if (typeof alt_s_e != 'undefined'){
                     se[i].code = alt_s_e.code;
                     var url = se[i].base_url || alt_s_e.base_url;
