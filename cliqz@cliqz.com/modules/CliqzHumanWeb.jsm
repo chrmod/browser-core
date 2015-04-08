@@ -1615,11 +1615,15 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-        CliqzHumanWeb.trk = [];
-        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
+        /* TBF : Do not send in batches */
+        CliqzHumanWeb.trk.forEach(function(element){
+            CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
+            CliqzHumanWeb.trk = [];
+            CliqzHumanWeb._telemetry_start = (new Date()).getTime();
 
-        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
+            CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
+
+        })
     },
     pushTelemetryCallback: function(req){
         try {
