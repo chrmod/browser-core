@@ -52,9 +52,9 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
     // The number of times to attempt loading smart CLIQZ results asynchronously
-    smartCliqzMaxAttempts = 5,
+    smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
-    smartCliqzWaitTime = 150
+    smartCliqzWaitTime = 100
     ;
 
 function lg(msg){
@@ -171,7 +171,7 @@ var UI = {
         //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
-
+        CliqzUtils.log(JSON.stringify(currentResults.results), 'NORMAL RESULTS');
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
