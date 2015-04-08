@@ -1110,7 +1110,7 @@ var CliqzUtils = {
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
 
-      menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
+      //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
