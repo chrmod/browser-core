@@ -243,7 +243,7 @@ var CliqzHumanWeb = {
     getRedirects: function(url, res) {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
-            if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301')) {
+            if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
                 if (CliqzHumanWeb.httpCache[key]['location']==url) {;
                     res.unshift(key)
                     CliqzHumanWeb.getRedirects(key, res);
@@ -1008,7 +1008,7 @@ var CliqzHumanWeb = {
 
 
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red':red};
+                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': CliqzHumanWeb.maskURL(referral), 'red':red};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
@@ -1402,7 +1402,13 @@ var CliqzHumanWeb = {
                 //Only add if gur. that they are public and the link exists in the double fetch page(Public).it's available on the public page.Such
                 //check is not done, therefore we do not push the links clicked on that page. - potential record linkage.
 
-                //CliqzHumanWeb.state['v'][activeURL]['c'].push({'l': ''+ CliqzHumanWeb.maskURL(targetURL), 't': CliqzHumanWeb.counter});
+                if(!CliqzHumanWeb.isSuspiciousURL(targetURL) && !CliqzHumanWeb.dropLongURL(targetURL)){
+                    CliqzHumanWeb.getPageFromDB(targetURL, function(res) {
+                        if (res && (res['private'] == 0)) {
+                            CliqzHumanWeb.state['v'][activeURL]['c'].push({'l': ''+ CliqzHumanWeb.maskURL(targetURL), 't': CliqzHumanWeb.counter});
+                        }
+                    })
+                }
                 CliqzHumanWeb.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzHumanWeb.counter};
                 //Need a better fix, can't locate the cache.
                 //CliqzHumanWeb.addURLtoDB(activeURL, CliqzHumanWeb.state['v'][activeURL]['ref'], CliqzHumanWeb.state['v'][activeURL]);
@@ -1575,10 +1581,14 @@ var CliqzHumanWeb = {
             msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
         }
 
+        //TBF
+
+        /*
         //Remove ref.
         if(msg.payload.ref){
           delete msg.payload.ref;
         }
+        */
 
         //Check the depth. Just to be extra sure.
 
