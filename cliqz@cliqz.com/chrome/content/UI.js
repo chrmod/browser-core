@@ -184,7 +184,7 @@ var UI = {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(function(){ UI.dispatchRedraw(); }, 100, html, id, q);
+        setTimeout(function(){ UI.dispatchRedraw(html, id, q); }, 100);
       } else {
         UI.redrawResultHTML(html, q);
       }
