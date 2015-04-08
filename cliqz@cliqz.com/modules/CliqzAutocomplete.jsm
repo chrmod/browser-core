@@ -17,8 +17,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
@@ -532,7 +532,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
-                [q, this.customResults] = ResultProviders.getCustomResults(q);
+                [q, this.customResults] = CliqzResultProviders.getCustomResults(q);
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {

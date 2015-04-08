@@ -28,8 +28,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 //  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
@@ -52,8 +52,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-var CLIQZ = CLIQZ || {};
-CLIQZ.Core = CLIQZ.Core || {
+Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+
+window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
@@ -165,21 +166,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
-            window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
-                var tabs = window.gBrowser.tabs;
-                var curPanel = window.gBrowser.selectedTab.linkedPanel;
-                var maxId = -1, newPanel = "";
-                for (var i = 0; i < tabs.length; i++) {
-                    var id = tabs.item(i).linkedPanel.split("-");
-                    id = parseInt(id[id.length-1]);
-                    if (id > maxId) {
-                        newPanel = tabs.item(i).linkedPanel;
-                        maxId = id;
-                    };
-                };
-                CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
-                CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
-            }, false);
+            window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -269,6 +256,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
+            window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -287,11 +275,15 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
-            delete window.ResultProviders;
+            delete window.CliqzResultProviders;
             delete window.CliqzCategories;
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
+            delete window.CliqzSpellCheck;
+            delete window.CliqzHistory;
+            delete window.CliqzHistoryPattern;
+            delete window.CliqzHandlebars;
         }
     },
     restart: function(soft){

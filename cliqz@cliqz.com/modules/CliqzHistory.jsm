@@ -146,6 +146,23 @@ var CliqzHistory = {
                 title: CliqzHistory.escapeSQL(title)
               });
   },
+  tabOpen: function(){
+      var browser = CliqzUtils.getWindow().gBrowser,
+          tabs = browser.tabs,
+          curPanel = browser.selectedTab.linkedPanel,
+          maxId = -1, newPanel = "";
+
+      for (var i = 0; i < tabs.length; i++) {
+          var id = tabs.item(i).linkedPanel.split("-");
+          id = parseInt(id[id.length-1]);
+          if (id > maxId) {
+              newPanel = tabs.item(i).linkedPanel;
+              maxId = id;
+          };
+      };
+      CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
+      CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+  },
   getTabData: function(panel, attr) {
     if (!CliqzHistory.tabData[panel]) {
       return undefined;

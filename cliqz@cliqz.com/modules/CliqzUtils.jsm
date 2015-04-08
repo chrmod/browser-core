@@ -16,8 +16,8 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -50,7 +50,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -701,7 +701,7 @@ var CliqzUtils = {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
-    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
+    return CliqzUtils._resultOrder && CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
   },
 
   _telemetry_req: null,
@@ -847,9 +847,8 @@ var CliqzUtils = {
     }
 
     if(arguments.length>1){
-      for(var i=1;i<arguments.length;i++){
-        ret = ret.replace('{}', arguments[i]);
-      }
+      var i = 1, args = arguments;
+      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
     }
 
     return ret;
@@ -1128,7 +1127,7 @@ var CliqzUtils = {
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = ResultProviders.getSearchEngines(),
+            engines = CliqzResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
@@ -1144,7 +1143,7 @@ var CliqzUtils = {
                 item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
             }
             item.addEventListener('command', function(event) {
-                ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
                 CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 

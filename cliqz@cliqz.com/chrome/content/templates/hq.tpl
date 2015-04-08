@@ -25,7 +25,7 @@
         '>
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow'>{{ emphasis data.description text 2 true }}
+        <div class='cqz-result-desc overflow' style="white-space: normal;height: 20px;">{{ emphasis data.description text 2 true }}
             {{#unless data.richData.images.length}}
                 {{#each (links_or_sources data.richData) }}
                     <span url='{{url}}' show-status='true'
@@ -37,7 +37,7 @@
             {{/unless}}
         </div>
         {{#if (links_or_sources data.richData) }}
-            <div class="cqz-one-line" style="margin-top: 5px;{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h3') }}display: none;{{/if}}">
+            <div class="cqz-one-line" style="white-space: normal;height: 20px;margin-top: 5px;{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h3') }}display: none;{{/if}}">
             {{#each (links_or_sources data.richData)}}
                 <span url='{{url}}' show-status='true'
                      extra='sources{{ @index }}'
