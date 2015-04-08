@@ -272,6 +272,9 @@ var UI = {
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
 
         allArrowable = allArrowable.filter(function(el){
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
             if(!el.getAttribute('arrow-if-visible')) return true;
 
             // check if the element is visible
@@ -1165,12 +1168,21 @@ function resultClick(ev){
                     break;
                 case 'news-toggle':
                     setTimeout(function(){
-                      var trends = document.getElementById('trends', el.parentElement).checked;
-                      CliqzUtils.setPref('news-toggle-state', trends);
+                      var newLatest = document.getElementById('actual', el.parentElement).checked,
+                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                          ezID = JSON.parse(el.getAttribute('data-subType')).ez,
+                          oldLatest = latest[ezID];
+
+                      latest[ezID] = newLatest
+
+                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
+
                       CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'news-toggle',
-                        setting: trends ? 'trends' : 'latest'
+                        ezID: ezID,
+                        old_setting: oldLatest ? 'latest': 'trends',
+                        new_setting: newLatest ? 'latest': 'trends'
                       });
                     }, 0);
 

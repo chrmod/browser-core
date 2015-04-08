@@ -258,4 +258,14 @@ function registerHelpers(){
     Handlebars.registerHelper('pref', function(key) {
         return CliqzUtils.getPref(key, false);
     });
+
+    Handlebars.registerHelper('isLatest', function(subType) {
+        try {
+          var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+              ezID = JSON.parse(subType).ez;
+          return latest[ezID];
+        } catch(e){
+          return false;
+        }
+    });
 }
