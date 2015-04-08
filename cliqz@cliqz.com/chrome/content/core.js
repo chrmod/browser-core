@@ -51,6 +51,10 @@ var Services = Services || CliqzUtils.getWindow().Services;
 
 if(window.CLIQZ === undefined)
     Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+else {
+    //faulty uninstall of previous version
+    window.CLIQZ = window.CLIQZ || {};
+}
 
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
