@@ -201,7 +201,6 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
-            Extension.addScript('libs/handlebars-v1.3.0', win);
 
             Extension.addButtons(win);
 
