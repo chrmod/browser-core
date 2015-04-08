@@ -162,21 +162,7 @@ CLIQZ.Core = CLIQZ.Core || {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
-            window.gBrowser.tabContainer.addEventListener("TabOpen", function(){
-                var tabs = window.gBrowser.tabs;
-                var curPanel = window.gBrowser.selectedTab.linkedPanel;
-                var maxId = -1, newPanel = "";
-                for (var i = 0; i < tabs.length; i++) {
-                    var id = tabs.item(i).linkedPanel.split("-");
-                    id = parseInt(id[id.length-1]);
-                    if (id > maxId) {
-                        newPanel = tabs.item(i).linkedPanel;
-                        maxId = id;
-                    };
-                };
-                CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
-                CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
-            }, false);
+            window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -266,6 +252,7 @@ CLIQZ.Core = CLIQZ.Core || {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
+            window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
