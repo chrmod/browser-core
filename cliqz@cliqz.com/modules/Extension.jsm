@@ -296,9 +296,9 @@ var Extension = {
             }
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
-            win.CLIQZ = null;
-            win.CLIQZResults = null;
-        }catch(e){Cu.reportError(e); }
+            delete win.CLIQZ.UI;
+            delete win.CLIQZ;
+        }catch(e){ Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
         if (topic == 'domwindowopened') {

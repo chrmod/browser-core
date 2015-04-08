@@ -1550,7 +1550,6 @@ function arrowNavigationTelemetry(el){
     CliqzUtils.telemetry(action);
 }
 
-ctx.CLIQZ = ctx.CLIQZ || {};
 ctx.CLIQZ.UI = UI;
 
 })(this);

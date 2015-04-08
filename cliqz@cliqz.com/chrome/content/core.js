@@ -49,8 +49,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-var CLIQZ = CLIQZ || {};
-CLIQZ.Core = CLIQZ.Core || {
+Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+
+window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
@@ -276,6 +277,10 @@ CLIQZ.Core = CLIQZ.Core || {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
+            delete window.CliqzSpellCheck;
+            delete window.CliqzHistory;
+            delete window.CliqzHistoryPattern;
+            delete window.CliqzHandlebars;
         }
     },
     restart: function(soft){
