@@ -149,6 +149,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
