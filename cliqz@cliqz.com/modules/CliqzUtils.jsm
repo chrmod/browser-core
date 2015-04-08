@@ -16,8 +16,8 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -693,7 +693,7 @@ var CliqzUtils = {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
-    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
+    return CliqzUtils._resultOrder && CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
   },
 
   _telemetry_req: null,
@@ -839,9 +839,8 @@ var CliqzUtils = {
     }
 
     if(arguments.length>1){
-      for(var i=1;i<arguments.length;i++){
-        ret = ret.replace('{}', arguments[i]);
-      }
+      var i = 1, args = arguments;
+      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
     }
 
     return ret;
@@ -1110,11 +1109,13 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
+
+      //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = ResultProviders.getSearchEngines(),
+            engines = CliqzResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
@@ -1130,7 +1131,7 @@ var CliqzUtils = {
                 item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
             }
             item.addEventListener('command', function(event) {
-                ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
                 CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
@@ -1179,6 +1180,24 @@ var CliqzUtils = {
 
         return item
     },
+    createCheckBoxItem: function(doc, key, label, activeState){
+      function optInOut(){
+          return CliqzUtils.getPref(key, false) == (activeState || true)?
+                           'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                           'url(chrome://cliqzres/content/skin/opt-out.svg)';
+      }
+
+      var btn = doc.createElement('menuitem');
+      btn.setAttribute('label', label || key);
+      btn.setAttribute('class', 'menuitem-iconic');
+      btn.style.listStyleImage = optInOut();
+      btn.addEventListener('command', function(event) {
+          CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+          btn.style.listStyleImage = optInOut();
+      }, false);
+
+      return btn;
+    },
     createHumanMenu: function(win){
         var doc = win.document,
             menu = doc.createElement('menu'),
@@ -1186,22 +1205,8 @@ var CliqzUtils = {
 
         menu.setAttribute('label', 'Human Web');
 
-        function optInOut(){
-            return CliqzUtils.getPref('dnt', false) == false?
-                             'url(chrome://cliqzres/content/skin/opt-in.svg)':
-                             'url(chrome://cliqzres/content/skin/opt-out.svg)';
-        }
-
-        var safeSearchBtn = doc.createElement('menuitem');
-        safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
-        safeSearchBtn.setAttribute('class', 'menuitem-iconic');
-        safeSearchBtn.style.listStyleImage = optInOut();
-        safeSearchBtn.addEventListener('command', function(event) {
-            CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
-            safeSearchBtn.style.listStyleImage = optInOut();
-        }, false);
+        var safeSearchBtn = CliqzUtils.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
         menuPopup.appendChild(safeSearchBtn);
-
 
         menuPopup.appendChild(
             CliqzUtils.createSimpleBtn(

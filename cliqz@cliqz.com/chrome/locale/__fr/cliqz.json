@@ -35,8 +35,11 @@
     "moreResults":{
         "message":"plus ..."
     },
-    "customSearch":{
-        "message":"Recherche <b><i>{}</i></b> sur {}"
+    "search":{
+        "message":"recherche"
+    },
+    "on":{
+        "message":"sur"
     },
     "peoplePositionAt":{
         "message":"à"

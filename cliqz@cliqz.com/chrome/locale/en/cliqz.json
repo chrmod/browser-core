@@ -56,8 +56,11 @@
     "moreResults":{
         "message":"more ..."
     },
-    "customSearch":{
-        "message":"Search <b><i>{}</i></b> on {}"
+    "search":{
+        "message":"search"
+    },
+    "on":{
+        "message":"on"
     },
     "peoplePositionAt":{
         "message":"at"
@@ -421,6 +424,12 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
+    },
+    "newsToggleLatest":{
+        "message": "Latest"
+    },
+    "newsToggleTrends":{
+        "message": "Trending"
     },
     "ez_video-popular": {
       "message": "Popular"

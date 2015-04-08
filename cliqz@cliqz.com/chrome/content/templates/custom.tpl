@@ -2,7 +2,7 @@
     <div class='cqz-result-center'>
         <div class='cqz-custom-text overflow'>
         	{{#with data}}
-				{{{local 'customSearch' q engine}}}
+				{{nameify (local 'search')}} <b><i>{{q}}</i></b> {{local 'on'}} {{engine}}
         	{{/with}}
 		</div>
     </div>

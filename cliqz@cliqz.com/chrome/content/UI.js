@@ -14,14 +14,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
   'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
+  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
 (function(ctx) {
 
 
-var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
+var TEMPLATES = CliqzUtils.TEMPLATES,
     VERTICALS = {
         //'s': 'shopping',
         //'g': 'gaming'  ,
@@ -33,9 +35,6 @@ var TEMPLATES = CliqzUtils.TEMPLATES, //temporary
         //'k': 'science' ,
         //'l': 'dictionary'
     },
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
-    TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
-    tpl = {},
     IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
     TAB = 9,
@@ -57,21 +56,9 @@ function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
-function fetchTemplate(tName, isPartial) {
-    try {
-        CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
-            if(isPartial === true)
-                Handlebars.registerPartial(tName, res.response);
-            else
-                UI.tpl[tName] = Handlebars.compile(res.response);
-        });
-    } catch(e){
-        lg('ERROR loading template ' + tName);
-    }
-}
+
 
 var UI = {
-    tpl: {},
     showDebug: false,
     preventFirstElementHighlight: false,
     lastInputTime: 0,
@@ -86,21 +73,15 @@ var UI = {
             }
         }
 
-        Object.keys(TEMPLATES).forEach(fetchTemplate);
-        MESSAGE_TEMPLATES.forEach(fetchTemplate);
-        PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
-
-        registerHelpers();
-
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
         gCliqzBox = box;
 
         //check if loading is done
-        if(!UI.tpl.main)return;
+        if(!CliqzHandlebars.tplCache.main)return;
 
-        box.innerHTML = UI.tpl.main();
+        box.innerHTML = CliqzHandlebars.tplCache.main();
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
@@ -176,7 +157,7 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.dispatchRedraw(UI.tpl.results(currentResults), now, res.q);
+            UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
           }
 
         //might be unset at the first open
@@ -283,7 +264,7 @@ var UI = {
     redrawResult: function(filter, template, data){
         var result;
         if(result =$('.' + IC + filter, gCliqzBox))
-            result.innerHTML = UI.tpl[template](data);
+            result.innerHTML = CliqzHandlebars.tplCache[template](data);
     },
     keyDown: function(ev){
         var sel = getResultSelection(),
@@ -291,6 +272,9 @@ var UI = {
             allArrowable = Array.prototype.slice.call($$('[arrow]', gCliqzBox));
 
         allArrowable = allArrowable.filter(function(el){
+            // dont consider hidden elements
+            if(el.offsetParent == null) return false;
+
             if(!el.getAttribute('arrow-if-visible')) return true;
 
             // check if the element is visible
@@ -971,7 +955,7 @@ function updateMessageState(state, messages) {
     case "show":
       gCliqzBox.messageContainer.innerHTML = "";
       Object.keys(messages).forEach(function(tpl_name){
-          gCliqzBox.messageContainer.innerHTML += UI.tpl[tpl_name](messages[tpl_name]);
+          gCliqzBox.messageContainer.innerHTML += CliqzHandlebars.tplCache[tpl_name](messages[tpl_name]);
       });
       break;
     case "hide":
@@ -1097,7 +1081,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = el.getAttribute('extra'), //extra data about the link
-          result_order = currentResults.results.map(function(r){ return r.data.kind; }),
+          result_order = currentResults && currentResults.results.map(function(r){ return r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1182,6 +1166,27 @@ function resultClick(ev){
                 case 'alternative-search-engine':
                     enginesClick(ev);
                     break;
+                case 'news-toggle':
+                    setTimeout(function(){
+                      var newLatest = document.getElementById('actual', el.parentElement).checked,
+                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                          ezID = JSON.parse(el.getAttribute('data-subType')).ez,
+                          oldLatest = latest[ezID];
+
+                      latest[ezID] = newLatest
+
+                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
+
+                      CliqzUtils.telemetry({
+                        type: 'activity',
+                        action: 'news-toggle',
+                        ezID: ezID,
+                        old_setting: oldLatest ? 'latest': 'trends',
+                        new_setting: newLatest ? 'latest': 'trends'
+                      });
+                    }, 0);
+
+                    return;
                 default:
                     break;
             }
@@ -1471,7 +1476,7 @@ function onEnter(ev, item){
     });
     CLIQZ.Core.triggerLastQ = true;
 
-    var customQuery = ResultProviders.isCustomQuery(input);
+    var customQuery = CliqzResultProviders.isCustomQuery(input);
     if(customQuery){
         urlbar.value = customQuery.queryURI;
     }
@@ -1557,218 +1562,6 @@ function arrowNavigationTelemetry(el){
     CliqzUtils.telemetry(action);
 }
 
-var AGO_CEILINGS=[
-    [0            , '',                , 1],
-    [120          , 'ago1Minute' , 1],
-    [3600         , 'agoXMinutes'   , 60],
-    [7200         , 'ago1Hour' , 1],
-    [86400        , 'agoXHours'   , 3600],
-    [172800       , 'agoYesterday'          , 1],
-    [604800       , 'agoXDays'     , 86400],
-    [4838400      , 'ago1Month'  , 1],
-    [29030400     , 'agoXMonths'   , 2419200],
-    [58060800     , 'ago1year'   , 1],
-    [2903040000   , 'agoXYears'     , 29030400],
-];
-
-function registerHelpers(){
-    Handlebars.registerHelper('show_main_iframe', function(){
-        if (CliqzUtils.IFRAME_SHOW)
-            return "inherit";
-        return "none";
-    });
-    Handlebars.registerHelper('partial', function(name, options) {
-        var template = UI.tpl[name] || UI.tpl.empty;
-        return new Handlebars.SafeString(template(this));
-    });
-
-    Handlebars.registerHelper('get_array_element', function(arr, idx, subelement) {
-      if (typeof(subelement) == undefined)
-        return arr && arr[idx];
-      else
-        return arr && arr[idx] && arr[idx][subelement];
-    });
-
-    Handlebars.registerHelper('agoline', function(ts, options) {
-        if(!ts) return '';
-        var now = (new Date().getTime() / 1000),
-            seconds = parseInt(now - ts),
-            i=0, slot;
-
-        while (slot = AGO_CEILINGS[i++])
-            if (seconds < slot[0])
-                return CliqzUtils.getLocalizedString(slot[1], parseInt(seconds / slot[2]))
-        return '';
-    });
-
-    Handlebars.registerHelper('sec_to_duration', function(seconds) {
-        if(!seconds)return null;
-        try {
-            var s = parseInt(seconds);
-            return Math.floor(s/60) + ':' + ("0" + (s%60)).slice(-2);
-        } catch(e) {
-            return null;
-        }
-    });
-
-    Handlebars.registerHelper('generate_logo', function(url, options) {
-        return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
-    });
-
-    Handlebars.registerHelper('shopping_stars_width', function(rating) {
-        return rating * 14;
-    });
-
-    Handlebars.registerHelper('even', function(value, options) {
-        if (value%2) {
-            return options.fn(this);
-        } else {
-            return options.inverse(this);
-        }
-    });
-
-    Handlebars.registerHelper('local', function() {
-        return CliqzUtils.getLocalizedString.apply(null, arguments);
-    });
-
-    Handlebars.registerHelper('views_helper', function(val) {
-        if(!val || val == '-1')return '';
-
-        try {
-            return parseFloat(val).toLocaleString() + ' ' + CliqzUtils.getLocalizedString('views');
-        } catch(e) {
-            return ''
-        }
-    });
-
-    Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
-            if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
-                return 'cqz-result-h2';
-            // BM hq result, but not the 1st result -> remove images
-            data_richData.images = [];
-
-        return 'cqz-result-h3';
-    });
-
-    Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
-        return idx < max_idx;
-    });
-
-    Handlebars.registerHelper('json', function(value, options) {
-        return JSON.stringify(value);
-    });
-
-    Handlebars.registerHelper('log', function(value, key) {
-        console.log('TEMPLATE LOG HELPER', value);
-    });
-
-    Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
-        // lucian: questionable solution performance wise
-        // strip out all the control chars
-        // eg :text = "... \u001a"
-        q = q.trim();
-        if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
-
-        if(!text || !q || q.length < (minQueryLength || 2)) return text;
-
-        var map = Array(text.length),
-            tokens = q.toLowerCase().split(/\s+|\.+/).filter(function(t){ return t && t.length>1; }),
-            lowerText = text.toLowerCase(),
-            out, high = false;
-
-        tokens.forEach(function(token){
-            var poz = lowerText.indexOf(token);
-            while(poz !== -1){
-                for(var i=poz; i<poz+token.length; i++)
-                    map[i] = true;
-                poz = lowerText.indexOf(token, poz+1);
-            }
-        });
-        out=[];
-        var current = ''
-        for(var i=0; i<text.length; i++){
-            if(map[i] && !high){
-                out.push(current);
-                current='';
-                current += text[i];
-                high = true;
-            }
-            else if(!map[i] && high){
-                out.push(current);
-                current='';
-                current +=text[i];
-                high = false;
-            }
-            else current += text[i];
-        }
-        out.push(current);
-
-        return new Handlebars.SafeString(UI.tpl.emphasis(out));
-    });
-
-    Handlebars.registerHelper('hasimage', function(image) {
-        if(image && image.src &&
-            !(image.src.indexOf('xing') !== -1 && image.src.indexOf('nobody_') !==-1))
-            return true;
-        else
-            return false
-    });
-
-    Handlebars.registerHelper('date', function(date) {
-        var d = new Date(date);
-        var date = d.getDate();
-        var month = d.getMonth();
-        month++;
-        var year = d.getFullYear();
-        var formatedDate = date + '/' + month + '/' + year;
-        return formatedDate;
-    });
-
-    Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
-        lvalue = parseFloat(lvalue);
-        rvalue = parseFloat(rvalue);
-
-        return {
-            "+": lvalue + rvalue,
-            "-": lvalue - rvalue,
-            "*": lvalue * rvalue,
-            "/": lvalue / rvalue,
-            "%": lvalue % rvalue
-        }[operator];
-    });
-
-    Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
-        return {
-            "|": lvalue | rvalue,
-            "||": lvalue || rvalue,
-            "&": lvalue & rvalue,
-            "&&": lvalue & rvalue,
-            "^": lvalue ^ rvalue,
-            "is": lvalue == rvalue,
-            "starts_with": lvalue.indexOf(rvalue) == 0
-        }[operator];
-    });
-
-    Handlebars.registerHelper('nameify', function(str) {
-        return str[0].toUpperCase() + str.slice(1);
-    });
-
-    Handlebars.registerHelper('reduce_width', function(width, reduction) {
-        return width - reduction;
-    });
-
-    Handlebars.registerHelper('kind_printer', function(kind) {
-        //we need to join with semicolon to avoid conflicting with the comma from json objects
-        return kind ? kind.join(';'): '';
-    });
-
-    Handlebars.registerHelper('links_or_sources', function(richData) {
-        return (richData.internal_links && richData.internal_links.length > 0) ?
-                  richData.internal_links : richData.additional_sources
-    });
-}
-ctx.CLIQZ = ctx.CLIQZ || {};
 ctx.CLIQZ.UI = UI;
 
 })(this);

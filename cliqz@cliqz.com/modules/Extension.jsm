@@ -10,8 +10,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+    'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
@@ -142,13 +142,15 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
-        Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -201,7 +203,6 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
-            Extension.addScript('libs/handlebars-v1.3.0', win);
 
             Extension.addButtons(win);
 
@@ -295,9 +296,9 @@ var Extension = {
             }
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
-            win.CLIQZ = null;
-            win.CLIQZResults = null;
-        }catch(e){Cu.reportError(e); }
+            delete win.CLIQZ.UI;
+            delete win.CLIQZ;
+        }catch(e){ Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
         if (topic == 'domwindowopened') {
