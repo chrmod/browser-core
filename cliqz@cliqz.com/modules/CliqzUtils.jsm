@@ -839,9 +839,8 @@ var CliqzUtils = {
     }
 
     if(arguments.length>1){
-      for(var i=1;i<arguments.length;i++){
-        ret = ret.replace('{}', arguments[i]);
-      }
+      var i = 1, args = arguments;
+      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
     }
 
     return ret;
