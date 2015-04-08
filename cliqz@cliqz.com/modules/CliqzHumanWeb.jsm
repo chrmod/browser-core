@@ -212,13 +212,22 @@ var CliqzHumanWeb = {
                 var status = ho['status'];
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
+
+                
+
                 if (status=='301' || status == '302') {
-                  CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
+                    CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
                 }
 
-                if (status=='401') {
-                  CliqzHumanWeb.httpCache401[url] = {'time': CliqzHumanWeb.counter};
+                else if (status=='401') {
+                    CliqzHumanWeb.httpCache401[url] = {'time': CliqzHumanWeb.counter};
                 }
+
+                else if(status){
+                    CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter};   
+                }
+
+
 
               } catch(ee){if (CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
         }
@@ -234,7 +243,7 @@ var CliqzHumanWeb = {
     getRedirects: function(url, res) {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
-            if (CliqzHumanWeb.httpCache[key]['location']!=null && CliqzHumanWeb.httpCache[key]['status']=='301') {
+            if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301')) {
                 if (CliqzHumanWeb.httpCache[key]['location']==url) {;
                     res.unshift(key)
                     CliqzHumanWeb.getRedirects(key, res);
@@ -420,12 +429,18 @@ var CliqzHumanWeb = {
 
         req.onload = function(){
 
-            if (req.status != 200 && req.status != 0 /* local files */){
-                error_message = 'status not valid: ' + req.status;
-                if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
-                req.onerror();
-            }
-            else {
+            //Moving the checking of the status code to double valid fetch, in case both the status
+            //i.r status xbef and xaft are equal, allow it to pass. Explicity fail authorization status codes.
+
+
+            //if (req.status != 200 && req.status != 0 /* local files */){
+            //    error_message = 'status not valid: ' + req.status;
+            //    if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
+            //    req.onerror();
+            //}
+            
+
+            //if {
                 // there has been a redirect, we cannot guarantee that cookies were
                 // not sent, therefore fail and consider as private
                 if (req.responseURL != url) {
@@ -443,10 +458,11 @@ var CliqzHumanWeb = {
                 doc.documentElement.innerHTML = req.responseText;
 
                 var x = CliqzHumanWeb.getPageData(url, doc);
+                var st_code = '' + req.status; 
 
-                onsuccess(x);
+                onsuccess(st_code,x);
 
-            }
+            //}
         }
 
         req.onerror = function() {
@@ -487,7 +503,7 @@ var CliqzHumanWeb = {
         }
         return res;
     },
-    validDoubleFetch: function(struct_bef, struct_aft) {
+    validDoubleFetch: function(stcode_bef, stcode_aft, struct_bef, struct_aft) {
         // compares the structure of the page when rendered in Firefox with the structure of
         // the page after.
 
@@ -495,6 +511,22 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log("xbef: " + JSON.stringify(struct_bef), CliqzHumanWeb.LOG_KEY);
             CliqzUtils.log("xaft: " + JSON.stringify(struct_aft), CliqzHumanWeb.LOG_KEY);
+            CliqzUtils.log("stcodeb: " + stcode_bef, CliqzHumanWeb.LOG_KEY);
+            CliqzUtils.log("stcodea: " + stcode_aft, CliqzHumanWeb.LOG_KEY);
+        }
+
+
+
+        //Check if the status code is same as before.
+
+        if(stcode_bef && stcode_aft){
+            if ((stcode_bef.trim() != stcode_aft.trim())) {
+                if (CliqzHumanWeb.debug) CliqzUtils.log("fovalidDoubleFetch: mismatch status code", CliqzHumanWeb.LOG_KEY);
+                return false;
+            }
+        }
+        else if(stcode_aft != '200' && stcode_aft != '0' /* local files */) {
+            return false;
         }
 
         // if any of the titles is null (false), then decline (discard)
@@ -644,13 +676,12 @@ var CliqzHumanWeb = {
         if (isok) {
 
 
-            CliqzHumanWeb.auxGetPageData(url, function(data) {
+            CliqzHumanWeb.auxGetPageData(url, function(st_code, data) {
 
                 if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
 
-                if (CliqzHumanWeb.validDoubleFetch(page_doc['x'], data)) {
+                if (CliqzHumanWeb.validDoubleFetch(page_doc['st'], st_code, page_doc['x'], data)) {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
-                    CliqzHumanWeb.setAsPublic(url);
                     CliqzHumanWeb.setAsPublic(url);
                     //
                     // we need to modify the 'x' field of page_doc to substitute any structural information about
@@ -1487,6 +1518,7 @@ var CliqzHumanWeb = {
         }
 
         CliqzHumanWeb.loadContentExtraction();
+        //CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
 
         /*
 
