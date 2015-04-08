@@ -49,7 +49,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+if(window.CLIQZ === undefined)
+    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
 
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
