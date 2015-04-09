@@ -118,8 +118,9 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
-
-
+            case "1027_B":
+                CliqzUtils.setPref("news-toggle", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -242,7 +243,9 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
-
+            case "1027_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
             default:
                 rule_executed = false;
         }

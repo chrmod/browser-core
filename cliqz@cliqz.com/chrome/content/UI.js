@@ -127,7 +127,7 @@ var UI = {
       });
 
       var curResAll = currentResults.results
-      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url)
@@ -184,7 +184,7 @@ var UI = {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(UI.dispatchRedraw, 100, html, id, q);
+        setTimeout(function(){ UI.dispatchRedraw(html, id, q); }, 100);
       } else {
         UI.redrawResultHTML(html, q);
       }
