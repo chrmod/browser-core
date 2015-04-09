@@ -93,8 +93,13 @@ CLIQZ.Core = CLIQZ.Core || {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
+
+            //Also need to add for Humanweb
+            hs.addObserver(CliqzHumanWeb.historyObserver, false);
           } catch(e) {}
         }
+
+
 
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
@@ -321,6 +326,10 @@ CLIQZ.Core = CLIQZ.Core || {
         try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.removeObserver(CliqzHistory.historyObserver);
+
+            //Also, remove from Humanweb
+            hs.removeObserver(CliqzHumanWeb.historyObserver);
+
         } catch(e) {}
 
         if(!soft){

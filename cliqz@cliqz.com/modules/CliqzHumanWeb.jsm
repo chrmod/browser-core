@@ -410,6 +410,115 @@ var CliqzHumanWeb = {
               } catch(ee){if (CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
         }
     },
+    // Extract earliest and latest entry of Firefox history
+    historyTimeFrame: function(callback) {
+        Cu.import('resource://gre/modules/PlacesUtils.jsm');
+        var history = [];
+        var min, max;
+
+        var res = [];
+        var st = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection.createStatement("SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places");
+        
+        var res = [];
+        st.executeAsync({
+            handleResult: function(aResultSet) {
+                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+                    res.push({"minDate": row.getResultByName("min_date"), "maxDate": row.getResultByName("max_date")});
+                }
+            },
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                callback(true);
+            },
+            handleCompletion: function(aReason) {
+                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    callback(null);
+                }
+                else {
+                     try {
+                        min = parseInt(res[0]['minDate'] / 1000);
+                        max = parseInt(res[0]['maxDate'] / 1000);
+                    } catch (ex) {}
+                    callback(min, max);
+                }
+            }
+        });
+    },
+    SQL: function(sql, onRow, callback, parameters) {
+        var st = CliqzHumanWeb.dbConn.createAsyncStatement(sql);
+
+        for(var key in parameters) {
+            st.params[key] = parameters[key];
+        }
+
+    CliqzHumanWeb._SQL(CliqzHumanWeb.dbConn, st, onRow, callback);
+  },
+    _SQL: function(dbConn, statement, onRow, callback) {
+        statement.executeAsync({
+        onRow: onRow,
+          callback: callback,
+          handleResult: function(aResultSet) {
+            var resultCount = 0;
+            for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+              resultCount++;
+              if (this.onRow) {
+                this.onRow(statement.row);
+              }
+            }
+            if (this.callback) {
+              this.callback(resultCount);
+            }
+          },
+
+          handleError: function(aError) {
+            CliqzUtils.log("Error (" + aError.result + "):" + aError.message, CliqzHumanWeb.LOG_KEY);
+            if (this.callback) {
+              this.callback(0);
+            }
+          },
+          handleCompletion: function(aReason) {
+            // Always called when done
+          }
+        });
+        statement.finalize();
+    },
+    deleteVisit: function(url) {
+        CliqzHumanWeb.SQL("delete from usafe where url = :url", null, null, {
+            url: CliqzHumanWeb.escapeSQL(url)
+        });
+    },
+    deleteTimeFrame: function() {
+        CliqzHumanWeb.historyTimeFrame(function(min, max) {
+        CliqzHumanWeb.SQL("delete from usafe where last_visit < :min", null, null, {
+            min: min
+        });
+        CliqzHumanWeb.SQL("delete from usafe where last_visit > :max", null, null, {
+            max: max
+        });
+    });
+  },
+    clearHistory: function() {
+        CliqzHumanWeb.SQL("delete from usafe");
+    },
+    historyObserver: { 
+        onBeginUpdateBatch: function() {},
+        onEndUpdateBatch: function() {
+          CliqzHumanWeb.deleteTimeFrame();
+        },
+        onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
+        onTitleChanged: function(aURI, aPageTitle) {},
+        onBeforeDeleteURI: function(aURI) {},
+        onDeleteURI: function(aURI) {
+          CliqzHumanWeb.deleteVisit(aURI.spec);
+        },
+        onClearHistory: function() {
+          CliqzHumanWeb.clearHistory();
+        },
+        onPageChanged: function(aURI, aWhat, aValue) {},
+        onDeleteVisits: function() {},
+        QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
+      },
     linkCache: {},
     cleanLinkCache: function() {
       for(var key in CliqzHumanWeb.linkCache) {
@@ -1946,7 +2055,7 @@ var CliqzHumanWeb = {
         st.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                    res.push({"hash": row.getResultByName("hash"), "private": row.getResultByName("private"), "checked": row.getResultByName("checked")});
+                    res.push({"hash": row.getResultByName("hash"), "private": row.getResultByName("private")});
                 }
             },
             handleError: function(aError) {
@@ -2103,8 +2212,8 @@ var CliqzHumanWeb = {
         var ft = 1;
         var privateHash = false;
         CliqzHumanWeb.getPageFromHashTable(url, function(_res) {
-            CliqzUtils.log('This is private???' + JSON.stringify(_res['private']),CliqzHumanWeb.LOG_KEY);
             if (_res) {
+                CliqzUtils.log('This is private???' + JSON.stringify(_res['private']),CliqzHumanWeb.LOG_KEY);
                 if(_res['private'] == 1 ){
                     privateHash = true;
                 }
@@ -2123,7 +2232,6 @@ var CliqzHumanWeb = {
         stmt.params.url = url;
 
         var res = [];
-        CliqzUtils.log("in add url ", CliqzHumanWeb.LOG_KEY);
         stmt.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
@@ -2139,6 +2247,7 @@ var CliqzHumanWeb = {
                 }
                 else {
                     if (res.length == 0 && !privateHash ){
+                        var setPrivate = false;
                         var st = CliqzHumanWeb.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload, ft) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload, :ft)");
                         st.params.url = url;
                         st.params.ref = ref;
@@ -2152,28 +2261,34 @@ var CliqzHumanWeb = {
                             st.params.checked = 1;
                             st.params.private = 1;
                             st.params.reason = 'empty page data';
+                            setPrivate = true;
                         }
                         else if (CliqzHumanWeb.isSuspiciousURL(url)) {
                             // if the url looks private already add it already as checked and private
                             st.params.checked = 1;
                             st.params.private = 1;
                             st.params.reason = 'susp. url';
+                            setPrivate = true;
                         }
                         else {
                             if (CliqzHumanWeb.httpCache401[url]) {
                                 st.params.checked = 1;
                                 st.params.private = 1;
                                 st.params.reason = '401';
+                                setPrivate = true;
                             }
                             else {
                                 st.params.checked = 0;
                                 st.params.private = 0;
                                 st.params.reason = '';
+                                setPrivate = false;
                             }
                         }
 
                         while (st.executeStep()) {};
-                        res = [];
+                        if(setPrivate){
+                            CliqzHumanWeb.setAsPrivate(url);
+                        }
                     }
                     else {
                         if (res[0]['checked']==0) {
@@ -2228,6 +2343,9 @@ var CliqzHumanWeb = {
         hash_st.params.hash = md5(url);
         hash_st.params.private = 1;
         while (hash_st.executeStep()) {};
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
+        }
     },
     setAsPublic: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
@@ -2242,6 +2360,9 @@ var CliqzHumanWeb = {
         hash_st.params.hash = md5(url);
         hash_st.params.private = 0;
         while (hash_st.executeStep()) {};
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
+        }
 
     },
     listOfUnchecked: function(cap, sec_old, fixed_url, callback) {
@@ -2295,6 +2416,7 @@ var CliqzHumanWeb = {
                     st.params.ft = 0;
                     st.params.reason = 'priv. st.';
                     while (st.executeStep()) {};
+                    CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
                     CliqzHumanWeb.doubleFetch(url, page_doc);
@@ -2627,8 +2749,7 @@ var CliqzHumanWeb = {
 
             var hash_usafe = "create table if not exists hashusafe(\
                 hash VARCHAR(32) PRIMARY KEY NOT NULL,\
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0 \
+                private BOOLEAN DEFAULT 0 \
             )";
 
             CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
@@ -2651,5 +2772,32 @@ var CliqzHumanWeb = {
         
 
         return aggregates;
-    }
+    },
+    escapeSQL: function(str) {
+        return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function(char) {
+        switch (char) {
+            case "'":
+            return "''";
+            default:
+            return char;
+              /*case "\0":
+                  return "\\0";
+              case "\x08":
+                  return "\\b";
+              case "\x09":
+                  return "\\t";
+              case "\x1a":
+                  return "\\z";
+              case "\n":
+                  return "\\n";
+              case "\r":
+                  return "\\r";
+              case "\"":
+              case "'":
+              case "\\":
+              case "%":
+                  return "\\"+char; */
+          }
+        });
+  }
 };
