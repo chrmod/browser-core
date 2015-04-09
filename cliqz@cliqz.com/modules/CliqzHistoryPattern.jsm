@@ -852,8 +852,7 @@ var CliqzHistoryPattern = {
     this.SQL
       ._execute(
         PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
-        "SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places", ["min_date", "max_date"],
-        null,
+        "SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places", null, ["min_date", "max_date"],
         function(result) {
           try {
             min = parseInt(result.min_date / 1000);
