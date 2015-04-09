@@ -4,14 +4,18 @@
 
 import urllib2
 import xml.etree.ElementTree as ET
+import os, os.path
 
 from fabric.contrib import console
 from fabric.api import task, local, lcd, hide
 from fabric.utils import abort
 from jinja2 import Environment, FileSystemLoader
 
+import jsstrip
+
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
+PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/ui/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
@@ -81,11 +85,14 @@ def package(beta='True', version=None):
 
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
-    with lcd(PATH_TO_EXTENSION):  # We need to be inside the folder when using zip
+    local("cp -R %s %s" % (PATH_TO_EXTENSION, PATH_TO_EXTENSION_TEMP))
+    with lcd(PATH_TO_EXTENSION_TEMP):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
+            comment_cleaner(PATH_TO_EXTENSION_TEMP)
             local("zip  %s %s -r *" % (exclude_files, output_file_name))
             local("mv  %s .." % output_file_name)  # Move back to root folder
+    local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
     if not (beta == 'True'):
@@ -191,3 +198,29 @@ def unit_test():
 def clean():
     """Clean directory from .xpi files"""
     local("rm  *.xpi")
+
+
+@task
+def comment_cleaner(path=PATH_TO_EXTENSION):
+    target = ['js', 'jsm', 'html']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
+
+    print 'CommentCleaner - Start'
+    ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
+    for root, dirs, files in os.walk(ext_root):
+        for f in files:
+            if f.split('.')[-1] in target and f not in ignore:
+                print 'X',
+                with open(root + '/' + f, 'r+') as handler:
+                    content = handler.read()
+                    handler.seek(0)
+                    handler.truncate()
+                    handler.write(js_comment_removal(content))
+            else:
+                print '.',
+    print
+    print 'CommentCleaner - Done'
+
+
+def js_comment_removal(s):
+    return jsstrip.strip(s, False, False, True, True)
