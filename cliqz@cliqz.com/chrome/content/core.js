@@ -419,8 +419,23 @@ window.CLIQZ.Core = {
                 CliqzAutocomplete.sessionStart = true;
                 document.getAnonymousElementByAttribute(urlBar, "anonid", "historydropmarker").showPopup();
             } else {
-                CLIQZ.Core.popup._openAutocompletePopup(urlBar, urlBar);
-                urlBar.setSelectionRange(0, urlBar.mInputField.value.length)
+                if(gBrowser.selectedTab.cliqz){
+                    //trigger a new search
+                    setTimeout(function(){
+                        var old = urlBar.value;
+
+                        //force retrigger
+                        if(old == gBrowser.selectedTab.cliqz)
+                            urlBar.mInputField.setUserInput('');
+
+                        //trigger a search with the previous query
+                        urlBar.mInputField.setUserInput(gBrowser.selectedTab.cliqz);
+
+                        //restore the old value of the urlbar
+                        urlBar.value = old;
+                        gBrowser.selectedTab.linkedBrowser._userTypedValue = old;
+                    }, 0);
+                }
             }
         }
     },

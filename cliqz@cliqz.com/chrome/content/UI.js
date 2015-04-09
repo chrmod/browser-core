@@ -108,8 +108,6 @@ var UI = {
         q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
         lastRes = CliqzAutocomplete.lastResult;
 
-      //popup.style.height = "302px";
-
       for(var i=0; i<popup._matchCount; i++) {
           data.push({
             title: ctrl.getCommentAt(i),
@@ -125,7 +123,6 @@ var UI = {
         results: data,
         isInstant: lastRes && lastRes.isInstant
       });
-
       var curResAll = currentResults.results
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
@@ -134,6 +131,10 @@ var UI = {
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
 
       XULBrowserWindow.updateStatusField();
+
+      //store last query with results in each tab
+      if(currentResults.results.length > 1 || currentResults.results[0].vertical != 'noResult')
+        gBrowser.selectedTab.cliqz = q;
     },
     results: function(res){
         if (!gCliqzBox)
