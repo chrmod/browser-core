@@ -1725,8 +1725,7 @@ var CliqzHumanWeb = {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     },
     msgSanitize: function(msg){
-        CliqzUtils.log('Sanitize: ' , "CliqzHumanWeb.pushTelemetry");
-
+        
         //Remove time
 
         msg.ts = CliqzHumanWeb.getTime();
@@ -2071,7 +2070,6 @@ var CliqzHumanWeb = {
         var privateHash = false;
         CliqzHumanWeb.getPageFromHashTable(url, function(_res) {
             if (_res) {
-                CliqzUtils.log('This is private???' + JSON.stringify(_res['private']),CliqzHumanWeb.LOG_KEY);
                 if(_res['private'] == 1 ){
                     privateHash = true;
                 }
