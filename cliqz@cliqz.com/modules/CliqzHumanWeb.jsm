@@ -1144,7 +1144,6 @@ var CliqzHumanWeb = {
 
                         }, CliqzHumanWeb.WAIT_TIME, activeURL);
                     }
-                    CliqzUtils.log("location change ", CliqzHumanWeb.LOG_KEY);
 
                     var status = null;
 
@@ -2114,7 +2113,7 @@ var CliqzHumanWeb = {
 
 
 
-        var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private FROM usafe WHERE url = :url");
+        var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
         stmt.params.url = url;
 
         var res = [];
@@ -2122,7 +2121,7 @@ var CliqzHumanWeb = {
         stmt.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-                    res.push({'url': row.getResultByName("url"), 'checked': row.getResultByName("checked"), 'ft' :row.getResultByName('ft'), 'private' :row.getResultByName('private') });
+                    res.push({'url': row.getResultByName("url"), 'checked': row.getResultByName("checked"), 'ft' :row.getResultByName('ft'), 'private' :row.getResultByName('private'), 'payload' :row.getResultByName('payload') });
                 }
             },
             handleError: function(aError) {
@@ -2172,6 +2171,11 @@ var CliqzHumanWeb = {
                     }
                     else {
                         if (res[0]['checked']==0) {
+                                //Need to aggregate the engagement metrics.
+                                var metricsBefore = JSON.parse(res[0]['payload'])['e'];
+                                var metricsAfter = paylobj['e'];
+                                paylobj['e'] = CliqzHumanWeb.aggregateMetrics(metricsBefore, metricsAfter);
+
                                 //Since not checked it is still the ft.
                                 if(res[0]['ft']==1){
                                     paylobj['ft'] = true;
@@ -2181,15 +2185,22 @@ var CliqzHumanWeb = {
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 while (st.executeStep()) {};
+                                paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                         }
                         else{
                             if (res[0]['checked']==1 && res[0]['private'] == 0) {
+                                //Need to aggregate the engagement metrics.
+                                var metricsBefore = res[0]['payload']['e'];
+                                var metricsAfter = paylobj['e'];
+                                paylobj['e'] = CliqzHumanWeb.aggregateMetrics(metricsBefore, metricsAfter);
+
                                 var st = CliqzHumanWeb.dbConn.createStatement("UPDATE usafe SET last_visit = :last_visit, payload = :payload, checked = :checked WHERE url = :url");
                                 st.params.url = url;
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 st.params.checked = 0;
                                 while (st.executeStep()) {};
+                                paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                             }
                         }
                     }
@@ -2617,5 +2628,22 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
             CliqzHumanWeb.dbConn.executeSimpleSQL(hash_usafe);
 
+    },
+    aggregateMetrics:function (metricsBefore, metricsAfter){
+        var aggregates =    {"cp": 0,"mm": 0,"kp": 0,"sc": 0,"md": 0};
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log("aggregates: " + JSON.stringify(metricsBefore) + JSON.stringify(metricsAfter), CliqzHumanWeb.LOG_KEY);
+        }
+        
+        var _keys = Object.keys(aggregates);
+        for(var i=0;i<_keys.length;i++){
+             aggregates[_keys[i]] = metricsBefore[_keys[i]] + metricsAfter[_keys[i]];
+        }
+        if (CliqzHumanWeb.debug) {
+            CliqzUtils.log("aggregates: " + JSON.stringify(aggregates), CliqzHumanWeb.LOG_KEY);
+        }
+        
+
+        return aggregates;
     }
 };
