@@ -231,7 +231,9 @@ var CliqzHumanWeb = {
     messageTemplate: {},
     idMappings: {},
     patternsURL: 'chrome://cliqz/content/patterns',//'http://cdn.cliqz.com/safe-browsing/patterns',
+    configURL: 'http://localhost:8080/config',
     searchCache: {},
+    ts : "",
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
     userTransitionsSearchSession: 5*60,
@@ -1389,6 +1391,14 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.loadContentExtraction();
         }
 
+        //Load ts config
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 30 * 1) == 0) {
+            if (CliqzHumanWeb.debug) {
+                CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
+            }
+            CliqzHumanWeb.loadConfig();
+        }
+
         CliqzHumanWeb.counter += 1;
 
     },
@@ -1698,6 +1708,7 @@ var CliqzHumanWeb = {
         }
 
         CliqzHumanWeb.loadContentExtraction();
+        CliqzHumanWeb.loadConfig();
         //CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
 
         /*
@@ -1725,10 +1736,10 @@ var CliqzHumanWeb = {
         return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);
     },
     msgSanitize: function(msg){
-        
+
         //Remove time
 
-        msg.ts = CliqzHumanWeb.getTime();
+        msg.ts = CliqzHumanWeb.ts;
 
         if (msg.action == 'page') {
             if(msg.payload.tend  && msg.payload.tin){
@@ -2313,6 +2324,24 @@ var CliqzHumanWeb = {
             patternConfig["urlPatterns"].forEach(function(e){
               CliqzHumanWeb.rArray.push(new RegExp(e));
             })
+          },
+          function error(res){
+            CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
+            });
+    },
+    loadConfig: function(){
+        //Check health
+        CliqzUtils.httpGet(CliqzHumanWeb.configURL,
+          function success(req){
+            if(!CliqzHumanWeb) return;
+
+            var config = JSON.parse(req.response);
+            if(config['ts']){
+                CliqzHumanWeb.ts = config['ts'];
+            }
+            else{
+                CliqzHumanWeb.ts = CliqzHumanWeb.getTime();
+            }
           },
           function error(res){
             CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
