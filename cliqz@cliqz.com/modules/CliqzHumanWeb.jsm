@@ -2101,16 +2101,22 @@ var CliqzHumanWeb = {
 
         //Check if url is in hashtable
         var ft = 1;
+        var privateHash = false;
         CliqzHumanWeb.getPageFromHashTable(url, function(_res) {
+            CliqzUtils.log('This is private???' + JSON.stringify(_res['private']),CliqzHumanWeb.LOG_KEY);
             if (_res) {
-                ft = 0;
+                if(_res['private'] == 1 ){
+                    privateHash = true;
+                }
+                else{
+                    ft = 0;
+                }
             }
             else{
                 // we never seen it, let's add it
                  paylobj['ft'] = true;
             }
         })
-
 
 
         var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
@@ -2132,7 +2138,7 @@ var CliqzHumanWeb = {
                     CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
                 }
                 else {
-                    if (res.length == 0) {
+                    if (res.length == 0 && !privateHash ){
                         var st = CliqzHumanWeb.dbConn.createStatement("INSERT INTO usafe (url,ref,last_visit,first_visit, reason, private, checked,payload, ft) VALUES (:url, :ref, :last_visit, :first_visit, :reason, :private, :checked, :payload, :ft)");
                         st.params.url = url;
                         st.params.ref = ref;
