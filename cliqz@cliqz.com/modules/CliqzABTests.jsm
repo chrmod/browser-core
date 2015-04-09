@@ -120,6 +120,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
+                break;
             default:
                 rule_executed = false;
         }
