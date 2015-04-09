@@ -12,9 +12,6 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUCrawl',
-  'chrome://cliqzmodules/content/CliqzUCrawl.jsm');
-
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
@@ -223,7 +220,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
-                CliqzUCrawl.outOfABTest();
+                //CliqzUCrawl.outOfABTest();
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");

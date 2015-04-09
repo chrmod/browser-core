@@ -22,10 +22,7 @@ var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
 
-//CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
 CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
-//CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
-//CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
 var refineFuncMappings ;
 
 function md5cycle(x, k) {
@@ -210,7 +207,7 @@ var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -219,7 +216,7 @@ var CliqzHumanWeb = {
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
-    doubleFetchTimeInSec: 60,//3600,
+    doubleFetchTimeInSec: 320,//3600,
     can_urls: {},
     deadFiveMts: 5,
     deadTwentyMts: 20,
@@ -233,7 +230,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://localhost/patterns',//'http://cdn.cliqz.com/safe-browsing/patterns',
+    patternsURL: 'chrome://cliqz/content/patterns',//'http://cdn.cliqz.com/safe-browsing/patterns',
     searchCache: {},
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -539,71 +536,6 @@ var CliqzHumanWeb = {
         }
         return res;
     },
-    scrapeQuery: function(currURL, document) {
-        try {
-            var val = document.getElementById('ires').attributes['data-async-context'].value;
-            if (val.indexOf('query:') == 0) {
-               return decodeURIComponent(val.replace('query:','').trim()).trim();
-            }
-            else return null;
-        }
-        catch(ee) {
-            if (CliqzHumanWeb.debug) {
-                CliqzUtils.log('Exception scrapping query: ' + ee, CliqzHumanWeb.LOG_KEY);
-            }
-            return null;
-        }
-        //q = document.getElementById('ires').attributes['data-async-context'].value;
-    },
-    searchResultsRefine: function(_res){
-      var res={};
-
-      //res = {};
-      for (var i=0;i<_res.length;i++){
-        if(_res[i].href.indexOf('r.search.yahoo.com') > 0){
-          res[''+i] = {'u': _res[i].href.split('%2f')[2], 't': _res[i].text};
-
-        }
-        else{
-          res[''+i] = {'u': CliqzHumanWeb.maskURL(_res[i].href), 't': _res[i].text};
-        }
-
-      }
-      //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CliqzHumanWeb.LOG_KEY);
-      return res;
-    },
-    searchResults:function(currURL, document){
-        var _res = null;
-        var query = null;
-        var res = {};
-        res['r'] = {};
-        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-        res['ctry'] = location;
-        res['qurl'] = CliqzHumanWeb.maskURL(currURL);
-
-        if(currURL.indexOf('google') > 0) {
-            var val = document.getElementById('ires').attributes['data-async-context'].value;
-            if (val.indexOf('query:') == 0) query = decodeURIComponent(val.replace('query:','').trim()).trim();
-            _res = Array.prototype.slice.call(document.querySelectorAll('.r [href]')).filter(function(e){var r = RegExp("^http(s)?\:\/\/((www|encrypted)\.)?google\.(com?\.[a-z]{2}|[a-z]{2,})\/.+");   return !r.test(e.getAttribute('href') );    });
-        }
-        else if(currURL.indexOf('bing') > 0) {
-            query = document.getElementById('sb_form_q').value;
-            _res = Array.prototype.slice.call(document.querySelectorAll('h2 [href]')).filter(function(e){var r = RegExp("^http(s)?\\:\\/\\/www\\.bing\\.com\\/(.)*");   return !r.test(e.getAttribute('h2 href') );});
-        }
-        else if(currURL.indexOf('yahoo') > 0) {
-            query = document.getElementById('yschsp').value;
-            _res = Array.prototype.slice.call(document.querySelectorAll('h3 [href]')).filter(function(e){var r = RegExp("^http(s)?\\:\\/\\/((.)+\\.)?search\\.yahoo\\.com\\/(.)*");   return !r.test(e.getAttribute('h3 href') );    });
-        }
-
-        res['r'] = CliqzHumanWeb.searchResultsRefine(_res);
-        res['q'] = query;
-
-        if (CliqzHumanWeb.debug) {
-            CliqzUtils.log('>>> Results humanweb: ' +  JSON.stringify(res,undefined,2), CliqzHumanWeb.LOG_KEY);
-        }
-        return res;
-
-    },
     checkIfSearchURL:function(activeURL) {
         var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
@@ -616,45 +548,6 @@ var CliqzHumanWeb = {
         else{
             return false;
         }
-
-
-    },
-    getSearchData: function(activeURL, document){
-        // here we check if user ignored our results and went to google and landed on the same url
-        var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
-        var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
-        var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
-        var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
-
-        //Get google result
-        var rq = null;
-        if (requery.test(activeURL)) {
-            rq = CliqzHumanWeb.searchResults(activeURL, document);
-            if (rq!=null) {
-                CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'go'};
-                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
-                }
-            }
-        //Get yahoo result
-        if (yrequery.test(activeURL)) {
-            rq = CliqzHumanWeb.searchResults(activeURL, document);
-            if (rq!=null) {
-                CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'yahoo'};
-                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
-                }
-            }
-
-         //Get Bing result
-        if (brequery.test(activeURL)){
-            rq = CliqzHumanWeb.searchResults(activeURL, document);
-            if (rq!=null) {
-                CliqzHumanWeb.queryCache[activeURL] = {'d': 0, 'q': rq['q'], 't': 'bing'};
-                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'query', 'payload': rq});
-                }
-        }
-        return rq
-
 
 
     },
@@ -1233,12 +1126,6 @@ var CliqzHumanWeb = {
 
                                     }
 
-                                    //var rq = null;
-                                    //rq = CliqzHumanWeb.getSearchData(searchURL, document);
-
-                                    // TBF : Currently with the new framework, this is not working.
-                                    //CliqzHumanWeb.userSearchTransition(rq);
-                                    //Under testing
 
                                     CliqzHumanWeb.checkURL(document);
                                     CliqzHumanWeb.queryCache[searchURL] = {'d': 0, 'q': CliqzHumanWeb.searchCache[se]['q'], 't': CliqzHumanWeb.searchCache[se]['t']};
@@ -1366,10 +1253,12 @@ var CliqzHumanWeb = {
 
                             if (CliqzHumanWeb.queryCache[currURL]) {
                                 CliqzHumanWeb.state['v'][currURL]['qr'] = CliqzHumanWeb.queryCache[currURL];
+                                delete CliqzHumanWeb.queryCache[currURL];
                             }
 
                             if (CliqzHumanWeb.state['v'][currURL] != null) {
                                 CliqzHumanWeb.addURLtoDB(currURL, CliqzHumanWeb.state['v'][currURL]['ref'], CliqzHumanWeb.state['v'][currURL]);
+                                CliqzHumanWeb.queryCache[currURL];
                             }
 
                         } catch(ee) {
@@ -1442,6 +1331,7 @@ var CliqzHumanWeb = {
                             CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
                             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                             delete CliqzHumanWeb.state['v'][url];
+                            delete CliqzHumanWeb.queryCache[url];
                         }
                     }
                     else {
@@ -1454,6 +1344,7 @@ var CliqzHumanWeb = {
                             CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
                             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                             delete CliqzHumanWeb.state['v'][url];
+                            delete CliqzHumanWeb.queryCache[url];
                             //CliqzUtils.log("Deleted: moved to dead pages after 20 mts.",CliqzHumanWeb.LOG_KEY);
                             //CliqzUtils.log("Deleted: moved to dead pages after 20 mts: " + CliqzHumanWeb.state['m'].length,CliqzHumanWeb.LOG_KEY);
 
@@ -1466,11 +1357,9 @@ var CliqzHumanWeb = {
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % 10 == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Pacemaker: ' + CliqzHumanWeb.counter/CliqzHumanWeb.tmult + ' ' + activeURL + ' >> ' + CliqzHumanWeb.state.id, CliqzHumanWeb.LOG_KEY);
-                //CliqzUtils.log(JSON.stringify(CliqzHumanWeb.state, undefined, 2), CliqzHumanWeb.LOG_KEY);
-                //CliqzUtils.log(JSON.stringify(CliqzHumanWeb.getAllOpenPages(), undefined, 2), CliqzHumanWeb.LOG_KEY);
             }
             CliqzHumanWeb.cleanHttpCache();
-            CliqzHumanWeb.cleanUserTransitions(false);
+            CliqzHumanWeb.cleanLinkCache();
         }
 
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (1*60) == 0) {
@@ -1545,6 +1434,7 @@ var CliqzHumanWeb = {
                 CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
                 CliqzHumanWeb.state['m'].push(CliqzHumanWeb.state['v'][url]);
                 delete CliqzHumanWeb.state['v'][url];
+                delete CliqzHumanWeb.queryCache[url];
             }
         }
 
@@ -1865,15 +1755,6 @@ var CliqzHumanWeb = {
             msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
         }
 
-        //TBF
-
-        /*
-        //Remove ref.
-        if(msg.payload.ref){
-          delete msg.payload.ref;
-        }
-        */
-
         //Check the depth. Just to be extra sure.
 
         if(msg.payload.qr){
@@ -1941,7 +1822,6 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        /* TBF : Do not send in batches */
         CliqzHumanWeb.trk.forEach(function(element){
             CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
             CliqzHumanWeb.trk = [];
@@ -1975,6 +1855,13 @@ var CliqzHumanWeb = {
     // Stolen from modules/CliqzHistory
     // *********************************************************
     initDB: function() {
+        if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
+            if (CliqzHumanWeb.olddbConn==null) {
+                 CliqzHumanWeb.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
+            } 
+            CliqzHumanWeb.removeTable();   
+        }
+
         if ( FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]))
@@ -1985,28 +1872,6 @@ var CliqzHumanWeb = {
         else {
             CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));
             CliqzHumanWeb.createTable();
-            /*
-            var usafe = "create table usafe(\
-                url VARCHAR(255) PRIMARY KEY NOT NULL,\
-                ref VARCHAR(255),\
-                last_visit INTEGER,\
-                first_visit INTEGER,\
-                reason VARCHAR(256), \
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0, \
-                payload VARCHAR(4096), \
-                ft BOOLEAN DEFAULT 1 \
-            )";
-
-            var hash_usafe = "create table hashusafe(\
-                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0 \
-            )";
-
-            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
-            CliqzHumanWeb.dbConn.executeSimpleSQL(hashusafe);
-            */
         }
 
     },
@@ -2050,7 +1915,7 @@ var CliqzHumanWeb = {
     getPageFromHashTable: function(url, callback) {
         var res = [];
         var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashusafe WHERE hash = :hash");
-        st.params.hash = md5(url);
+        st.params.hash = (md5(url)).substring(0,16);
         var res = [];
         st.executeAsync({
             handleResult: function(aResultSet) {
@@ -2196,17 +2061,10 @@ var CliqzHumanWeb = {
     addURLtoDB: function(url, ref, paylobj) {
 
         var tt = new Date().getTime();
-
-        var requery = /\/www.google/; // regex for google query
-        var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
-        var rysearch = /r.search.yahoo\..*?[#?&;]/ //To handle yahoo redirect.
-        var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
-        var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-
-        // if the url is a search result page, let's not even store it. In the case that this would not work, the doubleFetch
-        // would also not try to fetch it because of noindex or dropLongURLs
-        //
-        if (requery.test(url) || reref.test(url) || yrequery.test(url) || brequery.test(url) || rysearch.test(url)) return;
+        var se = CliqzHumanWeb.checkSearchURL(url);
+        if (se > -1 ){
+            return
+        }
 
         //Check if url is in hashtable
         var ft = 1;
@@ -2290,7 +2148,7 @@ var CliqzHumanWeb = {
                             CliqzHumanWeb.setAsPrivate(url);
                         }
                     }
-                    else {
+                    else if(res.length > 0){
                         if (res[0]['checked']==0) {
                                 //Need to aggregate the engagement metrics.
                                 var metricsBefore = JSON.parse(res[0]['payload'])['e'];
@@ -2340,11 +2198,11 @@ var CliqzHumanWeb = {
 
         //Add has in the hashusafe table
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
-        hash_st.params.hash = md5(url);
+        hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 1;
         while (hash_st.executeStep()) {};
         if (CliqzHumanWeb.debug) {
-            CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
+            CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
         }
     },
     setAsPublic: function(url) {
@@ -2357,7 +2215,7 @@ var CliqzHumanWeb = {
 
         //Add has in the hashusafe table
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
-        hash_st.params.hash = md5(url);
+        hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 0;
         while (hash_st.executeStep()) {};
         if (CliqzHumanWeb.debug) {
@@ -2433,7 +2291,7 @@ var CliqzHumanWeb = {
     },
     removeTable: function(reason) {
         try{
-            CliqzHumanWeb.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+            CliqzHumanWeb.olddbConn.executeSimpleSQL('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
@@ -2480,10 +2338,6 @@ var CliqzHumanWeb = {
       }
     },
     checkSearchURL: function(url){
-        //var url = cd.location.href;
-        //var pageContent = cd;
-        //var rArray = new Array(new RegExp(/\.google\..*?[#?&;]q=[^$&]+/), new RegExp(/.search.yahoo\..*?[#?&;]p=[^$&]+/), new RegExp(/.linkedin.*?\/pub\/dir+/),new RegExp(/\.bing\..*?[#?&;]q=[^$&]+/),new RegExp(/.*/))
-        //scrap(4, pageContent)
         var idx = null;
         var reref = /\.google\..*?\/(?:url|aclk)\?/;
         for(var i=0;i<CliqzHumanWeb.rArray.length;i++){
