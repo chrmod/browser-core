@@ -106,6 +106,7 @@ var Result = {
     cliqzExtra: function(result){
         result.data.subType = result.subType;
         result.data.trigger_urls = result.trigger_urls;
+        result.data.ts = result.ts;
 
         return Result.generic(
             Result.CLIQZE, //style
