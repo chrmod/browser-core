@@ -211,6 +211,8 @@ CLIQZ.Core = CLIQZ.Core || {
         }
     },
     generateSession: function(source){
+        CliqzUtils.setSupportInfo()
+
         return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
                + '|' +
                CliqzUtils.getDay()

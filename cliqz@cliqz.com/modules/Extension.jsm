@@ -9,6 +9,7 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
 XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
     'chrome://cliqzmodules/content/ResultProviders.jsm');
@@ -56,6 +57,17 @@ var Extension = {
         CliqzClusterHistory.init();
     },
     load: function(upgrade, oldVersion, newVersion){
+        AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
+            CliqzUtils.extensionVersion = addon.version
+
+            if (upgrade) CliqzUtils.setSupportInfo()
+            else {
+                Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
+                    CliqzUtils.setSupportInfo()
+                },1000)
+            }
+        })
+
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -78,7 +90,11 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
+        CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
+
         if(uninstall){
+            CliqzUtils.setSupportInfo("disabled")
+
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
             try{

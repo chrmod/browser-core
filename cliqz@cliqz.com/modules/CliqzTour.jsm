@@ -19,31 +19,31 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
     results = [
         {
             title : CliqzUtils.getLocalizedString('offRes_Cliqz'),
-            url   : 'https://beta.cliqz.com/',
+            url   : 'https://cliqz.com/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_AboutCliqz'),
-            url   : 'https://beta.cliqz.com/about-cliqz/',
+            url   : 'https://cliqz.com/about-cliqz/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Privacy'),
-            url   : 'https://beta.cliqz.com/privacy/',
+            url   : 'https://cliqz.com/privacy/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Support'),
-            url   : 'https://beta.cliqz.com/support/',
+            url   : 'https://cliqz.com/support/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Team'),
-            url   : 'https://beta.cliqz.com/team/',
+            url   : 'https://cliqz.com/team/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         }
