@@ -1,5 +1,5 @@
 <div class="cqz-result-h1 cqz-result-padding ez-video">
-  <div class="cqz-ez-title">{{data.name}}</div>
+  <div class="cqz-ez-title">{{data.name}}{{#if data.name_cat }} - {{ local data.name_cat }} {{/if}}</div>
   <div class="entity-stories">
     {{#each data.items}}
       <div class="entity-story"
