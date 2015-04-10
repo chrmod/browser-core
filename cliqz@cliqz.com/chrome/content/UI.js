@@ -133,7 +133,7 @@ var UI = {
       XULBrowserWindow.updateStatusField();
 
       //store last query with results in each tab
-      if(currentResults.results.length > 1 || currentResults.results[0].vertical != 'noResult')
+      if(currentResults.results[0].vertical != 'noResult')
         gBrowser.selectedTab.cliqz = q;
     },
     results: function(res){
