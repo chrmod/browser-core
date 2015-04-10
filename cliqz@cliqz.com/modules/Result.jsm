@@ -31,7 +31,7 @@ var Result = {
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
-    CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
+    CLIQZICON: 'http://cliqz.com/favicon.ico',
     RULES: {
         'video': [
             { 'domain': 'youtube.com', 'ogtypes': ['video', 'youtube'] },
