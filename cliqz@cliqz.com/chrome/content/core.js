@@ -162,6 +162,8 @@ window.CLIQZ.Core = {
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
+        CLIQZ.Core.historyDropMarker = document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker")
+
         // Add search history dropdown
         var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
         CLIQZ.Core.elem.push(searchHistoryContainer);
@@ -304,6 +306,7 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
         CLIQZ.UI.popupClosed = true;
+        CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
     },
     popupEvent: function(open) {
         var action = {
@@ -417,7 +420,8 @@ window.CLIQZ.Core = {
             if(urlBar.value.trim().length == 0){
                 //link to historydropmarker
                 CliqzAutocomplete.sessionStart = true;
-                document.getAnonymousElementByAttribute(urlBar, "anonid", "historydropmarker").showPopup();
+                CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
+                CLIQZ.Core.historyDropMarker.showPopup();
             } else {
                 if(gBrowser.selectedTab.cliqz){
                     //trigger a new search

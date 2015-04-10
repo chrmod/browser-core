@@ -8,6 +8,11 @@
 
 #urlbar[focused="true"] { box-shadow: 0 0 1px #3B99FC inset!important; }
 
+.urlbar-history-dropmarker[cliqz-start="true"]{
+    -moz-image-region: var(--urlbar-dropmarker-region);
+    background-image: none;
+}
+
 /* last search */
 .cliqz-urlbar-Last-search-container { max-width: 220px; overflow: hidden; }
 
