@@ -427,7 +427,7 @@ window.CLIQZ.Core = {
                     //trigger a new search
                     setTimeout(function(){
                         var old = urlBar.value;
-
+                        CliqzAutosuggestion.invisibleSuggestion = true;
                         //force retrigger
                         if(old == gBrowser.selectedTab.cliqz)
                             urlBar.mInputField.setUserInput('');

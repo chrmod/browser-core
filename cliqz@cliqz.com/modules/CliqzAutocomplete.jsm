@@ -501,8 +501,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         !(cliqzAS in CliqzAutosuggestion.notExpandTo)) {  // there is auto suggetsion
                         CliqzUtils.log('Auto suggestion to: ' + cliqzAS, 'Cliqz AS');
                         CliqzAutosuggestion.active = true;
-                        urlbar.mInputField.value = cliqzAS;
-                        urlbar.mInputField.setSelectionRange(searchString.length, cliqzAS.length);
+                        if(!CliqzAutosuggestion.invisibleSuggestion){
+                            urlbar.mInputField.value = cliqzAS;
+                            urlbar.mInputField.setSelectionRange(searchString.length, cliqzAS.length);
+                        } else CliqzAutosuggestion.invisibleSuggestion = false;
                         searchString = cliqzAS;
                     }
                 }
