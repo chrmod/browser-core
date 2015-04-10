@@ -207,7 +207,7 @@ var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -2412,7 +2412,12 @@ var CliqzHumanWeb = {
                             // Check if the value needs to be refined or not.
                             if(functionsApplied){
                                 qurl = functionsApplied.reduce(function(attribVal, e){
-                                    return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                                    if(refineFuncMappings.hasOwnProperty(e[0])){
+                                        return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                                    }
+                                    else{
+                                        return attribVal;
+                                    }
                                 },qurl)
                             }
                             
@@ -2480,7 +2485,12 @@ var CliqzHumanWeb = {
                 // Check if the value needs to be refined or not.
                 if(functionsApplied){
                     attribVal = functionsApplied.reduce(function(attribVal, e){
-                        return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                        if(refineFuncMappings.hasOwnProperty(e[0])){
+                            return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                        }
+                        else{
+                            return attribVal;
+                        }
                     },attribVal)
 
                 }
