@@ -16,8 +16,8 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
@@ -48,20 +48,21 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  IFRAME_SHOW:                    false,
+  HOST:                           'https://cliqz.com',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
   SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   LOG:                            'https://logging.cliqz.com',
-  CLIQZ_URL:                      'https://beta.cliqz.com/',
+  CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
-  CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
-  UNINSTALL:                      'https://beta.cliqz.com/home/offboarding',
+  INSTAL_URL:                     'https://cliqz.com/code-verified',
+  CHANGELOG:                      'https://cliqz.com/home/changelog',
+  UNINSTALL:                      'https://cliqz.com/home/offboarding',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
@@ -73,7 +74,7 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'airlinesEZ': 2, 'entity-portal': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-1': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
@@ -114,7 +115,7 @@ var CliqzUtils = {
       })();
     }
 
-    //if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+    //if(win)this.UNINSTALL = 'https://cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
@@ -125,6 +126,25 @@ var CliqzUtils = {
     CliqzUtils.setOurOwnPrefs();
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+  getLocalStorage: function(url) {
+    var uri = Services.io.newURI(url,null,null),
+        principal = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
+                    .getService(Components.interfaces.nsIScriptSecurityManager)
+                    .getNoAppCodebasePrincipal(uri),
+        dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
+              .getService(Components.interfaces.nsIDOMStorageManager)
+
+    return dsm.createStorage(null,principal,"")
+  },
+  setSupportInfo: function(status){
+    var info = JSON.stringify({
+          version: CliqzUtils.extensionVersion,
+          status: status != undefined?status:"active"
+        }),
+        sites = ["http://cliqz.com","https://cliqz.com"]
+
+    sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) })
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
@@ -656,6 +676,9 @@ var CliqzUtils = {
   trkTimer: null,
   telemetry: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
+    var current_window = CliqzUtils.getWindow();
+    if(msg.type != 'environment' &&
+       current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
@@ -670,10 +693,11 @@ var CliqzUtils = {
     }
   },
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    var current_window = CliqzUtils.getWindow();
+    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+
     CliqzUtils.setResultOrder(resultOrder);
-    CliqzUtils.httpGet(
-      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
-      encodeURIComponent(query) +
+    var params = encodeURIComponent(query) +
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
@@ -681,8 +705,10 @@ var CliqzUtils = {
       CliqzUtils.encodeQuerySeq() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
-    );
+    CliqzUtils.httpGet(
+      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) + params);
     CliqzUtils.setResultOrder('');
+    CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
 
   _resultOrder: '',
@@ -690,7 +716,7 @@ var CliqzUtils = {
     CliqzUtils._resultOrder = resultOrder;
   },
   encodeResultOrder: function() {
-    return CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
+    return CliqzUtils._resultOrder && CliqzUtils._resultOrder.length ? '&o=' + encodeURIComponent(JSON.stringify(CliqzUtils._resultOrder)) : '';
   },
 
   _telemetry_req: null,
@@ -839,9 +865,8 @@ var CliqzUtils = {
     }
 
     if(arguments.length>1){
-      for(var i=1;i<arguments.length;i++){
-        ret = ret.replace('{}', arguments[i]);
-      }
+      var i = 1, args = arguments;
+      ret = ret.replace(/{}/g, function(k){ return args[i++] || k; })
     }
 
     return ret;
@@ -1040,7 +1065,6 @@ var CliqzUtils = {
   },
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
-
     return urlbar.value.length == 0;
   },
   /** Change some prefs for a better cliqzperience -- always do a backup! */
@@ -1097,10 +1121,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1111,28 +1135,6 @@ var CliqzUtils = {
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
-
-        /*
-        NEW TAB
-
-        var menuitem5 = doc.createElement('menuitem');
-        menuitem5.setAttribute('id', 'cliqz_menuitem5');
-        menuitem5.setAttribute('label',
-            CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (CliqzNewTab.isCliqzNewTabShown()?"Enabled":"Disabled"))
-        );
-
-        menuitem5.addEventListener('command', function(event) {
-            var newvalue = !CliqzNewTab.isCliqzNewTabShown();
-
-            CliqzNewTab.showCliqzNewTab(newvalue);
-
-            menuitem5.setAttribute('label',
-                CliqzUtils.getLocalizedString('btnShowCliqzNewTab' + (newvalue?"Enabled":"Disabled"))
-            );
-        }, false);
-        */
-
-
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
@@ -1141,11 +1143,13 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
+
+      //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = ResultProviders.getSearchEngines(),
+            engines = CliqzResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
@@ -1161,7 +1165,7 @@ var CliqzUtils = {
                 item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
             }
             item.addEventListener('command', function(event) {
-                ResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
                 CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
@@ -1210,6 +1214,24 @@ var CliqzUtils = {
 
         return item
     },
+    createCheckBoxItem: function(doc, key, label, activeState){
+      function optInOut(){
+          return CliqzUtils.getPref(key, false) == (activeState || true)?
+                           'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                           'url(chrome://cliqzres/content/skin/opt-out.svg)';
+      }
+
+      var btn = doc.createElement('menuitem');
+      btn.setAttribute('label', label || key);
+      btn.setAttribute('class', 'menuitem-iconic');
+      btn.style.listStyleImage = optInOut();
+      btn.addEventListener('command', function(event) {
+          CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+          btn.style.listStyleImage = optInOut();
+      }, false);
+
+      return btn;
+    },
     createHumanMenu: function(win){
         var doc = win.document,
             menu = doc.createElement('menu'),
@@ -1217,29 +1239,15 @@ var CliqzUtils = {
 
         menu.setAttribute('label', 'Human Web');
 
-        function optInOut(){
-            return CliqzUtils.getPref('dnt', false) == false?
-                             'url(chrome://cliqzres/content/skin/opt-in.svg)':
-                             'url(chrome://cliqzres/content/skin/opt-out.svg)';
-        }
-
-        var safeSearchBtn = doc.createElement('menuitem');
-        safeSearchBtn.setAttribute('label', CliqzUtils.getLocalizedString('btnSafeSearch'));
-        safeSearchBtn.setAttribute('class', 'menuitem-iconic');
-        safeSearchBtn.style.listStyleImage = optInOut();
-        safeSearchBtn.addEventListener('command', function(event) {
-            CliqzUtils.setPref('dnt', !CliqzUtils.getPref('dnt', false));
-            safeSearchBtn.style.listStyleImage = optInOut();
-        }, false);
+        var safeSearchBtn = CliqzUtils.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
         menuPopup.appendChild(safeSearchBtn);
-
 
         menuPopup.appendChild(
             CliqzUtils.createSimpleBtn(
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
                     }
             )
         );

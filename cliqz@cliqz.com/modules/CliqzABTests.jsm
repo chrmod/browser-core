@@ -123,7 +123,9 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 //CliqzUtils.setPref("safeBrowsingMoz", true);
                 break;
-
+            case "1027_B":
+                CliqzUtils.setPref("news-toggle", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -248,7 +250,9 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
                 break;
-
+            case "1027_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
             default:
                 rule_executed = false;
         }

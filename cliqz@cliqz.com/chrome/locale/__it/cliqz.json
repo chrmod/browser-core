@@ -29,8 +29,11 @@
     "moreResults":{
         "message":"di più ..."
     },
-    "customSearch":{
-        "message":"Cerca <b><i>{}</i></b> con {}"
+    "search":{
+        "message":"cerca"
+    },
+    "on":{
+        "message":"con"
     },
     "peoplePositionAt":{
         "message":"su"
