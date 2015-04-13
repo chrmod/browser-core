@@ -21,8 +21,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
-
-CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 var refineFuncMappings ;
 
 function md5cycle(x, k) {
@@ -216,7 +214,7 @@ var CliqzHumanWeb = {
     strictMode: false,
     qs_len:30,
     rel_part_len:18,
-    doubleFetchTimeInSec: 320,//3600,
+    doubleFetchTimeInSec: 3600,
     can_urls: {},
     deadFiveMts: 5,
     deadTwentyMts: 20,
@@ -230,8 +228,8 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'chrome://cliqz/content/patterns',//'http://cdn.cliqz.com/safe-browsing/patterns',
-    configURL: 'http://localhost:8080/config',
+    patternsURL: 'http://cdn.cliqz.com/human-web/patterns',
+    configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
@@ -406,7 +404,7 @@ var CliqzHumanWeb = {
 
 
 
-              } catch(ee){if (CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
+              } catch(ee){if (CliqzHumanWeb && CliqzHumanWeb.debug)  CliqzUtils.log('observeActivity: ' + ee, CliqzHumanWeb.LOG_KEY)};
         }
     },
     // Extract earliest and latest entry of Firefox history
@@ -1292,6 +1290,7 @@ var CliqzHumanWeb = {
         }
     },
     pacemaker: function() {
+        
         var activeURL = CliqzHumanWeb.currentURL();
 
         if (activeURL && (activeURL).indexOf('about:')!=0) {
@@ -1392,11 +1391,11 @@ var CliqzHumanWeb = {
         }
 
         //Load ts config
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 30 * 1) == 0) {
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 5 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
             }
-            CliqzHumanWeb.loadConfig();
+            CliqzHumanWeb.fetchAndStoreConfig();
         }
 
         CliqzHumanWeb.counter += 1;
@@ -1453,30 +1452,16 @@ var CliqzHumanWeb = {
         if (ll > 0) {
             var v = CliqzHumanWeb.state['m'].slice(0, ll);
             CliqzHumanWeb.state['m'] = CliqzHumanWeb.state['m'].slice(ll, CliqzHumanWeb.state['m'].length);
-
-            // Need to fix this why or why not add it to DB. If needed to add then we should use state['m'] not state['v']
-            /*
-            for(var i=0;i<v.length;i++) {
-                CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-            }
-            */
-            // do a instant push on whatever is left on the telemetry
             CliqzHumanWeb.pushTelemetry();
         }
     },
     unload: function() {
-        //debugger;
-        if(!CliqzUtils.getPref("safeBrowsingMoz", false))return;
         // send all the data
-        CliqzHumanWeb.pushAllData();
+        CliqzHumanWeb.pushTelemetry();
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
     },
    unloadAtBrowser: function(){
-        //var activityDistributor = Components.classes["@mozilla.org/network/http-activity-distributor;1"]
-        //                              .getService(Components.interfaces.nsIHttpActivityDistributor);
-        //CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
-
         CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
     },
     currentURL: function() {
@@ -1584,18 +1569,33 @@ var CliqzHumanWeb = {
             //var activeURL = CliqzHumanWeb.currentURL();
 
             if (CliqzHumanWeb.state['v'][activeURL]!=null) {
+                CliqzHumanWeb.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzHumanWeb.counter};
                 //Fix same link in 'l'
                 //Only add if gur. that they are public and the link exists in the double fetch page(Public).it's available on the public page.Such
                 //check is not done, therefore we do not push the links clicked on that page. - potential record linkage.
+                //We need to check for redirections and use the final link for 'l' this is why the logic is here. This will
+                //for sure miss the first time it's see, cause we don't know on mouse click where it redirects.
 
-                if(!CliqzHumanWeb.isSuspiciousURL(targetURL) && !CliqzHumanWeb.dropLongURL(targetURL)){
-                    CliqzHumanWeb.getPageFromDB(targetURL, function(res) {
-                        if (res && (res['private'] == 0)) {
-                            CliqzHumanWeb.state['v'][activeURL]['c'].push({'l': ''+ CliqzHumanWeb.maskURL(targetURL), 't': CliqzHumanWeb.counter});
+                var linkURL = targetURL;
+                if(CliqzHumanWeb.httpCache[targetURL]){
+                    if(CliqzHumanWeb.httpCache[targetURL]['status'] == '301'){
+                        linkURL = CliqzHumanWeb.httpCache[targetURL]['location'];
+                    }
+                }
+
+                if(!CliqzHumanWeb.isSuspiciousURL(linkURL) && !CliqzHumanWeb.dropLongURL(linkURL)){
+                    CliqzHumanWeb.getPageFromHashTable(linkURL, function(_res) {
+                        if (_res && (_res['private'] == 0)) {
+                            CliqzHumanWeb.state['v'][activeURL]['c'].push({'l': ''+ CliqzHumanWeb.maskURL(linkURL), 't': CliqzHumanWeb.counter});
                         }
+                        else if(!_res){
+                            CliqzHumanWeb.state['v'][activeURL]['c'].push({'l': ''+ CliqzHumanWeb.maskURL(linkURL), 't': CliqzHumanWeb.counter});
+
+                        }
+
                     })
                 }
-                CliqzHumanWeb.linkCache[targetURL] = {'s': ''+activeURL, 'time': CliqzHumanWeb.counter};
+                
             }
         }
 
@@ -1708,24 +1708,7 @@ var CliqzHumanWeb = {
         }
 
         CliqzHumanWeb.loadContentExtraction();
-        CliqzHumanWeb.loadConfig();
-        //CliqzHumanWeb.activityDistributor.addObserver(CliqzHumanWeb.httpObserver);
-
-        /*
-
-        //Check health
-        CliqzUtils.httpGet(CliqzUtils.getPref('safe_browsing_events', null),
-            function(res){
-            if(res && res.response){
-                try {
-                    if (CliqzHumanWeb.debug) {
-                        CliqzUtils.log('Healthcheck success', CliqzHumanWeb.LOG_KEY);
-                    }
-                } catch(e){}
-            }
-        }, null, 1000);
-
-        */
+        CliqzHumanWeb.fetchAndStoreConfig();
 
     },
     initAtBrowser: function(){
@@ -1737,9 +1720,16 @@ var CliqzHumanWeb = {
     },
     msgSanitize: function(msg){
 
-        //Remove time
+        //Check and add time , else do not send the message
 
-        msg.ts = CliqzHumanWeb.ts;
+        try {msg.ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+
+
+        if(!msg.ts || msg.ts == ''){
+            return null;
+        }
+
+
 
         if (msg.action == 'page') {
             if(msg.payload.tend  && msg.payload.tin){
@@ -1755,6 +1745,12 @@ var CliqzHumanWeb = {
 
             delete msg.payload.tend;
             delete msg.payload.tin;
+
+            //Check for fields which have urls like ref.
+            if(msg.payload.ref){
+                msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
+            }
+
         }
 
         // FIXME: this cannot be here, telemetry is only for sending logic. The object needs to be
@@ -1771,6 +1767,16 @@ var CliqzHumanWeb = {
           if(msg.payload.qr.d > 2){
             delete msg.payload.qr;
           }
+        }
+
+        //Check for doorway action durl
+        if(msg.action=='doorwaypage') {
+            if((CliqzHumanWeb.isSuspiciousURL(msg.payload['durl'])) || (CliqzHumanWeb.isSuspiciousURL(msg.payload['url']))){
+                return null;
+            }
+            if((CliqzHumanWeb.dropLongURL(msg.payload['durl'])) || (CliqzHumanWeb.dropLongURL(msg.payload['url']))){
+                return null;
+            }
         }
 
 
@@ -1872,15 +1878,15 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.removeTable();   
         }
 
-        if ( FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]).exists() ) {
+        if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
-                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]))
+                CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]))
                 CliqzHumanWeb.createTable();
             }
             return;
         }
         else {
-            CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafebrowse"]));
+            CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]));
             CliqzHumanWeb.createTable();
         }
 
@@ -1926,7 +1932,6 @@ var CliqzHumanWeb = {
         var res = [];
         var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashusafe WHERE hash = :hash");
         st.params.hash = (md5(url)).substring(0,16);
-        var res = [];
         st.executeAsync({
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
@@ -1961,7 +1966,6 @@ var CliqzHumanWeb = {
         var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
         st.params.url = url;
 
-        // CliqzHumanWeb.isPrivate('https://golf.cliqz.com/dashboard/#KPIs_BM')
         var res = [];
         st.executeAsync({
             handleResult: function(aResultSet) {
@@ -2329,19 +2333,17 @@ var CliqzHumanWeb = {
             CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
             });
     },
-    loadConfig: function(){
+    fetchAndStoreConfig: function(){
         //Check health
         CliqzUtils.httpGet(CliqzHumanWeb.configURL,
           function success(req){
             if(!CliqzHumanWeb) return;
-
-            var config = JSON.parse(req.response);
-            if(config['ts']){
-                CliqzHumanWeb.ts = config['ts'];
-            }
-            else{
-                CliqzHumanWeb.ts = CliqzHumanWeb.getTime();
-            }
+                try {
+                    var config = JSON.parse(req.response);
+                    for(var k in config){
+                        CliqzUtils.setPref('config_' + k, config[k]);
+                    }
+                } catch(e){};
           },
           function error(res){
             CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
@@ -2412,7 +2414,12 @@ var CliqzHumanWeb = {
                             // Check if the value needs to be refined or not.
                             if(functionsApplied){
                                 qurl = functionsApplied.reduce(function(attribVal, e){
-                                    return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                                    if(refineFuncMappings.hasOwnProperty(e[0])){
+                                        return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                                    }
+                                    else{
+                                        return attribVal;
+                                    }
                                 },qurl)
                             }
                             
@@ -2480,7 +2487,12 @@ var CliqzHumanWeb = {
                 // Check if the value needs to be refined or not.
                 if(functionsApplied){
                     attribVal = functionsApplied.reduce(function(attribVal, e){
-                        return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                        if(refineFuncMappings.hasOwnProperty(e[0])){
+                            return refineFuncMappings[e[0]](attribVal,e[1],e[2]);
+                        }
+                        else{
+                            return attribVal;
+                        }
                     },attribVal)
 
                 }
