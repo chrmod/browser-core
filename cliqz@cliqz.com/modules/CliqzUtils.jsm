@@ -678,7 +678,8 @@ var CliqzUtils = {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
     var current_window = CliqzUtils.getWindow();
-    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+    if(msg.type != 'environment' &&
+       current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
 
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
