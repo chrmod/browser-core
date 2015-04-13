@@ -163,7 +163,6 @@ var CliqzHistoryPattern = {
   // This method is triggered when the Firefox history has finished loading
   addFirefoxHistory: function(history) {
     var query = history.searchString;
-
     // attempt rule-based clustering first
     var [history_left, cluster_data] = CliqzClusterHistory.cluster(history);
 
@@ -212,7 +211,6 @@ var CliqzHistoryPattern = {
 
     }
 
-
     // Callback when firefox is enabled or cliqz history found no results
     if (query.length == 0 ||
       DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "firefox_no_cluster" ||
@@ -239,14 +237,13 @@ var CliqzHistoryPattern = {
 
     // Add base domain if above threshold
     var fRes = res.filteredResults();
-
-    if ((DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "cliqz") && share[1] > 0.5 && fRes.length > 2
-    && CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(query) == 0) {
+    var genQ = CliqzHistoryPattern.generalizeUrl(query);
+    if (share[1] > 0.5 && fRes.length > 2
+    && !(CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) !== 0 && share[1] < 0.8)) {
       // Check if base domain changed due to filtering
       var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
-      if(tmpBaseUrl != baseUrl) {
-        baseUrl = tmpBaseUrl;
-      }
+      baseUrl = tmpBaseUrl;
+      CliqzUtils.log(baseUrl, "BASE");
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
@@ -259,7 +256,10 @@ var CliqzHistoryPattern = {
 
     // Make sure base domain is added
     CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
-    if(CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(query) != 0) patterns.shift();
+    // Remove automatically added patterns if they don't match query
+    if(patterns && patterns.length > 0 &&
+      patterns[0].autoAdd && CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) != 0)
+        patterns.shift();
 
     res.results = CliqzHistoryPattern.removeDuplicates(res.results);
     return res;
@@ -384,11 +384,6 @@ var CliqzHistoryPattern = {
     }
     var scores = {}
 
-    var i=0;
-    for(i=0; patterns[1]._genUrl[i] == patterns[0]._genUrl[i]; i++);
-    var sharedDomain = { _genUrl: patterns[0]._genUrl.substr(0, i) };
-    patterns.unshift(sharedDomain);
-
     for (var key in patterns) {
       var url1 = patterns[key]._genUrl;
       scores[url1] = true;
@@ -399,7 +394,7 @@ var CliqzHistoryPattern = {
         }
       }
     }
-    patterns.shift();
+
     // Return match with most occurences
     for (var key in scores) {
       if (scores[key] === true) {
@@ -459,7 +454,7 @@ var CliqzHistoryPattern = {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
     //if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
     // Add base domain if not in list
-    if (!patterns[0].base) {
+    if (patterns && patterns.length > 0 && !patterns[0].base) {
       var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
       if (!title) return;
       patterns.unshift({
@@ -467,6 +462,7 @@ var CliqzHistoryPattern = {
         url: baseUrl,
         favicon: favicon
       });
+      patterns[0].autoAdd = true;
     }
     return baseUrl;
   },

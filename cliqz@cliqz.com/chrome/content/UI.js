@@ -60,7 +60,8 @@ function lg(msg){
 
 var UI = {
     showDebug: false,
-    preventFirstElementHighlight: false,
+    preventAutocompleteHighlight: false,
+    autocompleteEl: 0,
     lastInputTime: 0,
     lastInput: "",
     lastSelectedUrl: null,
@@ -216,7 +217,7 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
-        if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+        if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
         return;
       }
 
@@ -239,7 +240,7 @@ var UI = {
       }
       var t = Date.now() + delay + (delay>0?100:0);
       if(t > UI.nextRedraw) UI.nextRedraw = t;
-      if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+      if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
     },
     // Returns a concatenated string of all urls in a result list
     extractResultUrls: function(str) {
@@ -360,14 +361,14 @@ var UI = {
                     };
                     CliqzUtils.telemetry(signal);
                 }
-                UI.preventFirstElementHighlight = true;
+                UI.preventAutocompleteHighlight = true;
                 UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
             default:
                 UI.lastInput = "";
                 UI.nextRedraw = (Date.now() + 150 > UI.nextRedraw) ? (Date.now() + 150) : UI.nextRedraw;
-                UI.preventFirstElementHighlight = false;
+                UI.preventAutocompleteHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
         }
@@ -379,21 +380,23 @@ var UI = {
       }
     },
     animationEnd: 0,
-    selectFirstElement: function() {
+    selectAutocomplete: function() {
+      var target = $$('[arrow]', gCliqzBox)[UI.autocompleteEl];
       // Skip timeout if element was selected before
-      if ($('[arrow]', gCliqzBox) && UI.lastSelectedUrl == $('[arrow]', gCliqzBox).getAttribute("url")) {
-        setResultSelection($('[arrow]', gCliqzBox), true, false);
+      if (target && UI.lastSelectedUrl == target.getAttribute("url")) {
+        setResultSelection(target, true, false);
         return;
       }
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
+        var target = $$('[arrow]', gCliqzBox)[UI.autocompleteEl];
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd
-            && gCliqzBox && CliqzAutocomplete.highlightFirstElement) {
+          if (!UI.preventAutocompleteHighlight && time > UI.animationEnd
+            && gCliqzBox && CliqzAutocomplete.selectAutocomplete) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection($('[arrow]', gCliqzBox), true, false);
+            setResultSelection(target, true, false);
           }
         }
       },300);
