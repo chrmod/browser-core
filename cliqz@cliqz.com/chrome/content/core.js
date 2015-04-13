@@ -616,6 +616,8 @@ window.CLIQZ.Core = {
     handlePasteEvent: function(ev){
         //wait for the value to change
         setTimeout(function(){
+            // ensure the lastSearch value is always correct although paste event has 1 second throttle time.
+            CliqzAutocomplete.lastSearch = ev.target.value;
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'paste',
