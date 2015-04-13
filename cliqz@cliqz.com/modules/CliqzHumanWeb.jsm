@@ -205,7 +205,7 @@ var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -1771,10 +1771,10 @@ var CliqzHumanWeb = {
 
         //Check for doorway action durl
         if(msg.action=='doorwaypage') {
-            if(CliqzHumanWeb.isSuspiciousURL(msg.payload['durl'])){
+            if((CliqzHumanWeb.isSuspiciousURL(msg.payload['durl'])) || (CliqzHumanWeb.isSuspiciousURL(msg.payload['url']))){
                 return null;
             }
-            if(CliqzHumanWeb.dropLongURL(msg.payload['durl'])){
+            if((CliqzHumanWeb.dropLongURL(msg.payload['durl'])) || (CliqzHumanWeb.dropLongURL(msg.payload['url']))){
                 return null;
             }
         }
