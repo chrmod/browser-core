@@ -39,13 +39,15 @@ var CliqzHistory = {
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       // Skip if already saved or on any about: pages
-      if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url) {
+      if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url
+          || CliqzHistory.getTabData(panel,"lock")) {
         return;
       }
 
       if (!CliqzHistory.getTabData(panel, "type")) {
         CliqzHistory.setTabData(panel, "type", "link");
       }
+      // Query is not set for bookmarks (opened from new tab page) or when a link is opened in a new window
       if (!CliqzHistory.getTabData(panel, "query")) {
         CliqzHistory.setTabData(panel, "query", url);
         CliqzHistory.setTabData(panel, "queryDate", new Date().getTime());
@@ -60,19 +62,13 @@ var CliqzHistory = {
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       var title = aBrowser.contentDocument.title || "";
-      // Reset tab data if on a new tab
-      // Problem: This event is called several times, which clears the data and prevents saving the correct data
-      if (url == "about:newtab" && CliqzHistory.getTabData(panel, "newTab") !== true) {
-        //CliqzHistory.setTabData(panel, 'query', null);
-        //CliqzHistory.setTabData(panel, 'queryDate', null);
-        //CliqzHistory.setTabData(panel, 'newTab', true);
-      } else if (title != CliqzHistory.getTabData(panel, "title")) {
+      if (title != CliqzHistory.getTabData(panel, "title")) {
         CliqzHistory.setTitle(url, title);
         CliqzHistory.setTabData(panel, 'title', title);
       }
     },
     onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
-      //CliqzHistory.listener.onStateChange(aBrowser, aWebProgress, aRequest, null, aStatus);
+      CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
     }
   },
   addHistoryEntry: function(browser, customPanel) {
@@ -146,22 +142,24 @@ var CliqzHistory = {
                 title: CliqzHistory.escapeSQL(title)
               });
   },
-  tabOpen: function(){
+  tabOpen: function(e){
       var browser = CliqzUtils.getWindow().gBrowser,
-          tabs = browser.tabs,
           curPanel = browser.selectedTab.linkedPanel,
-          maxId = -1, newPanel = "";
+          newPanel = e.target.linkedPanel;
 
-      for (var i = 0; i < tabs.length; i++) {
-          var id = tabs.item(i).linkedPanel.split("-");
-          id = parseInt(id[id.length-1]);
-          if (id > maxId) {
-              newPanel = tabs.item(i).linkedPanel;
-              maxId = id;
-          };
+      CliqzHistory.setTabData(newPanel, "lock", true);
+      var checkUrl = function(tab,curPanel,newPanel) {
+        var url = tab.linkedBrowser.contentWindow.location.href;
+        if(url == "about:blank") {
+          CliqzUtils.getWindow().setTimeout(checkUrl, 100, tab, curPanel, newPanel);
+          return;
+        } else if(url != "about:newtab") {
+          CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
+          CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+        }
+        CliqzHistory.setTabData(newPanel, "lock", false);
       };
-      CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
-      CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
+      checkUrl(e.target, curPanel, newPanel);
   },
   getTabData: function(panel, attr) {
     if (!CliqzHistory.tabData[panel]) {
