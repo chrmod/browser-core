@@ -677,6 +677,9 @@ var CliqzUtils = {
   telemetry: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
+    var current_window = CliqzUtils.getWindow();
+    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
@@ -692,10 +695,11 @@ var CliqzUtils = {
   },
 
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    var current_window = CliqzUtils.getWindow();
+    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+
     CliqzUtils.setResultOrder(resultOrder);
-    CliqzUtils.httpGet(
-      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
-      encodeURIComponent(query) +
+    var params = encodeURIComponent(query) +
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
@@ -703,8 +707,10 @@ var CliqzUtils = {
       CliqzUtils.encodeQuerySeq() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
-    );
+    CliqzUtils.httpGet(
+      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) + params);
     CliqzUtils.setResultOrder('');
+    CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
 
   _resultOrder: '',
