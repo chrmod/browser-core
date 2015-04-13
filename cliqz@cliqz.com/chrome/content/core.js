@@ -399,7 +399,8 @@ window.CLIQZ.Core = {
                         history_urls: history.size,
                         startup: startup? true: false,
                         prefs: CliqzUtils.getPrefs(),
-                        defaultSearchEngine: defaultSearchEngine
+                        defaultSearchEngine: defaultSearchEngine,
+                        private_window: CliqzUtils.isPrivate(window)
                     };
 
                 CliqzUtils.telemetry(info);
