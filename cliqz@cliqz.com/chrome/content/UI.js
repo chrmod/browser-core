@@ -133,7 +133,7 @@ var UI = {
       XULBrowserWindow.updateStatusField();
 
       //store last query with results in each tab
-      if(currentResults.results[0].vertical != 'noResult')
+      if(currentResults.results[0].vertical != 'noResult' && q)
         gBrowser.selectedTab.cliqz = q;
     },
     results: function(res){
@@ -1187,6 +1187,9 @@ function resultClick(ev){
             break;
         } else if (el.getAttribute('cliqz-action')) {
             switch(el.getAttribute('cliqz-action')) {
+                case 'lastQ':
+                    CLIQZ.Core.urlbar.mInputField.setUserInput(ev.originalTarget.getAttribute('query'));
+                    break;
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':

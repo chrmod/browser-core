@@ -95,7 +95,7 @@ var CliqzSearchHistory = {
     },
 
     showLastQuery: function(q){
-        if (!CliqzUtils.getPref('topSites', false)) {
+        if (!CliqzUtils.getPref('topSites', false) && !CliqzUtils.getPref('topSitesDuringSession', false)) {
             var window_id = CliqzUtils.getWindowID(),
                 lq = this.windows[window_id].lastSearchElement;
 

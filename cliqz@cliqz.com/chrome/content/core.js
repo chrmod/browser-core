@@ -412,12 +412,12 @@ window.CLIQZ.Core = {
         }
     },
     urlbarmousedown: function(ev){
-        if(/*CLIQZ.Core.urlbar.focused || */!CliqzUtils.getPref('topSites', false)) return;
+        if(!CliqzUtils.getPref('topSites', false) && !CliqzUtils.getPref('topSitesDuringSession', false)) return;
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
             ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
             var urlBar = CLIQZ.Core.urlbar;
-            if(gBrowser.selectedTab.cliqz === '' || urlBar.value.trim().length == 0){
+            if(gBrowser.selectedTab.cliqz === '' || urlBar.value.trim().length == 0 || CliqzUtils.getPref('topSitesDuringSession', false)){
                 //link to historydropmarker
                 CliqzAutocomplete.sessionStart = true;
                 CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');

@@ -27,6 +27,13 @@
 
 /* ------- END FLIGHT STATUS EZ -------*/
 
+#cliqz-results .top-sites-lastq {
+  font-size: 24px;
+  color: gray;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
 
 /* --------- Emergency contact -> text.tpl -------- */
 #cliqz-results .ez-text-msg .title { font-size: 25px; margin-top: -3px; }

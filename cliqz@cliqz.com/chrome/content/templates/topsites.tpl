@@ -21,7 +21,13 @@
           {{/each}}
       </div>
       <div class="h2">{{{ message }}}</div>
-      <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+      {{#if lastQ}}
+        <div cliqz-action='lastQ' class='top-sites-lastq' query="{{lastQ}}">
+          {{lastQ}}
+        </div>
+      {{else}}
+        <img class="cliqz-logo" src="{{cliqz_logo}}" url="https://cliqz.com" />
+      {{/if}}
   </div>
   {{/with}}
 </div>
