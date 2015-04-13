@@ -49,19 +49,19 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
-  HOST:                           'https://beta.cliqz.com',
+  HOST:                           'https://cliqz.com',
   RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
   LOG:                            'https://logging.cliqz.com',
-  CLIQZ_URL:                      'https://beta.cliqz.com/',
+  CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
-  INSTAL_URL:                     'https://beta.cliqz.com/code-verified',
-  CHANGELOG:                      'https://beta.cliqz.com/home/changelog',
-  UNINSTALL:                      'https://beta.cliqz.com/home/offboarding',
+  INSTAL_URL:                     'https://cliqz.com/code-verified',
+  CHANGELOG:                      'https://cliqz.com/home/changelog',
+  UNINSTALL:                      'https://cliqz.com/home/offboarding',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
@@ -115,7 +115,7 @@ var CliqzUtils = {
       })();
     }
 
-    //if(win)this.UNINSTALL = 'https://beta.cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+    //if(win)this.UNINSTALL = 'https://cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
 
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
@@ -126,6 +126,25 @@ var CliqzUtils = {
     CliqzUtils.setOurOwnPrefs();
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+  getLocalStorage: function(url) {
+    var uri = Services.io.newURI(url,null,null),
+        principal = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
+                    .getService(Components.interfaces.nsIScriptSecurityManager)
+                    .getNoAppCodebasePrincipal(uri),
+        dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
+              .getService(Components.interfaces.nsIDOMStorageManager)
+
+    return dsm.createStorage(null,principal,"")
+  },
+  setSupportInfo: function(status){
+    var info = JSON.stringify({
+          version: CliqzUtils.extensionVersion,
+          status: status != undefined?status:"active"
+        }),
+        sites = ["http://cliqz.com","https://cliqz.com"]
+
+    sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) })
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
@@ -658,6 +677,10 @@ var CliqzUtils = {
   telemetry: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
 
+    var current_window = CliqzUtils.getWindow();
+    if(msg.type != 'environment' &&
+       current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
@@ -673,10 +696,11 @@ var CliqzUtils = {
   },
 
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
+    var current_window = CliqzUtils.getWindow();
+    if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
+
     CliqzUtils.setResultOrder(resultOrder);
-    CliqzUtils.httpGet(
-      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) +
-      encodeURIComponent(query) +
+    var params = encodeURIComponent(query) +
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
@@ -684,8 +708,10 @@ var CliqzUtils = {
       CliqzUtils.encodeQuerySeq() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
-    );
+    CliqzUtils.httpGet(
+      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) + params);
     CliqzUtils.setResultOrder('');
+    CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
 
   _resultOrder: '',
@@ -1087,10 +1113,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        CliqzUtils.openTabInWindow(win, 'http://beta.cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1213,7 +1239,7 @@ var CliqzUtils = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzUtils.openTabInWindow(win, 'https://beta.cliqz.com/privacy#humanweb');
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
                     }
             )
         );

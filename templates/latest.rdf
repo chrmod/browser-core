@@ -26,7 +26,7 @@
                 <em:updateLink>{{download_link}}</em:updateLink>
 
                 <!-- A page describing what is new in this updated version
-                <em:updateInfoURL>http://beta.cliqz.com/changelog</em:updateInfoURL>
+                <em:updateInfoURL>http://cliqz.com/changelog</em:updateInfoURL>
                 -->
               </RDF:Description>
             </em:targetApplication>
