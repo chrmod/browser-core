@@ -178,7 +178,7 @@ window.CLIQZ.Core = {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
 
-            if(CliqzUtils.getPref("humanWeb", false)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
@@ -279,7 +279,7 @@ window.CLIQZ.Core = {
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
 
-            if(CliqzUtils.getPref("humanWeb", false)){
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
 
                 //Remove indi.event handlers
@@ -304,16 +304,18 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.removeEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
 
-        try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            hs.removeObserver(CliqzHistory.historyObserver);
+        if (!CliqzUtils.isPrivate(window)) {
+            try {
+                var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+                hs.removeObserver(CliqzHistory.historyObserver);
 
-            if(CliqzUtils.getPref("humanWeb", false)){
-                //Also, remove from Humanweb
-                hs.removeObserver(CliqzHumanWeb.historyObserver);
-            }
+                if(CliqzUtils.getPref("humanWeb", false) ){
+                    //Also, remove from Humanweb
+                    hs.removeObserver(CliqzHumanWeb.historyObserver);
+                }
 
-        } catch(e) {}
+            } catch(e) {}
+        }
 
         if(!soft){
             delete window.CliqzUtils;
