@@ -1461,8 +1461,10 @@ var CliqzHumanWeb = {
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
     },
-   unloadAtBrowser: function(){
-        CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
+    unloadAtBrowser: function(){
+        try {
+            CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
+        } catch(e){}
     },
     currentURL: function() {
         var currwin = CliqzUtils.getWindow();

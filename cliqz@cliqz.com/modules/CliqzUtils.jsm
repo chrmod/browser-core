@@ -144,7 +144,9 @@ var CliqzUtils = {
         }),
         sites = ["http://cliqz.com","https://cliqz.com"]
 
-    sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) })
+    try {
+      sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) });
+    } catch(e) {}
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
@@ -645,22 +647,25 @@ var CliqzUtils = {
     return true;
   },
   isPrivate: function(window) {
-    try {
-          // Firefox 20+
-          Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
-          return PrivateBrowsingUtils.isWindowPrivate(window);
-        } catch(e) {
-          // pre Firefox 20
-          try {
-            var inPrivateBrowsing = Components.classes['@mozilla.org/privatebrowsing;1'].
-                                    getService(Components.interfaces.nsIPrivateBrowsingService).
-                                    privateBrowsingEnabled;
-            return inPrivateBrowsing;
-          } catch(ex) {
-            Components.utils.reportError(ex);
-            return;
-          }
+    if(window.cliqzIsPrivate === undefined){
+      try {
+        // Firefox 20+
+        Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+        window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+      } catch(e) {
+        // pre Firefox 20
+        try {
+          window.cliqzIsPrivate = Components.classes['@mozilla.org/privatebrowsing;1'].
+                                  getService(Components.interfaces.nsIPrivateBrowsingService).
+                                  privateBrowsingEnabled;
+        } catch(ex) {
+          Components.utils.reportError(ex);
+          window.cliqzIsPrivate = 5;
         }
+      }
+    }
+
+    return window.cliqzIsPrivate
   },
   addStylesheetToDoc: function(doc, path) {
     var stylesheet = doc.createElementNS('http://www.w3.org/1999/xhtml', 'h:link');
