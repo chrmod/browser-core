@@ -196,7 +196,7 @@ var CliqzHistoryPattern = {
     CliqzHistoryPattern.firefoxHistory = [];
     CliqzHistoryPattern.firefoxHistory.res = res;
     CliqzHistoryPattern.firefoxHistory.query = query;
-    if(cluster_data && res.filteredResults()[0].url == cluster_data.url) {
+    if(cluster_data && res.filteredResults() && res.filteredResults()[0].url == cluster_data.url) {
       CliqzHistoryPattern.firefoxHistory = [];
       CliqzHistoryPattern.firefoxHistory.res = cluster_data;
       CliqzHistoryPattern.firefoxHistory.query = query;
@@ -225,7 +225,7 @@ var CliqzHistoryPattern = {
     query = CliqzUtils.cleanUrlProtocol(query, true);
 
     // Filter patterns that don't match search
-    patterns = CliqzHistoryPattern.filterPatterns(patterns, query);
+    patterns = CliqzHistoryPattern.filterPatterns(patterns, query.toLowerCase());
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
 
     // Remove patterns with same title

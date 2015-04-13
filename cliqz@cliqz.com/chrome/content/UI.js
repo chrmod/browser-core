@@ -381,7 +381,8 @@ var UI = {
     },
     animationEnd: 0,
     selectAutocomplete: function() {
-      var target = $$('[arrow]', gCliqzBox)[UI.autocompleteEl];
+      var target = $$('[arrow]', gCliqzBox)[0];
+      if(UI.autocompleteEl != 0) target = $('.cliqz-pattern-element', gCliqzBox);
       // Skip timeout if element was selected before
       if (target && UI.lastSelectedUrl == target.getAttribute("url")) {
         setResultSelection(target, true, false);
@@ -390,7 +391,8 @@ var UI = {
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
-        var target = $$('[arrow]', gCliqzBox)[UI.autocompleteEl];
+        var target = $$('[arrow]', gCliqzBox)[0];
+        if(UI.autocompleteEl != 0) target = $('.cliqz-pattern-element', gCliqzBox);
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
           if (!UI.preventAutocompleteHighlight && time > UI.animationEnd
