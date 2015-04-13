@@ -2350,7 +2350,7 @@ var CliqzHumanWeb = {
           },
           function error(res){
             CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
-            });
+          }, 5000);
     },
     checkURL: function(cd){
         var url = cd.location.href;
