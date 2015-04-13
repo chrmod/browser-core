@@ -94,8 +94,10 @@ window.CLIQZ.Core = {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
 
-            //Also need to add for Humanweb
-            hs.addObserver(CliqzHumanWeb.historyObserver, false);
+            if(CliqzUtils.getPref("safeBrowsing", false)){
+                //Also need to add for Humanweb
+                hs.addObserver(CliqzHumanWeb.historyObserver, false);
+            }
           } catch(e) {}
         }
 
@@ -275,7 +277,6 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
-<<<<<<< HEAD
             window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
 
             //Remove indi.event handlers
@@ -291,11 +292,8 @@ window.CLIQZ.Core = {
               currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage);
               currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
             }
-
-
-=======
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
->>>>>>> newUI
+
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -323,14 +321,11 @@ window.CLIQZ.Core = {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
-<<<<<<< HEAD
             delete window.CliqzHumanWeb;
-=======
             delete window.CliqzSpellCheck;
             delete window.CliqzHistory;
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
->>>>>>> newUI
         }
     },
     restart: function(soft){
