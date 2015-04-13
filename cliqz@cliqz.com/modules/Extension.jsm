@@ -83,7 +83,9 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
-        CliqzHumanWeb.initAtBrowser();
+        if(CliqzUtils.getPref("safeBrowsing", false)){
+            CliqzHumanWeb.initAtBrowser();
+        }
 
         // open changelog on update
 

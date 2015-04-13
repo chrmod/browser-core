@@ -223,6 +223,7 @@ var CliqzABTests = CliqzABTests || {
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 //CliqzUCrawl.outOfABTest();
+                break;
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");

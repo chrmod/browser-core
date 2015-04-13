@@ -277,23 +277,25 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
-            window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
-
-            //Remove indi.event handlers
-            CliqzHumanWeb.unload();
-
-            var numTabs = window.gBrowser.tabContainer.childNodes.length;
-            for (var i=0; i<numTabs; i++) {
-              var currentTab = gBrowser.tabContainer.childNodes[i];
-              var currentBrowser = gBrowser.getBrowserForTab(currentTab);
-              currentBrowser.contentDocument.removeEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
-              currentBrowser.contentDocument.removeEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
-              currentBrowser.contentDocument.removeEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
-              currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage);
-              currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
-            }
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
 
+            if(CliqzUtils.getPref("safeBrowsing", false)){
+                window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
+
+                //Remove indi.event handlers
+                CliqzHumanWeb.unload();
+
+                var numTabs = window.gBrowser.tabContainer.childNodes.length;
+                for (var i=0; i<numTabs; i++) {
+                  var currentTab = gBrowser.tabContainer.childNodes[i];
+                  var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+                  currentBrowser.contentDocument.removeEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
+                  currentBrowser.contentDocument.removeEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
+                  currentBrowser.contentDocument.removeEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
+                  currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage);
+                  currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
+                }
+            }
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -306,8 +308,10 @@ window.CLIQZ.Core = {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.removeObserver(CliqzHistory.historyObserver);
 
-            //Also, remove from Humanweb
-            hs.removeObserver(CliqzHumanWeb.historyObserver);
+            if(CliqzUtils.getPref("safeBrowsing", false)){
+                //Also, remove from Humanweb
+                hs.removeObserver(CliqzHumanWeb.historyObserver);
+            }
 
         } catch(e) {}
 
@@ -374,6 +378,8 @@ window.CLIQZ.Core = {
         }
     },
     urlbarblur: function(ev) {
+        CliqzAutocomplete.resetSpellCorr();
+
         if(CLIQZ.Core.triggerLastQ)
             CliqzSearchHistory.lastQuery();
 
