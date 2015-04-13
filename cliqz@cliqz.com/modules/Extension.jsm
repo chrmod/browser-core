@@ -83,7 +83,7 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
-        if(CliqzUtils.getPref("safeBrowsing", false)){
+        if(CliqzUtils.getPref("humanWeb", false)){
             CliqzHumanWeb.initAtBrowser();
         }
 
@@ -106,6 +106,10 @@ var Extension = {
                 CliqzUtils.resetOriginalPrefs();
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
+        }
+
+        if(CliqzUtils.getPref("humanWeb", false)){
+            CliqzHumanWeb.unloadAtBrowser();
         }
 
         // Unload from any existing windows

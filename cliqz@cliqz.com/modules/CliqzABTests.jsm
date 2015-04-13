@@ -126,6 +126,9 @@ var CliqzABTests = CliqzABTests || {
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
                 break;
+            case "1028_B":
+                CliqzUtils.setPref("humanWeb", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -253,6 +256,9 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
+            case "1028_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("humanWeb");
                 break;
             default:
                 rule_executed = false;

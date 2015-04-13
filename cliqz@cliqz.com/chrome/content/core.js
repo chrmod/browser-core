@@ -94,7 +94,7 @@ window.CLIQZ.Core = {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
 
-            if(CliqzUtils.getPref("safeBrowsing", false)){
+            if(CliqzUtils.getPref("humanWeb", false)){
                 //Also need to add for Humanweb
                 hs.addObserver(CliqzHumanWeb.historyObserver, false);
             }
@@ -178,7 +178,7 @@ window.CLIQZ.Core = {
             CliqzLanguage.init(window);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
 
-            if(CliqzUtils.getPref("safeBrowsing", false)){
+            if(CliqzUtils.getPref("humanWeb", false)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
@@ -279,7 +279,7 @@ window.CLIQZ.Core = {
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
 
-            if(CliqzUtils.getPref("safeBrowsing", false)){
+            if(CliqzUtils.getPref("humanWeb", false)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
 
                 //Remove indi.event handlers
@@ -308,7 +308,7 @@ window.CLIQZ.Core = {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.removeObserver(CliqzHistory.historyObserver);
 
-            if(CliqzUtils.getPref("safeBrowsing", false)){
+            if(CliqzUtils.getPref("humanWeb", false)){
                 //Also, remove from Humanweb
                 hs.removeObserver(CliqzHumanWeb.historyObserver);
             }
