@@ -381,24 +381,43 @@ var UI = {
     },
     animationEnd: 0,
     selectAutocomplete: function() {
-      var target = $$('[arrow]', gCliqzBox)[0];
-      if(UI.autocompleteEl != 0) target = $('.cliqz-pattern-element', gCliqzBox);
+      var target = function() {
+        var index = 0;
+        var target = $$('[arrow]', gCliqzBox)[0];
+        while(target && target.getAttribute("url") != CliqzAutocomplete.lastAutocomplete)
+          target = $$('[arrow]', gCliqzBox)[++index];
+        // Prevent page changing
+        var offset = target ? target.offsetTop : 0;
+        if(target && target.className.indexOf("cliqz-pattern") != -1) {
+          var context;
+          if(context = $('.cqz-result-pattern', gCliqzBox))
+            offset += context.parentElement.offsetTop;
+        }
+        if(offset > 300) {
+          // Remove autocomplete from urlbar
+          var urlbar = CLIQZ.Core.urlbar;
+          urlbar.mInputField.value = urlbar.mInputField.value.substr(0, urlbar.selectionStart);
+          CliqzAutocomplete.lastAutocomplete = null;
+          CliqzAutocomplete.lastAutocompleteType = null;
+          CliqzAutocomplete.selectAutocomplete = false;
+          return null;
+        }
+        return target;
+      };
       // Skip timeout if element was selected before
-      if (target && UI.lastSelectedUrl == target.getAttribute("url")) {
-        setResultSelection(target, true, false);
+      if (target() && UI.lastSelectedUrl == target().getAttribute("url")) {
+        setResultSelection(target(), true, false);
         return;
       }
       // Timeout to wait for user to finish keyboard input
       // and prevent multiple animations at once
       setTimeout(function() {
-        var target = $$('[arrow]', gCliqzBox)[0];
-        if(UI.autocompleteEl != 0) target = $('.cliqz-pattern-element', gCliqzBox);
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
           if (!UI.preventAutocompleteHighlight && time > UI.animationEnd
             && gCliqzBox && CliqzAutocomplete.selectAutocomplete) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection(target, true, false);
+            setResultSelection(target(), true, false);
           }
         }
       },300);
