@@ -388,7 +388,7 @@ var CliqzHumanWeb = {
                 var loc = ho['loc'];
                 var httpauth = ho['auth'];
 
-                
+
 
                 if (status=='301' || status == '302') {
                     CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter, 'location': loc};
@@ -399,7 +399,7 @@ var CliqzHumanWeb = {
                 }
 
                 else if(status){
-                    CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter};   
+                    CliqzHumanWeb.httpCache[url] = {'status': status, 'time': CliqzHumanWeb.counter};
                 }
 
 
@@ -415,7 +415,7 @@ var CliqzHumanWeb = {
 
         var res = [];
         var st = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection.createStatement("SELECT min(last_visit_date) as min_date, max(last_visit_date) as max_date FROM moz_places");
-        
+
         var res = [];
         st.executeAsync({
             handleResult: function(aResultSet) {
@@ -498,7 +498,7 @@ var CliqzHumanWeb = {
     clearHistory: function() {
         CliqzHumanWeb.SQL("delete from usafe");
     },
-    historyObserver: { 
+    historyObserver: {
         onBeginUpdateBatch: function() {},
         onEndUpdateBatch: function() {
           CliqzHumanWeb.deleteTimeFrame();
@@ -618,7 +618,7 @@ var CliqzHumanWeb = {
             //    if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
             //    req.onerror();
             //}
-            
+
 
             //if {
                 // there has been a redirect, we cannot guarantee that cookies were
@@ -638,7 +638,7 @@ var CliqzHumanWeb = {
                 doc.documentElement.innerHTML = req.responseText;
 
                 var x = CliqzHumanWeb.getPageData(url, doc);
-                var st_code = '' + req.status; 
+                var st_code = '' + req.status;
 
                 onsuccess(st_code,x);
 
@@ -867,7 +867,7 @@ var CliqzHumanWeb = {
                     // we need to modify the 'x' field of page_doc to substitute any structural information about
                     // the page content by the data coming from the doubleFetch (no session)
                     //
-                    page_doc['x'] = data;                    
+                    page_doc['x'] = data;
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
                 else {
@@ -1129,7 +1129,7 @@ var CliqzHumanWeb = {
 
                                     CliqzHumanWeb.checkURL(document);
                                     CliqzHumanWeb.queryCache[searchURL] = {'d': 0, 'q': CliqzHumanWeb.searchCache[se]['q'], 't': CliqzHumanWeb.searchCache[se]['t']};
-                                }                                
+                                }
                                 catch(ee) {
                                     // silent fail
                                     if (CliqzHumanWeb.debug) {
@@ -1237,7 +1237,7 @@ var CliqzHumanWeb = {
 
                             if (se == -1){
                                 CliqzHumanWeb.checkURL(cd);
-                            
+
                             }
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
@@ -1290,7 +1290,7 @@ var CliqzHumanWeb = {
         }
     },
     pacemaker: function() {
-        
+
         var activeURL = CliqzHumanWeb.currentURL();
 
         if (activeURL && (activeURL).indexOf('about:')!=0) {
@@ -1461,8 +1461,10 @@ var CliqzHumanWeb = {
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
         CliqzUtils.clearTimeout(CliqzHumanWeb.trkTimer);
     },
-   unloadAtBrowser: function(){
-        CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
+    unloadAtBrowser: function(){
+        try {
+            CliqzHumanWeb.activityDistributor.removeObserver(CliqzHumanWeb.httpObserver);
+        } catch(e){}
     },
     currentURL: function() {
         var currwin = CliqzUtils.getWindow();
@@ -1595,7 +1597,7 @@ var CliqzHumanWeb = {
 
                     })
                 }
-                
+
             }
         }
 
@@ -1817,8 +1819,9 @@ var CliqzHumanWeb = {
     trk: [],
     trkTimer: null,
     telemetry: function(msg, instantPush) {
-        if (!CliqzHumanWeb) return; //might be called after the module gets unloaded
-        if (CliqzUtils.getPref('dnt', false)) return;
+        if (!CliqzHumanWeb || //might be called after the module gets unloaded
+            CliqzUtils.getPref('dnt', false) ||
+            CliqzUtils.isPrivate(CliqzUtils.getWindow())) return;
 
         msg.ver = CliqzHumanWeb.VERSION;
         msg = CliqzHumanWeb.msgSanitize(msg);
@@ -1874,8 +1877,8 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbusafe"]).exists() ) {
             if (CliqzHumanWeb.olddbConn==null) {
                  CliqzHumanWeb.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbusafe"]));
-            } 
-            CliqzHumanWeb.removeTable();   
+            }
+            CliqzHumanWeb.removeTable();
         }
 
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
@@ -2249,7 +2252,7 @@ var CliqzHumanWeb = {
         }
         stmt.params.last_visit = (tt - sec_old*1000);
         stmt.params.private = 0;
-        stmt.params.cap = cap;        
+        stmt.params.cap = cap;
         stmt.params.checked = 0;
 
         var res = [];
@@ -2347,7 +2350,7 @@ var CliqzHumanWeb = {
           },
           function error(res){
             CliqzUtils.log('Error loading config. ', CliqzHumanWeb.LOG_KEY)
-            });
+          }, 5000);
     },
     checkURL: function(cd){
         var url = cd.location.href;
@@ -2422,7 +2425,7 @@ var CliqzHumanWeb = {
                                     }
                                 },qurl)
                             }
-                            
+
 
                             innerDict[each_key] = [qurl];
                         }
@@ -2654,7 +2657,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log("aggregates: " + JSON.stringify(metricsBefore) + JSON.stringify(metricsAfter), CliqzHumanWeb.LOG_KEY);
         }
-        
+
         var _keys = Object.keys(aggregates);
         for(var i=0;i<_keys.length;i++){
              aggregates[_keys[i]] = metricsBefore[_keys[i]] + metricsAfter[_keys[i]];
@@ -2662,7 +2665,7 @@ var CliqzHumanWeb = {
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log("aggregates: " + JSON.stringify(aggregates), CliqzHumanWeb.LOG_KEY);
         }
-        
+
 
         return aggregates;
     },

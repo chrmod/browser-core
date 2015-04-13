@@ -123,7 +123,12 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 //CliqzUtils.setPref("safeBrowsingMoz", true);
                 break;
-
+            case "1027_B":
+                CliqzUtils.setPref("news-toggle", true);
+                break;
+            case "1028_B":
+                CliqzUtils.setPref("humanWeb", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -221,6 +226,7 @@ var CliqzABTests = CliqzABTests || {
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 //CliqzUCrawl.outOfABTest();
+                break;
             case "1018_A":
             case "1018_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("disableSeriesCluster");
@@ -248,7 +254,12 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
                 break;
-
+            case "1027_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
+            case "1028_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("humanWeb");
+                break;
             default:
                 rule_executed = false;
         }

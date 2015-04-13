@@ -9,12 +9,10 @@ var EXPORTED_SYMBOLS = ['Extension'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import("resource://gre/modules/AddonManager.jsm")
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-    'chrome://cliqzmodules/content/ResultProviders.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzNewTab',
-    'chrome://cliqz-tab/content/CliqzNewTab.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+    'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
@@ -60,16 +58,16 @@ var Extension = {
         CliqzClusterHistory.init();
     },
     load: function(upgrade, oldVersion, newVersion){
-        if(oldVersion == '0.5.65'){
-            try{ Extension.unload(false, false); } catch(e){}
-            Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
-            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-            Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
-            Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-            Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
-            Cu.import('resource://gre/modules/Services.jsm');
+        AddonManager.getAddonByID("cliqz@cliqz.com", function (addon) {
+            CliqzUtils.extensionVersion = addon.version
 
-        }
+            if (upgrade) CliqzUtils.setSupportInfo()
+            else {
+                Extension._SupportInfoTimeout = CliqzUtils.setTimeout(function(){
+                    CliqzUtils.setSupportInfo()
+                },1000)
+            }
+        })
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -85,7 +83,9 @@ var Extension = {
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
 
-        CliqzHumanWeb.initAtBrowser();
+        if(CliqzUtils.getPref("humanWeb", false)){
+            CliqzHumanWeb.initAtBrowser();
+        }
 
         // open changelog on update
 
@@ -94,15 +94,22 @@ var Extension = {
         }
     },
     unload: function(version, uninstall){
+        CliqzUtils.clearTimeout(Extension._SupportInfoTimeout)
+
         if(uninstall){
+            CliqzUtils.setSupportInfo("disabled")
+
             var win  = Services.wm.getMostRecentWindow("navigator:browser");
 
             try{
                 Extension.restoreSearchBar(win);
                 CliqzUtils.resetOriginalPrefs();
-                CliqzNewTab.showCliqzNewTab(false);
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
+        }
+
+        if(CliqzUtils.getPref("humanWeb", false)){
+            CliqzHumanWeb.unloadAtBrowser();
         }
 
         // Unload from any existing windows
@@ -159,13 +166,15 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/Filter.jsm');
         Cu.unload('chrome://cliqzmodules/content/Mixer.jsm');
         Cu.unload('chrome://cliqzmodules/content/Result.jsm');
-        Cu.unload('chrome://cliqzmodules/content/ResultProviders.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
-        Cu.unload('chrome://cliqz-tab/content/CliqzNewTab.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+        Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -218,7 +227,6 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
-            Extension.addScript('libs/handlebars-v1.3.0', win);
 
             Extension.addButtons(win);
 
@@ -312,10 +320,9 @@ var Extension = {
             }
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
-            win.CLIQZ = null;
-            win.CLIQZResults = null;
-
-        }catch(e){Cu.reportError(e); }
+            delete win.CLIQZ.UI;
+            try{ delete win.CLIQZ; } catch(e){} //fails at updating from version < 0.6.11
+        }catch(e){ Cu.reportError(e); }
     },
     windowWatcher: function(win, topic) {
         if (topic == 'domwindowopened') {
