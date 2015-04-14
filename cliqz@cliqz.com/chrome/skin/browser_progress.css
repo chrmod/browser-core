@@ -170,6 +170,15 @@
   opacity:1 !important;
 }
 
+
+#cliqz-results .cliqz-pattern-element { position: relative; overflow: visible; }
+#cliqz-results .cliqz-history-logo {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    font-size: 7px;
+}
+
 #cliqz-results .ez-news-toggle .entity-stories { display: none; }
 #cliqz-results .ez-news-toggle .switcher { position: absolute; top: 14px; right: 22px; }
 #cliqz-results .ez-news-toggle label { color: rgb(207,207,207); font-size: 18px; float: left; cursor: pointer; }

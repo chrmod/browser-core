@@ -821,6 +821,7 @@ var CliqzHistoryPattern = {
           title: results[i].title,
           extra: "history-" + i,
           favicon: favicon,
+          logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(results[i].url))
         });
         if ((instant.data.urls.length > 9 && instant.data.template == "pattern-h1") ||
             (instant.data.urls.length > 5  && instant.data.template == "pattern-h2") ||
