@@ -290,12 +290,11 @@ var CliqzHistory = {
     statement.finalize();
   },
   initDB: function() {
-    // Add Linktitle column
-    CliqzHistory.SQL("PRAGMA table_info(urltitles)", null, function(n) {
-      if(n == 2) CliqzHistory.SQL("alter table urltitles add column linktitle VARCHAR(255)");
-    });
-
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
+      // Add Linktitle column
+      CliqzHistory.SQL("PRAGMA table_info(urltitles)", null, function(n) {
+        if(n == 2) CliqzHistory.SQL("alter table urltitles add column linktitle VARCHAR(255)");
+      });
       return;
     }
     var visits = "create table visits(\
