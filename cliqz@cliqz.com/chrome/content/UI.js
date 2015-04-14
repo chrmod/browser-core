@@ -132,7 +132,7 @@ var UI = {
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
 
       XULBrowserWindow.updateStatusField();
     },
@@ -422,6 +422,9 @@ var UI = {
         }
       },300);
 
+    },
+    clearAutocomplete: function() {
+      clearResultSelection();
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {

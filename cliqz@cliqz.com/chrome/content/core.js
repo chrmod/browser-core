@@ -479,7 +479,7 @@ window.CLIQZ.Core = {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult, firstTitle){
+    autocompleteQuery: function(firstResult, firstTitle, data){
         var urlBar = CLIQZ.Core.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
@@ -533,6 +533,11 @@ window.CLIQZ.Core = {
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
             return;
+        }
+
+        if(autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.urlbar) == -1) {
+          CLIQZ.UI.clearAutocomplete();
+          return;
         }
 
         // Apply autocomplete
