@@ -479,7 +479,7 @@ window.CLIQZ.Core = {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult, firstTitle){
+    autocompleteQuery: function(firstResult, firstTitle, data){
         var urlBar = CLIQZ.Core.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
@@ -513,17 +513,17 @@ window.CLIQZ.Core = {
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
             firstResult != results[0].url) {
-            results[0] = [];
-            results[0].url = firstResult;
-            results[0].title = firstTitle;
-            results[0].query = [];
+            var newResult = [];
+            newResult.url = firstResult;
+            newResult.title = firstTitle;
+            newResult.query = [];
+            results.unshift(newResult);
         }
         if (!CliqzUtils.isUrl(results[0].url)) return;
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
-
-        if(!autocomplete.autocomplete && fRes.length > 1 && fRes[0]._genUrl != urlBar.value) {
+        if(!autocomplete.autocomplete && fRes.length > 1 && CliqzHistoryPattern.generalizeUrl(fRes[0].url) != urlBar.value) {
           autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, fRes[1], true);
           CLIQZ.UI.autocompleteEl = 1;
         } else {
@@ -533,6 +533,11 @@ window.CLIQZ.Core = {
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
             return;
+        }
+
+        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
+          CLIQZ.UI.clearAutocomplete();
+          return;
         }
 
         // Apply autocomplete
@@ -546,12 +551,6 @@ window.CLIQZ.Core = {
         }
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
-            // Cut urlbar to max 80 characters
-            // Error-prone, disabled for now
-            /*if (urlBar.mInputField.value.length > 80) {
-              urlBar.mInputField.value = urlBar.mInputField.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            }*/
             CliqzAutocomplete.selectAutocomplete = true;
             CLIQZ.UI.selectAutocomplete();
         }
