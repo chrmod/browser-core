@@ -243,7 +243,6 @@ var CliqzHistoryPattern = {
       // Check if base domain changed due to filtering
       var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
       baseUrl = tmpBaseUrl;
-      CliqzUtils.log(baseUrl, "BASE");
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
