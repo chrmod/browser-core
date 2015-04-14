@@ -205,7 +205,7 @@ var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -232,6 +232,8 @@ var CliqzHumanWeb = {
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
+    mRefresh : [],
+    ismRefresh : false,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
     userTransitionsSearchSession: 5*60,
@@ -528,7 +530,7 @@ var CliqzHumanWeb = {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
             if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
-                if (CliqzHumanWeb.httpCache[key]['location']==url) {;
+                if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
                     res.unshift(key)
                     CliqzHumanWeb.getRedirects(key, res);
                 }
@@ -836,9 +838,9 @@ var CliqzHumanWeb = {
 
         if (CliqzHumanWeb.dropLongURL(url)) {
 
-            if (page_doc['canonical_url']) {
+            if (page_doc['x']['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
-                if (CliqzHumanWeb.dropLongURL(page_doc['canonical_url'])) {
+                if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
                     isok = false;
                 }
@@ -866,7 +868,10 @@ var CliqzHumanWeb = {
                     //
                     // we need to modify the 'x' field of page_doc to substitute any structural information about
                     // the page content by the data coming from the doubleFetch (no session)
-                    //
+                    // replace the url with canonical url, if it's long
+                    if (CliqzHumanWeb.dropLongURL(url)) {
+                        page_doc['url'] = page_doc['x']['canonical_url'];
+                    }
                     page_doc['x'] = data;
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
@@ -1050,9 +1055,22 @@ var CliqzHumanWeb = {
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
+            
 
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
+
+            if (CliqzHumanWeb.ismRefresh){
+                try{
+                    var mrefreshUrl = CliqzHumanWeb.mRefresh[0];
+                    var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
+                    CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
+                    CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
+                    CliqzHumanWeb.ismRefresh = false;
+                    CliqzHumanWeb.mRefresh = [];
+                }
+                catch(ee){}    
+            }
 
 
             // here we check if user ignored our results and went to google and landed on the same url
@@ -1088,6 +1106,10 @@ var CliqzHumanWeb = {
                         } catch(e){}
                     }
                 }, null, 2000);
+            }
+            else if(_currURL.indexOf('&adurl') > -1){
+                CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(_currURL)['queryKey']['adurl'])};
+                CliqzHumanWeb.mRefresh.push(decodeURIComponent(_currURL));
             }
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -1163,7 +1185,6 @@ var CliqzHumanWeb = {
                     if(red.length == 0){
                         red = null;
                     }
-
                     //Set referral for the first redirect in the chain.
                     if (red && referral == null) {
                             var redURL = red[0];
@@ -1181,7 +1202,7 @@ var CliqzHumanWeb = {
 
 
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': CliqzHumanWeb.maskURL(referral), 'red':red};
+                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red':red};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
