@@ -535,7 +535,7 @@ window.CLIQZ.Core = {
             return;
         }
 
-        if(autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.urlbar) == -1) {
+        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
           CLIQZ.UI.clearAutocomplete();
           return;
         }
