@@ -399,7 +399,8 @@ window.CLIQZ.Core = {
                         history_urls: history.size,
                         startup: startup? true: false,
                         prefs: CliqzUtils.getPrefs(),
-                        defaultSearchEngine: defaultSearchEngine
+                        defaultSearchEngine: defaultSearchEngine,
+                        private_window: CliqzUtils.isPrivate(window)
                     };
 
                 CliqzUtils.telemetry(info);
@@ -487,16 +488,17 @@ window.CLIQZ.Core = {
         }
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
-            if (CliqzAutocomplete.highlightFirstElement) {
-                CLIQZ.UI.selectFirstElement();
+            if (CliqzAutocomplete.selectAutocomplete) {
+                CLIQZ.UI.selectAutocomplete();
             }
-            CliqzAutocomplete.highlightFirstElement = false;
+            CliqzAutocomplete.selectAutocomplete = false;
             return;
         }
-        CliqzAutocomplete.highlightFirstElement = false;
+        CliqzAutocomplete.selectAutocomplete = false;
 
         // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern.filteredResults();
+        var lastPattern = CliqzAutocomplete.lastPattern,
+            fRes = lastPattern ? lastPattern.filteredResults() : null;
         if(!firstResult && lastPattern && fRes.length > 1)
           firstResult = fRes[0].url;
 
@@ -521,6 +523,13 @@ window.CLIQZ.Core = {
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
 
+        if(!autocomplete.autocomplete && fRes.length > 1 && fRes[0]._genUrl != urlBar.value) {
+          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, fRes[1], true);
+          CLIQZ.UI.autocompleteEl = 1;
+        } else {
+          CLIQZ.UI.autocompleteEl = 0;
+        }
+
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
             return;
@@ -543,8 +552,8 @@ window.CLIQZ.Core = {
               urlBar.mInputField.value = urlBar.mInputField.value.substr(0,80) + "...";
               urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             }*/
-            CliqzAutocomplete.highlightFirstElement = true;
-            CLIQZ.UI.selectFirstElement();
+            CliqzAutocomplete.selectAutocomplete = true;
+            CLIQZ.UI.selectAutocomplete();
         }
 },
     cleanUrlBarValue: function(val){
