@@ -232,7 +232,7 @@ var CliqzHumanWeb = {
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
-    mRefresh : [],
+    mRefresh : {},
     ismRefresh : false,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -1055,21 +1055,25 @@ var CliqzHumanWeb = {
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
-            
 
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
             if (CliqzHumanWeb.ismRefresh){
                 try{
-                    var mrefreshUrl = CliqzHumanWeb.mRefresh[0];
+                    var tabID = CliqzHumanWeb.getTabID();
+                    var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
                     var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
                     CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
                     CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
+                    if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
+                        //Change type to ad, else might create confusion.
+                        CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                    }
                     CliqzHumanWeb.ismRefresh = false;
-                    CliqzHumanWeb.mRefresh = [];
+                    delete CliqzHumanWeb.mRefresh[tabID];
                 }
-                catch(ee){}    
+                catch(ee){CliqzUtils.log("In error: " + ee, CliqzHumanWeb.LOG_KEY)};    
             }
 
 
@@ -1079,6 +1083,7 @@ var CliqzHumanWeb = {
             var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
+            var gadurl = /\.google..*?\/(aclk)\?/;
             var currwin = CliqzUtils.getWindow();
             var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
@@ -1107,9 +1112,10 @@ var CliqzHumanWeb = {
                     }
                 }, null, 2000);
             }
-            else if(_currURL.indexOf('&adurl') > -1){
+            else if(gadurl.test(_currURL)){
+                var tabID = CliqzHumanWeb.getTabID();
                 CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(_currURL)['queryKey']['adurl'])};
-                CliqzHumanWeb.mRefresh.push(decodeURIComponent(_currURL));
+                CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(_currURL);
             }
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -2651,6 +2657,18 @@ var CliqzHumanWeb = {
         var result = CliqzHumanWeb.maskURL(url);
         return result;
     },
+    getTabID: function(){
+        try{
+            for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
+                //CliqzUtils.log("Window ID: " + j, CliqzHumanWeb.LOG);
+                var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
+                return gBrowser.mCurrentTab._tPos;
+            }
+        }
+        catch(e){
+            return null;
+        }
+    },
     createTable: function(){
             var usafe = "create table if not exists usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
@@ -2716,5 +2734,6 @@ var CliqzHumanWeb = {
                   return "\\"+char; */
           }
         });
-  }
+  },
+
 };
