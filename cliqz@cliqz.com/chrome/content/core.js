@@ -49,7 +49,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+if(window.CLIQZ === undefined)
+    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+else {
+    //faulty uninstall of previous version
+    window.CLIQZ = window.CLIQZ || {};
+}
 
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
@@ -621,6 +626,8 @@ window.CLIQZ.Core = {
     handlePasteEvent: function(ev){
         //wait for the value to change
         setTimeout(function(){
+            // ensure the lastSearch value is always correct although paste event has 1 second throttle time.
+            CliqzAutocomplete.lastSearch = ev.target.value;
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'paste',

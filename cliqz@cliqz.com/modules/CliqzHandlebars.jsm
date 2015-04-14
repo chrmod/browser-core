@@ -216,25 +216,25 @@ function registerHelpers(){
         lvalue = parseFloat(lvalue);
         rvalue = parseFloat(rvalue);
 
-        return {
-            "+": lvalue + rvalue,
-            "-": lvalue - rvalue,
-            "*": lvalue * rvalue,
-            "/": lvalue / rvalue,
-            "%": lvalue % rvalue
-        }[operator];
+        switch(operator) {
+            case "+": return lvalue + rvalue;
+            case "-": return lvalue - rvalue;
+            case "*": return lvalue * rvalue;
+            case "/": return lvalue / rvalue;
+            case "%": return lvalue % rvalue;
+        }
     });
 
     Handlebars.registerHelper("logic", function(lvalue, operator, rvalue, options) {
-        return {
-            "|": lvalue | rvalue,
-            "||": lvalue || rvalue,
-            "&": lvalue & rvalue,
-            "&&": lvalue & rvalue,
-            "^": lvalue ^ rvalue,
-            "is": lvalue == rvalue,
-            "starts_with": lvalue.indexOf(rvalue) == 0
-        }[operator];
+        switch(operator) {
+            case "|":           return lvalue | rvalue;
+            case "||":          return lvalue || rvalue;
+            case "&":           return lvalue & rvalue;
+            case "&&":          return lvalue && rvalue;
+            case "^":           return lvalue ^ rvalue;
+            case "is":          return lvalue == rvalue;
+            case "starts_with": return lvalue.indexOf(rvalue) == 0;
+        }
     });
 
     Handlebars.registerHelper('nameify', function(str) {
@@ -259,10 +259,12 @@ function registerHelpers(){
         return CliqzUtils.getPref(key, false);
     });
 
-    Handlebars.registerHelper('isLatest', function(subType) {
+    Handlebars.registerHelper('isLatest', function(data) {
+        if(!data.trending) return true;
+
         try {
           var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
-              ezID = JSON.parse(subType).ez;
+              ezID = JSON.parse(data.subType).ez;
           return latest[ezID];
         } catch(e){
           return false;
