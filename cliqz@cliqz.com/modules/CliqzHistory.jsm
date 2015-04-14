@@ -193,7 +193,6 @@ var CliqzHistory = {
                   title: CliqzHistory.escapeSQL(title)
                 });
       CliqzHistory.setTabData(panel, "dbTitle", title);
-      CliqzUtils.log("SQLADD")
     }
     if(url && linkTitle && linkUrl == url&& linkTitle != dbLinkTitle) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
@@ -202,7 +201,6 @@ var CliqzHistory = {
                   linkTitle: CliqzHistory.escapeSQL(linkTitle).trim()
                 });
       CliqzHistory.setTabData(panel, "dbLinkTitle", linkTitle);
-      CliqzUtils.log("SQLADD")
     }
   },
   tabOpen: function(e){
