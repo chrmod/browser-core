@@ -146,6 +146,7 @@ window.CLIQZ.Core = {
 
         CLIQZ.Core.tabChange = CliqzSearchHistory.tabChanged.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.addEventListener("TabSelect", CLIQZ.Core.tabSelect, false);
 
         CLIQZ.Core.tabRemoved = CliqzSearchHistory.tabRemoved.bind(CliqzSearchHistory);
         gBrowser.tabContainer.addEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
@@ -252,6 +253,7 @@ window.CLIQZ.Core = {
         }
 
         gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabChange, false);
+        gBrowser.tabContainer.removeEventListener("TabSelect", CLIQZ.Core.tabSelect, false);
         gBrowser.tabContainer.removeEventListener("TabClose", CLIQZ.Core.tabRemoved, false);
 
         document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
@@ -335,6 +337,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbarEvent('blur');
 
         CliqzAutocomplete.lastFocusTime = null;
+        CLIQZ.Core.urlBarFocusedByTabChange = false;
         CliqzAutocomplete.resetSpellCorr();
         CLIQZ.UI.sessionEnd();
     },
@@ -411,6 +414,9 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
+    tabSelect: function(ev) {
+        CLIQZ.Core.urlBarFocusedByTabChange = true;
+    },
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSites', false) && !CliqzUtils.getPref('topSitesDuringSession', false)) return;
         //only consider the URLbar not the other icons in the urlbar
@@ -423,7 +429,7 @@ window.CLIQZ.Core = {
                 CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
                 CLIQZ.Core.historyDropMarker.showPopup();
             } else {
-                if(gBrowser.selectedTab.cliqz != null){
+                if(gBrowser.selectedTab.cliqz != null && (!CLIQZ.Core.urlbar.focused || CLIQZ.Core.urlBarFocusedByTabChange == true)){
                     //trigger a new search
                     setTimeout(function(){
                         var old = urlBar.value;
