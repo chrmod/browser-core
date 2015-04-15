@@ -70,7 +70,7 @@ var CliqzHistory = {
       if(aStateFlags == 786448 /*Page finished*/ && url && url.length > 0) {
         aBrowser.contentDocument.addEventListener("click", function(e) {
           e.panel = panel;
-          CliqzHistory.linkClickListener(e);
+          CliqzHistory && CliqzHistory.linkClickListener(e);
         }, false);
       }
     },
@@ -212,7 +212,7 @@ var CliqzHistory = {
       var checkUrl = function(tab,curPanel,newPanel) {
         var url = tab.linkedBrowser.contentWindow.location.href;
         if(url == "about:blank") {
-          CliqzUtils.getWindow().setTimeout(checkUrl, 100, tab, curPanel, newPanel);
+          CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, tab, curPanel, newPanel);
           return;
         } else if(url != "about:newtab") {
           CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
