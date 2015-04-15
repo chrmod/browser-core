@@ -205,7 +205,7 @@ var CliqzHumanWeb = {
     VERSION: '1.0',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -529,13 +529,13 @@ var CliqzHumanWeb = {
     getRedirects: function(url, res) {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
-            if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
-                if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
-                    res.unshift(key)
-                    CliqzHumanWeb.getRedirects(key, res);
+                if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
+                    if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
+                        res.unshift(key)
+                        CliqzHumanWeb.getRedirects(key, res);
+                    }
                 }
             }
-        }
         return res;
     },
     checkIfSearchURL:function(activeURL) {
@@ -838,7 +838,7 @@ var CliqzHumanWeb = {
 
         if (CliqzHumanWeb.dropLongURL(url)) {
 
-            if (page_doc['x']['canonical_url']) {
+            if (page_doc['x'] && page_doc['x']['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
                 if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
@@ -1062,18 +1062,20 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.ismRefresh){
                 try{
                     var tabID = CliqzHumanWeb.getTabID();
-                    var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
-                    var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
-                    CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
-                    CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
-                    if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
-                        //Change type to ad, else might create confusion.
-                        CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                    if(tabID){
+                        var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
+                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
+                        CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
+                        CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
+                        if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
+                            //Change type to ad, else might create confusion.
+                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                        }
+                        CliqzHumanWeb.ismRefresh = false;
+                        delete CliqzHumanWeb.mRefresh[tabID];
                     }
-                    CliqzHumanWeb.ismRefresh = false;
-                    delete CliqzHumanWeb.mRefresh[tabID];
                 }
-                catch(ee){CliqzUtils.log("In error: " + ee, CliqzHumanWeb.LOG_KEY)};    
+                catch(ee){};    
             }
 
 
@@ -1114,8 +1116,10 @@ var CliqzHumanWeb = {
             }
             else if(gadurl.test(_currURL)){
                 var tabID = CliqzHumanWeb.getTabID();
-                CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(_currURL)['queryKey']['adurl'])};
-                CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(_currURL);
+                if(tabID){
+                    CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(_currURL)['queryKey']['adurl'])};
+                    CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(_currURL);
+                }
             }
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -1778,6 +1782,15 @@ var CliqzHumanWeb = {
             //Check for fields which have urls like ref.
             if(msg.payload.ref){
                 msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
+            }
+
+            //Mask the long ugly redirect URLs
+            if(msg.payload.red){
+                var cleanRed = [];
+                msg.payload.red.forEach(function(e){
+                    cleanRed.push(CliqzHumanWeb.maskURL(e));
+                })
+                msg.payload.red = cleanRed;
             }
 
         }
@@ -2662,7 +2675,8 @@ var CliqzHumanWeb = {
             for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
                 //CliqzUtils.log("Window ID: " + j, CliqzHumanWeb.LOG);
                 var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
-                return gBrowser.mCurrentTab._tPos;
+                var uniqueID = CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+                return uniqueID;
             }
         }
         catch(e){
