@@ -528,7 +528,8 @@ window.CLIQZ.Core = {
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
-        if(!autocomplete.autocomplete && results.length > 1 && CliqzHistoryPattern.generalizeUrl(results[0].url) != urlBar.value) {
+        if(!autocomplete.autocomplete && results.length > 1 &&
+          CliqzHistoryPattern.generalizeUrl(results[0].url) != CliqzHistoryPattern.generalizeUrl(urlBar.value)) {
           autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[1], true);
           CLIQZ.UI.autocompleteEl = 1;
         } else {
