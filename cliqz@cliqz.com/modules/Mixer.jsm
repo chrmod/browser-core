@@ -252,9 +252,9 @@ var Mixer = {
         }
 
         // Change history cluster size if there are less than three links and it is h2
-        if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
+        /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
-        }
+        }*/
 
         // Add custom results to the beginning if there are any
         if(customResults && customResults.length > 0) {
