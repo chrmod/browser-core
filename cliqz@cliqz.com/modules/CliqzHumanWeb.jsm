@@ -232,6 +232,8 @@ var CliqzHumanWeb = {
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
+    mRefresh : {},
+    ismRefresh : false,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
     userTransitionsSearchSession: 5*60,
@@ -527,10 +529,12 @@ var CliqzHumanWeb = {
     getRedirects: function(url, res) {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
-            if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
-                if (CliqzHumanWeb.httpCache[key]['location']==url) {;
-                    res.unshift(key)
-                    CliqzHumanWeb.getRedirects(key, res);
+            if(CliqzHumanWeb.httpCache[key]){
+                if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
+                    if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
+                        res.unshift(key)
+                        CliqzHumanWeb.getRedirects(key, res);
+                    }
                 }
             }
         }
@@ -836,9 +840,9 @@ var CliqzHumanWeb = {
 
         if (CliqzHumanWeb.dropLongURL(url)) {
 
-            if (page_doc['canonical_url']) {
+            if (page_doc['x'] && page_doc['x']['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
-                if (CliqzHumanWeb.dropLongURL(page_doc['canonical_url'])) {
+                if (CliqzHumanWeb.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
                     isok = false;
                 }
@@ -866,7 +870,10 @@ var CliqzHumanWeb = {
                     //
                     // we need to modify the 'x' field of page_doc to substitute any structural information about
                     // the page content by the data coming from the doubleFetch (no session)
-                    //
+                    // replace the url with canonical url, if it's long
+                    if (CliqzHumanWeb.dropLongURL(url)) {
+                        page_doc['url'] = page_doc['x']['canonical_url'];
+                    }
                     page_doc['x'] = data;
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
                 }
@@ -1054,6 +1061,25 @@ var CliqzHumanWeb = {
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
+            if (CliqzHumanWeb.ismRefresh){
+                try{
+                    var tabID = CliqzHumanWeb.getTabID();
+                    if(tabID){
+                        var mrefreshUrl = CliqzHumanWeb.mRefresh[tabID];
+                        var parentRef = CliqzHumanWeb.linkCache[mrefreshUrl]['s']
+                        CliqzHumanWeb.linkCache[decodeURIComponent(aURI.spec)] = {'s': ''+mrefreshUrl, 'time': CliqzHumanWeb.counter};
+                        CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
+                        if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
+                            //Change type to ad, else might create confusion.
+                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                        }
+                        CliqzHumanWeb.ismRefresh = false;
+                        delete CliqzHumanWeb.mRefresh[tabID];
+                    }
+                }
+                catch(ee){};    
+            }
+
 
             // here we check if user ignored our results and went to google and landed on the same url
             var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
@@ -1061,6 +1087,7 @@ var CliqzHumanWeb = {
             var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
+            var gadurl = /\.google..*?\/(aclk)\?/;
             var currwin = CliqzUtils.getWindow();
             var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
@@ -1088,6 +1115,13 @@ var CliqzHumanWeb = {
                         } catch(e){}
                     }
                 }, null, 2000);
+            }
+            else if(gadurl.test(_currURL)){
+                var tabID = CliqzHumanWeb.getTabID();
+                if(tabID){
+                    CliqzHumanWeb.ismRefresh = true;//{'status': '301', 'time': CliqzHumanWeb.counter, 'location': decodeURIComponent(CliqzHumanWeb.parseUri(_currURL)['queryKey']['adurl'])};
+                    CliqzHumanWeb.mRefresh[tabID] = decodeURIComponent(_currURL);
+                }
             }
 
             CliqzHumanWeb.lastActive = CliqzHumanWeb.counter;
@@ -1163,7 +1197,6 @@ var CliqzHumanWeb = {
                     if(red.length == 0){
                         red = null;
                     }
-
                     //Set referral for the first redirect in the chain.
                     if (red && referral == null) {
                             var redURL = red[0];
@@ -1181,7 +1214,7 @@ var CliqzHumanWeb = {
 
 
                     CliqzHumanWeb.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
-                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': CliqzHumanWeb.maskURL(referral), 'red':red};
+                            'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral, 'red':red};
 
                     if (referral) {
                         // if there is a good referral, we must inherit the query if there is one
@@ -1751,6 +1784,15 @@ var CliqzHumanWeb = {
             //Check for fields which have urls like ref.
             if(msg.payload.ref){
                 msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
+            }
+
+            //Mask the long ugly redirect URLs
+            if(msg.payload.red){
+                var cleanRed = [];
+                msg.payload.red.forEach(function(e){
+                    cleanRed.push(CliqzHumanWeb.maskURL(e));
+                })
+                msg.payload.red = cleanRed;
             }
 
         }
@@ -2630,6 +2672,19 @@ var CliqzHumanWeb = {
         var result = CliqzHumanWeb.maskURL(url);
         return result;
     },
+    getTabID: function(){
+        try{
+            for (var j = 0; j < CliqzHumanWeb.windowsRef.length; j++) {
+                //CliqzUtils.log("Window ID: " + j, CliqzHumanWeb.LOG);
+                var gBrowser = CliqzHumanWeb.windowsRef[j].gBrowser;
+                var uniqueID = CliqzUtils.getWindow().__SSi + ":" + gBrowser.mCurrentTab._tPos;
+                return uniqueID;
+            }
+        }
+        catch(e){
+            return null;
+        }
+    },
     createTable: function(){
             var usafe = "create table if not exists usafe(\
                 url VARCHAR(255) PRIMARY KEY NOT NULL,\
@@ -2695,5 +2750,6 @@ var CliqzHumanWeb = {
                   return "\\"+char; */
           }
         });
-  }
+  },
+
 };
