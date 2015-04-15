@@ -1208,7 +1208,7 @@ var CliqzUtils = {
     },
     createCheckBoxItem: function(doc, key, label, activeState){
       function optInOut(){
-          return CliqzUtils.getPref(key, false) == (activeState || true)?
+          return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
                            'url(chrome://cliqzres/content/skin/opt-in.svg)':
                            'url(chrome://cliqzres/content/skin/opt-out.svg)';
       }
