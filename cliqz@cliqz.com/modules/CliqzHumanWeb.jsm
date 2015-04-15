@@ -529,6 +529,7 @@ var CliqzHumanWeb = {
     getRedirects: function(url, res) {
         var res = res || []
         for(var key in CliqzHumanWeb.httpCache) {
+            if(CliqzHumanWeb.httpCache[key]){
                 if (CliqzHumanWeb.httpCache[key]['location']!=null && (CliqzHumanWeb.httpCache[key]['status']=='301' || CliqzHumanWeb.httpCache[key]['status']=='302')) {
                     if (CliqzHumanWeb.httpCache[key]['location']==url || decodeURIComponent(CliqzHumanWeb.httpCache[key]['location']) == url) {
                         res.unshift(key)
@@ -536,6 +537,7 @@ var CliqzHumanWeb = {
                     }
                 }
             }
+        }
         return res;
     },
     checkIfSearchURL:function(activeURL) {
