@@ -2,7 +2,14 @@
       <div class='cqz-ez-title cliqz-pattern-title-h2 overflow' arrow='false' url='{{data.url}}'>
           {{ emphasis data.title text 2 true }}
       </div>
-      <div class='cliqz-pattern'>
+        <div class='cqz-result-url overflow
+                    {{#if urlDetails.ssl }}
+                         cqz-result-url-ssl
+                    {{/if}}
+        '>
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
+        </div>
+      <div class='cliqz-pattern cqz-5-history-results'>
         {{#each data.urls}}
         <div class='cliqz-pattern-element overflow'
             {{#if favicon }}

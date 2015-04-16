@@ -129,9 +129,11 @@ var CliqzUtils = {
   },
   getLocalStorage: function(url) {
     var uri = Services.io.newURI(url,null,null),
-        principal = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                    .getService(Components.interfaces.nsIScriptSecurityManager)
-                    .getNoAppCodebasePrincipal(uri),
+        principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
+
+    if (typeof principalFunction != "function") return false
+
+    var principal = principalFunction(uri),
         dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
               .getService(Components.interfaces.nsIDOMStorageManager)
 
@@ -144,9 +146,11 @@ var CliqzUtils = {
         }),
         sites = ["http://cliqz.com","https://cliqz.com"]
 
-    try {
-      sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) });
-    } catch(e) {}
+    sites.forEach(function(url){
+        var ls = CliqzUtils.getLocalStorage(url)
+
+        if (ls) ls.setItem("extension-info",info)
+    })
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
