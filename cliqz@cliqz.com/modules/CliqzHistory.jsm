@@ -220,7 +220,7 @@ var CliqzHistory = {
           CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
           CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
         }
-        CliqzHistory.setTabData(newPanel, "lock", false);
+        CliqzHistory.setTabData(p.newPanel, "lock", false);
       };
       checkUrl({tab: e.target, curPanel: curPanel, newPanel: newPanel});
   },
