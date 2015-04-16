@@ -212,7 +212,7 @@ var CliqzHistory = {
       var checkUrl = function(tab,curPanel,newPanel) {
         var url = tab.linkedBrowser.contentWindow.location.href;
         if(url == "about:blank") {
-          CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, tab, curPanel, newPanel);
+          CliqzUtils && CliqzUtils.getWindow().setTimeout(checkUrl, 100, tab, curPanel, newPanel);
           return;
         } else if(url != "about:newtab") {
           CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
@@ -312,7 +312,8 @@ var CliqzHistory = {
             )";
     var titles = "create table urltitles(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
-            title VARCHAR(255)\
+            title VARCHAR(255),\
+            linktitle VARCHAR(255)\
         )";
     CliqzHistory.SQL(visits);
     CliqzHistory.SQL(titles);
