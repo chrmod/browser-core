@@ -27,13 +27,11 @@ function getSuperType(result){
 
 var Result = {
     CLIQZR: 'cliqz-results',
-    CLIQZS: 'cliqz-suggestions',
     CLIQZC: 'cliqz-custom',
-    CLIQZB: 'cliqz-bundesliga',
     CLIQZE: 'cliqz-extra',
     CLIQZCLUSTER: 'cliqz-cluster',
     CLIQZSERIES: 'cliqz-series',
-    CLIQZICON: 'http://beta.cliqz.com/favicon.ico',
+    CLIQZICON: 'http://cliqz.com/favicon.ico',
     RULES: {
         'video': [
             { 'domain': 'youtube.com', 'ogtypes': ['video', 'youtube'] },
@@ -107,6 +105,8 @@ var Result = {
     },
     cliqzExtra: function(result){
         result.data.subType = result.subType;
+        result.data.trigger_urls = result.trigger_urls;
+        result.data.ts = result.ts;
 
         return Result.generic(
             Result.CLIQZE, //style
@@ -136,12 +136,11 @@ var Result = {
     // check if a result should be kept in final result list
     isValid: function (url, urlparts) {
         // Google Filters
-        // Filter all like:
-        //    www.google.*/search?
-        //    www.google.*/url? - for redirects
         if(urlparts.name.toLowerCase() == "google" &&
            urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" &&
-           (urlparts.extra.indexOf("/search?") == 0 || urlparts.extra.indexOf("/url?") == 0)) {
+           (urlparts.extra.indexOf("/search") != -1 || // "/search?" for regular SERPS and ".*/search/.*" for maps
+            urlparts.extra.indexOf("/url?") == 0 ||    // www.google.*/url? - for redirects
+            urlparts.extra.indexOf("q=") != -1 )) {    // for instant search results
             log("Discarding result page from history: " + url)
             return false;
         }

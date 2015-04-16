@@ -1,10 +1,14 @@
-<div class="cqz-result-h2 cqz-result-padding">
+<div class="cqz-result-h2">
   <div class="cqz-ez-title cqz-ez-stock-title">
       {{data.message.Name}}
   </div>
 
   <div class="cqz-ez-stock-exchange">
-    <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - 20 {{ local 'cliqz_stock_minutes_ago' }}</span>
+    {{#if data.message.min_ago}}
+      <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' data.message.min_ago }}</span>
+    {{else}}
+      <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' 20 }}</span>
+    {{/if}}
   </div>
   <div class="cqz-ez-stock-trend">
     <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}"><img src="http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>{{ data.message.Change }} ({{ data.message.PercentChange }})</span>

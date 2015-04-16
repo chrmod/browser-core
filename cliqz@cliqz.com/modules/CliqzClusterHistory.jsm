@@ -128,12 +128,6 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // if clusteredHistory return the normal history
             CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
             return [historyTrans, null];
-
-        } else if (clusteredHistory['urls'].length < 4) {
-            // no URLs related to the site were found
-            CliqzClusterHistory.log('Clustering only found ' + clusteredHistory['urls'].length + 'related URLs, decided not to cluster.');
-            return [historyTrans, null];
-
         } else {
             return [historyTransRemained, clusteredHistory];
         }
@@ -315,17 +309,11 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
                         // apply title
                         var new_title = CliqzClusterHistory.extract_with_regex(matching[m], rules[r].title);
-                        if(new_title)
-                            entry.title = new_title;
-                        else
-                            entry.title = matching[m].title;
+                        entry.title = new_title || matching[m].title;
 
                         // rewrite the url
                         var new_url = CliqzClusterHistory.rewrite_url(matching[m], rules[r].url);
-                        if(new_url)
-                            entry.url = new_url;
-                        else
-                            entry.url = matching[m].url;
+                        entry.url = new_url || matching[m].url;
 
                         entry.old_urls = [matching[m].url];
 
@@ -382,7 +370,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // Step 6 - build config for display
 
         var data = {
-            title: categories.base[0].title + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster"),
+            title: categories.base[0].title/* + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster")*/,
             top_domain: domain,
             url: categories.base[0].url,
             results: [],
@@ -437,6 +425,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                         title: entry.title,
                         old_urls: entry.old_urls,
                         category: clean_categories[i].label,
+                        extra: "history-" + i,
                     }
 
                     last_per_topic[i] = new_entry;

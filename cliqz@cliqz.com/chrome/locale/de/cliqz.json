@@ -1,4 +1,13 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
         "message": "Was ist CLIQZ?"
     },
@@ -23,9 +32,6 @@
     "btnRegion":{
         "message": "Regionale Ergebnisse"
     },
-    "btnShare":{
-        "message": "CLIQZ Share"
-    },
     "btnSafeSearch":{
         "message": "Ich nehme teil"
     },
@@ -39,7 +45,7 @@
         "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message": "Versuche es mit ,Enter' bei ... oder per Klick auf:"
+        "message": "Versuche es mit ,Enter' bei {} oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
@@ -50,8 +56,11 @@
     "moreResults":{
         "message":"mehr ..."
     },
-    "customSearch":{
-        "message":"Suche <b><i>{}</i></b> auf {}"
+    "search":{
+        "message":"suche"
+    },
+    "on":{
+        "message":"auf"
     },
     "peoplePositionAt":{
         "message":"bei"
@@ -121,12 +130,6 @@
     },
     "offMessage":{
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
-    },
-    "cliqzPremiumTitle":{
-        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
-    },
-    "cliqzPremiumDesc":{
-        "message": "Upgrade testen für nur 3,99 €/Mo"
     },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
@@ -315,7 +318,7 @@
       "message":"Meintest Du wirklich "
     },
     "result_filter": {
-      "message":"Ergebnisfilter"
+      "message":"Anstößige Inhalte"
     },
     "age": {
         "message": "Alter"
@@ -324,25 +327,25 @@
         "message": "Nationalität"
     },
     "history_results": {
-      "message":"Besuchte Webseiten"
+      "message":"Besuchte Seiten"
     },
     "history_results_cluster": {
-      "message":"Meine Top-Seiten"
+      "message":"Besuchte Seiten"
     },
     "adultInfo": {
-        "message": "Nicht jugendfreie Inhalte wurden automatisch blockiert."
+        "message": "Anstößige Inhalte wurden automatisch blockiert."
     },
     "adultAction": {
         "message": "Alle Ergebnisse anzeigen?"
     },
     "adultConservative": {
-      "message":"strikt"
+      "message":"blockieren"
     },
     "adultModerate": {
-      "message":"moderat"
+      "message":"filtern"
     },
     "adultLiberal": {
-      "message":"kein Filter"
+      "message":"immer anzeigen"
     },
     "yes": {
         "message": "Ja"
@@ -393,9 +396,100 @@
         "message": "Marktkapit."
     },
     "cliqz_stock_pe_ratio": {
-        "message": "P/E ratio(ttm)"
+        "message": "KGV (ttm)"
     },
-    "cliqz_stock_minutes_ago": {
-       "message": "Minuten früher"
+    "publish_date": {
+        "message": "Veröffentlichungsdatum"
+    },
+    "Click anywhere to copy":{
+        "message": "Klicken zum Kopieren"
+    },
+    "Copied":{
+        "message": "kopiert"
+    },
+    "updateMessage":{
+        "message": "Mit CLIQZ surfst du ab jetzt noch schneller, noch direkter und noch smarter."
+    },
+    "updatePage":{
+        "message": "Mehr erfahren"
+    },
+    "updateDismiss":{
+        "message": "Nachricht schließen"
+    },
+    "newsToggleLatest":{
+        "message": "Aktuell"
+    },
+    "newsToggleTrends":{
+        "message": "Trends"
+    },
+    "ez_video-popular": {
+      "message": "Beliebt"
+    },
+    "ez_video-dashboard": {
+      "message": "Dashboard"
+    },
+    "ez_video-upload": {
+      "message": "Hochladen"
+    },
+    "ez_video-categories": {
+      "message": "Kategorien"
+    },
+    "ez_video-my_subscriptions": {
+      "message": "Meine Abos"
+    },
+    "ez_video-most_watched": {
+      "message": "Meist gesehen"
+    },
+    "ez_video-music": {
+      "message": "Music"
+    },
+    "ez_video-newest": {
+      "message": "Neueste"
+    },
+    "ez_video-on_demand": {
+      "message": "On Demand"
+    },
+    "ez_video-series": {
+      "message": "Serien"
+    },
+    "ez_video-staff_picks": {
+      "message": "Staff Picks"
+    },
+    "ez_video-tv": {
+      "message": "TV"
+    },
+    "ez_video-tv_and_series": {
+      "message": "TV & Serien"
+    },
+    "ez_video-top_100": {
+      "message": "Top 100"
+    },
+    "ez_video-recently_watched": {
+      "message": "Zuletzt Angesehen"
+    },
+    "ez_video-funny": {
+      "message": "Lustige"
+    },
+    "ez_video-ingenious": {
+      "message": "Geniale"
+    },
+    "ez_video-fascinating": {
+      "message": "Faszinierende"
+    },
+    "ez_video-courageous": {
+      "message": "Mutige"
+    },
+
+    "ez_video-recommended": {
+      "message": "Empfohlen"
+    },
+    "ez_video-most_commented":  {
+        "message": "Meist Kommentiert"
+    },
+    "ez_video-ranking": {
+        "message": "Beliebt"
+    },
+    "ez_video-trending": {
+        "message":"Trending"
     }
 }

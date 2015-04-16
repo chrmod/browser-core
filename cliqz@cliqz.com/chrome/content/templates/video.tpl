@@ -8,7 +8,7 @@
         </div>
     {{/if}}
     <div class='cqz-result-center'>
-        <div class='cqz-result-title overflow' selectable=''>{{ emphasis title text 2 true }}</div>
+        <div class='cqz-result-title overflow'>{{ emphasis title text 2 true }}</div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
@@ -16,7 +16,7 @@
         '>
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow'>{{ local_number data.richData.views }} {{local 'views'}}</div>
+        <div class='cqz-result-desc overflow'>{{ views_helper data.richData.views }}</div>
     </div>
     {{> logo}}
 </div>

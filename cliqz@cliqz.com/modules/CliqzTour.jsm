@@ -19,31 +19,31 @@ var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
     results = [
         {
             title : CliqzUtils.getLocalizedString('offRes_Cliqz'),
-            url   : 'https://beta.cliqz.com/',
+            url   : 'https://cliqz.com/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_AboutCliqz'),
-            url   : 'https://beta.cliqz.com/about-cliqz/',
+            url   : 'https://cliqz.com/about-cliqz/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Privacy'),
-            url   : 'https://beta.cliqz.com/privacy/',
+            url   : 'https://cliqz.com/privacy/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Support'),
-            url   : 'https://beta.cliqz.com/support/',
+            url   : 'https://cliqz.com/support/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         },
         {
             title : CliqzUtils.getLocalizedString('offRes_Team'),
-            url   : 'https://beta.cliqz.com/team/',
+            url   : 'https://cliqz.com/team/',
             type  : 'cliqz-results sources-o',
             data  : { kind: 'o' }
         }
@@ -66,7 +66,7 @@ var CliqzTour = {
             type: 'activity',
             action: 'offboarding_tour',
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
         start('wobble');
     },
     pageShown: function(active) {
@@ -75,7 +75,7 @@ var CliqzTour = {
             action: 'offboarding_shown',
             tour_active: active
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     },
     pageClosed: function(time) {
         var action = {
@@ -83,7 +83,7 @@ var CliqzTour = {
             type: 'activity',
             action: 'offboarding_closed',
         };
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     }
 };
 
@@ -124,7 +124,6 @@ function messageType(to){
                 var width = urlBar.getBoundingClientRect().width;
                 urlBar.popup.setAttribute("width", width > 100 ? width : 100);
                 urlBar.popup.openPopup(urlBar, "after_start", 0, 0, false, true);
-                win.CLIQZ.UI.suggestions(['cliqz'], 'cl');
                 win.CLIQZ.UI.results({
                     results: results,
                     width: win.CLIQZ.Core.urlbar.clientWidth

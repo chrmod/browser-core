@@ -17,17 +17,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'ResultProviders',
-  'chrome://cliqzmodules/content/ResultProviders.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTimings',
-  'chrome://cliqzmodules/content/CliqzTimings.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzBundesliga',
-  'chrome://cliqzmodules/content/CliqzBundesliga.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
@@ -91,7 +85,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
         CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
     },
-    destroy: function() {
+    unload: function() {
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
         var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
@@ -103,7 +97,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     getResultsOrder: function(results){
         return results.map(function(r){
-            return CliqzUtils.encodeResultType(r.style || r.type);
+            return r.data.kind;
         });
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
@@ -136,13 +130,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             get defaultIndex() { return this._defaultIndex; },
             get errorDescription() { return this._errorDescription; },
             get matchCount() { return this._results.length; },
-            getValueAt: function(index) { return this._results[index].val; },
+            getValueAt: function(index) { return (this._results[index] || {}).val; },
             getFinalCompleteValueAt: function(index) { return null; }, //FF31+
-            getCommentAt: function(index) { return this._results[index].comment; },
-            getStyleAt: function(index) { return this._results[index].style; },
+            getCommentAt: function(index) { return (this._results[index] || {}).comment; },
+            getStyleAt: function(index) { return (this._results[index] || {}).style; },
             getImageAt: function (index) { return ''; },
-            getLabelAt: function(index) { return this._results[index].label; },
-            getDataAt: function(index) { return this._results[index].data; },
+            getLabelAt: function(index) { return (this._results[index] || {}).label; },
+            getDataAt: function(index) { return (this._results[index] || {}).data; },
             QueryInterface: XPCOMUtils.generateQI([  ]),
             setResults: function(results){
 
@@ -190,7 +184,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         CliqzAutocomplete.hasUserScrolledCurrentResults = false;
     },
     sendResultsDoneSignal: function(resultsDisplayTime) {
-        // reduced traffic: only track if result was shown long enough (e.g., 0.5s)
+        // reduced traffic: only consider telemetry data if result was shown long enough (e.g., 0.5s)
         if (resultsDisplayTime > CliqzAutocomplete.SCROLL_SIGNAL_MIN_TIME) {
             var action = {
                 type: 'activity',
@@ -200,7 +194,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 results_overflow_height: CliqzAutocomplete.resultsOverflowHeight,
                 can_user_scroll: CliqzAutocomplete.resultsOverflowHeight > 0
             };
-            CliqzUtils.track(action);
+            CliqzUtils.telemetry(action);
         }
     },
     initResults: function(){
@@ -213,7 +207,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyTimer: null,
             historyTimeout: false,
             instant: [],
-            historyBackfill: [],
 
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
@@ -230,7 +223,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.historyResults = result;
                 this.latency.history = now - this.startTime;
-                CliqzTimings.add("search_history", (now - this.startTime));
 
                 //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
                 //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
@@ -328,13 +320,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     else
                         this.instant = [];
 
-                    // Create backfill result
-                    var backfill = CliqzHistoryPattern.createBackfillResult(res, this.searchString);
-                    if(backfill)
-                        this.historyBackfill = [backfill];
-                    else
-                        this.historyBackfill = [];
-
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
                         latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
@@ -343,14 +328,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     this.pushResults(this.searchString);
                 }
-            },
-            sendSuggestionsSignal: function(suggestions) {
-                var action = {
-                    type: 'activity',
-                    action: 'suggestions',
-                    count:  (suggestions || []).length
-                };
-                CliqzUtils.track(action);
             },
             pushTimeoutCallback: function(params) {
                 CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
@@ -387,8 +364,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        if(this.startTime)
-                            CliqzTimings.add("result", (now - this.startTime));
                         this.startTime = null;
                         this.resultsTimer = null;
                         this.historyTimer = null;
@@ -397,7 +372,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.cliqzCache = null;
                         this.historyResults = null;
                         this.instant = [];
-                        this.backFill = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -406,7 +380,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.mixResults(true);
 
-                        // force update as offen as possible if new results are ready
+                        // try to update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
 
@@ -424,17 +398,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
-                    if(this.startTime)
-                        CliqzTimings.add("search_cliqz", Date.now() - this.startTime);
 
                     var json = JSON.parse(req.response);
                     results = json.result || [];
                     country = json.country;
                     this.cliqzResultsExtra = []
 
-                    if(json.images && json.images.results && json.images.results.length >0)
-                        this.cliqzResultsExtra =
-                            json.images.results.map(Result.cliqzExtra);
+                    if(json.images && json.images.results && json.images.results.length >0){
+                        var imgs = json.images.results.filter(function(r){
+                            //ignore empty results
+                            return Object.keys(r).length != 0;
+                        });
+
+                        this.cliqzResultsExtra =imgs.map(Result.cliqzExtra);
+                    }
 
                     var hasExtra = function(el){
                         if(!el || !el.results || el.results.length == 0) return false;
@@ -446,9 +423,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return el.results.length != 0;
                     }
 
-                    if(hasExtra(json.extra))
+                    if(hasExtra(json.extra)) {
                         this.cliqzResultsExtra = json.extra.results.map(Result.cliqzExtra);
-
+                    }
                     this.latency.cliqz = json.duration;
 
                     this.cliqzResults = results.filter(function(r){
@@ -460,58 +437,27 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
                 this.pushResults(q);
             },
-            // handles suggested queries
-            cliqzSuggestionFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
-                    var response = JSON.parse(req.response);
-                    this.mixedResults.suggestedCalcResult = null;
-
-                    if(this.startTime)
-                        CliqzTimings.add("search_suggest", Date.now() - this.startTime);
-
-                    // if suggestion contains calculator result (like " = 12.2 "), remove from suggestion, but store for signals
-                    if(q.trim().indexOf("=") != 0 && response.length >1 &&
-                            response[1].length > 0  && /^\s?=\s?-?\s?\d+(\.\d+)?(\s.*)?$/.test(response[1][0])){
-                        this.mixedResults.suggestedCalcResult = response[1].shift().replace("=", "").trim();
-                    }
-
-                    this.mixedResults.suggestionsRecieved = true;
-                    this.cliqzSuggestions = response[1];
-                    CliqzAutocomplete.lastSuggestions = this.cliqzSuggestions;
-                    this.sendSuggestionsSignal(this.cliqzSuggestions);
-                }
-            },
-            cliqzBundesligaCallback: function(res, q) {
-                this.cliqzBundesliga = res;
-                this.pushResults(q);
-            },
-
             createFavicoUrl: function(url){
                 return 'http://cdnfavicons.cliqz.com/' +
                         url.replace('http://','').replace('https://','').split('/')[0];
             },
             // mixes backend results, entity zones, history and custom results
             mixResults: function(only_instant) {
-                var maxResults = prefs.getIntPref('maxRichResults');
-
                 var results = Mixer.mix(
                             this.searchString,
                             this.cliqzResults,
                             this.cliqzResultsExtra,
                             this.instant,
-                            this.historyBackfill,
-                            this.cliqzBundesliga,
                             this.customResults,
-                            maxResults,
                             only_instant
                     );
-
+                CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
                 this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
-                [q, this.customResults] = ResultProviders.getCustomResults(q);
+                [q, this.customResults] = CliqzResultProviders.getCustomResults(q);
                 return q;
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
@@ -536,7 +482,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     action: 'key_stroke',
                     current_length: searchString.length
                 };
-                CliqzUtils.track(action);
+                CliqzUtils.telemetry(action);
 
                 // analyse and modify query for custom results
                 searchString = this.analyzeQuery(searchString);
@@ -563,7 +509,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         action: 'spell_correction',
                         current_length: searchString.length
                     }
-                    CliqzUtils.track(action);
+                    CliqzUtils.telemetry(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
                 }
@@ -572,10 +518,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
-                this.cliqzSuggestions = null;
-                this.cliqzBundesliga = null;
                 this.instant = [];
-                this.historyBackfill = [];
 
                 this.listener = listener;
                 this.searchString = searchString;
@@ -589,21 +532,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.startTime = Date.now();
                 this.mixedResults.suggestionsRecieved = false;
-
                 // ensure context
                 this.cliqzResultFetcher = this.cliqzResultFetcher.bind(this);
-                this.cliqzSuggestionFetcher = this.cliqzSuggestionFetcher.bind(this);
                 this.pushResults = this.pushResults.bind(this);
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
-                this.cliqzBundesligaCallback = this.cliqzBundesligaCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 
                 CliqzUtils.log("called once " + urlbar.value + ' ' + searchString , "spell corr")
                 if(searchString.trim().length){
-                    // start fetching results and suggestions
+                    // start fetching results
                     CliqzUtils.getCliqzResults(searchString, this.cliqzResultFetcher);
 
                     // if spell correction, no suggestions
@@ -620,26 +560,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         CliqzUtils.log(CliqzAutocomplete.lastSuggestions, 'spellcorr');
                         urlbar.mInputField.value = searchString;
                     } else {
-                        CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
+                        //CliqzUtils.getSuggestions(searchString, this.cliqzSuggestionFetcher);
                     }
                     // begin history pattern search
                     CliqzHistoryPattern.detectPattern(searchString);
 
-                    // Fetch bundesliga only if search contains trigger
-                    if(CliqzBundesliga.isBundesligaSearch(searchString)) {
-                        CliqzBundesliga.get(searchString, this.cliqzBundesligaCallback)
-                    } else {
-                        this.cliqzBundesliga = [];
-                    }
                     CliqzUtils.clearTimeout(this.resultsTimer);
                     this.resultsTimer = CliqzUtils.setTimeout(this.pushTimeoutCallback, CliqzAutocomplete.TIMEOUT, this.searchString);
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
                     this.cliqzCountry = "";
-                    this.cliqzSuggestions = [];
                     this.customResults = [];
-                    this.cliqzBundesliga = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
 
@@ -689,37 +621,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.markResultsDone(Date.now());
                 }
 
-                // keep a track of if the popup was open for last result
+                // remembers if the popup was open for last result
                 CliqzAutocomplete.lastPopupOpen = CliqzAutocomplete.isPopupOpen;
                 if (results.length > 0) {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
-                this.addCalculatorSignal(action);
-
-                CliqzUtils.track(action);
-            },
-            addCalculatorSignal: function(action) {
-                var calcAnswer = null,
-                    cResults = this.customResults;
-
-                if(cResults && cResults.length > 0 &&
-                        cResults[0].style == Result.CLIQZE &&
-                        cResults[0].data.template == 'calculator'){
-                    calcAnswer = cResults[0].data.answer;
-                }
-                if (calcAnswer == null && this.suggestedCalcResult == null){
-                    return;
-                }
-                action.suggestions_recived =  this.suggestionsRecieved;
-                action.same_results = CliqzCalculator.isSame(calcAnswer, this.suggestedCalcResult);
-                action.suggested = this.suggestedCalcResult != null;
-                action.calculator = calcAnswer != null;
-                this.suggestionsRecieved = false;
-                this.suggestedCalcResult = null;
+                CliqzUtils.telemetry(action);
             }
         }
     }
 }
-
-
-

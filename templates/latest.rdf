@@ -17,14 +17,16 @@
               <RDF:Description>
                 <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
                 <em:minVersion>10.0</em:minVersion>
-                <em:maxVersion>36.*</em:maxVersion>
+                <em:maxVersion>37.*</em:maxVersion>
 
-                <!-- This is where this version of the add-on will be downloaded from -->
-                <!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
+                {#
+                This is where this version of the add-on will be downloaded from
+                Not working with CDN. It needs to be a https but our certificate is broken on the CDN.
+                #}
                 <em:updateLink>{{download_link}}</em:updateLink>
 
                 <!-- A page describing what is new in this updated version
-                <em:updateInfoURL>http://beta.cliqz.com/changelog</em:updateInfoURL>
+                <em:updateInfoURL>http://cliqz.com/changelog</em:updateInfoURL>
                 -->
               </RDF:Description>
             </em:targetApplication>

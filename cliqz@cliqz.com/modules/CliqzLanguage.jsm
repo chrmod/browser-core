@@ -42,7 +42,7 @@ var CliqzLanguage = {
             result_position: result_position,
             v: 1
         };
-        CliqzUtils.track(action)
+        CliqzUtils.telemetry(action)
     },
 
     listener: {
@@ -166,7 +166,7 @@ var CliqzLanguage = {
 
         var locale = CliqzLanguage.normalizeLocale(localeStr);
 
-        if (locale=='' || locale==undefined || locale==null) return;
+        if (locale=='' || locale==undefined || locale==null || locale.length != 2) return;
         if (url=='' || url==undefined || url==null) return;
 
         if (CliqzLanguage.currentState[locale] != 'locale') {
@@ -191,7 +191,7 @@ var CliqzLanguage = {
     },
     // removes the country from the locale, for instance, de-de => de, en-US => en
     normalizeLocale: function(str) {
-        if (str) return str.split(/-|_/)[0].toLowerCase();
+        if (str) return str.split(/-|_/)[0].trim().toLowerCase();
         else return srt;
     },
     // the function that decided which languages the person understands
@@ -241,7 +241,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.cliqzPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.getPref('locale',''));
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();

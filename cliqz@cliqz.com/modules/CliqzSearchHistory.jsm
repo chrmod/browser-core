@@ -1,14 +1,9 @@
 'use strict';
 /*
- * This module keeps track of the last queries made in a tab and shows
+ * This module remembers the last queries made in a tab and shows
  * them when appropiate
  *
  */
-
-
-// TODO: The "Letzte eingabe" button needs a better architecture
-// What we do now is a bit hacky. Because we need to track the state of many
-// different windows we get the current window object in every function.
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
@@ -49,23 +44,28 @@ var CliqzSearchHistory = {
         this.windows[window_id].lastSearchElement.addEventListener('click',
                                                 this.returnToLastSearch.bind(this));
         this.windows[window_id].searchHistoryContainer.appendChild(this.windows[window_id].lastSearchElement)
-        
+
         return this.windows[window_id].searchHistoryContainer;
     },
 
     /* Puts the query in the dropdown and opens it. */
     returnToLastSearch: function (ev) {
-        var window_id = CliqzUtils.getWindowID();
+        var urlBar = this.windows[CliqzUtils.getWindowID()].urlbar;
 
-        this.windows[window_id].urlbar.mInputField.focus();
-        this.windows[window_id].urlbar.mInputField.setUserInput(ev.target.query);
+        urlBar.mInputField.focus();
+        urlBar.mInputField.setUserInput(ev.target.query);
+
+        CliqzUtils.setTimeout(function(){
+            if(urlBar.selectionStart == 0 && urlBar.selectionEnd == urlBar.value.length)
+                urlBar.setSelectionRange(urlBar.value.length, urlBar.value.length);
+        },0);
 
         var action = {
             type: 'activity',
             action: 'last_search'
         };
 
-        CliqzUtils.track(action);
+        CliqzUtils.telemetry(action);
     },
 
     /* */
