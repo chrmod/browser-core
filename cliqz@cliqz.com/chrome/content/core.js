@@ -517,7 +517,7 @@ window.CLIQZ.Core = {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-            firstResult != results[0].url) {
+          CliqzHistoryPattern.generalizeUrl(firstResult) != CliqzHistoryPattern.generalizeUrl(results[0].url)) {
             var newResult = [];
             newResult.url = firstResult;
             newResult.title = firstTitle;
@@ -528,8 +528,9 @@ window.CLIQZ.Core = {
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
-        if(!autocomplete.autocomplete && fRes.length > 1 && CliqzHistoryPattern.generalizeUrl(fRes[0].url) != urlBar.value) {
-          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, fRes[1], true);
+        if(!autocomplete.autocomplete && results.length > 1 &&
+          CliqzHistoryPattern.generalizeUrl(results[0].url) != CliqzHistoryPattern.generalizeUrl(urlBar.value)) {
+          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[1], true);
           CLIQZ.UI.autocompleteEl = 1;
         } else {
           CLIQZ.UI.autocompleteEl = 0;
@@ -552,7 +553,6 @@ window.CLIQZ.Core = {
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
             CLIQZ.UI.cursor = autocomplete.selectionStart;
-
         }
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {

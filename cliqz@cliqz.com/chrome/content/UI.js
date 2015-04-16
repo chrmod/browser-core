@@ -387,7 +387,9 @@ var UI = {
       var target = function() {
         var index = 0;
         var target = $$('[arrow]', gCliqzBox)[0];
-        while(target && target.getAttribute("url") != CliqzAutocomplete.lastAutocomplete)
+        while(target &&
+          CliqzHistoryPattern.generalizeUrl(target.getAttribute("url")) !=
+          CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
           target = $$('[arrow]', gCliqzBox)[++index];
         // Prevent page changing
         var offset = target ? target.offsetTop : 0;
