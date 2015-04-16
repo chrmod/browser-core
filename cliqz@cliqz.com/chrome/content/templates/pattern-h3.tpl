@@ -8,8 +8,23 @@
              arrow="false">
             <div class='cliqz-pattern-element-title'>{{ emphasis title ../text 2 true }}</div>
             <div class='cliqz-pattern-element-link'>{{ emphasis link ../text 2 true }}</div>
+
+            {{#with logo}}
+                <div
+                    newtab='true'
+                    class='cliqz-brand-logo
+                           cliqz-history-logo
+                           transition'
+                    {{#if add_logo_url}}
+                        url="{{logo_url}}"
+                    {{/if}}
+                    style="{{ style }};"
+                >
+                    {{ text }}
+                </div>
+            {{/with}}
         </div>
         {{/each}}
     </div>
-    {{>logo}}
+
 </div>
