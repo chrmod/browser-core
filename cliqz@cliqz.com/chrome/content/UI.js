@@ -132,7 +132,7 @@ var UI = {
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
 
       XULBrowserWindow.updateStatusField();
     },
@@ -158,7 +158,8 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
+            UI.redrawResultHTML(CliqzHandlebars.tplCache.results(currentResults), res.q);
+            //UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
           }
 
         //might be unset at the first open
@@ -228,6 +229,7 @@ var UI = {
 
       // Result animation
       var delay = 0;
+      /*
       for(var i=UI.lastInstantLength; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
@@ -238,6 +240,7 @@ var UI = {
           delay += 100;
         }
       }
+      */
       var t = Date.now() + delay + (delay>0?100:0);
       if(t > UI.nextRedraw) UI.nextRedraw = t;
       if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
@@ -384,7 +387,9 @@ var UI = {
       var target = function() {
         var index = 0;
         var target = $$('[arrow]', gCliqzBox)[0];
-        while(target && target.getAttribute("url") != CliqzAutocomplete.lastAutocomplete)
+        while(target &&
+          CliqzHistoryPattern.generalizeUrl(target.getAttribute("url")) !=
+          CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
           target = $$('[arrow]', gCliqzBox)[++index];
         // Prevent page changing
         var offset = target ? target.offsetTop : 0;
@@ -422,6 +427,9 @@ var UI = {
         }
       },300);
 
+    },
+    clearAutocomplete: function() {
+      clearResultSelection();
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {

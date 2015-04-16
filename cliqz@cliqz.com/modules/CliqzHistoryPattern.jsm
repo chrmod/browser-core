@@ -243,7 +243,6 @@ var CliqzHistoryPattern = {
       // Check if base domain changed due to filtering
       var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
       baseUrl = tmpBaseUrl;
-      CliqzUtils.log(baseUrl, "BASE");
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
@@ -792,7 +791,7 @@ var CliqzHistoryPattern = {
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
-        instant.data.title = CliqzHistoryPattern.generalizeUrl(results[0].url, true) + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster");
+        instant.data.title = CliqzHistoryPattern.generalizeUrl(results[0].url, true)/* + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster")*/;
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
@@ -824,6 +823,7 @@ var CliqzHistoryPattern = {
           title: results[i].title,
           extra: "history-" + i,
           favicon: favicon,
+          logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(results[i].url))
         });
         if ((instant.data.urls.length > 9 && instant.data.template == "pattern-h1") ||
             (instant.data.urls.length > 5  && instant.data.template == "pattern-h2") ||

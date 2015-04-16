@@ -67,7 +67,7 @@ var CliqzUtils = {
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
-  BRANDS_DATABASE_VERSION:        1423762658427,
+  BRANDS_DATABASE_VERSION:        1427124611539,
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -129,9 +129,11 @@ var CliqzUtils = {
   },
   getLocalStorage: function(url) {
     var uri = Services.io.newURI(url,null,null),
-        principal = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
-                    .getService(Components.interfaces.nsIScriptSecurityManager)
-                    .getNoAppCodebasePrincipal(uri),
+        principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
+
+    if (typeof principalFunction != "function") return false
+
+    var principal = principalFunction(uri),
         dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
               .getService(Components.interfaces.nsIDOMStorageManager)
 
@@ -144,9 +146,11 @@ var CliqzUtils = {
         }),
         sites = ["http://cliqz.com","https://cliqz.com"]
 
-    try {
-      sites.forEach(function(url){ CliqzUtils.getLocalStorage(url).setItem("extension-info",info) });
-    } catch(e) {}
+    sites.forEach(function(url){
+        var ls = CliqzUtils.getLocalStorage(url)
+
+        if (ls) ls.setItem("extension-info",info)
+    })
   },
   getLogoDetails: function(urlDetails){
     var base = urlDetails.name,
@@ -1221,7 +1225,7 @@ var CliqzUtils = {
     },
     createCheckBoxItem: function(doc, key, label, activeState){
       function optInOut(){
-          return CliqzUtils.getPref(key, false) == (activeState || true)?
+          return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
                            'url(chrome://cliqzres/content/skin/opt-in.svg)':
                            'url(chrome://cliqzres/content/skin/opt-out.svg)';
       }

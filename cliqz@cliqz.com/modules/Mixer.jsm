@@ -156,7 +156,7 @@ var Mixer = {
         // Take the first entry (if history) and see if we can trigger an EZ with it,
         // this will override an EZ sent by backend.
         if(results.length > 0 && results[0].data && results[0].data.template &&
-           results[0].data.template.indexOf("pattern") == 0 && !results[0].data.template == "pattern-h1") {
+           results[0].data.template.indexOf("pattern") == 0 && !(results[0].data.template == "pattern-h1")) {
 
             var url = results[0].val;
             // if there is no url associated with the first result, try to find it inside
@@ -252,9 +252,9 @@ var Mixer = {
         }
 
         // Change history cluster size if there are less than three links and it is h2
-        if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
+        /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
-        }
+        }*/
 
         // Add custom results to the beginning if there are any
         if(customResults && customResults.length > 0) {
