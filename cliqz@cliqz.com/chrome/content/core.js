@@ -49,7 +49,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
-Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+if(window.CLIQZ === undefined)
+    Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
+else {
+    //faulty uninstall of previous version
+    window.CLIQZ = window.CLIQZ || {};
+}
 
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
@@ -198,6 +203,8 @@ window.CLIQZ.Core = {
         }
     },
     generateSession: function(source){
+        CliqzUtils.setSupportInfo()
+
         return CliqzUtils.rand(18) + CliqzUtils.rand(6, '0123456789')
                + '|' +
                CliqzUtils.getDay()
@@ -397,7 +404,8 @@ window.CLIQZ.Core = {
                         history_urls: history.size,
                         startup: startup? true: false,
                         prefs: CliqzUtils.getPrefs(),
-                        defaultSearchEngine: defaultSearchEngine
+                        defaultSearchEngine: defaultSearchEngine,
+                        private_window: CliqzUtils.isPrivate(window)
                     };
 
                 CliqzUtils.telemetry(info);
@@ -476,7 +484,7 @@ window.CLIQZ.Core = {
         }
     },
     // autocomplete query inline
-    autocompleteQuery: function(firstResult, firstTitle){
+    autocompleteQuery: function(firstResult, firstTitle, data){
         var urlBar = CLIQZ.Core.urlbar;
         if (urlBar.selectionStart !== urlBar.selectionEnd) {
             // TODO: temp fix for flickering,
@@ -485,16 +493,17 @@ window.CLIQZ.Core = {
         }
         if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
            CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
-            if (CliqzAutocomplete.highlightFirstElement) {
-                CLIQZ.UI.selectFirstElement();
+            if (CliqzAutocomplete.selectAutocomplete) {
+                CLIQZ.UI.selectAutocomplete();
             }
-            CliqzAutocomplete.highlightFirstElement = false;
+            CliqzAutocomplete.selectAutocomplete = false;
             return;
         }
-        CliqzAutocomplete.highlightFirstElement = false;
+        CliqzAutocomplete.selectAutocomplete = false;
 
         // History cluster does not have a url attribute, therefore firstResult is null
-        var lastPattern = CliqzAutocomplete.lastPattern, fRes = lastPattern.filteredResults();
+        var lastPattern = CliqzAutocomplete.lastPattern,
+            fRes = lastPattern ? lastPattern.filteredResults() : null;
         if(!firstResult && lastPattern && fRes.length > 1)
           firstResult = fRes[0].url;
 
@@ -508,20 +517,33 @@ window.CLIQZ.Core = {
         }
         // Use first entry if there are no patterns
         if (results.length === 0 || lastPattern.query != urlBar.value ||
-            firstResult != results[0].url) {
-            results[0] = [];
-            results[0].url = firstResult;
-            results[0].title = firstTitle;
-            results[0].query = [];
+          CliqzHistoryPattern.generalizeUrl(firstResult) != CliqzHistoryPattern.generalizeUrl(results[0].url)) {
+            var newResult = [];
+            newResult.url = firstResult;
+            newResult.title = firstTitle;
+            newResult.query = [];
+            results.unshift(newResult);
         }
         if (!CliqzUtils.isUrl(results[0].url)) return;
 
         // Detect autocomplete
         var autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[0], true);
+        if(!autocomplete.autocomplete && results.length > 1 &&
+          CliqzHistoryPattern.generalizeUrl(results[0].url) != CliqzHistoryPattern.generalizeUrl(urlBar.value)) {
+          autocomplete = CliqzHistoryPattern.autocompleteTerm(urlBar.value, results[1], true);
+          CLIQZ.UI.autocompleteEl = 1;
+        } else {
+          CLIQZ.UI.autocompleteEl = 0;
+        }
 
         // If new style autocomplete and it is not enabled, ignore the autocomplete
         if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
             return;
+        }
+
+        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
+          CLIQZ.UI.clearAutocomplete();
+          return;
         }
 
         // Apply autocomplete
@@ -531,18 +553,11 @@ window.CLIQZ.Core = {
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
             CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
             CLIQZ.UI.cursor = autocomplete.selectionStart;
-
         }
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
-            // Cut urlbar to max 80 characters
-            // Error-prone, disabled for now
-            /*if (urlBar.mInputField.value.length > 80) {
-              urlBar.mInputField.value = urlBar.mInputField.value.substr(0,80) + "...";
-              urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            }*/
-            CliqzAutocomplete.highlightFirstElement = true;
-            CLIQZ.UI.selectFirstElement();
+            CliqzAutocomplete.selectAutocomplete = true;
+            CLIQZ.UI.selectAutocomplete();
         }
 },
     cleanUrlBarValue: function(val){
@@ -611,6 +626,8 @@ window.CLIQZ.Core = {
     handlePasteEvent: function(ev){
         //wait for the value to change
         setTimeout(function(){
+            // ensure the lastSearch value is always correct although paste event has 1 second throttle time.
+            CliqzAutocomplete.lastSearch = ev.target.value;
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'paste',

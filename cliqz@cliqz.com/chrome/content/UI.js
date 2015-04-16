@@ -60,7 +60,8 @@ function lg(msg){
 
 var UI = {
     showDebug: false,
-    preventFirstElementHighlight: false,
+    preventAutocompleteHighlight: false,
+    autocompleteEl: 0,
     lastInputTime: 0,
     lastInput: "",
     lastSelectedUrl: null,
@@ -127,11 +128,11 @@ var UI = {
       });
 
       var curResAll = currentResults.results
-      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].type == "cliqz-pattern")
+      if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url)
-        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title);
+        CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
 
       XULBrowserWindow.updateStatusField();
     },
@@ -157,7 +158,8 @@ var UI = {
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
+            UI.redrawResultHTML(CliqzHandlebars.tplCache.results(currentResults), res.q);
+            //UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
           }
 
         //might be unset at the first open
@@ -184,7 +186,7 @@ var UI = {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
-        setTimeout(UI.dispatchRedraw, 100, html, id, q);
+        setTimeout(function(){ UI.dispatchRedraw(html, id, q); }, 100);
       } else {
         UI.redrawResultHTML(html, q);
       }
@@ -216,7 +218,7 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
-        if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+        if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
         return;
       }
 
@@ -227,6 +229,7 @@ var UI = {
 
       // Result animation
       var delay = 0;
+      /*
       for(var i=UI.lastInstantLength; i<max; i++) {
         var oldRes = oldResults[i];
         var newRes = newResults[i];
@@ -237,9 +240,10 @@ var UI = {
           delay += 100;
         }
       }
+      */
       var t = Date.now() + delay + (delay>0?100:0);
       if(t > UI.nextRedraw) UI.nextRedraw = t;
-      if(CliqzAutocomplete.highlightFirstElement) UI.selectFirstElement();
+      if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
     },
     // Returns a concatenated string of all urls in a result list
     extractResultUrls: function(str) {
@@ -360,14 +364,14 @@ var UI = {
                     };
                     CliqzUtils.telemetry(signal);
                 }
-                UI.preventFirstElementHighlight = true;
+                UI.preventAutocompleteHighlight = true;
                 UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
             default:
                 UI.lastInput = "";
                 UI.nextRedraw = (Date.now() + 150 > UI.nextRedraw) ? (Date.now() + 150) : UI.nextRedraw;
-                UI.preventFirstElementHighlight = false;
+                UI.preventAutocompleteHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
         }
@@ -379,10 +383,35 @@ var UI = {
       }
     },
     animationEnd: 0,
-    selectFirstElement: function() {
+    selectAutocomplete: function() {
+      var target = function() {
+        var index = 0;
+        var target = $$('[arrow]', gCliqzBox)[0];
+        while(target &&
+          CliqzHistoryPattern.generalizeUrl(target.getAttribute("url")) !=
+          CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocomplete))
+          target = $$('[arrow]', gCliqzBox)[++index];
+        // Prevent page changing
+        var offset = target ? target.offsetTop : 0;
+        if(target && target.className.indexOf("cliqz-pattern") != -1) {
+          var context;
+          if(context = $('.cqz-result-pattern', gCliqzBox))
+            offset += context.parentElement.offsetTop;
+        }
+        if(offset > 300) {
+          // Remove autocomplete from urlbar
+          var urlbar = CLIQZ.Core.urlbar;
+          urlbar.mInputField.value = urlbar.mInputField.value.substr(0, urlbar.selectionStart);
+          CliqzAutocomplete.lastAutocomplete = null;
+          CliqzAutocomplete.lastAutocompleteType = null;
+          CliqzAutocomplete.selectAutocomplete = false;
+          return null;
+        }
+        return target;
+      };
       // Skip timeout if element was selected before
-      if ($('[arrow]', gCliqzBox) && UI.lastSelectedUrl == $('[arrow]', gCliqzBox).getAttribute("url")) {
-        setResultSelection($('[arrow]', gCliqzBox), true, false);
+      if (target() && UI.lastSelectedUrl == target().getAttribute("url")) {
+        setResultSelection(target(), true, false);
         return;
       }
       // Timeout to wait for user to finish keyboard input
@@ -390,14 +419,17 @@ var UI = {
       setTimeout(function() {
         var time = (new Date()).getTime();
         if(time - UI.lastInputTime > 300) {
-          if (!UI.preventFirstElementHighlight && time > UI.animationEnd
-            && gCliqzBox && CliqzAutocomplete.highlightFirstElement) {
+          if (!UI.preventAutocompleteHighlight && time > UI.animationEnd
+            && gCliqzBox && CliqzAutocomplete.selectAutocomplete) {
             UI.animationEnd = (new Date()).getTime() + 330;
-            setResultSelection($('[arrow]', gCliqzBox), true, false);
+            setResultSelection(target(), true, false);
           }
         }
       },300);
 
+    },
+    clearAutocomplete: function() {
+      clearResultSelection();
     },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {

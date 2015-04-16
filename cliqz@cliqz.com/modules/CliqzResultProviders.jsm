@@ -33,16 +33,16 @@ var INIT_KEY = 'newProvidersAdded',
     },
     CUSTOM = {
         '#fee': {
-            url: 'https://beta.cliqz.com/support/'
+            url: 'https://cliqz.com/support/'
         },
         '#team': {
-            url: 'https://beta.cliqz.com/team/'
+            url: 'https://cliqz.com/team/'
         },
         '#cliqz': {
-            url: 'https://beta.cliqz.com/'
+            url: 'https://cliqz.com/'
         },
         '#join': {
-            url: 'https://beta.cliqz.com/jobs/'
+            url: 'https://cliqz.com/jobs/'
         }
     },
     ENGINE_CODES = ['google images', 'google maps', 'google', 'yahoo', 'bing', 'wikipedia', 'amazon', 'ebay', 'leo']

@@ -19,13 +19,14 @@
                 <em:minVersion>10.0</em:minVersion>
                 <em:maxVersion>37.*</em:maxVersion>
 
-
-                <!-- This is where this version of the add-on will be downloaded from -->
-                <!-- Not working with CDN. It needs to be a https but our certificate is broken on the CDN. -->
+                {#
+                This is where this version of the add-on will be downloaded from
+                Not working with CDN. It needs to be a https but our certificate is broken on the CDN.
+                #}
                 <em:updateLink>{{download_link}}</em:updateLink>
 
                 <!-- A page describing what is new in this updated version
-                <em:updateInfoURL>http://beta.cliqz.com/changelog</em:updateInfoURL>
+                <em:updateInfoURL>http://cliqz.com/changelog</em:updateInfoURL>
                 -->
               </RDF:Description>
             </em:targetApplication>
