@@ -325,6 +325,10 @@ var CliqzHumanWeb = {
             if (CliqzHumanWeb.debug) CliqzUtils.log("Dropped because of # in url: " + decodeURIComponent(aURI)  , CliqzHumanWeb.LOG_KEY);
             return true;
         }
+
+        if ( url_parts.host.indexOf('localhost') > -1){
+            return true;
+        }
     },
     dropLongURL: function(url){
         var url_parts = {};
@@ -1784,7 +1788,12 @@ var CliqzHumanWeb = {
 
             //Check for fields which have urls like ref.
             if(msg.payload.ref){
-                msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
+                if(CliqzHumanWeb.isSuspiciousURL(msg.payload['ref'])){
+                    msg.payload['ref'] = null;
+                }
+                else{
+                    msg.payload['ref'] = CliqzHumanWeb.maskURL(msg.payload['ref']);
+                }
             }
 
             //Mask the long ugly redirect URLs
