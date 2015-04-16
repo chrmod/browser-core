@@ -632,7 +632,8 @@ var CliqzHumanWeb = {
                         error_message = 'dangerous redirect';
                         if (CliqzHumanWeb.debug) CliqzUtils.log("Error on doublefetch: " + error_message, CliqzHumanWeb.LOG_KEY);
                         if (CliqzHumanWeb.debug) CliqzUtils.log("DANGER: " + url + ' ' + req.responseURL , CliqzHumanWeb.LOG_KEY);
-                        req.onerror();
+                        //req.onerror();
+                        onerror(error_message);
                         return;
                     }
                 }
