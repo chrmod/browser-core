@@ -341,6 +341,7 @@ window.CLIQZ.Core = {
     popupOpen: function(){
         CliqzAutocomplete.isPopupOpen = true;
         CLIQZ.Core.popupEvent(true);
+        CLIQZ.UI.popupClosed = false;
     },
     popupClose: function(){
         CliqzAutocomplete.isPopupOpen = false;
