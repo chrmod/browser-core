@@ -34,7 +34,7 @@ var CliqzHistory = {
       if(CliqzUtils.getPref('categoryAssessment', false)){
         CliqzCategories.assess(aBrowser.currentURI.spec);
       }
-      var url = aBrowser.currentURI.spec;
+      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       CliqzHistory.setTabData(panel, 'title', "");
@@ -58,7 +58,7 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, 'type', "link");
     },
     onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
-      var url = aBrowser.currentURI.spec;
+      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       var title = aBrowser.contentDocument.title || "";
@@ -88,7 +88,7 @@ var CliqzHistory = {
     if(aTarget.nodeName.toLowerCase() == "a" && (event.button == 0 || event.button == 1)) {
       var url = CliqzHistory.getTabData(panel, "url");
       if(!url || url.length == 0) return;
-      var linkUrl = aTarget.getAttribute("href");
+      var linkUrl = CliqzHistoryPattern.simplifyUrl(aTarget.getAttribute("href"));
       // URLs like //www.google.com/...
       if(linkUrl.indexOf("//") == 0) {
         linkUrl = url.substr(0, url.indexOf("//")) + linkUrl;
@@ -137,45 +137,53 @@ var CliqzHistory = {
       if (!query) query = "";
       if (!queryDate) queryDate = now;
       CliqzHistory.updateTitle(panel);
+      CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
 
       if (type == "typed") {
         if (query.indexOf('://') == -1) {
           query = "http://" + query;
         }
-        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-                    VALUES (:query, :now, :query, :queryDate, 1)",
+        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit)\
+                    VALUES (:query, :now, :query, :queryDate, 1, :prevVisit)",
                     null, null, {
                       query: CliqzHistory.escapeSQL(query),
                       now: now,
-                      queryDate: queryDate
+                      queryDate: queryDate,
+                      prevVisit: CliqzHistory.getTabData(panel, "prevVisit") || ""
                     });
         type = "link";
+        CliqzHistory.setTabData(panel, "prevVisit", now);
         now += 1;
       }
 
       // Insert history entry
-      CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-              VALUES (:url, :now, :query, :queryDate, 1)",
+      CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit)\
+              VALUES (:url, :now, :query, :queryDate, 1, :prevVisit)",
               null, null, {
                 url: CliqzHistory.escapeSQL(url),
                 query: CliqzHistory.escapeSQL(query),
                 now: now,
-                queryDate: queryDate
+                queryDate: queryDate,
+                prevVisit: CliqzHistory.getTabData(panel, "prevVisit") || ""
               });
+      CliqzHistory.setTabData(panel, "visitDate", now);
     } else if (!PrivateBrowsingUtils.isWindowPrivate(CliqzUtils.getWindow()) && customPanel) {
       var url = CliqzHistory.getTabData(customPanel, 'url');
       var type = "link";
       var query = CliqzHistory.getTabData(customPanel, 'query');
       var queryDate = CliqzHistory.getTabData(customPanel, 'queryDate');
       var now = new Date().getTime();
-      CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ")\
-              VALUES (:url, :now, :query, :queryDate, 1)",
+      CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(newPanel, "visitDate"));
+      CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit)\
+              VALUES (:url, :now, :query, :queryDate, 1, :prevVisit)",
               null, null, {
                 url: CliqzHistory.escapeSQL(url),
                 query: CliqzHistory.escapeSQL(query),
                 now: now,
-                queryDate: queryDate
+                queryDate: queryDate,
+                prevVisit: CliqzHistory.getTabData(panel, "prevVisit") || ""
               });
+      CliqzHistory.setTabData(panel, "visitDate", now);
     }
   },
   updateTitle: function(panel) {
@@ -219,6 +227,7 @@ var CliqzHistory = {
           CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
           CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
           CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
+          CliqzHistory.setTabData(p.newPanel, "visitDate", CliqzHistory.getTabData(p.curPanel, 'visitDate'));
         }
         CliqzHistory.setTabData(p.newPanel, "lock", false);
       };
@@ -295,6 +304,9 @@ var CliqzHistory = {
       CliqzHistory.SQL("PRAGMA table_info(urltitles)", null, function(n) {
         if(n == 2) CliqzHistory.SQL("alter table urltitles add column linktitle VARCHAR(255)");
       });
+      CliqzHistory.SQL("PRAGMA table_info(visits)", null, function(n) {
+        if(n == 11) CliqzHistory.SQL("alter table visits add column prev_visit DATE");
+      });
       return;
     }
     var visits = "create table visits(\
@@ -308,7 +320,8 @@ var CliqzHistory = {
             result BOOLEAN DEFAULT 0,\
             autocomplete BOOLEAN DEFAULT 0,\
             google BOOLEAN DEFAULT 0,\
-            bookmark BOOLEAN DEFAULT 0\
+            bookmark BOOLEAN DEFAULT 0,\
+            prev_visit DATE\
             )";
     var titles = "create table urltitles(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\

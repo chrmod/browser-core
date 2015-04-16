@@ -509,9 +509,12 @@ var CliqzHistoryPattern = {
   },
   // Remove clutter from urls that prevents pattern detection, e.g. checksum
   simplifyUrl: function(url) {
-    // Ignore Google redirect urls
+    // Google redirect urls
     if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
-      return null;
+      // Return target URL instead
+      url = url.substring(url.lastIndexOf("url=")).split("&")[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
 
       // Remove clutter from Google searches
     } else if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
@@ -531,7 +534,9 @@ var CliqzHistoryPattern = {
       }
       // Yahoo redirect
     } else if (url.search(/http(s?):\/\/r.search\.yahoo\.com\/.*/i) === 0) {
-      return null;
+      url = url.substring(url.lastIndexOf("/RU=")).split("/RK=")[0];
+      url = url.substr(4);
+      return decodeURIComponent(url);
       // Yahoo
     } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
       var p = url.substring(url.indexOf("p=")).split("&")[0];
