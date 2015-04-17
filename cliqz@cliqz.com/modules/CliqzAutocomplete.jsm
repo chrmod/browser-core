@@ -485,8 +485,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.telemetry(action);
 
                 // analyse and modify query for custom results
-                searchString = this.analyzeQuery(searchString);
                 CliqzAutocomplete.lastSearch = searchString;
+                searchString = this.analyzeQuery(searchString);
 
                 // spell correction
                 var urlbar = CliqzUtils.getWindow().document.getElementById('urlbar');
