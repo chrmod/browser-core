@@ -260,7 +260,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
-        if(!data.trending) return true;
+        if(!data.trending || data.trending.length == 0) return true;
 
         try {
           var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
