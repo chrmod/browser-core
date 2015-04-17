@@ -1102,8 +1102,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(!query) var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
   if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
-      var first = gCliqzBox.resultsBox.children[0];
-      if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
+      var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
+      if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
