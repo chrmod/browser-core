@@ -209,20 +209,20 @@ var CliqzHistory = {
           newPanel = e.target.linkedPanel;
 
       CliqzHistory.setTabData(newPanel, "lock", true);
-      var checkUrl = function(tab,curPanel,newPanel) {
-        var url = tab.linkedBrowser.contentWindow.location.href;
+      var checkUrl = function(p) {
+        var url = p.tab.linkedBrowser.contentWindow.location.href;
         if(url == "about:blank") {
-          CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, tab, curPanel, newPanel);
+          CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, p);
           return;
         } else if(url != "about:newtab") {
-          CliqzHistory.setTabData(newPanel, "query", CliqzHistory.getTabData(curPanel, 'query'));
-          CliqzHistory.setTabData(newPanel, "queryDate", CliqzHistory.getTabData(curPanel, 'queryDate'));
-          CliqzHistory.setTabData(newPanel, "linkUrl", CliqzHistory.getTabData(curPanel, 'linkUrl'));
-          CliqzHistory.setTabData(newPanel, "linkTitle", CliqzHistory.getTabData(curPanel, 'linkTitle'));
+          CliqzHistory.setTabData(p.newPanel, "query", CliqzHistory.getTabData(p.curPanel, 'query'));
+          CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
+          CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
+          CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
         }
-        CliqzHistory.setTabData(newPanel, "lock", false);
+        CliqzHistory.setTabData(p.newPanel, "lock", false);
       };
-      checkUrl(e.target, curPanel, newPanel);
+      checkUrl({tab: e.target, curPanel: curPanel, newPanel: newPanel});
   },
   getTabData: function(panel, attr) {
     if (!CliqzHistory || !CliqzHistory.tabData[panel]) {
@@ -314,7 +314,8 @@ var CliqzHistory = {
             )";
     var titles = "create table urltitles(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
-            title VARCHAR(255)\
+            title VARCHAR(255),\
+            linktitle VARCHAR(255)\
         )";
     CliqzHistory.SQL(visits);
     CliqzHistory.SQL(titles);
