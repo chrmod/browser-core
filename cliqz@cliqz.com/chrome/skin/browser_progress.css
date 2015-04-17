@@ -218,7 +218,7 @@
 #cliqz-results .cliqz-pattern-element-link { font-size: 14px; }
 #cliqz-results .cliqz-pattern-element { position: relative; padding-left: 0; overflow: visible}
 #cliqz-results .cqz-result-h3 .cliqz-pattern-element-title { font-size: 18px; }
-#cliqz-results .cliqz-history-logo { font-size: 8px; right: 0; top: -2px; position: absolute; }
+#cliqz-results .cliqz-history-logo { font-size: 8px; right: 0; top: -2px; position: absolute; cursor: pointer; }
 #cliqz-results .cqz-result-h3 .cliqz-history-logo { top: 3px; }
 
 #cliqz-results .ez-news-toggle .entity-stories { display: none; }
