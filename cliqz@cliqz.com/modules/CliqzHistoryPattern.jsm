@@ -549,6 +549,20 @@ var CliqzHistoryPattern = {
       return url;
     }
   },
+  extractQueryFromUrl: function(url) {
+    // Google
+    if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
+      return url.substring(url.lastIndexOf("q=")+2).split("&")[0];
+    // Bing
+    } else if(url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
+      return url.substring(url.indexOf("q=")+2).split("&")[0];
+    // Yahoo
+    } else if(url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
+      return url.substring(url.indexOf("p=")+2).split("&")[0];
+    } else {
+      return null;
+    }
+  },
   // Autocomplete an urlbar value with the given patterns
   autocompleteTerm: function(urlbar, pattern, loose) {
     function matchQuery(queries) {

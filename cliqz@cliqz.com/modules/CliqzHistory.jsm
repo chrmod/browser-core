@@ -139,6 +139,17 @@ var CliqzHistory = {
       CliqzHistory.updateTitle(panel);
       CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
 
+      // Create new session when external search engine query changes
+      var externalQuery = CliqzHistoryPattern.extractQueryFromUrl(url);
+      if(externalQuery && CliqzHistory.getTabData(panel, "extQuery") != externalQuery) {
+        CliqzHistory.setTabData(panel, "queryDate", now);
+        CliqzHistory.setTabData(panel, "extQuery", externalQuery);
+        CliqzHistory.setTabData(panel, "query", externalQuery);
+        query = externalQuery;
+        queryDate = now;
+        type = "google";
+      }
+
       if (type == "typed") {
         if (query.indexOf('://') == -1) {
           query = "http://" + query;

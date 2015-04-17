@@ -1506,6 +1506,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.isCustomQuery(input);
