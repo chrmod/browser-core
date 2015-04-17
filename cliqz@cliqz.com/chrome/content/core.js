@@ -218,22 +218,38 @@ window.CLIQZ.Core = {
     showTutorial: function(onInstall, session){
         var showNewOnboarding = false;
 
-        // 10% chance of showing new onboarding
+        
         try {
-            if (session) {
-                var tokens = session.split("|");
-                if (tokens.length > 1) {
-                    var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
-                    showNewOnboarding = (lastDigit == 5);
-                }
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                .getService(Components.interfaces.nsIXULAppInfo);
+            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                .getService(Components.interfaces.nsIVersionComparator);
+            CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
+            CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
+
+            // running under Firefox 1.5 or later               
+            if(versionChecker.compare(appInfo.version, "25.0") >= 0) {
+                // 100% chance of showing new onboarding
+                showNewOnboarding = true;
+
+                // // 10% chance of showing new onboarding
+                // if (session) {
+                //     var tokens = session.split("|");
+                //     if (tokens.length > 1) {
+                //         var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                //         showNewOnboarding = (lastDigit == 5);
+                //     }
+                // }
             }
         } catch (e) {
-            CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding")
+            CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
         }
 
         var tutorialUrl = showNewOnboarding ? 
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
         CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
+
+        CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
 
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
