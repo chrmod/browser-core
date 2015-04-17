@@ -129,7 +129,6 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLocalStorage: function(url) {
-    return false;
     var uri = Services.io.newURI(url,null,null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
 
