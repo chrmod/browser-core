@@ -1281,7 +1281,6 @@ var CliqzHumanWeb = {
                             if (se == -1){
                                 CliqzHumanWeb.checkURL(cd);
                                 //Check active usage...
-                                CliqzUtils.log("OnlocationChange", CliqzHumanWeb.LOG_KEY);
                                 CliqzHumanWeb.activeUsage += 1;
 
                             }
