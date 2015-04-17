@@ -190,12 +190,14 @@ window.CLIQZ.Core = {
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
-                    prefs.setCharPref('session', CLIQZ.Core.generateSession(source));
-                    CLIQZ.Core.showTutorial(true);
+                    var session = CLIQZ.Core.generateSession(source);
+                    prefs.setCharPref('session', session);
+                    CLIQZ.Core.showTutorial(true, session);
                 },
                 function error(){
-                    prefs.setCharPref('session', CLIQZ.Core.generateSession());
-                    CLIQZ.Core.showTutorial(true);
+                    var session = CLIQZ.Core.generateSession();
+                    prefs.setCharPref('session', session);
+                    CLIQZ.Core.showTutorial(true, session);
                 }
             );
         } else {
@@ -213,10 +215,45 @@ window.CLIQZ.Core = {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     _tutorialTimeout:null,
-    showTutorial: function(onInstall){
+    showTutorial: function(onInstall, session){
+        var showNewOnboarding = false;
+
+        
+        try {
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                .getService(Components.interfaces.nsIXULAppInfo);
+            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                .getService(Components.interfaces.nsIVersionComparator);
+            CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
+            CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
+
+            // running under Firefox 1.5 or later               
+            if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
+                // 100% chance of showing new onboarding
+                showNewOnboarding = true;
+
+                // // 10% chance of showing new onboarding
+                // if (session) {
+                //     var tokens = session.split("|");
+                //     if (tokens.length > 1) {
+                //         var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                //         showNewOnboarding = (lastDigit == 5);
+                //     }
+                // }
+            }
+        } catch (e) {
+            CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
+        }
+
+        var tutorialUrl = showNewOnboarding ? 
+            CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
+        CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
+
+        CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
+
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(tutorialUrl, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // trigger component reload at install/uninstall

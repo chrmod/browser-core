@@ -106,6 +106,42 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
+    },    
+    "onButtonTryOut":{
+        "message":"Surf los!"
+    },
+    "onButtonCancel":{
+        "message":"Demo abbrechen"
+    },
+     "onButtonTryOutAgain":{
+        "message":"Demo nochmal ansehen"
+    },
+    "onCalloutTypeHere":{
+        "message":"CLIQZ funktioniert in deiner Adressleiste – gib Deine Suche oder Webadresse einfach hier ein"
+    },
+    "onCalloutCliqzResults":{
+        "message":"Deine Webseiten-Vorschläge erscheinen sofort hier"
+    },
+    "onCalloutLandingPage":{
+        "message":"Mit CLIQZ direkt am Ziel – mehr Zeit zum Surfen, weniger Suchen"
+    },
+    "onCalloutClickHere":{
+        "message":"Klick hier um einen CLIQZ-Vorschlag auszuwählen"
+    },
+    "onCalloutNowYou":{
+        "message":"Surf jetzt los!"
+    },
+    "onUrlBarNowYou":{
+        "message":"Gib Deine Suche oder Webadresse einfach hier ein..."
+    },
+    "onMsgInstalled":{
+        "message":"Installation geglückt! Ab jetzt surfst Du mit CLIQZ!"
+    },
+    "onMsgThankYou":{
+        "message":"Danke, dass Du CLIQZ installiert hast!"
+    },
+    "onMsgExplanation":{
+        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durchs Web."
     },
     "offRes_Cliqz":{
         "message":"CLIQZ"

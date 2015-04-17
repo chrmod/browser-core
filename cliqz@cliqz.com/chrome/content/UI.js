@@ -431,6 +431,10 @@ var UI = {
     clearAutocomplete: function() {
       clearResultSelection();
     },
+    // call from onboarding tour to look like mouse over
+    simulateSelectFirstElement: function () {
+      setResultSelection($('[arrow]', gCliqzBox), true, false, false, true);
+    },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
