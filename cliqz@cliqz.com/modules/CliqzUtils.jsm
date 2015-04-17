@@ -128,6 +128,7 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLocalStorage: function(url) {
+    return false;/*
     var uri = Services.io.newURI(url,null,null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
 
@@ -137,7 +138,8 @@ var CliqzUtils = {
         dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
               .getService(Components.interfaces.nsIDOMStorageManager)
 
-    return dsm.createStorage(null,principal,"")
+    return dsm.createStorage(null,principal,"");
+    */
   },
   setSupportInfo: function(status){
     var info = JSON.stringify({
