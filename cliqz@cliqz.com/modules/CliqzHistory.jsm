@@ -85,7 +85,8 @@ var CliqzHistory = {
     while(aTarget.parentNode && aTarget.nodeName.toLowerCase() != "a")
       aTarget = aTarget.parentNode;
 
-    if(aTarget.nodeName.toLowerCase() == "a" && (event.button == 0 || event.button == 1)) {
+    if(aTarget.nodeName.toLowerCase() == "a" &&
+       aTarget.getAttribute("href") && (event.button == 0 || event.button == 1)) {
       var url = CliqzHistory.getTabData(panel, "url");
       if(!url || url.length == 0) return;
       var linkUrl = CliqzHistoryPattern.simplifyUrl(aTarget.getAttribute("href"));
