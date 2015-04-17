@@ -1145,6 +1145,11 @@ var CliqzUtils = {
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
 
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, "CLIQZ Tour", function () {
+        CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
+      }));
+
       //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
