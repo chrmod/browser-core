@@ -107,6 +107,42 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "onButtonTryOut":{
+       "message":"Surf now!"
+    },
+    "onButtonCancel":{
+       "message":"Cancel tour"
+    },
+    "onButtonTryOutAgain":{
+       "message":"Show me again"
+    },
+    "onCalloutTypeHere":{
+       "message":"All the CLIQZ action happens in your url bar. Simply enter your search or a webaddress here."
+    },
+    "onCalloutCliqzResults":{
+       "message":"Website suggestions appear in the CLIQZ Menu as you type."
+    },
+    "onCalloutLandingPage":{
+       "message":"More time where you want to be—stop searching & go surfing"
+    },
+    "onCalloutClickHere":{
+       "message":"Click to select a CLIQZ result"
+    },    
+    "onCalloutNowYou":{
+       "message":"Start surfing!"
+    },
+    "onUrlBarNowYou":{
+       "message":"Enter search or webaddress here"
+    },
+    "onMsgInstalled":{
+       "message":"Installation successful! You can now surf the web with CLIQZ!"
+    },
+    "onMsgThankYou":{
+       "message":"Thank you for installing CLIQZ!"
+    },
+    "onMsgExplanation":{
+       "message":"CLIQZ for Firefox lets you search and navigate directly from your browser bar."
+    },
     "offRes_Cliqz":{
         "message":"CLIQZ"
     },
