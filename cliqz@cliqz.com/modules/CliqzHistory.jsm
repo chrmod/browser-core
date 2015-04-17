@@ -202,24 +202,27 @@ var CliqzHistory = {
     var title = CliqzHistory.getTabData(panel, "title") || "";
     var linkUrl = CliqzHistory.getTabData(panel, "linkUrl");
     var linkTitle = CliqzHistory.getTabData(panel, "linkTitle");
+    var dbUrl = CliqzHistory.getTabData(panel, "dbUrl");
     var dbTitle = CliqzHistory.getTabData(panel, "dbTitle");
     var dbLinkTitle = CliqzHistory.getTabData(panel, "dbLinkTitle");
 
-    if(url && title && title != dbTitle) {
+    if(url && title && (title != dbTitle || url != dbUrl)) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, :title, (select linkTitle from urltitles where url=:url))", null, null, {
                   url: CliqzHistory.escapeSQL(url),
                   title: CliqzHistory.escapeSQL(title)
                 });
       CliqzHistory.setTabData(panel, "dbTitle", title);
+      CliqzHistory.setTabData(panel, "dbUrl", url);
     }
-    if(url && linkTitle && linkUrl == url&& linkTitle != dbLinkTitle) {
+    if(url && linkTitle && linkUrl == url && (linkTitle != dbLinkTitle || url != dbUrl)) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, (select title from urltitles where url=:url), :linkTitle)", null, null, {
                   url: CliqzHistory.escapeSQL(url),
                   linkTitle: CliqzHistory.escapeSQL(linkTitle).trim()
                 });
       CliqzHistory.setTabData(panel, "dbLinkTitle", linkTitle);
+      CliqzHistory.setTabData(panel, "dbUrl", url);
     }
   },
   tabOpen: function(e){

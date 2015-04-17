@@ -514,13 +514,15 @@ var CliqzHistoryPattern = {
       // Return target URL instead
       url = url.substring(url.lastIndexOf("url=")).split("&")[0];
       url = url.substr(4);
-      return decodeURIComponent(url);
+      return simplifyUrl(decodeURIComponent(url));
 
       // Remove clutter from Google searches
     } else if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
       var q = url.substring(url.lastIndexOf("q=")).split("&")[0];
       if (q != "q=") {
-        return "https://www.google.com/search?" + q;
+        // tbm defines category (images/news/...)
+        var tbm = url.indexOf("&tbm=") != -1 ? ("&" + url.substring(url.lastIndexOf("tbm=")).split("&")[0]) : "";
+        return "https://www.google.com/search?" + q + tbm;
       } else {
         return url;
       }
@@ -528,7 +530,7 @@ var CliqzHistoryPattern = {
     } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
       var q = url.substring(url.indexOf("q=")).split("&")[0];
       if (q != "q=") {
-        return "https://www.bing.com/search?" + q;
+        return url.substr(0, url.indexOf("search?")) + "search?" + q;
       } else {
         return url;
       }
@@ -536,12 +538,12 @@ var CliqzHistoryPattern = {
     } else if (url.search(/http(s?):\/\/r.search\.yahoo\.com\/.*/i) === 0) {
       url = url.substring(url.lastIndexOf("/RU=")).split("/RK=")[0];
       url = url.substr(4);
-      return decodeURIComponent(url);
+      return simplifyUrl(decodeURIComponent(url));
       // Yahoo
     } else if (url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
       var p = url.substring(url.indexOf("p=")).split("&")[0];
-      if (p != "p=") {
-        return "https://search.yahoo.com/search?" + p;
+      if (p != "p=" && url.indexOf(";") != -1) {
+        return url.substr(0, url.indexOf(";")) + "?" + p;
       } else {
         return url;
       }
