@@ -521,7 +521,8 @@ var CliqzHistoryPattern = {
       var q = url.substring(url.lastIndexOf("q=")).split("&")[0];
       if (q != "q=") {
         // tbm defines category (images/news/...)
-        var tbm = url.indexOf("&tbm=") != -1 ? ("&" + url.substring(url.lastIndexOf("tbm=")).split("&")[0]) : "";
+        var param = url.indexOf("#") ? url.substr(url.indexOf("#")) : url.substr(url.indexOf("?"));
+        var tbm = param.indexOf("tbm=") != -1 ? ("&" + param.substring(param.lastIndexOf("tbm=")).split("&")[0]) : "";
         return "https://www.google.com/search?" + q + tbm;
       } else {
         return url;
