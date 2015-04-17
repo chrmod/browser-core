@@ -228,7 +228,7 @@ window.CLIQZ.Core = {
             CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
 
             // running under Firefox 1.5 or later               
-            if(versionChecker.compare(appInfo.version, "25.0") >= 0) {
+            if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
                 // 100% chance of showing new onboarding
                 showNewOnboarding = true;
 
