@@ -16,7 +16,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 // TODO: destroy?
-var CliqzTour = CliqzTour || {
+var CliqzTour = {
     // shortcuts
     urlBar: null,
     win: null,
