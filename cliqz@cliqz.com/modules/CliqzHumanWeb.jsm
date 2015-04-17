@@ -1444,7 +1444,6 @@ var CliqzHumanWeb = {
             CliqzHumanWeb.fetchAndStoreConfig();
         }
 
-                //Load patterns config
         if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Check if alive', CliqzHumanWeb.LOG_KEY);
