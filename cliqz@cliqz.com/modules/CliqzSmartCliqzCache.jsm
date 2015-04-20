@@ -2,8 +2,9 @@
 
 /*
  * This module caches SmartCliqz results in the extension. It
- * also customizes news SmartCliqz results by re-ordering categories
- * based on the user's browsing history.
+ * also customizes news SmartCliqz and a set of selected domains
+ * by re-ordering categories and links based on the user's browsing
+ * history.
  *
  * author: Dominik Schmidt (cliqz)
  */
