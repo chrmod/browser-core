@@ -83,14 +83,13 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
 	// TODO: move to external file
 	URL_PREPARSING_RULES: {
-		"amazon.de": /node=(\d+)/,							// node id
+		"amazon.de": /(node=\d+)/,							// node id
 		"otto.de": /otto.de\/([\w|-]{3,})/,					// first part of URL
 		"zalando.de": /zalando.de\/([\w|-]{3,})/,			// first part of URL
 		"skygo.sky.de": /sky.de\/([\w|-]{3,})/,				// first part of URL
 		"strato.de": /strato.de\/([\w|-]{3,})/,				// first part of URL
 		"bonprix.de": /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
-
 
 	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
@@ -163,7 +162,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	isCustomizationEnabled: function() {
 		try {
             var isEnabled =
-            	Services.prefs.getBoolPref("extensions.cliqz.enableNewsCustomization");
+            	Services.prefs.getBoolPref("extensions.cliqz.enableSmartCliqzCustomization");
             
             return isEnabled === null ? 
             	this._isCustomizationEnabledByDefault : isEnabled;
