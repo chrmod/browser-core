@@ -217,11 +217,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 					var url = 
                 		CliqzHistoryPattern.generalizeUrl(urls[i]);
 					for (var j = 0; j < categories.length; j++) {
-						if (url.indexOf(categories[j].genUrl) > -1) {
-							// TODO: check for subcategories, for example,
-							//       Spiegel "Soziales" has URL "wirtschaft/soziales",
-							//		 thus such entries are counted twice, for "Sozialez",
-							//		 but also for "Wirtschaft"
+						if (_this._isMatch(url, categories[j].genUrl)) {
 		                    categories[j].matchCount++;
 		                }
 					}
@@ -247,6 +243,14 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
+	},
+	// checks if URL from history matches a category URL
+	_isMatch: function (historyUrl, categoryUrl) {
+		// TODO: check for subcategories, for example,
+		//       Spiegel "Soziales" has URL "wirtschaft/soziales",
+		//		 thus such entries are counted twice, for "Sozialez",
+		//		 but also for "Wirtschaft"
+		return historyUrl.indexOf(categoryUrl) > -1;
 	},
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
