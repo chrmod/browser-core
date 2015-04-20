@@ -166,9 +166,12 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
+            CliqzHistory.updateLastActivePanel();
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
+            window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
+            window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);

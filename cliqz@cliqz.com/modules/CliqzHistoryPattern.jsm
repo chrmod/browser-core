@@ -523,7 +523,8 @@ var CliqzHistoryPattern = {
         // tbm defines category (images/news/...)
         var param = url.indexOf("#") ? url.substr(url.indexOf("#")) : url.substr(url.indexOf("?"));
         var tbm = param.indexOf("tbm=") != -1 ? ("&" + param.substring(param.lastIndexOf("tbm=")).split("&")[0]) : "";
-        return "https://www.google.com/search?" + q + tbm;
+        var page = param.indexOf("start=") != -1 ? ("&" + param.substring(param.lastIndexOf("start=")).split("&")[0]) : "";
+        return "https://www.google.com/search?" + q + tbm /*+ page*/;
       } else {
         return url;
       }
@@ -555,16 +556,19 @@ var CliqzHistoryPattern = {
   extractQueryFromUrl: function(url) {
     // Google
     if (url.search(/http(s?):\/\/www\.google\..*\/.*q=.*/i) === 0) {
-      return url.substring(url.lastIndexOf("q=")+2).split("&")[0];
+      url = url.substring(url.lastIndexOf("q=")+2).split("&")[0];
     // Bing
     } else if(url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
-      return url.substring(url.indexOf("q=")+2).split("&")[0];
+      url = url.substring(url.indexOf("q=")+2).split("&")[0];
     // Yahoo
     } else if(url.search(/http(s?):\/\/.*search\.yahoo\.com\/search.*p=.*/i) === 0) {
-      return url.substring(url.indexOf("p=")+2).split("&")[0];
+      url = url.substring(url.indexOf("p=")+2).split("&")[0];
     } else {
-      return null;
+      url = null;
     }
+    var decoded = url ? decodeURIComponent(url.replace(/\+/g," ")) : null;
+    if(decoded) return decoded;
+    else return url;
   },
   // Autocomplete an urlbar value with the given patterns
   autocompleteTerm: function(urlbar, pattern, loose) {
