@@ -80,6 +80,11 @@ Cache.prototype.refresh = function (key, time) {
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
+	// TODO: move to external file
+	URL_PREPARSING_RULES: {
+		"amazon.de": /node=(\d+)/
+	},
+
 
 	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
@@ -95,7 +100,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		try {
 			if (this.isCustomizationEnabled() && 
-				this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+				(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz)) && 
+				this._customDataCache.isStale(id)) {				
 
 				this._log('store: found stale data for id ' + id);
 				this._prepareCustomData(id);
@@ -105,12 +111,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		}
 	},
 	// returns SmartCliqz from cache (false if not found);
-	// customizes SmartCliqz if news and preference is set
+	// customizes SmartCliqz if news or domain supported, and user preference is set
 	retrieve: function (id) {
 		var smartCliqz = this._smartCliqzCache.retrieve(id);
 
-		if (this.isCustomizationEnabled() && 
-			smartCliqz && this.isNews(smartCliqz)) {
+		if (this.isCustomizationEnabled() && smartCliqz && 
+			(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz))) {
 			try {	
 				this._customizeSmartCliqz(smartCliqz);
 			} catch (e) {
@@ -120,21 +126,34 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		return smartCliqz;
 	},
+	// extracts domain from SmartCliqz
+	getDomain: function (smartCliqz) {
+		// TODO: define one place to store domain
+		if (smartCliqz.data.domain) {
+			return smartCliqz.data.domain;
+		} else if (smartCliqz.data.trigger_urls && smartCliqz.data.trigger_urls.length > 0) {
+			return CliqzHistoryPattern.generalizeUrl(smartCliqz.data.trigger_urls[0]);
+		} else {
+			return false;
+		}
+	},
 	// extracts id from SmartCliqz
 	getId: function (smartCliqz) {
 		return JSON.parse(smartCliqz.data.subType).ez;
 	},
+	// extracts timestamp from SmartCliqz
 	getTimestamp: function (smartCliqz) {
-		//this._log('getTimestamp: from smartCliqz ' + smartCliqz.data.ts);
-		//this._log('getTimestamp: extension time ' + Date.now());
-		//this._log('getTimestamp: from smartCliqz converted ' + new Date(smartCliqz.data.ts));
-
 		return smartCliqz.data.ts;
 	},
 	// returns true this is a news SmartCliqz
 	isNews: function (smartCliqz) {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
+	// returns true if there are pre-parsing rules available for the SmartCliqz's domain
+	isDomainSupported: function (smartCliqz) {
+		return this.URL_PREPARSING_RULES.hasOwnProperty(this.getDomain(smartCliqz));
+	},
+	// returns true if the user enabled customization
 	isCustomizationEnabled: function() {
 		try {
             var isEnabled =
@@ -196,18 +215,24 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		var _this = this;
 		this._fetchSmartCliqz(id, function callback(smartCliqz) {
 			var id = _this.getId(smartCliqz);
-			var domain = smartCliqz.data.domain;
+			var domain = _this.getDomain(smartCliqz);
 
 			// (2) fetch history for SmartCliqz domain
 			_this._fetchVisitedUrls(domain, function callback(urls) {
 
 				// (3) re-order template categories based on history
+				
+				// TODO: define per SmartCliqz what the data field to be customized is called
+				if (!_this.isNews(smartCliqz)) {
+					smartCliqz.data.categories = smartCliqz.data.links;
+				}
+
 				var categories = smartCliqz.data.categories.slice();
 
 				// add some information to facilitate re-ordering
 				for (var j = 0; j < categories.length; j++) {
 					categories[j].genUrl =
-						_this._prepareUrl(categories[j].url, domain);
+						_this._preparseUrl(categories[j].url, domain);
 					categories[j].matchCount = 0;
 					categories[j].originalOrder = j;
 				}
@@ -215,7 +240,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				// count category-visit matches (visit url contains category url)
 				for (var i = 0; i < urls.length; i++) {
 					var url = 
-						_this._prepareUrl(urls[i], domain);
+						_this._preparseUrl(urls[i], domain);
 					for (var j = 0; j < categories.length; j++) {
 						if (_this._isMatch(url, categories[j].genUrl)) {
 		                    categories[j].matchCount++;
@@ -237,28 +262,38 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 // send some stats
                 _this._sendStats(id, oldCustomData ? 
                 	oldCustomData.categories : smartCliqz.data.categories,
-                	categories, oldCustomData, urls);                         
+                	categories, oldCustomData, urls);
 
-                _this._customDataCache.store(id, { categories: categories });             
+                // TODO: define per SmartCliqz what the data field to be customized is called
+                if (_this.isNews(smartCliqz)) {
+                	_this._customDataCache.store(id, { categories: categories });
+                } else {
+                	_this._customDataCache.store(id, { links: categories });
+                }
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
 	},
 	// extracts relevant information to base matching on
-	_prepareUrl: function (url, domain) {
+	_preparseUrl: function (url, domain) {
 		url = CliqzHistoryPattern.generalizeUrl(url);
 
 		// domain-specific preparations
 		if (domain) {
-			switch (domain) {
-				case "amazon.de":
-					if (url.indexOf("node") > -1) {
-						
-					}
-					break;
-				default:
-					// do nothing
-			}
+			var rule = this.URL_PREPARSING_RULES[domain];
+			if (rule) {
+				var match = rule.exec(url);
+				if (match) {
+					// this._log('_preparseUrl: match "' + match[1] + '" for url ' + url);
+					url = match[1];
+				} else {
+					// leave URL untouched
+					// this._log('_preparseUrl: no match for url ' + url);
+				}
+			} else {
+				// no rule found (e.g., for news domains)
+				// this._log('_preparseUrl: no rule found for domain ' + domain);
+			}			
 		}
 
 		return url;
@@ -282,8 +317,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
         	function success(req) {
         		var smartCliqz = 
         			JSON.parse(req.response).extra.results[0];
-        		// match data structure if big machine results
+        		// match data structure of big machine results
         		smartCliqz.data.subType = smartCliqz.subType;
+        		// FIXME: define one place where domain is stored
+        		smartCliqz.data.trigger_urls = smartCliqz.trigger_urls;
         		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
         		callback(smartCliqz);
         	});
