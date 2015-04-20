@@ -207,7 +207,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				// add some information to facilitate re-ordering
 				for (var j = 0; j < categories.length; j++) {
 					categories[j].genUrl =
-						CliqzHistoryPattern.generalizeUrl(categories[j].url);
+						_this._prepareUrl(categories[j].url, domain);
 					categories[j].matchCount = 0;
 					categories[j].originalOrder = j;
 				}
@@ -215,7 +215,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				// count category-visit matches (visit url contains category url)
 				for (var i = 0; i < urls.length; i++) {
 					var url = 
-                		CliqzHistoryPattern.generalizeUrl(urls[i]);
+						_this._prepareUrl(urls[i], domain);
 					for (var j = 0; j < categories.length; j++) {
 						if (_this._isMatch(url, categories[j].genUrl)) {
 		                    categories[j].matchCount++;
@@ -243,6 +243,25 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
 		});
+	},
+	// extracts relevant information to base matching on
+	_prepareUrl: function (url, domain) {
+		url = CliqzHistoryPattern.generalizeUrl(url);
+
+		// domain-specific preparations
+		if (domain) {
+			switch (domain) {
+				case "amazon.de":
+					if (url.indexOf("node") > -1) {
+						
+					}
+					break;
+				default:
+					// do nothing
+			}
+		}
+
+		return url;
 	},
 	// checks if URL from history matches a category URL
 	_isMatch: function (historyUrl, categoryUrl) {
