@@ -118,6 +118,9 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
+            case "1027_A":
+                CliqzUtils.setPref("news-toggle", false);
+                break;
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
                 break;
@@ -249,6 +252,7 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
+            case "1027_A":
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
                 break;

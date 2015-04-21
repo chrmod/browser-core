@@ -272,10 +272,10 @@ var Mixer = {
         if(results.length == 0 && !only_instant){
             var se = [// default
                     {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-                    {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
-                    {"name": "Google", "base_url": "http://www.google.de"},
-                    {"name": "Google Images", "base_url": "http://images.google.de/"},
-                    {"name": "Google Maps", "base_url": "http://maps.google.de/"}
+                    {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
+                    {"name": "Google", "base_url": "https://www.google.de"},
+                    {"name": "Google Images", "base_url": "https://images.google.de/"},
+                    {"name": "Google Maps", "base_url": "https://maps.google.de/"}
                 ],
                 chosen = new Array();
 
