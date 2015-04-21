@@ -64,7 +64,27 @@ var CliqzHistory = {
       var panel = tab.linkedPanel;
       if(aStateFlags == 786448 && url == CliqzHistory.getTabData(panel, 'url') &&
       url != CliqzHistory.getTabData(panel, "lastThumb")) {
-        CliqzHistory.getElementScreenshot(aBrowser.contentDocument, aBrowser.contentDocument, aBrowser.contentWindow);
+
+        if (CliqzHistory.getTabData(panel, 'url') && url && url.length > 0) {
+          // Remove old listeners
+          aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
+          aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
+          aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
+          aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
+
+          aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "click"), false);
+          aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
+          aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
+          aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
+          // Read & update open graph data
+          var meta = aBrowser.contentDocument.querySelectorAll('meta');
+          meta && CliqzHistory.updateOpenGraphData(panel, meta);
+          meta && CliqzHistory.writeOpenGraphData(panel);
+        }
+
+        CliqzHistory.checkThumbnail(url, function() {
+          CliqzHistory.generateThumbnail(aBrowser.contentDocument, aBrowser.contentDocument, aBrowser.contentWindow, url);
+        });
         CliqzHistory.setTabData(panel, "lastThumb", url);
       }
     },
@@ -76,23 +96,6 @@ var CliqzHistory = {
       if (title != CliqzHistory.getTabData(panel, "title")) {
         CliqzHistory.setTabData(panel, 'title', title);
         CliqzHistory.updateTitle(panel);
-      }
-
-      if (CliqzHistory.getTabData(panel, 'url') && url && url.length > 0) {
-        // Remove old listeners
-        aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
-        aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
-        aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
-        aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
-
-        aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "click"), false);
-        aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
-        aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
-        aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
-        // Read & update open graph data
-        var meta = aBrowser.contentDocument.querySelectorAll('meta');
-        meta && CliqzHistory.updateOpenGraphData(panel, meta);
-        meta && CliqzHistory.writeOpenGraphData(panel);
       }
       CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
     }
@@ -127,41 +130,35 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, "dbOpengraph", data);
     }
   },
-  getElementScreenshot: function(elm, doc, win) {
+  generateThumbnail: function(elm, doc, win, url) {
     function findPosX(obj) {
-        var curleft = 0;
-        if (obj.offsetParent) {
-            while (1) {
-                curleft += obj.offsetLeft;
-                if (!obj.offsetParent) {
-                    break;
-                }
-                obj = obj.offsetParent;
-            }
-        } else if (obj.x) {
-            curleft += obj.x;
-        }
-        return curleft;
+      var curleft = 0;
+      if (obj.offsetParent) {
+          while (1) {
+            curleft += obj.offsetLeft;
+            if (!obj.offsetParent) break;
+            obj = obj.offsetParent;
+          }
+      } else if (obj.x) curleft += obj.x;
+      return curleft;
     }
     function findPosY(obj) {
-        var curtop = 0;
-        if (obj.offsetParent) {
-            while (1) {
-                curtop += obj.offsetTop;
-                if (!obj.offsetParent) {
-                    break;
-                }
-                obj = obj.offsetParent;
-            }
-        } else if (obj.y) {
-            curtop += obj.y;
-        }
-        return curtop;
+      var curtop = 0;
+      if (obj.offsetParent) {
+          while (1) {
+            curtop += obj.offsetTop;
+            if (!obj.offsetParent) break;
+            obj = obj.offsetParent;
+          }
+      } else if (obj.y) curtop += obj.y;
+      return curtop;
     }
+
     var x = findPosX(elm);
     var y = findPosY(elm);
-    var width = win.innerWidth;//elm.clientWidth;
-    var height = win.innerHeight;//elm.clientHeight;
+    var width = win.innerWidth;
+    var height = win.innerHeight;
+    var filename = CliqzHistory.MD5(url);
 
     if(width<height) {
       var ratio = height/width;
@@ -179,8 +176,13 @@ var CliqzHistory = {
     var ctx = cnvs.getContext("2d");
     ctx.scale(width/win.innerWidth,width/win.innerWidth);
     ctx.drawWindow(win.content, 0, 0, win.innerWidth, win.innerHeight, "rgb(255,255,255)");
-    CliqzUtils.getWindow().gBrowser.addTab(cnvs.toDataURL());
-    cnvs.toBlob(CliqzHistory.blobCallback("test"), "image/jpeg", 0.5);
+    //CliqzUtils.getWindow().gBrowser.addTab(cnvs.toDataURL());
+    cnvs.toBlob(CliqzHistory.blobCallback(filename), "image/jpeg", 0.5);
+    CliqzHistory.SQL("INSERT OR REPLACE INTO thumbnails VALUES(:url, :filename, :date)", null, null, {
+      url: url,
+      filename: filename + ".jpeg",
+      date: Date.now()
+    });
   },
   blobCallback: function(filename) {
     return function(b) {
@@ -192,6 +194,15 @@ var CliqzHistory = {
       };
       r.readAsArrayBuffer(b);
     }
+  },
+  checkThumbnail: function(url, callback) {
+    // Only update thumbnail when older than one hour
+    CliqzHistory.SQL("SELECT date FROM thumbnails WHERE url=:url AND (:date-date)<(60*60*1000)", null, function(n) {
+      if(n == 0) callback();
+    }, {
+      url: url,
+      date: Date.now()
+    });
   },
   linkClickListener: function(event) {
     var panel = event.panel;
@@ -528,7 +539,8 @@ var CliqzHistory = {
 
     var thumbnails = "create table thumbnails(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
-            file VARCHAR(255)\
+            file VARCHAR(255),\
+            date DATE\
         )";
 
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
@@ -631,5 +643,23 @@ var CliqzHistory = {
     if (tab.browser)
       return tab.browser.currentURI.spec;
     return tab.linkedBrowser.currentURI.spec;
+  },
+  MD5: function(str) {
+    var converter =
+      Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    converter.charset = "UTF-8";
+    var result = {};
+    var data = converter.convertToByteArray(str, result);
+    var ch = Components.classes["@mozilla.org/security/hash;1"]
+                       .createInstance(Components.interfaces.nsICryptoHash);
+    ch.init(ch.MD5);
+    ch.update(data, data.length);
+    var hash = ch.finish(false);
+    function toHexString(charCode)
+    {
+      return ("0" + charCode.toString(16)).slice(-2);
+    }
+    return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
   }
 }
