@@ -121,6 +121,12 @@ var CliqzABTests = CliqzABTests || {
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
                 break;
+            case "1029_A":
+                CliqzUtils.setPref("enableNewsCustomization", false);
+                break;
+            case "1029_B":
+                CliqzUtils.setPref("enableNewsCustomization", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -245,6 +251,10 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
+            case "1029_A":
+            case "1029_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("enableNewsCustomization");
                 break;
             default:
                 rule_executed = false;
