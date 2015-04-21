@@ -123,6 +123,9 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 //CliqzUtils.setPref("safeBrowsingMoz", true);
                 break;
+            case "1027_A":
+                CliqzUtils.setPref("news-toggle", false);
+                break;
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
                 break;
@@ -254,6 +257,7 @@ var CliqzABTests = CliqzABTests || {
             case "1025_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
                 break;
+            case "1027_A":
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
                 break;
