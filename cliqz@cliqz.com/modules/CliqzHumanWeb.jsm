@@ -246,6 +246,8 @@ var CliqzHumanWeb = {
         strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
         loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
     },
+    activeUsage : 0,
+    activeUsageThreshold : 2,
     parseUri: function (str) {
         //var o   = parseUri.options,
         var m = null;
@@ -284,12 +286,14 @@ var CliqzHumanWeb = {
         var d = null;
         var m = null;
         var y = null;
+        var h = null;
         var hr = null;
         var _ts = null;
-        d = (new Date().getUTCDate()  < 10 ? "0" : "" ) + new Date().getUTCDate();
-        m = (new Date().getUTCMonth() < 10 ? "0" : "" ) + new Date().getUTCMonth();
-        y = new Date().getUTCFullYear();
-        _ts = y + "" + m + "" + d;
+        d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
+        m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
+        h = (new Date().getHours() < 10 ? "0" : "" ) + new Date().getHours();
+        y = new Date().getFullYear();
+        _ts = y + "" + m + "" + h + "" + d;
         return _ts;
     },
     isSuspiciousURL: function(aURI) {
@@ -1063,6 +1067,7 @@ var CliqzHumanWeb = {
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
 
+
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
@@ -1275,10 +1280,13 @@ var CliqzHumanWeb = {
 
                             if (se == -1){
                                 CliqzHumanWeb.checkURL(cd);
+                                //Check active usage...
+                                CliqzHumanWeb.activeUsage += 1;
 
                             }
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
+
 
 
                             if (x['canonical_url']) {
@@ -1429,11 +1437,18 @@ var CliqzHumanWeb = {
         }
 
         //Load ts config
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 5 * 1) == 0) {
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
             }
             CliqzHumanWeb.fetchAndStoreConfig();
+        }
+
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
+            if (CliqzHumanWeb.debug) {
+                CliqzUtils.log('Check if alive', CliqzHumanWeb.LOG_KEY);
+            }
+            CliqzHumanWeb.checkActiveUsage();
         }
 
         CliqzHumanWeb.counter += 1;
@@ -2761,5 +2776,20 @@ var CliqzHumanWeb = {
           }
         });
   },
+  checkActiveUsage: function(){
+        //This function needs to be scheduled every one hour.
+        if(CliqzHumanWeb.activeUsage && CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold){
+            //Sample event to be sent
+            var payload = {};
+            payload['status'] = true;
+            payload['t'] = CliqzHumanWeb.getTime();
+            try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+            payload['ctry'] = location;
+            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
+            CliqzHumanWeb.activeUsage = 0;
+
+        }
+  }
+
 
 };

@@ -60,6 +60,7 @@ var CliqzUtils = {
   CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
+  NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
   INSTAL_URL:                     'https://cliqz.com/code-verified',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
@@ -1154,7 +1155,12 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
-
+      /*
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, "CLIQZ Tour", function () {
+        CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
+      }));
+      */
       //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
