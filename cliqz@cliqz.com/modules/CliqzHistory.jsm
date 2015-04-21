@@ -58,6 +58,16 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, 'type', "link");
       CliqzHistory.setTabData(panel, "inactive", 0);
     },
+    onStateChange: function(aBrowser, aWebProgress, aRequest, aStateFlags, aStatus) {
+      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
+      var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
+      var panel = tab.linkedPanel;
+      if(aStateFlags == 786448 && url == CliqzHistory.getTabData(panel, 'url') &&
+      url != CliqzHistory.getTabData(panel, "lastThumb")) {
+        CliqzHistory.getElementScreenshot(aBrowser.contentDocument, aBrowser.contentDocument, aBrowser.contentWindow);
+        CliqzHistory.setTabData(panel, "lastThumb", url);
+      }
+    },
     onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
       var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
@@ -67,7 +77,8 @@ var CliqzHistory = {
         CliqzHistory.setTabData(panel, 'title', title);
         CliqzHistory.updateTitle(panel);
       }
-      if (url && url.length > 0) {
+
+      if (CliqzHistory.getTabData(panel, 'url') && url && url.length > 0) {
         // Remove old listeners
         aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
         aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
@@ -78,9 +89,108 @@ var CliqzHistory = {
         aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
         aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
         aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
-
+        // Read & update open graph data
+        var meta = aBrowser.contentDocument.querySelectorAll('meta');
+        meta && CliqzHistory.updateOpenGraphData(panel, meta);
+        meta && CliqzHistory.writeOpenGraphData(panel);
       }
       CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
+    }
+  },
+  updateOpenGraphData: function(panel, metaData) {
+    var data = {};
+    for(var key in metaData) {
+      if(!metaData[key].getAttribute) continue;
+      var content = metaData[key].getAttribute("content");
+      var prop = metaData[key].getAttribute("property");
+      if (prop && prop.indexOf("og:") == 0) {
+        var attr = prop.substr(3);
+        if(data[attr] && data[attr] == content) continue;
+        else if(data[attr] && typeof(data[attr]) == "string") {
+          data[attr] = [data[attr]];
+          data[attr].push(content);
+        }
+        else if(data[attr]) data[attr].push(content);
+        else data[attr] = content;
+      }
+    }
+    CliqzHistory.setTabData(panel, "opengraph", data);
+  },
+  writeOpenGraphData: function(panel) {
+    var data = JSON.stringify(CliqzHistory.getTabData(panel, "opengraph"));
+    var dbData = CliqzHistory.getTabData(panel, "dbOpengraph");
+    if(data != dbData && data.length > 2) {
+      CliqzHistory.SQL("INSERT OR REPLACE INTO opengraph VALUES(:url, :data)", null, null, {
+        url: CliqzHistory.getTabData(panel, "url"),
+        data: data
+      });
+      CliqzHistory.setTabData(panel, "dbOpengraph", data);
+    }
+  },
+  getElementScreenshot: function(elm, doc, win) {
+    function findPosX(obj) {
+        var curleft = 0;
+        if (obj.offsetParent) {
+            while (1) {
+                curleft += obj.offsetLeft;
+                if (!obj.offsetParent) {
+                    break;
+                }
+                obj = obj.offsetParent;
+            }
+        } else if (obj.x) {
+            curleft += obj.x;
+        }
+        return curleft;
+    }
+    function findPosY(obj) {
+        var curtop = 0;
+        if (obj.offsetParent) {
+            while (1) {
+                curtop += obj.offsetTop;
+                if (!obj.offsetParent) {
+                    break;
+                }
+                obj = obj.offsetParent;
+            }
+        } else if (obj.y) {
+            curtop += obj.y;
+        }
+        return curtop;
+    }
+    var x = findPosX(elm);
+    var y = findPosY(elm);
+    var width = win.innerWidth;//elm.clientWidth;
+    var height = win.innerHeight;//elm.clientHeight;
+
+    if(width<height) {
+      var ratio = height/width;
+      width = 208;
+      height = width * ratio;
+    } else {
+      var ratio = width/height;
+      height = 208;
+      width = height * ratio;
+    }
+
+    var cnvs = doc.createElement('canvas')
+    cnvs.width = width;
+    cnvs.height = height;
+    var ctx = cnvs.getContext("2d");
+    ctx.scale(width/win.innerWidth,width/win.innerWidth);
+    ctx.drawWindow(win.content, 0, 0, win.innerWidth, win.innerHeight, "rgb(255,255,255)");
+    CliqzUtils.getWindow().gBrowser.addTab(cnvs.toDataURL());
+    cnvs.toBlob(CliqzHistory.blobCallback("test"), "image/jpeg", 0.5);
+  },
+  blobCallback: function(filename) {
+    return function(b) {
+      var r = new CliqzUtils.getWindow().FileReader();
+      r.onloadend = function () {
+        Cu.import('resource://gre/modules/osfile.jsm');
+        var writePath = OS.Path.join(OS.Constants.Path.desktopDir, filename + '.jpeg');
+        OS.File.writeAtomic(writePath, new Uint8Array(r.result), {tmpPath:writePath + '.tmp'});
+      };
+      r.readAsArrayBuffer(b);
     }
   },
   linkClickListener: function(event) {
@@ -156,24 +266,6 @@ var CliqzHistory = {
         query = externalQuery;
         queryDate = now;
         type = "google";
-      }
-
-      if (type == "typed") {
-        if (query.indexOf('://') == -1) {
-          query = "http://" + query;
-        }
-        CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit)\
-                    VALUES (:query, :now, :query, :queryDate, 1, :prevVisit)",
-          null, null, {
-            query: query,
-            now: now,
-            queryDate: queryDate,
-            prevVisit: CliqzHistory.getTabData(panel, "prevVisit") || ""
-          });
-        type = "link";
-        CliqzHistory.updateInteractionData(panel);
-        CliqzHistory.setTabData(panel, "prevVisit", now);
-        now += 1;
       }
 
       // Insert history entry
@@ -299,7 +391,6 @@ var CliqzHistory = {
   },
   tabClose: function(e) {
     var panel = e.target.linkedPanel;
-    //CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel,"visitDate"));
     CliqzHistory.updateInteractionData(panel, true);
     CliqzHistory.tabData.splice(CliqzHistory.tabData.indexOf(panel), 1);
   },
@@ -315,7 +406,6 @@ var CliqzHistory = {
     if(inactiveSince) {
       var cur = CliqzHistory.getTabData(newPanel, "inactive") || 0;
       var inactive = now - inactiveSince;
-      CliqzUtils.log(inactive,"inactive")
       CliqzHistory.setTabData(newPanel, "inactive", cur + inactive);
       CliqzHistory.updateInteractionData(newPanel, true);
     }
@@ -381,16 +471,14 @@ var CliqzHistory = {
     statement.executeAsync({
       onRow: onRow,
       callback: callback,
+      resultCount: 0,
       handleResult: function(aResultSet) {
         var resultCount = 0;
         for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
-          resultCount++;
+          this.resultCount++;
           if (this.onRow) {
             this.onRow(statement.row);
           }
-        }
-        if (this.callback) {
-          this.callback(resultCount);
         }
       },
 
@@ -401,29 +489,14 @@ var CliqzHistory = {
         }
       },
       handleCompletion: function(aReason) {
-        // Always called when done
+        if (this.callback) {
+          this.callback(this.resultCount);
+        }
       }
     });
     statement.finalize();
   },
   initDB: function() {
-    if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
-      CliqzHistory.SQL("PRAGMA table_info(urltitles)", null, function(n) {
-        if (n > 1 && n != 3) {
-          CliqzHistory.SQL("alter table urltitles add column linktitle VARCHAR(255)");
-        }
-      });
-      CliqzHistory.SQL("PRAGMA table_info(visits)", null, function(n) {
-        if (n > 1 && n != 15) {
-          CliqzHistory.SQL("alter table visits add column prev_visit DATE");
-          CliqzHistory.SQL("alter table visits add column time_spent INTEGER DEFAULT 0");
-          CliqzHistory.SQL("alter table visits add column click_interaction INTEGER DEFAULT 0");
-          CliqzHistory.SQL("alter table visits add column scroll_interaction INTEGER DEFAULT 0");
-          CliqzHistory.SQL("alter table visits add column keyboard_interaction INTEGER DEFAULT 0");
-        }
-      });
-      return;
-    }
     var visits = "create table visits(\
             id INTEGER PRIMARY KEY NOT NULL,\
             url VARCHAR(255) NOT NULL,\
@@ -447,8 +520,46 @@ var CliqzHistory = {
             title VARCHAR(255),\
             linktitle VARCHAR(255)\
         )";
-    CliqzHistory.SQL(visits);
-    CliqzHistory.SQL(titles);
+
+    var opengraph = "create table opengraph(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            data VARCHAR(2048)\
+        )";
+
+    var thumbnails = "create table thumbnails(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            file VARCHAR(255)\
+        )";
+
+    if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
+      CliqzHistory.addColumn("urltitles", "linktitle", "VARCHAR(255)");
+      CliqzHistory.addColumn("visits", "prev_visit", "DATE");
+      CliqzHistory.addColumn("visits", "time_spent", "INTEGER DEFAULT 0");
+      CliqzHistory.addColumn("visits", "click_interaction", "INTEGER DEFAULT 0");
+      CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
+      CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
+      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
+        if(n == 0) CliqzHistory.SQL(opengraph);
+      });
+      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
+        if(n == 0) CliqzHistory.SQL(thumbnails);
+      });
+      return;
+    } else {
+      CliqzHistory.SQL(visits);
+      CliqzHistory.SQL(titles);
+      CliqzHistory.SQL(opengraph);
+      CliqzHistory.SQL(thumbnails);
+    }
+  },
+  addColumn: function(table, col, type) {
+    CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,
+    function(n) {
+      if(n == 0) CliqzHistory.SQL("alter table "+table+" add column " + col + " " + type);
+    }, {
+      table: table,
+      col: "% " + col + " %"
+    });
   },
   deleteVisit: function(url) {
     CliqzHistory.SQL("delete from visits where url = :url", null, null, {
