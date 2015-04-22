@@ -205,9 +205,10 @@ var Filter = {
     },
     cleanMozillaActions: function(url){
         if(url.indexOf("moz-action:") == 0) {
-            var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
-            url = param;
+            //var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
+            url = url.match(/^moz-action:([^,]+),(.*)$/)[2];
         }
         return url;
     }
-}
+};
+
