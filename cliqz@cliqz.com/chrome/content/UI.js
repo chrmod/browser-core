@@ -812,10 +812,11 @@ function getDebugMsg(fullTitle){
 
 // tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
 function getTags(fullTitle){
+    //[, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
     var res = fullTitle.match(/^(.+) \u2013 (.+)$/);
 
     // Each tag is split by a comma in an undefined order, so sort it
-    return [res[0], res[1].split(",").sort()]
+    return [res[1], res[2].split(",").sort()]
 }
 
 function unEscapeUrl(url){
