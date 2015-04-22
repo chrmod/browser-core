@@ -459,7 +459,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
-                var parts = ResultProviders.getCustomResults(q);
+                var parts = CliqzResultProviders.getCustomResults(q);
                 this.customResults = parts[1];
                 return parts[0];
             },
