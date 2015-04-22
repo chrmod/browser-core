@@ -113,13 +113,15 @@ var CliqzHistory = {
   },
   writeOpenGraphData: function(panel) {
     var data = JSON.stringify(CliqzHistory.getTabData(panel, "opengraph"));
-    var dbData = CliqzHistory.getTabData(panel, "dbOpengraph");
-    if(data != dbData && data.length > 2) {
+    var dbData = CliqzHistory.getTabData(panel, "dbOpengraphData");
+    var dbUrl = CliqzHistory.getTabData(panel, "dbOpengraphUrl");
+    if((data != dbData || dbUrl != CliqzHistory.getTabData(panel,"url") ) && data.length > 2) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO opengraph VALUES(:url, :data)", null, null, {
         url: CliqzHistory.getTabData(panel, "url"),
         data: data
       });
-      CliqzHistory.setTabData(panel, "dbOpengraph", data);
+      CliqzHistory.setTabData(panel, "dbOpengraphData", data);
+      CliqzHistory.setTabData(panel, "dbOpengraphUrl", url);
     }
   },
   generateThumbnail: function(elm, doc, win, url) {
