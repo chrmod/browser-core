@@ -359,7 +359,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
     			
     		}
     	}
-    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount++;
+    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount;
 
     	CliqzUtils.telemetry(stats);
 	},
