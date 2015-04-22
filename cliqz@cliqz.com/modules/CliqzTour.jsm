@@ -195,7 +195,7 @@ var CliqzTour = {
                 CliqzTour.getPageElement('landing-page-callout').style.transition = 'opacity 1s ease-in-out';
                 CliqzTour.getPageElement('landing-page-callout').style.opacity = 1;
             }, 25);
-        }, t: 3000 },
+        }, t: 4000 },
         // fade out landing page
         { f: function () {
             CliqzTour.getPageElement('main-page').style.transition = 'none';
@@ -210,7 +210,7 @@ var CliqzTour = {
 
             CliqzTour.getPageElement("tour-btn").style.cursor = "auto";
 
-            CliqzTour.urlBar.value = '';
+            CliqzTour.clearUrlBar();
         }, t: 1500 },
         // housekeeping
         { f: function () {
