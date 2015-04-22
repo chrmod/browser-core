@@ -45,6 +45,7 @@ var Extension = {
 
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
@@ -67,7 +68,6 @@ var Extension = {
                 },1000)
             }
         })
-
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -82,6 +82,10 @@ var Extension = {
         }
         // Load into all new windows
         Services.ww.registerNotification(Extension.windowWatcher);
+
+        if(CliqzUtils.getPref("humanWeb", false)){
+            CliqzHumanWeb.initAtBrowser();
+        }
 
         // open changelog on update
 
@@ -102,6 +106,10 @@ var Extension = {
                 CliqzUtils.resetOriginalPrefs();
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
+        }
+
+        if(CliqzUtils.getPref("humanWeb", false)){
+            CliqzHumanWeb.unloadAtBrowser();
         }
 
         // Unload from any existing windows
@@ -161,7 +169,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
-        Cu.unload('chrome://cliqzmodules/content/CliqzUCrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');

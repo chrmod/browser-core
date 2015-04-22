@@ -225,13 +225,15 @@ var CliqzHistory = {
       checkUrl({tab: e.target, curPanel: curPanel, newPanel: newPanel});
   },
   getTabData: function(panel, attr) {
-    if (!CliqzHistory.tabData[panel]) {
+    if (!CliqzHistory || !CliqzHistory.tabData[panel]) {
       return undefined;
     } else {
       return CliqzHistory.tabData[panel][attr];
     }
   },
   setTabData: function(panel, attr, val) {
+    if(!CliqzHistory) return;
+
     if (!CliqzHistory.tabData[panel]) {
       CliqzHistory.tabData[panel] = [];
     }

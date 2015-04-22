@@ -246,7 +246,7 @@ var Result = {
     },
     tryGetImageDuration: function(duration){
         try {
-            let totalSeconds = parseInt(duration),
+            var totalSeconds = parseInt(duration),
                 min = Math.floor(totalSeconds/60),
                 seconds = totalSeconds%60;
             return min + ':' + (seconds < 10 ? '0' + seconds : seconds);

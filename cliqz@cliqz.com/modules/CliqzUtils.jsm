@@ -55,6 +55,7 @@ var CliqzUtils = {
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
   CONFIG_PROVIDER:                'https://newbeta.cliqz.com/api/v1/config',
+  SAFE_BROWSING:                  'https://safe-browsing.cliqz.com',
   LOG:                            'https://logging.cliqz.com',
   CLIQZ_URL:                      'https://cliqz.com/',
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
@@ -68,7 +69,6 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -384,7 +384,8 @@ var CliqzUtils = {
 
     var indexOfColon = host.indexOf(":");
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
-      [host, port] = [host.substr(0,indexOfColon), host.substr(indexOfColon+1)];
+      port = host.substr(indexOfColon+1);
+      host = host.substr(0,indexOfColon);
     }
     else if (isIPv6) {
       // If an IPv6 address has a port number, it will be right after a closing bracket ] : format [ip_v6]:port
@@ -654,22 +655,25 @@ var CliqzUtils = {
     return true;
   },
   isPrivate: function(window) {
-    try {
-          // Firefox 20+
-          Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
-          return PrivateBrowsingUtils.isWindowPrivate(window);
-        } catch(e) {
-          // pre Firefox 20
-          try {
-            var inPrivateBrowsing = Components.classes['@mozilla.org/privatebrowsing;1'].
-                                    getService(Components.interfaces.nsIPrivateBrowsingService).
-                                    privateBrowsingEnabled;
-            return inPrivateBrowsing;
-          } catch(ex) {
-            Components.utils.reportError(ex);
-            return;
-          }
+    if(window.cliqzIsPrivate === undefined){
+      try {
+        // Firefox 20+
+        Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+        window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+      } catch(e) {
+        // pre Firefox 20
+        try {
+          window.cliqzIsPrivate = Components.classes['@mozilla.org/privatebrowsing;1'].
+                                  getService(Components.interfaces.nsIPrivateBrowsingService).
+                                  privateBrowsingEnabled;
+        } catch(ex) {
+          Components.utils.reportError(ex);
+          window.cliqzIsPrivate = 5;
         }
+      }
+    }
+
+    return window.cliqzIsPrivate
   },
   addStylesheetToDoc: function(doc, path) {
     var stylesheet = doc.createElementNS('http://www.w3.org/1999/xhtml', 'h:link');
@@ -685,11 +689,9 @@ var CliqzUtils = {
   trkTimer: null,
   telemetry: function(msg, instantPush) {
     if(!CliqzUtils) return; //might be called after the module gets unloaded
-
     var current_window = CliqzUtils.getWindow();
     if(msg.type != 'environment' &&
        current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
-
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
@@ -703,7 +705,6 @@ var CliqzUtils = {
       CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
     }
   },
-
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {
     var current_window = CliqzUtils.getWindow();
     if(current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
@@ -793,6 +794,9 @@ var CliqzUtils = {
     if (i >= 0) {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
+  },
+  setInterval: function(func, timeout, param) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
   },
   setTimeout: function(func, timeout, param) {
     return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
@@ -971,6 +975,14 @@ var CliqzUtils = {
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
   },
+  clone: function(obj) {
+    if (null == obj || "object" != typeof obj) return obj;
+    var copy = obj.constructor();
+    for (var attr in obj) {
+        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    }
+    return copy;
+  },
   performance: {
     backend: function(delay){
         var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
@@ -1144,12 +1156,12 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
       menupopup.appendChild(CliqzUtils.createHumanMenu(win));
-
+      /*
       menupopup.appendChild(doc.createElement('menuseparator'));
       menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, "CLIQZ Tour", function () {
         CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
       }));
-
+      */
       //menupopup.appendChild(CliqzUtils.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){

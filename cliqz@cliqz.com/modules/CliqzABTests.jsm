@@ -76,7 +76,9 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
-
+            case "1017_A":
+                CliqzUtils.setPref("safeBrowsing", true);
+                break;
             case "1019_A":
                 CliqzUtils.setPref("newHistory", false);
                 break;
@@ -118,8 +120,26 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
+            case "1025_B":
+                //CliqzUtils.setPref("safeBrowsingMoz", true);
+                break;
+            case "1027_A":
+                CliqzUtils.setPref("news-toggle", false);
+                break;
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
+                break;
+            case "1028_A":
+                CliqzUtils.setPref("humanWeb", false);
+                break;
+            case "1028_B":
+                CliqzUtils.setPref("humanWeb", true);
+                break;
+            case "1029_A":
+                CliqzUtils.setPref("enableNewsCustomization", false);
+                break;
+            case "1029_B":
+                CliqzUtils.setPref("enableNewsCustomization", true);
                 break;
             default:
                 rule_executed = false;
@@ -215,9 +235,9 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
-            case "1016_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
-                CliqzAutocomplete.spellCorrectionDict = {};
+            case "1017_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
+                //CliqzUCrawl.outOfABTest();
                 break;
             case "1018_A":
             case "1018_B":
@@ -243,8 +263,20 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
+            case "1025_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
+                break;
+            case "1027_A":
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
+            case "1028_A":
+            case "1028_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("humanWeb");
+                break;
+            case "1029_A":
+            case "1029_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("enableNewsCustomization");
                 break;
             default:
                 rule_executed = false;

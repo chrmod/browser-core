@@ -135,7 +135,10 @@
         "message":"Gib Deine Suche oder Webadresse einfach hier ein..."
     },
     "onMsgInstalled":{
-        "message":"Installation geglückt! Ab jetzt surfst Du mit CLIQZ!"
+        "message":"Installation erfolgreich! Ab jetzt surfst Du mit CLIQZ!"
+    },
+    "onMsgDemoDone":{
+        "message":"Probier CLIQZ gleich mal aus!"
     },
     "onMsgThankYou":{
         "message":"Danke, dass Du CLIQZ installiert hast!"

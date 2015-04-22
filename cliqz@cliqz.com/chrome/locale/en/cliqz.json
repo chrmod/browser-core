@@ -137,6 +137,9 @@
     "onMsgInstalled":{
        "message":"Installation successful! You can now surf the web with CLIQZ!"
     },
+    "onMsgDemoDone":{
+        "message":"Try it out!"
+    },
     "onMsgThankYou":{
        "message":"Thank you for installing CLIQZ!"
     },

@@ -53,8 +53,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         var maxDomain = null;
         var historyTrans = [];
 
-        for (let i = 0; history && i < history.matchCount; i++) {
-            let style = history.getStyleAt(i),
+        for (var i = 0; history && i < history.matchCount; i++) {
+            var style = history.getStyleAt(i),
                 value = history.getValueAt(i),
                 image = history.getImageAt(i),
                 comment = history.getCommentAt(i),
@@ -82,8 +82,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         var historyTransFiltered = [];
         var historyTransRemained = [];
-        let j = 0;
-        for (let i=0; i<freqHash[maxDomain].length; i++) {
+        var j = 0;
+        for (i=0; i<freqHash[maxDomain].length; i++) {
             for (; j <= freqHash[maxDomain][i]; j++) {
                 if (j < freqHash[maxDomain][i]) {
                     historyTransRemained.push(historyTrans[j]);
@@ -100,8 +100,8 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         // find the first ruleset matching this domain
         var rules = undefined;
-        for (let r in CliqzClusterHistory.all_rules) {
-            for (let d = 0; d < CliqzClusterHistory.all_rules[r].match_domains.length; d++) {
+        for (var r in CliqzClusterHistory.all_rules) {
+            for (var d = 0; d < CliqzClusterHistory.all_rules[r].match_domains.length; d++) {
                 if (CliqzClusterHistory.all_rules[r].match_domains[d] == maxDomain) {
                     rules = CliqzClusterHistory.all_rules[r];
                     break;
@@ -136,7 +136,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         var matching = [];
 
-        for(let i = 0; i < history.length; i++) {
+        for(var i = 0; i < history.length; i++) {
             // Don't ever match entries with empty title - they are probably redirects
             if(!history[i].title)
                 continue;
@@ -274,7 +274,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // Step 2 - apply each rule in order to categorize all history items
         var category_order = [];
         var categories = {};
-        for (let r = 0; r < rules.length; r++) {
+        for (var r = 0; r < rules.length; r++) {
 
             var match = rules[r].match;
             if(match) {
@@ -291,7 +291,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
                 // finalize each matching entry by placing in a category and
                 // and setting title and URL.
-                for(let m = 0; m < matching.length; m++) {
+                for(var m = 0; m < matching.length; m++) {
                     var entry = {}
 
                     // get category: static or from regex
@@ -328,7 +328,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             category_order.push('uncategorized')
             categories['uncategorized'] = []
         }
-        for(let i = 0; i < history.length; i++) {
+        for(var i = 0; i < history.length; i++) {
             if(!history[i].category)
                 categories['uncategorized'].push(history[i])
         }
@@ -341,7 +341,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         // Step 5 - collapse urls with the same url together
-        for(let i = 0; i < category_order.length; i++) {
+        for(var i = 0; i < category_order.length; i++) {
             if(category_order[i] == "uncategorized")
                 // don't try to collapse uncategorized entries
                 continue;
@@ -350,9 +350,9 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
             // remove entries that have the same url as a previous entry
             var keep = [];
-            for(let h = 0; h < entries.length; h++) {
+            for(var h = 0; h < entries.length; h++) {
                 var entry = undefined;
-                for(let k = 0; k < keep.length; k++) {
+                for(var k = 0; k < keep.length; k++) {
                     if(keep[k].url == entries[h].url) {
                         entry = keep[k];
                         break;
@@ -381,7 +381,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         var clean_categories = [];
 
-        for(let c = 0; c < category_order.length; c++) {
+        for(var c = 0; c < category_order.length; c++) {
             if(category_order[c] == 'control')
                 data.control = categories[category_order[c]];
             else if(category_order[c] == 'base')
@@ -410,7 +410,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         while(slots.length < num_slots) {
 
             var done = true; // no entries left in the topics?
-            for(let i = 0; i < clean_categories.length; i++) {
+            for(var i = 0; i < clean_categories.length; i++) {
                 if(topic_pos < clean_categories[i].urls.length) {
                     done = false;
                     var pos = slots.indexOf(last_per_topic[i]);
