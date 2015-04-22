@@ -15,7 +15,7 @@ Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handle
 
 var CliqzHandlebars = Handlebars;
 
-var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
+var TEMPLATES_PATH = 'chrome://cliqzres/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = ['adult', 'footer-message'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
