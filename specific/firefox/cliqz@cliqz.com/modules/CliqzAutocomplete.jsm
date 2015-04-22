@@ -237,11 +237,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             // Pick one history result or a cluster as the instant result to be shown to the user first
             // TODO: no longer used, see if some of this logic can be moved to HistoryPattern
             instantResult: function(search, result) {
-                let [history_left, cluster_data] = CliqzClusterHistory.cluster(this.historyResults);
+                var _res = CliqzClusterHistory.cluster(this.historyResults);
+                history_left = _res[0];
+                cluster_data = _res[1];
 
                 // If we could cluster the history, put that as the instant result
                 if(cluster_data) {
-                    let instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
+                    var instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
                     instant_cluster.comment += " (instant history cluster)!";
 
                     this.instant = [instant_cluster];
@@ -254,12 +256,12 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var searchString = this.searchString.replace('http://','').replace('https://','');
 
-                    for(let i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
+                    for(var i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
 
-                        let url = this.historyResults.getLabelAt(i);
-                        let url_noprotocol = url.replace('http://','').replace('https://','');
+                        var url = this.historyResults.getLabelAt(i);
+                        var url_noprotocol = url.replace('http://','').replace('https://','');
 
-                        let urlparts = CliqzUtils.getDetailsFromUrl(url);
+                        var urlparts = CliqzUtils.getDetailsFromUrl(url);
 
                         // check if it should not be filtered, and matches the url
                         if(Result.isValid(url, urlparts) &&
@@ -457,8 +459,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
-                [q, this.customResults] = CliqzResultProviders.getCustomResults(q);
-                return q;
+                var parts = CliqzResultProviders.getCustomResults(q);
+                this.customResults = parts[1];
+                return parts[0];
             },
             startSearch: function(searchString, searchParam, previousResult, listener) {
                 CliqzAutocomplete.lastQueryTime = Date.now();
@@ -493,7 +496,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (!CliqzAutocomplete.spellCorr.override &&
                     urlbar.selectionEnd == urlbar.selectionStart &&
                     urlbar.selectionEnd == urlbar.value.length) {
-                    var [newSearchString, correctBack] = CliqzSpellCheck.check(searchString);
+                    var parts = CliqzSpellCheck.check(searchString);
+                    var newSearchString = parts[0];
+                    var correctBack = parts[1];
                     for (var c in correctBack) {
                         CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
                     }
