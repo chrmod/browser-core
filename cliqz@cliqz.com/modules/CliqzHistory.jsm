@@ -89,14 +89,6 @@ var CliqzHistory = {
       }
     },
     onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
-      var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
-      var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
-      var panel = tab.linkedPanel;
-      var title = aBrowser.contentDocument.title || "";
-      if (title != CliqzHistory.getTabData(panel, "title")) {
-        CliqzHistory.setTabData(panel, 'title', title);
-        CliqzHistory.updateTitle(panel);
-      }
       CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
     }
   },
@@ -174,10 +166,11 @@ var CliqzHistory = {
     cnvs.width = width;
     cnvs.height = height;
     var ctx = cnvs.getContext("2d");
+
     ctx.scale(width/win.innerWidth,width/win.innerWidth);
-    ctx.drawWindow(win.content, 0, 0, win.innerWidth, win.innerHeight, "rgb(255,255,255)");
-    //CliqzUtils.getWindow().gBrowser.addTab(cnvs.toDataURL());
-    cnvs.toBlob(CliqzHistory.blobCallback(filename), "image/jpeg", 0.5);
+    ctx.drawWindow(win, 0, 0, win.innerWidth, win.innerHeight, "rgb(255,255,255)");
+    cnvs.toBlob(CliqzHistory.blobCallback(filename), "image/jpeg", 0.8);
+
     CliqzHistory.SQL("INSERT OR REPLACE INTO thumbnails VALUES(:url, :filename, :date)", null, null, {
       url: url,
       filename: filename + ".jpeg",
@@ -186,6 +179,7 @@ var CliqzHistory = {
   },
   blobCallback: function(filename) {
     return function(b) {
+      CliqzHistory.blob2=b;
       var r = new CliqzUtils.getWindow().FileReader();
       r.onloadend = function () {
         Cu.import('resource://gre/modules/osfile.jsm');
@@ -244,9 +238,8 @@ var CliqzHistory = {
           target = target.nextSibling;
         } while (target);
 
-      CliqzHistory.setTabData(panel, 'linkTitle', title);
-      CliqzHistory.setTabData(panel, 'linkUrl', linkUrl);
-      CliqzHistory.updateTitle(panel);
+      // Update title in db
+      CliqzHistory.updateTitle(linkUrl, null, title);
     }
   },
   addHistoryEntry: function(browser, customPanel) {
@@ -265,7 +258,6 @@ var CliqzHistory = {
         (type != "typed" && type != "link" && type != "result" && type != "autocomplete" && type != "google" && type != "bookmark")) return;
       if (!query) query = "";
       if (!queryDate) queryDate = now;
-      CliqzHistory.updateTitle(panel);
       CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
 
       // Create new session when external search engine query changes
@@ -311,32 +303,26 @@ var CliqzHistory = {
       CliqzHistory.updateInteractionData(panel);
     }
   },
-  updateTitle: function(panel) {
-    var url = CliqzHistory.getTabData(panel, "url");
-    var title = CliqzHistory.getTabData(panel, "title") || "";
-    var linkUrl = CliqzHistory.getTabData(panel, "linkUrl");
-    var linkTitle = CliqzHistory.getTabData(panel, "linkTitle");
-    var dbUrl = CliqzHistory.getTabData(panel, "dbUrl");
-    var dbTitle = CliqzHistory.getTabData(panel, "dbTitle");
-    var dbLinkTitle = CliqzHistory.getTabData(panel, "dbLinkTitle");
-
-    if (url && title && (title != dbTitle || url != dbUrl)) {
+  updateTitle: function(url, title, linkTitle) {
+    if (title && !linkTitle) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, :title, (select linkTitle from urltitles where url=:url))", null, null, {
         url: url,
         title: title
       });
-      CliqzHistory.setTabData(panel, "dbTitle", title);
-      CliqzHistory.setTabData(panel, "dbUrl", url);
-    }
-    if (url && linkTitle && linkUrl == url && (linkTitle != dbLinkTitle || url != dbUrl)) {
+    } else if(!title && linkTitle){
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, (select title from urltitles where url=:url), :linkTitle)", null, null, {
         url: url,
+        linkTitle: linkTitle
+      });
+    } else if(title && linkTitle) {
+      CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
+                VALUES (:url, :title, :linkTitle)", null, null, {
+        url: url,
+        title: title,
         linkTitle: linkTitle.trim()
       });
-      CliqzHistory.setTabData(panel, "dbLinkTitle", linkTitle);
-      CliqzHistory.setTabData(panel, "dbUrl", url);
     }
   },
   updateInteractionData: function(panel, useCurrent) {
@@ -360,6 +346,11 @@ var CliqzHistory = {
         prev: prevVisit
       });
       CliqzHistory.resetInteraction(panel);
+    }
+  },
+  updateAllTabs: function() {
+    for(var key in CliqzHistory.tabData) {
+      CliqzHistory.updateInteractionData(key, true);
     }
   },
   lastActivePanel: function() {
@@ -616,7 +607,9 @@ var CliqzHistory = {
       CliqzHistory.deleteTimeFrame();
     },
     onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
-    onTitleChanged: function(aURI, aPageTitle) {},
+    onTitleChanged: function(aURI, aPageTitle) {
+      CliqzHistory.updateTitle(aURI.spec, aPageTitle)
+    },
     onDeleteURI: function(aURI) {
       CliqzHistory.deleteVisit(aURI.spec);
     },
