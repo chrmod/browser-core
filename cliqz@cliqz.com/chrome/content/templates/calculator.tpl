@@ -1,19 +1,27 @@
-<div class='cliqz-inline-box-children cliqz-result-generic' >
-	<div class='cliqz-result-generic cliqz-calc-text-div' >
-		<span class='cliqz-calc-text-expr' >{{{data.expression}}}= </span>
-		<span class='cliqz-calc-text-answer' id='calc-answer' >{{{data.answer}}}</span>
-	</div>
-	<div class='cliqz-inline-box-children cliqz-calc-button-div' id='calc-copy-btn'  cliqz-action='copy-calc-answer' >
-		<div>
-			<img class='cliqz-calc-button-img' src='chrome://cliqzres/content/skin/copy_pre.svg' /> 
-		</div>
-	     
-	    <span id='calc-copy-label' class='cliqz-calc-button-text' >copy</span>
-	</div>
-	<div id='calc-copied-btn' class='cliqz-inline-box-children cliqz-calc-button-div' style='background-color: #b6e3ce; display: none; cursor: auto' >
-		<div>
-	    	<img class='cliqz-calc-button-img' src='chrome://cliqzres/content/skin/copy_after.svg' /> 
-	    </div>
-	    <span id='calc-copy-label' class='cliqz-calc-button-text' >copied</span>
-	</div>
-</div>
+{{#if data.is_calculus}}
+    <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
+    {{#with data}}
+        <div>
+           <div class="answer">{{prefix_answer}} <span id='calc-answer'>{{answer}}</span></div>
+           <div class="expression"> {{expression}}</div>
+           {{#if support_copy_ans}}
+               <div class="message" id="calc-copy-msg">{{local 'Click anywhere to copy'}}</div>
+               <div class="message" id="calc-copied-msg" style="display: none">{{local 'Copied'}}</div>
+            {{else}}
+               <div class="message" id="calc-copy-msg"> {{line3}}</div>
+            {{/if}}
+        </div>
+    {{/with}}
+    {{> logo}}
+    </div>
+{{else}}
+    <div class='cqz-result-h3 ez-calculator'>
+    {{#with data}}
+        <div>
+           <div class="answer">{{prefix_answer}} {{answer}}</div>
+           <div class="expression">{{expression}}</div>
+        </div>
+    {{/with}}
+    {{> logo}}
+    </div>
+{{/if}}

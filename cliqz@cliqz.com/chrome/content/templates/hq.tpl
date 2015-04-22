@@ -1,62 +1,57 @@
-<div class='cliqz-inline-box-children cliqz-result-generic'>
-	<div class='cliqz-result-left-box'>
-		<div class='cliqz-result-type' ></div>
-	</div>
-	{{#if image.src}}
-		<div class="cliqz-image" style="
-					background-image: url({{ image.src }});
-					{{#if image.height }}
-						background-size: {{ image.backgroundSize }}px;
-						width: {{ image.width }}px;
-						height: {{ image.height }}px;
-					{{/if}}
-				"
-		>
-		</div>
-	{{/if}}
-	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
-		<div class='cliqz-result-title-box overflow'>
-			{{ emphasis title text 2 false }}
-		</div>
-		{{#if debug}}
-			<span class='cliqz-result-debug overflow'>
-				<span>{{ debug }}</span>
-			</span>
-		{{/if}}
-		<div class='cliqz-result-url-box overflow'>
-			{{#with data.richData}}
-			<span class='cliqz-result-url-host
-				{{#if urlDetails.ssl }}
-				  cliqz-result-url-ssl
-				{{/if}}
-				'
-			>
-				{{ emphasis source_name ../text 2 false}}
-			</span>
-			<span class='cliqz-hq-language'>
-				{{ source_language }}
-			</span>
-			{{/with}}
-		</div>
+<div class='{{wikiEZ_height data.richData}}'>
+    {{#if data.richData.images.length}}
+        <!--don't change to padding-bottom: images jump to 2nd line when overflow-->
+        <div class='cqz-celeb-images' style="margin-bottom: 18px">
+          {{#if data.richData.map}}
+            <div url="{{data.richData.map.search_url}}" style="float:left" >
+                <img src="{{data.richData.map.url}}" alt="{{data.richData.map.alt_text}}" class='cqz-celeb-image'/>
+            </div>
+          {{/if}}
 
-		<div class='cliqz-result-description'>
-			{{ emphasis data.description text 2 true }}
-		</div>
+          {{#each data.richData.images}}
+            {{#if (limit_images_shown @index 5)}}
+            <img src='{{this}}' class='cqz-celeb-image' onerror="this.style.display='none';"/>
+            {{/if}}
+          {{/each}}
+        </div>
+    {{/if}}
 
-		{{#if data.richData.additional_sources}}
-			<div class='cliqz-hq-links'>
-			{{#each data.richData.additional_sources}}
-				<div url='{{url}}'
-					 extra='sources{{ @index }}'
-					 type='{{ ../type }}'
-				     class='cliqz-hq-link'>
-					{{title}}
-				</div>
-			{{/each}}
-			</div>
-		{{/if}}
-	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
-	     newtab='true'>
-	</div>
+    <div class='cqz-result-center' style="{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h2') }}margin-top: -5px{{/if}}">
+        <div class='cqz-result-title overflow'
+            {{#if data.richData.images.length}}
+                arrow="false" arrow-override=''
+            {{/if}}
+        >{{ emphasis title text 2 true }}</div>
+        <div class='cqz-result-url overflow
+                    {{#if urlDetails.ssl }}
+                         cqz-result-url-ssl
+                    {{/if}}
+        '>
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
+        </div>
+        <div class='cqz-result-desc overflow' style="white-space: normal;height: 20px;">{{ emphasis data.description text 2 true }}
+            {{#unless data.richData.images.length}}
+                {{#each (links_or_sources data.richData) }}
+                    <span url='{{url}}' show-status='true'
+                         extra='sources{{ @index }}'
+                         class='cqz-link'>
+                        {{title}}
+                    </span>
+                {{/each}}
+            {{/unless}}
+        </div>
+        {{#if (links_or_sources data.richData) }}
+            <div class="cqz-one-line" style="white-space: normal;height: 20px;margin-top: 5px;{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h3') }}display: none;{{/if}}">
+            {{#each (links_or_sources data.richData)}}
+                <span url='{{url}}' show-status='true'
+                     extra='sources{{ @index }}'
+                     class='cqz-link'>
+                    {{title}}
+                </span>
+            {{/each}}
+            </div>
+        {{/if}}
+    </div>
+    {{> logo}}
 </div>
+

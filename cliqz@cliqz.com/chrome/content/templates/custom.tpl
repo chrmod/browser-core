@@ -1,15 +1,10 @@
-<div class='cliqz-inline-box-children cliqz-result-generic'>
-	<div class='cliqz-result-left-box'>
-		<div class='cliqz-result-type' ></div>
-	</div>
-	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
-		{{#with data}}
-		<div class='cliqz-custom-text overflow'>
-			{{{local 'customSearch' q engine}}}
+<div class='cqz-result-h3'>
+    <div class='cqz-result-center'>
+        <div class='cqz-custom-text overflow'>
+        	{{#with data}}
+				{{nameify (local 'search')}} <b><i>{{q}}</i></b> {{local 'on'}} {{engine}}
+        	{{/with}}
 		</div>
-		{{/with}}
-	</div>
-	<div class='cliqz-result-right-box cliqz-logo {{ logo }}'
-	     newtab='true'>
-	</div>
+    </div>
+    {{> logo}}
 </div>

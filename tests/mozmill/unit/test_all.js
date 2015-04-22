@@ -115,7 +115,7 @@ function testFilter() {
                     "https://192.168.1.1/",
                 ]
             ],
-            // T4
+            // T5
             [
                 [
                     "www.facebook.com/login.php",
@@ -125,7 +125,7 @@ function testFilter() {
                     "www.facebook.com/login.php",
                 ]
             ],
-            // T5
+            // T6
             [
                 [
                     "www.facebook.com",
@@ -133,6 +133,40 @@ function testFilter() {
                 ],
                 [
                     "www.facebook.com",
+                ]
+            ],
+            // T7
+            [
+                [
+                    "http://www.inflammable.com/",
+                    "https://www.inflammable.com/",
+                    "http://chemistry.about.com/od/firecombustionchemistry/f/What-Is-The-Difference-Between-Flammable-And-Inflammable.htm"
+                ],
+                [
+                    "https://www.inflammable.com/",
+                    "http://chemistry.about.com/od/firecombustionchemistry/f/What-Is-The-Difference-Between-Flammable-And-Inflammable.htm"
+                ]
+            ],
+            // T8
+            [
+                [
+                     "https://www.xing.com/net/treffpunktfremdsprachen/ich-suche-sprachkurs-seminar-coaching-sprachenevent-sprachentandem-sprachenstammtisch-465652/gesucht-one-week-crash-kurs-englisch-sprachhotel-36536093",
+                     "http://www.sn-online.de/Nachrichten/Hannover/Uebersicht/Auslaender-haben-in-Hannover-keine-Chance-auf-Sprachkurs",
+                     "http://ebookee.org/dl/PONS-Power-Sprachkurs-russisch-als-Fremdsprache"
+                ],
+                [
+                     "https://www.xing.com/net/treffpunktfremdsprachen/ich-suche-sprachkurs-seminar-coaching-sprachenevent-sprachentandem-sprachenstammtisch-465652/gesucht-one-week-crash-kurs-englisch-sprachhotel-36536093",
+                     "http://www.sn-online.de/Nachrichten/Hannover/Uebersicht/Auslaender-haben-in-Hannover-keine-Chance-auf-Sprachkurs",
+                     "http://ebookee.org/dl/PONS-Power-Sprachkurs-russisch-als-Fremdsprache"
+                ]
+            ],
+            // T9
+            [
+                [
+                    "http://www.rc-network.de/forum/showthread.php/186973-MPX-FUNJET-motor-Kontronik-480-31-Kira-FUN"
+                ],
+                [
+                    "http://www.rc-network.de/forum/showthread.php/186973-MPX-FUNJET-motor-Kontronik-480-31-Kira-FUN"
                 ]
             ]
         ];
@@ -148,3 +182,118 @@ function testFilter() {
     }
 }
 
+function test_getDetailsFromUrl() {
+    //t1
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.com");
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com");
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "");
+
+    //t2
+    var parts = CliqzUtils.getDetailsFromUrl("http://www.facebook.com/url?test=fdsaf");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com");
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "http:");
+
+    //t3
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "");
+    assert.equal(parts.scheme, "https:");
+
+
+    //t4
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+
+    //t5
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk#blah");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.co.uk");
+    assert.equal(parts.host, "www.facebook.co.uk")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "co.uk");
+    assert.equal(parts.path, "");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "blah");
+
+    //t6
+    var parts = CliqzUtils.getDetailsFromUrl("www.facebook.co.uk/url#blah");
+    assert.equal(parts.ssl, false);
+    assert.equal(parts.domain, "facebook.co.uk");
+    assert.equal(parts.host, "www.facebook.co.uk")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "co.uk");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "");
+    assert.equal(parts.fragment, "blah");
+
+    //t7
+    var parts = CliqzUtils.getDetailsFromUrl("https://user:password@www.facebook.com:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "facebook.com");
+    assert.equal(parts.host, "www.facebook.com")
+    assert.equal(parts.name, "facebook");
+    assert.equal(parts.subdomains[0], "www");
+    assert.equal(parts.tld, "com");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+
+    //t8
+    var parts = CliqzUtils.getDetailsFromUrl("https://localhost:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "");
+    assert.equal(parts.host, "localhost")
+    assert.equal(parts.name, "localhost");
+    assert.equal(parts.subdomains.length, 0);
+    assert.equal(parts.tld, "");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+
+    //t9
+    var parts = CliqzUtils.getDetailsFromUrl("https://192.168.11.1:8080/url?test=fdsaf#blah");
+    assert.equal(parts.ssl, true);
+    assert.equal(parts.domain, "");
+    assert.equal(parts.host, "192.168.11.1")
+    assert.equal(parts.name, "IP");
+    assert.equal(parts.subdomains.length, 0);
+    assert.equal(parts.tld, "");
+    assert.equal(parts.path, "/url");
+    assert.equal(parts.query, "test=fdsaf");
+    assert.equal(parts.fragment, "blah");
+    assert.equal(parts.port, "8080");
+}

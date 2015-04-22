@@ -1,35 +1,58 @@
-<div class="entity-search-container">
-
-  <div class="entity-news-title">
-    Derzeit aktuell auf
-    <span class="" type="X" extra="entity-news-{{domain}}" url="{{url}}">
-      {{data.domain}}
-    </span>
-    <img class="cliqz-logo {{ logo }}" />
-  </div>
-  <div class="entity-news-stories">
+<div class="cqz-result-h1 ez-news ez-news-toggle cqz-result-padding">
+  <div class="cqz-ez-title" selectable=''>{{ emphasis data.name text 2 true }}</div>
+  <input type="radio" id="actual" class="latest" name="news-switcher"
+    {{#if (isLatest data)}}
+      checked="checked"
+    {{/if}}
+  />
+  <div class="entity-stories latest">
     {{#each data.news}}
-      <div class="entity-news-story {{#if @last}} entity-news-story-last {{/if}}"
-           url="{{ this.url }}" type="X" extra="entity-news-story">
-        <div class="entity-news-story-image">
-          <img src="{{ this.thumbnail }}" />
-        </div>
-        <div class="entity-news-story-description">
-          <div class="entity-news-story-title">
-            {{ this.title }}
-          </div>
-          <div class="entity-news-story-time">
-            {{ this.time }}
-            <span class="entity-news-story-description-text"> {{ this.description }} </span>
+      <div class="entity-story"
+           url="{{ url }}"
+           extra="entry-{{ @index }}"
+           arrow="false">
+        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-description">
+          <div class="entity-story-title">{{ title }}</div>
+          <div class="entity-story-comment">
+            {{ time }}
           </div>
         </div>
       </div>
     {{/each}}
   </div>
 
-  <div class="entity-news-categories">
-      {{#each data.categories}}
-        <span url="{{ this.url }}" type="X" extra="entity-news-category">{{ this.title }}</span>
-      {{/each}}
+  <input type="radio" id="trends" class="trends" name="news-switcher"
+    {{#unless (isLatest data)}}
+      checked="checked"
+    {{/unless}}
+  />
+  <div class="entity-stories trends">
+    {{#each data.trending}}
+      <div class="entity-story"
+           url="{{ url }}"
+           extra="entry-{{ @index }}"
+           arrow="false">
+        <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
+        <div class="entity-story-description">
+          <div class="entity-story-title">{{ title }}</div>
+          <div class="entity-story-comment">
+            {{ time }}
+            <div class="twitter-likes">{{ tweet_count }}</div>
+          </div>
+        </div>
+      </div>
+    {{/each}}
   </div>
+
+  {{#if (logic (pref 'news-toggle') '&&' data.trending)}}
+    <div class="switcher" cliqz-action="news-toggle" data-subType="{{data.subType}}">
+      <label for="actual" class="latest">{{local 'newsToggleLatest'}}</label>
+      <label for="trends" class="trends">{{local 'newsToggleTrends'}}</label>
+    </div>
+  {{/if}}
+
+  {{>EZ-category}}
+  {{>logo}}
+  {{>feedback}}
 </div>
