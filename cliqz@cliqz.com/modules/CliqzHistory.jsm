@@ -189,7 +189,7 @@ var CliqzHistory = {
       var r = new CliqzUtils.getWindow().FileReader();
       r.onloadend = function () {
         Cu.import('resource://gre/modules/osfile.jsm');
-        var writePath = OS.Path.join(OS.Constants.Path.desktopDir, filename + '.jpeg');
+        var writePath = FileUtils.getFile("ProfD", ["cliqz_thumbnails", filename + ".jpeg"]).path;
         OS.File.writeAtomic(writePath, new Uint8Array(r.result), {tmpPath:writePath + '.tmp'});
       };
       r.readAsArrayBuffer(b);
@@ -480,28 +480,30 @@ var CliqzHistory = {
   },
   _SQL: function(dbConn, statement, onRow, callback) {
     statement.executeAsync({
-      onRow: onRow,
-      callback: callback,
       resultCount: 0,
       handleResult: function(aResultSet) {
-        var resultCount = 0;
         for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
           this.resultCount++;
-          if (this.onRow) {
-            this.onRow(statement.row);
+          if (onRow) {
+            var values = [];
+            var tmp = row.getResultByIndex(0);
+            try {
+              for(var i=0;;tmp=row.getResultByIndex(i), i++) values[i]=tmp;
+            } catch (e) {}
+            onRow(values);
           }
         }
       },
 
       handleError: function(aError) {
         CliqzUtils.log("Error (" + aError.result + "):" + aError.message, "CliqzHistory._SQL");
-        if (this.callback) {
-          this.callback(0);
+        if (callback) {
+          callback(0);
         }
       },
       handleCompletion: function(aReason) {
-        if (this.callback) {
-          this.callback(this.resultCount);
+        if (callback) {
+          callback(this.resultCount);
         }
       }
     });
@@ -556,13 +558,14 @@ var CliqzHistory = {
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
         if(n == 0) CliqzHistory.SQL(thumbnails);
       });
-      return;
     } else {
       CliqzHistory.SQL(visits);
       CliqzHistory.SQL(titles);
       CliqzHistory.SQL(opengraph);
       CliqzHistory.SQL(thumbnails);
     }
+    // Make sure thumbnail directory exists
+    FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,
@@ -574,19 +577,25 @@ var CliqzHistory = {
     });
   },
   deleteVisit: function(url) {
-    CliqzHistory.SQL("delete from visits where url = :url", null, null, {
-      url: CliqzHistory.url
-    });
-    CliqzHistory.SQL("delete from urltitles where url = :url", null, null, {
-      url: CliqzHistory.url
-    });
+    // TODO: Delete complete sessions?
+    CliqzHistory.SQL("delete from visits where url = :url", null, null, { url: url });
+    CliqzHistory.SQL("delete from urltitles where url = :url", null, null, { url: url });
+    CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, { url: url });
+    CliqzHistory.SQL("delete from opengraph where url = :url", null, null, { url: url });
+    CliqzHistory.deleteThumbnail(url);
+  },
+  deleteThumbnail: function(url) {
+    var thumbnail = FileUtils.getFile("ProfD", ["cliqz_thumbnails", CliqzHistory.MD5(url) + ".jpeg"]);
+    if(thumbnail.exists()) thumbnail.remove(true);
   },
   deleteTimeFrame: function() {
+    // TODO: Delete complete sessions?
     CliqzHistoryPattern.historyTimeFrame(function(min, max) {
-      CliqzHistory.SQL("delete from visits where visit_date < :min", null, null, {
-        min: min
-      });
-      CliqzHistory.SQL("delete from visits where visit_date > :max", null, null, {
+      CliqzHistory.SQL("select url from visits where visit_date < :min OR visit_date > :max", function(r) {
+        // TODO: this deletes all occurrences of the url, better: only in timeframe
+        CliqzHistory.deleteVisit(r[0]);
+      }, null, {
+        min: min,
         max: max
       });
     });
@@ -594,6 +603,12 @@ var CliqzHistory = {
   clearHistory: function() {
     CliqzHistory.SQL("delete from visits");
     CliqzHistory.SQL("delete from urltitles");
+    CliqzHistory.SQL("delete from thumbnails");
+    CliqzHistory.SQL("delete from opengraph");
+    // Delete thumbnails and recreate directory
+    FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true); // Make sure it exists
+    FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true).remove(true);
+    FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true); // Recreate
   },
   historyObserver: {
     onBeginUpdateBatch: function() {},
