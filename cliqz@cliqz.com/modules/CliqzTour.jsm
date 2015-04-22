@@ -195,6 +195,10 @@ var CliqzTour = {
                 CliqzTour.getPageElement('landing-page-callout').style.transition = 'opacity 1s ease-in-out';
                 CliqzTour.getPageElement('landing-page-callout').style.opacity = 1;
             }, 25);
+
+            // change main message (still hidden)
+            CliqzTour.setTextContent(CliqzTour.getPageElement('message-installed'), 
+                CliqzUtils.getLocalizedString('onMsgDemoDone'));
         }, t: 4000 },
         // fade out landing page
         { f: function () {
