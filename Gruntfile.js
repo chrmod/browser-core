@@ -20,7 +20,7 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ["generic/**/*.*","specific/**/*.*"],
+                files: ["generic/**/*.*","specific/**/*.*", "Gruntfile.js"],
                 tasks: ["copy","concat"],
                 options: {
                     spawn: false,
@@ -37,7 +37,8 @@ module.exports = function(grunt) {
             firefox: {
                 files: [
                     { expand: true, cwd: "specific/firefox/cliqz@cliqz.com", src: "**", dest: build("firefox/cliqz@cliqz.com") },
-                    { expand: true, cwd: "generic/", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome/") }
+                    { expand: true, cwd: "generic/modules/libs", src: "**", dest: build("firefox/cliqz@cliqz.com/modules/extern") }, //extern libs
+                    { expand: true, cwd: "generic/static", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome") }, //skin, locale
                 ]
             },
             chrome: {
