@@ -5,3 +5,11 @@ mozilla-release
 .vagrant
 *~
 *#
+
+# ignore invisible files
+.Trashes
+.Spotlight-V100
+
+# ignore builds
+build/
+build/*
