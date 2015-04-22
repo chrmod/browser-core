@@ -289,7 +289,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			if (rule) {
 				var match = rule.exec(url);
 				if (match) {
-					this._log('_preparseUrl: match "' + match[1] + '" for url ' + url);
+					// this._log('_preparseUrl: match "' + match[1] + '" for url ' + url);
 					url = match[1];
 				} else {
 					// leave URL untouched
@@ -424,7 +424,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
     			
     		}
     	}
-    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount++;
+    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount;
 
     	CliqzUtils.telemetry(stats);
 	},
