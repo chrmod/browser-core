@@ -88,7 +88,7 @@ var Mixer = {
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
         var instant_new = [];
-        for(let i=0; i < cliqz.length; i++) {
+        for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
