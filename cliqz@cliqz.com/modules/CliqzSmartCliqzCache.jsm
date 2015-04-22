@@ -273,7 +273,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 if (_this.isNews(smartCliqz)) {
                 	_this._customDataCache.store(id, { categories: categories });
                 } else {
-                	_this._customDataCache.store(id, { links: categories });
+                	_this._customDataCache.store(id, { links: categories,
+                									   categories: categories }); // FIXME: store duplicate so that oldCustomData.categories works
                 }
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
 			})
