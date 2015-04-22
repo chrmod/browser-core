@@ -14,7 +14,7 @@ var init = function () {
     btnCancel = document.getElementById('tour-btn-cancel');
 
     btn.addEventListener('click', function () {
-        CliqzTour.start();    
+        CliqzTour.start();
     });
 
     btnCancel.addEventListener('click', function () {
@@ -23,7 +23,7 @@ var init = function () {
 
     btnCancel.addEventListener('mouseover', function () {
         // close popup to focus on main window; otherwise user has to click twice
-        CliqzTour.hideCallout();                              
+        CliqzTour.hideCallout();
         CliqzTour.hideCursor();
-    });           
+    });
 };
