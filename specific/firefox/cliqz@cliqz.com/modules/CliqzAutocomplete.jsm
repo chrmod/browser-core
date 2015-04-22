@@ -617,10 +617,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if(country)
                     action.country = country;
 
-                if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
-                    action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
-                }
-
                 if (CliqzAutocomplete.isPopupOpen) {
                     // don't mark as done if popup closed as the user does not see anything
                     CliqzAutocomplete.markResultsDone(Date.now());

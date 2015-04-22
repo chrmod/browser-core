@@ -6,9 +6,31 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     PREF_STRING = 32,
     PREF_INT    = 64,
-    PREF_BOOL   = 128;
+    PREF_BOOL   = 128,
+    // references to all the timers to avoid garbage collection before firing
+    // automatically removed when fired
+    _timers = [],
+    _setTimer = function(func, timeout, type, param) {
+        var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
+        _timers.push(timer);
+        var event = {
+            notify: function (timer) {
+                func(param);
+                _removeTimerRef(timer);
+            }
+        };
+        timer.initWithCallback(event, timeout, type);
+        return timer;
+    },
+    _removeTimerRef = function(timer){
+        var i = _timers.indexOf(timer);
+        if (i >= 0) {
+            _timers.splice(_timers.indexOf(timer), 1);
+        }
+    };
 
 var CliqzSpecific = {
+    LOCALE_PATH: 'chrome://cliqzres/content/locale',
     genericPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService),
     cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
     log: function(msg, key){
@@ -84,5 +106,64 @@ var CliqzSpecific = {
 
         req.send(data);
         return req;
-    }
+    },
+    tldExtractor: function(host){
+        var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                                    .getService(Components.interfaces.nsIEffectiveTLDService);
+
+        return eTLDService.getPublicSuffixFromHost(host);
+    },
+    isPrivate: function(window) {
+        if(window.cliqzIsPrivate === undefined){
+            try {
+                // Firefox 20+
+                Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+                window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
+            } catch(e) {
+                // pre Firefox 20
+                try {
+                  window.cliqzIsPrivate = Components.classes['@mozilla.org/privatebrowsing;1'].
+                                          getService(Components.interfaces.nsIPrivateBrowsingService).
+                                          privateBrowsingEnabled;
+                } catch(ex) {
+                  Components.utils.reportError(ex);
+                  window.cliqzIsPrivate = 5;
+                }
+            }
+        }
+
+        return window.cliqzIsPrivate
+    },
+    setInterval: function(func, timeout, param) {
+        return _setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+    },
+    setTimeout: function(func, timeout, param) {
+        return _setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+    },
+    clearTimeout: function(timer) {
+        if (!timer) {
+            return;
+        }
+        timer.cancel();
+        _removeTimerRef(timer);
+    },
+    clearInterval: this.clearTimeout,
+    getVersion: function(callback){
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                         .getService(Components.interfaces.nsIWindowMediator),
+            win = wm.getMostRecentWindow("navigator:browser");
+          win.Application.getExtensions(function(extensions) {
+                callback(extensions.get('cliqz@cliqz.com').version);
+          });
+    },
+    getWindow: function(){
+        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                            .getService(Components.interfaces.nsIWindowMediator);
+        return wm.getMostRecentWindow("navigator:browser");
+    },
+    getWindowID: function(){
+        var win = CliqzSpecific.getWindow();
+        var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+        return util.outerWindowID;
+    },
 }

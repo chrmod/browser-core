@@ -63,7 +63,6 @@ var CliqzUtils = {
   UPDATE_URL:                     'chrome://cliqz/content/update.html',
   TUTORIAL_URL:                   'https://cliqz.com/home/onboarding',
   NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
-  INSTAL_URL:                     'https://cliqz.com/code-verified',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   PREFERRED_LANGUAGE:             null,
@@ -253,8 +252,8 @@ var CliqzUtils = {
   },
   cleanMozillaActions: function(url){
     if(url.indexOf("moz-action:") == 0) {
-        var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
-        url = param;
+        //var [, action, param] = url.match(/^moz-action:([^,]+),(.*)$/);
+        url = url.match(/^moz-action:([^,]+),(.*)$/)[2];
     }
     return url;
   },
@@ -345,10 +344,7 @@ var CliqzUtils = {
     // find parts of hostname
     if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
       try {
-        var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                                    .getService(Components.interfaces.nsIEffectiveTLDService);
-
-        tld = eTLDService.getPublicSuffixFromHost(host);
+        tld = CliqzSpecific.tldExtractor(host);
 
         // Get the domain name w/o subdomains and w/o TLD
         name = host.slice(0, -(tld.length+1)).split('.').pop(); // +1 for the '.'
@@ -575,37 +571,7 @@ var CliqzUtils = {
     //always loads, even in private windows
     return true;
   },
-  isPrivate: function(window) {
-    if(window.cliqzIsPrivate === undefined){
-      try {
-        // Firefox 20+
-        Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
-        window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
-      } catch(e) {
-        // pre Firefox 20
-        try {
-          window.cliqzIsPrivate = Components.classes['@mozilla.org/privatebrowsing;1'].
-                                  getService(Components.interfaces.nsIPrivateBrowsingService).
-                                  privateBrowsingEnabled;
-        } catch(ex) {
-          Components.utils.reportError(ex);
-          window.cliqzIsPrivate = 5;
-        }
-      }
-    }
-
-    return window.cliqzIsPrivate
-  },
-  addStylesheetToDoc: function(doc, path) {
-    var stylesheet = doc.createElementNS('http://www.w3.org/1999/xhtml', 'h:link');
-    stylesheet.rel = 'stylesheet';
-    stylesheet.href = path;
-    stylesheet.type = 'text/css';
-    stylesheet.style.display = 'none';
-    doc.documentElement.appendChild(stylesheet);
-
-    return stylesheet;
-  },
+  isPrivate: CliqzSpecific.isPrivate,
   trk: [],
   trkTimer: null,
   telemetry: function(msg, instantPush) {
@@ -615,7 +581,7 @@ var CliqzUtils = {
        current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
-    msg.session = CliqzSpecific.cliqzPrefs.getCharPref('session');
+    msg.session = CliqzSpecific.getPref('session');
     msg.ts = Date.now();
 
     CliqzUtils.trk.push(msg);
@@ -695,65 +661,22 @@ var CliqzUtils = {
     CliqzUtils._telemetry_sending = [];
     CliqzUtils._telemetry_req = null;
   },
-  // references to all the timers to avoid garbage collection before firing
-  // automatically removed when fired
-  _timers: [],
-  _setTimer: function(func, timeout, type, param) {
-    var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
-    CliqzUtils._timers.push(timer);
-    var event = {
-      notify: function (timer) {
-        func(param);
-        if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
-      }
-    };
-    timer.initWithCallback(event, timeout, type);
-    return timer;
-  },
-  _removeTimerRef: function(timer){
-    var i = CliqzUtils._timers.indexOf(timer);
-    if (i >= 0) {
-      CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
-    }
-  },
-  setInterval: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
-  },
-  setTimeout: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
-  },
-  clearTimeout: function(timer) {
-    if (!timer) {
-      return;
-    }
-    timer.cancel();
-    CliqzUtils._removeTimerRef(timer);
-  },
-  clearInterval: this.clearTimeout,
-  loadFile: function (fileName, callback) {
-    var self = this;
-    $.ajax({
-        url: fileName,
-        dataType: 'text',
-        success: callback,
-        error: function(data){ callback(data.responseText); }
-    });
-  },
+  setInterval: CliqzSpecific.setInterval,
+  setTimeout: CliqzSpecific.setTimeout,
+  clearTimeout: CliqzSpecific.clearTimeout,
+  clearInterval: CliqzSpecific.clearTimeout,
   locale: {},
   currLocale: null,
   loadLocale : function(lang_locale){
-    //var ww = Components.classes['@mozilla.org/embedcomp/window-watcher;1']
-    //                 .getService(Components.interfaces.nsIWindowWatcher);
     // The default language
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
-        CliqzUtils.loadResource('chrome://cliqzres/content/locale/de/cliqz.json',
+        CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + 'de/cliqz.json',
             function(req){
                 if(CliqzUtils) CliqzUtils.locale['default'] = JSON.parse(req.response);
             });
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-        CliqzUtils.loadResource('chrome://cliqzres/content/locale/'
-                + encodeURIComponent(lang_locale) + '/cliqz.json',
+        CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + encodeURIComponent(lang_locale) + '/cliqz.json',
             function(req) {
                 if(CliqzUtils){
                   CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
@@ -765,8 +688,7 @@ var CliqzUtils = {
                 // language!
                 var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
                 if(CliqzUtils){
-                  CliqzUtils.loadResource(
-                      'chrome://cliqzres/content/locale/' + loc + '/cliqz.json',
+                  CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + loc + '/cliqz.json',
                       function(req) {
                         if(CliqzUtils){
                           CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
@@ -814,61 +736,7 @@ var CliqzUtils = {
         el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
-  openOrReuseAnyTab: function(newUrl, oldUrl, onlyReuse) {
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                     .getService(Components.interfaces.nsIWindowMediator),
-        browserEnumerator = wm.getEnumerator('navigator:browser'),
-        found = false;
-
-    while (!found && browserEnumerator.hasMoreElements()) {
-        var browserWin = browserEnumerator.getNext();
-        var tabbrowser = browserWin.gBrowser;
-
-        // Check each tab of this browser instance
-        var numTabs = tabbrowser.browsers.length;
-        for (var index = 0; index < numTabs; index++) {
-            var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-            if (currentBrowser.currentURI.spec.indexOf(oldUrl) === 0) {
-                var tab = tabbrowser.tabContainer.childNodes[index];
-                // The URL is already opened. Select this tab.
-                tabbrowser.selectedTab = tab;
-
-                // redirect tab to new url
-                tab.linkedBrowser.contentWindow.location.href = newUrl;
-
-                // Focus *this* browser-window
-                browserWin.focus();
-
-                found = true;
-                break;
-            }
-        }
-    }
-    // oldUrl is not open
-    if (!found && !onlyReuse) {
-        var recentWindow = wm.getMostRecentWindow("navigator:browser");
-        if (recentWindow) {
-          // Use an existing browser window
-          recentWindow.delayedOpenTab(newUrl, null, null, null, null);
-        }
-        else {
-          // No browser windows are open, so open a new one.
-          try {
-            window.open(newUrl);
-          } catch(e){
-            // just in case this branch gets executed during bootstraping process (window can be null)
-          }
-        }
-    }
-  },
-  version: function(callback){
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                     .getService(Components.interfaces.nsIWindowMediator),
-        win = wm.getMostRecentWindow("navigator:browser");
-      win.Application.getExtensions(function(extensions) {
-            callback(extensions.get('cliqz@cliqz.com').version);
-      });
-  },
+  version: CliqzSpecific.getVersion,
   extensionRestart: function(){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
@@ -883,16 +751,8 @@ var CliqzUtils = {
   isWindows: function(win){
     return win.navigator.userAgent.indexOf('Win') != -1;
   },
-  getWindow: function(){
-    var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                        .getService(Components.interfaces.nsIWindowMediator);
-    return wm.getMostRecentWindow("navigator:browser");
-  },
-  getWindowID: function(){
-    var win = CliqzUtils.getWindow();
-    var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-    return util.outerWindowID;
-  },
+  getWindow: CliqzSpecific.getWindow,
+  getWindowID: CliqzSpecific.getWindowID,
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
   },
@@ -903,79 +763,6 @@ var CliqzUtils = {
         if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
     }
     return copy;
-  },
-  performance: {
-    backend: function(delay){
-        var INPUT='facebook,twitter,maria,randomlong,munich airport,lady gaga iphone case'.split(','),
-            reqtimes = {}, statistics = [];
-
-        function send_test(){
-          var start = 1000;
-          for(var word in INPUT){
-            var t = ''
-            for(var key in INPUT[word]){
-              t+=INPUT[word][key];
-              CliqzUtils.log(t, 'PERFORMANCE');
-              CliqzUtils.setTimeout(function(t){
-                reqtimes[t] = new Date();
-                CliqzUtils.getCliqzResults(t, receive_test)
-              }, start, t);
-
-              start += delay || (600 + (Math.random() * 100));
-            }
-          }
-          CliqzUtils.setTimeout(function(){
-            var stats =[0, 0, 0, 0];
-            for(var i=0; i < statistics.length; i++){
-                for(var j=0; j<4; j++) stats[j] += statistics[i][j];
-            }
-            for(var j=0; j<4; j++) stats[j] = (stats[j] / statistics.length).toFixed(2);
-            CliqzUtils.log(' ', 'PERFORMANCE');
-            CliqzUtils.log('RESULT', 'PERFORMANCE');
-            CliqzUtils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
-            CliqzUtils.log(stats.join(' \t \t '), 'PERFORMANCE');
-          }, start);
-          CliqzUtils.log(['total', 'mix', 'sug', 'snip', 'q'].join(' \t \t '), 'PERFORMANCE');
-        }
-
-        function receive_test(ev){
-          var end = new Date(),
-            r = JSON.parse(ev.response),
-            q = r['q'],
-            end1 = new Date();
-
-          var elapsed = Math.round(end - reqtimes[q]);
-
-          var point = [
-              elapsed,
-              Math.round(r.duration),
-              Math.round(r._suggestions),
-              Math.round(r._bulk_snippet_duration),
-              q
-            ]
-          statistics.push(point);
-
-          CliqzUtils.log(point.join(' \t\t '), 'PERFORMANCE');
-        }
-
-        send_test()
-    }
-  },
-  getClusteringDomain: function(url) {
-    var domains = ['ebay.de',
-                   'amazon.de',
-                   'github.com',
-                   'facebook.com',
-                   'klout.com',
-                   'chefkoch.de',
-                   'bild.de',
-                   'basecamp.com',
-                   'youtube.com',
-                   'twitter.com',
-                   'wikipedia.com',]
-    for (var index = 0; index < domains.length; index++) {
-      if (url.indexOf(domains[index]) > -1) return index;
-    }
   },
   getAdultFilterState: function(){
     var data = {
@@ -997,6 +784,7 @@ var CliqzUtils = {
 
     return data;
   },
+  //HERE
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
     return urlbar.value.length == 0;

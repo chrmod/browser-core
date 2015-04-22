@@ -197,8 +197,18 @@ window.CLIQZ.Core = {
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
         CLIQZ.Core.elem.push(
-            CliqzUtils.addStylesheetToDoc(doc, path)
+            CLIQZ.Core.addStylesheetToDoc(doc, path)
         );
+    },
+    addStylesheetToDoc: function(doc, path) {
+        var stylesheet = doc.createElementNS('http://www.w3.org/1999/xhtml', 'h:link');
+        stylesheet.rel = 'stylesheet';
+        stylesheet.href = path;
+        stylesheet.type = 'text/css';
+        stylesheet.style.display = 'none';
+        doc.documentElement.appendChild(stylesheet);
+
+        return stylesheet;
     },
     checkSession: function(){
         var prefs = CliqzUtils.cliqzPrefs;
@@ -234,7 +244,7 @@ window.CLIQZ.Core = {
     showTutorial: function(onInstall, session){
         var showNewOnboarding = false;
 
-        
+
         try {
             var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                 .getService(Components.interfaces.nsIXULAppInfo);
@@ -243,7 +253,7 @@ window.CLIQZ.Core = {
             CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
             CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
 
-            // running under Firefox 1.5 or later               
+            // running under Firefox 1.5 or later
             if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
                 // 100% chance of showing new onboarding
                 showNewOnboarding = true;
@@ -261,16 +271,17 @@ window.CLIQZ.Core = {
             CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
         }
 
-        var tutorialUrl = showNewOnboarding ? 
+        var tutorialUrl = showNewOnboarding ?
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
         CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
 
         CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
 
-        CLIQZ.Core._tutorialTimeout = setTimeout(function(){
-            var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(tutorialUrl, CliqzUtils.INSTAL_URL, onlyReuse);
-        }, 100);
+        if(onInstall){
+            CLIQZ.Core._tutorialTimeout = setTimeout(function(){
+                gBrowser.addTab(tutorialUrl)
+            }, 100);
+        }
     },
     // trigger component reload at install/uninstall
     reloadComponent: function(el) {
@@ -659,17 +670,6 @@ window.CLIQZ.Core = {
                        (pathLength? val.substr(-pathLength): '');
         }
         return val;
-    },
-    // redirects a tab in which oldUrl is loaded to newUrl
-    openOrReuseTab: function(newUrl, oldUrl, onlyReuse) {
-        // optimistic search
-        if(gBrowser.selectedTab.linkedBrowser.contentWindow.location.href == oldUrl){
-            gBrowser.selectedTab.linkedBrowser.contentWindow.location.href = newUrl;
-            return;
-        }
-
-        // heavy hearch
-        CliqzUtils.openOrReuseAnyTab(newUrl, oldUrl, onlyReuse);
     },
     getQuerySession: function() {
         return _querySession;
