@@ -2,7 +2,7 @@ module.exports = function(grunt) {
     var build = function(path,dev) {
         return (!dev?"build/dev/":"build/prod/") + path
     }
-    
+
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
         concurrent: {
@@ -21,7 +21,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ["generic/**/*.*","specific/**/*.*"],
-                tasks: ["copy:tool","concat"],
+                tasks: ["copy","concat"],
                 options: {
                     spawn: false,
                     livereload: 3001
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             },
             firefox: {
                 files: [
-                    { expand: true, cwd: "specific/firefox/", src: "**", dest: build("firefox/") },
+                    { expand: true, cwd: "specific/firefox/cliqz@cliqz.com", src: "**", dest: build("firefox/cliqz@cliqz.com") },
                     { expand: true, cwd: "generic/", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome/") }
                 ]
             },
