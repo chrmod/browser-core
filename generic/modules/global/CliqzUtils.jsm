@@ -13,6 +13,8 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+Components.utils.import('chrome://cliqzmodules/content/CliqzSpecific.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
@@ -64,9 +66,6 @@ var CliqzUtils = {
   INSTAL_URL:                     'https://cliqz.com/code-verified',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
-  PREF_STRING:                    32,
-  PREF_INT:                       64,
-  PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
   TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
@@ -78,12 +77,7 @@ var CliqzUtils = {
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
   },
-  cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
-  genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefBranch),
-  _log: Components.classes['@mozilla.org/consoleservice;1']
-      .getService(Components.interfaces.nsIConsoleService),
+  cliqzPrefs: CliqzSpecific.cliqzPrefs,
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -204,45 +198,7 @@ var CliqzUtils = {
 
     return result
   },
-  httpHandler: function(method, url, callback, onerror, timeout, data){
-    var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
-    req.open(method, url, true);
-    req.overrideMimeType('application/json');
-    req.onload = function(){
-      if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
-
-      var statusClass = parseInt(req.status / 100);
-      if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
-        callback && callback(req);
-      } else {
-        CliqzUtils.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
-        onerror && onerror();
-      }
-    }
-    req.onerror = function(){
-      if(CliqzUtils){
-        CliqzUtils.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzUtils.httpHandler");
-        onerror && onerror();
-      }
-    }
-    req.ontimeout = function(){
-      if(CliqzUtils){ //might happen after disabling the extension
-        CliqzUtils.log( "timeout for " + url, "CliqzUtils.httpHandler");
-        onerror && onerror();
-      }
-    }
-
-    if(callback){
-      if(timeout){
-        req.timeout = parseInt(timeout)
-      } else {
-        req.timeout = (method == 'POST'? 10000 : 1000);
-      }
-    }
-
-    req.send(data);
-    return req;
-  },
+  httpHandler: CliqzSpecific.httpHandler,
   httpGet: function(url, callback, onerror, timeout){
     return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
@@ -268,49 +224,14 @@ var CliqzUtils = {
       onerror && onerror();
     }
   },
-  getPrefs: function(){
-    var prefs = {},
-        cqz = CliqzUtils.cliqzPrefs.getChildList('');
-    for(var i=0; i<cqz.length; i++){
-      var pref = cqz[i];
-      prefs[pref] = CliqzUtils.getPref(pref);
-    }
-    return prefs;
-  },
-  getPref: function(pref, notFound){
-    try{
-      var prefs = CliqzUtils.cliqzPrefs;
-      switch(prefs.getPrefType(pref)) {
-        case CliqzUtils.PREF_BOOL: return prefs.getBoolPref(pref);
-        case CliqzUtils.PREF_STRING: return prefs.getCharPref(pref);
-        case CliqzUtils.PREF_INT: return prefs.getIntPref(pref);
-        default: return notFound;
-      }
-    } catch(e){
-      return notFound;
-    }
-  },
-  setPref: function(pref, val){
-    switch (typeof val) {
-      case 'boolean':
-        CliqzUtils.cliqzPrefs.setBoolPref(pref, val);
-        break;
-      case 'number':
-        CliqzUtils.cliqzPrefs.setIntPref(pref, val);
-        break;
-      case 'string':
-        CliqzUtils.cliqzPrefs.setCharPref(pref, val);
-        break;
-      }
-  },
+  getPrefs: CliqzSpecific.getPrefs,
+  getPref: CliqzSpecific.getPref,
+  setPref: CliqzSpecific.setPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CliqzUtils._log.logStringMessage(
-          'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
-          (typeof msg == 'object'? JSON.stringify(msg): msg)
-        );
+        CliqzSpecific.log(msg, key);
     }
   },
   getDay: function() {
@@ -694,7 +615,7 @@ var CliqzUtils = {
        current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
-    msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
+    msg.session = CliqzSpecific.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
 
     CliqzUtils.trk.push(msg);
@@ -1082,23 +1003,23 @@ var CliqzUtils = {
   },
   /** Change some prefs for a better cliqzperience -- always do a backup! */
   setOurOwnPrefs: function() {
-    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
-    if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
-          CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
-      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
+    var cliqzBackup = CliqzSpecific.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    if (!cliqzBackup || CliqzSpecific.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+      CliqzSpecific.cliqzPrefs.setIntPref("maxRichResultsBackup",
+          CliqzSpecific.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
+      CliqzSpecific.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
     }
   },
   /** Reset changed prefs on uninstall */
   resetOriginalPrefs: function() {
-    var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+    var cliqzBackup = CliqzSpecific.cliqzPrefs.getPrefType("maxRichResultsBackup");
     if (cliqzBackup) {
       CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
-      CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
-          CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+      CliqzSpecific.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
+          CliqzSpecific.cliqzPrefs.getIntPref("maxRichResultsBackup"));
       // deleteBranch does not work for some reason :(
-      CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
-      CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+      CliqzSpecific.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+      CliqzSpecific.cliqzPrefs.clearUserPref("maxRichResultsBackup");
     } else {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
     }
