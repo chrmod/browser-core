@@ -195,12 +195,13 @@ var CliqzTour = {
                 CliqzTour.getPageElement('landing-page-callout').style.transition = 'opacity 1s ease-in-out';
                 CliqzTour.getPageElement('landing-page-callout').style.opacity = 1;
             }, 25);
-        }, t: 3000 },
+        }, t: 4000 },
         // fade out landing page
         { f: function () {
             CliqzTour.getPageElement('main-page').style.transition = 'none';
             CliqzTour.getPageElement('main-page').style.filter = 'none'; 
-            CliqzTour.getPageElement('tour-btn').innerHTML = CliqzUtils.getLocalizedString('onButtonTryOutAgain');
+            CliqzTour.setTextContent(CliqzTour.getPageElement('tour-btn'), 
+                CliqzUtils.getLocalizedString('onButtonTryOutAgain'));
 
             CliqzTour.getPageElement("landing-page-background").style.transition = 'opacity 1.5s ease-in-out';
             CliqzTour.getPageElement("landing-page-background").style.opacity = 0;
@@ -209,7 +210,7 @@ var CliqzTour = {
 
             CliqzTour.getPageElement("tour-btn").style.cursor = "auto";
 
-            CliqzTour.urlBar.value = '';
+            CliqzTour.clearUrlBar();
         }, t: 1500 },
         // housekeeping
         { f: function () {
@@ -386,7 +387,11 @@ var CliqzTour = {
     /* **** dropdown helpers **** */
     clearDropdown: function () {
         if (CliqzTour.win.CLIQZ.Core.popup.cliqzBox.children.length > 0) {
-            CliqzTour.win.CLIQZ.Core.popup.cliqzBox.children[0].children[0].innerHTML = "";
+            var content = CliqzTour.win.CLIQZ.Core.popup.cliqzBox.children[0].children[0];
+
+            while (content.firstChild) {
+                content.removeChild(content.firstChild);
+            }
         }
     },
     openDropdown: function () {
@@ -472,6 +477,13 @@ var CliqzTour = {
                 CliqzTour.typeMessage(text, pos);
             }, (1000.0 / CliqzTour.charsPerSecond) + Math.random(250)); 
         }
+    },
+    setTextContent: function (node, text) {
+        while (node.firstChild) {
+            node.removeChild(node.firstChild);
+        }
+        node.appendChild(
+            CliqzTour.win.document.createTextNode(text));
     },
 
     /* **** general helpers **** */
@@ -587,8 +599,8 @@ var CliqzTour = {
                 CliqzTour.cursor.firstChild.className = "onboarding-lens";
         }
     },
-    setCalloutMessage: function (message) {
-        CliqzTour.callout.firstChild.innerHTML = message;
+    setCalloutMessage: function (message) {        
+        CliqzTour.setTextContent(CliqzTour.callout.firstChild, message);
     },
     getPopupUrlBarCenterOffsetY: function () {
         // TODO: calculate
