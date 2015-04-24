@@ -55,7 +55,7 @@ var CliqzTour = {
             // TODO: use CSS "disabled" class for this
             CliqzTour.getPageElement("tour-btn").style.cursor = "none";
         }, t: 100 },
-        // position mouse cursor on button
+        // position mouse cursor on button and show cancel button
         { f: function () {
             var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
             var x = buttonBounds.x + buttonBounds.width / 2;
@@ -66,6 +66,7 @@ var CliqzTour = {
             CliqzTour.movePopupTo(CliqzTour.cursor, x - 32, y + 48);
             CliqzTour.showCursor();
             // TODO: disable button
+            CliqzTour.showPageElement('tour-btn-cancel');
         }, t: 500 },
         // blur out current page and move mouse cursor to URL bar
         { f: function () {            
@@ -76,9 +77,8 @@ var CliqzTour = {
         { f: function () {
             CliqzTour.performClick();
         }, t: 1000 }, 
-        // show "type here" callout and show cancel button
-        { f: function () {             
-            CliqzTour.showPageElement('tour-btn-cancel');
+        // show "type here" callout
+        { f: function () {                        
             CliqzTour.setCalloutMessage(
                 CliqzUtils.getLocalizedString("onCalloutTypeHere"));            
             CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");  
@@ -368,6 +368,7 @@ var CliqzTour = {
         CliqzTour.pageElements = { };
 
         CliqzTour.stop();
+        CliqzTour.reset();
         CliqzTour.telemetry("unloaded");
     },
     stop: function () {
@@ -395,7 +396,12 @@ var CliqzTour = {
             CliqzTour.hideCursor();
             CliqzTour.clearDropdown();
             CliqzTour.clearUrlBar();
-        }, 100);        
+        }, 0);        
+    },
+    cancel: function () {
+        CliqzTour.telemetry("canceled");
+        CliqzTour.stop();
+        CliqzTour.reset();
     },
 
     /* **** dropdown helpers **** */
@@ -422,9 +428,7 @@ var CliqzTour = {
         // make sure the click was not on the start button
         if (CliqzTour.isRunning && e.target &&
             e.target.id != "tour-btn") {
-            CliqzTour.telemetry("canceled");
-            CliqzTour.stop();
-            CliqzTour.reset();            
+            CliqzTour.cancel();            
         }        
     },
     popupHiddenListener: function (e) {
