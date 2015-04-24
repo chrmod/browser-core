@@ -293,6 +293,9 @@ var CliqzTour = {
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabClose", CliqzTour.tabCloseListener);
 
+        CliqzTour.isRunning = false;
+        CliqzTour.pageElements = { };
+
         CliqzTour.telemetry("shown");
     }, 
     start: function() {
@@ -361,9 +364,6 @@ var CliqzTour = {
             CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                     "TabClose", CliqzTour.tabCloseListener);
         }, 1000);
-
-        // if not cleared, cache would point to elements from old page
-        CliqzTour.pageElements = { };
 
         CliqzTour.stop();
         CliqzTour.reset();
