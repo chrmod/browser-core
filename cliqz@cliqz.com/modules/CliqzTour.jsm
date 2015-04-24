@@ -259,11 +259,9 @@ var CliqzTour = {
     init: function() {
         CliqzTour.log('init');
 
-        var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                  .getService(Components.interfaces.nsIWindowMediator)
-                  .getMostRecentWindow("navigator:browser");
-        
-        CliqzTour.win = win;
+        CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator)
+                         .getMostRecentWindow("navigator:browser");
         CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
         CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
         CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
