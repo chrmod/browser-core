@@ -34,8 +34,6 @@ var CliqzTour = {
     // mouse cursor or lens
     cursor: null,
     
-    // to set variables only once
-    isInitialized: false,
     // stored results to inject into dropdown
     results: { },
     // cache of frequently used elements on onboarding page
@@ -261,11 +259,12 @@ var CliqzTour = {
     init: function() {
         CliqzTour.log('init');
 
-        if (!CliqzTour.isInitialized) {
-            // TODO: this fails if browser windows is closed
-            CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                 .getService(Components.interfaces.nsIWindowMediator)
-                 .getMostRecentWindow("navigator:browser");
+        var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                  .getService(Components.interfaces.nsIWindowMediator)
+                  .getMostRecentWindow("navigator:browser");
+        // if window was not initialized or if window has changed: initialize
+        if (CliqzTour.win != win) {            
+            CliqzTour.win = win;
             CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
             CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
             CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
@@ -280,8 +279,6 @@ var CliqzTour = {
 
             CliqzTour.callout = CliqzTour.createPopup("callout");
             CliqzTour.cursor = CliqzTour.createPopup("cursor");            
-
-            CliqzTour.isInitialized = true;
         }
         CliqzTour.startCount = 0;
 
