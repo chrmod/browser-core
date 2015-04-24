@@ -262,25 +262,33 @@ var CliqzTour = {
         var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                   .getService(Components.interfaces.nsIWindowMediator)
                   .getMostRecentWindow("navigator:browser");
-        // if window was not initialized or if window has changed: initialize
-        if (CliqzTour.win != win) {            
-            CliqzTour.win = win;
-            CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
-            CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
-            CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
-            CliqzTour.contentDocument = CliqzTour.browser.contentDocument;
-            CliqzTour.visibleLabel = CliqzTour.tab.visibleLabel;
+        
+        CliqzTour.win = win;
+        CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
+        CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
+        CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
+        CliqzTour.contentDocument = CliqzTour.browser.contentDocument;
+        CliqzTour.visibleLabel = CliqzTour.tab.visibleLabel;
 
-            CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/final_results.json',
-                function success(req) { CliqzTour.results.final = JSON.parse(req.response); });
+        CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/final_results.json',
+            function success(req) { CliqzTour.results.final = JSON.parse(req.response); });
 
-            CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/intermediate_results.json',
-                function success(req) { CliqzTour.results.intermediate = JSON.parse(req.response); });
+        CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/intermediate_results.json',
+            function success(req) { CliqzTour.results.intermediate = JSON.parse(req.response); });
 
+        if (!CliqzTour.callout) {
             CliqzTour.callout = CliqzTour.createPopup("callout");
             CliqzTour.cursor = CliqzTour.createPopup("cursor");            
         }
+
         CliqzTour.startCount = 0;
+
+        CliqzTour.win.addEventListener(
+                "click", CliqzTour.clickListener);
+        CliqzTour.callout.addEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.cursor.addEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
 
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
@@ -340,12 +348,14 @@ var CliqzTour = {
             CliqzTour.log('tour is already running');
         }
     },
-    cancel: function () { 
-        CliqzTour.stop();
-        CliqzTour.reset();
-        CliqzTour.telemetry("canceled");
-    },
     unload: function () {
+        CliqzTour.win.removeEventListener(
+                "click", CliqzTour.clickListener);
+        CliqzTour.callout.removeEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.cursor.removeEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+
         CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         // remove later so the tab close event can be consumed
@@ -353,6 +363,9 @@ var CliqzTour = {
             CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                     "TabClose", CliqzTour.tabCloseListener);
         }, 1000);
+
+        // if not cleared, cache would point to elements from old page
+        CliqzTour.pageElements = { };
 
         CliqzTour.stop();
         CliqzTour.telemetry("unloaded");
@@ -404,6 +417,26 @@ var CliqzTour = {
     },
     clearUrlBar: function () {
         CliqzTour.urlBar.value = "";
+    },
+    clickListener: function (e) {
+        // make sure the click was not on the start button
+        if (CliqzTour.isRunning && e.target &&
+            e.target.id != "tour-btn") {
+            CliqzTour.telemetry("canceled");
+            CliqzTour.stop();
+            CliqzTour.reset();            
+        }        
+    },
+    popupHiddenListener: function (e) {
+        // stop tour only if hiding was triggered by user, but
+        // not if triggered programmatically via hidePopup()
+        if (CliqzTour.isRunning && 
+            e.target.getAttribute("isHiding") != "true") {
+            CliqzTour.telemetry("canceled");
+            CliqzTour.stop();
+            CliqzTour.reset();
+        }
+        e.target.setAttribute("isHiding", false);
     },
     clearUrlBarListener: function () {
         CliqzTour.clearUrlBar();
@@ -568,9 +601,15 @@ var CliqzTour = {
     hideCallout: function () {
         CliqzTour.hidePopup(CliqzTour.callout);
     },
-    hidePopup: function (popup) {
-        // TODO: fade out
+    hidePopup: function (popup) {   
+        // set flag to distinguish popup hiding because of
+        // user interaction vs. programatic closing in storyboard     
+        if (CliqzTour.isRunning) {
+            popup.setAttribute("isHiding", true);
+        }
+
         popup.hidePopup();
+        // TODO: fade out
     },
     movePopupTo: function (popup, x, y, t) {  
         if (t) {      
