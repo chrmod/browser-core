@@ -79,7 +79,7 @@ Cache.prototype.refresh = function (key, time) {
 }
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
-	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
+	SMART_CLIQZ_ENDPOINT: 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=',
 
 	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
