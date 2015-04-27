@@ -218,6 +218,17 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
+        // Detect duplicate entries
+        var historyShown = false;
+        for(var i=0; i<box.children.length; i++) {
+          var res = box.children[i];
+          if(res.getAttribute("type").indexOf("cliqz-pattern") != -1) {
+            if(historyShown)
+              box.removeChild(res);
+            historyShown = true;
+          }
+        }
+
         if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
         return;
       }
