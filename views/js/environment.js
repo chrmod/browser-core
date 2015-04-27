@@ -3,6 +3,13 @@ CLIQZEnvironment = {
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(){},
     setPref: function(){},
+    setInterval: setInterval,
+    setTimeout: setTimeout,
+    clearTimeout: clearTimeout,
+    tldExtractor: function(host){
+    	//lucian: temp - FIX IT
+    	return host.split('.').splice(-1)[0];
+    },
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = new XMLHttpRequest();
         req.open(method, url, true);

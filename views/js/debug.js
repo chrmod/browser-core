@@ -1,4 +1,6 @@
 var urlbar = document.getElementById('urlbar');
+CliqzUtils.init();
+
 urlbar.onkeyup = function(e){
 	CLIQZ.UI.main(document.getElementById('results'));
 	CliqzUtils.getCliqzResults(urlbar.value, function(r){
@@ -22,6 +24,7 @@ urlbar.onkeyup = function(e){
         	r.type='';
         	r.title = r.title || '';
         	r.text = res.q;
+        	r.value = r.url;
         	return r;
         }),
         isInstant: false

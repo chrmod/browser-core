@@ -53,7 +53,7 @@ module.exports = function(grunt) {
         concat: {
             global: {
                 src: [
-                    //Lucian can we include them all /* ?
+                    //Lucian can we include them all at once /* ?
                     "generic/modules/global/CliqzUtils.jsm",
                     "generic/modules/global/CliqzHandlebars.jsm",
                 ],
