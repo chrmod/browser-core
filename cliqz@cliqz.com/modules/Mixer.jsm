@@ -220,8 +220,25 @@ var Mixer = {
                 for(let i=0; i < results.length; i++) {
                     if(results[i].style.indexOf("cliqz-pattern") == 0)
                         results_new.push(results[i]);
-                    else if(CliqzHistoryPattern.generalizeUrl(results[i].val) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
-                        results_new.push(results[i]);
+                    else {
+                        var matchedEZ = false;
+
+                        // Check if the main link matches
+                        if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
+                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                            matchedEZ = true;
+
+                        // Look for sublinks that match
+                        for(k in cliqzExtra[0].data) {
+                            for(l in cliqzExtra[0].data[k]) {
+                                if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
+                                   CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].data[k][l].url))
+                                    matchedEZ = true;
+                            }
+                        }
+                        if(!matchedEZ)
+                            results_new.push(results[i]);
+                    }
                 }
                 results = results_new;
 
