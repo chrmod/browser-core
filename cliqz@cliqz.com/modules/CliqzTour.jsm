@@ -259,7 +259,7 @@ var CliqzTour = {
 
             CliqzTour.isRunning = false;
             CliqzTour.telemetry("finished");
-            CliqzUtils.cliqzPrefs.setBoolPref('onboarding_finishedWatching', true);
+            CliqzUtils.setPref('onboarding_finishedWatching', true);
         }, t: 0 }
     ],
 

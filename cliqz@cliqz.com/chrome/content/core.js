@@ -261,11 +261,9 @@ window.CLIQZ.Core = {
 
         var tutorialUrl = showNewOnboarding ? 
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
-        CliqzUtils.cliqzPrefs.setCharPref('onboarding_versionShown', 
+        CliqzUtils.setPref('onboarding_versionShown', 
             showNewOnboarding ? CliqzTour.VERSION : "0.0");
-        CliqzUtils.cliqzPrefs.setBoolPref('onboarding_finishedWatching', false);
-
-        CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
+        CliqzUtils.setPref('onboarding_finishedWatching', false);
 
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
