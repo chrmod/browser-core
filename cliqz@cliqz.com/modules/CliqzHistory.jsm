@@ -20,14 +20,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
-
+  XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
+    'chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
 
 
 
 var CliqzHistory = {
   prefExpire: (60 * 60 * 24 * 1000), // 24 hours
   tabData: [],
-  lastActivePanel: [],
+  lastActivePanel: null,
   listener: {
     QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
@@ -38,7 +39,6 @@ var CliqzHistory = {
       var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
-      CliqzHistory.setTabData(panel, 'title', "");
       // Skip if already saved or on any about: pages
       if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url || CliqzHistory.getTabData(panel, "lock")) {
         return;
@@ -64,24 +64,8 @@ var CliqzHistory = {
       var panel = tab.linkedPanel;
       if(aStateFlags == 786448 && url == CliqzHistory.getTabData(panel, 'url') &&
       url != CliqzHistory.getTabData(panel, "lastThumb")) {
-
-        if (CliqzHistory.getTabData(panel, 'url') && url && url.length > 0) {
-          // Remove old listeners
-          aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
-          aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
-          aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
-          aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
-
-          aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "click"), false);
-          aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
-          aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
-          aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
-          // Read & update open graph data
-          var meta = aBrowser.contentDocument.querySelectorAll('meta');
-          meta && CliqzHistory.updateOpenGraphData(panel, meta);
-          meta && CliqzHistory.writeOpenGraphData(panel);
-        }
-
+        CliqzHistory.reattachListeners(aBrowser, panel);
+        CliqzHistory.updateOpenGraphData(aBrowser, panel);
         CliqzHistory.checkThumbnail(url, function() {
           CliqzHistory.generateThumbnail(aBrowser.contentDocument, aBrowser.contentDocument, aBrowser.contentWindow, url);
         });
@@ -92,7 +76,20 @@ var CliqzHistory = {
       CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
     }
   },
-  updateOpenGraphData: function(panel, metaData) {
+  reattachListeners: function(aBrowser, panel) {
+    aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
+    aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
+    aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
+    aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
+
+    aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "click"), false);
+    aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
+    aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
+    aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
+  },
+  updateOpenGraphData: function(aBrowser, panel) {
+    var metaData = aBrowser.contentDocument.querySelectorAll('meta');
+    if(!metaData) return;
     var data = {};
     for(var key in metaData) {
       if(!metaData[key].getAttribute) continue;
@@ -110,6 +107,7 @@ var CliqzHistory = {
       }
     }
     CliqzHistory.setTabData(panel, "opengraph", data);
+    CliqzHistory.writeOpenGraphData(panel);
   },
   writeOpenGraphData: function(panel) {
     var data = JSON.stringify(CliqzHistory.getTabData(panel, "opengraph"));
@@ -213,7 +211,7 @@ var CliqzHistory = {
       aTarget.getAttribute("href") && (event.button == 0 || event.button == 1)) {
       var url = CliqzHistory.getTabData(panel, "url");
       if (!url || url.length == 0) return;
-      var linkUrl = CliqzHistoryPattern.simplifyUrl(aTarget.getAttribute("href"));
+      var linkUrl = CliqzHistoryPattern.simplifyUrl((aTarget.getAttribute("href") || ""));
       // URLs like //www.google.com/...
       if (linkUrl.indexOf("//") == 0) {
         linkUrl = url.substr(0, url.indexOf("//")) + linkUrl;
@@ -329,11 +327,11 @@ var CliqzHistory = {
     }
   },
   lastMouseMove: 0,
-  mouseMove: function() {
+  mouseMove: function(e, gBrowser) {
     var now = Date.now();
     if(now - CliqzHistory.lastMouseMove > 2000) {
       CliqzHistory.lastMouseMove = now;
-      var activeTab = CliqzUtils.getWindow().gBrowser.selectedTab;
+      var activeTab = gBrowser.selectedTab;
       if(activeTab.linkedPanel == CliqzHistory.lastActivePanel)
         CliqzHistory.updateInteractionData(activeTab.linkedPanel, true);
       else
@@ -350,7 +348,8 @@ var CliqzHistory = {
     var inactive = CliqzHistory.getTabData(panel, "inactive") || 0;
 
     if(useCurrent) prevVisit = CliqzHistory.getTabData(panel, "visitDate");
-    // Tab is active but there has been no interaction in the last five minutes
+    // Tab is active but there has been no interaction (including mouse movement) in the last five minutes
+    // TODO: Improve time limit, probably less?
     if(panel == CliqzHistory.lastActivePanel && lastUpdate > 5*60*1000) {
       inactive = inactive + (lastUpdate - 60*1000);
       CliqzHistory.setTabData(panel, "inactive", inactive);
@@ -579,6 +578,22 @@ var CliqzHistory = {
     }
     // Make sure thumbnail directory exists
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
+
+    //Analyse data
+    CliqzHistoryAnalysis.initData(function() {
+      CliqzUtils.log("URL");
+      CliqzHistoryAnalysis.analyseRevisits(1);
+      CliqzHistoryAnalysis.analyseRevisits(2);
+      CliqzHistoryAnalysis.analyseRevisits(3);
+      CliqzHistoryAnalysis.analyseRevisits(4);
+    });
+    CliqzHistoryAnalysis.initData(function() {
+      CliqzUtils.log("Query");
+      CliqzHistoryAnalysis.analyseRevisits(1);
+      CliqzHistoryAnalysis.analyseRevisits(2);
+      CliqzHistoryAnalysis.analyseRevisits(3);
+      CliqzHistoryAnalysis.analyseRevisits(4);
+    }, true);
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,

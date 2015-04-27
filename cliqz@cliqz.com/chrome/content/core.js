@@ -181,7 +181,9 @@ window.CLIQZ.Core = {
               target: window.gBrowser.selectedTab
             });
             window.addEventListener('close', CliqzHistory.updateAllTabs);
-            window.addEventListener('mousemove', CliqzHistory.mouseMove);
+            window.addEventListener('mousemove', function(e) {
+              CliqzHistory.mouseMove(e, window.gBrowser);
+            });
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
@@ -242,7 +244,7 @@ window.CLIQZ.Core = {
     showTutorial: function(onInstall, session){
         var showNewOnboarding = false;
 
-        
+
         try {
             var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                 .getService(Components.interfaces.nsIXULAppInfo);
@@ -251,7 +253,7 @@ window.CLIQZ.Core = {
             CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
             CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
 
-            // running under Firefox 1.5 or later               
+            // running under Firefox 1.5 or later
             if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
                 // 100% chance of showing new onboarding
                 showNewOnboarding = true;
@@ -269,7 +271,7 @@ window.CLIQZ.Core = {
             CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
         }
 
-        var tutorialUrl = showNewOnboarding ? 
+        var tutorialUrl = showNewOnboarding ?
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
         CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
 
