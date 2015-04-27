@@ -202,7 +202,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.0',
+    VERSION: '1.1',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -283,17 +283,24 @@ var CliqzHumanWeb = {
         return url;
     },
     getTime:function() {
-        var d = null;
-        var m = null;
-        var y = null;
-        var h = null;
-        var hr = null;
-        var _ts = null;
-        d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
-        m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
-        h = (new Date().getHours() < 10 ? "0" : "" ) + new Date().getHours();
-        y = new Date().getFullYear();
-        _ts = y + "" + m + "" + h + "" + d;
+        try { var ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        if(!ts){
+            var d = null;
+            var m = null;
+            var y = null;
+            var h = null;
+            var hr = null;
+            var _ts = null;
+            d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
+            m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            y = new Date().getFullYear();
+            _ts = y + "" + m + "" + d + "" + h;
+        }
+        else{
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            _ts = ts + "" + h;
+        }
         return _ts;
     },
     isSuspiciousURL: function(aURI) {
@@ -1509,6 +1516,17 @@ var CliqzHumanWeb = {
         }
     },
     unload: function() {
+        //Check is active usage, was sent 
+        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
+        if(activeUsageTrk){
+            var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
+            if(tDiff && tDiff > 300){
+                CliqzHumanWeb.checkActiveUsage();
+            }
+            else{
+                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+            }
+        }
         // send all the data
         CliqzHumanWeb.pushTelemetry();
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
@@ -2370,11 +2388,11 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
-        CliqzHumanWeb.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+        CliqzHumanWeb.dbConn.executeSimpleSQLAsync('DROP TABLE usafe;');
     },
     removeTable: function(reason) {
         try{
-            CliqzHumanWeb.olddbConn.executeSimpleSQL('DROP TABLE usafe;');
+            CliqzHumanWeb.olddbConn.executeSimpleSQLAsync('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
@@ -2728,8 +2746,8 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
-            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
-            CliqzHumanWeb.dbConn.executeSimpleSQL(hash_usafe);
+            CliqzHumanWeb.dbConn.executeSimpleSQLAsync(usafe);
+            CliqzHumanWeb.dbConn.executeSimpleSQLAsync(hash_usafe);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
@@ -2778,7 +2796,10 @@ var CliqzHumanWeb = {
   },
   checkActiveUsage: function(){
         //This function needs to be scheduled every one hour.
-        if(CliqzHumanWeb.activeUsage && CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold){
+        var oldUsage = 0;
+        try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
+        var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
+        if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
             //Sample event to be sent
             var payload = {};
             payload['status'] = true;
@@ -2787,6 +2808,8 @@ var CliqzHumanWeb = {
             payload['ctry'] = location;
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
             CliqzHumanWeb.activeUsage = 0;
+            CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
+            CliqzUtils.setPref('config_activeUsageCount', 0);
 
         }
   }
