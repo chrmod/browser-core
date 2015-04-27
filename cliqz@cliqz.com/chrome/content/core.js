@@ -240,8 +240,6 @@ window.CLIQZ.Core = {
                 .getService(Components.interfaces.nsIXULAppInfo);
             var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                 .getService(Components.interfaces.nsIVersionComparator);
-            CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
-            CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
 
             // running under Firefox 1.5 or later               
             if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
