@@ -20,8 +20,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
-  XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
-    'chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
+  'chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
 
 
 
@@ -29,6 +29,9 @@ var CliqzHistory = {
   prefExpire: (60 * 60 * 24 * 1000), // 24 hours
   tabData: [],
   lastActivePanel: null,
+  lastVisit: [],
+  lastVisitTransition: [],
+  lastAction: Date.now(),
   listener: {
     QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
@@ -40,18 +43,28 @@ var CliqzHistory = {
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       // Skip if already saved or on any about: pages
-      if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url || CliqzHistory.getTabData(panel, "lock")) {
+      if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url ||
+        CliqzHistory.getTabData(panel, "lock") || CliqzHistory.lastVisit.indexOf(url) == -1) {
         return;
+      }
+      var transition = CliqzHistory.lastVisitTransition[CliqzHistory.lastVisit.indexOf(url)];
+      while(CliqzHistory.lastVisit.indexOf(url) != -1) {
+        CliqzHistory.lastVisit.splice(CliqzHistory.lastVisit.indexOf(url), 1);
+        CliqzHistory.lastVisitTransition.splice(CliqzHistory.lastVisit.indexOf(url), 1);
       }
 
       if (!CliqzHistory.getTabData(panel, "type")) {
         CliqzHistory.setTabData(panel, "type", "link");
       }
       // Query is not set for bookmarks (opened from new tab page) or when a link is opened in a new window
-      if (!CliqzHistory.getTabData(panel, "query")) {
+      if (!CliqzHistory.getTabData(panel, "query") || transition == 3 /* Bookmark */ ||
+        (transition == 2 && CliqzHistory.getTabData(panel, "type") == "link") /* other urls form menu*/ ||
+        CliqzHistory.getTabData(panel, "external")) {
         CliqzHistory.setTabData(panel, "query", url);
         CliqzHistory.setTabData(panel, "queryDate", new Date().getTime());
-        CliqzHistory.setTabData(panel, "type", "bookmark");
+        if (CliqzHistory.getTabData(panel, "external")) CliqzHistory.setTabData(panel, "type", "link");
+        else CliqzHistory.setTabData(panel, "type", "bookmark");
+        CliqzHistory.setTabData(panel, "external", false);
       }
       CliqzHistory.setTabData(panel, 'url', url);
       CliqzHistory.addHistoryEntry(aBrowser);
@@ -62,14 +75,17 @@ var CliqzHistory = {
       var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
-      if(aStateFlags == 786448 && url == CliqzHistory.getTabData(panel, 'url') &&
-      url != CliqzHistory.getTabData(panel, "lastThumb")) {
+      if (aStateFlags == 786448 /* Finished */ && url == CliqzHistory.getTabData(panel, 'url') &&
+        url != CliqzHistory.getTabData(panel, "lastThumb")) {
         CliqzHistory.reattachListeners(aBrowser, panel);
         CliqzHistory.updateOpenGraphData(aBrowser, panel);
         CliqzHistory.checkThumbnail(url, function() {
-          CliqzHistory.generateThumbnail(aBrowser.contentDocument, aBrowser.contentDocument, aBrowser.contentWindow, url);
+          CliqzHistory.generateThumbnail(aBrowser, panel, url);
         });
-        CliqzHistory.setTabData(panel, "lastThumb", url);
+        // Force history at this point
+        // Back events are not triggered by history observer
+        CliqzHistory.lastVisit.push(url);
+        CliqzHistory.lastVisitTransition.push(0);
       }
     },
     onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {
@@ -89,20 +105,19 @@ var CliqzHistory = {
   },
   updateOpenGraphData: function(aBrowser, panel) {
     var metaData = aBrowser.contentDocument.querySelectorAll('meta');
-    if(!metaData) return;
+    if (!metaData) return;
     var data = {};
-    for(var key in metaData) {
-      if(!metaData[key].getAttribute) continue;
+    for (var key in metaData) {
+      if (!metaData[key].getAttribute) continue;
       var content = metaData[key].getAttribute("content");
       var prop = metaData[key].getAttribute("property");
       if (prop && prop.indexOf("og:") == 0) {
         var attr = prop.substr(3);
-        if(data[attr] && data[attr] == content) continue;
-        else if(data[attr] && typeof(data[attr]) == "string") {
+        if (data[attr] && data[attr] == content) continue;
+        else if (data[attr] && typeof(data[attr]) == "string") {
           data[attr] = [data[attr]];
           data[attr].push(content);
-        }
-        else if(data[attr]) data[attr].push(content);
+        } else if (data[attr]) data[attr].push(content);
         else data[attr] = content;
       }
     }
@@ -113,8 +128,8 @@ var CliqzHistory = {
     var data = JSON.stringify(CliqzHistory.getTabData(panel, "opengraph"));
     var dbData = CliqzHistory.getTabData(panel, "dbOpengraphData");
     var dbUrl = CliqzHistory.getTabData(panel, "dbOpengraphUrl");
-    var url = CliqzHistory.getTabData(panel,"url");
-    if((data != dbData || dbUrl != url) && data.length > 2) {
+    var url = CliqzHistory.getTabData(panel, "url");
+    if ((data != dbData || dbUrl != url) && data.length > 2) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO opengraph VALUES(:url, :data)", null, null, {
         url: url,
         data: data
@@ -123,26 +138,31 @@ var CliqzHistory = {
       CliqzHistory.setTabData(panel, "dbOpengraphUrl", url);
     }
   },
-  generateThumbnail: function(elm, doc, win, url) {
+  generateThumbnail: function(aBrowser, panel, url) {
+    var elm = aBrowser.contentDocument,
+      doc = elm,
+      win = aBrowser.contentWindow;
+
     function findPosX(obj) {
       var curleft = 0;
       if (obj.offsetParent) {
-          while (1) {
-            curleft += obj.offsetLeft;
-            if (!obj.offsetParent) break;
-            obj = obj.offsetParent;
-          }
+        while (1) {
+          curleft += obj.offsetLeft;
+          if (!obj.offsetParent) break;
+          obj = obj.offsetParent;
+        }
       } else if (obj.x) curleft += obj.x;
       return curleft;
     }
+
     function findPosY(obj) {
       var curtop = 0;
       if (obj.offsetParent) {
-          while (1) {
-            curtop += obj.offsetTop;
-            if (!obj.offsetParent) break;
-            obj = obj.offsetParent;
-          }
+        while (1) {
+          curtop += obj.offsetTop;
+          if (!obj.offsetParent) break;
+          obj = obj.offsetParent;
+        }
       } else if (obj.y) curtop += obj.y;
       return curtop;
     }
@@ -153,12 +173,12 @@ var CliqzHistory = {
     var height = win.innerHeight;
     var filename = CliqzHistory.MD5(url);
 
-    if(width<height) {
-      var ratio = height/width;
+    if (width < height) {
+      var ratio = height / width;
       width = 208;
       height = width * ratio;
     } else {
-      var ratio = width/height;
+      var ratio = width / height;
       height = 208;
       width = height * ratio;
     }
@@ -168,32 +188,35 @@ var CliqzHistory = {
     cnvs.height = height;
     var ctx = cnvs.getContext("2d");
 
-    ctx.scale(width/win.innerWidth,width/win.innerWidth);
+    ctx.scale(width / win.innerWidth, width / win.innerWidth);
     ctx.drawWindow(win, 0, 0, win.innerWidth, win.innerHeight, "rgb(255,255,255)");
-    cnvs.toBlob(CliqzHistory.blobCallback(filename), "image/jpeg", 0.8);
-
-    CliqzHistory.SQL("INSERT OR REPLACE INTO thumbnails VALUES(:url, :filename, :date)", null, null, {
-      url: url,
-      filename: filename + ".jpeg",
-      date: Date.now()
-    });
+    cnvs.toBlob(CliqzHistory.blobCallback(filename, panel, url), "image/jpeg", 0.8);
   },
-  blobCallback: function(filename) {
+  blobCallback: function(filename, panel, url) {
     return function(b) {
-      CliqzHistory.blob2=b;
       var r = new CliqzUtils.getWindow().FileReader();
-      r.onloadend = function () {
+      r.onloadend = function() {
         Cu.import('resource://gre/modules/osfile.jsm');
         var writePath = FileUtils.getFile("ProfD", ["cliqz_thumbnails", filename + ".jpeg"]).path;
-        OS.File.writeAtomic(writePath, new Uint8Array(r.result), {tmpPath:writePath + '.tmp'});
+        OS.File.writeAtomic(writePath, new Uint8Array(r.result), {
+          tmpPath: writePath + '.tmp'
+        });
       };
-      r.readAsArrayBuffer(b);
+      if (b.size > 2000) {
+        r.readAsArrayBuffer(b);
+        CliqzHistory.SQL("INSERT OR REPLACE INTO thumbnails VALUES(:url, :filename, :date)", null, null, {
+          url: url,
+          filename: filename + ".jpeg",
+          date: Date.now()
+        });
+        CliqzHistory.setTabData(panel, "lastThumb", url);
+      }
     }
   },
   checkThumbnail: function(url, callback) {
     // Only update thumbnail when older than one hour
     CliqzHistory.SQL("SELECT date FROM thumbnails WHERE url=:url AND (:date-date)<(60*60*1000)", null, function(n) {
-      if(n == 0) callback();
+      if (n == 0) callback();
     }, {
       url: url,
       date: Date.now()
@@ -311,13 +334,13 @@ var CliqzHistory = {
         url: url,
         title: title
       });
-    } else if(!title && linkTitle){
+    } else if (!title && linkTitle) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, (select title from urltitles where url=:url), :linkTitle)", null, null, {
         url: url,
         linkTitle: linkTitle
       });
-    } else if(title && linkTitle) {
+    } else if (title && linkTitle) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
                 VALUES (:url, :title, :linkTitle)", null, null, {
         url: url,
@@ -329,13 +352,15 @@ var CliqzHistory = {
   lastMouseMove: 0,
   mouseMove: function(e, gBrowser) {
     var now = Date.now();
-    if(now - CliqzHistory.lastMouseMove > 2000) {
+    if (now - CliqzHistory.lastMouseMove > 2000) {
       CliqzHistory.lastMouseMove = now;
       var activeTab = gBrowser.selectedTab;
-      if(activeTab.linkedPanel == CliqzHistory.lastActivePanel)
+      if (activeTab.linkedPanel == CliqzHistory.lastActivePanel)
         CliqzHistory.updateInteractionData(activeTab.linkedPanel, true);
       else
-        CliqzHistory.tabSelect({target:activeTab});
+        CliqzHistory.tabSelect({
+          target: activeTab
+        });
     }
   },
   updateInteractionData: function(panel, useCurrent) {
@@ -347,16 +372,16 @@ var CliqzHistory = {
     var keys = CliqzHistory.getTabData(panel, "keyCount");
     var inactive = CliqzHistory.getTabData(panel, "inactive") || 0;
 
-    if(useCurrent) prevVisit = CliqzHistory.getTabData(panel, "visitDate");
+    if (useCurrent) prevVisit = CliqzHistory.getTabData(panel, "visitDate");
     // Tab is active but there has been no interaction (including mouse movement) in the last five minutes
     // TODO: Improve time limit, probably less?
-    if(panel == CliqzHistory.lastActivePanel && lastUpdate > 5*60*1000) {
-      inactive = inactive + (lastUpdate - 60*1000);
+    if (panel == CliqzHistory.lastActivePanel && lastUpdate > 5 * 60 * 1000) {
+      inactive = inactive + (lastUpdate - 60 * 1000);
       CliqzHistory.setTabData(panel, "inactive", inactive);
     }
     // Remove time that was spent on other tabs
     var timeSpent = Date.now() - prevVisit - inactive;
-    if(timeSpent < 0) timeSpent = 0;
+    if (timeSpent < 0) timeSpent = 0;
 
     if (prevVisit) {
       CliqzHistory.SQL("UPDATE visits \
@@ -374,7 +399,7 @@ var CliqzHistory = {
     }
   },
   updateAllTabs: function() {
-    for(var key in CliqzHistory.tabData) {
+    for (var key in CliqzHistory.tabData) {
       CliqzHistory.updateInteractionData(key, true);
     }
   },
@@ -384,11 +409,21 @@ var CliqzHistory = {
   },
   tabOpen: function(e) {
     var browser = CliqzUtils.getWindow().gBrowser,
-      curPanel = browser.selectedTab.linkedPanel,
+      curPanel = /*browser.selectedTab.linkedPanel ||*/ CliqzHistory.lastActivePanel,
       newPanel = e.target.linkedPanel;
 
     CliqzHistory.setTabData(newPanel, "inactiveSince", Date.now());
     CliqzHistory.updateInteractionData(curPanel, true);
+
+    // If the user opens a new tab within Firefox, this timer is VERY small (below 10 ms)
+    // However, if an external link is opened, this value is a lot higher
+    var inactive = Date.now() - CliqzHistory.lastAction;
+    // Threshold of one second
+    if (inactive > 3000) {
+      //var url = e.target.tab.linkedBrowser.contentWindow.location.href;
+      CliqzHistory.setTabData(newPanel, "external", true);
+    }
+
     CliqzHistory.setTabData(newPanel, "lock", true);
     var checkUrl = function(p) {
       var url = p.tab.linkedBrowser.contentWindow.location.href;
@@ -425,7 +460,7 @@ var CliqzHistory = {
     var inactiveSince = CliqzHistory.getTabData(newPanel, "inactiveSince");
     CliqzHistory.setTabData(curPanel, "inactiveSince", now);
     CliqzHistory.setTabData(newPanel, 'lastUpdate', Date.now());
-    if(inactiveSince) {
+    if (inactiveSince) {
       var cur = CliqzHistory.getTabData(newPanel, "inactive") || 0;
       var inactive = now - inactiveSince;
       CliqzHistory.setTabData(newPanel, "inactive", cur + inactive);
@@ -441,7 +476,7 @@ var CliqzHistory = {
     }
   },
   setTabData: function(panel, attr, val) {
-    if(!CliqzHistory) return;
+    if (!CliqzHistory) return;
 
     if (!CliqzHistory.tabData[panel]) {
       CliqzHistory.tabData[panel] = [];
@@ -466,6 +501,11 @@ var CliqzHistory = {
     CliqzHistory.setTabData(panel, "clickCount", 0);
     CliqzHistory.setTabData(panel, "keyCount", 0);
     CliqzHistory.setTabData(panel, "scrollCount", 0);
+  },
+  action: function() {
+    CliqzUtils.setTimeout(function() {
+      CliqzHistory.lastAction = Date.now();
+    }, 1000);
   },
   updateQuery: function(query) {
     var date = new Date().getTime();
@@ -500,7 +540,7 @@ var CliqzHistory = {
             var values = [];
             var tmp = row.getResultByIndex(0);
             try {
-              for(var i=0;;tmp=row.getResultByIndex(i), i++) values[i]=tmp;
+              for (var i = 0;; tmp = row.getResultByIndex(i), i++) values[i] = tmp;
             } catch (e) {}
             onRow(values);
           }
@@ -565,10 +605,10 @@ var CliqzHistory = {
       CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
-        if(n == 0) CliqzHistory.SQL(opengraph);
+        if (n == 0) CliqzHistory.SQL(opengraph);
       });
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
-        if(n == 0) CliqzHistory.SQL(thumbnails);
+        if (n == 0) CliqzHistory.SQL(thumbnails);
       });
     } else {
       CliqzHistory.SQL(visits);
@@ -597,24 +637,32 @@ var CliqzHistory = {
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,
-    function(n) {
-      if(n == 0) CliqzHistory.SQL("alter table "+table+" add column " + col + " " + type);
-    }, {
-      table: table,
-      col: "% " + col + " %"
-    });
+      function(n) {
+        if (n == 0) CliqzHistory.SQL("alter table " + table + " add column " + col + " " + type);
+      }, {
+        table: table,
+        col: "% " + col + " %"
+      });
   },
   deleteVisit: function(url) {
     // TODO: Delete complete sessions?
-    CliqzHistory.SQL("delete from visits where url = :url", null, null, { url: url });
-    CliqzHistory.SQL("delete from urltitles where url = :url", null, null, { url: url });
-    CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, { url: url });
-    CliqzHistory.SQL("delete from opengraph where url = :url", null, null, { url: url });
+    CliqzHistory.SQL("delete from visits where url = :url", null, null, {
+      url: url
+    });
+    CliqzHistory.SQL("delete from urltitles where url = :url", null, null, {
+      url: url
+    });
+    CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, {
+      url: url
+    });
+    CliqzHistory.SQL("delete from opengraph where url = :url", null, null, {
+      url: url
+    });
     CliqzHistory.deleteThumbnail(url);
   },
   deleteThumbnail: function(url) {
     var thumbnail = FileUtils.getFile("ProfD", ["cliqz_thumbnails", CliqzHistory.MD5(url) + ".jpeg"]);
-    if(thumbnail.exists()) thumbnail.remove(true);
+    if (thumbnail.exists()) thumbnail.remove(true);
   },
   deleteTimeFrame: function() {
     // TODO: Delete complete sessions?
@@ -644,11 +692,13 @@ var CliqzHistory = {
       CliqzHistory.deleteTimeFrame();
     },
     onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {
-      // aTransitionType 3 => bookmark
+      var url = CliqzHistoryPattern.simplifyUrl(aURI.spec);
+      CliqzHistory.lastVisit.push(url);
+      CliqzHistory.lastVisitTransition.push(aTransitionType);
     },
     onTitleChanged: function(aURI, aPageTitle) {
-      var url= CliqzHistoryPattern.simplifyUrl(aURI.spec);
-      if(url.length > 0 && aPageTitle.length > 0)
+      var url = CliqzHistoryPattern.simplifyUrl(aURI.spec);
+      if (url.length > 0 && aPageTitle.length > 0)
         CliqzHistory.updateTitle(url, aPageTitle)
     },
     onDeleteURI: function(aURI) {
@@ -696,17 +746,17 @@ var CliqzHistory = {
   MD5: function(str) {
     var converter =
       Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
-        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
     converter.charset = "UTF-8";
     var result = {};
     var data = converter.convertToByteArray(str, result);
     var ch = Components.classes["@mozilla.org/security/hash;1"]
-                       .createInstance(Components.interfaces.nsICryptoHash);
+      .createInstance(Components.interfaces.nsICryptoHash);
     ch.init(ch.MD5);
     ch.update(data, data.length);
     var hash = ch.finish(false);
-    function toHexString(charCode)
-    {
+
+    function toHexString(charCode) {
       return ("0" + charCode.toString(16)).slice(-2);
     }
     return [toHexString(hash.charCodeAt(i)) for (i in hash)].join("");

@@ -176,25 +176,29 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
-            CliqzHistory.updateLastActivePanel();
-            CliqzHistory.tabOpen({
-              target: window.gBrowser.selectedTab
-            });
-            window.addEventListener('close', CliqzHistory.updateAllTabs);
-            window.addEventListener('mousemove', function(e) {
-              CliqzHistory.mouseMove(e, window.gBrowser);
-            });
-            window.gBrowser.addProgressListener(CliqzLanguage.listener);
-
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
-
+            // Update CLIQZ history data
+            CliqzHistory.tabOpen({
+              target: window.gBrowser.selectedTab
+            });
+            CliqzHistory.updateLastActivePanel();
+            // CLIQZ history listener
+            window.addEventListener('close', CliqzHistory.updateAllTabs);
+            window.addEventListener('mousemove', function(e) {
+              CliqzHistory.action();
+              CliqzHistory.mouseMove(e, window.gBrowser);
+            });
+            window.addEventListener('click', CliqzHistory.action);
+            window.addEventListener('keydown', CliqzHistory.action);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
             window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
             window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
+
+            window.gBrowser.addProgressListener(CliqzLanguage.listener);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
