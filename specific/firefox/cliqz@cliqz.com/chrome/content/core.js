@@ -652,7 +652,7 @@ window.CLIQZ.Core = {
             CliqzAutocomplete.selectAutocomplete = true;
             CLIQZ.UI.selectAutocomplete();
         }
-},
+    },
     cleanUrlBarValue: function(val){
         var cleanParts = CliqzUtils.cleanUrlProtocol(val, false).split('/'),
             host = cleanParts[0],
@@ -716,5 +716,190 @@ window.CLIQZ.Core = {
                 current_length: ev.target.value.length
             });
         }, 0);
-    }
+    },
+    //Q button
+    refreshButtons: function(){
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext()
+
+            try{
+                var btn = win.document.getElementById('cliqz-button')
+                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
+            } catch(e){}
+        }
+    },
+    createQbutton: function(win, menupopup){
+        var doc = win.document,
+            lang = CliqzUtils.getLanguage(win);
+
+        //clean it
+        while(menupopup.lastChild)
+          menupopup.removeChild(menupopup.lastChild);
+
+        function feedback_FAQ(){
+            win.Application.getExtensions(function(extensions) {
+                var beVersion = extensions.get('cliqz@cliqz.com').version;
+                CliqzUtils.httpGet('chrome://cliqz/content/source.json',
+                    function success(req){
+                        var source = JSON.parse(req.response).shortName;
+                        CliqzSpecific.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                    },
+                    function error(){
+                        CliqzSpecific.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
+                    }
+                );
+            });
+        }
+
+        //feedback and FAQ
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
+        menupopup.appendChild(doc.createElement('menuseparator'));
+
+        //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
+      if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
+        menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
+      }
+      else {
+        menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
+      }
+      menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
+      /*
+      menupopup.appendChild(doc.createElement('menuseparator'));
+      menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, "CLIQZ Tour", function () {
+        CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
+      }));
+      */
+      //menupopup.appendChild(CLIQZ.Core.createCheckBoxItem(doc, 'news-toggle'));
+    },
+    createSearchOptions: function(doc){
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup'),
+            engines = CliqzResultProviders.getSearchEngines(),
+            def = Services.search.currentEngine.name;
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));
+
+        for(var i in engines){
+
+            var engine = engines[i],
+                item = doc.createElement('menuitem');
+            item.setAttribute('label', '[' + engine.prefix + '] ' + engine.name);
+            item.setAttribute('class', 'menuitem-iconic');
+            item.engineName = engine.name;
+            if(engine.name == def){
+                item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+            }
+            item.addEventListener('command', function(event) {
+                CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
+                CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+            }, false);
+
+            menupopup.appendChild(item);
+        }
+
+        menu.appendChild(menupopup);
+
+        return menu;
+    },
+    createAdultFilterOptions: function(doc) {
+        var menu = doc.createElement('menu'),
+            menupopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', CliqzUtils.getLocalizedString('result_filter'));
+
+        var filter_levels = CliqzUtils.getAdultFilterState();
+
+        for(var level in filter_levels) {
+          var item = doc.createElement('menuitem');
+          item.setAttribute('label', filter_levels[level].name);
+          item.setAttribute('class', 'menuitem-iconic');
+
+          if(filter_levels[level].selected){
+            item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+          }
+
+          item.filter_level = new String(level);
+          item.addEventListener('command', function(event) {
+            CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
+            CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+          }, false);
+
+          menupopup.appendChild(item);
+        };
+        menu.appendChild(menupopup);
+        return menu;
+    },
+    createSimpleBtn: function(doc, txt, func){
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', txt);
+        if(func)
+            item.addEventListener('command', func, false);
+        else
+            item.setAttribute('disabled', 'true');
+
+        return item
+    },
+    createCheckBoxItem: function(doc, key, label, activeState){
+      function optInOut(){
+          return CliqzUtils.getPref(key, false) == (activeState == 'undefined' ? true : activeState)?
+                           'url(chrome://cliqzres/content/skin/opt-in.svg)':
+                           'url(chrome://cliqzres/content/skin/opt-out.svg)';
+      }
+
+      var btn = doc.createElement('menuitem');
+      btn.setAttribute('label', label || key);
+      btn.setAttribute('class', 'menuitem-iconic');
+      btn.style.listStyleImage = optInOut();
+      btn.addEventListener('command', function(event) {
+          CliqzUtils.setPref(key, !CliqzUtils.getPref(key, false));
+          btn.style.listStyleImage = optInOut();
+      }, false);
+
+      return btn;
+    },
+    createHumanMenu: function(win){
+        var doc = win.document,
+            menu = doc.createElement('menu'),
+            menuPopup = doc.createElement('menupopup');
+
+        menu.setAttribute('label', 'Human Web');
+
+        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
+        menuPopup.appendChild(safeSearchBtn);
+
+        menuPopup.appendChild(
+            CLIQZ.Core.createSimpleBtn(
+                doc,
+                CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
+                function(){
+                        CliqzSpecific.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+                    }
+            )
+        );
+
+        menu.appendChild(menuPopup)
+        return menu
+    },
+    createActivateButton: function(doc) {
+      var button = doc.createElement('menuitem');
+      button.setAttribute('label', CliqzUtils.getLocalizedString('btnActivateCliqz'));
+      button.addEventListener('command', function(event) {
+        var enumerator = Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            win.CLIQZ.Core.init();
+        }
+        CliqzUtils.setPref("cliqz_core_disabled", false);
+        CLIQZ.Core.refreshButtons();
+
+        CliqzUtils.telemetry({
+          type: 'setting',
+          setting: 'international',
+          value: 'activate'
+        });
+      });
+      return button;
+    },
 };

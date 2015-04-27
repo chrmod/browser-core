@@ -165,4 +165,9 @@ var CliqzSpecific = {
         var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
         return util.outerWindowID;
     },
+    openTabInWindow: function(win, url){
+        var tBrowser = win.document.getElementById('content');
+        var tab = tBrowser.addTab(url);
+        tBrowser.selectedTab = tab;
+    }
 }
