@@ -1520,7 +1520,7 @@ var CliqzHumanWeb = {
         try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
         if(activeUsageTrk){
             var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
-            if(tDiff && tDiff > 300){
+            if(tDiff && tDiff > 3600){
                 CliqzHumanWeb.checkActiveUsage();
             }
             else{
