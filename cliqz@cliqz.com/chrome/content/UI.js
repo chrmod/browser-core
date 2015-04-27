@@ -1105,7 +1105,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox.children[0];
       if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
-      query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+      //query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
 
@@ -1496,7 +1496,7 @@ function onEnter(ev, item){
       source: getResultKind(item),
       current_position: -1,
       new_tab: newTab
-    });
+    }, urlbar.mInputField.value);
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {

@@ -167,7 +167,11 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             CliqzHistory.updateLastActivePanel();
+            CliqzHistory.tabOpen({
+              target: window.gBrowser.selectedTab
+            });
             window.addEventListener('close', CliqzHistory.updateAllTabs);
+            window.addEventListener('mousemove', CliqzHistory.mouseMove);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
