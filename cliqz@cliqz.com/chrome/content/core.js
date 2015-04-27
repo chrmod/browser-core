@@ -49,6 +49,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
+  'chrome://cliqzmodules/content/CliqzTour.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -240,22 +243,17 @@ window.CLIQZ.Core = {
                 .getService(Components.interfaces.nsIXULAppInfo);
             var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                 .getService(Components.interfaces.nsIVersionComparator);
-            CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
-            CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
 
-            // running under Firefox 1.5 or later               
+            // running under Firefox 36.0 or later               
             if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
-                // 100% chance of showing new onboarding
-                showNewOnboarding = true;
-
-                // // 10% chance of showing new onboarding
-                // if (session) {
-                //     var tokens = session.split("|");
-                //     if (tokens.length > 1) {
-                //         var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
-                //         showNewOnboarding = (lastDigit == 5);
-                //     }
-                // }
+                // 50% chance of showing new onboarding
+                if (session) {
+                    var tokens = session.split("|");
+                    if (tokens.length > 1) {
+                        var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                        showNewOnboarding = (lastDigit < 5);
+                    }
+                }
             }
         } catch (e) {
             CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
@@ -263,9 +261,9 @@ window.CLIQZ.Core = {
 
         var tutorialUrl = showNewOnboarding ? 
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
-        CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
-
-        CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
+        CliqzUtils.setPref('onboarding_versionShown', 
+            showNewOnboarding ? CliqzTour.VERSION : "0.0");
+        CliqzUtils.setPref('onboarding_finishedWatching', false);
 
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
@@ -369,6 +367,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistory;
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
+            delete window.CliqzTour;
         }
     },
     restart: function(soft){
