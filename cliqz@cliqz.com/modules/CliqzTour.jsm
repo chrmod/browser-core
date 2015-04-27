@@ -106,7 +106,7 @@ var CliqzTour = {
             CliqzTour.movePopupTo(CliqzTour.cursor, 10, CliqzTour.getPopupUrlBarCenterOffsetY());
             CliqzTour.showCursor();
 
-            CliqzTour.telemetry("query_started");
+            CliqzTour.telemetry("step_query_started");
         }, t: 50 },     
         // move lens
         { f: function () {
@@ -122,7 +122,7 @@ var CliqzTour = {
         { f: function () {
             CliqzTour.win.CLIQZ.UI.results(CliqzTour.results.final);
 
-            CliqzTour.telemetry("results_shown");
+            CliqzTour.telemetry("step_results_shown");
         }, t: 2100 },
         // show "these are cliqz results" callout
         { f: function () {
@@ -187,7 +187,7 @@ var CliqzTour = {
         // show landing page
         { f: function () {
             CliqzTour.getPageElement("landing-page-content").style.visibility = 'visible';
-            CliqzTour.telemetry("landing_page_shown");
+            CliqzTour.telemetry("step_landing_page_shown");
         }, t: 750 },
         // show "you made it" callout (inside page, not as popup)
         { f: function () {
