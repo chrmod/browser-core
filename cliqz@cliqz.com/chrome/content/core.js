@@ -43,6 +43,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
+  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
@@ -90,8 +93,15 @@ window.CLIQZ.Core = {
           try {
             var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             hs.addObserver(CliqzHistory.historyObserver, false);
+
+            if(CliqzUtils.getPref("humanWeb", false)){
+                //Also need to add for Humanweb
+                hs.addObserver(CliqzHumanWeb.historyObserver, false);
+            }
           } catch(e) {}
         }
+
+
 
         CliqzRedirect.addHttpObserver();
         CliqzUtils.init(window);
@@ -173,6 +183,12 @@ window.CLIQZ.Core = {
             window.addEventListener('close', CliqzHistory.updateAllTabs);
             window.addEventListener('mousemove', CliqzHistory.mouseMove);
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
+
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+                CliqzHumanWeb.init(window);
+                window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
+            }
+
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
             window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
@@ -198,12 +214,14 @@ window.CLIQZ.Core = {
             CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                 function success(req){
                     var source = JSON.parse(req.response).shortName;
-                    prefs.setCharPref('session', CLIQZ.Core.generateSession(source));
-                    CLIQZ.Core.showTutorial(true);
+                    var session = CLIQZ.Core.generateSession(source);
+                    prefs.setCharPref('session', session);
+                    CLIQZ.Core.showTutorial(true, session);
                 },
                 function error(){
-                    prefs.setCharPref('session', CLIQZ.Core.generateSession());
-                    CLIQZ.Core.showTutorial(true);
+                    var session = CLIQZ.Core.generateSession();
+                    prefs.setCharPref('session', session);
+                    CLIQZ.Core.showTutorial(true, session);
                 }
             );
         } else {
@@ -221,10 +239,45 @@ window.CLIQZ.Core = {
     },
     //opens tutorial page on first install or at reinstall if reinstall is done through onboarding
     _tutorialTimeout:null,
-    showTutorial: function(onInstall){
+    showTutorial: function(onInstall, session){
+        var showNewOnboarding = false;
+
+        
+        try {
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                .getService(Components.interfaces.nsIXULAppInfo);
+            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                .getService(Components.interfaces.nsIVersionComparator);
+            CliqzUtils.log('version checker ininitialized', "Cliqz Onboarding");
+            CliqzUtils.log('version check: ' + versionChecker.compare(appInfo.version, "25.0"), "Cliqz Onboarding");
+
+            // running under Firefox 1.5 or later               
+            if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
+                // 100% chance of showing new onboarding
+                showNewOnboarding = true;
+
+                // // 10% chance of showing new onboarding
+                // if (session) {
+                //     var tokens = session.split("|");
+                //     if (tokens.length > 1) {
+                //         var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                //         showNewOnboarding = (lastDigit == 5);
+                //     }
+                // }
+            }
+        } catch (e) {
+            CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
+        }
+
+        var tutorialUrl = showNewOnboarding ? 
+            CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
+        CliqzUtils.cliqzPrefs.setBoolPref('showNewOnboarding', showNewOnboarding);
+
+        CliqzUtils.log('tutorialUrl: ' + tutorialUrl, "Cliqz Onboarding");
+
         CLIQZ.Core._tutorialTimeout = setTimeout(function(){
             var onlyReuse = onInstall ? false: true;
-            CLIQZ.Core.openOrReuseTab(CliqzUtils.TUTORIAL_URL, CliqzUtils.INSTAL_URL, onlyReuse);
+            CLIQZ.Core.openOrReuseTab(tutorialUrl, CliqzUtils.INSTAL_URL, onlyReuse);
         }, 100);
     },
     // trigger component reload at install/uninstall
@@ -264,11 +317,30 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.unload();
         CliqzRedirect.unload();
 
-        // remove listners
+
+        // remove listeners
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
+
+            if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
+                window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
+
+                //Remove indi.event handlers
+                CliqzHumanWeb.unload();
+
+                var numTabs = window.gBrowser.tabContainer.childNodes.length;
+                for (var i=0; i<numTabs; i++) {
+                  var currentTab = gBrowser.tabContainer.childNodes[i];
+                  var currentBrowser = gBrowser.getBrowserForTab(currentTab);
+                  currentBrowser.contentDocument.removeEventListener("keypress", CliqzHumanWeb.captureKeyPressPage);
+                  currentBrowser.contentDocument.removeEventListener("mousemove", CliqzHumanWeb.captureMouseMovePage);
+                  currentBrowser.contentDocument.removeEventListener("mousedown", CliqzHumanWeb.captureMouseClickPage);
+                  currentBrowser.contentDocument.removeEventListener("scroll", CliqzHumanWeb.captureScrollPage);
+                  currentBrowser.contentDocument.removeEventListener("copy", CliqzHumanWeb.captureCopyPage);
+                }
+            }
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -277,10 +349,18 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.removeEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
 
-        try {
-            var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            hs.removeObserver(CliqzHistory.historyObserver);
-        } catch(e) {}
+        if (!CliqzUtils.isPrivate(window)) {
+            try {
+                var hs = Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+                hs.removeObserver(CliqzHistory.historyObserver);
+
+                if(CliqzUtils.getPref("humanWeb", false) ){
+                    //Also, remove from Humanweb
+                    hs.removeObserver(CliqzHumanWeb.historyObserver);
+                }
+
+            } catch(e) {}
+        }
 
         if(!soft){
             delete window.CliqzUtils;
@@ -292,6 +372,7 @@ window.CLIQZ.Core = {
             delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
+            delete window.CliqzHumanWeb;
             delete window.CliqzSpellCheck;
             delete window.CliqzHistory;
             delete window.CliqzHistoryPattern;

@@ -238,7 +238,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('nameify', function(str) {
-        return str[0].toUpperCase() + str.slice(1);
+        if (str.length == 0) return "";
+        else return str[0].toUpperCase() + str.slice(1);
     });
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
@@ -260,7 +261,10 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
-        if(!data.trending) return true;
+        if(!data.trending ||
+            data.trending.length == 0 ||
+            CliqzUtils.getPref('news-toggle', false) == false)
+            return true;
 
         try {
           var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),

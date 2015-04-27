@@ -53,7 +53,7 @@ var CliqzHistoryPattern = {
     CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
     query = query.split(" ")[0];
-    let file = FileUtils.getFile("ProfD", ["cliqz.db"]);
+    var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     if(!CliqzHistoryPattern.dbConn)
       CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file)
     this.data = [];
@@ -164,7 +164,9 @@ var CliqzHistoryPattern = {
   addFirefoxHistory: function(history) {
     var query = history.searchString;
     // attempt rule-based clustering first
-    var [history_left, cluster_data] = CliqzClusterHistory.cluster(history);
+    var clustered_result = CliqzClusterHistory.cluster(history);
+    //var history_left = clustered_result[0]
+    var cluster_data = clustered_result[1];
 
     // Extract results
     var patterns = [];
@@ -232,7 +234,10 @@ var CliqzHistoryPattern = {
     patterns = CliqzHistoryPattern.removeDuplicates(patterns);
 
     // Move base domain to top
-    [patterns, baseUrl, favicon] = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
+    var adjustedResults = CliqzHistoryPattern.adjustBaseDomain(patterns, query);
+    patterns = adjustedResults[0];
+    baseUrl = adjustedResults[1];
+    favicon = adjustedResults[2];
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false, baseUrl);
 
     // Add base domain if above threshold
@@ -723,10 +728,10 @@ var CliqzHistoryPattern = {
         handleError: function(error) {},
 
         handleResult: function(resultSet) {
-          let row;
+          var row;
           while (row = resultSet.getNextRow()) {
             // Read out the desired columns from the row into an object
-            let result;
+            var result;
             if (columns != null) {
               // For just a single column, make the result that column
               if (columns.length == 1) {
@@ -882,7 +887,7 @@ var CliqzHistoryPattern = {
   // Extract earliest and latest entry of Firefox history
   historyTimeFrame: function(callback) {
     Cu.import('resource://gre/modules/PlacesUtils.jsm');
-    let history = [];
+    var history = [];
     var min, max;
     this.SQL
       ._execute(

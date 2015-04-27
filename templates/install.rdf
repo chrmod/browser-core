@@ -14,16 +14,10 @@
 		{% if beta == 'True' %}
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
 		{% else %}
-		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/ui/latest.rdf</em:updateURL>
+		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/latest.rdf</em:updateURL>
 		{% endif %}
 
-		<em:description>Cliqz hilft Dir beim Finden im Internet.
-
-  ● Schnell - bei cliqz kommst Du direkt aus dem Browser zu Deinem Ziel
-  ● Sicher - cliqz speichert keinerlei persönliche Daten
-  ● Alles Echt - bei cliqz gibt es keine gekauften Suchergebnisse
-
-Derzeit verfügbar für Firefox
+		<em:description>
 		</em:description>
 		<em:homepageURL>http://cliqz.com/</em:homepageURL>
 		<em:targetApplication>

@@ -431,6 +431,10 @@ var UI = {
     clearAutocomplete: function() {
       clearResultSelection();
     },
+    // call from onboarding tour to look like mouse over
+    simulateSelectFirstElement: function () {
+      setResultSelection($('[arrow]', gCliqzBox), true, false, false, true);
+    },
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
@@ -808,11 +812,11 @@ function getDebugMsg(fullTitle){
 
 // tags are piggybacked in the title, eg: Lady gaga - tag1,tag2,tag3
 function getTags(fullTitle){
-    var tags, title;
-    [, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
+    //[, title, tags] = fullTitle.match(/^(.+) \u2013 (.+)$/);
+    var res = fullTitle.match(/^(.+) \u2013 (.+)$/);
 
     // Each tag is split by a comma in an undefined order, so sort it
-    return [title, tags.split(",").sort()]
+    return [res[1], res[2].split(",").sort()]
 }
 
 function unEscapeUrl(url){
@@ -857,13 +861,18 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            [r.title, r.debug] = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title)
+            r.title = _tmp[0];
+            r.debug = _tmp[1];
             if(!UI.showDebug)
                 r.debug = null;
 
             //extract tags from title
-            if(r.type.split(' ').indexOf('tag') != -1)
-                [r.title, r.tags] = getTags(r.title);
+            if(r.type.split(' ').indexOf('tag') != -1) {
+                _tmp = getTags(r.title);
+                r.title = _tmp[0];
+                r.tags = _tmp[1];
+            }
         }
 
         r.width = res.width > 500 ? res.width : 500;
@@ -1102,8 +1111,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
   if(!query) var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
   if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
-      var first = gCliqzBox.resultsBox.children[0];
-      if (!CliqzUtils.isPrivateResultType(getResultKind(first)))
+      var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
+      if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
       //query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
@@ -1135,6 +1144,17 @@ function logUIEvent(el, historyLogType, extraData, query) {
       CliqzUtils.telemetry(action);
       CliqzUtils.resultTelemetry(query, queryAutocompleted, getResultPosition(el),
           CliqzUtils.isPrivateResultType(action.position_type) ? '' : url, result_order, extra);
+
+      if(!CliqzUtils.isPrivateResultType(action.position_type)){
+          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
+              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'cl', 'pt' : action.position_type};
+          }
+      }
+      else{
+          if (CliqzHumanWeb && CliqzHumanWeb.queryCache) {
+              CliqzHumanWeb.queryCache[decodeURIComponent(url)] = {'d': 1, 'q': CliqzAutocomplete.lastSearch , 't': 'othr', 'pt' : action.position_type};
+          }
+      }
     }
     CliqzHistory.updateQuery(query);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
@@ -1151,7 +1171,6 @@ function resultClick(ev){
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
-
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){
@@ -1417,7 +1436,6 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = el;
-
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
         UI.lastSelectedUrl = "";
