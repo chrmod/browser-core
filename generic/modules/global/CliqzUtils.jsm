@@ -13,7 +13,7 @@ Components.utils.import('resource://gre/modules/Services.jsm');
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
-Components.utils.import('chrome://cliqzmodules/content/CliqzSpecific.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
@@ -76,7 +76,7 @@ var CliqzUtils = {
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
   },
-  cliqzPrefs: CliqzSpecific.cliqzPrefs,
+  cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -194,7 +194,7 @@ var CliqzUtils = {
 
     return result
   },
-  httpHandler: CliqzSpecific.httpHandler,
+  httpHandler: CLIQZEnvironment.httpHandler,
   httpGet: function(url, callback, onerror, timeout){
     return CliqzUtils.httpHandler('GET', url, callback, onerror, timeout);
   },
@@ -220,14 +220,14 @@ var CliqzUtils = {
       onerror && onerror();
     }
   },
-  getPrefs: CliqzSpecific.getPrefs,
-  getPref: CliqzSpecific.getPref,
-  setPref: CliqzSpecific.setPref,
+  getPrefs: CLIQZEnvironment.getPrefs,
+  getPref: CLIQZEnvironment.getPref,
+  setPref: CLIQZEnvironment.setPref,
   log: function(msg, key){
     if(CliqzUtils && CliqzUtils.getPref('showConsoleLogs', false)){
       var ignore = JSON.parse(CliqzUtils.getPref('showConsoleLogsIgnore', '[]'))
       if(ignore.indexOf(key) == -1) // only show the log message, if key is not in ignore list
-        CliqzSpecific.log(msg, key);
+        CLIQZEnvironment.log(msg, key);
     }
   },
   getDay: function() {
@@ -341,7 +341,7 @@ var CliqzUtils = {
     // find parts of hostname
     if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
       try {
-        tld = CliqzSpecific.tldExtractor(host);
+        tld = CLIQZEnvironment.tldExtractor(host);
 
         // Get the domain name w/o subdomains and w/o TLD
         name = host.slice(0, -(tld.length+1)).split('.').pop(); // +1 for the '.'
@@ -562,7 +562,7 @@ var CliqzUtils = {
     //always loads, even in private windows
     return true;
   },
-  isPrivate: CliqzSpecific.isPrivate,
+  isPrivate: CLIQZEnvironment.isPrivate,
   trk: [],
   trkTimer: null,
   telemetry: function(msg, instantPush) {
@@ -572,7 +572,7 @@ var CliqzUtils = {
        current_window && CliqzUtils.isPrivate(current_window)) return; // no telemetry in private windows
     CliqzUtils.log(msg, 'Utils.telemetry');
     if(!CliqzUtils.getPref('telemetry', true))return;
-    msg.session = CliqzSpecific.getPref('session');
+    msg.session = CLIQZEnvironment.getPref('session');
     msg.ts = Date.now();
 
     CliqzUtils.trk.push(msg);
@@ -652,22 +652,22 @@ var CliqzUtils = {
     CliqzUtils._telemetry_sending = [];
     CliqzUtils._telemetry_req = null;
   },
-  setInterval: CliqzSpecific.setInterval,
-  setTimeout: CliqzSpecific.setTimeout,
-  clearTimeout: CliqzSpecific.clearTimeout,
-  clearInterval: CliqzSpecific.clearTimeout,
+  setInterval: CLIQZEnvironment.setInterval,
+  setTimeout: CLIQZEnvironment.setTimeout,
+  clearTimeout: CLIQZEnvironment.clearTimeout,
+  clearInterval: CLIQZEnvironment.clearTimeout,
   locale: {},
   currLocale: null,
   loadLocale : function(lang_locale){
     // The default language
     if (!CliqzUtils.locale.hasOwnProperty('default')) {
-        CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + 'de/cliqz.json',
+        CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + 'de/cliqz.json',
             function(req){
                 if(CliqzUtils) CliqzUtils.locale['default'] = JSON.parse(req.response);
             });
     }
     if (!CliqzUtils.locale.hasOwnProperty(lang_locale)) {
-        CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + encodeURIComponent(lang_locale) + '/cliqz.json',
+        CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + encodeURIComponent(lang_locale) + '/cliqz.json',
             function(req) {
                 if(CliqzUtils){
                   CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
@@ -679,7 +679,7 @@ var CliqzUtils = {
                 // language!
                 var loc = CliqzUtils.getLanguageFromLocale(lang_locale);
                 if(CliqzUtils){
-                  CliqzUtils.loadResource(CliqzSpecific.LOCALE_PATH + loc + '/cliqz.json',
+                  CliqzUtils.loadResource(CLIQZEnvironment.LOCALE_PATH + loc + '/cliqz.json',
                       function(req) {
                         if(CliqzUtils){
                           CliqzUtils.locale[lang_locale] = JSON.parse(req.response);
@@ -727,7 +727,7 @@ var CliqzUtils = {
         el.textContent = CliqzUtils.getLocalizedString(el.getAttribute('key'));
     }
   },
-  version: CliqzSpecific.getVersion,
+  version: CLIQZEnvironment.getVersion,
   extensionRestart: function(){
     var enumerator = Services.wm.getEnumerator('navigator:browser');
     while (enumerator.hasMoreElements()) {
@@ -742,8 +742,8 @@ var CliqzUtils = {
   isWindows: function(win){
     return win.navigator.userAgent.indexOf('Win') != -1;
   },
-  getWindow: CliqzSpecific.getWindow,
-  getWindowID: CliqzSpecific.getWindowID,
+  getWindow: CLIQZEnvironment.getWindow,
+  getWindowID: CLIQZEnvironment.getWindowID,
   hasClass: function(element, className) {
     return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
   },

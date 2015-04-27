@@ -1,5 +1,5 @@
 'use strict';
-var EXPORTED_SYMBOLS = ['CliqzSpecific'];
+var EXPORTED_SYMBOLS = ['CLIQZEnvironment'];
 
 Components.utils.import('resource://gre/modules/Services.jsm');
 
@@ -29,7 +29,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
         }
     };
 
-var CliqzSpecific = {
+var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
     log: function(msg, key){
@@ -40,7 +40,7 @@ var CliqzSpecific = {
     },
     getPref: function(pref, notFound){
         try {
-            var prefs = CliqzSpecific.cliqzPrefs;
+            var prefs = CLIQZEnvironment.cliqzPrefs;
             switch(prefs.getPrefType(pref)) {
                 case PREF_BOOL: return prefs.getBoolPref(pref);
                 case PREF_STRING: return prefs.getCharPref(pref);
@@ -53,18 +53,18 @@ var CliqzSpecific = {
     },
     getPrefs: function(){
         var prefs = {},
-            cqz = CliqzSpecific.cliqzPrefs.getChildList('');
+            cqz = CLIQZEnvironment.cliqzPrefs.getChildList('');
         for(var i=0; i<cqz.length; i++){
             var pref = cqz[i];
-            prefs[pref] = CliqzSpecific.getPref(pref);
+            prefs[pref] = CLIQZEnvironment.getPref(pref);
         }
         return prefs;
     },
     setPref: function(pref, val){
         switch (typeof val) {
-            case 'boolean': CliqzSpecific.cliqzPrefs.setBoolPref(pref, val); break;
-            case 'number': CliqzSpecific.cliqzPrefs.setIntPref(pref, val); break;
-            case 'string': CliqzSpecific.cliqzPrefs.setCharPref(pref, val); break;
+            case 'boolean': CLIQZEnvironment.cliqzPrefs.setBoolPref(pref, val); break;
+            case 'number': CLIQZEnvironment.cliqzPrefs.setIntPref(pref, val); break;
+            case 'string': CLIQZEnvironment.cliqzPrefs.setCharPref(pref, val); break;
           }
     },
     httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -78,19 +78,19 @@ var CliqzSpecific = {
             if(statusClass == 2 || statusClass == 3 || statusClass == 0 /* local files */){
                 callback && callback(req);
             } else {
-                CliqzSpecific.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzSpecific.httpHandler");
+                CLIQZEnvironment.log( "loaded with non-200 " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.onerror = function(){
-            if(CliqzSpecific){
-                CliqzSpecific.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CliqzSpecific.httpHandler");
+            if(CLIQZEnvironment){
+                CLIQZEnvironment.log( "error loading " + url + " (status=" + req.status + " " + req.statusText + ")", "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
         req.ontimeout = function(){
-            if(CliqzSpecific){ //might happen after disabling the extension
-                CliqzSpecific.log( "timeout for " + url, "CliqzSpecific.httpHandler");
+            if(CLIQZEnvironment){ //might happen after disabling the extension
+                CLIQZEnvironment.log( "timeout for " + url, "CLIQZEnvironment.httpHandler");
                 onerror && onerror();
             }
         }
@@ -161,7 +161,7 @@ var CliqzSpecific = {
         return wm.getMostRecentWindow("navigator:browser");
     },
     getWindowID: function(){
-        var win = CliqzSpecific.getWindow();
+        var win = CLIQZEnvironment.getWindow();
         var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
         return util.outerWindowID;
     },

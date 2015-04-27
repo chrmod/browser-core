@@ -3,10 +3,6 @@ CLIQZEnvironment = {
     XMLHttpRequest: XMLHttpRequest
 }
 
-CliqzSpecific = {
-
-}
-
 //Lucian: temp hopefully
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){}
