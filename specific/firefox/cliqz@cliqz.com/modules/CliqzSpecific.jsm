@@ -31,7 +31,6 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
 
 var CliqzSpecific = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
-    genericPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService),
     cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
     log: function(msg, key){
         _log.logStringMessage(

@@ -116,9 +116,6 @@ var CliqzUtils = {
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
     CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
-    // Ensure prefs are set to our custom values
-    CliqzUtils.setOurOwnPrefs();
-
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLocalStorage: function(url) {
@@ -785,33 +782,6 @@ var CliqzUtils = {
     return data;
   },
   //HERE
-  isUrlBarEmpty: function() {
-    var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
-    return urlbar.value.length == 0;
-  },
-  /** Change some prefs for a better cliqzperience -- always do a backup! */
-  setOurOwnPrefs: function() {
-    var cliqzBackup = CliqzSpecific.cliqzPrefs.getPrefType("maxRichResultsBackup");
-    if (!cliqzBackup || CliqzSpecific.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-      CliqzSpecific.cliqzPrefs.setIntPref("maxRichResultsBackup",
-          CliqzSpecific.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
-      CliqzSpecific.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
-    }
-  },
-  /** Reset changed prefs on uninstall */
-  resetOriginalPrefs: function() {
-    var cliqzBackup = CliqzSpecific.cliqzPrefs.getPrefType("maxRichResultsBackup");
-    if (cliqzBackup) {
-      CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
-      CliqzSpecific.genericPrefs.setIntPref("browser.urlbar.maxRichResults",
-          CliqzSpecific.cliqzPrefs.getIntPref("maxRichResultsBackup"));
-      // deleteBranch does not work for some reason :(
-      CliqzSpecific.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
-      CliqzSpecific.cliqzPrefs.clearUserPref("maxRichResultsBackup");
-    } else {
-      CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
-    }
-  },
   openTabInWindow: function(win, url){
       var tBrowser = win.document.getElementById('content');
       var tab = tBrowser.addTab(url);

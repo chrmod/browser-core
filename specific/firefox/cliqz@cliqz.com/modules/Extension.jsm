@@ -67,7 +67,11 @@ var Extension = {
                     CliqzUtils.setSupportInfo()
                 },1000)
             }
-        })
+        });
+
+        // Ensure prefs are set to our custom values
+        Extension.setOurOwnPrefs();
+
         // Load into any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -103,7 +107,7 @@ var Extension = {
 
             try{
                 Extension.restoreSearchBar(win);
-                CliqzUtils.resetOriginalPrefs();
+                Extension.resetOriginalPrefs();
                 win.CLIQZ.Core.showUninstallMessage(version);
             } catch(e){}
         }
@@ -331,6 +335,31 @@ var Extension = {
                 if (win.location.href == 'chrome://browser/content/browser.xul')
                     Extension.loadIntoWindow(win, true);
             }, false);
+        }
+    },
+    /** Change some prefs for a better cliqzperience -- always do a backup! */
+    setOurOwnPrefs: function() {
+        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+        if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
+            var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
+                urlBarPref.getIntPref("maxRichResults"));
+            urlBarPref.setIntPref("maxRichResults", 30);
+        }
+    },
+    /** Reset changed prefs on uninstall */
+    resetOriginalPrefs: function() {
+        var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
+        if (cliqzBackup) {
+            var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+            CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
+            urlBarPref.setIntPref("maxRichResults",
+                CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
+            // deleteBranch does not work for some reason :(
+            CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup", 0);
+            CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
+        } else {
+            CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
         }
     }
 };
