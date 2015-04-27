@@ -17,6 +17,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 // TODO: destroy?
 var CliqzTour = {
+    // 0.0: static web page
+    // 1.0: interactive onboarding
+    //      less aggressive (i.e., easier to cancel) than
+    //      first version, which was distributed via cliqz.com
+    //      but did not have a version number yet, just
+    //      a binary flag (new vs. old onboarding)
+    VERSION: "1.0",
+
     // shortcuts
     urlBar: null,
     win: null,
@@ -251,6 +259,7 @@ var CliqzTour = {
 
             CliqzTour.isRunning = false;
             CliqzTour.telemetry("finished");
+            CliqzUtils.cliqzPrefs.setBoolPref('onboarding_finishedWatching', true);
         }, t: 0 }
     ],
 
@@ -296,7 +305,7 @@ var CliqzTour = {
         CliqzTour.isRunning = false;
         CliqzTour.pageElements = { };
 
-        CliqzTour.telemetry("shown");
+        CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
     start: function() {
         if (!CliqzTour.isRunning) {                   
