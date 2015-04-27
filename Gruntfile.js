@@ -54,7 +54,8 @@ module.exports = function(grunt) {
             global: {
                 src: [
                     //Lucian can we include them all /* ?
-                    "generic/modules/global/CliqzUtils.jsm"
+                    "generic/modules/global/CliqzUtils.jsm",
+                    "generic/modules/global/CliqzHandlebars.jsm",
                 ],
                 options: {
                     banner: "'use strict';\n\nvar CLIQZ = {};\n\n",

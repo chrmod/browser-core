@@ -6,7 +6,14 @@
 input {
     width: 500px;
     display: block;
-    margin: 100px auto;
+    margin: 100px auto 0;
     height: 30px;
     font-size: 20px;
+}
+
+#results {
+	width: 800px;
+	height: 300px;
+	margin: 0px auto;
+	border: 1px solid gray;
 }

@@ -5,18 +5,16 @@
 */
 
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
 Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
 var CliqzHandlebars = Handlebars;
 
-var TEMPLATES_PATH = 'chrome://cliqzres/content/templates/',
-    TEMPLATES = CliqzUtils.TEMPLATES,
+var TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = ['adult', 'footer-message'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     AGO_CEILINGS = [
@@ -48,7 +46,7 @@ function compileTemplates(){
 
 function fetchTemplate(tName, isPartial) {
     try {
-        CliqzUtils.httpGet(TEMPLATES_PATH + tName + '.tpl', function(res){
+        CliqzUtils.httpGet(CliqzUtils.TEMPLATES_PATH + tName + '.tpl', function(res){
             if(isPartial === true)
                 Handlebars.registerPartial(tName, res.response);
             else
