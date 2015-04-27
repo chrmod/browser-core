@@ -10,12 +10,22 @@
  *  ...
  */
 Components.utils.import('resource://gre/modules/Services.jsm');
+
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+
 Components.utils.import('chrome://cliqzmodules/content/CliqzSpecific.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-Components.utils.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
+  'chrome://cliqzmodules/content/CliqzLanguage.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
+  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
+  'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
