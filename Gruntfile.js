@@ -40,6 +40,7 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/modules/libs", src: "**", dest: build("firefox/cliqz@cliqz.com/modules/extern") }, //extern libs
                     { expand: true, cwd: "generic/static", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome") }, //skin, locale
                     { expand: true, cwd: "generic/modules/global", src: "**", dest: build("firefox/cliqz@cliqz.com/modules") },
+                    { expand: true, cwd: "generic/modules/local", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome/content") },
                 ]
             },
             chrome: {
