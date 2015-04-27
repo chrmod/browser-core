@@ -162,9 +162,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	isCustomizationEnabled: function() {
 		try {
             var isEnabled =
-            	Services.prefs.getBoolPref("extensions.cliqz.enableSmartCliqzCustomization");
+            	CliqzUtils.getPref("enableSmartCliqzCustomization", undefined);
             
-            return isEnabled === null ? 
+            return isEnabled === undefined ? 
             	this._isCustomizationEnabledByDefault : isEnabled;
         } catch(e) {        	
             return this._isCustomizationEnabledByDefault;
