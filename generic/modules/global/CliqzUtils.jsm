@@ -10,22 +10,12 @@
  *  ...
  */
 Components.utils.import('resource://gre/modules/Services.jsm');
-
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-
 Components.utils.import('chrome://cliqzmodules/content/CliqzSpecific.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
-  'chrome://cliqzmodules/content/CliqzLanguage.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
-  'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
-  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
-  'chrome://cliqzmodules/content/CliqzABTests.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzLanguage.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzResultProviders.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
@@ -493,12 +483,6 @@ var CliqzUtils = {
       callback, //on error the callback still needs to be called
       2000
     );
-  },
-  getWorldCup: function(q, callback){
-    var WORLD_CUP_API= 'http://worldcup.sfg.io/matches/today/?by_date=asc&rand=' + Math.random();
-    CliqzUtils.httpGet(WORLD_CUP_API, function(res){
-      callback && callback(res, q);
-    });
   },
   encodeCountry: function() {
     //international result not supported
