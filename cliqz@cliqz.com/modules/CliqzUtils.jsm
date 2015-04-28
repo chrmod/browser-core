@@ -100,7 +100,7 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+      var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
@@ -180,7 +180,7 @@ var CliqzUtils = {
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
             backgroundColor: rule.b?rule.b:null,
-            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
+            backgroundImage: rule.l?"url(https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
           }
@@ -1134,10 +1134,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1147,7 +1147,7 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
+        //menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
