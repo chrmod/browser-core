@@ -1444,7 +1444,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 }
 
 function getStatus(ev, el){
-  var oTarget = ev.originalTarget;
+  var oTarget = ev.originalTarget || ev.currentTarget;
 
   return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
           CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''

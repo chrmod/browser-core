@@ -10,6 +10,7 @@ CLIQZEnvironment = {
     	//lucian: temp - FIX IT
     	return host.split('.').splice(-1)[0];
     },
+    getWindow: function(){ return window },
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = new XMLHttpRequest();
         req.open(method, url, true);
@@ -69,4 +70,9 @@ Components = {
 	utils: {
 		import: function(){}
 	}
+}
+
+XULBrowserWindow = {
+    updateStatusField: function(){},
+    setOverLink: function(){}
 }
