@@ -647,20 +647,9 @@ var CliqzHistory = {
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
 
     //Analyse data
-    CliqzHistoryAnalysis.initData(function() {
-      CliqzUtils.log("URL");
-      CliqzHistoryAnalysis.analyseRevisits(1);
-      CliqzHistoryAnalysis.analyseRevisits(2);
-      CliqzHistoryAnalysis.analyseRevisits(3);
-      CliqzHistoryAnalysis.analyseRevisits(4);
-    });
-    CliqzHistoryAnalysis.initData(function() {
-      CliqzUtils.log("Query");
-      CliqzHistoryAnalysis.analyseRevisits(1);
-      CliqzHistoryAnalysis.analyseRevisits(2);
-      CliqzHistoryAnalysis.analyseRevisits(3);
-      CliqzHistoryAnalysis.analyseRevisits(4);
-    }, true);
+    CliqzUtils.setTimeout(function() {
+      CliqzHistoryAnalysis.startAnalysis();
+    },10000);
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,
