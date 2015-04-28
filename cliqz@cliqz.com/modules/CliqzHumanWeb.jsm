@@ -2244,7 +2244,17 @@ var CliqzHumanWeb = {
                             }
                         }
 
-                        while (st.executeStep()) {};
+                        //while (st.executeStep()) {};
+                        st.executeAsync({
+                            handleError: function(aError) {
+                                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                            },
+                            handleCompletion: function(aReason) {
+                                if(CliqzHumanWeb.debug){
+                                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                }
+                            }
+                        });
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2264,7 +2274,17 @@ var CliqzHumanWeb = {
                                 st.params.url = url;
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                         }
                         else{
@@ -2279,7 +2299,17 @@ var CliqzHumanWeb = {
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 st.params.checked = 0;
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                             }
                         }
@@ -2291,7 +2321,17 @@ var CliqzHumanWeb = {
     setAsPrivate: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Delete success", CliqzHumanWeb.LOG_KEY);
+                 }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2301,7 +2341,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 1;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
         }
@@ -2309,7 +2359,17 @@ var CliqzHumanWeb = {
     setAsPublic: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2318,7 +2378,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 0;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
         }
@@ -2374,7 +2444,17 @@ var CliqzHumanWeb = {
                     st.params.private = 1;
                     st.params.ft = 0;
                     st.params.reason = 'priv. st.';
-                    while (st.executeStep()) {};
+                    //while (st.executeStep()) {};
+                    st.executeAsync({
+                        handleError: function(aError) {
+                            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                        },
+                        handleCompletion: function(aReason) {
+                            if(CliqzHumanWeb.debug){
+                                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                            }
+                        }
+                    });
                     CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
