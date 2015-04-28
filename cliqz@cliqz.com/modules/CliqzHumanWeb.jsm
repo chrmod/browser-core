@@ -228,7 +228,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://cdn.cliqz.com/human-web/patterns',
+    patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
@@ -1081,13 +1081,13 @@ var CliqzHumanWeb = {
                         CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                         if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
                             //Change type to ad, else might create confusion.
-                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';
                         }
                         CliqzHumanWeb.ismRefresh = false;
                         delete CliqzHumanWeb.mRefresh[tabID];
                     }
                 }
-                catch(ee){};    
+                catch(ee){};
             }
 
 
