@@ -82,10 +82,13 @@ var CliqzHistory = {
         CliqzHistory.checkThumbnail(url, function() {
           CliqzHistory.generateThumbnail(aBrowser, panel, url);
         });
+      }
+      if((aStateFlags == 17563664 || aStateFlags == 786448) && url != CliqzHistory.getTabData(panel, 'url')) {
         // Force history at this point
         // Back events are not triggered by history observer
         CliqzHistory.lastVisit.push(url);
         CliqzHistory.lastVisitTransition.push(0);
+        CliqzHistory.listener.onLocationChange(aBrowser);
       }
     },
     onStatusChange: function(aBrowser, aWebProgress, aRequest, aStatus, aMessage) {

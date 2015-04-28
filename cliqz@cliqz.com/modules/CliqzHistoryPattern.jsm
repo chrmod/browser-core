@@ -533,7 +533,6 @@ var CliqzHistoryPattern = {
       if (q != "q=") {
         // tbm defines category (images/news/...)
         var param = url.indexOf("#") != -1 ? url.substr(url.indexOf("#")) : url.substr(url.indexOf("?"));
-        CliqzUtils.log(url+":"+param);
         var tbm = param.indexOf("tbm=") != -1 ? ("&" + param.substring(param.lastIndexOf("tbm=")).split("&")[0]) : "";
         var page = param.indexOf("start=") != -1 ? ("&" + param.substring(param.lastIndexOf("start=")).split("&")[0]) : "";
         return "https://www.google.com/search?" + q + tbm /*+ page*/;
