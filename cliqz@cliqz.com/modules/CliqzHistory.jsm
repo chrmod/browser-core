@@ -95,18 +95,27 @@ var CliqzHistory = {
       CliqzHistory.listener.onLocationChange(aBrowser, aWebProgress, aRequest, null, null);
     }
   },
-  reattachListeners: function(aBrowser, panel) {
+  removeAllListeners: function() {
+    for(var panel in CliqzHistory.tabData) {
+      CliqzHistory.removeListeners(CliqzHistory.getTabData(panel, "browser"), panel);
+    }
+  },
+  removeListeners: function(aBrowser, panel) {
     aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
     aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
     aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
     aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
-
+  },
+  reattachListeners: function(aBrowser, panel) {
+    CliqzHistory.removeListeners(aBrowser, panel);
     aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "click"), false);
     aBrowser.contentDocument.addEventListener("click", CliqzHistory.getTabData(panel, "linkClick"), false);
     aBrowser.contentDocument.addEventListener("keydown", CliqzHistory.getTabData(panel, "key"), false);
     aBrowser.contentDocument.addEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"), false);
+    CliqzHistory.setTabData(panel, "browser", aBrowser);
   },
   updateOpenGraphData: function(aBrowser, panel) {
+    CliqzHistory.test=aBrowser;
     var metaData = aBrowser.contentDocument.querySelectorAll('meta');
     if (!metaData) return;
     var data = {};
@@ -266,7 +275,7 @@ var CliqzHistory = {
         } while (target);
 
       // Update title in db
-      CliqzHistory.updateTitle(linkUrl, null, title);
+      CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title);
     }
   },
   addHistoryEntry: function(browser, customPanel) {
@@ -353,20 +362,24 @@ var CliqzHistory = {
     }
   },
   lastMouseMove: 0,
-  mouseMove: function(e, gBrowser) {
-    var now = Date.now();
-    if (now - CliqzHistory.lastMouseMove > 2000) {
-      CliqzHistory.lastMouseMove = now;
-      var activeTab = gBrowser.selectedTab;
-      if (activeTab.linkedPanel == CliqzHistory.lastActivePanel)
-        CliqzHistory.updateInteractionData(activeTab.linkedPanel, true);
-      else
-        CliqzHistory.tabSelect({
-          target: activeTab
-        });
+  mouseMove: function(gBrowser) {
+    return function(e) {
+      CliqzHistory.action(null, true);
+      var now = Date.now();
+      if (now - CliqzHistory.lastMouseMove > 2000) {
+        CliqzHistory.lastMouseMove = now;
+        var activeTab = gBrowser.selectedTab;
+        if (activeTab.linkedPanel == CliqzHistory.lastActivePanel)
+          CliqzHistory.updateInteractionData(activeTab.linkedPanel, true);
+        else
+          CliqzHistory.tabSelect({
+            target: activeTab
+          });
+      }
     }
   },
   updateInteractionData: function(panel, useCurrent) {
+    CliqzHistory.updateTabInactivity(panel);
     var lastUpdate = CliqzHistory.getTabData(panel, 'lastUpdate');
     lastUpdate = lastUpdate ? Date.now() - lastUpdate : 0;
     var prevVisit = CliqzHistory.getTabData(panel, "prevVisit");
@@ -382,6 +395,7 @@ var CliqzHistory = {
       inactive = inactive + (lastUpdate - 60 * 1000);
       CliqzHistory.setTabData(panel, "inactive", inactive);
     }
+    CliqzUtils.log(panel + " inactive: " + inactive);
     // Remove time that was spent on other tabs
     var timeSpent = Date.now() - prevVisit - inactive;
     if (timeSpent < 0) timeSpent = 0;
@@ -412,18 +426,20 @@ var CliqzHistory = {
   },
   tabOpen: function(e) {
     var browser = CliqzUtils.getWindow().gBrowser,
-      curPanel = /*browser.selectedTab.linkedPanel ||*/ CliqzHistory.lastActivePanel,
+      curPanel = CliqzHistory.lastActivePanel,
       newPanel = e.target.linkedPanel;
 
-    CliqzHistory.setTabData(newPanel, "inactiveSince", Date.now());
+    if(newPanel != browser.selectedTab.linkedPanel)
+      CliqzHistory.setTabData(newPanel, "inactiveSince", Date.now());
+
     CliqzHistory.updateInteractionData(curPanel, true);
 
     // If the user opens a new tab within Firefox, this timer is VERY small (below 10 ms)
     // However, if an external link is opened, this value is a lot higher
     var inactive = Date.now() - CliqzHistory.lastAction;
-    // Threshold of one second
+
+    // Threshold of three seconds
     if (inactive > 3000) {
-      //var url = e.target.tab.linkedBrowser.contentWindow.location.href;
       CliqzHistory.setTabData(newPanel, "external", true);
     }
 
@@ -438,7 +454,7 @@ var CliqzHistory = {
         CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
         CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
         CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
-        CliqzHistory.setTabData(p.newPanel, "visitDate", CliqzHistory.getTabData(p.curPanel, 'visitDate'));
+        CliqzHistory.setTabData(p.newPanel, "visitDate", Date.now());
       }
       CliqzHistory.setTabData(p.newPanel, "lock", false);
     };
@@ -456,20 +472,24 @@ var CliqzHistory = {
   tabSelect: function(e) {
     var curPanel = CliqzHistory.lastActivePanel,
       newPanel = e.target.linkedPanel;
-    CliqzHistory.updateLastActivePanel();
-    CliqzHistory.updateInteractionData(curPanel, true);
 
-    var now = Date.now();
-    var inactiveSince = CliqzHistory.getTabData(newPanel, "inactiveSince");
-    CliqzHistory.setTabData(curPanel, "inactiveSince", now);
-    CliqzHistory.setTabData(newPanel, 'lastUpdate', Date.now());
-    if (inactiveSince) {
-      var cur = CliqzHistory.getTabData(newPanel, "inactive") || 0;
-      var inactive = now - inactiveSince;
-      CliqzHistory.setTabData(newPanel, "inactive", cur + inactive);
-      CliqzHistory.updateInteractionData(newPanel, true);
-    }
+    CliqzHistory.updateLastActivePanel();
+    CliqzUtils.log(curPanel);
+    CliqzHistory.updateInteractionData(curPanel, true);
+    CliqzHistory.updateInteractionData(newPanel, true);
+
+    CliqzHistory.setTabData(curPanel, "inactiveSince", Date.now());
     CliqzHistory.setTabData(newPanel, "inactiveSince", null);
+  },
+  updateTabInactivity: function(panel) {
+    var now = Date.now();
+    var inactiveSince = CliqzHistory.getTabData(panel, "inactiveSince");
+    if (inactiveSince) {
+      var cur = CliqzHistory.getTabData(panel, "inactive") || 0;
+      var inactive = now - inactiveSince;
+      CliqzHistory.setTabData(panel, "inactive", cur + inactive);
+      CliqzHistory.setTabData(panel, "inactiveSince", now);
+    }
   },
   getTabData: function(panel, attr) {
     if (!CliqzHistory || !CliqzHistory.tabData[panel]) {
@@ -505,10 +525,14 @@ var CliqzHistory = {
     CliqzHistory.setTabData(panel, "keyCount", 0);
     CliqzHistory.setTabData(panel, "scrollCount", 0);
   },
-  action: function() {
-    CliqzUtils.setTimeout(function() {
+  action: function(e, timeout) {
+    if(!timeout) {
       CliqzHistory.lastAction = Date.now();
-    }, 1000);
+    } else {
+      CliqzUtils.setTimeout(function() {
+        CliqzHistory.lastAction = Date.now();
+      }, 1000);
+    }
   },
   updateQuery: function(query) {
     var date = new Date().getTime();
