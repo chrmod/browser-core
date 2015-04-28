@@ -2,7 +2,8 @@ var urlbar = document.getElementById('urlbar');
 CliqzUtils.init();
 CLIQZ.Core = {
 	urlbar: urlbar,
-	popup: document.getElementById('results')
+	popup: document.getElementById('results'),
+	refreshButtons: function(){}
 }
 urlbar.onkeyup = function(e){
 	CLIQZ.UI.main(document.getElementById('results'));

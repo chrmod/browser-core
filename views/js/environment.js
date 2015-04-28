@@ -1,8 +1,10 @@
+var db = {};
+
 CLIQZEnvironment = {
 	TEMPLATES_PATH: '/generic/static/templates/',
     log: function(msg, key){ console.log(key, msg) },
-    getPref: function(){},
-    setPref: function(){},
+    getPref: function(k, d){return db[k] || d; },
+    setPref: function(k,v){db[k] = v},
     setInterval: setInterval,
     setTimeout: setTimeout,
     clearTimeout: clearTimeout,
@@ -10,7 +12,8 @@ CLIQZEnvironment = {
     	//lucian: temp - FIX IT
     	return host.split('.').splice(-1)[0];
     },
-    getWindow: function(){ return window },
+    isPrivate: function(){ return false; },
+    getWindow: function(){ return window; },
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = new XMLHttpRequest();
         req.open(method, url, true);

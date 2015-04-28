@@ -1053,7 +1053,7 @@ function messageClick(ev) {
           break;
         case 'footer-message-action':
           // "Cliqz is not optimized for your country" message */
-          var state = ev.originalTarget.getAttribute('state');
+          var state = (ev.originalTarget || ev.srcElement).getAttribute('state');
           switch(state) {
               //not supported country
               case 'disable-cliqz':
@@ -1066,7 +1066,7 @@ function messageClick(ev) {
                       var win = enumerator.getNext();
                       win.CLIQZ.Core.unload(true);
                   }
-                  CliqzUtils.refreshButtons();
+                  CLIQZ.Core.refreshButtons();
                   break;
               case 'keep-cliqz':
                   updateMessageState("hide");
@@ -1091,7 +1091,7 @@ function messageClick(ev) {
             setting: el.getAttribute('cliqz-telemetry'),
             value: state
           });
-          setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
+          setTimeout(function(){ CLIQZ.Core.refreshButtons(); }, 0);
             break;
         default:
             break;
@@ -1250,7 +1250,7 @@ function resultClick(ev){
 
 
 function handleAdultClick(ev){
-    var state = ev.originalTarget.getAttribute('state'),
+    var state = (ev.originalTarget || ev.srcElement).getAttribute('state'),
         ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
         user_location = CliqzUtils.getPref("config_location");
 
@@ -1297,7 +1297,7 @@ function handleAdultClick(ev){
             value: state
         });
     }
-    setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
+    setTimeout(function(){ CLIQZ.Core.refreshButtons(); }, 0);
 }
 
 function getResultSelection(){
@@ -1444,7 +1444,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 }
 
 function getStatus(ev, el){
-  var oTarget = ev.originalTarget || ev.currentTarget;
+  var oTarget = ev.originalTarget || ev.srcElement;
 
   return /* newtab */ (oTarget.hasAttribute('newtab') && el.getAttribute('url') ?
           CliqzUtils.getLocalizedString("openInNewTab", el.getAttribute('url')) : ''
