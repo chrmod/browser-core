@@ -1516,7 +1516,7 @@ var CliqzHumanWeb = {
         }
     },
     unload: function() {
-        //Check is active usage, was sent 
+        //Check is active usage, was sent
         try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
         if(activeUsageTrk){
             var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
@@ -2468,11 +2468,11 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
-        CliqzHumanWeb.dbConn.executeSimpleSQLAsync('DROP TABLE usafe;');
+        (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
     },
     removeTable: function(reason) {
         try{
-            CliqzHumanWeb.olddbConn.executeSimpleSQLAsync('DROP TABLE usafe;');
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
@@ -2826,8 +2826,8 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
-            CliqzHumanWeb.dbConn.executeSimpleSQLAsync(usafe);
-            CliqzHumanWeb.dbConn.executeSimpleSQLAsync(hash_usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
