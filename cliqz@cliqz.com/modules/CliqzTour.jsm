@@ -17,6 +17,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 // TODO: destroy?
 var CliqzTour = {
+    // 0.0: static web page
+    // 1.0: interactive onboarding
+    //      less aggressive (i.e., easier to cancel) than
+    //      first version, which was distributed via cliqz.com
+    //      but did not have a version number yet, just
+    //      a binary flag (new vs. old onboarding)
+    VERSION: "1.0",
+
     // shortcuts
     urlBar: null,
     win: null,
@@ -34,8 +42,6 @@ var CliqzTour = {
     // mouse cursor or lens
     cursor: null,
     
-    // to set variables only once
-    isInitialized: false,
     // stored results to inject into dropdown
     results: { },
     // cache of frequently used elements on onboarding page
@@ -57,7 +63,7 @@ var CliqzTour = {
             // TODO: use CSS "disabled" class for this
             CliqzTour.getPageElement("tour-btn").style.cursor = "none";
         }, t: 100 },
-        // position mouse cursor on button
+        // position mouse cursor on button and show cancel button
         { f: function () {
             var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
             var x = buttonBounds.x + buttonBounds.width / 2;
@@ -68,6 +74,7 @@ var CliqzTour = {
             CliqzTour.movePopupTo(CliqzTour.cursor, x - 32, y + 48);
             CliqzTour.showCursor();
             // TODO: disable button
+            CliqzTour.showPageElement('tour-btn-cancel');
         }, t: 500 },
         // blur out current page and move mouse cursor to URL bar
         { f: function () {            
@@ -78,9 +85,8 @@ var CliqzTour = {
         { f: function () {
             CliqzTour.performClick();
         }, t: 1000 }, 
-        // show "type here" callout and show cancel button
-        { f: function () {             
-            CliqzTour.showPageElement('tour-btn-cancel');
+        // show "type here" callout
+        { f: function () {                        
             CliqzTour.setCalloutMessage(
                 CliqzUtils.getLocalizedString("onCalloutTypeHere"));            
             CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");  
@@ -100,7 +106,7 @@ var CliqzTour = {
             CliqzTour.movePopupTo(CliqzTour.cursor, 10, CliqzTour.getPopupUrlBarCenterOffsetY());
             CliqzTour.showCursor();
 
-            CliqzTour.telemetry("query_started");
+            CliqzTour.telemetry("step_query_started");
         }, t: 50 },     
         // move lens
         { f: function () {
@@ -116,7 +122,7 @@ var CliqzTour = {
         { f: function () {
             CliqzTour.win.CLIQZ.UI.results(CliqzTour.results.final);
 
-            CliqzTour.telemetry("results_shown");
+            CliqzTour.telemetry("step_results_shown");
         }, t: 2100 },
         // show "these are cliqz results" callout
         { f: function () {
@@ -181,7 +187,7 @@ var CliqzTour = {
         // show landing page
         { f: function () {
             CliqzTour.getPageElement("landing-page-content").style.visibility = 'visible';
-            CliqzTour.telemetry("landing_page_shown");
+            CliqzTour.telemetry("step_landing_page_shown");
         }, t: 750 },
         // show "you made it" callout (inside page, not as popup)
         { f: function () {
@@ -253,6 +259,7 @@ var CliqzTour = {
 
             CliqzTour.isRunning = false;
             CliqzTour.telemetry("finished");
+            CliqzUtils.setPref('onboarding_finishedWatching', true);
         }, t: 0 }
     ],
 
@@ -261,36 +268,44 @@ var CliqzTour = {
     init: function() {
         CliqzTour.log('init');
 
-        if (!CliqzTour.isInitialized) {
-            // TODO: this fails if browser windows is closed
-            CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                 .getService(Components.interfaces.nsIWindowMediator)
-                 .getMostRecentWindow("navigator:browser");
-            CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
-            CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
-            CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
-            CliqzTour.contentDocument = CliqzTour.browser.contentDocument;
-            CliqzTour.visibleLabel = CliqzTour.tab.visibleLabel;
+        CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                        .getService(Components.interfaces.nsIWindowMediator)
+                         .getMostRecentWindow("navigator:browser");
+        CliqzTour.urlBar = CliqzTour.win.CLIQZ.Core.urlbar;
+        CliqzTour.tab = CliqzTour.win.gBrowser.selectedTab;
+        CliqzTour.browser = CliqzTour.win.gBrowser.selectedBrowser;
+        CliqzTour.contentDocument = CliqzTour.browser.contentDocument;
+        CliqzTour.visibleLabel = CliqzTour.tab.visibleLabel;
 
-            CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/final_results.json',
-                function success(req) { CliqzTour.results.final = JSON.parse(req.response); });
+        CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/final_results.json',
+            function success(req) { CliqzTour.results.final = JSON.parse(req.response); });
 
-            CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/intermediate_results.json',
-                function success(req) { CliqzTour.results.intermediate = JSON.parse(req.response); });
+        CliqzUtils.httpGet('chrome://cliqz/content/onboarding/results/intermediate_results.json',
+            function success(req) { CliqzTour.results.intermediate = JSON.parse(req.response); });
 
+        if (!CliqzTour.callout) {
             CliqzTour.callout = CliqzTour.createPopup("callout");
             CliqzTour.cursor = CliqzTour.createPopup("cursor");            
-
-            CliqzTour.isInitialized = true;
         }
+
         CliqzTour.startCount = 0;
+
+        CliqzTour.win.addEventListener(
+                "click", CliqzTour.clickListener);
+        CliqzTour.callout.addEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.cursor.addEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
 
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabClose", CliqzTour.tabCloseListener);
 
-        CliqzTour.telemetry("shown");
+        CliqzTour.isRunning = false;
+        CliqzTour.pageElements = { };
+
+        CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
     start: function() {
         if (!CliqzTour.isRunning) {                   
@@ -343,12 +358,14 @@ var CliqzTour = {
             CliqzTour.log('tour is already running');
         }
     },
-    cancel: function () { 
-        CliqzTour.stop();
-        CliqzTour.reset();
-        CliqzTour.telemetry("canceled");
-    },
     unload: function () {
+        CliqzTour.win.removeEventListener(
+                "click", CliqzTour.clickListener);
+        CliqzTour.callout.removeEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.cursor.removeEventListener(
+                "popuphidden", CliqzTour.popupHiddenListener);
+
         CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         // remove later so the tab close event can be consumed
@@ -358,6 +375,7 @@ var CliqzTour = {
         }, 1000);
 
         CliqzTour.stop();
+        CliqzTour.reset();
         CliqzTour.telemetry("unloaded");
     },
     stop: function () {
@@ -385,7 +403,12 @@ var CliqzTour = {
             CliqzTour.hideCursor();
             CliqzTour.clearDropdown();
             CliqzTour.clearUrlBar();
-        }, 100);        
+        }, 0);        
+    },
+    cancel: function () {
+        CliqzTour.telemetry("canceled");
+        CliqzTour.stop();
+        CliqzTour.reset();
     },
 
     /* **** dropdown helpers **** */
@@ -407,6 +430,24 @@ var CliqzTour = {
     },
     clearUrlBar: function () {
         CliqzTour.urlBar.value = "";
+    },
+    clickListener: function (e) {
+        // make sure the click was not on the start button
+        if (CliqzTour.isRunning && e.target &&
+            e.target.id != "tour-btn") {
+            CliqzTour.cancel();            
+        }        
+    },
+    popupHiddenListener: function (e) {
+        // stop tour only if hiding was triggered by user, but
+        // not if triggered programmatically via hidePopup()
+        if (CliqzTour.isRunning && 
+            e.target.getAttribute("isHiding") != "true") {
+            CliqzTour.telemetry("canceled");
+            CliqzTour.stop();
+            CliqzTour.reset();
+        }
+        e.target.setAttribute("isHiding", false);
     },
     clearUrlBarListener: function () {
         CliqzTour.clearUrlBar();
@@ -571,9 +612,15 @@ var CliqzTour = {
     hideCallout: function () {
         CliqzTour.hidePopup(CliqzTour.callout);
     },
-    hidePopup: function (popup) {
-        // TODO: fade out
+    hidePopup: function (popup) {   
+        // set flag to distinguish popup hiding because of
+        // user interaction vs. programatic closing in storyboard     
+        if (CliqzTour.isRunning) {
+            popup.setAttribute("isHiding", true);
+        }
+
         popup.hidePopup();
+        // TODO: fade out
     },
     movePopupTo: function (popup, x, y, t) {  
         if (t) {      
