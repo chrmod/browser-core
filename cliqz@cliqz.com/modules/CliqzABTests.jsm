@@ -141,6 +141,12 @@ var CliqzABTests = CliqzABTests || {
             case "1029_B":
                 CliqzUtils.setPref("enableNewsCustomization", true);
                 break;
+            case "1030_A":
+                CliqzUtils.setPref("double-enter", false);
+                break;
+            case "1030_B":
+                CliqzUtils.setPref("double-enter", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -277,6 +283,10 @@ var CliqzABTests = CliqzABTests || {
             case "1029_A":
             case "1029_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("enableNewsCustomization");
+                break;
+            case "1030_A":
+            case "1030_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("double-enter");
                 break;
             default:
                 rule_executed = false;

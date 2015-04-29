@@ -1529,6 +1529,19 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
+    if(CliqzUtils.getPref("double-enter", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+      var r = currentResults.results;
+      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+        currentResults.blocked = true;
+        var signal = {
+            type: 'activity',
+            action: 'double_enter'
+        };
+        CliqzUtils.telemetry(signal);
+        return true;
+      }
+    }
+
     logUIEvent({url: input}, "google", {
       action: "result_enter",
       position_type: ['inbar_query'],
