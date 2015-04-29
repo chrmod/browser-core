@@ -2468,7 +2468,7 @@ var CliqzHumanWeb = {
     },
     removeTable: function(reason) {
         try{
-            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
+            (CliqzHumanWeb.olddbConn.executeSimpleSQLAsync || CliqzHumanWeb.olddbConn.executeSimpleSQL)('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
