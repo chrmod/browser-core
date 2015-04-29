@@ -2745,6 +2745,3 @@ var __module0__ = (function(__dependency1__, __dependency2__, __dependency3__, _
   return __module0__;
 })();
 
-
-// cliqz - we need EXPORTED_SYMBOLS array to be able to use it as a module
-var EXPORTED_SYMBOLS = ['Handlebars'];

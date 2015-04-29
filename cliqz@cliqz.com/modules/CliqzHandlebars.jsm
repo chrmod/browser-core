@@ -7,7 +7,8 @@
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+Cu.import("resource://gre/modules/Services.jsm");
+Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
