@@ -434,9 +434,23 @@
 #cliqz-results .ez-no-result { text-align: center; }
 #cliqz-results .ez-no-result .h1 { font-size: 20px; margin-top: 36px; }
 #cliqz-results .ez-no-result .h2 { color: #cccccc; margin-top: 10px; font-size: 16px; }
-#cliqz-results .ez-no-result .logos { margin-top: 36px; }
-#cliqz-results .ez-no-result .cliqz-brand-logo { font-size: 28px; margin: 0 8px; display: inline-block; cursor: pointer; }
-#cliqz-results .ez-no-result .cliqz-logo { width: 100px; margin-top: 31px; cursor: pointer; }
+#cliqz-results .ez-no-result .logos { margin-top: 16px; }
+#cliqz-results .ez-no-result .items { display: inline-block; }
+#cliqz-results .ez-no-result .cliqz-brand-logo {
+    font-size: 28px;
+    margin: 0 8px;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+#cliqz-results .ez-no-result .items .item-name {
+    font-size: 16px;
+    max-width: 90px;
+    text-align: center;
+}
+#cliqz-results .ez-no-result .cliqz-logo { width: 100px;
+    margin-top: 31px; cursor: pointer;
+}
 
 /* buttons */
 #cliqz-popup .cqz-btn {
