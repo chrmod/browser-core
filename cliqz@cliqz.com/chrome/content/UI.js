@@ -901,7 +901,7 @@ function enhanceResults(res){
     }
 
     var spelC = CliqzAutocomplete.spellCorr;
-    if (spelC.on && !spelC.override) {
+    if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
         for(var c in spelC.correctBack){
             s = s.split(c).join('<i>' + spelC.correctBack[c] + '</i>');
