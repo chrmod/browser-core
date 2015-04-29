@@ -1,4 +1,8 @@
 'use strict';
+/*
+ * This module measures statistical data about users history
+ *
+ */
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryManager'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
@@ -33,201 +37,52 @@ var CliqzHistoryManager = {
                 }
             )
             .then(function() {
-                callback({
-                    size: historysize,
-                    days: CliqzUtils.getDay() - history
-                });
+                if(CliqzUtils){
+                    callback({
+                        size: historysize,
+                        days: CliqzUtils.getDay() - history
+                    });
+                }
             });
     },
-    getHistoryModel: function(mainCallback){
+    // moz_inputhistory records queries-to-URL mappings to adapt history
+    // results to a user's query behavior; moz_inputhistory would be automatically
+    // updated by Firefox's Places system if the dropdown was not overidden--
+    // thus, we have to update moz_inputhistory manually whenever the user
+    // selects a page from history or autocomplete
+    updateInputHistory: function(input, url) {
+        if(url.indexOf("://") == -1)
+            url = "http://" + url;
 
-        function vecDotProduct(vecA, vecB) {
-            var product = 0;
-            for (var i = 0; i < vecA.length; i++) {
-                product += vecA[i] * vecB[i];
-            }
-            return product;
-        };
-
-        // Vector length
-        function vecMagnitude(vec) {
-            var sum = 0;
-            for (var i = 0; i < vec.length; i++) {
-                sum += vec[i] * vec[i];
-            }
-            return Math.sqrt(sum);
-        };
-
-        // Cosine similarity
-        function cosineSimilarity(vecA, vecB) {
-                return vecDotProduct(vecA, vecB) / (vecMagnitude(vecA) * vecMagnitude(vecB));
-        };
-
-        // Normalize a word
-        function normalize(word) {
-            return word.toLowerCase().replace(/[^\w]/g, "");
-        };
-
-        // Tokenize a doc
-        function tokenize(doc) {
-            return doc.split(/[\s_():.!?,;%#]+/);
-        };
-
-        function myreduce(previous, current, index, array) {
-            if(!(current in previous)) {
-                previous[current] = 1 / array.length;
-            } else {
-                previous[current] += 1 / array.length;
-            }
-            return previous;
-        };
-
-        // Text frequency
-        function tf(words, stopWords) {
-            return words
-                // Normalize words
-                .map(normalize)
-                // Filter out stop words and short words
-                .filter(function(word) {
-                    return word.length > 1 && (!stopWords || !~stopWords.indexOf(word));
-                })
-                // Reduce
-                .reduce(myreduce, {});
-        };
-
-        // Inverse document frequency
-        function idf(D, dted) {
-            return Math.log(D / (1 + dted)) / Math.log(10);
-        };
-
-        // Main entry point, load the corpus and return an object
-        // which can calculate the tfidf for a certain doc
-        function buildTfidfModel(corpus, _stopWords) {
-            var
-                // Total number of (unique) documents
-                D = 0,
-                // Number of documents containing the term
-                dted = {},
-                // Keep our calculated text frequencies
-                docs = {},
-                // Normalized stop words
-                stopWords;
-
-            if(_stopWords) stopWords = _stopWords.map(normalize);
-
-            // Key the corpus on their md5 hash
-            function hash(doc) {
-                return doc.split("").reduce(
-                            function(a, b) {
-                                a=((a<<5)-a)+b.charCodeAt(0);
-                                return a&a
-                            }, 0);
-            }
-
-            function add(h, doc) {
-                // One more document
-                D++;
-                // Calculate and store the term frequency
-                docs[h] = tf(tokenize(doc), stopWords);
-                // Update number of documents with term
-                for(var term in docs[h]) {
-                    if(!(term in dted)) dted[term] = 0;
-                    dted[term]++;
-                }
-            }
-
-            function toBinVector(doc_tf) {
-                var vec = [];
-                for (var term in doc_tf) {
-                    //vec.push(doc_tf[term]*Object.keys(doc_tf).length);
-                    vec.push(term in dted ? 1 : 0);
-                }
-                return vec;
-            }
-
-            //if(!(corpus instanceof Array)) {
-            //    // They are loading a previously analyzed corpus
-            //    var data = corpus instanceof Object ? corpus : JSON.parse(corpus);
-            //    D = data.D;
-            //    dted = data.dted;
-            //    docs = data.docs;
-            //} else {
-            // They are loading a term and a corpus
-            for(var i = 0, l = corpus.length; i < l; i++) {
-                var doc = corpus[i],
-                    h = hash(doc);
-
-                // Add the document if it's new to us
-                if(!(h in docs)) {
-                    add(h, doc);
-                }
-            }
-
-            return {
-                docs: D,
-                terms: Object.keys(dted).length,
-                similarity: function (doc) {
-                    var dh = hash(doc),
-                        doc_tf = tf(tokenize(doc), stopWords),
-                        doc_vec = toBinVector(doc_tf),
-                        scores = [];
-
-                    for (var h in docs) {
-                        var vec = toBinVector(docs[h]);
-                        var sim = cosineSimilarity(doc_vec, vec)
-                        scores.push(isNaN(sim) ? 0 : sim);
-                    }
-                    // If it's a new document, add it
-                    //if(!(dh in docs)) {
-                    //    add(dh, doc);
-                    //}
-                    return Math.max.apply(null, scores);
-                }
-            };
-        };
-
-        function modelFromHistoryQueries(callback) {
-            let urls = [];
+        // copied from http://mxr.mozilla.org/mozilla-central/source/toolkit/components/places/nsNavHistory.cpp#4525
+        var sql =
+            "INSERT OR REPLACE INTO moz_inputhistory " +
+            "SELECT h.id, IFNULL(i.input, :input_text), IFNULL(i.use_count, 0) * .9 + 1 " +
+            "FROM moz_places h " +
+            "LEFT JOIN moz_inputhistory i ON i.place_id = h.id AND i.input = :input_text " +
+            "WHERE url = :page_url ";
+        CliqzUtils.setTimeout(function() {
             CliqzHistoryManager.PlacesInterestsStorage
                 ._execute(
-                    "SELECT moz_places.url FROM moz_places " +
-                    "WHERE (url LIKE '%search?q=%' OR url LIKE '%search?p=%' OR url LIKE '%results.aspx?q=%' OR " +
-                    "url LIKE '%web?q=%' OR url LIKE '%google.de/#q=%' OR url LIKE '%#q=%' OR url LIKE '%duckduckgo.com/?q=%')",
-                    ["url"],
-                    function(url) {
-                        urls.push(url);
+                    sql,
+                    // no results for INSERT
+                    [],
+                    function(results) { },
+                    {
+                        input_text: input,
+                        page_url: url
                     }
                 )
-                .then(function() { callback(urls); });
-        };
-
-        // build a model from the histry queries
-        function getTfidfModel(callback) {
-            function getQueries(urls) {
-                var regex = /[\?#]{1}[pq]{1}=(.+)/;
-                var queries = [];
-                for (var i = 0; i < urls.length; i++) {
-                    var m = urls[i].match(regex);
-                    if (m) {
-                        var q = m[1].split("&")[0];
-                        q = q.replace(/\+/g, " ").replace(/%20/g, " ");
-                        queries.push(q);
-                    }
-                }
-                return queries;
-            };
-            function buildModel(docs) {
-                var stop = ["aber", "als", "am", "an", "auch", "auf", "aus", "bei", "bin", "bis", "bist", "da", "dadurch", "daher", "darum", "das", "daß", "dass", "dein", "deine", "dem", "den", "der", "des", "dessen", "deshalb", "die", "dies", "dieser", "dieses", "doch", "dort", "du", "durch", "ein", "eine", "einem", "einen", "einer", "eines", "er", "es", "euer", "eure", "für", "hatte", "hatten", "hattest", "hattet", "hier", "hinter", "ich", "ihr", "ihre", "im", "in", "ist", "ja", "jede", "jedem", "jeden", "jeder", "jedes", "jener", "jenes", "jetzt", "kann", "kannst", "können", "könnt", "machen", "mein", "meine", "mit", "muß", "mußt", "musst", "müssen", "müßt", "nach", "nachdem", "nein", "nicht", "nun", "oder", "seid", "sein", "seine", "sich", "sie", "sind", "soll", "sollen", "sollst", "sollt", "sonst", "soweit", "sowie", "und", "unser", "unsere", "unter", "vom", "von", "vor", "wann", "warum", "was", "weiter", "weitere", "wenn", "wer", "werde", "werden", "werdet", "weshalb", "wie", "wieder", "wieso", "wir", "wird", "wirst", "wo", "woher", "wohin", "zu", "zum", "zur", "über", "the"];
-                var model = buildTfidfModel(docs, stop);
-                return callback(model);
-            }
-            return modelFromHistoryQueries(function(urls) { buildModel(getQueries(urls)); });
-        };
-
-        getTfidfModel(mainCallback);
+                .then(function() {
+                    // CliqzUtils.log('updated moz_inputhistory', 'CLIQZ.HISTORY_MANAGER');
+                })
+            },
+            // wait a bit before updating moz_inputhistory; otherwise, the URL might
+            // not exist in moz_places yet and above SQL statement would not insert anything
+            5000);
     },
 	PlacesInterestsStorage: {
-        _execute: function PIS__execute(sql, columns, onRow) {
+        _execute: function PIS__execute(sql, columns, onRow, parameters) {
             var conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,
                 statement = conn.createAsyncStatement(sql),
                 onThen, //called after the async operation is finalized
@@ -236,7 +91,11 @@ var CliqzHistoryManager = {
                         onThen = func;
                     }
                 };
-
+            if(parameters){
+                for(var key in parameters) {
+                  statement.params[key] = parameters[key];
+                }
+            }
             statement.executeAsync({
                 handleCompletion: function(reason)  {
                   onThen();
@@ -273,9 +132,3 @@ var CliqzHistoryManager = {
         }
     }
 };
-
-if (CliqzUtils.getPref("historyExperiment")) {
-    CliqzHistoryManager.getHistoryModel(function(model) {
-        CliqzHistoryManager.historyModel = model;
-    });
-}

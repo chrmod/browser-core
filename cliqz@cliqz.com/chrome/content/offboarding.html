@@ -8,7 +8,7 @@
 
     <style type="text/css">
         .back {
-            background-image: url('http://beta.cliqz.com/img/big_enough_m8.jpg');
+            background-image: url('https://cdn.cliqz.com/extension/offboarding/back.jpg');
             background-repeat: no-repeat;
             background-size: cover;
         }
@@ -59,7 +59,7 @@
 </head>
 <body class='back' onbeforeunload='closePage(event)'>
     <h1 class='header'>
-        <img class="logo" src="http://beta.cliqz.com/img/CliqzLogo.svg">
+        <img class="logo" src="https://cdn.cliqz.com/extension/offboarding/logo.svg">
         <span class='cliqz-locale' key='offTitle'></span>
     </h1>
     <div class='mid cliqz-locale' key='offMessage'>
@@ -74,11 +74,19 @@
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzTour.jsm');
         Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        var now = new Date(), lang = CliqzUtils.getLanguage(window);
-        CliqzTour.pageShown();
-        document.getElementById('test_btn').addEventListener('click', function(){
-            CliqzTour.start();
-        });
+        var now = new Date(), lang = CliqzUtils.getLanguage(window),
+            btn = document.getElementById('test_btn');
+
+        var activate = CliqzTour.init();
+
+        if(activate){
+            btn.addEventListener('click', function(){
+                CliqzTour.start();
+            });
+        } else {
+            btn.parentElement.removeChild(btn);
+        }
+
         var closePage = function () {
             var diff = (new Date()) - now;
             var diff_sec = diff / 1000;

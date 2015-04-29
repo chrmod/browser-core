@@ -1,15 +1,30 @@
 {
+    "Terminal":{
+        "message": "Terminal"
+    },
+    "Gate":{
+        "message": "Gate"
+    },
+    "openInNewTab":{
+        "message": "{} (in neuem Tab öffnen)"
+    },
     "whatIsCliqz":{
-        "message": "Was ist cliqz?"
+        "message": "Was ist CLIQZ?"
     },
     "whatIsCliqzTry":{
-        "message": "Was ist cliqz? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
+        "message": "Was ist CLIQZ? <-- probier es jetzt selbst und gib z.B. 'Mario Gotze' ein!"
     },
     "settings":{
-        "message": "Einstellung"
+        "message": "EINSTELLUNGEN"
     },
     "btnPrivacy":{
         "message": "Datenschutz"
+    },
+    "btnShowCliqzNewTabEnabled":{
+        "message": "Newtab deaktivieren"
+    },
+    "btnShowCliqzNewTabDisabled":{
+        "message": "Newtab aktivieren"
     },
     "btnDefaultSearchEngine":{
         "message": "Standard-Suchmaschine"
@@ -17,8 +32,11 @@
     "btnRegion":{
         "message": "Regionale Ergebnisse"
     },
-    "btnShare":{
-        "message": "cliqz Share"
+    "btnSafeSearch":{
+        "message": "Ich nehme teil"
+    },
+    "btnSafeSearchDesc":{
+        "message": "Was ist das?"
     },
     "btnStats":{
         "message": "Stats"
@@ -27,10 +45,10 @@
         "message":"↵  "
     },
     "noResultTitle":{
-        "message":"Schade, wir haben leider noch keine passenden Vorschläge.<br /> Wir arbeiten daran!"
+        "message": "Dieses Mal haben wir leider keinen guten Vorschlag."
     },
     "noResultMessage":{
-        "message":"Klicke rechts auf <b><i>noch mehr</i></b> für Ergebnisse einer anderen Suchmachine Deiner Wahl"
+        "message": "Versuche es mit ,Enter' bei {} oder per Klick auf:"
     },
     "noResults": {
         "message":"Keine Ergebnisse"
@@ -41,8 +59,11 @@
     "moreResults":{
         "message":"mehr ..."
     },
-    "customSearch":{
-        "message":"Suche <b><i>{}</i></b> auf {}"
+    "search":{
+        "message":"suche"
+    },
+    "on":{
+        "message":"auf"
     },
     "peoplePositionAt":{
         "message":"bei"
@@ -89,6 +110,60 @@
     "agoXYears":{
         "message":"vor {} Jaren"
     },
+    "onButtonTryOut":{
+        "message":"Surf los!"
+    },
+    "onButtonCancel":{
+        "message":"Demo abbrechen"
+    },
+     "onButtonTryOutAgain":{
+        "message":"Demo nochmal ansehen"
+    },
+    "onCalloutTypeHere":{
+        "message":"CLIQZ funktioniert in deiner Adressleiste – gib Deine Suche oder Webadresse einfach hier ein"
+    },
+    "onCalloutCliqzResults":{
+        "message":"Deine Webseiten-Vorschläge erscheinen sofort hier"
+    },
+    "onCalloutLandingPage":{
+        "message":"Mit CLIQZ direkt am Ziel – mehr Zeit zum Surfen, weniger Suchen"
+    },
+    "onCalloutClickHere":{
+        "message":"Klick hier um einen CLIQZ-Vorschlag auszuwählen"
+    },
+    "onCalloutNowYou":{
+        "message":"Surf jetzt los!"
+    },
+    "onUrlBarNowYou":{
+        "message":"Gib Deine Suche oder Webadresse einfach hier ein..."
+    },
+    "onMsgInstalled":{
+        "message":"Installation erfolgreich! Ab jetzt surfst Du mit CLIQZ!"
+    },
+    "onMsgDemoDone":{
+        "message":"Probier CLIQZ gleich mal aus!"
+    },
+    "onMsgThankYou":{
+        "message":"Danke, dass Du CLIQZ installiert hast!"
+    },
+    "onMsgExplanation":{
+        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durchs Web."
+    },
+    "offRes_Cliqz":{
+        "message":"CLIQZ"
+    },
+    "offRes_AboutCliqz":{
+        "message":"CLIQZ - über uns"
+    },
+    "offRes_Privacy":{
+        "message":"CLIQZ - Datenschutz"
+    },
+    "offRes_Support":{
+        "message":"CLIQZ - Support"
+    },
+    "offRes_Team":{
+        "message":"CLIQZ - Team"
+    },
     "offTitle":{
         "message":"die neue Art, durch’s Web zu navigieren"
     },
@@ -97,12 +172,6 @@
     },
     "offMessage":{
         "message":"Einfach Suchbegriff in der Adressleiste eingeben, sofort Ergebnisse erhalten"
-    },
-    "cliqzPremiumTitle":{
-        "message": "Sicher surfen ohne Überwachung - meinen Premiumservice aktivieren"
-    },
-    "cliqzPremiumDesc":{
-        "message": "Upgrade testen für nur 3,99 €/Mo"
     },
     "Sitemap_Summary": {
         "message":"Meine {} Seiten"
@@ -120,7 +189,7 @@
         "message":"Später ansehen"
     },
     "Sitemap_Youtube_Channels": {
-        "message":"Channels"
+        "message":"Kanäle"
     },
     "Sitemap_Youtube_Playlists": {
         "message":"Playlists"
@@ -199,6 +268,21 @@
     },
     "Sitemap_Bild_Bundesliga": {
         "message":"Bundesliga"
+    },
+    "Sitemap_Wikipedia_Articles": {
+      "message":"Artikel"
+    },
+    "Sitemap_People": {
+      "message":"Leute"
+    },
+    "Sitemap_Search": {
+      "message":"Suchen"
+    },
+    "Sitemap_Projects": {
+      "message":"Projekte"
+    },
+    "Sitemap_Twitter_Discover": {
+      "message":"Entdecken"
     },
     "country_code_": {
       "message":"Automatisch"
@@ -280,5 +364,183 @@
     },
     "statsShareAction": {
         "message": "Diese Statistik auf {} posten"
+    },
+    "spell_correction": {
+      "message":"Meintest Du wirklich "
+    },
+    "result_filter": {
+      "message":"Anstößige Inhalte"
+    },
+    "age": {
+        "message": "Alter"
+    },
+    "nationality": {
+        "message": "Nationalität"
+    },
+    "history_results": {
+      "message":"Besuchte Seiten"
+    },
+    "history_results_cluster": {
+      "message":"Besuchte Seiten"
+    },
+    "adultInfo": {
+        "message": "Anstößige Inhalte wurden automatisch blockiert."
+    },
+    "adultAction": {
+        "message": "Alle Ergebnisse anzeigen?"
+    },
+    "adultConservative": {
+      "message":"blockieren"
+    },
+    "adultModerate": {
+      "message":"filtern"
+    },
+    "adultLiberal": {
+      "message":"immer anzeigen"
+    },
+    "yes": {
+        "message": "Ja"
+    },
+    "no": {
+        "message": "Nein"
+    },
+    "options": {
+        "message": "Suchergebnisfilter"
+    },
+    "cliqz_slogan_H1": {
+        "message": "SURFEN STATT SUCHEN"
+    },
+    "cliqz_slogan_H2": {
+        "message": "Direkt, schnell & sicher."
+    },
+    "cliqz_common_questions":{
+        "message": "Häufig gestellte Fragen"
+    },
+    "cliqz_give_feedback":{
+        "message": "Feedback und Support"
+    },
+    "cliqz_about_us":{
+        "message": "Über Uns"
+    },
+    "cliqz_jobs":{
+        "message": "Jobs"
+    },
+    "cliqz_privacy": {
+        "message": "Datenschutz"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
+    },
+    "views": {
+        "message": "Aufrufe"
+    },
+    "cliqz_stock_open": {
+        "message": "Eröffnung"
+    },
+    "cliqz_stock_high": {
+        "message": "Hoch"
+    },
+    "cliqz_stock_low": {
+        "message": "Tief"
+    },
+    "cliqz_stock_market_cap": {
+        "message": "Marktkapit."
+    },
+    "cliqz_stock_pe_ratio": {
+        "message": "KGV (ttm)"
+    },
+    "publish_date": {
+        "message": "Veröffentlichungsdatum"
+    },
+    "Click anywhere to copy":{
+        "message": "Klicken zum Kopieren"
+    },
+    "Copied":{
+        "message": "kopiert"
+    },
+    "updateMessage":{
+        "message": "Mit CLIQZ surfst du ab jetzt noch schneller, noch direkter und noch smarter."
+    },
+    "updatePage":{
+        "message": "Mehr erfahren"
+    },
+    "updateDismiss":{
+        "message": "Nachricht schließen"
+    },
+    "newsToggleLatest":{
+        "message": "Aktuell"
+    },
+    "newsToggleTrends":{
+        "message": "Trends"
+    },
+    "ez_video-popular": {
+      "message": "Beliebt"
+    },
+    "ez_video-dashboard": {
+      "message": "Dashboard"
+    },
+    "ez_video-upload": {
+      "message": "Hochladen"
+    },
+    "ez_video-categories": {
+      "message": "Kategorien"
+    },
+    "ez_video-my_subscriptions": {
+      "message": "Meine Abos"
+    },
+    "ez_video-most_watched": {
+      "message": "Meist gesehen"
+    },
+    "ez_video-music": {
+      "message": "Music"
+    },
+    "ez_video-newest": {
+      "message": "Neueste"
+    },
+    "ez_video-on_demand": {
+      "message": "On Demand"
+    },
+    "ez_video-series": {
+      "message": "Serien"
+    },
+    "ez_video-staff_picks": {
+      "message": "Staff Picks"
+    },
+    "ez_video-tv": {
+      "message": "TV"
+    },
+    "ez_video-tv_and_series": {
+      "message": "TV & Serien"
+    },
+    "ez_video-top_100": {
+      "message": "Top 100"
+    },
+    "ez_video-recently_watched": {
+      "message": "Zuletzt Angesehen"
+    },
+    "ez_video-funny": {
+      "message": "Lustige"
+    },
+    "ez_video-ingenious": {
+      "message": "Geniale"
+    },
+    "ez_video-fascinating": {
+      "message": "Faszinierende"
+    },
+    "ez_video-courageous": {
+      "message": "Mutige"
+    },
+
+    "ez_video-recommended": {
+      "message": "Empfohlen"
+    },
+    "ez_video-most_commented":  {
+        "message": "Meist Kommentiert"
+    },
+    "ez_video-ranking": {
+        "message": "Beliebt"
+    },
+    "ez_video-trending": {
+        "message":"Trending"
     }
 }

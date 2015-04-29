@@ -1,4 +1,10 @@
 'use strict';
+/*
+ * This module determines the language of visited pages and
+ * creates a list of known languages for a user
+ *
+ */
+
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzLanguage'];
@@ -14,7 +20,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
-    LOG_KEY: 'cliqz language: ',
+    LOG_KEY: 'CliqzLanguage',
     currentState: {},
     // we keep a different namespace than cliqz so that it does not get
     // removed after a re-install or sent during a logging signal
@@ -33,9 +39,10 @@ var CliqzLanguage = {
             popup: CliqzAutocomplete.lastPopupOpen,
             same_result: same_result,
             result_type: result_type,
-            result_position: result_position
+            result_position: result_position,
+            v: 1
         };
-        CliqzUtils.track(action)
+        CliqzUtils.telemetry(action)
     },
 
     listener: {
@@ -43,14 +50,17 @@ var CliqzLanguage = {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
 
         onLocationChange: function(aProgress, aRequest, aURI) {
+            if (aURI.spec == this.currentURL ||
+                !CliqzAutocomplete.lastResult) return;
 
-            if (aURI.spec == this.currentURL) return;
             this.currentURL = aURI.spec;
 
             // here we check if user ignored our results and went to google and landed on the same url
             var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
             var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
             var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
+
+            var LR =  CliqzAutocomplete.lastResult['_results'];
 
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
                 CliqzAutocomplete.afterQueryCount += 1;
@@ -60,14 +70,15 @@ var CliqzLanguage = {
                 // action.redirect = true;
                 var m = this.currentURL.match(rerefurl);
                 if (m) {
-                    var dest_url = decodeURIComponent(m[1]);
-                    dest_url = dest_url.replace('http://', '').replace('https://', '').replace('www.', '');
-                    var found = false;
-                    for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
-                        var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '');
+                    var dest_url = CliqzUtils.cleanUrlProtocol(decodeURIComponent(m[1]), true),
+                        found = false;
+
+
+                    for (var i=0; i < LR.length; i++) {
+                        var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                         if (dest_url == comp_url) {
                             // now we have the same result
-                            var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                            var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
                             CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
@@ -81,11 +92,11 @@ var CliqzLanguage = {
             } else if (CliqzAutocomplete.afterQueryCount == 1) {
                 // some times the redict was not captured so if only one query was make, we still compare to cliqz result
                 // but we don't send anything if we can't find a match
-                for (var i=0; i < CliqzAutocomplete.lastResult['_results'].length; i++) {
-                    var dest_url = this.currentURL.replace('http://', '').replace('https://', '').replace('www.', '');
-                    var comp_url = CliqzAutocomplete.lastResult['_results'][i]['val'].replace('http://', '').replace('https://', '').replace('www.', '')
+                for (var i=0; i < LR.length; i++) {
+                    var dest_url = CliqzUtils.cleanUrlProtocol(this.currentURL, true);
+                    var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                     if (dest_url == comp_url) {
-                        var resType = CliqzUtils.encodeResultType(CliqzAutocomplete.lastResult['_results'][i]['style']);
+                        var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
                         CliqzLanguage.sendCompSignal('result_compare', false, true, resType, i);
                     }
                 }
@@ -99,7 +110,7 @@ var CliqzLanguage = {
                         if (''+currURLAtTime == ''+currURL) {
                             // the person has stayed at least READING_THRESHOLD at the URL, now let's try
                             // to fetch the locale
-                            CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
+                            // CliqzUtils.log("Person has been long enough at: " + currURLAtTime, CliqzLanguage.LOG_KEY);
                             var locale = CliqzLanguage.window.gBrowser.selectedBrowser.contentDocument
                                 .getElementsByTagName('html').item(0).getAttribute('lang');
                             if (locale) CliqzLanguage.addLocale(''+currURL,locale);
@@ -155,14 +166,14 @@ var CliqzLanguage = {
 
         var locale = CliqzLanguage.normalizeLocale(localeStr);
 
-        if (locale=='' || locale==undefined || locale==null) return;
+        if (locale=='' || locale==undefined || locale==null || locale.length != 2) return;
         if (url=='' || url==undefined || url==null) return;
 
         if (CliqzLanguage.currentState[locale] != 'locale') {
             // if it's the locale there is not need to do anything, we already have it
 
             // extract domain from url, hash it and update the value
-            var url_hash = CliqzLanguage.hashCode(url.replace('http://','').replace('https://','').replace('://','').split('/')[0]) % 256;
+            var url_hash = CliqzLanguage.hashCode(CliqzUtils.cleanUrlProtocol(url, true).split('/')[0]) % 256;
 
             CliqzUtils.log('Saving: ' + locale + ' ' + url_hash, CliqzLanguage.LOG_KEY);
 
@@ -180,7 +191,7 @@ var CliqzLanguage = {
     },
     // removes the country from the locale, for instance, de-de => de, en-US => en
     normalizeLocale: function(str) {
-        if (str) return str.split(/-|_/)[0].toLowerCase();
+        if (str) return str.split(/-|_/)[0].trim().toLowerCase();
         else return srt;
     },
     // the function that decided which languages the person understands
@@ -230,7 +241,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.cliqzPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.getPref('locale',''));
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();

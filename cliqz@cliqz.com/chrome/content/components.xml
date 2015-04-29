@@ -6,7 +6,7 @@
           xmlns:xbl="http://www.mozilla.org/xbl">
 
   <binding id="autocomplete-rich-result-popup-cliqz" extends="chrome://global/content/bindings/autocomplete.xml#autocomplete-rich-result-popup" >
-    <content ignorekeys="true" level="top" consumeoutsideclicks="false" minheight="100" maxheight="420" >
+    <content ignorekeys="true" level="top" consumeoutsideclicks="false">
       <div xmlns="http://www.w3.org/1999/xhtml" anonid="cliqz-html-container"></div>
     </content>
 
@@ -14,14 +14,18 @@
        <constructor>
         <![CDATA[
           this.cliqzBox = document.getAnonymousElementByAttribute(this, "anonid", "cliqz-html-container");
+          this.setAttribute("onpopuphiding", "CLIQZ.UI.closeResults(event)");
           CLIQZ.UI.main(this.cliqzBox);
+
+          // adds "title" attribute support
+          this.cliqzBox.setAttribute('tooltip','aHTMLTooltip');
         ]]>
       </constructor>
       <property name="selectedIndex"
                 onget="return 0;">
         <setter>
           <![CDATA[
-            //cliqz shadowing
+            //mask default FF
           ]]>
         </setter>
       </property>
@@ -42,7 +46,7 @@
             this._invalidate();
 
             var width = aElement.getBoundingClientRect().width;
-            this.setAttribute("width", width > 100 ? width : 100);
+            this.setAttribute("width", width > 500 ? width : 500);
             this.openPopup(aElement, "after_start", 0, 0, false, true);
           }
         ]]>
@@ -52,36 +56,7 @@
       <method name="_appendCurrentResult">
         <body>
           <![CDATA[
-            function unEscapeUrl(url){
-              return Components.classes['@mozilla.org/intl/texttosuburi;1'].
-                        getService(Components.interfaces.nsITextToSubURI).
-                        unEscapeURIForUI('UTF-8', url)
-            }
-
-            if(this.mInput && this._matchCount > 0){
-              var data = [],
-                ctrl = this.mInput.controller,
-                q = ctrl.searchString.replace(/^\s+/, '').replace(/\s+$/, ''),
-                lastRes = CliqzAutocomplete.lastResult;
-
-              for(var i=0; i<this._matchCount; i++) {
-                  data.push({
-                    title: ctrl.getCommentAt(i),
-                    url: unEscapeUrl(ctrl.getValueAt(i)),
-                    type: ctrl.getStyleAt(i),
-                    text: q,
-                    data: lastRes && lastRes.getDataAt(i),
-                  });
-              }
-
-              CLIQZ.UI.results({
-                q: q,
-                results: data,
-                width: CLIQZ.Core.urlbar.clientWidth - 100
-              });
-              CLIQZ.UI.suggestions(CliqzAutocomplete.lastSuggestions, q);
-              CLIQZ.Core.autocompleteQuery(data[0].url);
-            }
+            //this method should be patched in UI.js
           ]]>
         </body>
       </method>

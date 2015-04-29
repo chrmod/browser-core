@@ -1,20 +1,20 @@
-{{#if (is-cliqz-premium)}}
-<div class='cliqz-result-item-box cliqz-premium'
-	type='cliqz-results sources-X'
-	url='https://beta.cliqz.com/premium'
-	extra='premium'
-	idx='-2'>
-		{{cliqz-premium}}
-</div>
-{{/if}}
 {{#each results}}
-	<div class='cliqz-result-item-box'
-		type='{{ type }}'
-		url='{{ url }}'
-		idx='{{ @index }}'
-		extra='{{cliqz-ad @index type text}}'
-		hasimage='{{ hasimage image }}'
-		>
-		{{partial vertical}}
-	</div>
+	{{#unless invalid}}
+		<div class='cqz-result-box'
+			type='{{ type }}'
+			kind='{{ kind_printer data.kind }}'
+			{{#if url}}
+				url='{{ url }}'
+				{{#unless (logic type 'starts_with' 'cliqz-pattern')}}
+					arrow="false"
+				{{/unless}}
+			{{/if}}
+			idx='{{ @index }}'
+			hasimage='{{ hasimage image }}'
+			>
+			{{partial vertical}}
+		</div>
+	{{/unless}}
 {{/each}}
+
+<div class='cqz-result-selected transition'></div>
