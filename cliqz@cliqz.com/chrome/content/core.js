@@ -675,8 +675,6 @@ window.CLIQZ.Core = {
     },
     handleKeyboardShortcuts: function(ev) {
         if(ev.keyCode == KeyEvent.DOM_VK_K){
-            console.log(ev);
-
             if((CliqzUtils.isMac(window)  &&  ev.metaKey && !ev.ctrlKey && !ev.altKey) ||  // CMD-K
                (!CliqzUtils.isMac(window) && !ev.metaKey &&  ev.ctrlKey && !ev.altKey)){   // CTRL-K
                 CLIQZ.Core.urlbar.focus();
