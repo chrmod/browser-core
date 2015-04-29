@@ -908,7 +908,7 @@ function enhanceResults(res){
         }
         updateMessageState("show", {
             "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction', s),
+              message: CliqzUtils.getLocalizedString('spell_correction') + '<b>' + s + '</b>',
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),

@@ -20,7 +20,7 @@
               </div>
           {{/each}}
       </div>
-      <div class="h2">{{{ message }}}</div>
+      <div class="h2">{{ message }}<br />{{ message1 }}</div>
       {{#if lastQ}}
         <div cliqz-action='lastQ' class='top-sites-lastq' query="{{lastQ}}">
           {{lastQ}}

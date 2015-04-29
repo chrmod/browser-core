@@ -106,7 +106,7 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
-    },    
+    },
     "onButtonTryOut":{
         "message":"Surf los!"
     },
@@ -354,7 +354,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Meintest Du wirklich <b>{}</b>"
+      "message":"Meintest Du wirklich"
     },
     "result_filter": {
       "message":"Anstößige Inhalte"
@@ -462,7 +462,10 @@
         "message": "Trends"
     },
     "topSitesMessage":{
-        "message": "Wähle eine Deiner meist-besuchten Webseiten, <br/> oder tipp' oben in die Leiste um woanders hinzugehen!"
+        "message": "Wähle eine Deiner meist-besuchten Webseiten,"
+    },
+    "topSitesMessage1":{
+        "message": "oder tipp' oben in die Leiste um woanders hinzugehen!"
     },
     "topSitesTitle":{
         "message": "Meine meist-besuchten Webseiten"

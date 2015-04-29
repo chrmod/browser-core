@@ -221,6 +221,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var top = Result.generic('cliqz-pattern', '', null, '', null, '');
                     top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
                     top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
+                    top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
                     top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
                     top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
                     top.data.url = results[0].url;
