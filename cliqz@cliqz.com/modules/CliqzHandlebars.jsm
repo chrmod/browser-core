@@ -268,11 +268,11 @@ function registerHelpers(){
             return true;
 
         try {
-          var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+          var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
               ezID = JSON.parse(data.subType).ez;
-          return latest[ezID];
+          return !trending[ezID];
         } catch(e){
-          return false;
+          return true;
         }
     });
 }

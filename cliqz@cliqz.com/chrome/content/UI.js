@@ -1230,21 +1230,21 @@ function resultClick(ev){
                     break;
                 case 'news-toggle':
                     setTimeout(function(){
-                      var newLatest = document.getElementById('actual', el.parentElement).checked,
-                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                      var newTrending = !document.getElementById('actual', el.parentElement).checked,
+                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
                           ezID = JSON.parse(el.getAttribute('data-subType')).ez,
-                          oldLatest = latest[ezID];
+                          oldTrending = trending[ezID];
 
-                      latest[ezID] = newLatest
+                      trending[ezID] = newTrending;
 
-                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
+                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
 
                       CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'news-toggle',
                         ezID: ezID,
-                        old_setting: oldLatest ? 'latest': 'trends',
-                        new_setting: newLatest ? 'latest': 'trends'
+                        old_setting: oldTrending ? 'trends': 'latest',
+                        new_setting: newTrending ? 'trends': 'latest'
                       });
                     }, 0);
 
