@@ -1594,7 +1594,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1,
       new_tab: newTab
-    });
+    }, CLIQZ.Core.urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
