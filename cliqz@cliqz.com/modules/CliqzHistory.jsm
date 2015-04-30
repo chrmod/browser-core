@@ -293,7 +293,8 @@ var CliqzHistory = {
 
       if (!url) return;
 
-      CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
+      if(CliqzHistory.getTabData(panel, "visitDate"))
+        CliqzHistory.setTabData(panel, "prevVisit", CliqzHistory.getTabData(panel, "visitDate"));
 
       // Create new session when external search engine query changes
       var externalQuery = CliqzHistoryPattern.extractQueryFromUrl(url);
@@ -381,7 +382,6 @@ var CliqzHistory = {
     var scrolls = CliqzHistory.getTabData(panel, "scrollCount");
     var keys = CliqzHistory.getTabData(panel, "keyCount");
 
-
     if (visitDate) {
       CliqzHistory.SQL("UPDATE visits \
                 SET time_spent=:time, click_interaction=click_interaction+:clicks, \
@@ -433,7 +433,7 @@ var CliqzHistory = {
         CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
         CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
         CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
-        CliqzHistory.setTabData(p.newPanel, "visitDate", Date.now());
+        CliqzHistory.setTabData(p.newPanel, "prevVisit", CliqzHistory.getTabData(p.curPanel, 'visitDate'));
       }
       CliqzHistory.setTabData(p.newPanel, "lock", false);
     };
