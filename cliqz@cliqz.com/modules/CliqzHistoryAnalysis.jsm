@@ -103,7 +103,7 @@ var CliqzHistoryAnalysis = {
     var avg = sum / filteredUrlCount;
     result.visitCount = visitCount;
     result.count = urlCount;
-    result.sessionCount = revisits.sessionCount
+    result.sessionCount = revisits.sessionCount;
     result.share = (filteredUrlCount / urlCount).toFixed(4);
     result.revisitInDays = {};
     result.revisitInDays.avg = toDays(avg);
@@ -203,7 +203,6 @@ var CliqzHistoryAnalysis = {
     result.firstVisitTypes = typesStart;
     result.lastVisitTypes = typesRevisit;
 
-    CliqzUtils.log(JSON.stringify(result));
     return result;
 
   },
