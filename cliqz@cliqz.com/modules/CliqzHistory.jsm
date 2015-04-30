@@ -26,6 +26,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
 
 
 var CliqzHistory = {
+  THUMBNAIL_LIMIT: 6400 /* Average thumbnail size 16 kb => ~100 MB */,
   tabData: [],
   lastActivePanel: null,
   lastVisit: [],
@@ -618,7 +619,10 @@ var CliqzHistory = {
     // Make sure thumbnail directory exists
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
 
-    //Analyse data
+    // Delete thumbnails if limit is reached
+    CliqzHistory.cleanUpThumbnails();
+
+    // Analyse data
     CliqzUtils.setTimeout(function() {
       CliqzHistoryAnalysis.startAnalysis();
     }, 10000);
@@ -673,6 +677,26 @@ var CliqzHistory = {
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true); // Make sure it exists
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true).remove(true);
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true); // Recreate
+  },
+  cleanUpThumbnails: function() {
+    var thumbDir = FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
+    var fileEnum = thumbDir.directoryEntries;
+    var fileCount = 0;
+    while(fileEnum.hasMoreElements()) {
+      var tmp = fileEnum.getNext();
+      fileCount++;
+    }
+    if(fileCount > CliqzHistory.THUMBNAIL_LIMIT) {
+      // Create thread
+      CliqzUtils.setTimeout(function() {
+        // Delete oldest 1000
+        CliqzHistory.SQL("select url from thumbnails order by date limit 1000", function(r) {
+          var url = r[0];
+          CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, {url:url});
+          CliqzHistory.deleteThumbnail(url);
+        });
+      },0);
+    }
   },
   historyObserver: {
     onBeginUpdateBatch: function() {},
