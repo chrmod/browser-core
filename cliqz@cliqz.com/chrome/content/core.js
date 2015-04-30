@@ -237,14 +237,14 @@ window.CLIQZ.Core = {
     showTutorial: function(onInstall, session){
         var showNewOnboarding = false;
 
-        
+
         try {
             var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                 .getService(Components.interfaces.nsIXULAppInfo);
             var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
                 .getService(Components.interfaces.nsIVersionComparator);
 
-            // running under Firefox 36.0 or later               
+            // running under Firefox 36.0 or later
             if(versionChecker.compare(appInfo.version, "36.0") >= 0) {
                 // 50% chance of showing new onboarding
                 if (session) {
@@ -259,9 +259,9 @@ window.CLIQZ.Core = {
             CliqzUtils.log('error retrieving last digit of session: ' + e, "Cliqz Onboarding");
         }
 
-        var tutorialUrl = showNewOnboarding ? 
+        var tutorialUrl = showNewOnboarding ?
             CliqzUtils.NEW_TUTORIAL_URL : CliqzUtils.TUTORIAL_URL;
-        CliqzUtils.setPref('onboarding_versionShown', 
+        CliqzUtils.setPref('onboarding_versionShown',
             showNewOnboarding ? CliqzTour.VERSION : "0.0");
         CliqzUtils.setPref('onboarding_finishedWatching', false);
 
@@ -674,12 +674,15 @@ window.CLIQZ.Core = {
         return _querySession;
     },
     handleKeyboardShortcuts: function(ev) {
-        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey)){
-            CLIQZ.Core.urlbar.focus();
-            CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
+        if(ev.keyCode == KeyEvent.DOM_VK_K){
+            if((CliqzUtils.isMac(window)  &&  ev.metaKey && !ev.ctrlKey && !ev.altKey) ||  // CMD-K
+               (!CliqzUtils.isMac(window) && !ev.metaKey &&  ev.ctrlKey && !ev.altKey)){   // CTRL-K
+                CLIQZ.Core.urlbar.focus();
+                CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
 
-            ev.preventDefault();
-            ev.stopPropagation();
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
         }
     },
     handleKeyboardShortcutsAction: function(val){
