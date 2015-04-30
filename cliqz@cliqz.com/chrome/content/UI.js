@@ -920,7 +920,7 @@ function enhanceResults(res){
         });
     }
     //filter adult results
-    else if(adult) {
+    if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
