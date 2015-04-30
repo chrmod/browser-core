@@ -61,6 +61,7 @@ var CliqzHistory = {
         (transition == 2 && CliqzHistory.getTabData(panel, "type") == "link") /* other urls form menu*/ ||
         CliqzHistory.getTabData(panel, "external")) {
         CliqzHistory.setTabData(panel, "query", url);
+        CliqzHistory.setTabData(panel, 'acQuery', "");
         CliqzHistory.setTabData(panel, "queryDate", new Date().getTime());
         if (CliqzHistory.getTabData(panel, "external")) CliqzHistory.setTabData(panel, "type", "external");
         else CliqzHistory.setTabData(panel, "type", "bookmark");
@@ -303,6 +304,7 @@ var CliqzHistory = {
         CliqzHistory.setTabData(panel, "queryDate", now);
         CliqzHistory.setTabData(panel, "extQuery", externalQuery);
         CliqzHistory.setTabData(panel, "query", externalQuery);
+        CliqzHistory.setTabData(panel, 'acQuery', "");
         query = externalQuery;
         queryDate = now;
         type = "google";
