@@ -67,7 +67,7 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
@@ -171,6 +171,8 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
+
+        CLIQZ.Core.historyDropMarker = document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker")
 
         // Add search history dropdown
         var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
@@ -384,6 +386,7 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.markResultsDone(null);
         CLIQZ.Core.popupEvent(false);
         CLIQZ.UI.popupClosed = true;
+        CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
     },
     popupEvent: function(open) {
         var action = {
@@ -500,6 +503,20 @@ window.CLIQZ.Core = {
         if(currentVersion && lastUninstallVersion != currentVersion){
             CliqzUtils.setPref(UNINSTALL_PREF, currentVersion);
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
+        }
+    },
+    urlbarmousedown: function(ev){
+        if(!CliqzUtils.getPref('topSites', false)) return;
+        //only consider the URLbar not the other icons in the urlbar
+        if(ev.originalTarget.className == 'anonymous-div' ||
+          ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+          var urlBar = CLIQZ.Core.urlbar;
+          if(urlBar.value.trim().length == 0){
+              //link to historydropmarker
+              CliqzAutocomplete.sessionStart = true;
+              CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
+              CLIQZ.Core.historyDropMarker.showPopup();
+          }
         }
     },
     urlbarkeydown: function(ev){
@@ -674,12 +691,11 @@ window.CLIQZ.Core = {
         return _querySession;
     },
     handleKeyboardShortcuts: function(ev) {
-        if(ev.keyCode == KeyEvent.DOM_VK_K){
+        if(ev.keyCode == KeyEvent.DOM_VK_K && !CLIQZ.Core.urlbar.focused){
             if((CliqzUtils.isMac(window)  &&  ev.metaKey && !ev.ctrlKey && !ev.altKey) ||  // CMD-K
                (!CliqzUtils.isMac(window) && !ev.metaKey &&  ev.ctrlKey && !ev.altKey)){   // CTRL-K
                 CLIQZ.Core.urlbar.focus();
-                CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
-
+                CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode);
                 ev.preventDefault();
                 ev.stopPropagation();
             }

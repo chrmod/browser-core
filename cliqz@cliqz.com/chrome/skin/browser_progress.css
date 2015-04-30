@@ -268,3 +268,8 @@
     padding-left: 26px;
     line-height: 19px;
 }
+
+.urlbar-history-dropmarker[cliqz-start="true"]{
+    -moz-image-region: var(--urlbar-dropmarker-region);
+    background-image: none;
+}

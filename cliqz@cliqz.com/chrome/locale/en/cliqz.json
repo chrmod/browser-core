@@ -127,7 +127,7 @@
     },
     "onCalloutClickHere":{
        "message":"Click to select a CLIQZ result"
-    },    
+    },
     "onCalloutNowYou":{
        "message":"Start surfing!"
     },
@@ -354,7 +354,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Did you really mean "
+      "message":"Did you really mean"
     },
     "result_filter": {
       "message":"Explicit content"
@@ -469,6 +469,15 @@
     },
     "newsToggleTrends":{
         "message": "Trending"
+    },
+    "topSitesMessage":{
+        "message": "Choose a shortcut to one of your favorite sites, or"
+    },
+    "topSitesMessage1":{
+        "message": "begin typing in the bar to find what you're looking for!"
+    },
+    "topSitesTitle":{
+        "message": "Your Sites"
     },
     "ez_video-popular": {
       "message": "Popular"
