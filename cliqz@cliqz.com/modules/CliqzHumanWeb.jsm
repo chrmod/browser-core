@@ -202,7 +202,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.1',
+    VERSION: '1.2',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -1926,14 +1926,10 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb.trk.forEach(function(element){
-            CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-            CliqzHumanWeb.trk = [];
-            CliqzHumanWeb._telemetry_start = (new Date()).getTime();
-
-            CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
-
-        })
+        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
+        CliqzHumanWeb.trk = [];
+        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
         try {
@@ -2472,7 +2468,7 @@ var CliqzHumanWeb = {
     },
     removeTable: function(reason) {
         try{
-            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
+            (CliqzHumanWeb.olddbConn.executeSimpleSQLAsync || CliqzHumanWeb.olddbConn.executeSimpleSQL)('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
