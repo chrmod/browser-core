@@ -287,6 +287,7 @@ var CliqzHistory = {
        url = CliqzHistory.getTabData(panel, 'url'),
        type = CliqzHistory.getTabData(panel, 'type'),
        query = CliqzHistory.getTabData(panel, 'query') || "",
+       acQuery = CliqzHistory.getTabData(panel, 'acQuery') || "",
        autocompleteQuery = "",
        now = new Date().getTime(),
        queryDate = CliqzHistory.getTabData(panel, 'queryDate') || now;
@@ -308,22 +309,23 @@ var CliqzHistory = {
       }
 
       CliqzHistory.addVisitToDB(url, query, now, queryDate,
-        CliqzHistory.getTabData(panel, "prevVisit") || "", type);
+        CliqzHistory.getTabData(panel, "prevVisit") || "", type, acQuery);
       CliqzHistory.setTabData(panel, "visitDate", now);
     }
   },
-  addVisitToDB: function(url, query, visitDate, queryDate, prevVisit, type) {
+  addVisitToDB: function(url, query, visitDate, queryDate, prevVisit, type, autocompleteQuery) {
     // Check type
     if (["typed", "link", "autocomplete", "result", "bookmark", "external", "google"].indexOf(type) == -1)
       return;
-    CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit)\
-            VALUES (:url, :now, :query, :queryDate, 1, :prevVisit)",
+    CliqzHistory.SQL("INSERT INTO visits (url,visit_date,last_query,last_query_date," + type + ", prev_visit, autocomplete_query)\
+            VALUES (:url, :now, :query, :queryDate, 1, :prevVisit, :acQuery)",
       null, null, {
         url: url,
         query: query,
         now: visitDate,
         queryDate: queryDate,
-        prevVisit: prevVisit
+        prevVisit: prevVisit,
+        acQuery: autocompleteQuery
       });
   },
   updateTitle: function(url, title, linkTitle) {
@@ -500,13 +502,14 @@ var CliqzHistory = {
       }, 1000);
     }
   },
-  updateQuery: function(query) {
+  updateQuery: function(query, acQuery) {
     var date = new Date().getTime();
     var panel = CliqzUtils.getWindow().gBrowser.selectedTab.linkedPanel;
     var last = CliqzHistory.getTabData(panel, 'query');
     if (last != query) {
-      CliqzHistory.setTabData(panel, 'query', query);
+      CliqzHistory.setTabData(panel, 'query', acQuery || query);
       CliqzHistory.setTabData(panel, 'queryDate', date);
+      CliqzHistory.setTabData(panel, 'acQuery', acQuery ? query : "");
     }
   },
   dbConn: null,
@@ -560,6 +563,7 @@ var CliqzHistory = {
             url VARCHAR(255) NOT NULL,\
             visit_date DATE,\
             last_query VARCHAR(255),\
+            autocomplete_query VARCHAR(255),\
             last_query_date DATE,\
             typed BOOLEAN DEFAULT 0,\
             link BOOLEAN DEFAULT 0,\
@@ -599,6 +603,7 @@ var CliqzHistory = {
       CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
+      CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
         if (n == 0) CliqzHistory.SQL(opengraph);
       });
