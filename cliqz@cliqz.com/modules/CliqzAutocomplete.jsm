@@ -218,7 +218,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             fetchTopSites: function(){
                 var results = NewTabUtils.links.getLinks().slice(0, 5);
                 if(results.length>0){
-                    var top = Result.generic('cliqz-pattern', '', null, '', null, '');
+                    var top = Result.generic('cliqz-extra', '', null, '', null, '', null, JSON.stringify({topsites:true}));
                     top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
                     top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
                     top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
