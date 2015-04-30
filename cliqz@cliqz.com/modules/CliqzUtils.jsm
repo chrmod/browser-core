@@ -962,6 +962,9 @@ var CliqzUtils = {
   isWindows: function(win){
     return win.navigator.userAgent.indexOf('Win') != -1;
   },
+  isMac: function(win){
+    return win.navigator.userAgent.indexOf('Macintosh') != -1;
+  },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator);

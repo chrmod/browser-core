@@ -691,12 +691,14 @@ window.CLIQZ.Core = {
         return _querySession;
     },
     handleKeyboardShortcuts: function(ev) {
-        if(ev.keyCode == KeyEvent.DOM_VK_K && (ev.ctrlKey || ev.metaKey) && !CLIQZ.Core.urlbar.focused){
-            CLIQZ.Core.urlbar.focus();
-            CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode)
-
-            ev.preventDefault();
-            ev.stopPropagation();
+        if(ev.keyCode == KeyEvent.DOM_VK_K && !CLIQZ.Core.urlbar.focused){
+            if((CliqzUtils.isMac(window)  &&  ev.metaKey && !ev.ctrlKey && !ev.altKey) ||  // CMD-K
+               (!CliqzUtils.isMac(window) && !ev.metaKey &&  ev.ctrlKey && !ev.altKey)){   // CTRL-K
+                CLIQZ.Core.urlbar.focus();
+                CLIQZ.Core.handleKeyboardShortcutsAction(ev.keyCode);
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
         }
     },
     handleKeyboardShortcutsAction: function(val){
