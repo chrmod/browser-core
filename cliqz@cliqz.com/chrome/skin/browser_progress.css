@@ -46,7 +46,7 @@
 
 .onboarding-cursor {
   background-image: url(chrome://cliqz/content/onboarding/images/cursor.svg);
-  background-size: 20px; 
+  background-size: 20px;
   background-repeat: no-repeat;
   height: 32px;
   width: 32px;
@@ -109,7 +109,7 @@
 }
 
 #cliqz-results .cqz-result-images .cqz-ez-images-title::after {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/images/camera.png);
+  background-image: url(https://cdn.cliqz.com/extension/EZ/images/camera.png);
 }
 
 
@@ -258,7 +258,7 @@
 #cliqz-results .ez-news-toggle .entity-story-comment { position: relative; }
 #cliqz-results .ez-news-toggle .twitter-likes {
     position: absolute;
-    background: url(http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg) no-repeat left center;
+    background: url(https://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg) no-repeat left center;
     background-size: 20px 20px;
     height: 20px;
     left: 200px;
@@ -267,4 +267,9 @@
     color: #49C0F2;
     padding-left: 26px;
     line-height: 19px;
+}
+
+.urlbar-history-dropmarker[cliqz-start="true"]{
+    -moz-image-region: var(--urlbar-dropmarker-region);
+    background-image: none;
 }

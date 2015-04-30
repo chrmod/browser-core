@@ -252,7 +252,7 @@ var CliqzHistory = {
       if (linkUrl.indexOf("//") == 0) {
         linkUrl = url.substr(0, url.indexOf("//")) + linkUrl;
         // Relative URLs
-      } else if (linkUrl[0] == "/") {
+      } else if (linkUrl.length > 0 && linkUrl[0] == "/") {
         var start = url.indexOf("/", url.indexOf("://") + 3);
         linkUrl = url.substr(0, start) + linkUrl;
       }
