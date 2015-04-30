@@ -110,7 +110,6 @@ window.CLIQZ.Core = {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
 
-        //CliqzHistoryPattern.preloadColors();
         if(CliqzUtils.getPref('categoryAssessment', false)){
             CliqzCategories.init();
         }

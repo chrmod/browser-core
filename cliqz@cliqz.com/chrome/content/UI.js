@@ -1153,7 +1153,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
-      //query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
+      var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
+      query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
 
@@ -1195,7 +1196,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
           }
       }
     }
-    CliqzHistory.updateQuery(query);
+    CliqzHistory.updateQuery(query, autocompleteUrl);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
@@ -1553,7 +1554,7 @@ function onEnter(ev, item){
       source: getResultKind(item),
       current_position: -1,
       new_tab: newTab
-    }, urlbar.mInputField.value);
+    });
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {

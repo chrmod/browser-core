@@ -70,7 +70,7 @@ var CliqzHistoryPattern = {
         "on visits.last_query_date = matches.last_query_date " +
         "left outer join urltitles on urltitles.url = visits.url order by visits.visit_date",
         {
-          query: "%" + this.escapeSQL(query) + "%",
+          query: "%" + query + "%",
           time_frame: CliqzHistoryPattern.timeFrame
         },
         ["sdate", "query", "url", "vdate", "title"],
@@ -828,7 +828,12 @@ var CliqzHistoryPattern = {
       } else if (res.cluster) {
         var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
         var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
-        instant.data.title = CliqzHistoryPattern.generalizeUrl(results[0].url, true)/* + " \u2014 " + CliqzUtils.getLocalizedString("history_results_cluster")*/;
+        var title = results[0].title;
+        if(!title) {
+          title = CliqzHistoryPattern.domainFromUrl(results[0].url).split(".")[0];
+          title = title[0].toUpperCase() + title.substr(1);
+        }
+        instant.data.title = title;
         instant.data.url = results[0].url;
         instant.comment += " (history domain cluster)!";
         instant.data.template = "pattern-h2";
@@ -908,62 +913,5 @@ var CliqzHistoryPattern = {
   domainFromUrl: function(url, subdomain) {
     var urlparts = CliqzUtils.getDetailsFromUrl(url);
     return subdomain ? urlparts.host : urlparts.domain;
-  },
-  // Escape strings for SQL statements
-  escapeSQL: function(str) {
-    return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function(char) {
-      switch (char) {
-        case "'":
-          return "''";
-        default:
-          return char;
-          /*case "\0":
-              return "\\0";
-          case "\x08":
-              return "\\b";
-          case "\x09":
-              return "\\t";
-          case "\x1a":
-              return "\\z";
-          case "\n":
-              return "\\n";
-          case "\r":
-              return "\\r";
-          case "\"":
-          case "'":
-          case "\\":
-          case "%":
-              return "\\"+char; */
-      }
-    });
-  },
-  // Cache json that contains domain colors
-  preloadColors: function() {
-    if (!CliqzHistoryPattern.colors) {
-      CliqzUtils.httpGet('chrome://cliqz/content/colors.json',
-        function success(req) {
-          var source = JSON.parse(req.response);
-          CliqzHistoryPattern.colors = source;
-        },
-        function error() {}
-      );
-    }
-  },
-  // Make a specific color darker (used for logo shadow)
-  darkenColor: function(col) {
-    if (!col) col = "#BFBFBF";
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(col);
-    var r = parseInt(result[1], 16),
-      g = parseInt(result[2], 16),
-      b = parseInt(result[3], 16);
-    r = r > 50 ? r - 50 : 0;
-    g = g > 50 ? g - 50 : 0;
-    b = b > 50 ? b - 50 : 0;
-
-    function componentToHex(c) {
-      var hex = c.toString(16);
-      return hex.length == 1 ? "0" + hex : hex;
-    }
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
   }
 }
