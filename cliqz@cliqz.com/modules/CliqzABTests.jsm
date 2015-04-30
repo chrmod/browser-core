@@ -147,6 +147,18 @@ var CliqzABTests = CliqzABTests || {
             case "1030_B":
                 CliqzUtils.setPref("double-enter", true);
                 break;
+            case "1031_A":
+                CliqzUtils.setPref("topSites", false);
+                break;
+            case "1031_B":
+                CliqzUtils.setPref("topSites", true);
+                break;
+            case "1032_A":
+                CliqzUtils.setPref("spellCorrMessage", false);
+                break;
+            case "1032_B":
+                CliqzUtils.setPref("spellCorrMessage", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -287,6 +299,14 @@ var CliqzABTests = CliqzABTests || {
             case "1030_A":
             case "1030_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("double-enter");
+                break;
+            case "1031_A":
+            case "1031_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("topSites");
+                break;
+            case "1032_A":
+            case "1032_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("spellCorrMessage");
                 break;
             default:
                 rule_executed = false;
