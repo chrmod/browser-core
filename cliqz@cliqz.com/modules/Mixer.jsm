@@ -50,6 +50,7 @@ function kindEnricher(data, newKindParams) {
 var Mixer = {
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
+    EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
     init: function() {
         // nothing
     },
@@ -74,12 +75,16 @@ var Mixer = {
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
-        if(q.length > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
-            if(cliqz && cliqz.length > 0) {
-                if(cliqz[0].extra) {
+        if(cliqz && cliqz.length > 0) {
+            if(cliqz[0].extra) {
+                // only if query has more than 2 chars and not in blacklist
+                //  - avoids many unexpected EZ triggerings
+                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q) == -1)) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
+                } else {
+                    CliqzUtils.log("Suppressing EZ " + cliqz[0].extra.url + " because of ambiguious query " + q, "Mixer");
                 }
             }
         }
