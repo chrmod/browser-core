@@ -69,7 +69,7 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  TEMPLATES: {'aTob' : 2, 'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
