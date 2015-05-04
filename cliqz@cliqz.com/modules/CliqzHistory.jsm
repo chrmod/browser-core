@@ -26,7 +26,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
 
 
 var CliqzHistory = {
-  SAVE_THUMBNAILS: true,
+  SAVE_THUMBNAILS: false,
   THUMBNAIL_LIMIT: 6400 /* Average thumbnail size 16 kb => ~100 MB */,
   tabData: [],
   lastActivePanel: null,

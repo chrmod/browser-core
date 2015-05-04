@@ -224,7 +224,7 @@ var CliqzHistoryAnalysis = {
   },
   startAnalysis: function() {
     var startTime = Date.now();
-  //  if(!CliqzHistoryAnalysis.check(startTime)) return;
+    if(!CliqzHistoryAnalysis.check(startTime)) return;
 
     var result = {};
     CliqzHistoryAnalysis.initData(function() {
