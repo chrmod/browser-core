@@ -1,4 +1,5 @@
-  'use strict';
+
+'use strict';
 /*
  * This module determines the language of visited pages and
  * creates a list of known languages for a user
@@ -248,6 +249,9 @@ var CliqzHumanWeb = {
     },
     activeUsage : 0,
     activeUsageThreshold : 2,
+    _md5: function(str) {
+        return md5(str);
+    },
     parseUri: function (str) {
         //var o   = parseUri.options,
         var m = null;

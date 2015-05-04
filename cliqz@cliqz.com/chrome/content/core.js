@@ -52,6 +52,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
   'chrome://cliqzmodules/content/CliqzTour.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
+  'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -196,6 +199,9 @@ window.CLIQZ.Core = {
 
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
+
+        // antiphishing listener
+        gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
     },
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
