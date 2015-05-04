@@ -142,7 +142,9 @@ def publish(beta='True', version=None):
 
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
+    icon_name = "icon.png"
     output_file_name = package(beta, version)
+    icon_url = "http://cdn2.cliqz.com/update/%s" % icon_name
     path_to_s3 = PATH_TO_S3_BETA_BUCKET if beta == 'True' else PATH_TO_S3_BUCKET
     local("s3cmd --acl-public put %s %s" % (output_file_name, path_to_s3))
 
@@ -166,7 +168,8 @@ def publish(beta='True', version=None):
 
     # Provide a link to the latest stable version
     latest_template = env.get_template(latest_html_file_name)
-    output_from_parsed_template = latest_template.render(download_link=download_link_latest_html)
+    output_from_parsed_template = latest_template.render(download_link=download_link_latest_html
+                                                         icon_url = icon_url)
     with open(latest_html_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
