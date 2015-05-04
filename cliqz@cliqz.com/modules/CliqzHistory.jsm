@@ -26,6 +26,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
 
 
 var CliqzHistory = {
+  SAVE_THUMBNAILS: true,
   THUMBNAIL_LIMIT: 6400 /* Average thumbnail size 16 kb => ~100 MB */,
   tabData: [],
   lastActivePanel: null,
@@ -228,6 +229,7 @@ var CliqzHistory = {
     }
   },
   checkThumbnail: function(url, callback) {
+    if(!CliqzHistory.SAVE_THUMBNAILS) return;
     // Only update thumbnail when older than one hour
     CliqzHistory.SQL("SELECT date FROM thumbnails WHERE url=:url AND (:date-date)<(60*60*1000)", null, function(n) {
       if (n == 0) callback();

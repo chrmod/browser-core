@@ -69,22 +69,20 @@ var CliqzHistoryAnalysis = {
   getSessionStartType: function(session) {
     var first = session[0];
     if(first.typed) return "typed";
-    if(first.link) return "link external";
+    if(first.link) return "link";
     if(first.result) return "result";
     if(first.autocomplete) return "autocomplete";
     if(first.google) return "google";
     if(first.bookmark) return "bookmark";
   },
-  analyseRevisits: function(visitCount, compareFunction) {
+  analyseRevisits: function(data, visitCount, compareFunction) {
     var result = {};
-    var revisits = CliqzHistoryAnalysis.getRevisits();
-    var data = revisits.results;
     var filtered = [];
     var urlCount = Object.keys(data).length;
     var sum = 0;
 
     var toDays = function(ts) {
-      return (ts / 1000 / 60 / 60 / 24).toFixed(4);
+      return parseFloat((ts / 1000 / 60 / 60 / 24).toFixed(4));
     };
 
     // Filter
@@ -102,9 +100,8 @@ var CliqzHistoryAnalysis = {
     var filteredUrlCount = Object.keys(filtered).length;
     var avg = sum / filteredUrlCount;
     result.visitCount = visitCount;
-    result.count = urlCount;
-    result.sessionCount = revisits.sessionCount;
-    result.share = (filteredUrlCount / urlCount).toFixed(4);
+    result.count = filteredUrlCount;
+    result.share = parseFloat((filteredUrlCount / urlCount).toFixed(4));
     result.revisitInDays = {};
     result.revisitInDays.avg = toDays(avg);
 
@@ -150,10 +147,10 @@ var CliqzHistoryAnalysis = {
     if(tmp.length > 0) {
       tmp = tmp.sort(CliqzHistoryAnalysis.sortNumber);
       result.revisitationDiffInSec = {};
-      result.revisitationDiffInSec.avg = ((sum/cnt)/1000).toFixed(2);
-      result.revisitationDiffInSec.q1 = (tmp[parseInt(tmp.length*0.25)]/1000).toFixed(2);
-      result.revisitationDiffInSec.q2 = (tmp[parseInt(tmp.length*0.5)]/1000).toFixed(2);
-      result.revisitationDiffInSec.q3 = (tmp[parseInt(tmp.length*0.75)]/1000).toFixed(2);
+      result.revisitationDiffInSec.avg = parseFloat(((sum/cnt)/1000).toFixed(2));
+      result.revisitationDiffInSec.q1 = parseFloat((tmp[parseInt(tmp.length*0.25)]/1000).toFixed(2));
+      result.revisitationDiffInSec.q2 = parseFloat((tmp[parseInt(tmp.length*0.5)]/1000).toFixed(2));
+      result.revisitationDiffInSec.q3 = parseFloat((tmp[parseInt(tmp.length*0.75)]/1000).toFixed(2));
     }
 
     // Depth comparison
@@ -174,10 +171,10 @@ var CliqzHistoryAnalysis = {
     if(tmp.length > 0) {
       tmp = tmp.sort(CliqzHistoryAnalysis.sortNumber);
       result.depthDiff = {};
-      result.depthDiff.avg = (sum/cnt).toFixed(2);
-      result.depthDiff.q1 =  tmp[parseInt(tmp.length*0.25)].toFixed(2);
-      result.depthDiff.q2 =  tmp[parseInt(tmp.length*0.5)].toFixed(2);
-      result.depthDiff.q3 =  tmp[parseInt(tmp.length*0.75)].toFixed(2);
+      result.depthDiff.avg = parseFloat((sum/cnt).toFixed(2));
+      result.depthDiff.q1 =  parseFloat(tmp[parseInt(tmp.length*0.25)].toFixed(2));
+      result.depthDiff.q2 =  parseFloat(tmp[parseInt(tmp.length*0.5)].toFixed(2));
+      result.depthDiff.q3 =  parseFloat(tmp[parseInt(tmp.length*0.75)].toFixed(2));
     }
 
     // Session start types
@@ -197,9 +194,9 @@ var CliqzHistoryAnalysis = {
       else typesStart[typeStart] += 1;
     }
     for(var key in typesStart)
-      typesStart[key] = (typesStart[key] / filteredUrlCount).toFixed(2);
+      typesStart[key] = parseFloat((typesStart[key] / filteredUrlCount).toFixed(2));
     for(var key in typesRevisit)
-      typesRevisit[key] = (typesRevisit[key] / cnt).toFixed(2);
+      typesRevisit[key] = parseFloat((typesRevisit[key] / cnt).toFixed(2));
     result.firstVisitTypes = typesStart;
     result.lastVisitTypes = typesRevisit;
 
@@ -227,35 +224,45 @@ var CliqzHistoryAnalysis = {
   },
   startAnalysis: function() {
     var startTime = Date.now();
-    //if(!CliqzHistoryAnalysis.check(startTime)) return;
+  //  if(!CliqzHistoryAnalysis.check(startTime)) return;
 
     var result = {};
     CliqzHistoryAnalysis.initData(function() {
       result.urlVisits = {};
+      var revisits = CliqzHistoryAnalysis.getRevisits();
+      var data = revisits.results;
+      result.urlVisits.urlCount = Object.keys(data).length;
+      result.urlVisits.sessionCount = revisits.sessionCount;
+
       for(var i=1; i<8; i++) {
-        result.urlVisits[i] = CliqzHistoryAnalysis.analyseRevisits(i);
+        result.urlVisits[""+i] = CliqzHistoryAnalysis.analyseRevisits(data, i);
       }
-      result.urlVisits[">=8"] = CliqzHistoryAnalysis.analyseRevisits(8, function(a,b) {return a>= b});
+      result.urlVisits[">=8"] = CliqzHistoryAnalysis.analyseRevisits(data, 8, function(a,b) {return a>= b});
 
       CliqzHistoryAnalysis.initData(function() {
         result.queries = {};
+        var revisits = CliqzHistoryAnalysis.getRevisits();
+        var data = revisits.results;
+        result.queries.queryCount = Object.keys(data).length;
+        result.queries.sessionCount = revisits.sessionCount;
+
         for(var i=1; i<8; i++) {
-            result.queries[i] = CliqzHistoryAnalysis.analyseRevisits(i);
+            result.queries[""+i] = CliqzHistoryAnalysis.analyseRevisits(data, i);
           }
-          result.queries[">=8"] = CliqzHistoryAnalysis.analyseRevisits(8, function(a,b) {return a>= b});
+          result.queries[">=8"] = CliqzHistoryAnalysis.analyseRevisits(data, 8, function(a,b) {return a>= b});
 
           var action = {
   					type: 'history_revisit',
   					data: result,
   					duration: Date.now()-startTime
   				};
-          CliqzUtils.log(JSON.stringify(action));
-          //CliqzUtils.telemetry(action);
+          CliqzUtils.telemetry(action);
       }, true);
     });
   },
   check: function(start) {
-    if(parseInt(CliqzUtils.getPref('historyAnalysisTime', '0')) + CliqzHistoryAnalysis.REPEAT_TIMER < start){
+    if(CliqzUtils.getPref('historyStats', false) &&
+      parseInt(CliqzUtils.getPref('historyAnalysisTime', '0')) + CliqzHistoryAnalysis.REPEAT_TIMER < start){
   		CliqzUtils.setPref('historyAnalysisTime', ''+start);
       return true;
     } else {
