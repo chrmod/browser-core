@@ -25,6 +25,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -48,8 +51,9 @@ var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
-  HOST:                           'https://beta.cliqz.com',
-  RESULTS_PROVIDER:               'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rich-header-server.fbt.co/mixer?q=',//'https://newbeta.cliqz.com/api/v1/results?q=',
+  IFRAME_SHOW:                    false,
+  HOST:                           'https://cliqz.com',
+  RESULTS_PROVIDER:               'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -1295,6 +1299,44 @@ var CliqzUtils = {
       });
       return button;
     },
+    getNoResults: function() {
+      var se = [// default
+              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
+              {"name": "Google", "base_url": "https://www.google.de"},
+              {"name": "Google Images", "base_url": "https://images.google.de/"},
+              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
+          ],
+          chosen = new Array();
+
+      for (var i = 0; i< se.length; i++){
+          var alt_s_e = CliqzResultProviders.getSearchEngines()[se[i].name];
+          if (typeof alt_s_e != 'undefined'){
+              se[i].code = alt_s_e.code;
+              var url = se[i].base_url || alt_s_e.base_url;
+              se[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+              se[i].text = alt_s_e.prefix.slice(1);
+
+              chosen.push(se[i])
+          }
+      }
+
+
+      return Result.cliqzExtra(
+              {
+                  data:
+                  {
+                      template:'noResult',
+                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
+                      "search_engines": chosen,
+                      //use local image in case of no internet connection
+                      "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
+                  },
+                  subType: JSON.stringify({empty:true})
+              }
+          )
+    }
     /*
     toggleMenuSettings: function(new_state) {
       var enumerator = Services.wm.getEnumerator('navigator:browser');

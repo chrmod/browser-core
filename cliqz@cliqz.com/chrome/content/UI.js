@@ -152,14 +152,11 @@ var UI = {
                 UI.main(cliqzBox);
             }
         }
-
-
         currentResults = enhanceResults(res);
+        //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
-        //CliqzUtils.log(currentResults.results, "ALL RESULTS");
         // Results that are not ready (extra results, for which we received a callback_url)
         var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
-        //CliqzUtils.log(JSON.stringify(currentResults), "RESULT SAMPLE");
         var query = currentResults.q;
         if (!query)
           query = "";
@@ -171,17 +168,15 @@ var UI = {
         //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
-        CliqzUtils.log(JSON.stringify(currentResults.results), 'NORMAL RESULTS');
+        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
 
             if(CliqzUtils.getPref("animations", false))
-              UI.dispatchRedraw(UI.tpl.results(currentResults), now);
+              UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now);
             else
-              gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
-            var tag = "ASYNC RESULTS " + query;
-            CliqzUtils.log(JSON.stringify(asyncResults), tag);
+              gCliqzBox.resultsBox.innerHTML = CliqzHandlebars.tplCache.results(currentResults);
             UI.loadAsyncResult(asyncResults);
         }
 
@@ -209,7 +204,7 @@ var UI = {
 
 
     loadAsyncResult: function(res) {
-      CliqzUtils.log('then', 'then');
+
       if (res && res.length > 0) {
         for (var i in res) {
           var r = res[i];
@@ -230,14 +225,18 @@ var UI = {
               //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
               if (resp &&  CLIQZ.Core.urlbar.value == query) {
                 var kind = r.data.kind;
-                if ("__callback_url__" in resp.data ) {
+                if ("__callback_url__" in resp.data) {
                     // If the result is again a promise, retry.
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
+                        CliqzUtils.log( loop_count + " " + query, "ATTEMPT NUMBER");
                         //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
+                    }
+                    else if (currentResults.results.length == 0) {
+                      UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
                     }
                 }
                 else {
@@ -246,15 +245,21 @@ var UI = {
                   r.data.kind = kind;
                   r.data.subType = resp.subType;
                   r.data.trigger_urls = resp.trigger_urls;
-                  currentResults.results.unshift(r);
+
 
                   if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
+                      // Remove all existing extra results
+                      currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                      // add the current one on top of the list
+                      currentResults.results.unshift(r);
                       var now = Date.now();
                       UI.lastDispatch = now;
-                      if(CliqzUtils.getPref("animations", false))
-                        UI.dispatchRedraw(UI.tpl.results(currentResults), now);
-                      else
-                        gCliqzBox.resultsBox.innerHTML = UI.tpl.results(currentResults);
+                      if (currentResults.results.length > 0) {
+                        UI.setDropdownContents(CliqzHandlebars.tplCache.results(currentResults), now);
+                      }
+                      else {
+                        UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                      }
                   }
                 }
               }
@@ -270,7 +275,17 @@ var UI = {
       }
 
     },
-    dispatchRedraw: function(html, id) {
+
+
+    setDropdownContents: function(html, now) {
+      if(CliqzUtils.getPref("animations", false)) {
+        UI.dispatchRedraw(html, now);
+      }
+      else
+        gCliqzBox.resultsBox.innerHTML = html;
+    },
+
+    dispatchRedraw: function(html, id, q) {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
       if(now < UI.nextRedraw) {
