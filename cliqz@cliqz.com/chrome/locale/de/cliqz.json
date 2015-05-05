@@ -416,6 +416,9 @@
     "cliqz_privacy": {
         "message": "Datenschutz"
     },
+    "cliqz_blog": {
+        "message": "Blog"
+    },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
     },
