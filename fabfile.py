@@ -168,8 +168,8 @@ def publish(beta='True', version=None):
 
     # Provide a link to the latest stable version
     latest_template = env.get_template(latest_html_file_name)
-    output_from_parsed_template = latest_template.render(download_link=download_link_latest_html
-                                                         icon_url = icon_url)
+    output_from_parsed_template = latest_template.render(download_link=download_link_latest_html,
+                                                         icon_url=icon_url)
     with open(latest_html_file_name, "wb") as f:
         f.write(output_from_parsed_template.encode("utf-8"))
     local("s3cmd --acl-public put %s %s" % (latest_html_file_name,
