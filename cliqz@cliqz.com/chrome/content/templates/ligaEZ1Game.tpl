@@ -19,7 +19,7 @@
      </div>
 
 
-      <div class="ez-liga-timezone"> Alle Zeitangaben: Deutschland Zeit </div>
+      <div class="ez-liga-timezone"> {{local 'LocalTimeGermany'}}</div>
      {{/with}}
 
      {{>logo}}

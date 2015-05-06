@@ -18,8 +18,8 @@
   </div>
   {{/each}}
 
-  <div class="cqz-ez-btn ez-liga-button" url="{{url}}">Ganzer Spieltag</div>
-  <div class="ez-liga-ucg-timezone"> Alle Zeitangaben: Deutschland Zeit </div>
+  <div class="cqz-ez-btn ez-liga-button" url="{{url}}">{{local 'AllGames'}}</div>
+  <div class="ez-liga-ucg-timezone"> {{local 'LocalTimeGermany'}} </div>
  {{/with}}
 
 

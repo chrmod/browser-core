@@ -1,4 +1,13 @@
 {
+    "AllGames":{
+        "message": "Ganzer Spieltag"
+    },
+    "GoToTable":{
+        "message": "Ganze Tabelle"
+    },
+    "LocalTimeGermany":{
+        "message": "Alle Zeitangaben: Deutschland Zeit"
+    },
     "Terminal":{
         "message": "Terminal"
     },

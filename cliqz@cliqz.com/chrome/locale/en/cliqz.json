@@ -1,4 +1,13 @@
 {
+    "AllGames":{
+        "message": "All Games"
+    },
+    "GoToTable":{
+        "message": "Full Table"
+    },
+    "LocalTimeGermany":{
+        "message": "Showing Germany time"
+    },
     "Terminal":{
         "message": "Terminal"
     },
