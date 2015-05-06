@@ -7,9 +7,7 @@
 }
 
 /* ------- Bundesliga EZ ----------*/
-#cliqz-results .ez-liga .cqz-ez-title::after {
-    background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;
-}
+#cliqz-results .ez-liga .cqz-ez-title::after {background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;}
 #cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -8px 0px 5px; }
 #cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 0px; }
 #cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 0px 0px 0px}
@@ -29,53 +27,15 @@
 #cliqz-results .ez-liga-button {position: absolute; bottom: 12px; left: 22px; background-color:#1B4AA3}
 #cliqz-results .ez-liga-ucg-timezone {position: absolute; bottom: 12px; left: 200px; color: #cccccc; font-size: 12px}
 
-
-#cliqz-results .ez-liga table {
-    margin-top: 5px;
-   border-collapse:collapse;
-    text-align: center;
-}
-#cliqz-results .ez-liga th, #cliqz-results .ez-liga td {
-    padding: 5px 0px;
-    border-bottom: 1px solid #cccccc;
-}
-#cliqz-results .ez-liga th {
-    color: #999999;
-    font-weight:normal;
-}
-
-#cliqz-results .ez-liga td {
-     width: 35px;
-}
-
-#cliqz-results .ez-liga td:nth-child(1) {
-    color: #999999;
-    width: 10px;
-    padding-right: 15px;
-}
-
-#cliqz-results .ez-liga td:nth-child(2), #cliqz-results .ez-liga th:nth-child(2) {
-    width: 130px;
-    text-align: left;
-    overflow: hidden;
-    display: inline-block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-#cliqz-results .ez-liga th:nth-child(2) {
-    color: #999999;
-}
-
-#cliqz-results .ez-liga td:nth-child(10) {
-   font-weight: bold;
-}
-
-#cliqz-results .ez-liga tr:nth-child(5) * {
-    border-bottom: none;
-}
-
-
+#cliqz-results .ez-liga table {margin-top: 5px;border-collapse:collapse;text-align: center;}
+#cliqz-results .ez-liga th, #cliqz-results .ez-liga td {padding: 5px 0px;border-bottom: 1px solid #cccccc;}
+#cliqz-results .ez-liga th {color: #999999;font-weight:normal;}
+#cliqz-results .ez-liga td {width: 35px;}
+#cliqz-results .ez-liga td:nth-child(1) {color: #999999;width: 10px;padding-right: 15px;}
+#cliqz-results .ez-liga td:nth-child(2), #cliqz-results .ez-liga th:nth-child(2) {width: 130px;text-align: left;overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;}
+#cliqz-results .ez-liga th:nth-child(2) {color: #999999;}
+#cliqz-results .ez-liga td:nth-child(10) {font-weight: bold;}
+#cliqz-results .ez-liga tr:nth-child(5) * {border-bottom: none;}
 /* ------- END Bundesliga EZ ----------*/
 
 
