@@ -218,6 +218,17 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
+        // Detect duplicate entries
+        var historyShown = false;
+        for(var i=0; i<box.children.length; i++) {
+          var res = box.children[i], type = res.getAttribute("type");
+          if(type && type.indexOf("cliqz-pattern") != -1) {
+            if(historyShown)
+              box.removeChild(res);
+            historyShown = true;
+          }
+        }
+
         if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
         return;
       }
@@ -326,7 +337,7 @@ var UI = {
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
+                    CliqzAutocomplete.spellCorr.override = true;
                 }
 
                 return true;
@@ -889,6 +900,25 @@ function enhanceResults(res){
 
     }
 
+    var spelC = CliqzAutocomplete.spellCorr;
+    if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
+        var s = CLIQZ.Core.urlbar.mInputField.value;
+        for(var c in spelC.correctBack){
+            s = s.split(c).join('<i>' + spelC.correctBack[c] + '</i>');
+        }
+        updateMessageState("show", {
+            "footer-message": {
+              message: CliqzUtils.getLocalizedString('spell_correction') + '<b>' + s + '</b>',
+              telemetry: 'spellcorrect',
+              options: [{
+                  text: CliqzUtils.getLocalizedString('yes'),
+                  action: 'spellcorrect',
+                  state: 'default'
+                }
+              ]
+            }
+        });
+    }
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1074,6 +1104,15 @@ function messageClick(ev) {
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
 
+              case 'spellcorrect':
+                var s = CLIQZ.Core.urlbar.value;
+                for(var c in CliqzAutocomplete.spellCorr.correctBack){
+                    s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                }
+                CLIQZ.Core.urlbar.mInputField.setUserInput(s);
+                CliqzAutocomplete.spellCorr.override = true;
+                updateMessageState("hide");
+                break;
 
               //changelog
               case 'update-show':
@@ -1219,21 +1258,21 @@ function resultClick(ev){
                     break;
                 case 'news-toggle':
                     setTimeout(function(){
-                      var newLatest = document.getElementById('actual', el.parentElement).checked,
-                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                      var newTrending = !document.getElementById('actual', el.parentElement).checked,
+                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
                           ezID = JSON.parse(el.getAttribute('data-subType')).ez,
-                          oldLatest = latest[ezID];
+                          oldTrending = trending[ezID];
 
-                      latest[ezID] = newLatest
+                      trending[ezID] = newTrending;
 
-                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
+                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
 
                       CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'news-toggle',
                         ezID: ezID,
-                        old_setting: oldLatest ? 'latest': 'trends',
-                        new_setting: newLatest ? 'latest': 'trends'
+                        old_setting: oldTrending ? 'trends': 'latest',
+                        new_setting: newTrending ? 'trends': 'latest'
                       });
                     }, 0);
 
@@ -1518,6 +1557,19 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
+    if(CliqzUtils.getPref("double-enter", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+      var r = currentResults.results;
+      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+        currentResults.blocked = true;
+        var signal = {
+            type: 'activity',
+            action: 'double_enter'
+        };
+        CliqzUtils.telemetry(signal);
+        return true;
+      }
+    }
+
     logUIEvent({url: input}, "google", {
       action: "result_enter",
       position_type: ['inbar_query'],

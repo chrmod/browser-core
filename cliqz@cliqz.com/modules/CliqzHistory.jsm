@@ -88,12 +88,12 @@ var CliqzHistory = {
     if(aTarget.nodeName.toLowerCase() == "a" && (event.button == 0 || event.button == 1)) {
       var url = CliqzHistory.getTabData(panel, "url");
       if(!url || url.length == 0) return;
-      var linkUrl = aTarget.getAttribute("href");
+      var linkUrl = aTarget.getAttribute("href") || "";
       // URLs like //www.google.com/...
       if(linkUrl.indexOf("//") == 0) {
         linkUrl = url.substr(0, url.indexOf("//")) + linkUrl;
       // Relative URLs
-      } else if(linkUrl[0] == "/") {
+      } else if(linkUrl.length > 0 && linkUrl[0] == "/") {
         var start = url.indexOf("/", url.indexOf("://")+3);
         linkUrl = url.substr(0, start) + linkUrl;
       }
@@ -215,6 +215,7 @@ var CliqzHistory = {
           CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, p);
           return;
         } else if(url != "about:newtab") {
+          if(!CliqzHistory) return;
           CliqzHistory.setTabData(p.newPanel, "query", CliqzHistory.getTabData(p.curPanel, 'query'));
           CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
           CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));

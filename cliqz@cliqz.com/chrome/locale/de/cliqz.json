@@ -115,7 +115,7 @@
     },
     "agoXYears":{
         "message":"vor {} Jaren"
-    },    
+    },
     "onButtonTryOut":{
         "message":"Surf los!"
     },
@@ -363,7 +363,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Meintest Du wirklich "
+      "message":"Meintest Du wirklich"
     },
     "result_filter": {
       "message":"Anstößige Inhalte"
@@ -425,6 +425,9 @@
     "cliqz_privacy": {
         "message": "Datenschutz"
     },
+    "cliqz_blog": {
+        "message": "Blog"
+    },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
     },
@@ -469,6 +472,15 @@
     },
     "newsToggleTrends":{
         "message": "Trends"
+    },
+    "topSitesMessage":{
+        "message": "Wähle eine Deiner meist-besuchten Webseiten,"
+    },
+    "topSitesMessage1":{
+        "message": "oder tipp' oben in die Leiste um woanders hinzugehen!"
+    },
+    "topSitesTitle":{
+        "message": "Meine meist-besuchten Webseiten"
     },
     "ez_video-popular": {
       "message": "Beliebt"

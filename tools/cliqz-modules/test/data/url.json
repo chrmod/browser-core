@@ -1,0 +1,46 @@
+[
+{
+    "input": "http://www.google.com",
+    "output": { "protocol": "http://", "host": "google", "tld": "com", "port": 80 }
+},
+{
+    "input": "http://www.hotmail.de",
+    "output": { "protocol": "http://", "host": "hotmail", "tld": "de", "port": 80 }
+},
+{
+    "input": "http://google.ru",
+    "output": { "protocol": "http://", "host": "google", "tld": "ru", "port": 80 }
+},
+{
+    "input": "http://www.facebook.com",
+    "output": { "protocol": "http://", "host": "facebook", "tld": "com", "port": 80 }
+},
+{
+    "input": "http://gmail.com",
+    "output": { "protocol": "http://", "host": "gmail", "tld": "com", "port": 80 }
+},
+{
+    "input": "https://amazon.co.uk",
+    "output": { "protocol": "https://", "host": "amazon", "tld": "co.uk", "port": 443 }
+},
+{
+    "input": "file://123.html",
+    "output": { "protocol": "file://", "host": "123.html" }
+},
+{
+    "input": "http://localhost:8080",
+    "output": { "protocol": "http://", "host": "localhost", "port": 8080 }
+},
+{
+    "input": "https://localhost",
+    "output": { "protocol": "https://", "host": "localhost", "port": 80 }
+},
+{
+    "input": "http://192.168.0.1",
+    "output": { "protocol": "http://", "host": "192.168.0.1", "port": 80 }
+},
+{
+    "input": "http://[2001:db8:0:1]:801",
+    "output": { "protocol": "http://", "host": "[2001:db8:0:1]", "port": 801 }
+}
+]

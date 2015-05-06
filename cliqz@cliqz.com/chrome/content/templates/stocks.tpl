@@ -11,7 +11,7 @@
     {{/if}}
   </div>
   <div class="cqz-ez-stock-trend">
-    <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}"><img src="http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>{{ data.message.Change }} ({{ data.message.PercentChange }})</span>
+    <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}"><img src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>{{ data.message.Change }} ({{ data.message.PercentChange }})</span>
   </div>
 
   <table class="cliqz-stock-price-table">

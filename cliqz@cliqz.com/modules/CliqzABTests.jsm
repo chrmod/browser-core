@@ -14,6 +14,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
+    PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
     check: function() {
         CliqzABTests.retrieve(
@@ -24,6 +25,12 @@ var CliqzABTests = CliqzABTests || {
                         prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
                     var respABtests = JSON.parse(response.responseText);
+
+                    // Override the backend response - for local testing
+                    var overrideABtests_text = CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE);
+                    if(overrideABtests_text)
+                        respABtests = JSON.parse(overrideABtests_text);
+
                     var newABtests = {};
 
                     var changes = false; // any changes?
@@ -140,6 +147,24 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1029_B":
                 CliqzUtils.setPref("enableNewsCustomization", true);
+                break;
+            case "1030_A":
+                CliqzUtils.setPref("double-enter", false);
+                break;
+            case "1030_B":
+                CliqzUtils.setPref("double-enter", true);
+                break;
+            case "1031_A":
+                CliqzUtils.setPref("topSites", false);
+                break;
+            case "1031_B":
+                CliqzUtils.setPref("topSites", true);
+                break;
+            case "1032_A":
+                CliqzUtils.setPref("spellCorrMessage", false);
+                break;
+            case "1032_B":
+                CliqzUtils.setPref("spellCorrMessage", true);
                 break;
             default:
                 rule_executed = false;
@@ -277,6 +302,18 @@ var CliqzABTests = CliqzABTests || {
             case "1029_A":
             case "1029_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("enableNewsCustomization");
+                break;
+            case "1030_A":
+            case "1030_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("double-enter");
+                break;
+            case "1031_A":
+            case "1031_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("topSites");
+                break;
+            case "1032_A":
+            case "1032_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("spellCorrMessage");
                 break;
             default:
                 rule_executed = false;
