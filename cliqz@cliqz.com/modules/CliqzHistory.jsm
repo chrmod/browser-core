@@ -118,7 +118,6 @@ var CliqzHistory = {
     CliqzHistory.setTabData(panel, "browser", aBrowser);
   },
   updateOpenGraphData: function(aBrowser, panel) {
-    CliqzHistory.test = aBrowser;
     var metaData = aBrowser.contentDocument.querySelectorAll('meta');
     if (!metaData) return;
     var data = {};
