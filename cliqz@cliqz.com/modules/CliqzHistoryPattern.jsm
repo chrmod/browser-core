@@ -41,6 +41,11 @@ var CliqzHistoryPattern = {
   latencies: [],
   // This method uses the cliqz history to detect patterns
   dbConn: null,
+  initDbConn: function() {
+    var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
+    if(!CliqzHistoryPattern.dbConn)
+      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);
+  },
   detectPattern: function(query, callback) {
     if (query.length <= 2) {
       CliqzHistoryPattern.noResultQuery = query;
@@ -53,9 +58,7 @@ var CliqzHistoryPattern = {
     CliqzHistoryPattern.latencies[orig_query] = (new Date).getTime();
     query = CliqzHistoryPattern.generalizeUrl(query);
     query = query.split(" ")[0];
-    var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
-    if(!CliqzHistoryPattern.dbConn)
-      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file)
+    CliqzHistoryPattern.initDbConn();
     this.data = [];
     this.pattern = [];
     this.SQL
@@ -722,7 +725,7 @@ var CliqzHistoryPattern = {
 
       statement.executeAsync({
         handleCompletion: function(reason) {
-          onThen();
+          if(onThen) onThen();
         },
 
         handleError: function(error) {},

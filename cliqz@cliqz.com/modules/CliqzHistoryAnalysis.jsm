@@ -21,18 +21,20 @@ var CliqzHistoryAnalysis = {
   tmp: null,
   initData: function(callback, useQuery) {
     CliqzHistoryAnalysis.sessions = [];
-    CliqzHistory.SQL("select * from visits", function(r) {
+    CliqzHistory.SQL("select \
+    url, last_query, last_query_date, visit_date, typed, link, result, autocomplete, google, bookmark\
+    from visits", function(r) {
       var visit = {
-        url: !useQuery ? r[2] : r[4],
+        url: !useQuery ? r[0] : r[1],
         visitDate: r[3],
-        typed: r[6],
-        link: r[7],
-        result: r[8],
-        autocomplete: r[9],
-        google: r[10],
-        bookmark: r[11]
+        typed: r[4],
+        link: r[5],
+        result: r[6],
+        autocomplete: r[7],
+        google: r[8],
+        bookmark: r[9]
       };
-      var session = r[5];
+      var session = r[2];
       if (!CliqzHistoryAnalysis.sessions[session])
         CliqzHistoryAnalysis.sessions[session] = [];
       CliqzHistoryAnalysis.sessions[session].push(visit);
@@ -74,6 +76,7 @@ var CliqzHistoryAnalysis = {
     if(first.autocomplete) return "autocomplete";
     if(first.google) return "google";
     if(first.bookmark) return "bookmark";
+    return "other";
   },
   analyseRevisits: function(data, visitCount, compareFunction) {
     var result = {};
@@ -261,7 +264,7 @@ var CliqzHistoryAnalysis = {
     });
   },
   check: function(start) {
-    if(CliqzUtils.getPref('historyStats', false) &&
+    if(/*CliqzUtils.getPref('historyStats', false) && AB Test Check */
       parseInt(CliqzUtils.getPref('historyAnalysisTime', '0')) + CliqzHistoryAnalysis.REPEAT_TIMER < start){
   		CliqzUtils.setPref('historyAnalysisTime', ''+start);
       return true;

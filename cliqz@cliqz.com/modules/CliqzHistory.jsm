@@ -44,7 +44,8 @@ var CliqzHistory = {
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
       // Skip if already saved or on any about: pages
-      if (url.substring(0, 6) == "about:" || CliqzHistory.getTabData(panel, "url") == url ||
+      if (url.indexOf("chrome://") == 0 || url.substring(0, 6) == "about:" ||
+        CliqzHistory.getTabData(panel, "url") == url ||
         CliqzHistory.getTabData(panel, "lock") || CliqzHistory.lastVisit.indexOf(url) == -1) {
         return;
       }
@@ -537,9 +538,14 @@ var CliqzHistory = {
           this.resultCount++;
           if (onRow) {
             var values = [];
-            var tmp = row.getResultByIndex(0);
             try {
-              for (var i = 0;; tmp = row.getResultByIndex(i), i++) values[i] = tmp;
+              var i = 0;
+              while(true) {
+                // Will eventually throw exception
+                // Note: It's not possible to get the number of columns
+                values[i] = row.getResultByIndex(i);
+                i++;
+              }
             } catch (e) {}
             onRow(values);
           }
@@ -628,7 +634,7 @@ var CliqzHistory = {
     // Analyse data
     CliqzUtils.setTimeout(function() {
       CliqzHistoryAnalysis.startAnalysis();
-    }, 10000);
+    }, 0);
   },
   addColumn: function(table, col, type) {
     CliqzHistory.SQL("SELECT * FROM sqlite_master WHERE tbl_name=:table AND sql like :col", null,
