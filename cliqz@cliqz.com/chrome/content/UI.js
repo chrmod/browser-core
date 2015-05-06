@@ -209,6 +209,8 @@ var UI = {
         for (var i in res) {
           var r = res[i];
           var query = r.text;
+          var qt = query + ": " + new Date().getTime();
+          CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
@@ -223,14 +225,16 @@ var UI = {
               }
               //CliqzUtils.log(r.text, "Here's the query");
               //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
+
               if (resp &&  CLIQZ.Core.urlbar.value == query) {
+
                 var kind = r.data.kind;
                 if ("__callback_url__" in resp.data) {
                     // If the result is again a promise, retry.
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log( loop_count + " " + query, "ATTEMPT NUMBER");
+                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
                         //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
@@ -265,6 +269,8 @@ var UI = {
               }
               else {
                 res.splice(i,1);
+                if (currentResults.results.length == 0)
+                  UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
               }
 
           };
