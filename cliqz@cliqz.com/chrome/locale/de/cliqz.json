@@ -1,4 +1,7 @@
 {
+    "vs":{
+        "message": "gegen"
+    },
     "AllGames":{
         "message": "Ganzer Spieltag"
     },

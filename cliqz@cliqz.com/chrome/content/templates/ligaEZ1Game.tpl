@@ -12,7 +12,11 @@
              {{#if score}}<div class="ez-liga-score">{{score}}
                                <div class="ez-liga-live">live</div>
              </div>{{else}}
-                              <div class="ez-liga-vs">gegen</div>
+                        {{#if scored}}
+                              <div class="ez-liga-vs">{{scored}}</div>
+                        {{else}}
+                              <div class="ez-liga-vs">{{local 'vs'}}</div>
+                        {{/if}}
              {{/if}}
      </div>
      <div class="ez-liga-teamName">{{GUESS}}</div>
