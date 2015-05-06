@@ -441,7 +441,7 @@ var UI = {
             break;
             case RIGHT:
             case LEFT:
-                var urlbar = Montauban;
+                var urlbar = CLIQZ.Core.urlbar;
                 var selection = UI.getSelectionRange(ev.keyCode, urlbar.selectionStart, urlbar.selectionEnd, ev.shiftKey, ev.altKey, ev.ctrlKey | ev.metaKey);
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
