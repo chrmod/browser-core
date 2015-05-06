@@ -14,6 +14,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
+    PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
     check: function() {
         CliqzABTests.retrieve(
@@ -24,6 +25,12 @@ var CliqzABTests = CliqzABTests || {
                         prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
                     var respABtests = JSON.parse(response.responseText);
+
+                    // Override the backend response - for local testing
+                    var overrideABtests_text = CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE);
+                    if(overrideABtests_text)
+                        respABtests = JSON.parse(overrideABtests_text);
+
                     var newABtests = {};
 
                     var changes = false; // any changes?

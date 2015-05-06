@@ -419,6 +419,9 @@
     "cliqz_privacy":{
         "message": "Privacy"
     },
+    "cliqz_blog": {
+        "message": "Blog"
+    },
     "cliqz_stock_open": {
         "message": "Open"
     },
