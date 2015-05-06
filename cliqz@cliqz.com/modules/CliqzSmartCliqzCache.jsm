@@ -267,7 +267,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 // send some stats
                 _this._sendStats(id, oldCustomData ? 
                 	oldCustomData.categories : smartCliqz.data.categories,
-                	categories, oldCustomData, urls);
+                	categories, oldCustomData ? true : false, urls);
 
                 // TODO: define per SmartCliqz what the data field to be customized is called
                 if (_this.isNews(smartCliqz)) {
