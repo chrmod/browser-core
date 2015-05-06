@@ -241,7 +241,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 // send some stats
                 _this._sendStats(id, oldCustomData ? 
                 	oldCustomData.categories : smartCliqz.data.categories,
-                	categories, oldCustomData, urls);                         
+                	categories, oldCustomData ? true : false, urls);                         
 
                 _this._customDataCache.store(id, { categories: categories });             
                 _this._log('_prepareCustomData: done preparing for id ' + id);           
