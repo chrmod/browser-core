@@ -1153,7 +1153,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
-      var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
+      if(extraData.action != "result_click")
+        var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }

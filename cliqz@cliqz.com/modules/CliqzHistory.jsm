@@ -439,6 +439,11 @@ var CliqzHistory = {
         CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
         CliqzHistory.setTabData(p.newPanel, "linkTitle", CliqzHistory.getTabData(p.curPanel, 'linkTitle'));
         CliqzHistory.setTabData(p.newPanel, "prevVisit", CliqzHistory.getTabData(p.curPanel, 'visitDate'));
+        // Threshold of three seconds for external links (see above)
+        if (inactive > 3000) {
+          CliqzHistory.lastTimeUpdate = Date.now();
+          CliqzHistory.setTabData(newPanel, "external", true);
+        }
       }
       CliqzHistory.setTabData(p.newPanel, "lock", false);
     };
