@@ -80,6 +80,7 @@ Cache.prototype.refresh = function (key, time) {
 	}
 }
 
+// TODO: make logging indepdendent from CliqzSmartCliqzCache
 Cache.prototype.save = function (filename) {
 	try {
 		var data = (new TextEncoder()).encode(
@@ -99,6 +100,8 @@ Cache.prototype.save = function (filename) {
 	}	
 }
 
+// TODO: make logging indepdendent from CliqzSmartCliqzCache
+// TODO: check if file exists
 Cache.prototype.load = function (filename) {
 	CliqzSmartCliqzCache._log("loading...");
 	try {
@@ -107,8 +110,8 @@ Cache.prototype.load = function (filename) {
 			OS.Constants.Path.profileDir, filename);
 
 		OS.File.read(path).then(
+			// TODO: make shorter (e.g., using "yield")
 			function(data) {
-				CliqzSmartCliqzCache._log("got data: " + (new TextDecoder()).decode(data));
 				try {
 					_this._cache = JSON.parse((new TextDecoder()).decode(data));
 				} catch (e) {
@@ -134,11 +137,23 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
 		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
+	SMART_CLIQZ_CACHE_FILE: 'extensions.cliqz.smartcliqz.static.cache',
+	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom.cache',
 
-	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
 	_isCustomizationEnabledByDefault: false,
+	_isInitialized: false,
+
+	// loads cache content from persistent storage
+	init: function () {
+		// TODO: detect when loaded; allow save only afterwards
+		this._smartCliqzCache.load(this.SMART_CLIQZ_CACHE_FILE);
+		this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
+
+		this._isInitialized = true;
+		this._log('init: initialized');
+	},
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -158,6 +173,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		} catch (e) {
 			this._log('store: error while customizing data: ' + e);
 		}
+
+		// TODO: call periodically
+		this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
+		this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 	},
 	// returns SmartCliqz from cache (false if not found);
 	// customizes SmartCliqz if news or domain supported, and user preference is set
@@ -172,6 +191,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				this._log('retrieveCustomized: error while customizing data: ' + e);
 			}
 		}
+
+		// TODO: call periodically
+		this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
+		this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 
 		return smartCliqz;
 	},
@@ -478,3 +501,5 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		CliqzUtils.log(msg, 'SmartCliqzCache');
 	}
 }
+
+CliqzSmartCliqzCache.init();
