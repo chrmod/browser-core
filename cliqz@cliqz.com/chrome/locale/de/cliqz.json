@@ -1,4 +1,16 @@
 {
+    "vs":{
+        "message": "gegen"
+    },
+    "AllGames":{
+        "message": "Ganzer Spieltag"
+    },
+    "GoToTable":{
+        "message": "Ganze Tabelle"
+    },
+    "LocalTimeGermany":{
+        "message": "Alle Zeitangaben: Mitteleuropäische (Sommer-) Zeit"
+    },
     "Terminal":{
         "message": "Terminal"
     },

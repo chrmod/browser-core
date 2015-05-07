@@ -1,4 +1,16 @@
 {
+    "vs":{
+        "message": "vs."
+    },
+    "AllGames":{
+        "message": "All Games"
+    },
+    "GoToTable":{
+        "message": "Full Table"
+    },
+    "LocalTimeGermany":{
+        "message": "All times: Central European (Summer) Time"
+    },
     "Terminal":{
         "message": "Terminal"
     },
