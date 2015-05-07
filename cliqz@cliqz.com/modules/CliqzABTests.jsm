@@ -16,6 +16,34 @@ var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
+
+    // Accessors to list of tests this user is current in
+    getCurrent: function() {
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
+            var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
+            return ABtests;
+        return undefined;
+    },
+    setCurrent: function(tests) {
+        CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(tests))
+    },
+
+    // Accessors to list of tests in override list
+    getOverride: function() {
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF_OVERRIDE)) {
+            var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE));
+            return ABtests;
+        }
+        return undefined;
+    },
+    setOverride: function(tests) {
+        if(tests)
+            CliqzUtils.setPref(CliqzABTests.PREF_OVERRIDE, JSON.stringify(tests));
+        else
+            CliqzUtils.cliqzPrefs.clearUserPref(CliqzABTests.PREF_OVERRIDE);
+    },
+
+    // Check for newest list of AB tests from server
     check: function() {
         CliqzABTests.retrieve(
             function(response){
@@ -27,9 +55,9 @@ var CliqzABTests = CliqzABTests || {
                     var respABtests = JSON.parse(response.responseText);
 
                     // Override the backend response - for local testing
-                    var overrideABtests_text = CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE);
-                    if(overrideABtests_text)
-                        respABtests = JSON.parse(overrideABtests_text);
+                    var overrideABtests = CliqzABTests.getOverride();
+                    if(overrideABtests)
+                        respABtests = overrideABtests;
 
                     var newABtests = {};
 
