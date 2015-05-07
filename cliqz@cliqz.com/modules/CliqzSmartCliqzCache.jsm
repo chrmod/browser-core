@@ -15,6 +15,7 @@ var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import("resource://gre/modules/osfile.jsm")
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
@@ -76,6 +77,49 @@ Cache.prototype.refresh = function (key, time) {
 
 	if (this.isCached(key)) {
 		this._cache[key].time = time;
+	}
+}
+
+Cache.prototype.save = function (filename) {
+	try {
+		var data = (new TextEncoder()).encode(
+			JSON.stringify(this._cache));
+		var path = OS.Path.join(
+			OS.Constants.Path.profileDir, filename);
+
+		OS.File.writeAtomic(path, data).then(
+			function(value) {
+    			CliqzSmartCliqzCache._log("Cache.save: saved to " + path);
+			}, function(e) {
+				CliqzSmartCliqzCache._log("Cache.save: failed saving to " + path + 
+					": " + e);
+			});
+	} catch (e) {
+		CliqzSmartCliqzCache._log("Cache.save: failed saving: " + e);
+	}	
+}
+
+Cache.prototype.load = function (filename) {
+	CliqzSmartCliqzCache._log("loading...");
+	try {
+		var _this = this;
+		var path = OS.Path.join(
+			OS.Constants.Path.profileDir, filename);
+
+		OS.File.read(path).then(
+			function(data) {
+				CliqzSmartCliqzCache._log("got data: " + (new TextDecoder()).decode(data));
+				try {
+					_this._cache = JSON.parse((new TextDecoder()).decode(data));
+				} catch (e) {
+					CliqzSmartCliqzCache._log("Cache.load: failed parsing: " + e);
+				}
+				CliqzSmartCliqzCache._log("Cache.load: loaded from: " + path);
+			}, function(e) {
+				CliqzSmartCliqzCache._log("Cache.load: failed loading: " + e);
+			});
+	} catch (e) {
+		CliqzSmartCliqzCache._log("Cache.load: failed loading: " + e);
 	}
 }
 
