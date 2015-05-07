@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzImages',
 //  'chrome://cliqzmodules/content/CliqzImages.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
+  'chrome://cliqzmodules/content/CliqzStats.jsm');
+
 (function(ctx) {
 
 
@@ -1211,6 +1214,7 @@ function resultClick(ev){
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
 
+    CliqzStats.resultSelected();
     while (el && (ev.button == 0 || ev.button == 1)) {
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
@@ -1454,6 +1458,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
           if(context = $('.cqz-result-pattern', gCliqzBox))
             offset += context.parentElement.offsetTop;
         }
+
         var scroll = parseInt(offset/303) * 303;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
@@ -1475,6 +1480,8 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         if (!mouseOver)
           UI.keyboardSelection = el;
+
+        CliqzStats.resultSelected();
     } else if (changeUrl && UI.lastInput != "") {
         CLIQZ.Core.urlbar.value = UI.lastInput;
         UI.lastSelectedUrl = "";

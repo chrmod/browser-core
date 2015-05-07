@@ -37,6 +37,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
+  'chrome://cliqzmodules/content/CliqzStats.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
@@ -418,6 +421,8 @@ window.CLIQZ.Core = {
             CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
             CLIQZ.Core.urlbar.mInputField.value = urlbar;
         }
+
+        CliqzStats.query();
     },
     urlbarblur: function(ev) {
         CliqzAutocomplete.resetSpellCorr();

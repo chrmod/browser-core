@@ -885,6 +885,18 @@ var CliqzUtils = {
 
     return ret;
   },
+  // creates a complex localized string
+  // eg: key = "{} is the {} player from {}"
+  //       createLocalizedString('key', 'Adam', 'best', 'F.C. Barcelon')
+  createLocalizedString: function(){
+    var args = Array.prototype.slice.call(arguments),
+        ret  = CliqzUtils.getLocalizedString(args[0])
+
+    for(var i=1; i<args.length; i++)
+        ret = ret.replace('{}', args[i]);
+
+    return ret;
+  },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
   localizeDoc: function(doc){
@@ -1132,6 +1144,11 @@ var CliqzUtils = {
         while(menupopup.lastChild)
           menupopup.removeChild(menupopup.lastChild);
 
+
+        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Stats', function(event) {
+            CliqzUtils.openTabInWindow(win, 'chrome://cliqz/content/stats.html');
+        }));
+
         function feedback_FAQ(){
             win.Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
@@ -1146,7 +1163,6 @@ var CliqzUtils = {
                 );
             });
         }
-
         //feedback and FAQ
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));
