@@ -50,7 +50,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -73,10 +73,11 @@ var CliqzUtils = {
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
-      'airlinesEZ': 2, 'entity-portal': 3,
+      'airlinesEZ': 2, 'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
-      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -100,7 +101,7 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+      var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
@@ -180,7 +181,7 @@ var CliqzUtils = {
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
             backgroundColor: rule.b?rule.b:null,
-            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
+            backgroundImage: rule.l?"url(https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
           }
@@ -962,6 +963,9 @@ var CliqzUtils = {
   isWindows: function(win){
     return win.navigator.userAgent.indexOf('Win') != -1;
   },
+  isMac: function(win){
+    return win.navigator.userAgent.indexOf('Macintosh') != -1;
+  },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator);
@@ -1134,10 +1138,10 @@ var CliqzUtils = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        CliqzUtils.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -1147,7 +1151,7 @@ var CliqzUtils = {
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
-        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
+        //menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));

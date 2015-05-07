@@ -202,7 +202,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.0',
+    VERSION: '1.2',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -228,7 +228,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://cdn.cliqz.com/human-web/patterns',
+    patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
@@ -283,17 +283,24 @@ var CliqzHumanWeb = {
         return url;
     },
     getTime:function() {
-        var d = null;
-        var m = null;
-        var y = null;
-        var h = null;
-        var hr = null;
-        var _ts = null;
-        d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
-        m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
-        h = (new Date().getHours() < 10 ? "0" : "" ) + new Date().getHours();
-        y = new Date().getFullYear();
-        _ts = y + "" + m + "" + h + "" + d;
+        try { var ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        if(!ts){
+            var d = null;
+            var m = null;
+            var y = null;
+            var h = null;
+            var hr = null;
+            var _ts = null;
+            d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
+            m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            y = new Date().getFullYear();
+            _ts = y + "" + m + "" + d + "" + h;
+        }
+        else{
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            _ts = ts + "" + h;
+        }
         return _ts;
     },
     isSuspiciousURL: function(aURI) {
@@ -1081,13 +1088,13 @@ var CliqzHumanWeb = {
                         CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                         if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
                             //Change type to ad, else might create confusion.
-                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';
                         }
                         CliqzHumanWeb.ismRefresh = false;
                         delete CliqzHumanWeb.mRefresh[tabID];
                     }
                 }
-                catch(ee){};    
+                catch(ee){};
             }
 
 
@@ -1509,6 +1516,17 @@ var CliqzHumanWeb = {
         }
     },
     unload: function() {
+        //Check is active usage, was sent
+        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
+        if(activeUsageTrk){
+            var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
+            if(tDiff && tDiff > 3600){
+                CliqzHumanWeb.checkActiveUsage();
+            }
+            else{
+                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+            }
+        }
         // send all the data
         CliqzHumanWeb.pushTelemetry();
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
@@ -1908,14 +1926,10 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb.trk.forEach(function(element){
-            CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-            CliqzHumanWeb.trk = [];
-            CliqzHumanWeb._telemetry_start = (new Date()).getTime();
-
-            CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
-
-        })
+        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
+        CliqzHumanWeb.trk = [];
+        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
         try {
@@ -2226,7 +2240,17 @@ var CliqzHumanWeb = {
                             }
                         }
 
-                        while (st.executeStep()) {};
+                        //while (st.executeStep()) {};
+                        st.executeAsync({
+                            handleError: function(aError) {
+                                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                            },
+                            handleCompletion: function(aReason) {
+                                if(CliqzHumanWeb.debug){
+                                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                }
+                            }
+                        });
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2246,7 +2270,17 @@ var CliqzHumanWeb = {
                                 st.params.url = url;
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                         }
                         else{
@@ -2261,7 +2295,17 @@ var CliqzHumanWeb = {
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 st.params.checked = 0;
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                             }
                         }
@@ -2273,7 +2317,17 @@ var CliqzHumanWeb = {
     setAsPrivate: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Delete success", CliqzHumanWeb.LOG_KEY);
+                 }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2283,7 +2337,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 1;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
         }
@@ -2291,7 +2355,17 @@ var CliqzHumanWeb = {
     setAsPublic: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2300,7 +2374,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 0;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
         }
@@ -2356,7 +2440,17 @@ var CliqzHumanWeb = {
                     st.params.private = 1;
                     st.params.ft = 0;
                     st.params.reason = 'priv. st.';
-                    while (st.executeStep()) {};
+                    //while (st.executeStep()) {};
+                    st.executeAsync({
+                        handleError: function(aError) {
+                            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                        },
+                        handleCompletion: function(aReason) {
+                            if(CliqzHumanWeb.debug){
+                                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                            }
+                        }
+                    });
                     CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
@@ -2370,11 +2464,11 @@ var CliqzHumanWeb = {
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
-        CliqzHumanWeb.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+        (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
     },
     removeTable: function(reason) {
         try{
-            CliqzHumanWeb.olddbConn.executeSimpleSQL('DROP TABLE usafe;');
+            (CliqzHumanWeb.olddbConn.executeSimpleSQLAsync || CliqzHumanWeb.olddbConn.executeSimpleSQL)('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
@@ -2728,8 +2822,8 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
-            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
-            CliqzHumanWeb.dbConn.executeSimpleSQL(hash_usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
@@ -2778,7 +2872,10 @@ var CliqzHumanWeb = {
   },
   checkActiveUsage: function(){
         //This function needs to be scheduled every one hour.
-        if(CliqzHumanWeb.activeUsage && CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold){
+        var oldUsage = 0;
+        try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
+        var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
+        if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
             //Sample event to be sent
             var payload = {};
             payload['status'] = true;
@@ -2787,6 +2884,8 @@ var CliqzHumanWeb = {
             payload['ctry'] = location;
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
             CliqzHumanWeb.activeUsage = 0;
+            CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
+            CliqzUtils.setPref('config_activeUsageCount', 0);
 
         }
   }

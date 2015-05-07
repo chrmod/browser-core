@@ -8,7 +8,10 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/Result.jsm');
-Cu.import('chrome://cliqzmodules/content/extern/math.min.jsm');
+Cu.import("resource://gre/modules/Services.jsm");
+Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/math.min.jsm', this);
+var math = this.math;
+
 // REF:
 //      http://mathjs.org/docs/index.html
 //      http://stackoverflow.com/questions/26603795/variable-name-and-restrict-operators-in-math-js

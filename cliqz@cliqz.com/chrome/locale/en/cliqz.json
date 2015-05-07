@@ -1,4 +1,16 @@
 {
+    "vs":{
+        "message": "vs."
+    },
+    "AllGames":{
+        "message": "All Games"
+    },
+    "GoToTable":{
+        "message": "Full Table"
+    },
+    "LocalTimeGermany":{
+        "message": "All times: Central European (Summer) Time"
+    },
     "Terminal":{
         "message": "Terminal"
     },
@@ -127,7 +139,7 @@
     },
     "onCalloutClickHere":{
        "message":"Click to select a CLIQZ result"
-    },    
+    },
     "onCalloutNowYou":{
        "message":"Start surfing!"
     },
@@ -354,7 +366,7 @@
       "message":"Việt Nam - Vietnam"
     },
     "spell_correction": {
-      "message":"Did you really mean "
+      "message":"Did you really mean"
     },
     "result_filter": {
       "message":"Explicit content"
@@ -419,6 +431,9 @@
     "cliqz_privacy":{
         "message": "Privacy"
     },
+    "cliqz_blog": {
+        "message": "Blog"
+    },
     "cliqz_stock_open": {
         "message": "Open"
     },
@@ -469,6 +484,15 @@
     },
     "newsToggleTrends":{
         "message": "Trending"
+    },
+    "topSitesMessage":{
+        "message": "Choose a shortcut to one of your favorite sites, or"
+    },
+    "topSitesMessage1":{
+        "message": "begin typing in the bar to find what you're looking for!"
+    },
+    "topSitesTitle":{
+        "message": "Your Sites"
     },
     "ez_video-popular": {
       "message": "Popular"
