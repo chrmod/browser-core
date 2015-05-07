@@ -421,12 +421,6 @@ var CliqzHistory = {
     // However, if an external link is opened, this value is a lot higher
     var inactive = Date.now() - CliqzHistory.lastAction;
 
-    // Threshold of three seconds
-    if (inactive > 3000) {
-      CliqzHistory.lastTimeUpdate = Date.now();
-      CliqzHistory.setTabData(newPanel, "external", true);
-    }
-
     CliqzHistory.setTabData(newPanel, "lock", true);
     var checkUrl = function(p) {
       var url = p.tab.linkedBrowser.contentWindow.location.href;
