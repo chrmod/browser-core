@@ -105,10 +105,12 @@ var CliqzHistory = {
     }
   },
   removeListeners: function(aBrowser, panel) {
-    aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
-    aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
-    aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
-    aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
+    if(aBrowser) {
+      aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
+      aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
+      aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
+      aBrowser.contentDocument.removeEventListener("scroll", CliqzHistory.getTabData(panel, "scroll"));
+    }
   },
   reattachListeners: function(aBrowser, panel) {
     CliqzHistory.removeListeners(aBrowser, panel);
@@ -357,6 +359,7 @@ var CliqzHistory = {
   lastMouseMove: 0,
   mouseMove: function(gBrowser) {
     return function(e) {
+      if(!CliqzHistory) return;
       CliqzHistory.action(null, true);
       var now = Date.now();
       if (now - CliqzHistory.lastMouseMove > 500) {
@@ -501,7 +504,7 @@ var CliqzHistory = {
       CliqzHistory.lastAction = Date.now();
     } else {
       CliqzUtils.setTimeout(function() {
-        CliqzHistory.lastAction = Date.now();
+        if(CliqzHistory) CliqzHistory.lastAction = Date.now();
       }, 1000);
     }
   },
