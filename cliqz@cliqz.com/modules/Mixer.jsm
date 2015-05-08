@@ -51,8 +51,10 @@ var Mixer = {
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
+    TRIGGER_URLS_CACHE_FILE: 'extensions.cliqz.smartcliqz.trigger_urls.cache',
     init: function() {
-        // nothing
+        CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
+
     },
 	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
 		var results = [];
@@ -150,7 +152,11 @@ var Mixer = {
                     var trigger_urls = r.data.trigger_urls || [];
                     if(eztype && trigger_urls.length > 0) {
                         for(var j=0; j < trigger_urls.length; j++) {
+                            var wasCached = CliqzSmartCliqzCache.triggerUrls.isCached(trigger_urls[j]);
                             CliqzSmartCliqzCache.triggerUrls.store(trigger_urls[j], eztype);
+                            if (!wasCached) {
+                                CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+                            }
                             // Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
                         CliqzSmartCliqzCache.store(r);
@@ -171,7 +177,7 @@ var Mixer = {
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             // if(Mixer.ezURLs[url]) {
-            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
                 // TODO: update cached EZ from rich-header-server
                 // TODO: perhaps only use this cached data if newer than certain age
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
@@ -180,6 +186,9 @@ var Mixer = {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
+                }
+                if (CliqzSmartCliqzCache.triggerUrls.isStale(url)) {
+                    CliqzSmartCliqzCache.triggerUrls.delete(url);
                 }
             }
         }

@@ -44,6 +44,13 @@ Cache.prototype.store = function (key, value, time) {
 	}
 };
 
+// deletes entry
+Cache.prototype.delete = function (key) {
+	if (this.isCached(key)) {
+		delete this._cache[key];
+	}
+}
+
 // returns cached entry or false if no entry exists for key
 Cache.prototype.retrieve = function (key) {
 	if (!this.isCached(key)) {
@@ -178,8 +185,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		}
 
 		// TODO: call periodically
-		this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
-		this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
+		// this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
+		// this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 	},
 	// returns SmartCliqz from cache (false if not found);
 	// customizes SmartCliqz if news or domain supported, and user preference is set
@@ -196,8 +203,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		}
 
 		// TODO: call periodically
-		this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
-		this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
+		// this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
+		// this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 
 		return smartCliqz;
 	},
