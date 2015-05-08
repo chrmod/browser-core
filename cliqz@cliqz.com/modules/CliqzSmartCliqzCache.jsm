@@ -94,7 +94,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// TODO: make caches persistent
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
-	_isCustomizationEnabledByDefault: false,
+	_isCustomizationEnabledByDefault: true,
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
