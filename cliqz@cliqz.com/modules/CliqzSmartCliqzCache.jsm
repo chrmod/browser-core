@@ -145,6 +145,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_isCustomizationEnabledByDefault: false,
 	_isInitialized: false,
 
+	// TODO: clean-up
+	triggerUrls: new Cache(), 
+
 	// loads cache content from persistent storage
 	init: function () {
 		// TODO: detect when loaded; allow save only afterwards

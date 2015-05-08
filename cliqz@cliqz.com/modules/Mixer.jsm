@@ -150,7 +150,8 @@ var Mixer = {
                     var trigger_urls = r.data.trigger_urls || [];
                     if(eztype && trigger_urls.length > 0) {
                         for(var j=0; j < trigger_urls.length; j++) {
-                            Mixer.ezURLs[trigger_urls[j]] = eztype;
+                            CliqzSmartCliqzCache.triggerUrls.store(trigger_urls[j], eztype);
+                            // Mixer.ezURLs[trigger_urls[j]] = eztype;
                         }
                         CliqzSmartCliqzCache.store(r);
                     }
@@ -169,10 +170,12 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            if(Mixer.ezURLs[url]) {
+            // if(Mixer.ezURLs[url]) {
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
                 // TODO: update cached EZ from rich-header-server
                 // TODO: perhaps only use this cached data if newer than certain age
-                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
+                var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
+                var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
