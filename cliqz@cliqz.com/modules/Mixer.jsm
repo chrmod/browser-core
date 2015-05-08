@@ -186,6 +186,8 @@ var Mixer = {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
+                } else {
+                    CliqzSmartCliqzCache.fetchAndStore(ezId);
                 }
                 if (CliqzSmartCliqzCache.triggerUrls.isStale(url)) {
                     CliqzSmartCliqzCache.triggerUrls.delete(url);

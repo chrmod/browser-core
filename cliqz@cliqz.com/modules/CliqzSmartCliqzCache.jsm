@@ -144,8 +144,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
 		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
-	SMART_CLIQZ_CACHE_FILE: 'extensions.cliqz.smartcliqz.static.cache',
-	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom.cache',
+	// TODO: decide if to be used
+	// SMART_CLIQZ_CACHE_FILE: 'extensions.cliqz.smartcliqz.static.cache',
+	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom_data.cache',
 
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
@@ -157,8 +158,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	// loads cache content from persistent storage
 	init: function () {
-		// TODO: detect when loaded; allow save only afterwards
-		this._smartCliqzCache.load(this.SMART_CLIQZ_CACHE_FILE);
+		// TODO: detect when loaded; allow save only afterwards		
 		this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
 
 		this._isInitialized = true;
@@ -188,6 +188,19 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		// this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
 		// this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 	},
+
+	// TODO rethink if this is right way/place
+	fetchAndStore: function (id) {
+		var _this = this;
+		this._fetchSmartCliqz(id, function callback(smartCliqz) {
+			// TODO: parse at central place
+			smartCliqz['style'] = 'cliqz-extra';
+			smartCliqz['data']['kind'] = 'X|{"ez":"'+ id + '"}';
+			_this._smartCliqzCache.store(id, smartCliqz,
+				_this.getTimestamp(smartCliqz));
+		});
+	},
+
 	// returns SmartCliqz from cache (false if not found);
 	// customizes SmartCliqz if news or domain supported, and user preference is set
 	retrieve: function (id) {
@@ -353,7 +366,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                 	_this._customDataCache.store(id, { links: categories,
                 									   categories: categories }); // FIXME: store duplicate so that oldCustomData.categories works
                 }
-                _this._log('_prepareCustomData: done preparing for id ' + id);           
+
+                _this._log('_prepareCustomData: done preparing for id ' + id);
+                _this._customDataCache.save(_this.CUSTOM_DATA_CACHE_FILE);
 			})
 		});
 	},
