@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -78,7 +78,7 @@ var CliqzUtils = {
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'airlinesEZ': 2, 'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'weatherEZ-promise': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3
   },

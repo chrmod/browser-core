@@ -234,7 +234,7 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
                         //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
