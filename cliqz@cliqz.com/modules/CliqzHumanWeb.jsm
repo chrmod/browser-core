@@ -914,6 +914,27 @@ var CliqzHumanWeb = {
                         payload['ctry'] = location;
 
                         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'suspiciousUrl', 'payload': payload});
+
+                        // Check if we can still send the url as page model as well. 
+                        // To not drop good URLs.
+                        // Onlye send ig they have canonical.
+
+                        /*
+                        delete page_doc['isMU'];
+
+                        if (!CliqzHumanWeb.dropLongURL(url)) {
+                            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                         }
+                        else{
+                           if(page_doc['x']['canonical_url']){
+                                page_doc['url'] = page_doc['x']['canonical_url'];
+                                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+
+                            }
+                        }
+                        */
+                        
+
                     }
                     else{
                         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
