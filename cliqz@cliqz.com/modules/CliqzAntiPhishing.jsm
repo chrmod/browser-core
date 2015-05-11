@@ -80,8 +80,8 @@ function checkSingleScript(script) {
 
 function checkCheat(doc, callback){
     var html = domSerializer.serializeToString(doc);
-    if (html.indexOf('progress-bar-warning') && html.indexOf('progress-bar-success') ||
-        html.indexOf('play-progress') && html.indexOf('buffer-progress'))
+    if (html.indexOf('progress-bar-warning') > -1 && html.indexOf('progress-bar-success') > -1 ||
+        html.indexOf('play-progress') > -1 && html.indexOf('buffer-progress') > -1)
         callback(doc.URL, 'cheat');
 }
 
@@ -115,7 +115,7 @@ function checkSuspicious(doc, callback) {
 
 function onPageLoad(event) {
     let doc = event.originalTarget;
-    CliqzAntiPhishing.isSuspiciousDOM(doc, CliqzUtils.log);  // here just a test
+    // CliqzAntiPhishing.isSuspiciousDOM(doc, CliqzUtils.log);  // here just a test
     let url = doc.URL;
     if (url[0] != "h") return;
     // get md5 of url
