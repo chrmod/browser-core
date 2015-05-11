@@ -19,6 +19,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
+  'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 
@@ -203,10 +206,10 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.2',
+    VERSION: '1.3',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
-    debug: false,
+    debug: true,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
@@ -873,7 +876,12 @@ var CliqzHumanWeb = {
                 }
             }
             else {
-                isok = false;
+                if(page_doc['isMU']){
+                    isok = true;
+                }
+                else{
+                    isok = false;
+                }
             }
         }
 
@@ -892,7 +900,9 @@ var CliqzHumanWeb = {
                     // the page content by the data coming from the doubleFetch (no session)
                     // replace the url with canonical url, if it's long
                     if (CliqzHumanWeb.dropLongURL(url)) {
-                        page_doc['url'] = page_doc['x']['canonical_url'];
+                        if(page_doc['x']['canonical_url']){
+                            page_doc['url'] = page_doc['x']['canonical_url'];
+                        }
                     }
                     page_doc['x'] = data;
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
@@ -1298,6 +1308,21 @@ var CliqzHumanWeb = {
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
 
+                            if(CliqzAntiPhishing){
+                                if (CliqzHumanWeb.debug) {
+                                    CliqzUtils.log("Checking for malicious: " + currURL, CliqzHumanWeb.LOG_KEY);
+                                }
+
+                                CliqzAntiPhishing.isSuspiciousDOM(cd, function(url, msgKey){
+                                    if(msgKey){
+                                        if (CliqzHumanWeb.debug) CliqzUtils.log("URL is malicious: "  + url + " : " + msgKey, CliqzHumanWeb.LOG_KEY);
+                                        CliqzHumanWeb.state['v'][url]['isMU'] = msgKey;
+                                        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+                                    }
+
+                                });
+
+                            }
 
 
                             if (x['canonical_url']) {
