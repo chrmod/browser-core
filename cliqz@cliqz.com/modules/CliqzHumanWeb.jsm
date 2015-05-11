@@ -905,7 +905,19 @@ var CliqzHumanWeb = {
                         }
                     }
                     page_doc['x'] = data;
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                    if(page_doc['isMU']){
+                        // This needs a better handling, currently sites like booking.com, etc are being sent via this signal.
+                        var payload = {};
+                        payload['reason'] = page_doc['isMU'];
+                        payload['qurl'] = url;
+                        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                        payload['ctry'] = location;
+
+                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'suspiciousUrl', 'payload': payload});
+                    }
+                    else{
+                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                    }
                 }
                 else {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match" + url, CliqzHumanWeb.LOG_KEY);
@@ -2900,24 +2912,36 @@ var CliqzHumanWeb = {
         });
   },
   checkActiveUsage: function(){
-        //This function needs to be scheduled every one hour.
-        var oldUsage = 0;
-        try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
-        var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
-        if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
-            //Sample event to be sent
-            var payload = {};
-            payload['status'] = true;
-            payload['t'] = CliqzHumanWeb.getTime();
-            try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-            payload['ctry'] = location;
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
-            CliqzHumanWeb.activeUsage = 0;
-            CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
-            CliqzUtils.setPref('config_activeUsageCount', 0);
+    //This function needs to be scheduled every one hour.
+    var oldUsage = 0;
+    try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
+    var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
+    if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
+        //Sample event to be sent
+        var payload = {};
+        payload['status'] = true;
+        payload['t'] = CliqzHumanWeb.getTime();
+        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        payload['ctry'] = location;
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
+        CliqzHumanWeb.activeUsage = 0;
+        CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
+        CliqzUtils.setPref('config_activeUsageCount', 0);
 
-        }
+    }
+  },
+  notification: function(payload){
+    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+    if(payload && typeof(payload) == 'object'){
+        payload['ctry'] = location;
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
+  
+    }
+    else{
+        if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
+    }
   }
+
 
 
 };
