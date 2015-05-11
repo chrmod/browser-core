@@ -1926,8 +1926,16 @@ var CliqzHumanWeb = {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-        CliqzHumanWeb.trk = [];
+        // Changing the slice and empty array function to splice.
+
+        //CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
+        //CliqzHumanWeb.trk = [];
+
+        // Check if track has duplicate messages.
+        // Generate a telemetry signal, with base64 endocing of data and respective count.
+        CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
+
+        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
         CliqzHumanWeb._telemetry_start = (new Date()).getTime();
         CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
     },
@@ -2427,6 +2435,12 @@ var CliqzHumanWeb = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
+        
+        if(listOfUncheckedUrls.length > 1){
+            // Notify is the list of unchecked urls recieved is more than one
+            // Generate a telemetry signal.
+        }
+
         for(var i=0;i<listOfUncheckedUrls.length;i++) {
             var url = listOfUncheckedUrls[i][0];
             var page_doc = listOfUncheckedUrls[i][1];
@@ -2461,6 +2475,9 @@ var CliqzHumanWeb = {
     },
     // to invoke in console: CliqzHumanWeb.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
     forceDoubleFetch: function(url) {
+        // Notify when force double fetch is triggered.
+        // Generate a telemetry signal.
+
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
@@ -2888,6 +2905,30 @@ var CliqzHumanWeb = {
             CliqzUtils.setPref('config_activeUsageCount', 0);
 
         }
+  },
+  duplicateEvents: function(arr){
+    var duplicate = {};
+    var duplicates = {};
+
+    // Calculate duplicates
+    arr.forEach(function(i, idx) {
+        if (typeof(a) == 'object' && i.action == 'page'){ 
+            duplicate[i] = (duplicate[i]||0)+1; 
+        }
+    });
+
+    Object.keys(duplicate).forEach(function(key){
+        if(duplicate[key] > 1){
+            duplicates[key] = duplicate[key];
+            
+        }
+
+    })
+
+    CliqzUtils.log("duplicate: " + JSON.stringify(duplicates), CliqzHumanWeb.LOG_KEY);
+    // If count greater than one, then add and post
+    
+
   }
 
 
