@@ -261,7 +261,7 @@
 }
 #cliqz-results .cqz-ez-banking-opt:hover { text-decoration: underline; }
 #cliqz-results .cqz-ez-banking-elems { margin-top: 10px; }
-#cliqz-results .cqz-ez-banking-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
+#cliqz-results .cqz-ez-banking-title::after { background-image: url(https://cdn.cliqz.com/extension/EZ/banking/icon.svg); }
 
 /* ez news, video, portal */
 #cliqz-results .entity-stories { margin-left: -22px; padding-right: 75px; height: 192px; }
@@ -289,17 +289,17 @@
 #cliqz-results .entity-story:hover .entity-story-title { text-decoration: underline; }
 #cliqz-results .entity-story-comment { color: #d7011d; padding-top: 9px; }
 #cliqz-results .ez-news .cqz-ez-title::after {
-    background-image: url(http://cdn.cliqz.com/extension/EZ/news/icon.svg);
+    background-image: url(https://cdn.cliqz.com/extension/EZ/news/icon.svg);
 }
 /* ez video specials */
-#cliqz-results .ez-video .cqz-ez-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/video/logo.svg); }
+#cliqz-results .ez-video .cqz-ez-title::after { background-image: url(https://cdn.cliqz.com/extension/EZ/video/logo.svg); }
 #cliqz-results .ez-video .entity-story-comment { color: #333333; padding-top: 4px; }
 /* ez portal specials */
-#cliqz-results .ez-portal .cqz-ez-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg); margin-bottom: 18px; }
+#cliqz-results .ez-portal .cqz-ez-title::after { background-image: url(https://cdn.cliqz.com/extension/EZ/portal/EZ-portal.svg); margin-bottom: 18px; }
 #cliqz-results .ez-portal .entity-story-image { border-radius: 3px 3px; }
 
 /* EZ search */
-#cliqz-results .cqz-ez-search-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/search/icon.svg); }
+#cliqz-results .cqz-ez-search-title::after { background-image: url(https://cdn.cliqz.com/extension/EZ/search/icon.svg); }
 #cliqz-results .cqz-ez-search-box {
     border: 1px solid #3E86FC;
     max-width: 361px;
@@ -310,7 +310,7 @@
     background-color: #3E86FC;
     background-position: right 5px center;
     background-size: 15px 15px;
-    background-image: url(http://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg);
+    background-image: url(https://cdn.cliqz.com/extension/EZ/search/search-glass-white.svg);
     cursor: pointer;
 }
 
@@ -367,7 +367,7 @@
 #cliqz-results .EZ-Cliqz-Footer { margin-left: 22px; margin-top: 19px; }
 
 /* ez stock */
-#cliqz-results .cqz-ez-stock-title::after { background-image: url(http://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); margin-bottom: 6px; }
+#cliqz-results .cqz-ez-stock-title::after { background-image: url(https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock.svg); margin-bottom: 6px; }
 #cliqz-results .cqz-ez-stock-exchange, #cliqz-results .cqz-disclaimer { font-size: 12px; color: #cccccc; }
 #cliqz-results .cqz-ez-stock-trend { margin-top: 13px; font-size: 25px; }
 #cliqz-results .cqz-ez-img-trend { width: 12px; height: 18px; display: inline-block; margin: 0 4px 0 18px; }
@@ -390,7 +390,7 @@
 /* ez weather */
 #cliqz-results .ez-weather .alert {
     height: 100px;
-    background-image: url(http://cdn.cliqz.com/extension/EZ/weather/warning_2.svg);
+    background-image: url(https://cdn.cliqz.com/extension/EZ/weather/warning_2.svg);
     background-size: 54px 54px;
     background-position: 22px center;
     padding-left: calc(22px + 54px + 18px);
@@ -434,9 +434,23 @@
 #cliqz-results .ez-no-result { text-align: center; }
 #cliqz-results .ez-no-result .h1 { font-size: 20px; margin-top: 36px; }
 #cliqz-results .ez-no-result .h2 { color: #cccccc; margin-top: 10px; font-size: 16px; }
-#cliqz-results .ez-no-result .logos { margin-top: 36px; }
-#cliqz-results .ez-no-result .cliqz-brand-logo { font-size: 28px; margin: 0 8px; display: inline-block; cursor: pointer; }
-#cliqz-results .ez-no-result .cliqz-logo { width: 100px; margin-top: 31px; cursor: pointer; }
+#cliqz-results .ez-no-result .logos { margin-top: 16px; }
+#cliqz-results .ez-no-result .items { display: inline-block; }
+#cliqz-results .ez-no-result .cliqz-brand-logo {
+    font-size: 28px;
+    margin: 0 8px;
+    display: inline-block;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+#cliqz-results .ez-no-result .items .item-name {
+    font-size: 16px;
+    max-width: 90px;
+    text-align: center;
+}
+#cliqz-results .ez-no-result .cliqz-logo { width: 100px;
+    margin-top: 31px; cursor: pointer;
+}
 
 /* buttons */
 #cliqz-popup .cqz-btn {
@@ -465,7 +479,7 @@
 #cliqz-popup .cqz-message-alert {
     color: #c3043e;
     padding-left:30px; /* To make room for the image */
-    background-image: url(http://cdn.cliqz.com/extension/adultfilter/red-alert.svg);
+    background-image: url(https://cdn.cliqz.com/extension/adultfilter/red-alert.svg);
     background-position: left center;
     background-repeat: no-repeat;
     margin-bottom: 5px;

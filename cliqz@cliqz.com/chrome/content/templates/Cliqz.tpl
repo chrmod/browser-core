@@ -29,8 +29,10 @@
          </div>
         <div class="cqz-ez-btn" style="background-color:{{Privacy.color}}"  url="{{Privacy.url}}">
             {{local 'cliqz_privacy'}}
-
-         </div>
+        </div>
+        <div class="cqz-ez-btn" style="background-color:{{Blog.color}}"  url="{{Blog.url}}">
+            {{local 'cliqz_blog'}}
+        </div>
  </div>
 </div>
 {{/with}}

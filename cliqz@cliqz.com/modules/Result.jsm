@@ -200,10 +200,11 @@ var Result = {
             }
 
 
-        resp.description = result.snippet.desc || result.snippet.snippet;
+        var snip = result.snippet;
+        resp.description = snip && (snip.desc || snip.snippet || (snip.og && snip.og.description));
 
-        var ogT = result.snippet && result.snippet.og? result.snippet.og.type: null,
-            imgT = result.snippet && result.snippet.image? result.snippet.image.type: null;
+        var ogT = snip && snip.og? snip.og.type: null,
+            imgT = snip && snip.image? snip.image.type: null;
 
         if(resp.type != 'other' || ogT == 'cliqz' || imgT == 'cliqz')
             resp.image = Result.getVerticalImage(result.snippet.image, result.snippet.rich_data) ||

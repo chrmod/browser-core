@@ -215,6 +215,7 @@ var CliqzHistory = {
           CliqzUtils && CliqzUtils.setTimeout(checkUrl, 100, p);
           return;
         } else if(url != "about:newtab") {
+          if(!CliqzHistory) return;
           CliqzHistory.setTabData(p.newPanel, "query", CliqzHistory.getTabData(p.curPanel, 'query'));
           CliqzHistory.setTabData(p.newPanel, "queryDate", CliqzHistory.getTabData(p.curPanel, 'queryDate'));
           CliqzHistory.setTabData(p.newPanel, "linkUrl", CliqzHistory.getTabData(p.curPanel, 'linkUrl'));
