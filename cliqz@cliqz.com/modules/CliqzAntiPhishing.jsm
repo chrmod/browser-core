@@ -143,7 +143,8 @@ function onPageLoad(event) {
                                    var tp = blacklist[i][1];
                                    // send log
                                    CliqzHumanWeb.notification({'url': doc.URL, 'action': 'block'});
-                                   alert(doc, md5, tp);
+                                   // TODO: hookup the UI
+                                   // alert(doc, md5, tp);
                                    return;
                                }
                            }
