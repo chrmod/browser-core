@@ -52,7 +52,7 @@ function checkPassword(doc, callback) {
         if (inputs[i].type == 'password' ||
             inputs[i].value == 'password' && inputs[i].name == 'password' ||
             inputs[i].value == 'passwort' && inputs[i].name == 'passwort')
-            callback(doc, 'password');
+            callback(doc.URL, 'password');
     }
 
     var html = domSerializer.serializeToString(doc);
