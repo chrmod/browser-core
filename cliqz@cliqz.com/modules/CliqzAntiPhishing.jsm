@@ -14,13 +14,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 
 var EXPORTED_SYMBOLS = ['CliqzAntiPhishing'];
 // the urls need to be changed
-var UNSAFE_URL = "http://ec2-54-157-221-162.compute-1.amazonaws.com/api/unsafe?md5=";
-var WL_URL = "http://ec2-54-157-221-162.compute-1.amazonaws.com/api/safe?md5=";
+var UNSAFE_URL = "http://antiphishing.clyqz.com/api/unsafe?md5=";
+var WL_URL = "http://antiphishing.clyqz.com/api/safe?md5=";
 
 var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
         .createInstance(Components.interfaces.nsIDOMSerializer);
 
-function alert(doc, md5) {
+function alert(doc, md5, tp) {
     var fe = doc.querySelector("body>*");
     CliqzUtils.log(fe, 'antiphishing');
     var el = doc.createElement("DIV");
@@ -129,8 +129,9 @@ function onPageLoad(event) {
                            var blacklist = JSON.parse(req.response).blacklist;
                            CliqzUtils.log(blacklist, "antiphishing");
                            for (var i=0; i < blacklist.length; i++) {
-                               if (md5Prefix + blacklist[i] == md5) {
-                                   alert(doc, md5);
+                               if (md5Prefix + blacklist[i][0] == md5) {
+                                   var tp = blacklist[i][1];
+                                   alert(doc, md5, tp);
                                    return;
                                }
                            }
