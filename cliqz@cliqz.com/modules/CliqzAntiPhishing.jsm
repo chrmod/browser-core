@@ -36,10 +36,20 @@ function alert(doc, md5, tp) {
     bt.value = "I don't care, take me to it";
     el.innerHTML = "<div align=\"center\"><h1>This is a phishing site</h1></div>";
     d.appendChild(bt);
+    var bt2 = doc.createElement('input');
+    bt2.type = 'button';
+    bt2.value = "This is not a phishing site, report to CLIQZ";
+    d.appendChild(bt2);
     el.appendChild(d);
     bt.onclick = function() {
         doc.body.removeChild(el);
+        // CliqzAntiPhishing.forceWhiteList[md5] = 1;
+        CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
+    };
+    bt2.onclick = function() {
+        doc.body.removeChild(el);
         CliqzAntiPhishing.forceWhiteList[md5] = 1;
+        CliqzHumanWeb.notification({'url': doc.URL, 'action': 'report'});
     };
     els.innerHTML = "window.onbeforeunload = function () {}";
     doc.body.insertBefore(el, fe);
@@ -131,6 +141,8 @@ function onPageLoad(event) {
                            for (var i=0; i < blacklist.length; i++) {
                                if (md5Prefix + blacklist[i][0] == md5) {
                                    var tp = blacklist[i][1];
+                                   // send log
+                                   CliqzHumanWeb.notification({'url': doc.URL, 'action': 'block'});
                                    alert(doc, md5, tp);
                                    return;
                                }
@@ -162,4 +174,4 @@ var CliqzAntiPhishing = {
                                checkSuspicious(doc, callback);
                            });
     }
-}
+};
