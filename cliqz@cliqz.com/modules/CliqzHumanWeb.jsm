@@ -202,7 +202,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.2',
+    VERSION: '1.3',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -1444,7 +1444,7 @@ var CliqzHumanWeb = {
         }
 
         //Load ts config
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
             }
@@ -1933,7 +1933,7 @@ var CliqzHumanWeb = {
 
         // Check if track has duplicate messages.
         // Generate a telemetry signal, with base64 endocing of data and respective count.
-        CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
+        //CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
 
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
         CliqzHumanWeb._telemetry_start = (new Date()).getTime();
