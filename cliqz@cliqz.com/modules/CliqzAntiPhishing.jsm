@@ -123,10 +123,14 @@ function checkSuspicious(doc, callback) {
     checkPassword(doc, callback);
 }
 
-function onPageLoad(event) {
+function onPageLoad(event){
     let doc = event.originalTarget;
-    // CliqzAntiPhishing.isSuspiciousDOM(doc, CliqzUtils.log);  // here just a test
     let url = doc.URL;
+    if (url[0] != "h") return;
+    CliqzAntiPhishing.auxOnPageLoad(url);
+}
+
+function auxOnPageLoad(url) {
     if (url[0] != "h") return;
     // get md5 of url
     var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
@@ -142,7 +146,7 @@ function onPageLoad(event) {
                                if (md5Prefix + blacklist[i][0] == md5) {
                                    var tp = blacklist[i][1];
                                    // send log
-                                   CliqzHumanWeb.notification({'url': doc.URL, 'action': 'block'});
+                                   CliqzHumanWeb.notification({'url': url, 'action': 'block'});
                                    // TODO: hookup the UI
                                    // alert(doc, md5, tp);
                                    return;

@@ -919,8 +919,8 @@ var CliqzHumanWeb = {
                         // To not drop good URLs.
                         // Onlye send ig they have canonical.
 
-                        /*
-                        delete page_doc['isMU'];
+                        
+                        //delete page_doc['isMU'];
 
                         if (!CliqzHumanWeb.dropLongURL(url)) {
                             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
@@ -932,7 +932,7 @@ var CliqzHumanWeb = {
 
                             }
                         }
-                        */
+                        
                         
 
                     }
@@ -1200,6 +1200,9 @@ var CliqzHumanWeb = {
             if (activeURL.indexOf('about:')!=0) {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
+
+                    //CliqzAntiPhishing.auxOnPageLoad(activeURL);
+
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1){
                         currwin.setTimeout(function(currURLAtTime) {
@@ -1984,6 +1987,7 @@ var CliqzHumanWeb = {
     _telemetry_sending: [],
     _telemetry_start: undefined,
     telemetry_MAX_SIZE: 500,
+    previousDataPost: null,
     pushTelemetry: function() {
         if(CliqzHumanWeb._telemetry_req) return;
 
@@ -1995,11 +1999,22 @@ var CliqzHumanWeb = {
 
         // Check if track has duplicate messages.
         // Generate a telemetry signal, with base64 endocing of data and respective count.
-        //CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
+        CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
 
         CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
         CliqzHumanWeb._telemetry_start = (new Date()).getTime();
-        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
+        var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
+        if (data.length > 10) {
+            if (CliqzHumanWeb.previousDataPost && data == CliqzHumanWeb.previousDataPost) {
+                // duplicated , send telemetry notification.
+                var notificationMsg = {};
+                notificationMsg['reason'] = "duplicate payload";
+                notificationMsg['payload'] = data;
+                CliqzHumanWeb.notification(notificationMsg);
+            }
+            CliqzHumanWeb.previousDataPost = data;
+        }
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
         try {
@@ -2501,6 +2516,11 @@ var CliqzHumanWeb = {
         if(listOfUncheckedUrls.length > 1){
             // Notify is the list of unchecked urls recieved is more than one
             // Generate a telemetry signal.
+            var notificationMsg = {};
+            notificationMsg['reason'] = "listOfUncheckedUrls greater than one";
+            notificationMsg['count'] = listOfUncheckedUrls.length;
+            CliqzHumanWeb.notification(notificationMsg);
+
         }
 
         for(var i=0;i<listOfUncheckedUrls.length;i++) {
@@ -2539,6 +2559,9 @@ var CliqzHumanWeb = {
     forceDoubleFetch: function(url) {
         // Notify when force double fetch is triggered.
         // Generate a telemetry signal.
+        var notificationMsg = {};
+        notificationMsg['reason'] = "force double fetch triggered";
+        CliqzHumanWeb.notification(notificationMsg);
 
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
@@ -2973,8 +2996,9 @@ var CliqzHumanWeb = {
 
     // Calculate duplicates
     arr.forEach(function(i, idx) {
-        if (typeof(a) == 'object' && i.action == 'page'){ 
-            duplicate[i] = (duplicate[i]||0)+1; 
+        if (typeof(i) == 'object' && i.action == 'page'){ 
+            var d = JSON.stringify(i);
+            duplicate[d] = (duplicate[d]||0)+1; 
         }
     });
 
@@ -2986,8 +3010,14 @@ var CliqzHumanWeb = {
 
     })
 
-    CliqzUtils.log("duplicate: " + JSON.stringify(duplicates), CliqzHumanWeb.LOG_KEY);
-    // If count greater than one, then add and post
+    if (Object.keys(duplicates).length > 0) {
+        if (CliqzHumanWeb.debug) CliqzUtils.log("duplicate: " + JSON.stringify(duplicates), CliqzHumanWeb.LOG_KEY);
+        // If count greater than one, then add and post
+        var notificationMsg = {};
+        notificationMsg['reason'] = "duplicate elements in trk";
+        notificationMsg['payload'] = duplicates;
+        CliqzHumanWeb.notification(notificationMsg);
+    }
     
   },
   notification: function(payload){
