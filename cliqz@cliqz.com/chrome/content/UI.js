@@ -899,26 +899,8 @@ function enhanceResults(res){
         }
 
     }
-
+    
     var spelC = CliqzAutocomplete.spellCorr;
-    if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
-        var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join('<i>' + spelC.correctBack[c] + '</i>');
-        }
-        updateMessageState("show", {
-            "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + '<b>' + s + '</b>',
-              telemetry: 'spellcorrect',
-              options: [{
-                  text: CliqzUtils.getLocalizedString('yes'),
-                  action: 'spellcorrect',
-                  state: 'default'
-                }
-              ]
-            }
-        });
-    }
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -955,8 +937,30 @@ function enhanceResults(res){
           ]
         }
       });
-    }
-    else {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
+        var s = CLIQZ.Core.urlbar.mInputField.value;
+        for(var c in spelC.correctBack){
+            s = s.split(c).join(spelC.correctBack[c]);
+        }
+        updateMessageState("show", {
+            "footer-message": {
+              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
+              searchTerm: s, 
+              telemetry: 'spellcorrect',
+              options: [{
+                  text: CliqzUtils.getLocalizedString('yes'),
+                  action: 'spellcorrect-revert',
+                  state: 'default'
+                },
+                {
+                  text: CliqzUtils.getLocalizedString('no'),
+                  action: 'spellcorrect-keep',
+                  state: 'default'
+                }
+              ]
+            }
+        });
+    } else {
       updateMessageState("hide");
     }
 
@@ -1104,13 +1108,16 @@ function messageClick(ev) {
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
 
-              case 'spellcorrect':
+              case 'spellcorrect-revert':
                 var s = CLIQZ.Core.urlbar.value;
                 for(var c in CliqzAutocomplete.spellCorr.correctBack){
                     s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
                 }
                 CLIQZ.Core.urlbar.mInputField.setUserInput(s);
                 CliqzAutocomplete.spellCorr.override = true;
+                updateMessageState("hide");
+                break;
+              case 'spellcorrect-keep':
                 updateMessageState("hide");
                 break;
 
@@ -1153,6 +1160,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
+      if(extraData.action != "result_click")
+        var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
@@ -1195,7 +1204,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
           }
       }
     }
-    CliqzHistory.updateQuery(query);
+    CliqzHistory.updateQuery(query, autocompleteUrl);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
@@ -1576,6 +1585,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.isCustomQuery(input);
@@ -1592,7 +1602,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1,
       new_tab: newTab
-    });
+    }, CLIQZ.Core.urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
