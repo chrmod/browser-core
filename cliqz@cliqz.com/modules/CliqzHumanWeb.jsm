@@ -2050,8 +2050,9 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]))
-                CliqzHumanWeb.createTable();
+                
             }
+            CliqzHumanWeb.createTable();
             return;
         }
         else {
