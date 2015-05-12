@@ -937,7 +937,7 @@ function enhanceResults(res){
           ]
         }
       });
-    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true)) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
         for(var c in spelC.correctBack){
             s = s.split(c).join(spelC.correctBack[c]);
