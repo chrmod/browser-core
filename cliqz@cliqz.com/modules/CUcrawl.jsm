@@ -1187,7 +1187,7 @@ var CUcrawl = {
             var activeURL = CUcrawl.currentURL();
             //Check if the URL is know to be bad: private, about:, odd ports, etc.
 
-            CliqzUtils.log("loaded: " + activeURL + " " + CUcrawl.isSuspiciousURL(activeURL), CUcrawl.LOG_KEY);
+            //CliqzUtils.log("loaded: " + activeURL + " " + CUcrawl.isSuspiciousURL(activeURL), CUcrawl.LOG_KEY);
 
             if (CUcrawl.isSuspiciousURL(activeURL)) return;
 
@@ -1957,6 +1957,25 @@ var CUcrawl = {
             if (CUcrawl.dbConn==null) {
                 CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbucrawl"]));
             }
+            var usafe = "create table if not exists usafe(\
+                url VARCHAR(255) PRIMARY KEY NOT NULL,\
+                ref VARCHAR(255),\
+                last_visit INTEGER,\
+                first_visit INTEGER,\
+                reason VARCHAR(256), \
+                private BOOLEAN DEFAULT 0,\
+                checked BOOLEAN DEFAULT 0, \
+                payload VARCHAR(4096), \
+                ft BOOLEAN DEFAULT 1 \
+            )";
+
+            var hash_usafe = "create table if not exists hashusafe(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
+                private BOOLEAN DEFAULT 0 \
+            )";
+
+            CUcrawl.dbConn.executeSimpleSQL(usafe);
+            CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
             return;
         }
         else {
@@ -1978,8 +1997,8 @@ var CUcrawl = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
-            CUcrawl.dbConn.executeSimpleSQLAsync(usafe);
-            CUcrawl.dbConn.executeSimpleSQLAsync(hash_usafe);
+            CUcrawl.dbConn.executeSimpleSQL(usafe);
+            CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
         }
 
     },
