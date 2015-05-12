@@ -272,13 +272,13 @@ var CliqzHistory = {
       // Check siblings for titles
       var target = aTarget.childNodes[0];
       if (!title || title.trim().length == 0)
-        do {
+        while (target) {
           var tmpTarget = target;
           while (tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
           title = tmpTarget.nodeValue;
           if (title && title.trim().length > 0) break;
           target = target.nextSibling;
-        } while (target);
+        }
 
       // Update title in db
       CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title);
