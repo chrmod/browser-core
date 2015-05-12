@@ -280,7 +280,7 @@ var CliqzHistory = {
 
       // Update title in db
       if (title && title.trim().length > 0) {
-        CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title);
+        CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title.trim());
       }
     }
   },
