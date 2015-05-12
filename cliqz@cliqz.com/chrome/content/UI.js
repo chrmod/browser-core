@@ -899,26 +899,8 @@ function enhanceResults(res){
         }
 
     }
-
+    
     var spelC = CliqzAutocomplete.spellCorr;
-    if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
-        var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join('<i>' + spelC.correctBack[c] + '</i>');
-        }
-        updateMessageState("show", {
-            "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + '<b>' + s + '</b>',
-              telemetry: 'spellcorrect',
-              options: [{
-                  text: CliqzUtils.getLocalizedString('yes'),
-                  action: 'spellcorrect',
-                  state: 'default'
-                }
-              ]
-            }
-        });
-    }
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -955,8 +937,30 @@ function enhanceResults(res){
           ]
         }
       });
-    }
-    else {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', false)) {
+        var s = CLIQZ.Core.urlbar.mInputField.value;
+        for(var c in spelC.correctBack){
+            s = s.split(c).join(spelC.correctBack[c]);
+        }
+        updateMessageState("show", {
+            "footer-message": {
+              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
+              searchTerm: s, 
+              telemetry: 'spellcorrect',
+              options: [{
+                  text: CliqzUtils.getLocalizedString('yes'),
+                  action: 'spellcorrect-revert',
+                  state: 'default'
+                },
+                {
+                  text: CliqzUtils.getLocalizedString('no'),
+                  action: 'spellcorrect-keep',
+                  state: 'default'
+                }
+              ]
+            }
+        });
+    } else {
       updateMessageState("hide");
     }
 
@@ -1104,13 +1108,16 @@ function messageClick(ev) {
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
 
-              case 'spellcorrect':
+              case 'spellcorrect-revert':
                 var s = CLIQZ.Core.urlbar.value;
                 for(var c in CliqzAutocomplete.spellCorr.correctBack){
                     s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
                 }
                 CLIQZ.Core.urlbar.mInputField.setUserInput(s);
                 CliqzAutocomplete.spellCorr.override = true;
+                updateMessageState("hide");
+                break;
+              case 'spellcorrect-keep':
                 updateMessageState("hide");
                 break;
 

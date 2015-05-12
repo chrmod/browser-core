@@ -263,8 +263,8 @@ window.CLIQZ.Core = {
                 // 50% chance of showing new onboarding
                 if (session) {
                     var tokens = session.split("|");
-                    if (tokens.length > 1) {
-                        var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                    if (tokens.length > 0) {
+                        var lastDigit = parseInt(tokens[0].substr(tokens[0].length - 1));
                         showNewOnboarding = (lastDigit < 5);
                     }
                 }
