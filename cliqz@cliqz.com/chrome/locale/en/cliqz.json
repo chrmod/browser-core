@@ -1,4 +1,16 @@
 {
+    "vs":{
+        "message": "vs."
+    },
+    "AllGames":{
+        "message": "All Games"
+    },
+    "GoToTable":{
+        "message": "Full Table"
+    },
+    "LocalTimeGermany":{
+        "message": "All times: Central European (Summer) Time"
+    },
     "Terminal":{
         "message": "Terminal"
     },
@@ -418,6 +430,9 @@
     },
     "cliqz_privacy":{
         "message": "Privacy"
+    },
+    "cliqz_blog": {
+        "message": "Blog"
     },
     "cliqz_stock_open": {
         "message": "Open"

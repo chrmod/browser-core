@@ -52,6 +52,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzTour',
   'chrome://cliqzmodules/content/CliqzTour.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
+  'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -198,6 +201,9 @@ window.CLIQZ.Core = {
 
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
+
+        // antiphishing listener
+        gBrowser.addEventListener("load", CliqzAntiPhishing._loadHandler, true);
     },
     addCSS: function(doc, path){
         //add this element into 'elem' to be sure we remove it at extension shutdown
@@ -251,8 +257,8 @@ window.CLIQZ.Core = {
                 // 50% chance of showing new onboarding
                 if (session) {
                     var tokens = session.split("|");
-                    if (tokens.length > 1) {
-                        var lastDigit = parseInt(tokens[1].substr(tokens[1].length - 1));
+                    if (tokens.length > 0) {
+                        var lastDigit = parseInt(tokens[0].substr(tokens[0].length - 1));
                         showNewOnboarding = (lastDigit < 5);
                     }
                 }

@@ -49,6 +49,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -175,6 +176,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version

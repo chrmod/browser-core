@@ -1,4 +1,16 @@
 {
+    "vs":{
+        "message": "gegen"
+    },
+    "AllGames":{
+        "message": "Ganzer Spieltag"
+    },
+    "GoToTable":{
+        "message": "Ganze Tabelle"
+    },
+    "LocalTimeGermany":{
+        "message": "Alle Zeitangaben: Mitteleuropäische (Sommer-) Zeit"
+    },
     "Terminal":{
         "message": "Terminal"
     },
@@ -415,6 +427,9 @@
     },
     "cliqz_privacy": {
         "message": "Datenschutz"
+    },
+    "cliqz_blog": {
+        "message": "Blog"
     },
     "no_legal_disclaimer": {
       "message": "Ohne Gewähr"
