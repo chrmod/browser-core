@@ -79,7 +79,7 @@ var CliqzHistory = {
       var url = CliqzHistoryPattern.simplifyUrl(aBrowser.currentURI.spec);
       var tab = CliqzHistory.getTabForContentWindow(aBrowser.contentWindow);
       var panel = tab.linkedPanel;
-      if (aStateFlags == 786448 /* Finished */ && url == CliqzHistory.getTabData(panel, 'url') &&
+      if ((aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) && url == CliqzHistory.getTabData(panel, 'url') &&
         url != CliqzHistory.getTabData(panel, "lastThumb")) {
         CliqzHistory.reattachListeners(aBrowser, panel);
         CliqzHistory.updateOpenGraphData(aBrowser, panel);
@@ -87,7 +87,7 @@ var CliqzHistory = {
           CliqzHistory.generateThumbnail(aBrowser, panel, url);
         });
       }
-      if ((aStateFlags == 17563664 || aStateFlags == 786448) && url != CliqzHistory.getTabData(panel, 'url')) {
+      if ((aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) && url != CliqzHistory.getTabData(panel, 'url')) {
         // Force history at this point
         // Back events are not triggered by history observer
         CliqzHistory.lastVisit.push(url);
