@@ -208,7 +208,7 @@ function add32(a, b) {
 }
 
 var CUcrawl = {
-    VERSION: 'moz-test 0.03',
+    VERSION: 'moz-test-0.03',
     WAIT_TIME: 2000,
     LOG_KEY: 'mucrawl',
     debug: false,

@@ -200,6 +200,12 @@ var CliqzABTests = CliqzABTests || {
             case "1033_B":
                 CliqzUtils.setPref("historyStats", true);
                 break;
+            case "1034_A":
+                CliqzUtils.setPref("safeBrowsingMozTest", false);
+                break;
+            case "1034_B":
+                CliqzUtils.setPref("safeBrowsingMozTest", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -352,6 +358,10 @@ var CliqzABTests = CliqzABTests || {
             case "1033_A":
             case "1033_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("historyStats");
+                break;
+            case "1034_A":
+            case "1034_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMozTest");
                 break;
             default:
                 rule_executed = false;
