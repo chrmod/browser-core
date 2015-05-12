@@ -177,6 +177,9 @@ var CliqzAntiPhishing = {
                                }
                                CliqzAntiPhishing.whiteList[md5] = true;
                                checkSuspicious(doc, callback);
-                           });
+                           },
+                           function error(res) {
+                               checkSuspicious(doc, callback);
+                           }, 3000);
     }
 };
