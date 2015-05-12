@@ -110,7 +110,6 @@ window.CLIQZ.Core = {
         CliqzUtils.init(window);
         CliqzHistory.initDB();
 
-        //CliqzHistoryPattern.preloadColors();
         if(CliqzUtils.getPref('categoryAssessment', false)){
             CliqzCategories.init();
         }
@@ -181,15 +180,28 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
-            window.gBrowser.addProgressListener(CliqzLanguage.listener);
-
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
             }
-
+            // Update CLIQZ history data
+            CliqzHistory.tabOpen({
+              target: window.gBrowser.selectedTab
+            });
+            CliqzHistory.tabSelect({
+              target: window.gBrowser.selectedTab
+            });
+            // CLIQZ history listener
+            window.addEventListener('close', CliqzHistory.updateAllTabs);
+            window.addEventListener('mousemove', CliqzHistory.mouseMove(window.gBrowser));
+            window.addEventListener('click', CliqzHistory.action);
+            window.addEventListener('keydown', CliqzHistory.action);
             window.gBrowser.addTabsProgressListener(CliqzHistory.listener);
             window.gBrowser.tabContainer.addEventListener("TabOpen", CliqzHistory.tabOpen, false);
+            window.gBrowser.tabContainer.addEventListener("TabClose", CliqzHistory.tabClose, false);
+            window.gBrowser.tabContainer.addEventListener("TabSelect", CliqzHistory.tabSelect, false);
+
+            window.gBrowser.addProgressListener(CliqzLanguage.listener);
         }
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
@@ -314,7 +326,15 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             window.gBrowser.removeProgressListener(CliqzLanguage.listener);
             window.gBrowser.removeTabsProgressListener(CliqzHistory.listener);
+
+            window.removeEventListener('close', CliqzHistory.updateAllTabs);
+            window.removeEventListener('mousemove', CliqzHistory.mouseMove(window.gBrowser));
+            window.removeEventListener('click', CliqzHistory.action);
+            window.removeEventListener('keydown', CliqzHistory.action);
+            window.gBrowser.tabContainer.removeEventListener("TabClose", CliqzHistory.tabClose, false);
+            window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzHistory.tabSelect, false);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
+            CliqzHistory.removeAllListeners();
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);

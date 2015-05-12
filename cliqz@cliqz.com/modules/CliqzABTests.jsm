@@ -194,6 +194,12 @@ var CliqzABTests = CliqzABTests || {
             case "1032_B":
                 CliqzUtils.setPref("spellCorrMessage", true);
                 break;
+            case "1033_A":
+                CliqzUtils.setPref("historyStats", false);
+                break;
+            case "1033_B":
+                CliqzUtils.setPref("historyStats", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -342,6 +348,10 @@ var CliqzABTests = CliqzABTests || {
             case "1032_A":
             case "1032_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("spellCorrMessage");
+                break;
+            case "1033_A":
+            case "1033_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("historyStats");
                 break;
             default:
                 rule_executed = false;

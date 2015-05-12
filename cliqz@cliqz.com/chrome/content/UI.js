@@ -1160,6 +1160,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
+      if(extraData.action != "result_click")
+        var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
@@ -1202,7 +1204,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
           }
       }
     }
-    CliqzHistory.updateQuery(query);
+    CliqzHistory.updateQuery(query, autocompleteUrl);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
@@ -1583,6 +1585,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.isCustomQuery(input);
@@ -1599,7 +1602,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1,
       new_tab: newTab
-    });
+    }, CLIQZ.Core.urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
