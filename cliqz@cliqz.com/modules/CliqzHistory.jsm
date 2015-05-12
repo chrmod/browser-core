@@ -271,17 +271,17 @@ var CliqzHistory = {
 
       // Check siblings for titles
       var target = aTarget.childNodes[0];
-      if (!title || title.trim().length == 0)
-        do {
-          var tmpTarget = target;
-          while (tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
-          title = tmpTarget.nodeValue;
-          if (title && title.trim().length > 0) break;
-          target = target.nextSibling;
-        } while (target);
+      while ((!title || title.trim().length === 0) && target) {
+        var tmpTarget = target;
+        while (tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
+        title = tmpTarget.nodeValue;
+        target = target.nextSibling;
+      }
 
       // Update title in db
-      CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title);
+      if (title && title.trim().length > 0) {
+        CliqzHistory.updateTitle(CliqzHistoryPattern.simplifyUrl(linkUrl), null, title.trim());
+      }
     }
   },
   addHistoryEntry: function(browser, customPanel) {
