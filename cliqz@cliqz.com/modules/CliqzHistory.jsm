@@ -275,7 +275,6 @@ var CliqzHistory = {
         var tmpTarget = target;
         while (tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
         title = tmpTarget.nodeValue;
-        if (title && title.trim().length > 0) break;
         target = target.nextSibling;
       }
 
