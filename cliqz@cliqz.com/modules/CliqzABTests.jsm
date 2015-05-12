@@ -300,6 +300,9 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
+            case "1016_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                break;
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 //CliqzUCrawl.outOfABTest();
