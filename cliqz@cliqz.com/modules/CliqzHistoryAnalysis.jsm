@@ -134,15 +134,19 @@ var CliqzHistoryAnalysis = {
     var cnt = 0;
     sum = 0;
 
+    var toTargetFirst=[], toTargetLast=[];
+
     if(visitCount >= 2) {
       for (var url in filtered) {
         var firstVisit = filtered[url][0].visitDate -
           filtered[url][0].sessionStart;
+        toTargetFirst.push(firstVisit);
         for(var i=1; i<filtered[url].length; i++) {
           var curVisit = filtered[url][i].visitDate -
                          filtered[url][i].sessionStart;
           tmp.push(curVisit-firstVisit);
           sum += (curVisit-firstVisit);
+          toTargetLast.push(curVisit);
           cnt++;
         }
       }
@@ -154,6 +158,19 @@ var CliqzHistoryAnalysis = {
       result.revisitationDiffInSec.q1 = parseFloat((tmp[parseInt(tmp.length*0.25)]/1000).toFixed(2));
       result.revisitationDiffInSec.q2 = parseFloat((tmp[parseInt(tmp.length*0.5)]/1000).toFixed(2));
       result.revisitationDiffInSec.q3 = parseFloat((tmp[parseInt(tmp.length*0.75)]/1000).toFixed(2));
+
+      toTargetFirst = toTargetFirst.sort(CliqzHistoryAnalysis.sortNumber);
+      toTargetLast = toTargetLast.sort(CliqzHistoryAnalysis.sortNumber);
+      result.visitTimeInSec = {};
+      result.visitTimeInSec.first = {};
+      result.visitTimeInSec.last = {};
+      result.visitTimeInSec.first.q1 = parseFloat((toTargetFirst[parseInt(toTargetFirst.length*0.25)]/1000).toFixed(2));
+      result.visitTimeInSec.first.q2 = parseFloat((toTargetFirst[parseInt(toTargetFirst.length*0.5)]/1000).toFixed(2));
+      result.visitTimeInSec.first.q3 = parseFloat((toTargetFirst[parseInt(toTargetFirst.length*0.75)]/1000).toFixed(2));
+      result.visitTimeInSec.last.q1 = parseFloat((toTargetLast[parseInt(toTargetLast.length*0.25)]/1000).toFixed(2));
+      result.visitTimeInSec.last.q2 = parseFloat((toTargetLast[parseInt(toTargetLast.length*0.5)]/1000).toFixed(2));
+      result.visitTimeInSec.last.q3 = parseFloat((toTargetLast[parseInt(toTargetLast.length*0.75)]/1000).toFixed(2));
+
     }
 
     // Depth comparison
