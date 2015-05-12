@@ -264,7 +264,7 @@ var CliqzHistoryAnalysis = {
     });
   },
   check: function(start) {
-    if(/*CliqzUtils.getPref('historyStats', false) && AB Test Check */
+    if(CliqzUtils.getPref('historyStats', false) &&
       parseInt(CliqzUtils.getPref('historyAnalysisTime', '0')) + CliqzHistoryAnalysis.REPEAT_TIMER < start){
   		CliqzUtils.setPref('historyAnalysisTime', ''+start);
       return true;
