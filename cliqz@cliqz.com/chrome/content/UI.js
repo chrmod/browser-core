@@ -49,7 +49,12 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
+
+    // The number of times to attempt loading smart CLIQZ results asynchronously
+    smartCliqzMaxAttempts = 10,
+    // The number of milliseconds to wait after each attempt
+    smartCliqzWaitTime = 100
     ;
 
 function lg(msg){
@@ -147,20 +152,34 @@ var UI = {
                 UI.main(cliqzBox);
             }
         }
-
         currentResults = enhanceResults(res);
+        //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
+
+        // Results that are not ready (extra results, for which we received a callback_url)
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
+        var query = currentResults.q;
+        if (!query)
+          query = "";
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
+        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
+        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
         //CliqzImages.process_images_result(res,
         //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
-
+        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         if(gCliqzBox.resultsBox) {
             var now = Date.now();
             UI.lastDispatch = now;
-            UI.redrawResultHTML(CliqzHandlebars.tplCache.results(currentResults), res.q);
-            //UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
-          }
+
+            if(CliqzUtils.getPref("animations", false))
+              UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now);
+            else
+              gCliqzBox.resultsBox.innerHTML = CliqzHandlebars.tplCache.results(currentResults);
+            UI.loadAsyncResult(asyncResults);
+        }
+
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -182,6 +201,96 @@ var UI = {
     },
     nextRedraw: 0,
     lastDispatch: 0,
+
+
+    loadAsyncResult: function(res) {
+
+      if (res && res.length > 0) {
+        for (var i in res) {
+          var r = res[i];
+          var query = r.text;
+          var qt = query + ": " + new Date().getTime();
+          CliqzUtils.log(qt, "QUERY TIMESTAMP");
+          //CliqzUtils.log(r,"LOADINGASYNC");
+          var loop_count = 0;
+          var async_callback = function(req) {
+              //CliqzUtils.log(r, "GOT SOME RESULTS");
+              var resp = undefined;
+              try {
+                resp = JSON.parse(req.response).results[0];
+                //CliqzUtils.log(resp, "FINAL RESPONSE");
+              }
+              catch(err) {
+                res.splice(i,1);
+              }
+              //CliqzUtils.log(r.text, "Here's the query");
+              //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
+
+              if (resp &&  CLIQZ.Core.urlbar.value == query) {
+
+                var kind = r.data.kind;
+                if ("__callback_url__" in resp.data) {
+                    // If the result is again a promise, retry.
+                    if (loop_count < smartCliqzMaxAttempts) {
+                      setTimeout(function() {
+                        loop_count += 1;
+                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
+                      }, smartCliqzWaitTime);
+                    }
+                    else if (currentResults.results.length == 0) {
+                      UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                    }
+                }
+                else {
+                  r.data = resp.data;
+                  r.url = resp.url;
+                  r.data.kind = kind;
+                  r.data.subType = resp.subType;
+                  r.data.trigger_urls = resp.trigger_urls;
+
+
+                  if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
+                      // Remove all existing extra results
+                      currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                      // add the current one on top of the list
+                      currentResults.results.unshift(r);
+                      var now = Date.now();
+                      UI.lastDispatch = now;
+                      if (currentResults.results.length > 0) {
+                        UI.setDropdownContents(CliqzHandlebars.tplCache.results(currentResults), now);
+                      }
+                      else {
+                        UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                      }
+                  }
+                }
+              }
+              else {
+                res.splice(i,1);
+                if (currentResults.results.length == 0)
+                  UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+              }
+
+          };
+          CliqzUtils.httpGet(r.data.__callback_url__, async_callback, async_callback);
+        }
+
+
+      }
+
+    },
+
+
+    setDropdownContents: function(html, now) {
+      if(CliqzUtils.getPref("animations", false)) {
+        UI.dispatchRedraw(html, now);
+      }
+      else
+        gCliqzBox.resultsBox.innerHTML = html;
+    },
+
     dispatchRedraw: function(html, id, q) {
       var now = Date.now();
       if(id < UI.lastDispatch) return;
