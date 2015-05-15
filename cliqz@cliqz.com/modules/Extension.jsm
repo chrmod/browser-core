@@ -46,9 +46,11 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+        Cu.import('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -87,6 +89,10 @@ var Extension = {
             CliqzHumanWeb.initAtBrowser();
         }
 
+        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
+           CUcrawl.initAtBrowser();
+        }
+
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
@@ -112,6 +118,9 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
+        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
+            CUcrawl.destroyAtBrowser();
+        }
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -170,11 +179,13 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version

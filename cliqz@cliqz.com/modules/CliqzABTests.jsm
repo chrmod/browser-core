@@ -194,6 +194,18 @@ var CliqzABTests = CliqzABTests || {
             case "1032_B":
                 CliqzUtils.setPref("spellCorrMessage", true);
                 break;
+            case "1033_A":
+                CliqzUtils.setPref("historyStats", false);
+                break;
+            case "1033_B":
+                CliqzUtils.setPref("historyStats", true);
+                break;
+            case "1034_A":
+                CliqzUtils.setPref("safeBrowsingMozTest", false);
+                break;
+            case "1034_B":
+                CliqzUtils.setPref("safeBrowsingMozTest", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -288,6 +300,9 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = null;
                 CliqzUtils.cliqzPrefs.clearUserPref("customResultsProviderLog");
                 break;
+            case "1016_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
+                break;
             case "1017_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
                 //CliqzUCrawl.outOfABTest();
@@ -342,6 +357,14 @@ var CliqzABTests = CliqzABTests || {
             case "1032_A":
             case "1032_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("spellCorrMessage");
+                break;
+            case "1033_A":
+            case "1033_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("historyStats");
+                break;
+            case "1034_A":
+            case "1034_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMozTest");
                 break;
             default:
                 rule_executed = false;
