@@ -81,7 +81,7 @@ var Mixer = {
             if(cliqz[0].extra) {
                 // only if query has more than 2 chars and not in blacklist
                 //  - avoids many unexpected EZ triggerings
-                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q) == -1)) {
+                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q.toLowerCase().trim()) == -1)) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
@@ -306,43 +306,7 @@ var Mixer = {
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
-            var se = [// default
-                    {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-                    {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
-                    {"name": "Google", "base_url": "https://www.google.de"},
-                    {"name": "Google Images", "base_url": "https://images.google.de/"},
-                    {"name": "Google Maps", "base_url": "https://maps.google.de/"}
-                ],
-                chosen = new Array();
-
-            for (var i = 0; i< se.length; i++){
-                var alt_s_e = CliqzResultProviders.getSearchEngines()[se[i].name];
-                if (typeof alt_s_e != 'undefined'){
-                    se[i].code = alt_s_e.code;
-                    var url = se[i].base_url || alt_s_e.base_url;
-                    se[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
-                    se[i].text = alt_s_e.prefix.slice(1);
-
-                    chosen.push(se[i])
-                }
-            }
-
-            results.push(
-                Result.cliqzExtra(
-                    {
-                        data:
-                        {
-                            template:'noResult',
-                            text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                            text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
-                            "search_engines": chosen,
-                            //use local image in case of no internet connection
-                            "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
-                        },
-                        subType: JSON.stringify({empty:true})
-                    }
-                )
-            );
+            results.push(CliqzUtils.getNoResults());
         }
 
         return results;

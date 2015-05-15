@@ -150,7 +150,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
-	_isCustomizationEnabledByDefault: false,
+	_isCustomizationEnabledByDefault: true,
 	_isInitialized: false,
 
 	// TODO: clean-up

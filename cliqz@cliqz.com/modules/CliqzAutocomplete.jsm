@@ -52,6 +52,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastResultsUpdateTime: null, // to measure how long a result has been shown for
     resultsOverflowHeight: 0, // to determine if scrolling is possible (i.e., overflow > 0px)
     afterQueryCount: 0,
+    discardedResults: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
     lastQueryTime: null,
@@ -428,7 +429,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
+                // be sure this is not a delayed result
+                if(q != this.searchString) {
+                    this.discardedResults += 1; // count results discarded from backend because they were out of date
+                } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
@@ -646,8 +650,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
                     latency_all: this.startTime? Date.now() - this.startTime : null,
+                    discarded: this.discardedResults,
                     v: 1
                 };
+
+                // reset count of discarded backend results
+                this.discardedResults = 0;
+
                 if (CliqzAutocomplete.lastAutocompleteType) {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
                 }
