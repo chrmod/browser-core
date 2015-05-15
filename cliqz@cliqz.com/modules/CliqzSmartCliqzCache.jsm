@@ -89,49 +89,47 @@ Cache.prototype.refresh = function (key, time) {
 	}
 }
 
-// TODO: make logging indepdendent from CliqzSmartCliqzCache
+// save cache to file
 Cache.prototype.save = function (filename) {
 	try {
 		var data = (new TextEncoder()).encode(
 			JSON.stringify(this._cache));
 		var path = OS.Path.join(
 			OS.Constants.Path.profileDir, filename);
+		var _this = this;
 
 		OS.File.writeAtomic(path, data).then(
 			function(value) {
-    			CliqzSmartCliqzCache._log("Cache.save: saved to " + path);
+    			_this._log("save: saved to " + path);
 			}, function(e) {
-				CliqzSmartCliqzCache._log("Cache.save: failed saving to " + path + 
+				_this._log("save: failed saving to " + path + 
 					": " + e);
 			});
 	} catch (e) {
-		CliqzSmartCliqzCache._log("Cache.save: failed saving: " + e);
+		this._log("save: failed saving: " + e);
 	}	
 }
 
-// TODO: make logging indepdendent from CliqzSmartCliqzCache
-// TODO: check if file exists
+// load cache from file
 Cache.prototype.load = function (filename) {
 	try {
 		var _this = this;
 		var path = OS.Path.join(
 			OS.Constants.Path.profileDir, filename);
 
-		OS.File.read(path).then(
-			// TODO: make shorter (e.g., using "yield")
-			function(data) {
-				try {
-					_this._cache = JSON.parse((new TextDecoder()).decode(data));
-				} catch (e) {
-					CliqzSmartCliqzCache._log("Cache.load: failed parsing: " + e);
-				}
-				CliqzSmartCliqzCache._log("Cache.load: loaded from: " + path);
-			}, function(e) {
-				CliqzSmartCliqzCache._log("Cache.load: failed loading: " + e);
-			});
+		OS.File.read(path).then(function(data) {
+			_this._cache = JSON.parse((new TextDecoder()).decode(data));
+			_this._log("load: loaded from: " + path);
+		}).catch(function(e) {
+			_this._log("load: failed loading: " + e);
+		});
 	} catch (e) {
-		CliqzSmartCliqzCache._log("Cache.load: failed loading: " + e);
+		this._log("load: failed loading: " + e);
 	}
+}
+
+Cache.prototype._log = function (msg) {
+	CliqzUtils.log(msg, 'Cache');	
 }
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
@@ -145,8 +143,6 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
 		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
-	// TODO: decide if to be used
-	// SMART_CLIQZ_CACHE_FILE: 'extensions.cliqz.smartcliqz.static.cache',
 	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom_data.cache',
 	// maximum number of items (e.g., categories or links) to keep
 	MAX_ITEMS: 5,
@@ -189,10 +185,6 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		} catch (e) {
 			this._log('store: error while customizing data: ' + e);
 		}
-
-		// TODO: call periodically
-		// this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
-		// this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
 	},
 
 	// TODO rethink if this is right way/place
@@ -236,13 +228,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				this._log('retrieveCustomized: error while customizing data: ' + e);
 			}
 		}
-
-		// TODO: call periodically
-		// this._smartCliqzCache.save(this.SMART_CLIQZ_CACHE_FILE);
-		// this._customDataCache.save(this.CUSTOM_DATA_CACHE_FILE);
-
 		return smartCliqz;
 	},
+
 	// extracts domain from SmartCliqz
 	getDomain: function (smartCliqz) {
 		// TODO: define one place to store domain
@@ -254,22 +242,27 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			return false;
 		}
 	},
+
 	// extracts id from SmartCliqz
 	getId: function (smartCliqz) {
 		return JSON.parse(smartCliqz.data.subType).ez;
 	},
+
 	// extracts timestamp from SmartCliqz
 	getTimestamp: function (smartCliqz) {
 		return smartCliqz.data.ts;
 	},
+
 	// returns true this is a news SmartCliqz
 	isNews: function (smartCliqz) {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
+
 	// returns true if there are pre-parsing rules available for the SmartCliqz's domain
 	isDomainSupported: function (smartCliqz) {
 		return this.URL_PREPARSING_RULES.hasOwnProperty(this.getDomain(smartCliqz));
 	},
+
 	// returns true if the user enabled customization
 	isCustomizationEnabled: function() {
 		try {
@@ -282,6 +275,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
             return this._isCustomizationEnabledByDefault;
         }
 	},
+
 	// re-orders categories based on visit frequency
 	_customizeSmartCliqz: function (smartCliqz) {		
 		var id = this.getId(smartCliqz);
