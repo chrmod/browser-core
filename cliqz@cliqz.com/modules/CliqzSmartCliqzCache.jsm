@@ -377,17 +377,21 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
                 categories = categories.slice(0, _this.MAX_ITEMS);
 
+                var oldCategories = oldCustomData ?
+                	// previous customization: use either categories (news) or links (other SmartCliqz)
+                	(_this.isNews(smartCliqz) ? oldCustomData.categories : oldCustomData.links) : 
+                	// no previous customization: use default order
+                	smartCliqz.data.categories;
+
                 // send some stats
-                _this._sendStats(id, oldCustomData ? 
-                	oldCustomData.categories : smartCliqz.data.categories,
+                _this._sendStats(id, oldCategories,
                 	categories, oldCustomData ? true : false, urls);
 
                 // TODO: define per SmartCliqz what the data field to be customized is called
                 if (_this.isNews(smartCliqz)) {
                 	_this._customDataCache.store(id, { categories: categories });
                 } else {
-                	_this._customDataCache.store(id, { links: categories,
-                									   categories: categories }); // FIXME: store duplicate so that oldCustomData.categories works
+                	_this._customDataCache.store(id, { links: categories });
                 }
 
                 _this._log('_prepareCustomData: done preparing for id ' + id);
