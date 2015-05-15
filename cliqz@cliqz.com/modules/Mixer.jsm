@@ -151,13 +151,15 @@ var Mixer = {
                     var eztype = JSON.parse(r.data.subType).ez;
                     var trigger_urls = r.data.trigger_urls || [];
                     if(eztype && trigger_urls.length > 0) {
+                        var wasCacheUpdated = false;
                         for(var j=0; j < trigger_urls.length; j++) {
-                            var wasCached = CliqzSmartCliqzCache.triggerUrls.isCached(trigger_urls[j]);
-                            CliqzSmartCliqzCache.triggerUrls.store(trigger_urls[j], eztype);
-                            if (!wasCached) {
-                                CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+                            if(CliqzSmartCliqzCache.triggerUrls.retrieve(trigger_urls[j]) != eztype) {
+                                CliqzSmartCliqzCache.triggerUrls.store(trigger_urls[j], eztype);
+                                wasCacheUpdated = true;
                             }
-                            // Mixer.ezURLs[trigger_urls[j]] = eztype;
+                        }
+                        if (wasCacheUpdated) {
+                            CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
                         }
                         CliqzSmartCliqzCache.store(r);
                     }
@@ -176,10 +178,7 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            // if(Mixer.ezURLs[url]) {
             if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
-                // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
@@ -187,6 +186,7 @@ var Mixer = {
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
                 } else {
+                    // start fetching now
                     CliqzSmartCliqzCache.fetchAndStore(ezId);
                 }
                 if (CliqzSmartCliqzCache.triggerUrls.isStale(url)) {

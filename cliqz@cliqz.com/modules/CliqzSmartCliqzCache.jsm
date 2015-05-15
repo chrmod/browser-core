@@ -191,7 +191,6 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		}
 	},
 
-	// TODO rethink if this is right way/place
 	fetchAndStore: function (id) {
 		if (this._fetchLock.hasOwnProperty(id)) {
 			this._log('fetchAndStore: fetching already in progress for id ' + id);
