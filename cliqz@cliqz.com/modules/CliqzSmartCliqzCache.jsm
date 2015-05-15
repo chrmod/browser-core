@@ -112,7 +112,6 @@ Cache.prototype.save = function (filename) {
 // TODO: make logging indepdendent from CliqzSmartCliqzCache
 // TODO: check if file exists
 Cache.prototype.load = function (filename) {
-	CliqzSmartCliqzCache._log("loading...");
 	try {
 		var _this = this;
 		var path = OS.Path.join(
@@ -194,12 +193,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// TODO rethink if this is right way/place
 	fetchAndStore: function (id) {
 		var _this = this;
-		this._fetchSmartCliqz(id).then(function (smartCliqz) {
-			// TODO: move to _fetchSmartCliqz
-			smartCliqz = Result.cliqzExtra(smartCliqz);
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {			
 			// TODO: limit number of categories to 5
-			_this._smartCliqzCache.store(id, smartCliqz,
-				_this.getTimestamp(smartCliqz));
+			_this.store(smartCliqz);			
 		}, function (reason) {
 			this._log('fetchAndStore: error while fetching data: ' + reason);
 		});
@@ -424,10 +420,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
         		try {
 	        		var smartCliqz = 
 	        			JSON.parse(req.response).extra.results[0];
-	        		// match data structure of big machine results
-	        		smartCliqz.data.subType = smartCliqz.subType;
-	        		// FIXME: define one place where domain is stored
-	        		smartCliqz.data.trigger_urls = smartCliqz.trigger_urls;
+	        		smartCliqz = Result.cliqzExtra(smartCliqz);	        		
 	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
         			resolve(smartCliqz);
         		} catch (e) {
