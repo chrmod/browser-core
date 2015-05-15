@@ -303,6 +303,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			return;
 		}
 
+		// FIXME: if any of the following steps fail, stale custom data
+		//        will linger around; possible fix: if it fails, delete
+		//		  custom data from cache
+
 		// for stats
 		var oldCustomData = this._customDataCache.retrieve(id);	
 
@@ -413,14 +417,18 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
         var _this = this;
         CliqzUtils.httpGet(endpointUrl,
         	function success(req) {
-        		var smartCliqz = 
-        			JSON.parse(req.response).extra.results[0];
-        		// match data structure of big machine results
-        		smartCliqz.data.subType = smartCliqz.subType;
-        		// FIXME: define one place where domain is stored
-        		smartCliqz.data.trigger_urls = smartCliqz.trigger_urls;
-        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
-        		callback(smartCliqz);
+        		try {
+	        		var smartCliqz = 
+	        			JSON.parse(req.response).extra.results[0];
+	        		// match data structure of big machine results
+	        		smartCliqz.data.subType = smartCliqz.subType;
+	        		// FIXME: define one place where domain is stored
+	        		smartCliqz.data.trigger_urls = smartCliqz.trigger_urls;
+	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
+        			callback(smartCliqz);
+        		} catch (e) {
+        			_this._log('_fetchSmartCliqz: error fetching for id ' + id + ': ' + e);
+        		}
         	});
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
