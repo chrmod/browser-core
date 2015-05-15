@@ -148,6 +148,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// TODO: decide if to be used
 	// SMART_CLIQZ_CACHE_FILE: 'extensions.cliqz.smartcliqz.static.cache',
 	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom_data.cache',
+	// maximum number of items (e.g., categories or links) to keep
+	MAX_ITEMS: 5,
 
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
@@ -204,7 +206,15 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		this._fetchLock[id] = true;
 		var _this = this;
 		this._fetchSmartCliqz(id).then(function (smartCliqz) {			
-			// TODO: limit number of categories to 5
+			// limit number of categories/links
+			if (smartCliqz.hasOwnProperty('data')) {
+				if (smartCliqz.data.hasOwnProperty('links')) {
+					smartCliqz.data.links = smartCliqz.data.links.slice(0, _this.MAX_ITEMS);
+				}
+				if (smartCliqz.data.hasOwnProperty('categories')) {
+					smartCliqz.data.categories = smartCliqz.data.categories.slice(0, _this.MAX_ITEMS);
+				}
+			}
 			_this.store(smartCliqz);
 			delete _this._fetchLock[id];
 		}, function (reason) {
@@ -368,7 +378,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-                categories = categories.slice(0, 5);
+                categories = categories.slice(0, _this.MAX_ITEMS);
 
                 // send some stats
                 _this._sendStats(id, oldCustomData ? 
