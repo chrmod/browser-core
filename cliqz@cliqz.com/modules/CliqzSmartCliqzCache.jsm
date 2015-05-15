@@ -192,12 +192,14 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// TODO rethink if this is right way/place
 	fetchAndStore: function (id) {
 		var _this = this;
-		this._fetchSmartCliqz(id, function callback(smartCliqz) {
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {
 			// TODO: parse at central place
 			smartCliqz['style'] = 'cliqz-extra';
 			smartCliqz['data']['kind'] = 'X|{"ez":"'+ id + '"}';
 			_this._smartCliqzCache.store(id, smartCliqz,
 				_this.getTimestamp(smartCliqz));
+		}, function (reason) {
+			this._log('fetchAndStore: error while fetching data: ' + reason);
 		});
 	},
 
@@ -312,7 +314,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		// (1) fetch template from rich header
 		var _this = this;
-		this._fetchSmartCliqz(id, function callback(smartCliqz) {
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {
 			var id = _this.getId(smartCliqz);
 			var domain = _this.getDomain(smartCliqz);
 
@@ -411,11 +413,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
 		this._log('_fetchSmartCliqz: start fetching for id ' + id);
+		
+		var promise = new Promise(function (resolve, reject) {
+			var endpointUrl = this.SMART_CLIQZ_ENDPOINT + id;
+			var _this = this;
 
-		var endpointUrl = this.SMART_CLIQZ_ENDPOINT + id;
-       
-        var _this = this;
-        CliqzUtils.httpGet(endpointUrl,
+			CliqzUtils.httpGet(endpointUrl,
         	function success(req) {
         		try {
 	        		var smartCliqz = 
@@ -425,11 +428,16 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	        		// FIXME: define one place where domain is stored
 	        		smartCliqz.data.trigger_urls = smartCliqz.trigger_urls;
 	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
-        			callback(smartCliqz);
+        			resolve(smartCliqz);
         		} catch (e) {
         			_this._log('_fetchSmartCliqz: error fetching for id ' + id + ': ' + e);
+        			reject(e);
         		}
+        	}, function onerror() {
+        		reject('http request failed for id ' + id);
         	});
+		});
+		return promise;
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
 	_fetchVisitedUrls: function (domain, callback) {
