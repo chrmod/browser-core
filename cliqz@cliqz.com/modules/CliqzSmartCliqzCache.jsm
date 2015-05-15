@@ -147,7 +147,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
 		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
-	CUSTOM_DATA_CACHE_FILE: 'extensions.cliqz.smartcliqz.custom_data.cache',
+	CUSTOM_DATA_CACHE_FILE: 'cliqz/smartcliqz-custom-data-cache.json',
 	// maximum number of items (e.g., categories or links) to keep
 	MAX_ITEMS: 5,
 
