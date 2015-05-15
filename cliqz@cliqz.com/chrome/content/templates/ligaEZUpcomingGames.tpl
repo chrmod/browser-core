@@ -20,6 +20,7 @@
 
   <div class="cqz-ez-btn ez-liga-button" url="{{url}}">{{local 'AllGames'}}</div>
   <div class="ez-liga-ucg-timezone"> {{local 'LocalTimeGermany'}} </div>
+  <div class="ez-liga-sponsor">{{local 'KickerSponsor'}}</div>
  {{/with}}
 
 
