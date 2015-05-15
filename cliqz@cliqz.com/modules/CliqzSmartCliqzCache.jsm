@@ -154,6 +154,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_isCustomizationEnabledByDefault: true,
 	_isInitialized: false,
 
+	// to prevent fetching while fetching is still in progress
+	_fetchLock: { },
+
 	// TODO: clean-up
 	triggerUrls: new Cache(), 
 
@@ -192,12 +195,21 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	// TODO rethink if this is right way/place
 	fetchAndStore: function (id) {
+		if (this._fetchLock.hasOwnProperty(id)) {
+			this._log('fetchAndStore: fetching already in progress for id ' + id);
+			return;
+		}
+
+		this._log('fetchAndStore: for id ' + id);		
+		this._fetchLock[id] = true;
 		var _this = this;
 		this._fetchSmartCliqz(id).then(function (smartCliqz) {			
 			// TODO: limit number of categories to 5
-			_this.store(smartCliqz);			
+			_this.store(smartCliqz);
+			delete _this._fetchLock[id];
 		}, function (reason) {
-			this._log('fetchAndStore: error while fetching data: ' + reason);
+			_this._log('fetchAndStore: error while fetching data: ' + reason);
+			delete _this._fetchLock[id];
 		});
 	},
 
