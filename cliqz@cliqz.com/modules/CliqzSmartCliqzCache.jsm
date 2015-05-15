@@ -15,7 +15,11 @@ var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import("resource://gre/modules/osfile.jsm")
+
+// not available in older FF versions
+try {
+	Cu.import("resource://gre/modules/osfile.jsm");
+} catch(e) { }
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
