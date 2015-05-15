@@ -21,6 +21,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm');
 
 // this simple cache is a dictionary that addionally stores 
 // timestamps for each entry; life is time in seconds before 
@@ -193,9 +195,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	fetchAndStore: function (id) {
 		var _this = this;
 		this._fetchSmartCliqz(id).then(function (smartCliqz) {
-			// TODO: parse at central place
-			smartCliqz['style'] = 'cliqz-extra';
-			smartCliqz['data']['kind'] = 'X|{"ez":"'+ id + '"}';
+			// TODO: move to _fetchSmartCliqz
+			smartCliqz = Result.cliqzExtra(smartCliqz);
+			// TODO: limit number of categories to 5
 			_this._smartCliqzCache.store(id, smartCliqz,
 				_this.getTimestamp(smartCliqz));
 		}, function (reason) {
@@ -413,13 +415,12 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
 		this._log('_fetchSmartCliqz: start fetching for id ' + id);
+		var _this = this;
 		
 		var promise = new Promise(function (resolve, reject) {
-			var endpointUrl = this.SMART_CLIQZ_ENDPOINT + id;
-			var _this = this;
-
-			CliqzUtils.httpGet(endpointUrl,
-        	function success(req) {
+			var endpointUrl = _this.SMART_CLIQZ_ENDPOINT + id;
+			
+			CliqzUtils.httpGet(endpointUrl, function success(req) {
         		try {
 	        		var smartCliqz = 
 	        			JSON.parse(req.response).extra.results[0];
