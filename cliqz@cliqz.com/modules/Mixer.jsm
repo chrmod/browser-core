@@ -79,7 +79,7 @@ var Mixer = {
             if(cliqz[0].extra) {
                 // only if query has more than 2 chars and not in blacklist
                 //  - avoids many unexpected EZ triggerings
-                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q) == -1)) {
+                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q.toLowerCase().trim()) == -1)) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);

@@ -305,3 +305,8 @@
     -moz-image-region: var(--urlbar-dropmarker-region);
     background-image: none;
 }
+
+#cliqz-message-container .cqz-message em {
+    font-style: normal;
+    font-weight: bold;
+}

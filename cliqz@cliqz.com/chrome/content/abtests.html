@@ -47,7 +47,6 @@
         showTests();
 
         document.getElementById('chk_override').addEventListener("change", function(){
-            console.log("change");
             if(document.getElementById('chk_override').checked) {
                 CliqzABTests.setOverride(CliqzABTests.getCurrent());
 
@@ -70,7 +69,6 @@
 
 
         document.getElementById("add_test_submit").addEventListener("click", function() {
-            console.log("submit");
             var test_name = document.getElementById("add_test_name").value;
             test_name += "_" + document.getElementById("add_test_group").value;
 
@@ -90,7 +88,6 @@
 
         // Show updating message while waiting for server reply with current AB test list
         function showUpdating() {
-            console.log("show udating")
             var test_box = document.getElementById('current_tests');
             while (test_box.firstChild) {
                 test_box.removeChild(test_box.firstChild);
@@ -112,6 +109,42 @@
             }
         }
 
+        function showTest(t) {
+            var testAndGroup = t;
+            var test = testAndGroup.slice(0,-2);
+            var group = testAndGroup.slice(-1);
+
+            var test_div = document.createElement('div');
+            test_div.className = "test";
+            var test_span = document.createElement('span');
+            var test_a = document.createElement('a');
+            test_a.href = "https://github.com/cliqz/ux/wiki/AB-Test-" + test;
+            test_a.textContent = test;
+            test_span.appendChild(test_a);
+            test_span.appendChild(document.createTextNode(" group " + group));
+            test_div.appendChild(test_span);
+
+            var remove_a = document.createElement('a');
+            remove_a.style.display = 'none';
+            remove_a.style.marginLeft = "5px";
+            remove_a.href = "javascript:void(0)";
+            remove_a.textContent = "x";
+            remove_a.className = "remove";
+            remove_a.addEventListener('click', function() {
+                delete current[testAndGroup];
+                CliqzABTests.setOverride(current);
+                CliqzABTests.check();
+                showTests();
+                return false;
+            });
+            test_div.appendChild(remove_a);
+
+            var test_box = document.getElementById('current_tests');
+            test_box.appendChild(test_div);
+
+            showHideRemove(override);
+        }
+
         function showTests() {
             var test_box = document.getElementById('current_tests');
 
@@ -120,37 +153,7 @@
             }
 
             for(var t in current) {
-                var testAndGroup = t;
-                var test = testAndGroup.slice(0,-2);
-                var group = testAndGroup.slice(-1);
-
-                var test_div = document.createElement('div');
-                test_div.className = "test";
-                var test_span = document.createElement('span');
-                var test_a = document.createElement('a');
-                test_a.href = "https://github.com/cliqz/ux/wiki/AB-Test-" + test;
-                test_a.textContent = test;
-                test_span.appendChild(test_a);
-                test_span.appendChild(document.createTextNode(" group " + group));
-                test_div.appendChild(test_span);
-
-                var remove_a = document.createElement('a');
-                remove_a.style.display = 'none';
-                remove_a.style.marginLeft = "5px";
-                remove_a.href = "javascript:void(0)";
-                remove_a.textContent = "x";
-                remove_a.className = "remove";
-                remove_a.addEventListener('click', function() {
-                    delete current[testAndGroup];
-                    CliqzABTests.setOverride(current);
-                    CliqzABTests.check();
-                    showTests();
-                    return false;
-                });
-                test_div.appendChild(remove_a);
-                test_box.appendChild(test_div);
-
-                showHideRemove(override);
+                showTest(t);
             }
         }
 //        document.getElementById('offImg').src = 'chrome://cliqzres/content/skin/offboarding_' + lang + '.png';
