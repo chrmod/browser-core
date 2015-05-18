@@ -1201,7 +1201,7 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
 
-                    //CliqzAntiPhishing.auxOnPageLoad(activeURL);
+                    CliqzAntiPhishing.auxOnPageLoad(activeURL);
 
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1){
@@ -1344,21 +1344,22 @@ var CliqzHumanWeb = {
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
 
-                            if(CliqzAntiPhishing){
-                                if (CliqzHumanWeb.debug) {
-                                    CliqzUtils.log("Checking for malicious: " + currURL, CliqzHumanWeb.LOG_KEY);
-                                }
+                            // if(CliqzAntiPhishing){
+                            //     if (CliqzHumanWeb.debug) {
+                            //         CliqzUtils.log("Checking for malicious: " + currURL, CliqzHumanWeb.LOG_KEY);
+                            //     }
 
-                                CliqzAntiPhishing.isSuspiciousDOM(cd, function(url, msgKey){
-                                    if(msgKey){
-                                        if (CliqzHumanWeb.debug) CliqzUtils.log("URL is malicious: "  + url + " : " + msgKey, CliqzHumanWeb.LOG_KEY);
-                                        CliqzHumanWeb.state['v'][url]['isMU'] = msgKey;
-                                        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-                                    }
-
-                                });
-
-                            }
+                            //     var [status, msgKey] = CliqzAntiPhishing.isSuspiciousDOM(cd);
+                            //     CliqzUtils.log("human web " + status + ' ' + msgKey, 'antiphishing');
+                            //     if (status == 'suspicious') {
+                            //         if(msgKey != 'sent'){
+                            //             if (CliqzHumanWeb.debug) CliqzUtils.log("URL is malicious: "  + url + " : " + msgKey, CliqzHumanWeb.LOG_KEY);
+                            //             CliqzHumanWeb.state['v'][url]['isMU'] = msgKey;
+                            //             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+                            //             CliqzAntiPhishing.markAsSent(url);
+                            //         }
+                            //     }
+                            // }
 
 
                             if (x['canonical_url']) {
