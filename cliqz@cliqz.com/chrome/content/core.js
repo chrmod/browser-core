@@ -467,6 +467,7 @@ window.CLIQZ.Core = {
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
+            CliqzSpellCheck.initSpellCorrection();
         });
     },
 
