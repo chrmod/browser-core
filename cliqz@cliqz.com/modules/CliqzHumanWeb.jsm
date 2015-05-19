@@ -1344,24 +1344,6 @@ var CliqzHumanWeb = {
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
 
-                            // if(CliqzAntiPhishing){
-                            //     if (CliqzHumanWeb.debug) {
-                            //         CliqzUtils.log("Checking for malicious: " + currURL, CliqzHumanWeb.LOG_KEY);
-                            //     }
-
-                            //     var [status, msgKey] = CliqzAntiPhishing.isSuspiciousDOM(cd);
-                            //     CliqzUtils.log("human web " + status + ' ' + msgKey, 'antiphishing');
-                            //     if (status == 'suspicious') {
-                            //         if(msgKey != 'sent'){
-                            //             if (CliqzHumanWeb.debug) CliqzUtils.log("URL is malicious: "  + url + " : " + msgKey, CliqzHumanWeb.LOG_KEY);
-                            //             CliqzHumanWeb.state['v'][url]['isMU'] = msgKey;
-                            //             CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-                            //             CliqzAntiPhishing.markAsSent(url);
-                            //         }
-                            //     }
-                            // }
-
-
                             if (x['canonical_url']) {
                                 CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
                             }
