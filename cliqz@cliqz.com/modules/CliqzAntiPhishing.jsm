@@ -2,7 +2,7 @@
 /*
  * This module injects warning message when user visit a phishing site
  *
-f */
+ */
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
@@ -121,7 +121,6 @@ function checkScript(doc, callback) {
 function getDomainMd5(url) {
     var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
     var md5 = CliqzHumanWeb._md5(domain);
-    return md5;
 }
 
 function getSplitDomainMd5(url) {
@@ -134,9 +133,11 @@ function getSplitDomainMd5(url) {
 function updateSuspiciousStatus(url, status) {
     var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
     CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'suspicious:' + status;
-    CliqzHumanWeb.state['v'][url]['isMU'] = status;
-    CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-    CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
+    if (CliqzHumanWeb) {
+        CliqzHumanWeb.state['v'][url]['isMU'] = status;
+        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+        CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');       
+    }
 }
 
 function updateBlackWhiteStatus(req, md5Prefix) {
@@ -163,37 +164,19 @@ function checkSuspicious(doc, callback) {
 function checkStatus(url, md5Prefix, md5Surfix) {
     var doc = CliqzHumanWeb.getCDByURL(url);
     var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
-    if (md5Surfix in bw) {  // black, white, or suspicious
+    if (md5Surfix in bw) {  // black, white, suspicious or checking
         if (bw[md5Surfix].indexOf('black') > -1) {  // black
             CliqzHumanWeb.notification({'url': url, 'action': 'block'});
             // alert(doc, md5Prefix + md5Surfix, bw[md5Surfix]);
         }
     } else {
-        var md5 = getDomainMd5(url);
-        if (md5 in CliqzAntiPhishing.seenList) return;
+        CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
+        // alert humanweb if it is suspicious
         checkSuspicious(doc, updateSuspiciousStatus);
-    }
-}
-
-function getDomainStatus(url) {
-    var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
-    if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList) ||
-        !(md5Surfix in CliqzAntiPhishing.blackWhiteList[md5Prefix]))
-        return [null, null];
-    var status = CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix];
-    if (status == 'white')
-        return [status, null];
-    else {
-        statusItems = status.split(':');
-        if (statusItems.length == 2)
-            return statusItems;
-        else
-            return [null, null];
     }
 }
     
 var CliqzAntiPhishing = {
-    seenList: {},
     forceWhiteList: {},
     blackWhiteList: {},
     auxOnPageLoad: function(url) {
@@ -207,5 +190,21 @@ var CliqzAntiPhishing = {
                     updateBlackWhiteStatus(req, md5Prefix);
                     checkStatus(url, md5Prefix, md5Surfix);
                 });
+    },
+    getDomainStatus: function(url) {
+        var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+        if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList) ||
+            !(md5Surfix in CliqzAntiPhishing.blackWhiteList[md5Prefix]))
+            return [null, null];
+        var status = CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix];
+        if (status == 'white')
+            return [status, null];
+        else {
+            statusItems = status.split(':');
+            if (statusItems.length == 2)
+                return statusItems;
+            else
+                return [null, null];
+        }
     }
 };
