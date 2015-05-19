@@ -120,7 +120,7 @@ function checkScript(doc, callback) {
 
 function getDomainMd5(url) {
     var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
-    var md5 = CliqzHumanWeb._md5(domain);
+    return CliqzHumanWeb._md5(domain);
 }
 
 function getSplitDomainMd5(url) {
