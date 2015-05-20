@@ -26,7 +26,8 @@ var CliqzTour = {
     //      first version, which was distributed via cliqz.com
     //      but did not have a version number yet, just
     //      a binary flag (new vs. old onboarding)
-    VERSION: "1.0",
+    // 1.1: replaced start tour button on web page by callout
+    VERSION: "1.1",
 
     // shortcuts
     urlBar: null,
@@ -70,9 +71,9 @@ var CliqzTour = {
         { f: function () {
             // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
             // var x = buttonBounds.x + buttonBounds.width / 2;
-            // var y = buttonBounds.y + buttonBounds.height / 2;
-            var x = 0,
-                y = 0;
+            // var y = buttonBounds.y + buttonBounds.height / 2;            
+            var x = 900,
+                y = 50;
 
             CliqzTour.setCursorAppearance("cursor");
             // TODO: replace magic offsets by values derived from element sizes
