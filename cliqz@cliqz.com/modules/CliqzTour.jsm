@@ -310,10 +310,17 @@ var CliqzTour = {
 
         CliqzTour.win.addEventListener(
                 "click", CliqzTour.clickListener);
+        CliqzTour.win.addEventListener(
+                "keyup", CliqzTour.keyupListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabClose", CliqzTour.tabCloseListener);
+
+        CliqzTour.urlBar.addEventListener("mouseenter",
+            CliqzTour.urlBarMouseEnterListener);
+        CliqzTour.urlBar.addEventListener("mouseleave",
+            CliqzTour.urlBarMouseLeaveListener);
 
         CliqzTour.isRunning = false;
         CliqzTour.pageElements = { };
@@ -326,13 +333,6 @@ var CliqzTour = {
         //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
         CliqzTour.callout.setAttribute("preventHiding", true);
         CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
-
-        CliqzTour.urlBar.addEventListener('mouseenter', function (e) { 
-            CliqzTour.isMouseOverUrlBar = true;
-        });
-        CliqzTour.urlBar.addEventListener('mouseleave', function (e) {             
-            CliqzTour.isMouseOverUrlBar = false;
-        });
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
@@ -390,6 +390,8 @@ var CliqzTour = {
     unload: function () {
         CliqzTour.win.removeEventListener(
                 "click", CliqzTour.clickListener);
+        CliqzTour.win.removeEventListener(
+                "keyup", CliqzTour.keyupListener);
         CliqzTour.callout.removeEventListener(
                 "click", CliqzTour.popupClickListener);
         CliqzTour.callout.removeEventListener(
@@ -398,6 +400,11 @@ var CliqzTour = {
                 "popuphiding", CliqzTour.popupHidingListener);
         CliqzTour.cursor.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+
+        CliqzTour.urlBar.removeEventListener("mouseenter",
+            CliqzTour.urlBarMouseEnterListener);
+        CliqzTour.urlBar.removeEventListener("mouseleave",
+            CliqzTour.urlBarMouseLeaveListener);
 
         CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
@@ -473,6 +480,15 @@ var CliqzTour = {
             CliqzTour.cancel();            
         }        
     },
+    keyupListener: function (e) {
+        switch (e.key) { 
+            case "Escape":
+            case "Tab":
+                CliqzTour.callout.setAttribute("preventHiding", false);
+                CliqzTour.hideCallout();
+                break;
+        }
+    },
     popupHiddenListener: function (e) {
         // stop tour only if hiding was triggered by user, but
         // not if triggered programmatically via hidePopup()
@@ -510,6 +526,12 @@ var CliqzTour = {
                     break;
             }
         }
+    },
+    urlBarMouseEnterListener: function (e) { 
+        CliqzTour.isMouseOverUrlBar = true;
+    },
+    urlBarMouseLeaveListener:  function (e) {             
+        CliqzTour.isMouseOverUrlBar = false;
     },
     clearUrlBarListener: function () {
         CliqzTour.clearUrlBar();
