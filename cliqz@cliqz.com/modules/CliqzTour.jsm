@@ -298,6 +298,8 @@ var CliqzTour = {
         CliqzTour.callout.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
         CliqzTour.callout.addEventListener(
+                "popuphiding", CliqzTour.popupHidingListener);
+        CliqzTour.callout.addEventListener(
                 "click", CliqzTour.popupClickListener);
         CliqzTour.cursor.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
@@ -318,6 +320,7 @@ var CliqzTour = {
             { message: CliqzUtils.getLocalizedString("onCalloutIntro")} );
         // CliqzTour.setCalloutMessage(
         //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
+        CliqzTour.callout.setAttribute("preventHiding", true);
         CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
@@ -380,6 +383,8 @@ var CliqzTour = {
                 "click", CliqzTour.popupClickListener);
         CliqzTour.callout.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.callout.removeEventListener(
+                "popuphiding", CliqzTour.popupHidingListener);
         CliqzTour.cursor.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
 
@@ -468,17 +473,24 @@ var CliqzTour = {
         }
         e.target.setAttribute("isHiding", false);
     },
+    popupHidingListener: function (e) {
+        if (e.target.getAttribute("preventHiding") == "true") {
+            e.preventDefault();
+        }
+    },
     popupClickListener: function (e) {
         var target = e.target;
         if (target && (e.button == 0 || e.button == 1)) {
             var action = target.getAttribute('cliqz-action');
             switch (action) {
                 case 'onboarding-start':
+                    CliqzTour.callout.setAttribute("preventHiding", false);
                     CliqzTour.hideCallout();
                     CliqzTour.start();
                     break;
                 case 'onboarding-cancel':
-                    CliqzTour.hideCallout();
+                    CliqzTour.callout.setAttribute("preventHiding", false);
+                    CliqzTour.hideCallout();                    
                     break;
             }
         }
