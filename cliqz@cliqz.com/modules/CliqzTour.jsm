@@ -58,6 +58,9 @@ var CliqzTour = {
     // workaround to make popup hide when user clicks in URL bar
     isMouseOverUrlBar: false,
 
+    // inital callout being shown
+    isInitialPhase: true,
+
     // all the action
     storyboard: [
         { f: function () {            
@@ -338,6 +341,7 @@ var CliqzTour = {
         //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
         CliqzTour.callout.setAttribute("preventHiding", true);
         CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
+        CliqzTour.isInitialPhase = true;
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
@@ -440,6 +444,7 @@ var CliqzTour = {
         CliqzTour.getPageElement("landing-page-background").style.visibility = 'hidden';
         CliqzTour.getPageElement('landing-page-callout').style.visibility = 'hidden';
 
+        CliqzTour.showPageElement('tour-btn');
         CliqzTour.getPageElement("tour-btn").style.cursor = "pointer";
 
         CliqzTour.getPageElement('tour-btn-cancel').style.visibility = 'hidden';
@@ -452,8 +457,8 @@ var CliqzTour = {
             CliqzTour.clearUrlBar();
         }, 0);        
     },
-    cancel: function () {
-        CliqzTour.telemetry("canceled");
+    cancel: function () {        
+        CliqzTour.telemetry("canceled");        
         CliqzTour.stop();
         CliqzTour.reset();
     },
@@ -491,14 +496,22 @@ var CliqzTour = {
         switch (e.key) { 
             case "Escape":
             case "Tab":
-                CliqzTour.callout.setAttribute("preventHiding", false);
-                CliqzTour.hideCallout();
+                if (CliqzTour.isInitialPhase) {
+                    CliqzTour.callout.setAttribute("preventHiding", false);
+                    CliqzTour.hideCallout();
+                    CliqzTour.showPageElement('tour-btn');
+                    CliqzTour.isInitialPhase = false;
+                }
                 break;
         }
     },
     windowBlurListener: function (e) {
-        CliqzTour.callout.setAttribute("preventHiding", false);
-        CliqzTour.hideCallout();
+        if (CliqzTour.isInitialPhase) {
+            CliqzTour.callout.setAttribute("preventHiding", false);
+            CliqzTour.hideCallout();
+            CliqzTour.showPageElement('tour-btn');
+            CliqzTour.isInitialPhase = false;
+        }
     },
     popupHiddenListener: function (e) {
         // stop tour only if hiding was triggered by user, but
@@ -512,10 +525,11 @@ var CliqzTour = {
         e.target.setAttribute("isHiding", false);
     },
     popupHidingListener: function (e) {
-        if (e.target.getAttribute("preventHiding") == "true") {
+        if (CliqzTour.isInitialPhase && e.target.getAttribute("preventHiding") == "true") {
             if (CliqzTour.isMouseOverUrlBar) {
                 CliqzTour.clearUrlBar();
-                CliqzTour.focusUrlBar();                
+                CliqzTour.focusUrlBar();    
+                CliqzTour.isInitialPhase = false;            
             } else {
                 e.preventDefault();
             }
@@ -530,10 +544,14 @@ var CliqzTour = {
                     CliqzTour.callout.setAttribute("preventHiding", false);
                     CliqzTour.hideCallout();
                     CliqzTour.start();
+                    CliqzTour.isInitialPhase = false;
                     break;
                 case 'onboarding-cancel':
+                    CliqzTour.log('popupClickListener');
                     CliqzTour.callout.setAttribute("preventHiding", false);
-                    CliqzTour.hideCallout();                    
+                    CliqzTour.hideCallout(); 
+                    CliqzTour.showPageElement('tour-btn');
+                    CliqzTour.isInitialPhase = false;
                     break;
             }
         }
