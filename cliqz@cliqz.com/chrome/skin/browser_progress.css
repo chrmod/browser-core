@@ -99,6 +99,17 @@
   font-size: 18px;
 }
 
+.onboarding-callout .cqz-btn {
+    margin: 0 5px;
+    cursor: pointer;
+    color: white;
+    border-radius: 3px;
+    padding: 4px 8px;
+    text-align: center;
+    display: inline-block;
+    background-color: #0480c3;
+}
+
 /* ------- END onboarding */
 
 /* Images search (beta) */

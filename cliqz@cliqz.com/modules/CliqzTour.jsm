@@ -12,6 +12,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
+  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -65,9 +68,11 @@ var CliqzTour = {
         }, t: 100 },
         // position mouse cursor on button and show cancel button
         { f: function () {
-            var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
-            var x = buttonBounds.x + buttonBounds.width / 2;
-            var y = buttonBounds.y + buttonBounds.height / 2;
+            // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
+            // var x = buttonBounds.x + buttonBounds.width / 2;
+            // var y = buttonBounds.y + buttonBounds.height / 2;
+            var x = 0,
+                y = 0;
 
             CliqzTour.setCursorAppearance("cursor");
             // TODO: replace magic offsets by values derived from element sizes
@@ -88,8 +93,8 @@ var CliqzTour = {
         // show "type here" callout
         { f: function () {                        
             CliqzTour.setCalloutMessage(
-                CliqzUtils.getLocalizedString("onCalloutTypeHere"));            
-            CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");  
+                CliqzUtils.getLocalizedString("onCalloutTypeHere")); 
+            CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");
         }, t: 3000 },        
         // start typing and move lens
         { f: function () {            
@@ -289,14 +294,16 @@ var CliqzTour = {
         }
 
         CliqzTour.startCount = 0;
-
-        CliqzTour.win.addEventListener(
-                "click", CliqzTour.clickListener);
+        
         CliqzTour.callout.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.callout.addEventListener(
+                "click", CliqzTour.popupClickListener);
         CliqzTour.cursor.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
 
+        CliqzTour.win.addEventListener(
+                "click", CliqzTour.clickListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
@@ -304,6 +311,14 @@ var CliqzTour = {
 
         CliqzTour.isRunning = false;
         CliqzTour.pageElements = { };
+
+        CliqzTour.setTemplateContent(
+            CliqzTour.callout.firstChild,
+            'onboarding-callout',
+            { message: CliqzUtils.getLocalizedString("onCalloutIntro")} );
+        // CliqzTour.setCalloutMessage(
+        //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
+        CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
@@ -361,6 +376,8 @@ var CliqzTour = {
     unload: function () {
         CliqzTour.win.removeEventListener(
                 "click", CliqzTour.clickListener);
+        CliqzTour.callout.removeEventListener(
+                "click", CliqzTour.popupClickListener);
         CliqzTour.callout.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
         CliqzTour.cursor.removeEventListener(
@@ -434,7 +451,9 @@ var CliqzTour = {
     clickListener: function (e) {
         // make sure the click was not on the start button
         if (CliqzTour.isRunning && e.target &&
-            e.target.id != "tour-btn") {
+            e.target.id != "tour-btn" &&
+            !e.target.getAttribute('cliqz-action')) {
+
             CliqzTour.cancel();            
         }        
     },
@@ -448,6 +467,21 @@ var CliqzTour = {
             CliqzTour.reset();
         }
         e.target.setAttribute("isHiding", false);
+    },
+    popupClickListener: function (e) {
+        var target = e.target;
+        if (target && (e.button == 0 || e.button == 1)) {
+            var action = target.getAttribute('cliqz-action');
+            switch (action) {
+                case 'onboarding-start':
+                    CliqzTour.hideCallout();
+                    CliqzTour.start();
+                    break;
+                case 'onboarding-cancel':
+                    CliqzTour.hideCallout();
+                    break;
+            }
+        }
     },
     clearUrlBarListener: function () {
         CliqzTour.clearUrlBar();
@@ -524,11 +558,10 @@ var CliqzTour = {
         }
     },
     setTextContent: function (node, text) {
-        while (node.firstChild) {
-            node.removeChild(node.firstChild);
-        }
-        node.appendChild(
-            CliqzTour.win.document.createTextNode(text));
+        node.textContent = text;
+    },
+    setTemplateContent: function (node, templateName, data) {
+        node.innerHTML = CliqzHandlebars.tplCache[templateName](data);
     },
 
     /* **** general helpers **** */

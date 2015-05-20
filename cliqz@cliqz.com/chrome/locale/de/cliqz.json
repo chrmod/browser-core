@@ -122,6 +122,9 @@
     "agoXYears":{
         "message":"vor {} Jaren"
     },
+    "onCalloutIntro":{
+        "message":"CLIQZ verwandelt die Adressleiste in Deinen persönlichen Assistenten durch's Web."
+    },
     "onButtonTryOut":{
         "message":"Surf los!"
     },
@@ -159,7 +162,7 @@
         "message":"Danke, dass Du CLIQZ installiert hast!"
     },
     "onMsgExplanation":{
-        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durchs Web."
+        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durch's Web."
     },
     "offRes_Cliqz":{
         "message":"CLIQZ"
