@@ -55,6 +55,9 @@ var CliqzTour = {
     // counts how often user started the tour
     startCount: 0,
 
+    // workaround to make popup hide when user clicks in URL bar
+    isMouseOverUrlBar: false,
+
     // all the action
     storyboard: [
         { f: function () {            
@@ -324,6 +327,13 @@ var CliqzTour = {
         CliqzTour.callout.setAttribute("preventHiding", true);
         CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
 
+        CliqzTour.urlBar.addEventListener('mouseenter', function (e) { 
+            CliqzTour.isMouseOverUrlBar = true;
+        });
+        CliqzTour.urlBar.addEventListener('mouseleave', function (e) {             
+            CliqzTour.isMouseOverUrlBar = false;
+        });
+
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
     start: function() {
@@ -476,7 +486,12 @@ var CliqzTour = {
     },
     popupHidingListener: function (e) {
         if (e.target.getAttribute("preventHiding") == "true") {
-            e.preventDefault();
+            if (CliqzTour.isMouseOverUrlBar) {
+                CliqzTour.clearUrlBar();
+                CliqzTour.focusUrlBar();                
+            } else {
+                e.preventDefault();
+            }
         }
     },
     popupClickListener: function (e) {
