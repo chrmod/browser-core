@@ -70,6 +70,11 @@ var CliqzTour = {
             // TODO: use CSS "disabled" class for this
             CliqzTour.getPageElement("tour-btn").style.cursor = "none";
         }, t: 100 },
+        // blur out current page
+        { f: function () {            
+            CliqzTour.getPageElement('main-page').style.transition = 'filter .5s ease-in-out';
+            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)'; 
+        }, t: 400 },
         // position mouse cursor on button and show cancel button
         { f: function () {
             // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
@@ -84,13 +89,11 @@ var CliqzTour = {
             CliqzTour.showCursor();
             // TODO: disable button
             CliqzTour.showPageElement('tour-btn-cancel');
-        }, t: 500 },
-        // blur out current page and move mouse cursor to URL bar
+        }, t: 500 },        
+        // move mouse cursor to URL bar        
         { f: function () {            
-            CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5, 3);
-            CliqzTour.getPageElement('main-page').style.transition = 'filter 1s ease-in-out';
-            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)'; 
-        }, t: 3000 },
+            CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5, 1.5);
+        }, t: 1500 },
         { f: function () {
             CliqzTour.performClick();
         }, t: 1000 }, 
