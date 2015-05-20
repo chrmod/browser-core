@@ -315,6 +315,8 @@ var CliqzTour = {
                 "click", CliqzTour.clickListener);
         CliqzTour.win.addEventListener(
                 "keyup", CliqzTour.keyupListener);
+        CliqzTour.win.addEventListener(
+                "blur", CliqzTour.windowBlurListener, true);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
@@ -395,6 +397,8 @@ var CliqzTour = {
                 "click", CliqzTour.clickListener);
         CliqzTour.win.removeEventListener(
                 "keyup", CliqzTour.keyupListener);
+        CliqzTour.win.removeEventListener(
+                "blur", CliqzTour.windowBlurListener);
         CliqzTour.callout.removeEventListener(
                 "click", CliqzTour.popupClickListener);
         CliqzTour.callout.removeEventListener(
@@ -491,6 +495,10 @@ var CliqzTour = {
                 CliqzTour.hideCallout();
                 break;
         }
+    },
+    windowBlurListener: function (e) {
+        CliqzTour.callout.setAttribute("preventHiding", false);
+        CliqzTour.hideCallout();
     },
     popupHiddenListener: function (e) {
         // stop tour only if hiding was triggered by user, but
