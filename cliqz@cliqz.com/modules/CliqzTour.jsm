@@ -354,7 +354,7 @@ var CliqzTour = {
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
-    start: function() {
+    start: function(source) {
         if (!CliqzTour.isRunning) {                   
             var scheduler = {
                 queue: [ ],
@@ -396,7 +396,8 @@ var CliqzTour = {
             CliqzTour.isRunning = true;
             scheduler.run();            
             
-            CliqzTour.telemetry("started", { 
+            CliqzTour.telemetry("started", {
+                "source": source,
                 "start_count": CliqzTour.startCount
             });
 
@@ -466,8 +467,10 @@ var CliqzTour = {
             CliqzTour.clearUrlBar();
         }, 0);        
     },
-    cancel: function () {        
-        CliqzTour.telemetry("canceled");        
+    cancel: function (source) {   
+        CliqzTour.telemetry("canceled", {
+            "source": source
+        });
         CliqzTour.stop();
         CliqzTour.reset();
     },
@@ -498,7 +501,7 @@ var CliqzTour = {
             e.target.id != "tour-btn" &&
             !e.target.getAttribute('cliqz-action')) {
 
-            CliqzTour.cancel();            
+            CliqzTour.cancel("callout");            
         }        
     },
     keyupListener: function (e) {
@@ -527,7 +530,7 @@ var CliqzTour = {
         // not if triggered programmatically via hidePopup()
         if (CliqzTour.isRunning && 
             e.target.getAttribute("isHiding") != "true") {
-            CliqzTour.telemetry("canceled");
+            CliqzTour.telemetry("canceled", { "source": "interrupt" });
             CliqzTour.stop();
             CliqzTour.reset();
         }
@@ -552,7 +555,7 @@ var CliqzTour = {
                 case 'onboarding-start':
                     CliqzTour.callout.setAttribute("preventHiding", false);
                     CliqzTour.hideCallout();
-                    CliqzTour.start();
+                    CliqzTour.start("callout");
                     CliqzTour.isInitialPhase = false;
                     break;
                 case 'onboarding-cancel':
