@@ -53,7 +53,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rich-header.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -201,10 +201,8 @@ var CliqzUtils = {
     var colorID = BRANDS_DATABASE.palette.indexOf(result.backgroundColor),
         buttonClass = BRANDS_DATABASE.buttons && colorID != -1 && BRANDS_DATABASE.buttons[colorID]?BRANDS_DATABASE.buttons[colorID]:10
 
-    result.buttonsClass = "cliqz-brands-button-" + buttonClass;
-    result.style = "background-color: #" + result.backgroundColor + ";color: black;";
-//    result.style = "background-color: #" + result.backgroundColor + ";color:" + (result.color || '#fff') + ";";
-
+    result.buttonsClass = "cliqz-brands-button-" + buttonClass
+    result.style = "background-color: #" + result.backgroundColor + ";color:" + (result.color || '#fff') + ";"
 
 
     if (result.backgroundImage) result.style += "background-image:" + result.backgroundImage + "; text-indent: -10em;"
@@ -891,18 +889,6 @@ var CliqzUtils = {
 
     return ret;
   },
-  // creates a complex localized string
-  // eg: key = "{} is the {} player from {}"
-  //       createLocalizedString('key', 'Adam', 'best', 'F.C. Barcelon')
-  createLocalizedString: function(){
-    var args = Array.prototype.slice.call(arguments),
-        ret  = CliqzUtils.getLocalizedString(args[0])
-
-    for(var i=1; i<args.length; i++)
-        ret = ret.replace('{}', args[i]);
-
-    return ret;
-  },
   // gets all the elements with the class 'cliqz-locale' and adds
   // the localized string - key attribute - as content
   localizeDoc: function(doc){
@@ -1150,11 +1136,6 @@ var CliqzUtils = {
         while(menupopup.lastChild)
           menupopup.removeChild(menupopup.lastChild);
 
-
-        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Stats', function(event) {
-            CliqzUtils.openTabInWindow(win, 'chrome://cliqz/content/stats.html');
-        }));
-
         function feedback_FAQ(){
             win.Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
@@ -1169,6 +1150,7 @@ var CliqzUtils = {
                 );
             });
         }
+
         //feedback and FAQ
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(doc.createElement('menuseparator'));

@@ -34,9 +34,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'NewTabUtils',
   'resource://gre/modules/NewTabUtils.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzStats',
-  'chrome://cliqzmodules/content/CliqzStats.jsm');
-
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -495,7 +492,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
 
-                CliqzStats.resultsNum(results.length, this.searchString.length);
                 this.mixedResults.setResults(results);
             },
             analyzeQuery: function(q){
