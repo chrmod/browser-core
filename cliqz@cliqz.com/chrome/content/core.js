@@ -463,6 +463,11 @@ window.CLIQZ.Core = {
             action: 'dropdown_' + (open ? 'open' : 'close')
         };
 
+        if (open) {
+            action['width'] = CLIQZ.Core.popup ? 
+                Math.round(CLIQZ.Core.popup.width) : 0;
+        }
+
         CliqzUtils.telemetry(action);
     },
     urlbarfocus: function() {
@@ -539,6 +544,7 @@ window.CLIQZ.Core = {
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
+            CliqzSpellCheck.initSpellCorrection();
         });
     },
 

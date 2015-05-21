@@ -1037,7 +1037,11 @@ var CUcrawl = {
 
         // the url is marked as noindex
         //
+<<<<<<< HEAD
         if (page_doc && page_doc['x'] && page_doc['x']['iall'] == false) isok = false;
+=======
+        if (page_doc['x'] && page_doc['x']['iall'] == false) isok = false;
+>>>>>>> ca5b06b341732da359aa65baf3d565b2e6d796d6
 
         // the url is suspicious, this should never be the case here but better safe
         //
