@@ -1,4 +1,19 @@
 {
+    "CookingIntruct":{
+        "message": "Direction"
+    },
+    "Ingredients":{
+        "message": "Ingredients"
+    },
+    "Reviews":{
+        "message": "Reviews"
+    },
+    "Serves":{
+        "message": "Serves"
+    },
+    "CookTime":{
+        "message": "Total time: {} minutes"
+    },
     "KickerSponsor":{
         "message": "powered by kicker online"
     },

@@ -1,4 +1,19 @@
 {
+    "CookingIntruct":{
+        "message": "Zubereitungsschritte"
+    },
+    "Ingredients":{
+        "message": "Zutaten"
+    },
+    "Reviews":{
+        "message": "Stimmen"
+    },
+    "Serves":{
+        "message": "Portionen"
+    },
+    "CookTime":{
+        "message": "Gesamtzeit: {} Minute"
+    },
     "KickerSponsor":{
         "message": "powered by kicker online"
     },

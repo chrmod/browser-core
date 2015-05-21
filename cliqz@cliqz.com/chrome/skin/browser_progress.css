@@ -6,6 +6,24 @@
     margin-bottom: 8px;
 }
 
+/* ------- RICH DATA Result----------*/
+#cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px)}
+#cliqz-results .cqz-rd-rateimg { height: 13px; padding-top:17px; transform: translateX(-2px);}
+#cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
+#cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
+#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
+
+#cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
+#cliqz-results .cqz-rd-h3img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  100%; width: 70px}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
+
+
+#cliqz-results .cqz-rd-recipe_img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  calc(100% - 3px);width: 106px}
+#cliqz-results .cqz-rd-recipe-snippet {height: 110px; margin: 16px 0px 12px 0px;}
+
+/* ------- END RICH DATA Result----------*/
+
 /* ------- Bundesliga EZ ----------*/
 #cliqz-results .ez-liga .cqz-ez-title::after {background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;}
 #cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -8px 0px 5px; }
