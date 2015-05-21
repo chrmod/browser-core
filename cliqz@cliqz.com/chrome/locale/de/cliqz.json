@@ -557,5 +557,26 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Flüge"    
+    },
+    "train": {
+        "message": "Zug"    
+    },
+    "bus": {
+        "message": "Bus"    
+    },
+    "fromDestination": {
+        "message": "Von"    
+    },
+    "to": {
+        "message": "nach"    
+    },
+    "fromRange": {
+        "message": "ab"    
+    },
+    "today": {
+        "message": "Heute"    
     }
 }
