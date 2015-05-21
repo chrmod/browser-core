@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
