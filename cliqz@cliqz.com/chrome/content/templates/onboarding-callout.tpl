@@ -1,7 +1,8 @@
-<div class='onboarding-callout'>
+<div class='onboarding-callout' style="padding: 0px;">
 	{{ message }}
-	<div>
-		<span class="cqz-btn" cliqz-action="onboarding-start">show me</span>
-		<span class="cqz-btn" cliqz-action="onboarding-cancel">not now</span>
+	<div class="btn-container">
+		{{#each options}}
+			<span class="cqz-btn cqz-btn-{{ state }}" cliqz-action="{{ action }}">{{ label }}</span>		
+		{{/each}}
 	</div>
 </div>

@@ -120,13 +120,19 @@
         "message":"vor einem Jahr"
     },
     "agoXYears":{
-        "message":"vor {} Jaren"
+        "message":"vor {} Jahren"
     },
     "onCalloutIntro":{
-        "message":"CLIQZ verwandelt die Adressleiste in Deinen persönlichen Assistenten durch's Web."
+        "message":"CLIQZ funktioniert in deiner Adressleiste – gib Deine Suche einfach hier ein"
+    },
+    "onCalloutIntroBtnStart":{
+        "message":"Demo starten"
+    },
+    "onCalloutIntroBtnCancel":{
+        "message":"Schließen"
     },
     "onButtonTryOut":{
-        "message":"Surf los!"
+        "message":"Demo starten"
     },
     "onButtonCancel":{
         "message":"Demo abbrechen"

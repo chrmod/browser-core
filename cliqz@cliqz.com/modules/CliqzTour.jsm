@@ -83,7 +83,7 @@ var CliqzTour = {
             // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
             // var x = buttonBounds.x + buttonBounds.width / 2;
             // var y = buttonBounds.y + buttonBounds.height / 2;            
-            var x = 900,
+            var x = 500,
                 y = 50;
 
             CliqzTour.setCursorAppearance("cursor");
@@ -233,6 +233,7 @@ var CliqzTour = {
 
             CliqzTour.hidePageElement('tour-btn-cancel'); 
 
+            CliqzTour.showPageElement('tour-btn');
             CliqzTour.getPageElement("tour-btn").style.cursor = "auto";
 
             CliqzTour.clearUrlBar();
@@ -282,6 +283,8 @@ var CliqzTour = {
     // called when onboarding HTML page is loaded
     init: function() {
         CliqzTour.log('init');
+
+        CliqzHandlebars.load();
 
         CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator)
@@ -336,7 +339,13 @@ var CliqzTour = {
         CliqzTour.setTemplateContent(
             CliqzTour.callout.firstChild,
             'onboarding-callout',
-            { message: CliqzUtils.getLocalizedString("onCalloutIntro")} );
+            { 
+                message: CliqzUtils.getLocalizedString("onCalloutIntro"),
+                options: [
+                    { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnStart"), action: 'onboarding-start', state: 'ok' },
+                    { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnCancel"), action: 'onboarding-cancel', state: 'cancel' },
+                ]
+            } );
         // CliqzTour.setCalloutMessage(
         //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
         CliqzTour.callout.setAttribute("preventHiding", true);
