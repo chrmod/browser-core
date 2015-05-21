@@ -781,12 +781,12 @@ var CliqzUtils = {
   // references to all the timers to avoid garbage collection before firing
   // automatically removed when fired
   _timers: [],
-  _setTimer: function(func, timeout, type, param) {
+  _setTimer: function(func, timeout, type, args) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
     CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
-        func(param);
+        func.apply(null, args);
         if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
       }
     };
@@ -799,11 +799,11 @@ var CliqzUtils = {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
   },
-  setInterval: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+  setInterval: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
   },
-  setTimeout: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+  setTimeout: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
   },
   clearTimeout: function(timer) {
     if (!timer) {
