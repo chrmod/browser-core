@@ -24,7 +24,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 // CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
 // CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 
-CliqzUtils.setPref('showDebugLogs', true);
+CliqzUtils.setPref('showDebugLogs', false);
 CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
 CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
 CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
