@@ -13,16 +13,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
 var EXPORTED_SYMBOLS = ['CliqzAntiPhishing'];
-// the urls need to be changed
-var UNSAFE_URL = "http://antiphishing.clyqz.com/api/unsafe?md5=";
-var WL_URL = "http://antiphishing.clyqz.com/api/safe?md5=";
+var BW_URL = "http://antiphishing.clyqz.com/api/bwlist?md5=";
 
 var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
         .createInstance(Components.interfaces.nsIDOMSerializer);
 
 function alert(doc, md5, tp) {
+    if (md5 in CliqzAntiPhishing.forceWhiteList)
+        return;
     var fe = doc.querySelector("body>*");
-    CliqzUtils.log(fe, 'antiphishing');
     var el = doc.createElement("DIV");
     var els = doc.createElement("SCRIPT");
     el.setAttribute("style", "width: 100% !important; height: 100%; position: fixed; opacity: 0.95; background: grey;top: 0; left: 0; z-index: 999999999999999999999;");
@@ -43,7 +42,6 @@ function alert(doc, md5, tp) {
     el.appendChild(d);
     bt.onclick = function() {
         doc.body.removeChild(el);
-        // CliqzAntiPhishing.forceWhiteList[md5] = 1;
         CliqzHumanWeb.notification({'url': doc.URL, 'action': 'ignore'});
     };
     bt2.onclick = function() {
@@ -61,15 +59,19 @@ function checkPassword(doc, callback) {
     for (var i=0; i<inputs.length; i++) {
         if (inputs[i].type == 'password' ||
             inputs[i].value == 'password' && inputs[i].name == 'password' ||
-            inputs[i].value == 'passwort' && inputs[i].name == 'passwort')
+            inputs[i].value == 'passwort' && inputs[i].name == 'passwort') {
             callback(doc.URL, 'password');
+            return;
+        }
     }
 
     var html = domSerializer.serializeToString(doc);
     if (html.indexOf('security') > -1 &&
         html.indexOf('update') > -1 &&
-        html.indexOf('account') > -1)
+        html.indexOf('account') > -1) {
         callback(doc.URL, 'password');
+        return;
+    }
 }
 
 function checkSingleScript(script) {
@@ -109,77 +111,100 @@ function checkScript(doc, callback) {
                 req.send('null');
                 script = req.responseText;
             }
-        } else {
+        } else
             script = scripts[i].innerHTML;
-        }
         if (checkSingleScript(script))
             callback(doc.URL, 'script');
     }
 }
 
+function getDomainMd5(url) {
+    var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
+    return CliqzHumanWeb._md5(domain);
+}
+
+function getSplitDomainMd5(url) {
+    var md5 = getDomainMd5(url);
+    var md5Prefix = md5.substring(0, md5.length-16);
+    var md5Surfix = md5.substring(16, md5.length);
+    return [md5Prefix, md5Surfix];
+}
+
+function updateSuspiciousStatus(url, status) {
+    var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+    CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'suspicious:' + status;
+    if (CliqzHumanWeb) {
+        CliqzHumanWeb.state['v'][url]['isMU'] = status;
+        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+        CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');       
+    }
+}
+
+function updateBlackWhiteStatus(req, md5Prefix) {
+    var response = req.response;
+    var blacklist = JSON.parse(response).blacklist;
+    var whitelist = JSON.parse(response).whitelist;
+    if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList))
+        CliqzAntiPhishing.blackWhiteList[md5Prefix] = {};
+    for (var i = 0; i < blacklist.length; i++) {
+        CliqzAntiPhishing.blackWhiteList[md5Prefix][blacklist[i][0]] = 'black:' + blacklist[i][1];
+    }
+    for (var i = 0; i < whitelist.length; i++) {
+        CliqzAntiPhishing.blackWhiteList[md5Prefix][whitelist[i]] = 'white';
+    }
+}
+
 function checkSuspicious(doc, callback) {
+    CliqzUtils.log('check ' + doc.URL, 'antiphishing');
     checkScript(doc, callback);
     checkCheat(doc, callback);
     checkPassword(doc, callback);
 }
 
-function onPageLoad(event){
-    let doc = event.originalTarget;
-    let url = doc.URL;
-    if (url[0] != "h") return;
-    CliqzAntiPhishing.auxOnPageLoad(url);
+function checkStatus(url, md5Prefix, md5Surfix) {
+    var doc = CliqzHumanWeb.getCDByURL(url);
+    var bw = CliqzAntiPhishing.blackWhiteList[md5Prefix];
+    if (md5Surfix in bw) {  // black, white, suspicious or checking
+        if (bw[md5Surfix].indexOf('black') > -1) {  // black
+            CliqzHumanWeb.notification({'url': url, 'action': 'block'});
+            // alert(doc, md5Prefix + md5Surfix, bw[md5Surfix]);
+        }
+    } else {
+        CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'checking';
+        // alert humanweb if it is suspicious
+        checkSuspicious(doc, updateSuspiciousStatus);
+    }
 }
-
-function auxOnPageLoad(url) {
-    if (url[0] != "h") return;
-    // get md5 of url
-    var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
-    var md5 = CliqzHumanWeb._md5(domain);
-    if (md5 in CliqzAntiPhishing.forceWhiteList) return;
-    var md5Prefix = md5.substring(0, md5.length-16);
-
-    CliqzUtils.httpGet(UNSAFE_URL + md5Prefix,
-                       function success(req) {
-                           var blacklist = JSON.parse(req.response).blacklist;
-                           CliqzUtils.log(blacklist, "antiphishing");
-                           for (var i=0; i < blacklist.length; i++) {
-                               if (md5Prefix + blacklist[i][0] == md5) {
-                                   var tp = blacklist[i][1];
-                                   // send log
-                                   CliqzHumanWeb.notification({'url': url, 'action': 'block'});
-                                   // TODO: hookup the UI
-                                   // alert(doc, md5, tp);
-                                   return;
-                               }
-                           }
-                       });
-}
-
-
+    
 var CliqzAntiPhishing = {
     forceWhiteList: {},
-    whiteList: {},
-    _loadHandler: onPageLoad,
-    isSuspiciousDOM: function(doc, callback) {
-        var url = doc.URL;
-        if (url[0] != 'h') return;
-        var domain = url.replace('http://', '').replace('https://', '').split("/")[0];
-        var md5 = CliqzHumanWeb._md5(domain);
-        if (md5 in CliqzAntiPhishing.whiteList) return;
-        var md5Prefix = md5.substring(0, md5.length-16);
-        
-        CliqzUtils.httpGet(WL_URL + md5Prefix,
-                           function success(req) {
-                               var whitelist = JSON.parse(req.response).whitelist;
-                               for (var i=0; i < whitelist.length; i++) {
-                                   if (md5Prefix + whitelist[i] == md5)
-                                       return;
-                               }
-                               CliqzAntiPhishing.whiteList[md5] = true;
-                               checkSuspicious(doc, callback);
-                           },
-                           function error(res) {
-                               checkSuspicious(doc, callback);
-                           }, 3000);
+    blackWhiteList: {},
+    auxOnPageLoad: function(url) {
+        var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+        if (md5Prefix in CliqzAntiPhishing.blackWhiteList)
+            checkStatus(url, md5Prefix, md5Surfix);
+        else
+            CliqzUtils.httpGet(
+                BW_URL + md5Prefix,
+                function success(req) {
+                    updateBlackWhiteStatus(req, md5Prefix);
+                    checkStatus(url, md5Prefix, md5Surfix);
+                });
+    },
+    getDomainStatus: function(url) {
+        var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
+        if (!(md5Prefix in CliqzAntiPhishing.blackWhiteList) ||
+            !(md5Surfix in CliqzAntiPhishing.blackWhiteList[md5Prefix]))
+            return [null, null];
+        var status = CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix];
+        if (status == 'white')
+            return [status, null];
+        else {
+            statusItems = status.split(':');
+            if (statusItems.length == 2)
+                return statusItems;
+            else
+                return [null, null];
+        }
     }
 };
