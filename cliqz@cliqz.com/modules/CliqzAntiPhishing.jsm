@@ -130,13 +130,25 @@ function getSplitDomainMd5(url) {
     return [md5Prefix, md5Surfix];
 }
 
+function notifyHumanWeb(p) {
+    var url = p.url;
+    var status = p.status;
+    CliqzHumanWeb.state['v'][url]['isMU'] = status;
+    CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
+    CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');
+}
+
 function updateSuspiciousStatus(url, status) {
     var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
     CliqzAntiPhishing.blackWhiteList[md5Prefix][md5Surfix] = 'suspicious:' + status;
     if (CliqzHumanWeb) {
-        CliqzHumanWeb.state['v'][url]['isMU'] = status;
-        CliqzHumanWeb.addURLtoDB(url, CliqzHumanWeb.state['v'][url]['ref'], CliqzHumanWeb.state['v'][url]);
-        CliqzUtils.log("URL is malicious: "  + url + " : " + status, 'antiphishing');       
+        var p = {'url': url, 'status': status};
+        if (CliqzHumanWeb.state['v'][url]) {
+            notifyHumanWeb(p);
+        } else {
+            CliqzUtils.log("delay notification", "antiphishing");
+            CliqzUtils.setTimeout(notifyHumanWeb, 1000, p);
+        }
     }
 }
 
@@ -189,7 +201,11 @@ var CliqzAntiPhishing = {
                 function success(req) {
                     updateBlackWhiteStatus(req, md5Prefix);
                     checkStatus(url, md5Prefix, md5Surfix);
-                });
+                },
+                function onerror() {
+                },
+                3000
+            );
     },
     getDomainStatus: function(url) {
         var [md5Prefix, md5Surfix] = getSplitDomainMd5(url);
@@ -200,7 +216,7 @@ var CliqzAntiPhishing = {
         if (status == 'white')
             return [status, null];
         else {
-            statusItems = status.split(':');
+            var statusItems = status.split(':');
             if (statusItems.length == 2)
                 return statusItems;
             else
