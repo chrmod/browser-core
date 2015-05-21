@@ -263,17 +263,29 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
+        // default setting is determined by latest-vs-trending AB test (50-50)
+        // or is "latest" if not part of the AB test
+        var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
+        
+        // news-toggle not active
         if(!data.trending ||
             data.trending.length == 0 ||
-            CliqzUtils.getPref('news-toggle', false) == false)
-            return true;
+            CliqzUtils.getPref('news-toggle', false) == false) {
+                return defaultSetting;
+        }
 
         try {
           var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
               ezID = JSON.parse(data.subType).ez;
-          return !trending[ezID];
+          // user-defined setting exists for EZ:
+          if (trending.hasOwnProperty(ezID)) {
+            return !trending[ezID];  
+          } else {
+            // no user-defined setting, use default value
+            return defaultSetting;
+          }          
         } catch(e){
-          return true;
+          return defaultSetting;
         }
     });
 }

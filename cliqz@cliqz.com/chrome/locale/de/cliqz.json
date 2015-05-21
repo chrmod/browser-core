@@ -92,6 +92,9 @@
     "search":{
         "message":"suche"
     },
+    "searchUsing":{
+        "message":"Suche mit"
+    },
     "on":{
         "message":"auf"
     },

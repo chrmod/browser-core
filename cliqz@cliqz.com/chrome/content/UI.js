@@ -1037,6 +1037,7 @@ function enhanceResults(res){
         "footer-message": {
           message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
+          searchTerm: '',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
               action: 'update-show',
@@ -1095,6 +1096,7 @@ function getNotSupported(){
     message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
+    searchTerm: '',
     options: [{
         text: CliqzUtils.getLocalizedString('keep-cliqz'),
         action: 'keep-cliqz',
