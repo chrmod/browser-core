@@ -591,7 +591,7 @@ var CUcrawl = {
         else{
           res[''+i] = {'u': CUcrawl.maskURL(_res[i].href), 't': _res[i].text};
         }
-        
+
       }
       //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawl.LOG_KEY);
       return res;
@@ -633,15 +633,15 @@ var CUcrawl = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
         if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
             return true;
-        } 
+        }
         else{
             return false;
         }
 
-        
+
     },
     getSearchData: function(activeURL, document){
         // here we check if user ignored our results and went to google and landed on the same url
@@ -649,7 +649,7 @@ var CUcrawl = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
         //Get google result
         var rq = null;
@@ -677,7 +677,7 @@ var CUcrawl = {
                 CUcrawl.track({'type': CUcrawl.msgType, 'action': 'query', 'payload': rq});
                 }
         }
-        return rq        
+        return rq
 
 
 
@@ -1405,7 +1405,7 @@ var CUcrawl = {
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
         //CliqzUtils.log("Testing" + x.ctry, CUcrawl.LOG_KEY);
         return x;
-    },       
+    },
     getCDByURL: function(url) {
 
         var dd_url = url;
@@ -1487,7 +1487,7 @@ var CUcrawl = {
                         if ((page!=null) && (page.checked==1) && (page.private==0)) {
                             CUcrawl.urlsCache[activeURL] = true;
                         }*/
-                    });                    
+                    });
 
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
                     if (CUcrawl.checkIfSearchURL(activeURL)){
@@ -1500,17 +1500,17 @@ var CUcrawl = {
                                 try {
 
                                     // FIXME: this begs for refactoring!!
-                                    
+
                                     var activeURL = CUcrawl.currentURL();
-                                    var document = null;  
-                                    var searchURL = null;  
+                                    var document = null;
+                                    var searchURL = null;
 
                                     if (currURLAtTime == activeURL) {
                                         document = currwin.gBrowser.selectedBrowser.contentDocument;
                                         searchURL = activeURL;
                                     }
                                     else{
-                                        document = CUcrawl.getCDByURL(currURLAtTime);  
+                                        document = CUcrawl.getCDByURL(currURLAtTime);
                                         searchURL = currURLAtTime;
 
                                     }
@@ -1519,7 +1519,7 @@ var CUcrawl = {
                                     rq = CUcrawl.getSearchData(searchURL, document);
                                     CUcrawl.userSearchTransition(rq);
 
-                                    
+
                                 }
                                 catch(ee) {
                                     // silent fail
@@ -1531,7 +1531,7 @@ var CUcrawl = {
 
                         }, CUcrawl.WAIT_TIME, activeURL);
                     }
-                
+
 
                     var status = null;
 
@@ -1545,7 +1545,7 @@ var CUcrawl = {
                         //referral = CUcrawl.maskURL(CUcrawl.linkCache[activeURL]['s']);
                         referral = CUcrawl.linkCache[activeURL]['s'];
                     }
-                
+
 
                     CUcrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                             'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral};
@@ -1559,17 +1559,17 @@ var CUcrawl = {
                             CUcrawl.state['v'][activeURL]['qr']['d'] = CUcrawl.state['v'][referral]['qr']['d']+1;
 
                            //If the depth is greater then two, we need to check if the ref. is of same domain.
-                            //If not then drop the QR object, else keep it. 
+                            //If not then drop the QR object, else keep it.
                             if(CUcrawl.state['v'][activeURL]['qr']['d'] > 2){
                                 delete CUcrawl.state['v'][activeURL]['qr'];
                             }
-                            else if(CUcrawl.state['v'][activeURL]['qr']['d'] == 2){    
+                            else if(CUcrawl.state['v'][activeURL]['qr']['d'] == 2){
                                 if(CUcrawl.parseURL(activeURL)['hostname'] != CUcrawl.parseURL(referral)['hostname']){
                                     delete CUcrawl.state['v'][activeURL]['qr'];
                                 }
                             }
-                        }    
-                    }   
+                        }
+                    }
 
                     currwin.setTimeout(function(currWin, currURL) {
 
@@ -1743,7 +1743,7 @@ var CUcrawl = {
             }
             CUcrawl.fetchAndStoreConfig();
         }
-    
+
         CUcrawl.counter += 1;
 
     },
@@ -2285,8 +2285,8 @@ var CUcrawl = {
         if ( FileUtils.getFile("ProfD", ["moz.dbusafe"]).exists() ) {
             if (CUcrawl.olddbConn==null) {
                  CUcrawl.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafe"]));
-            } 
-            CUcrawl.removeTable();   
+            }
+            CUcrawl.removeTable();
         }
 
         if ( FileUtils.getFile("ProfD", ["moz.dbucrawl"]).exists() ) {
@@ -2462,7 +2462,7 @@ var CUcrawl = {
 
     },
     addURLtoDB: function(url, ref, paylobj) {
-      
+
         var tt = new Date().getTime();
 
         var requery = /\/www.google/; // regex for google query
@@ -2932,7 +2932,7 @@ var CUcrawl = {
         // 1. Need to check if the title is suspicious or not.
         // 2. Title should should not contain number greater than 8.
         // 3. Title should not contain html.
-        
+
         var vt = title.split(' ');
         for(var i=0;i<vt.length;i++) {
             if (vt[i].length>CUcrawl.rel_segment_len) {
@@ -3131,7 +3131,7 @@ var CUcrawl = {
         private BOOLEAN DEFAULT 0 \
     )";
 
-    CUcrawl.dbConn.executeSimpleSQLAsync(usafe);
-    CUcrawl.dbConn.executeSimpleSQLAsync(hash_usafe);
+    CUcrawl.dbConn.executeSimpleSQL(usafe);
+    CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
   }
 };
