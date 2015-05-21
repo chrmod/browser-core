@@ -209,8 +209,8 @@ var UI = {
         for (var i in res) {
           var r = res[i];
           var query = r.text;
-          var qt = query + ": " + new Date().getTime();
-          CliqzUtils.log(qt, "QUERY TIMESTAMP");
+          //var qt = query + ": " + new Date().getTime();
+          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
@@ -225,7 +225,6 @@ var UI = {
               }
               //CliqzUtils.log(r.text, "Here's the query");
               //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
-
               if (resp &&  CLIQZ.Core.urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -234,7 +233,7 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
                         //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
@@ -249,7 +248,9 @@ var UI = {
                   r.data.kind = kind;
                   r.data.subType = resp.subType;
                   r.data.trigger_urls = resp.trigger_urls;
-
+                  r.vertical = r.data.template;
+                  r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                  r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
                   if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
                       // Remove all existing extra results
@@ -1008,7 +1009,7 @@ function enhanceResults(res){
         }
 
     }
-    
+
     var spelC = CliqzAutocomplete.spellCorr;
     //filter adult results
     if(adult) {
@@ -1055,7 +1056,7 @@ function enhanceResults(res){
         updateMessageState("show", {
             "footer-message": {
               message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s, 
+              searchTerm: s,
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
