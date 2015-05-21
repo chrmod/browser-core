@@ -211,7 +211,7 @@ var CUcrawl = {
     VERSION: 'moz-test-0.04',
     WAIT_TIME: 2000,
     LOG_KEY: 'mucrawl',
-    debug: true,
+    debug: false,
     httpCache: {},
     httpCache401: {},
     queryCache: {},
