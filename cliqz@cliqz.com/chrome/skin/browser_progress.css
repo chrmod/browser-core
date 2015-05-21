@@ -116,7 +116,25 @@
   font-weight: 700;
   padding: 2px 20px;
   font-size: 18px;
+  max-width: 400px;
 }
+
+.onboarding-callout .btn-container { right: 0px; position: absolute; text-align: right; margin-top: 10px; }
+
+.onboarding-callout .cqz-btn {
+    margin: 0px;
+    cursor: pointer;
+    color: black;
+    border-radius: 3px;
+    padding: 4px 8px;
+    text-align: center;
+    display: inline-block;
+    background-color: #8CE12F;
+    font-weight: 300;    
+}
+
+.onboarding-callout .cqz-btn-ok { background-color: #8CE12F; }
+.onboarding-callout .cqz-btn-cancel { background-color: #c3043e; color: white; }
 
 /* ------- END onboarding */
 

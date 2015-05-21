@@ -143,8 +143,17 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "onCalloutIntro":{
+        "message":"This is your new CLIQZ bar"
+    },
+    "onCalloutIntroBtnStart":{
+        "message":"Take tour"
+    },
+    "onCalloutIntroBtnCancel":{
+        "message":"Close"
+    },
     "onButtonTryOut":{
-       "message":"Surf now!"
+       "message":"Take tour"
     },
     "onButtonCancel":{
        "message":"Cancel tour"
@@ -153,7 +162,7 @@
        "message":"Show me again"
     },
     "onCalloutTypeHere":{
-       "message":"All the CLIQZ action happens in your url bar. Simply enter your search or a webaddress here."
+       "message":"All the CLIQZ action happens in your URL bar. Simply enter your search or a webaddress here."
     },
     "onCalloutCliqzResults":{
        "message":"Website suggestions appear in the CLIQZ Menu as you type."
