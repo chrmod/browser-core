@@ -80,7 +80,8 @@ var CliqzUtils = {
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'weatherEZ-promise': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'recipe': 3, 'rd-h3-w-rating': 1
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -781,12 +782,12 @@ var CliqzUtils = {
   // references to all the timers to avoid garbage collection before firing
   // automatically removed when fired
   _timers: [],
-  _setTimer: function(func, timeout, type, param) {
+  _setTimer: function(func, timeout, type, args) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
     CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
-        func(param);
+        func.apply(null, args);
         if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
       }
     };
@@ -799,11 +800,11 @@ var CliqzUtils = {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
   },
-  setInterval: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+  setInterval: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
   },
-  setTimeout: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+  setTimeout: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
   },
   clearTimeout: function(timer) {
     if (!timer) {

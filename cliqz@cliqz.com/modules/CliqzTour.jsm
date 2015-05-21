@@ -12,6 +12,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
+  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -23,7 +26,8 @@ var CliqzTour = {
     //      first version, which was distributed via cliqz.com
     //      but did not have a version number yet, just
     //      a binary flag (new vs. old onboarding)
-    VERSION: "1.0",
+    // 1.1: replaced start tour button on web page by callout
+    VERSION: "1.1",
 
     // shortcuts
     urlBar: null,
@@ -51,6 +55,12 @@ var CliqzTour = {
     // counts how often user started the tour
     startCount: 0,
 
+    // workaround to make popup hide when user clicks in URL bar
+    isMouseOverUrlBar: false,
+
+    // inital callout being shown
+    isInitialPhase: true,
+
     // all the action
     storyboard: [
         { f: function () {            
@@ -63,11 +73,18 @@ var CliqzTour = {
             // TODO: use CSS "disabled" class for this
             CliqzTour.getPageElement("tour-btn").style.cursor = "none";
         }, t: 100 },
+        // blur out current page
+        { f: function () {            
+            CliqzTour.getPageElement('main-page').style.transition = 'filter .5s ease-in-out';
+            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)'; 
+        }, t: 400 },
         // position mouse cursor on button and show cancel button
         { f: function () {
-            var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
-            var x = buttonBounds.x + buttonBounds.width / 2;
-            var y = buttonBounds.y + buttonBounds.height / 2;
+            // var buttonBounds = CliqzTour.getPageElement("tour-btn").getBoundingClientRect();
+            // var x = buttonBounds.x + buttonBounds.width / 2;
+            // var y = buttonBounds.y + buttonBounds.height / 2;            
+            var x = 500,
+                y = 50;
 
             CliqzTour.setCursorAppearance("cursor");
             // TODO: replace magic offsets by values derived from element sizes
@@ -75,21 +92,19 @@ var CliqzTour = {
             CliqzTour.showCursor();
             // TODO: disable button
             CliqzTour.showPageElement('tour-btn-cancel');
-        }, t: 500 },
-        // blur out current page and move mouse cursor to URL bar
+        }, t: 500 },        
+        // move mouse cursor to URL bar        
         { f: function () {            
-            CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5, 3);
-            CliqzTour.getPageElement('main-page').style.transition = 'filter 1s ease-in-out';
-            CliqzTour.getPageElement('main-page').style.filter = 'blur(10px)'; 
-        }, t: 3000 },
+            CliqzTour.movePopupTo(CliqzTour.cursor, 30, 5, 1.5);
+        }, t: 1500 },
         { f: function () {
             CliqzTour.performClick();
         }, t: 1000 }, 
         // show "type here" callout
         { f: function () {                        
             CliqzTour.setCalloutMessage(
-                CliqzUtils.getLocalizedString("onCalloutTypeHere"));            
-            CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");  
+                CliqzUtils.getLocalizedString("onCalloutTypeHere")); 
+            CliqzTour.showCallout(45, -5, CliqzTour.urlBar, "after_start");
         }, t: 3000 },        
         // start typing and move lens
         { f: function () {            
@@ -218,6 +233,7 @@ var CliqzTour = {
 
             CliqzTour.hidePageElement('tour-btn-cancel'); 
 
+            CliqzTour.showPageElement('tour-btn');
             CliqzTour.getPageElement("tour-btn").style.cursor = "auto";
 
             CliqzTour.clearUrlBar();
@@ -289,25 +305,54 @@ var CliqzTour = {
         }
 
         CliqzTour.startCount = 0;
-
-        CliqzTour.win.addEventListener(
-                "click", CliqzTour.clickListener);
+        
         CliqzTour.callout.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.callout.addEventListener(
+                "popuphiding", CliqzTour.popupHidingListener);
+        CliqzTour.callout.addEventListener(
+                "click", CliqzTour.popupClickListener);
         CliqzTour.cursor.addEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
 
+        CliqzTour.win.addEventListener(
+                "click", CliqzTour.clickListener);
+        CliqzTour.win.addEventListener(
+                "keyup", CliqzTour.keyupListener);
+        CliqzTour.win.addEventListener(
+                "blur", CliqzTour.windowBlurListener, true);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
         CliqzTour.win.gBrowser.tabContainer.addEventListener(
                 "TabClose", CliqzTour.tabCloseListener);
 
+        CliqzTour.urlBar.addEventListener("mouseenter",
+            CliqzTour.urlBarMouseEnterListener);
+        CliqzTour.urlBar.addEventListener("mouseleave",
+            CliqzTour.urlBarMouseLeaveListener);
+
         CliqzTour.isRunning = false;
         CliqzTour.pageElements = { };
 
+        CliqzTour.setTemplateContent(
+            CliqzTour.callout.firstChild,
+            'onboarding-callout',
+            { 
+                message: CliqzUtils.getLocalizedString("onCalloutIntro"),
+                options: [
+                    { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnStart"), action: 'onboarding-start', state: 'ok' },
+                    { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnCancel"), action: 'onboarding-cancel', state: 'cancel' },
+                ]
+            } );
+        CliqzTour.callout.setAttribute("preventHiding", true);
+        CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
+        CliqzTour.isInitialPhase = true;
+
+        CliqzTour.clearUrlBar();
+
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
-    start: function() {
+    start: function(source) {
         if (!CliqzTour.isRunning) {                   
             var scheduler = {
                 queue: [ ],
@@ -349,7 +394,8 @@ var CliqzTour = {
             CliqzTour.isRunning = true;
             scheduler.run();            
             
-            CliqzTour.telemetry("started", { 
+            CliqzTour.telemetry("started", {
+                "source": source,
                 "start_count": CliqzTour.startCount
             });
 
@@ -361,10 +407,23 @@ var CliqzTour = {
     unload: function () {
         CliqzTour.win.removeEventListener(
                 "click", CliqzTour.clickListener);
+        CliqzTour.win.removeEventListener(
+                "keyup", CliqzTour.keyupListener);
+        CliqzTour.win.removeEventListener(
+                "blur", CliqzTour.windowBlurListener);
+        CliqzTour.callout.removeEventListener(
+                "click", CliqzTour.popupClickListener);
         CliqzTour.callout.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+        CliqzTour.callout.removeEventListener(
+                "popuphiding", CliqzTour.popupHidingListener);
         CliqzTour.cursor.removeEventListener(
                 "popuphidden", CliqzTour.popupHiddenListener);
+
+        CliqzTour.urlBar.removeEventListener("mouseenter",
+            CliqzTour.urlBarMouseEnterListener);
+        CliqzTour.urlBar.removeEventListener("mouseleave",
+            CliqzTour.urlBarMouseLeaveListener);
 
         CliqzTour.win.gBrowser.tabContainer.removeEventListener(
                 "TabSelect", CliqzTour.tabSwitchListener);
@@ -393,6 +452,7 @@ var CliqzTour = {
         CliqzTour.getPageElement("landing-page-background").style.visibility = 'hidden';
         CliqzTour.getPageElement('landing-page-callout').style.visibility = 'hidden';
 
+        CliqzTour.showPageElement('tour-btn');
         CliqzTour.getPageElement("tour-btn").style.cursor = "pointer";
 
         CliqzTour.getPageElement('tour-btn-cancel').style.visibility = 'hidden';
@@ -405,8 +465,10 @@ var CliqzTour = {
             CliqzTour.clearUrlBar();
         }, 0);        
     },
-    cancel: function () {
-        CliqzTour.telemetry("canceled");
+    cancel: function (source) {   
+        CliqzTour.telemetry("canceled", {
+            "source": source
+        });
         CliqzTour.stop();
         CliqzTour.reset();
     },
@@ -434,20 +496,82 @@ var CliqzTour = {
     clickListener: function (e) {
         // make sure the click was not on the start button
         if (CliqzTour.isRunning && e.target &&
-            e.target.id != "tour-btn") {
-            CliqzTour.cancel();            
+            e.target.id != "tour-btn" &&
+            !e.target.getAttribute('cliqz-action')) {
+
+            CliqzTour.cancel("callout");            
         }        
+    },
+    keyupListener: function (e) {
+        switch (e.key) { 
+            case "Escape":
+            case "Tab":
+                if (CliqzTour.isInitialPhase) {
+                    CliqzTour.callout.setAttribute("preventHiding", false);
+                    CliqzTour.hideCallout();
+                    CliqzTour.showPageElement('tour-btn');
+                    CliqzTour.isInitialPhase = false;
+                }
+                break;
+        }
+    },
+    windowBlurListener: function (e) {
+        if (CliqzTour.isInitialPhase) {
+            CliqzTour.callout.setAttribute("preventHiding", false);
+            CliqzTour.hideCallout();
+            CliqzTour.showPageElement('tour-btn');
+            CliqzTour.isInitialPhase = false;
+        }
     },
     popupHiddenListener: function (e) {
         // stop tour only if hiding was triggered by user, but
         // not if triggered programmatically via hidePopup()
         if (CliqzTour.isRunning && 
             e.target.getAttribute("isHiding") != "true") {
-            CliqzTour.telemetry("canceled");
+            CliqzTour.telemetry("canceled", { "source": "interrupt" });
             CliqzTour.stop();
             CliqzTour.reset();
         }
         e.target.setAttribute("isHiding", false);
+    },
+    popupHidingListener: function (e) {
+        if (CliqzTour.isInitialPhase && e.target.getAttribute("preventHiding") == "true") {
+            if (CliqzTour.isMouseOverUrlBar) {
+                CliqzTour.clearUrlBar();
+                CliqzTour.focusUrlBar();    
+                CliqzTour.isInitialPhase = false;            
+            } else {
+                e.preventDefault();
+            }
+        }
+    },
+    popupClickListener: function (e) {
+        var target = e.target;
+        if (target && (e.button == 0 || e.button == 1)) {
+            var action = target.getAttribute('cliqz-action');
+            switch (action) {
+                case 'onboarding-start':
+                    CliqzTour.callout.setAttribute("preventHiding", false);
+                    CliqzTour.hideCallout();
+                    CliqzTour.start("callout");
+                    CliqzTour.isInitialPhase = false;
+                    break;
+                case 'onboarding-cancel':
+                    CliqzTour.log('popupClickListener');
+                    CliqzTour.callout.setAttribute("preventHiding", false);
+                    CliqzTour.hideCallout(); 
+                    CliqzTour.showPageElement('tour-btn');
+                    CliqzTour.isInitialPhase = false;
+                    CliqzTour.focusUrlBar();
+                    break;
+            }
+        }
+    },
+    urlBarMouseEnterListener: function (e) { 
+        CliqzTour.isMouseOverUrlBar = true;
+    },
+    urlBarMouseLeaveListener:  function (e) {             
+        CliqzTour.isMouseOverUrlBar = false;
     },
     clearUrlBarListener: function () {
         CliqzTour.clearUrlBar();
@@ -524,11 +648,10 @@ var CliqzTour = {
         }
     },
     setTextContent: function (node, text) {
-        while (node.firstChild) {
-            node.removeChild(node.firstChild);
-        }
-        node.appendChild(
-            CliqzTour.win.document.createTextNode(text));
+        node.textContent = text;
+    },
+    setTemplateContent: function (node, templateName, data) {
+        node.innerHTML = CliqzHandlebars.tplCache[templateName](data);
     },
 
     /* **** general helpers **** */
