@@ -284,8 +284,6 @@ var CliqzTour = {
     init: function() {
         CliqzTour.log('init');
 
-        CliqzHandlebars.load();
-
         CliqzTour.win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                         .getService(Components.interfaces.nsIWindowMediator)
                          .getMostRecentWindow("navigator:browser");
@@ -346,11 +344,11 @@ var CliqzTour = {
                     { label: CliqzUtils.getLocalizedString("onCalloutIntroBtnCancel"), action: 'onboarding-cancel', state: 'cancel' },
                 ]
             } );
-        // CliqzTour.setCalloutMessage(
-        //     CliqzUtils.getLocalizedString("onCalloutIntro")); 
         CliqzTour.callout.setAttribute("preventHiding", true);
         CliqzTour.showCallout(15, 5, CliqzTour.urlBar, "after_start");
         CliqzTour.isInitialPhase = true;
+
+        CliqzTour.clearUrlBar();
 
         CliqzTour.telemetry("shown", { version: CliqzTour.VERSION });
     }, 
@@ -564,6 +562,7 @@ var CliqzTour = {
                     CliqzTour.hideCallout(); 
                     CliqzTour.showPageElement('tour-btn');
                     CliqzTour.isInitialPhase = false;
+                    CliqzTour.focusUrlBar();
                     break;
             }
         }
