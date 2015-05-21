@@ -14,7 +14,7 @@ var init = function () {
         btnCancel = document.getElementById('tour-btn-cancel');
 
     btn.addEventListener('click', function () {
-        CliqzTour.start();    
+        CliqzTour.start("page");    
     });
 
     btnCancel.addEventListener('click', function () {

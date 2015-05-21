@@ -120,10 +120,19 @@
         "message":"vor einem Jahr"
     },
     "agoXYears":{
-        "message":"vor {} Jaren"
+        "message":"vor {} Jahren"
+    },
+    "onCalloutIntro":{
+        "message":"Hier ist Deine neue CLIQZ-Suchleiste"
+    },
+    "onCalloutIntroBtnStart":{
+        "message":"Demo starten"
+    },
+    "onCalloutIntroBtnCancel":{
+        "message":"Schließen"
     },
     "onButtonTryOut":{
-        "message":"Surf los!"
+        "message":"Demo starten"
     },
     "onButtonCancel":{
         "message":"Demo abbrechen"
@@ -159,7 +168,7 @@
         "message":"Danke, dass Du CLIQZ installiert hast!"
     },
     "onMsgExplanation":{
-        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durchs Web."
+        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durch's Web."
     },
     "offRes_Cliqz":{
         "message":"CLIQZ"
