@@ -15,6 +15,6 @@
         <div class="cqz-rd-max-lines">{{richData.des}}</div>
     </div>
  {{/with}}
- {{>EZ-categoryRD}}
+ {{>EZ-category}}
  {{> logo}}
 </div>
