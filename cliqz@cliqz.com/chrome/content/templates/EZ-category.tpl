@@ -1,5 +1,5 @@
 <div class='cqz-ez-btns'>
-{{#each data.categories}}
+{{#each (logic data.categories '||' data.richData.categories)}}
     <div
       class="cqz-ez-btn {{ ../logo.buttonsClass }}"
       url="{{ url }}"

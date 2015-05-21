@@ -29,7 +29,11 @@
           </table> 
       </div>
 
+
       <div class="cqz-ez-btn ez-liga-button" url="{{url}}">{{local 'GoToTable'}}</div>
+      <div class="ez-liga-sponsor">{{local 'KickerSponsor'}}</div>
+
+
      {{/with}}
        {{>logo}}
    </div>
