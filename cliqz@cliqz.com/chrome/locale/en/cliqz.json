@@ -614,14 +614,11 @@
     "bus": {
         "message": "Bus"    
     },
-    "fromDestination": {
+    "from": {
         "message": "From"    
     },
     "to": {
         "message": "to"    
-    },
-    "fromRange": {
-        "message": "from"    
     },
     "today": {
         "message": "Today"    
