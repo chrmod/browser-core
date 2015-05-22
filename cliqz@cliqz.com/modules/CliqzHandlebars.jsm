@@ -152,12 +152,12 @@ function registerHelpers(){
         console.log('TEMPLATE LOG HELPER', value);
     });
     
-    Handlebars.registerHelper('toLowerCase', function() {
-       return CliqzUtils.getLocalizedString.apply(null, arguments).toLowerCase(); 
+    Handlebars.registerHelper('toLowerCase', function(str) {
+       return str.toLowerCase(); 
     });
     
-    Handlebars.registerHelper('toUpperCase', function() {
-       return CliqzUtils.getLocalizedString.apply(null, arguments).toUpperCase(); 
+    Handlebars.registerHelper('toUpperCase', function(str) {
+       return str.toUpperCase(); 
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
