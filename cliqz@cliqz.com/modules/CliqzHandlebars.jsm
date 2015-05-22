@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -150,6 +150,14 @@ function registerHelpers(){
 
     Handlebars.registerHelper('log', function(value, key) {
         console.log('TEMPLATE LOG HELPER', value);
+    });
+    
+    Handlebars.registerHelper('toLowerCase', function() {
+       return CliqzUtils.getLocalizedString.apply(null, arguments).toLowerCase(); 
+    });
+    
+    Handlebars.registerHelper('toUpperCase', function() {
+       return CliqzUtils.getLocalizedString.apply(null, arguments).toUpperCase(); 
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
