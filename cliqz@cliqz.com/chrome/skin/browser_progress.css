@@ -350,75 +350,80 @@
 
 /* ---------- From A to B ----------- */
 #cliqz-results .cqz-ez-aTob h2 {
-    font-size: 18px;
-    color: #506bb8;
-    font-weight: normal;
-    margin-bottom: 2px;
+  font-size: 18px;
+  color: #506bb8;
+  font-weight: normal;
+  margin-bottom: 2px;
 }
 
 #cliqz-results .cqz-ez-aTob .cqz-ez-title:hover{
-    text-decoration: none !important;
+  text-decoration: none !important;
 }
 
 #cliqz-results .cqz-ez-aTob .cqz-ez-title span {
-    color: #cccccc;
-    font-size: 14px;
+  color: #cccccc;
+  font-size: 14px;
 }
 
 #cliqz-results .cqz-ez-aTob .cqz-ez-title span:hover,
-#cliqz-results table.list .item:hover {
-    text-decoration: underline;
+#cliqz-results .cqz-ez-aTob table.list .item:hover {
+  text-decoration: underline;
 }
 
 #cliqz-results .cqz-ez-aTob-title {
- margin-bottom: 3px;   
+  margin-bottom: 3px;   
 }
 
-#cliqz-results table.list th {
-    color: #93999d;
-    font-size: 14px;
-    font-weight: normal;
-    padding: 0 0 9px;
+#cliqz-results .cqz-ez-aTob table.list th {
+  color: #93999d;
+  font-size: 14px;
+  font-weight: normal;
+  padding: 0 0 9px;
 }
             
-#cliqz-results table.list td, #cliqz-results table.list th {
-    border-bottom: 1px solid #e7f1e5;
+#cliqz-results .cqz-ez-aTob table.list td, 
+#cliqz-results .cqz-ez-aTob table.list th {
+  border-bottom: 1px solid #e7f1e5;
 }
             
-#cliqz-results table.list tbody > tr:last-child > td {
-    border-bottom: 0px;
+#cliqz-results .cqz-ez-aTob table.list tbody > tr:last-child > td {
+  border-bottom: 0px;
 }
             
-#cliqz-results table.list td {
-    padding: 6px;
-    color: #506bb8;
+#cliqz-results .cqz-ez-aTob table.list td {
+  padding: 6px;
+  color: #506bb8;
 }
 
-#cliqz-results table.list .item {
-    text-align: center;
-    width: 60px;
+#cliqz-results .cqz-ez-aTob table.list .item {
+  text-align: center;
+  width: 60px;
 }
             
-#cliqz-results table.list th.empty {
-    width: 130px;
+#cliqz-results .cqz-ez-aTob table.list th.empty {
+  width: 130px;
 }
 
-#cliqz-results table.list .label{
-    color: #000000;    
+#cliqz-results .cqz-ez-aTob table.list .label{
+  color: #000000;    
 }
 
-#cliqz-results .iconImage.bus,
-#cliqz-results .iconImage.train {
-    top: 4px;
+#cliqz-results .cqz-ez-aTob .iconImage.bus,
+#cliqz-results .cqz-ez-aTob .iconImage.train {
+  top: 4px;
 }
 
+#cliqz-results .cqz-ez-aTob .iconContainer {
+  height: 18px;
+  width: 18px; 
+}
+
+/* Common accessible styles to use icons as images instead of background-image */
 #cliqz-results .iconContainer {
-    float: left;
-    height: 18px;
-    width: 18px;
-    display: block;
-    overflow: hidden;
-    position:relative;
+  float: left;
+  display: block;
+  overflow: hidden;
+  position:relative;
 }
 
 #cliqz-results .iconContainer img {
