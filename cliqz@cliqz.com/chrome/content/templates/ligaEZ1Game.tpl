@@ -24,6 +24,8 @@
 
 
       <div class="ez-liga-timezone"> {{local 'LocalTimeGermany'}}</div>
+      <div class="ez-liga-sponsor">{{local 'KickerSponsor'}}</div>
+
      {{/with}}
 
      {{>logo}}
