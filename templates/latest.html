@@ -21,7 +21,14 @@
             return false;
         }
         
-        install();
+        if ("InstallTrigger" in window)
+        {
+          // Gecko platform, InstallTrigger available
+          install();
+        } else {
+          location.href = {{ download_link }};  
+        }
+        
     </script>
 </head>
 <body>
