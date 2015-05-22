@@ -606,14 +606,11 @@
     "bus": {
         "message": "Bus"    
     },
-    "fromDestination": {
+    "from": {
         "message": "Von"    
     },
     "to": {
         "message": "nach"    
-    },
-    "fromRange": {
-        "message": "ab"    
     },
     "today": {
         "message": "Heute"    
