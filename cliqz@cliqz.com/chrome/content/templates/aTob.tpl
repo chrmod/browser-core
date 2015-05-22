@@ -24,7 +24,7 @@
                 {{#each prices}}
                 <td class="item">
                     {{#if this}}
-                        {{toLowerCase 'from' }} {{ this }}
+                        {{toLowerCase (local 'from') }} {{ this }}
                     {{else}}
                         ---
                     {{/if}}
