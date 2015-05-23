@@ -18,7 +18,7 @@ var CliqzHandlebars = this.Handlebars;
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -38,7 +38,6 @@ CliqzHandlebars.tplCache = {};
 
 compileTemplates();
 registerHelpers();
-
 
 function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
@@ -138,6 +137,11 @@ function registerHelpers(){
             data_richData.images = [];
 
         return 'cqz-result-h3';
+    });
+
+    Handlebars.registerHelper('bm_rd_template', function(data_richData) {
+        // 22May2015, thuy@cliqz.com, used for rich-snippet (rich-data) from BM. Originally used for: movie, games, recipe
+        return (this.data === CliqzAutocomplete.lastResult._results[0].data); // is the first result in the show list
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){

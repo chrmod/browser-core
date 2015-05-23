@@ -85,6 +85,7 @@ var Result = {
         return item;
     },
     cliqz: function(result){
+        debugger;  // paris
         var resStyle = Result.CLIQZR + ' sources-' + CliqzUtils.encodeSources(getSuperType(result) || result.source).join(''),
             debugInfo = result.source + ' ' + result.q + ' ' + result.confidence;
 
