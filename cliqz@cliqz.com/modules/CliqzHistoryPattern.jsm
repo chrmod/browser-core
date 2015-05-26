@@ -842,12 +842,9 @@ var CliqzHistoryPattern = {
         instant.data.template = "pattern-h2";
         results.shift();
       } else {
-        results[0].source = 'na';
-        results[1].source = 'na';
+        results[0].source = 'visited';
+        results[1].source = 'visited';
         var instant = [Result.cliqz(results[0]), Result.cliqz(results[1])];
-          // ,
-          // Result.cliqz(results[1])
-        // ];
         return instant;
         // var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         // instant.data.title = CliqzUtils.getLocalizedString("history_results")
