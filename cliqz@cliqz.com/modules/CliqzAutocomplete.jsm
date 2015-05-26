@@ -350,8 +350,14 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     // Create instant result
                     var instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
-                    if(instant)
-                        this.instant = [instant];
+                    if(instant) {
+                        if (Array.isArray(instant)) {
+                            CliqzUtils.log("!!!! IS ARRAY");
+                            this.instant = instant;
+                        } else {
+                            this.instant = [instant];
+                        }
+                    }
                     else
                         this.instant = [];
 
