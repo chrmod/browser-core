@@ -91,12 +91,20 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-
+        var contextMenu = document.getElementById('contentAreaContextMenu');
+        if(contextMenu) {
+          var menuItem = document.createElement('menuitem');
+          menuItem.setAttribute('label', 'Feedback');
+          menuItem.setAttribute('hidden', 'true');
+          menuItem.setAttribute('id', 'feedbackItem');
+          contextMenu.appendChild(menuItem); 
+        }
 
         resultsBox.addEventListener('mouseup', resultClick);
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
+        resultsBox.addEventListener('contextmenu', rightClick);
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -204,6 +212,7 @@ var UI = {
 
 
     loadAsyncResult: function(res) {
+
 
       if (res && res.length > 0) {
         for (var i in res) {
@@ -1784,6 +1793,20 @@ function arrowNavigationTelemetry(el){
         action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.telemetry(action);
+}
+  
+function rightClick(ev) {
+  var contextMenu = document.getElementById('contentAreaContextMenu'),
+      feedbackItem = document.getElementById('feedbackItem');
+  CliqzUtils.log("Context Menu", "Utils");
+  //hide all elements
+  for(var i = 5; i < contextMenu.children.length; i++) {
+    contextMenu.children[i].hidden = true;  
+  }
+  
+  //show Feedback option
+  feedbackItem.hidden = false;
+  return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
 }
 
 ctx.CLIQZ.UI = UI;
