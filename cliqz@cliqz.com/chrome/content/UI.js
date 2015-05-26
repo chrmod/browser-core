@@ -948,9 +948,10 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    updateMessageState("hide");
     var adult = false;
 
-    for(var i=0; i<res.results.length; i++){
+    for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
@@ -1008,6 +1009,26 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
+        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+          var msg = r.data.__message__;
+          if (CliqzUtils.getPref(msg.pref, true)) {
+            updateMessageState("show", {
+              "footer-message": {
+                message: CliqzUtils.getLocalizedString(msg.text),
+                searchTerm: msg.searchTerm.localized ? CliqzUtils.getLocalizedString(msg.searchTerm.text) : msg.searchTerm.text,
+                options: msg.buttons.map(function(b) {
+                  return {
+                    text: CliqzUtils.getLocalizedString(b.text),
+                    action: b.action,
+                    state: b.state || 'default',
+                    pref: msg.pref || 'null',
+                    prefVal: b.prefVal || 'null'
+                  }
+                })
+              }
+            });
+          }
+        }
     }
 
     var spelC = CliqzAutocomplete.spellCorr;
@@ -1071,8 +1092,6 @@ function enhanceResults(res){
               ]
             }
         });
-    } else {
-      updateMessageState("hide");
     }
 
     return res;
@@ -1239,6 +1258,19 @@ function messageClick(ev) {
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
+                  break;
+              case 'dismiss':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  if (pref && pref != "null")
+                    CliqzUtils.setPref(pref,false);
+                  break;
+               case 'set':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  if (pref && prefVal && pref != "null" && prefVal != "null")
+                    CliqzUtils.setPref(pref,prefVal);
                   break;
               default:
                   break;
