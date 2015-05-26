@@ -91,21 +91,15 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-        var contextMenu = document.getElementById('contentAreaContextMenu');
-        if(contextMenu) {
-          var menuItem = document.createElement('menuitem');
-          menuItem.setAttribute('label', 'Feedback');
-          menuItem.setAttribute('hidden', 'true');
-          menuItem.setAttribute('id', 'feedbackItem');
-          menuItem.addEventListener("command", openFeedback, false);
-          contextMenu.appendChild(menuItem); 
-        }
 
         resultsBox.addEventListener('mouseup', resultClick);
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
-        resultsBox.addEventListener('contextmenu', rightClick);
+        
+        //enable right click context menu
+        enableContextMenu(resultsBox);
+      
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -1795,11 +1789,20 @@ function arrowNavigationTelemetry(el){
     }
     CliqzUtils.telemetry(action);
 }
+
+/* TODO: move to a new CliqzContextMenu module */
+function enableContextMenu(resultsBox) {
+  appendFeedbackItem();
+  resultsBox.addEventListener('contextmenu', rightClick);
+}
   
 function rightClick(ev) {
+
   var contextMenu = document.getElementById('contentAreaContextMenu'),
       feedbackItem = document.getElementById('feedbackItem');
+  
   CliqzUtils.log("Context Menu", "Utils");
+  
   //hide all elements
   for(var i = 5; i < contextMenu.children.length; i++) {
     contextMenu.children[i].hidden = true;  
@@ -1807,12 +1810,36 @@ function rightClick(ev) {
   
   //show Feedback option
   feedbackItem.hidden = false;
+  document.popupNode = ev.target;
+  console.log(document.popupNode);
   return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+}
+  
+function appendFeedbackItem(e) {
+  var contextMenu = document.getElementById('contentAreaContextMenu');
+  if(contextMenu) {
+    var menuItem = document.createElement('menuitem');
+    menuItem.setAttribute('label', 'Feedback');
+    menuItem.setAttribute('hidden', 'true');
+    menuItem.setAttribute('id', 'feedbackItem');
+    menuItem.addEventListener("command", openFeedback, false);
+    contextMenu.appendChild(menuItem); 
+
+    contextMenu.addEventListener('popuphiding', removeFeedbackItem, false);
+  }
 }
   
 function openFeedback(e) {
   CliqzUtils.log("Open feedback page" + e, "UI");
   CLIQZ.Core.openLink(CliqzUtils.FEEDBACK, true); 
+}
+  
+function removeFeedbackItem(e) {
+  var contextMenu = document.getElementById('contentAreaContextMenu');
+  if(contextMenu) {
+      var feedbackItem = document.getElementById('feedbackItem');
+      feedbackItem.setAttribute('hidden', true); 
+  }
 }
 
 ctx.CLIQZ.UI = UI;
