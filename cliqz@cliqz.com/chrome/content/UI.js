@@ -97,6 +97,7 @@ var UI = {
           menuItem.setAttribute('label', 'Feedback');
           menuItem.setAttribute('hidden', 'true');
           menuItem.setAttribute('id', 'feedbackItem');
+          menuItem.addEventListener("command", openFeedback, false);
           contextMenu.appendChild(menuItem); 
         }
 
@@ -1807,6 +1808,11 @@ function rightClick(ev) {
   //show Feedback option
   feedbackItem.hidden = false;
   return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+}
+  
+function openFeedback(e) {
+  CliqzUtils.log("Open feedback page" + e, "UI");
+  CLIQZ.Core.openLink(CliqzUtils.FEEDBACK, true); 
 }
 
 ctx.CLIQZ.UI = UI;
