@@ -1793,23 +1793,27 @@ function arrowNavigationTelemetry(el){
 /* TODO: move to a new CliqzContextMenu module */
 function enableContextMenu(resultsBox) {
   appendFeedbackItem();
+  appendOpenInNewTab();
   resultsBox.addEventListener('contextmenu', rightClick);
 }
   
 function rightClick(ev) {
-
   var contextMenu = document.getElementById('contentAreaContextMenu'),
-      feedbackItem = document.getElementById('feedbackItem');
+      feedbackItem = document.getElementById('feedbackItem'),
+      openNewTabItem = document.getElementById('openNewTabItem');
   
-  CliqzUtils.log("Context Menu", "Utils");
+  CliqzUtils.log("Context Menu" + getResultOrChildAttr(ev.target, 'url'), "Utils");
   
   //hide all elements
   for(var i = 5; i < contextMenu.children.length; i++) {
     contextMenu.children[i].hidden = true;  
   }
   
-  //show Feedback option
+  //show Feedback & Open in New tab options
   feedbackItem.hidden = false;
+  openNewTabItem.hidden = false;
+  openNewTabItem.setAttribute('data-url', getResultOrChildAttr(ev.target, 'url'));
+  
   document.popupNode = ev.target;
   console.log(document.popupNode);
   return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
@@ -1829,9 +1833,37 @@ function appendFeedbackItem(e) {
   }
 }
   
+function appendOpenInNewTab() {
+  var contextMenu = document.getElementById('contentAreaContextMenu');
+  if(contextMenu) {
+    var menuItem = document.createElement('menuitem');
+    menuItem.setAttribute('label', 'Open Link in New Tab');
+    menuItem.setAttribute('hidden', 'true');
+    menuItem.setAttribute('id', 'openNewTabItem');
+    menuItem.addEventListener("command", openNewTab, false);
+    contextMenu.appendChild(menuItem); 
+
+    contextMenu.addEventListener('popuphiding', removeOpenNewTabItem, false);
+  }
+}
+  
 function openFeedback(e) {
   CliqzUtils.log("Open feedback page" + e, "UI");
   CLIQZ.Core.openLink(CliqzUtils.FEEDBACK, true); 
+}
+  
+function openNewTab(e) {
+  console.log(e.target.getAttribute('data-url'));
+  console.log(e.target.parentNode.parentNode);
+  CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
+}
+  
+function removeOpenNewTabItem(e) {
+  var contextMenu = document.getElementById('contentAreaContextMenu');
+  if(contextMenu) {
+      var openNewTabItem = document.getElementById('openNewTabItem');
+      openNewTabItem.setAttribute('hidden', true); 
+  } 
 }
   
 function removeFeedbackItem(e) {
