@@ -99,21 +99,22 @@ var Mixer = {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
-            if(instant.length > 0) {
+            for (var j = 0; j < instant.length; j++) {
                 // Does the main link match?
-                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
+                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].label, true);
                 if(cl_url == instant_url) {
-                    var temp = Result.combine(cliqz[i], instant[0]);
+                    var temp = Result.combine(cliqz[i], instant[j]);
+                    // FIXME: check if this logic still makes sense
                     // don't keep this one if we already have one entry like this
-                    if(instant_new.length == 0)
+                    // if(instant_new.length == 0)
                         instant_new.push(temp);
                     duplicate = true;
                 }
 
                 // Do any of the sublinks match?
-                if(instant[0].style == 'cliqz-pattern') {
-                    for(var u in instant[0].data.urls) {
-                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
+                if(instant[j].style == 'cliqz-pattern') {
+                    for(var u in instant[j].data.urls) {
+                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
                             duplicate = true;
@@ -130,8 +131,11 @@ var Mixer = {
         // Later in this function, we will modify the contents of instant.
         // To avoid changing the source object, make a copy here, if not already
         // done so in the duplication handling above.
-        if(instant_new.length == 0 && instant.length > 0)
-            instant_new.push(Result.clone(instant[0]));
+        if(instant_new.length == 0 && instant.length > 0) {
+            for (var j = 0; j < instant.length; j++) {
+                instant_new.push(Result.clone(instant[j]));
+            }
+        }
         instant = instant_new;
 
         cliqz = cliqz_new;

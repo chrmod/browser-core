@@ -358,8 +358,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.instant = [instant];
                         }
                     }
-                    else
+                    else {
                         this.instant = [];
+                    }
 
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
