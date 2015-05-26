@@ -50,14 +50,19 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     BACKSPACE = 8,
     CONTEXT_MENU_ITEMS = [
       {
-        'id': 'feedbackItem',
-        'label': 'Feedback',
-        'command': openFeedback
-      },
-      {
         'id': 'openNewTabItem',
         'label': 'Open Link in New Tab',
         'command': openNewTab
+      },
+      {
+        'id': 'openNewWindowItem',
+        'label': 'Open Link in New Window',
+        'command': openNewWindow
+      },
+      {
+        'id': 'feedbackItem',
+        'label': 'Feedback',
+        'command': openFeedback
       }
     ],
     currentResults,
@@ -1828,7 +1833,7 @@ function rightClick(ev) {
   var contextMenu = document.getElementById('contentAreaContextMenu');
     
   //hide all elements
-  for(var i = 5; i < contextMenu.children.length; i++) {
+  for(var i = 0; i < contextMenu.children.length; i++) {
     contextMenu.children[i].hidden = true;  
   }
   
@@ -1849,6 +1854,10 @@ function openFeedback(e) {
   
 function openNewTab(e) {
   CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
+}
+  
+function openNewWindow(e) {
+  window.open(e.target.getAttribute('data-url'), '_blank');
 }
 
 function hideContextMenuItem(e) {
