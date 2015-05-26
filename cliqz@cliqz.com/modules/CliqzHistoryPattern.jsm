@@ -842,10 +842,17 @@ var CliqzHistoryPattern = {
         instant.data.template = "pattern-h2";
         results.shift();
       } else {
-        results[0].source = 'visited';
-        results[1].source = 'visited';
-        var instant = [Result.cliqz(results[0]), Result.cliqz(results[1])];
-        return instant;
+        var maxHistoryResults = 2;
+        var instant = [];
+        for (var i = 0; i < maxHistoryResults; i++) {
+          if (i < results.length) {
+            results[i].source = 'visited';
+            instant.push(Result.cliqz(results[i]));
+          } else {
+            break;
+          }
+        }
+        return instant; 
         // var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
         // instant.data.title = CliqzUtils.getLocalizedString("history_results")
         // instant.data.url = instant.val;
