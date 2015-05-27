@@ -155,11 +155,20 @@ function registerHelpers(){
     Handlebars.registerHelper('log', function(value, key) {
         console.log('TEMPLATE LOG HELPER', value);
     });
+    
+    Handlebars.registerHelper('toLowerCase', function(str) {
+       return str.toLowerCase(); 
+    });
+    
+    Handlebars.registerHelper('toUpperCase', function(str) {
+       return str.toUpperCase(); 
+    });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        if(!q) return text;
         q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 

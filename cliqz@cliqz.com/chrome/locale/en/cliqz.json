@@ -604,5 +604,23 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Plane"    
+    },
+    "train": {
+        "message": "Train"    
+    },
+    "bus": {
+        "message": "Bus"    
+    },
+    "from": {
+        "message": "From"    
+    },
+    "to": {
+        "message": "to"    
+    },
+    "today": {
+        "message": "Today"    
     }
 }

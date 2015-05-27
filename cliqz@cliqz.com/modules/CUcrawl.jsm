@@ -24,7 +24,7 @@ var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
 // CliqzUtils.setPref('safe_browsing_events','https://mozilla-ucrawl.cliqz.com');
 // CliqzUtils.setPref('safe_browsing_events','http://0.0.0.0:8080');
 
-// CliqzUtils.setPref('showDebugLogs', false);
+CliqzUtils.setPref('showDebugLogs', false);
 CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_events', 'https://mozilla-ucrawl.cliqz.com'));
 CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
 CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
@@ -208,7 +208,7 @@ function add32(a, b) {
 }
 
 var CUcrawl = {
-    VERSION: 'moz-test-0.03',
+    VERSION: 'moz-test-0.04',
     WAIT_TIME: 2000,
     LOG_KEY: 'mucrawl',
     debug: false,
@@ -216,9 +216,10 @@ var CUcrawl = {
     httpCache401: {},
     queryCache: {},
     privateCache: {},
-    UrlsCache : {},    
+    urlsCache : {},
+    docCache: {},
     strictMode: false,
-    qs_len:30,
+    qs_len:40,
     rel_part_len:22,
     rel_segment_len:15,
     doubleFetchTimeInSec: 3600,
@@ -281,6 +282,18 @@ var CUcrawl = {
         }
         return url;
     },
+    isShortenerURL: function(url) {
+        try {
+            var url_parts = CUcrawl.parseURL(url);
+            if ((url_parts.hostname.length < 8) && (url_parts.path.length > 4)) {
+                var v = url_parts.path.split('/')
+                for(var i=0;i<v.length;i++) if (CUcrawl.isHash(v[i])) return true;
+            }
+            return false;
+        } catch(ee) {
+            return true;
+        }
+    },
     getTime:function() {
         var d = null;
         var m = null;
@@ -342,12 +355,71 @@ var CUcrawl = {
         }
 
     },
-    dropLongURL: function(url){
+    calculateStrictness: function(url, page_doc) {
+
+        var strict_value = true;
+        if (page_doc && page_doc['x'] && page_doc['x']['canonical_url']) {
+            // there is canonical,
+            var can_url_parts = CUcrawl.parseURL(page_doc['x']['canonical_url']);
+            var url_parts = CUcrawl.parseURL(url);
+
+            if (url_parts.hostname!=null && url_parts.hostname!='' && url_parts.hostname==can_url_parts.hostname) {
+                // both canonical and url have a hostname and is the same,
+
+                if ((page_doc['x']['canonical_url'] != url)  && (page_doc['x']['canonical_url'].length < url.length)) {
+                    // the page has a canonical of same domain, which usually is a sign that is public,
+                    // and the canonical is not the same url, which comes out of automatic generation
+                    // of canonicals
+                    strict_value = false;
+                }
+            }
+        }
+        return strict_value;
+    },
+    dropLongURL: function(url, options) {
 
         try {
+            if (options==null) options = {'strict': false};
+
+            if (CUcrawl.checkForEmail(url)) return true;
+
             var url_parts = CUcrawl.parseURL(url);
-            if (url_parts.query_string && url_parts.query_string.length > CUcrawl.qs_len) {
-                return true;
+
+            if (options.strict == true) {
+                if (url_parts.query_string && url_parts.query_string.length > CUcrawl.qs_len*0.75) return true;
+                // check the number of parameters too,
+
+                if (url_parts.query_string) {
+                    var v = url_parts.query_string.split(/[&;]/);
+                    if (v.length > 1) {
+                        // that means that there is a least one &; hence 2 params
+                        return true;
+                    }
+
+                    for (var i=0; i<v.length; i++) {
+                        if (v[i].length>3 && CUcrawl.isHash(v[i])) return true;
+                    }
+
+                    if (CUcrawl.checkForLongNumber(url_parts.query_string, 8)!=null) return true;
+                }
+
+                if (CUcrawl.checkForLongNumber(url_parts.path, 8)!=null) return true;
+
+            }
+            else {
+                if (url_parts.query_string && url_parts.query_string.length > CUcrawl.qs_len) return true;
+
+                if (url_parts.query_string) {
+
+                    var v = url_parts.query_string.split(/[&;]/);
+                    if (v.length > 4) {
+                        // that means that there is a least one &; hence 5 params
+                        return true;
+                    }
+                    if (CUcrawl.checkForLongNumber(url_parts.query_string, 12)!=null) return true;
+                }
+
+                if (CUcrawl.checkForLongNumber(url_parts.path, 12)!=null) return true;
             }
 
             var vpath = url_parts.path.split(/[\/\._ \-:\+;]/);
@@ -355,21 +427,32 @@ var CUcrawl = {
                 if (vpath[i].length > CUcrawl.rel_part_len) {
                     return true;
                 }
+
+                if (options.strict == true) {
+                    // if strict, check the no token in path looks like a hash
+                    if (vpath[i].length>5 && CUcrawl.isHash(vpath[i])) return true;
+                }
+                else {
+                    if (vpath[i].length>12 && CUcrawl.isHash(vpath[i])) return true;
+                }
+
             }
 
             var vpath = url_parts.path.split('/');
             for (var i=0; i<vpath.length; i++) {
                 var cstr = vpath[i].replace(/[^A-Za-z0-9]/g,'');
-                if (cstr.length > CUcrawl.rel_segment_len) {
+                var mult = 1.0;
+                if (options.strict == true) mult = 0.5;
+                if (cstr.length > CUcrawl.rel_segment_len * mult) {
                     if (CUcrawl.isHash(cstr)) return true;
                 }
             }
 
             var v = [/\/admin([\/\?#=]|$)/i, /\/wp-admin([\/\?#=]|$)/i,
                      /\/edit([\/\?#=]|$)/i, /[&\?#\/]share([\/\?#=]|$)/i,
-                     /[&\?#\/]sharing([\/\?#=]|$)/i, /[&\?#\/]logout([\/\?#=]|$)/i,
-                     /WebLogic/i, /[&\?#\/]token([\/\?#=_]|$)/i,
-                     /[&\?#\/]trk([\/\?#=_]|$)/i, /[&\?#\/=](http|https)(:\/|\%3A\%2F)/];
+                     /[&\?#\/;]sharing([\/\?#=]|$)/i, /[&\?#\/;]logout([\/\?#=]|$)/i,
+                     /WebLogic/i, /[&\?#\/;]token([\/\?#=_;]|$)/i,
+                     /[&\?#\/;]trk([\/\?#=_]|$)/i, /[&\?#\/=;](http|https)(:\/|\%3A\%2F)/];
 
             // url_rel contains path and query_string
             //
@@ -378,7 +461,7 @@ var CUcrawl = {
 
             // checks specific to the query string
             //
-            // real query string (?) or a 'fake' one with a sharp on the path, they shoul be treated the same way
+            // real query string (?) or a 'fake' one with a sharp on the path, they should be treated the same way
             //
             var path_query_string = null;
             var ind_pos = url_parts.path.indexOf('#');
@@ -386,11 +469,10 @@ var CUcrawl = {
 
             if ((url_parts.query_string && url_parts.query_string.length > 0) || (path_query_string && path_query_string.length > 0)) {
 
-                var v = [/[&\?#_\-]user/i, /[&\?#_\-]token/i, /[&\?#_\-]auth/i, /[&\?#_\-]uid/i, /[&\?#_\-]email/i,
-                         /[&\?#_\-]usr/i, /[&\?#_\-]pin/i, /[&\?#_\-]pwd/i, /[&\?#_\-]password/i, /[&\?#]u[=#]/i, /[&\?#]url[=#]/i,
-                         /[&\?#_\-]http/i, /[&\?#_\-]ref[=#]/i, /[&\?#_\-]red[=#]/i, /[&\?#_\-]trk/i, /[&\?#_\-]track/i,
-                         /[&\?#_\-]shar/i, /[&\?#_\-]login/i, /[&\?#_\-]logout/i, /[&\?#_\-]session/i,
-
+                var v = [/[&\?#_\-;]user/i, /[&\?#_\-;]token/i, /[&\?#_\-;]auth/i, /[&\?#_\-;]uid/i, /[&\?#_\-;]email/i,
+                         /[&\?#_\-;]usr/i, /[&\?#_\-;]pin/i, /[&\?#_\-;]pwd/i, /[&\?#_\-;]password/i, /[&\?#;]u[=#]/i, /[&\?#;]url[=#]/i,
+                         /[&\?#_\-;]http/i, /[&\?#_\-;]ref[=#]/i, /[&\?#_\-;]red[=#]/i, /[&\?#_\-;]trk/i, /[&\?#_\-;]track/i,
+                         /[&\?#_\-;]shar/i, /[&\?#_\-;]login/i, /[&\?#_\-;]logout/i, /[&\?#_\-;]session/i,
                          ];
 
                 if (url_parts.query_string && url_parts.query_string.length > 0) {
@@ -410,6 +492,13 @@ var CUcrawl = {
             return true;
         }
 
+    },
+    cleanDocCache: function() {
+      for(var key in CUcrawl.docCache) {
+        if ((CUcrawl.counter - CUcrawl.docCache[key]['time']) > 3600*CUcrawl.tmult) {
+          delete CUcrawl.docCache[key];
+        }
+      }
     },
     cleanHttpCache: function() {
       for(var key in CUcrawl.httpCache) {
@@ -462,7 +551,6 @@ var CUcrawl = {
                 }
 
               } catch(ee) {
-                if (CUcrawl && CUcrawl.debug) CliqzUtils.log("error httpObserver" + ee,CUcrawl.LOG_KEY);
                 return;
               }
         }
@@ -503,7 +591,7 @@ var CUcrawl = {
         else{
           res[''+i] = {'u': CUcrawl.maskURL(_res[i].href), 't': _res[i].text};
         }
-        
+
       }
       //CliqzUtils.log("Yahoo results: " + JSON.stringify(res,undefined,2),CUcrawl.LOG_KEY);
       return res;
@@ -545,15 +633,15 @@ var CUcrawl = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
         if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)){
             return true;
-        } 
+        }
         else{
             return false;
         }
 
-        
+
     },
     getSearchData: function(activeURL, document){
         // here we check if user ignored our results and went to google and landed on the same url
@@ -561,7 +649,7 @@ var CUcrawl = {
         var yrequery = /.search.yahoo\..*?[#?&;]p=[^$&]+/; // regex for yahoo query
         var brequery = /\.bing\..*?[#?&;]q=[^$&]+/; // regex for yahoo query
         var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl   
+        var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
 
         //Get google result
         var rq = null;
@@ -589,7 +677,7 @@ var CUcrawl = {
                 CUcrawl.track({'type': CUcrawl.msgType, 'action': 'query', 'payload': rq});
                 }
         }
-        return rq        
+        return rq
 
 
 
@@ -674,6 +762,7 @@ var CUcrawl = {
                 var doc = document.implementation.createHTMLDocument("example");
                 doc.documentElement.innerHTML = req.responseText;
 
+                CUcrawl.docCache[url] = {'time': CUcrawl.counter, 'doc': doc};
                 var x = CUcrawl.getPageData(url, doc);
 
                 onsuccess(url, page_data, original_url, x);
@@ -719,7 +808,7 @@ var CUcrawl = {
         }
         return res;
     },
-    validDoubleFetch: function(struct_bef, struct_aft) {
+    validDoubleFetch: function(struct_bef, struct_aft, options) {
         // compares the structure of the page when rendered in Firefox with the structure of
         // the page after.
 
@@ -736,30 +825,65 @@ var CUcrawl = {
             return false;
         }
 
-
         // if any of the two struct has a iall to false decline
         if (!(struct_bef['iall'] && struct_aft['iall'])) {
             if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: found a noindex", CUcrawl.LOG_KEY);
             return false;
         }
 
+        if (struct_bef['canonical_url'] != struct_aft['canonical_url']) {
+            // if canonicals are different, in principle are different pages,
 
-        // if there is enough html length, do the ratio, if below or above 10% then very imbalance, discard
-        var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
-        if ((struct_bef['lh'] || 0) > 10*1024) {
-            var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
-            if (ratio_lh < 0.10 || ratio_lh > 0.90) {
-                if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: lh is not balanced", CUcrawl.LOG_KEY);
+            if (struct_aft['canonical_url']!=null && struct_aft['canonical_url'].length>0 && struct_bef['canonical_url']==null) {
+                // unless in the case that struct_aft (after) has a canonical different than null
+                // and struct_bef has no canonical,
+            }
+            else {
                 return false;
             }
         }
 
-        // if there is enough html length, do the ratio, if below or above 10% then very imbalance, discard
-        var ratio_nl = (struct_bef['nl'] || 0) / ((struct_bef['nl'] || 0) + (struct_aft['nl'] || 0));
-        if ((struct_bef['lh'] || 0) > 30) {
+        if (options.structure_strict==true) {
+
+            // if there is enough html length, do the ratio, if below or above 10% then very imbalance, discard
+
+            var length_html_ok = true;
+            var length_text_ok = true;
+
+            var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
+            if ((struct_bef['lh'] || 0) > 10*1024) {
+                var ratio_lh = (struct_bef['lh'] || 0) / ((struct_bef['lh'] || 0) + (struct_aft['lh'] || 0));
+                if (ratio_lh < 0.10 || ratio_lh > 0.90) {
+                    if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: lh is not balanced", CUcrawl.LOG_KEY);
+                    length_html_ok = false;
+                }
+            }
+
+            // if there is enough html length, do the ratio, if below or above 10% then very imbalance, discard
             var ratio_nl = (struct_bef['nl'] || 0) / ((struct_bef['nl'] || 0) + (struct_aft['nl'] || 0));
-            if (ratio_nl < 0.10 || ratio_nl > 0.90) {
-                if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: nl is not balanced", CUcrawl.LOG_KEY);
+            if ((struct_bef['lh'] || 0) > 30) {
+                var ratio_nl = (struct_bef['nl'] || 0) / ((struct_bef['nl'] || 0) + (struct_aft['nl'] || 0));
+                if (ratio_nl < 0.10 || ratio_nl > 0.90) {
+                    if (CUcrawl.debug) CliqzUtils.log("fovalidDoubleFetch: nl is not balanced", CUcrawl.LOG_KEY);
+                    length_text_ok = false;
+                }
+            }
+
+            if (!length_text_ok && !length_html_ok) return false;
+
+        }
+
+        // check for passwords and forms if there is no canonical on the after (double fetched with no session)
+        if (struct_aft['canonical_url']==null || struct_aft['canonical_url']=='') {
+            // if had no password inputs before and it has after, decline
+            if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] > 0)) {
+                if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail nip", CUcrawl.LOG_KEY);
+                return false;
+            }
+
+            // if had no forms before and it has after, decline
+            if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] > 0)) {
+                if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CUcrawl.LOG_KEY);
                 return false;
             }
         }
@@ -814,13 +938,13 @@ var CUcrawl = {
                 // legitimate sites something prompt you to register
 
                 // if had no password inputs before and it has after, decline
-                if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] != 0)) {
+                if ((struct_bef['nip'] == null || struct_aft['nip'] == null) || (struct_bef['nip'] == 0 && struct_aft['nip'] > 0)) {
                     if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail nip", CUcrawl.LOG_KEY);
                     return false;
                 }
 
                 // if had no forms before and it has after, decline
-                if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] != 0)) {
+                if ((struct_bef['nf'] == null || struct_aft['nf'] == null) || (struct_bef['nf'] == 0 && struct_aft['nf'] > 0)) {
                     if (CUcrawl.debug) CliqzUtils.log("validDoubleFetch: fail text nf", CUcrawl.LOG_KEY);
                     return false;
                 }
@@ -843,36 +967,28 @@ var CUcrawl = {
         var clean_url = url;
         // check first if there is a query string,
 
-        var qs = url.split('?');
-        if (qs.length > 1) {
-            clean_url = qs[0];
+        var url_parts = CUcrawl.parseURL(url);
+
+        if (url_parts && url_parts.query_string && url_parts.query_string != '') {
+            // it has a query string, either by ? # or ;
+            clean_url = url_parts.protocol + '://' + url_parts.hostname + url_parts.path;
         }
         else {
+            // it has neither query_string or hash or semicolon, so let's try to remove the last segment
 
-            qs = url.split('#');
-            if (qs.length > 1) {
-                clean_url = qs[0];
-            }
-            else {
+            if (url_parts && url_parts.path && url_parts.path != '') {
+                var qs = url_parts.path.split('/')
+                var cqs = [];
+                for (let i=0;i<qs.length;i++) if (qs[i]!='') cqs.push(qs[i]);
 
-                // it has neither query_string or hash, so let's try to remove the last segment
+                if (cqs.length >= 3) {
+                    // more than 3, /a/b/c, let's remove the last one
 
-                var url_parts = CUcrawl.parseURL(url);
-                if (url_parts && url_parts.path && url_parts.path != '') {
-                    qs = url_parts.path.split('/')
-                    var cqs = [];
-                    for (let i=0;i<qs.length;i++) if (qs[i]!='') cqs.push(qs[i]);
-
-                    if (cqs.length >= 3) {
-                        // more than 3, /a/b/c, let's remove the last one
-
-                        var new_path =  cqs.slice(0, cqs.length-1).join('/');
-                        clean_url = url_parts.protocol + '://' + url_parts.hostname + '/' + new_path + '/';
-                    }
+                    var new_path =  cqs.slice(0, cqs.length-1).join('/');
+                    clean_url = url_parts.protocol + '://' + url_parts.hostname + '/' + new_path + '/';
                 }
-                qs = url.split('/')
-
             }
+
         }
 
         if (clean_url != url) {
@@ -884,7 +1000,28 @@ var CUcrawl = {
         else return url;
 
 
+    },
+    fetchReferral: function(referral_url, callback) {
 
+        CliqzUtils.log("PPP in fetchReferral: " + referral_url, CUcrawl.LOG_KEY);
+
+        if (referral_url && referral_url!='') {
+            if (CUcrawl.docCache[referral_url]==null) {
+                CUcrawl.auxGetPageData(referral_url, null, null, function(referral_url) {
+                    CliqzUtils.log("PPP in fetchReferral success auxGetPageData: " + referral_url, CUcrawl.LOG_KEY);
+                    callback();
+                },
+                function(referral_url) {
+                    CliqzUtils.log("PPP in fetchReferral failure auxGetPageData: " + referral_url, CUcrawl.LOG_KEY);
+                    callback();
+                });
+            }
+            else {
+                CliqzUtils.log("PPP in fetchReferral already in docCache: " + referral_url, CUcrawl.LOG_KEY);
+                callback();
+            }
+        }
+        else callback();
     },
     doubleFetch: function(url, page_doc) {
 
@@ -900,8 +1037,7 @@ var CUcrawl = {
 
         // the url is marked as noindex
         //
-        if (page_doc['x'] && page_doc['x']['iall'] == false) isok = false;
-
+        if (page_doc && page_doc['x'] && page_doc['x']['iall'] == false) isok = false;
         // the url is suspicious, this should never be the case here but better safe
         //
         if (CUcrawl.isSuspiciousURL(url) == true) isok = false;
@@ -909,7 +1045,7 @@ var CUcrawl = {
 
         if (CUcrawl.dropLongURL(url)) {
 
-            if (page_doc && page_doc['x']['canonical_url']) {
+            if (page_doc && page_doc['x'] && page_doc['x']['canonical_url']) {
                 // the url is to be drop, but it has a canonical URL so it should be public
                 if (CUcrawl.dropLongURL(page_doc['x']['canonical_url'])) {
                     // wops, the canonical is also bad, therefore mark as private
@@ -932,94 +1068,180 @@ var CUcrawl = {
 
             CUcrawl.auxGetPageData(url, page_doc, url, function(url, page_doc, original_url, data) {
 
+                // data contains the public data of the url double-fetch,
+
                 if (CUcrawl.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawl.LOG_KEY);
 
-                if (CUcrawl.validDoubleFetch(page_doc['x'], data)) {
-
-                    if (CUcrawl.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawl.LOG_KEY);
+                if (CUcrawl.validDoubleFetch(page_doc['x'], data, {'structure_strict': false})) {
 
                     //
-                    // we need to modify the 'x' field of page_doc to substitute any structural information about
-                    // the page content by the data coming from the doubleFetch (no session)
+                    // url, we should have the data of the double for the referral in CUcrawl.docCache
                     //
 
-                    var first_url_double_fetched = url;
+                    CUcrawl.fetchReferral(page_doc['ref'], function() {
 
-                    // if the url looks bad, replace by the canonical url if it exists
-                    //if (CUcrawl.dropLongURL(url)) {
-                        // the canonical_url exists here, it was validated before in the isok
-                    //    page_doc['url'] = page_doc['x']['canonical_url'];
-                    //}
+                        var strict_value = CUcrawl.calculateStrictness(url, page_doc);
 
-                    //
-                    // we need to modify the 'x' field of page_doc to substitute any structural information about
-                    // the page content by the data coming from the doubleFetch (no session)
-                    //
+                        if (page_doc['ref'] && page_doc['ref']!='') {
+                            // the page has a referral
+                            if (CUcrawl.debug) CliqzUtils.log("PPP: page has a referral, " + url + " < " + page_doc['ref'], CUcrawl.LOG_KEY);
+                            var hasurl = CUcrawl.hasURL(page_doc['ref'], url);
+                            if (CUcrawl.debug) CliqzUtils.log("PPP: page has a referral, " + url + " < " + page_doc['ref'] + ">>>> " + hasurl, CUcrawl.LOG_KEY);
 
-                    if (data['canonical_url']!=null && data['canonical_url'] != '') {
-                        page_doc['url'] = data['canonical_url'];
-                    }
-                    page_doc['x'] = data;
+                            // overwrite strict value because the link exists on a public fetchable page
+                            if (hasurl) strict_value = false;
+                        }
+                        else {
+                            // page has no referral
+                            if (CUcrawl.debug) CliqzUtils.log("PPP: page has NO referral, " + url, CUcrawl.LOG_KEY);
 
-                    var clean_url = CUcrawl.getCleanerURL(page_doc['url']);
+                            // we do not know the origin of the page, run the dropLongURL strict version, if
+                            // there is no canonical or if there is canonical and is the same as the url,
+                        }
 
-                    if (clean_url != page_doc['url']) {
-                        // we have a candidate for a cleaner url (without query_string) or without the last segment
-                        // of the path, we want to double fetch it and if successful, then, we could replace the url
-                        // because it would be cleaner hence safer
+                        if (CUcrawl.debug) CliqzUtils.log("strict URL:" + url + " > " + strict_value, CUcrawl.LOG_KEY);
+
+                        if (CUcrawl.validDoubleFetch(page_doc['x'], data, {'structure_strict': strict_value})) {
+
+                            // we do not know the origin of the page, run the dropLongURL strict version
+
+                            if (CUcrawl.dropLongURL(url, {'strict': strict_value})) {
+                                if (page_doc && page_doc['x'] && page_doc['x']['canonical_url']) {
+                                    if (CUcrawl.dropLongURL(page_doc['x']['canonical_url'], {'strict': strict_value})) {
+                                        if (CUcrawl.debug) CliqzUtils.log("doubleFetch failed on dropLongURL strict=true:" + url, CUcrawl.LOG_KEY);
+                                        CUcrawl.setAsPrivate(url);
+                                        return;
+                                    }
+                                }
+                                else {
+                                    if (CUcrawl.debug) CliqzUtils.log("doubleFetch failed on dropLongURL strict=true:" + url, CUcrawl.LOG_KEY);
+                                    CUcrawl.setAsPrivate(url);
+                                    return;
+                                }
+                            }
+                        }
+                        else {
+                            // the strict version of validDoubleFetch fails for a page with no referral,
+                            // since we do not know the origin mark as private
+                            if (CUcrawl.debug) CliqzUtils.log("doubleFetch failed on structure_strict=true: " + url, CUcrawl.LOG_KEY);
+                            CUcrawl.setAsPrivate(url);
+                            return;
+                        }
+
+
+
+                        if (CUcrawl.debug) CliqzUtils.log("success on doubleFetch, need further validation", CUcrawl.LOG_KEY);
+
+                        //
+                        // we need to modify the 'x' field of page_doc to substitute any structural information about
+                        // the page content by the data coming from the doubleFetch (no session)
                         //
 
-                        if (CUcrawl.debug) CliqzUtils.log("goind to clean_url double-fetch: " + clean_url, CUcrawl.LOG_KEY);
+                        var first_url_double_fetched = url;
 
-                        CUcrawl.auxGetPageData(clean_url, page_doc, first_url_double_fetched, function(url, page_doc, original_url, data) {
+                        //
+                        // we need to modify the 'x' field of page_doc to substitute any structural information about
+                        // the page content by the data coming from the doubleFetch (no session)
+                        //
 
-                            if (CUcrawl.debug) CliqzUtils.log("success on clean_url doubleFetch, need further validation", CUcrawl.LOG_KEY);
+                        // at this point we might have 3 different urls: url, page_doc['x']['canonical_url'] (either
+                        // one of them has to have passed the dropLongURL test), and finally we also have data['canonical_url']
+                        // (which has not passed the dropLongURL test). In principle, data['canonical_url']==page_doc['x']['canonical_url']
+                        // but is not always the case, different calls can give different urls
 
-                            if (CUcrawl.validDoubleFetch(page_doc['x'], data)) {
-                                // if it the second double fetch is valid, that means that the clean_url is (url parameter) is
-                                // equivalent, so we can replace
-                                page_doc['url'] = url;
+                        if (data['canonical_url']!=null && data['canonical_url'] != '' && CUcrawl.dropLongURL(data['canonical_url'])==false) {
+                            page_doc['url'] = data['canonical_url'];
+                            page_doc['x'] = data;
+                        }
+                        else {
+                            if (page_doc['x']['canonical_url']!=null && page_doc['x']['canonical_url'] != '' && CUcrawl.dropLongURL(page_doc['x']['canonical_url'])==false) {
+                                page_doc['url'] = page_doc['x']['canonical_url'];
                                 page_doc['x'] = data;
+                                page_doc['x']['canonical_url'] = page_doc['url'];
+                            }
+                            else {
+                                // there was no canonical either on page_doc['x'] or in data or it was droppable
+
+                                if (CUcrawl.dropLongURL(url)==false) {
+                                    page_doc['url'] = url;
+                                    page_doc['x'] = data;
+
+                                    if (page_doc['x']['canonical_url']!=null && page_doc['x']['canonical_url'] != '') {
+                                        page_doc['x']['canonical_url'] = url;
+                                    }
+                                }
+                                else {
+                                    // this should not happen since it would be covered by the isok checks, but better safe,
+                                    CUcrawl.setAsPrivate(url);
+                                    return;
+                                }
+                            }
+                        }
+
+                        var clean_url = CUcrawl.getCleanerURL(page_doc['url']);
+
+                        if (clean_url != page_doc['url']) {
+                            // we have a candidate for a cleaner url (without query_string) or without the last segment
+                            // of the path, we want to double fetch it and if successful, then, we could replace the url
+                            // because it would be cleaner hence safer
+                            //
+
+                            if (CUcrawl.debug) CliqzUtils.log("going to clean_url double-fetch: " + clean_url, CUcrawl.LOG_KEY);
+
+                            CUcrawl.auxGetPageData(clean_url, page_doc, first_url_double_fetched, function(url, page_doc, original_url, data) {
+
+                                if (CUcrawl.debug) CliqzUtils.log("success on clean_url doubleFetch, need further validation", CUcrawl.LOG_KEY);
+
+                                if (CUcrawl.validDoubleFetch(page_doc['x'], data, {'structure_strict': false})) {
+                                    // if it the second double fetch is valid, that means that the clean_url is (url parameter) is
+                                    // equivalent, so we can replace
+                                    page_doc['url'] = url;
+                                    page_doc['x'] = data;
+                                    CUcrawl.setAsPublic(original_url);
+                                    CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
+
+                                }
+                                else {
+                                    // the page with the clean_urls does not return the same, it can be two cases here, one is that
+                                    // the content is just totally different, in this case, we should send the page with the unclean_url,
+                                    // the other case is that the content is different but now we have passwords where we did not have before,
+                                    // in such a case, it's safer to assume that the fragments cleaned were identifiying a user, and the
+                                    // website is redirecting to the login page, in such a case, we should not send the page at all, in fact, we
+                                    // should mark it as private just to be sure,
+
+                                    if (CUcrawl.debug) {
+                                        CliqzUtils.log("checking clean_url, page_doc: " + JSON.stringify(page_doc), CUcrawl.LOG_KEY);
+                                        CliqzUtils.log("checking clean_url, data: " + JSON.stringify(data), CUcrawl.LOG_KEY);
+                                    }
+
+
+                                    if (page_doc['x']['nip'] < data['nip']) {
+                                        // the page with url_clean have more input password fields or more forms, this is dangerous,
+                                        if (CUcrawl.debug) CliqzUtils.log("failure on checking the password and forms for clean_url: " + original_url, + " set as private", CUcrawl.LOG_KEY);
+                                        CUcrawl.setAsPrivate(original_url);
+                                    }
+                                    else {
+                                        // safe, here we will send the url before clean_url
+                                        CUcrawl.setAsPublic(original_url);
+                                        CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
+                                    }
+                                }
+                            },
+                            function(url, page_doc, original_url, error_message) {
+                                if (CUcrawl.debug) CliqzUtils.log("failure on clean_url doubleFetch! " + "structure did not match", CUcrawl.LOG_KEY);
+                                // there was a failure, the clean_url does not go to the same place, therefore it's better
+                                // not to replace
+
                                 CUcrawl.setAsPublic(original_url);
                                 CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
 
-                            }
-                            else {
-                                // the page with the clean_urls does not return the same, it can be two cases here, one is that
-                                // the content is just totally different, in this case, we should send the page with the unclean_url,
-                                // the other case is that the content is different but now we have passwords where we did not have before,
-                                // in such a case, it's safer to assume that the fragments cleaned were identifiying a user, and the
-                                // website is redirecting to the login page, in such a case, we should not send the page at all, in fact, we
-                                // should mark it as private just to be sure,
-
-                                if ((page_doc['x']['nip'] < data['x']['nip'])  ||  (page_doc['x']['nf'] < data['x']['nf'])) {
-                                    // the page with url_clean have more input password fields or more forms, this is dangerous,
-                                    if (CUcrawl.debug) CliqzUtils.log("failure on checking the password and forms for clean_url: " + original_url, + " set as private", CUcrawl.LOG_KEY);
-                                    CUcrawl.setAsPrivate(original_url);
-                                }
-                                else {
-                                    // safe, here we will send the url before clean_url
-                                    CUcrawl.setAsPublic(original_url);
-                                    CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
-                                }
-                            }
-                        },
-                        function(url, page_doc, original_url, error_message) {
-                            if (CUcrawl.debug) CliqzUtils.log("failure on clean_url doubleFetch! " + "structure did not match", CUcrawl.LOG_KEY);
-                            // there was a failure, the clean_url does not go to the same place, therefore it's better
-                            // not to replace
-
+                            });
+                        }
+                        else {
                             CUcrawl.setAsPublic(original_url);
                             CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
-
-                        });
-                    }
-                    else {
-
-                        CUcrawl.setAsPublic(original_url);
-                        CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': page_doc});
-                    }
-
+                        }
+                    });
                 }
                 else {
                     if (CUcrawl.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match", CUcrawl.LOG_KEY);
@@ -1037,6 +1259,68 @@ var CUcrawl = {
             CUcrawl.setAsPrivate(url);
         }
 
+    },
+    hasURL: function(source_url, target_url) {
+        // the target_url is in the source_url
+
+        try {
+
+
+            var tt = CUcrawl.docCache[source_url];
+            if (tt) {
+                var cd = tt['doc'];
+                if (!cd) {
+                    // fetch the content of the source_url,
+                    //
+                    if (CUcrawl.debug) CliqzUtils.log("hasURL no CD!!! ", CUcrawl.LOG_KEY);
+                    return false;
+                }
+            }
+            else return false;
+
+            var target_url_no_protocol = target_url.replace(/^http(s?)\:\/\//, '');
+            var target_url_relative = null;
+            var source_hostname = CUcrawl.parseURL(source_url).hostname;
+            var target_hostname = CUcrawl.parseURL(target_url).hostname;
+
+            if (source_hostname == target_hostname) {
+                // same domain, path could be relative
+                target_url_relative = '/';
+                var v = target_url_no_protocol.split('/');
+                if (v.length>1) target_url_relative = '/' + v.slice(1, v.length).join('/')
+            }
+
+            //var html = cd.documentElement.innerHTML;
+            //var ind1 = html.indexOf(target_url_no_protocol);
+            var found = false;
+
+            var links = cd.documentElement.getElementsByTagName('a');
+
+            for(var i=0;i<links.length;i++) {
+                try {
+                    var link = links[i].href;
+                    link = link.replace(/^http(s?)\:\/\//, '');
+
+                    if (link == target_url_no_protocol) {
+                        found = true;
+                        break;
+                    }
+                    else {
+                        if (target_url_relative && link == target_url_relative) {
+                            found = true;
+                            break;
+                        }
+                    }
+                } catch(ee) {}
+            }
+
+
+            return found;
+
+        } catch(ee) {
+            if (CUcrawl.debug) CliqzUtils.log("Error on hasURL: " + ee, CUcrawl.LOG_KEY);
+            return false;
+        }
     },
     getPageData: function(url, cd) {
 
@@ -1121,9 +1405,8 @@ var CUcrawl = {
         var x = {'lh': len_html, 'lt': len_text, 't': title, 'nl': numlinks, 'ni': (inputs || []).length, 'ninh': inputs_nh, 'nip': inputs_pwd, 'nf': (forms || []).length, 'pagel' : pg_l , 'ctry' : location, 'iall': iall, 'canonical_url': canonical_url };
         //CliqzUtils.log("Testing" + x.ctry, CUcrawl.LOG_KEY);
         return x;
-    },       
+    },
     getCDByURL: function(url) {
-
 
         var dd_url = url;
 
@@ -1153,6 +1436,9 @@ var CUcrawl = {
                         //
                         try {
                             if (decodeURI(decodeURI(currURL))==dd_url) return currentBrowser.contentDocument;
+                            else {
+                                if (url == decodeURIComponent(currURL)) return currentBrowser.contentDocument;
+                            }
                         }
                         catch(ee) {}
                     }
@@ -1187,22 +1473,21 @@ var CUcrawl = {
             var activeURL = CUcrawl.currentURL();
             //Check if the URL is know to be bad: private, about:, odd ports, etc.
 
-            //CliqzUtils.log("loaded: " + activeURL + " " + CUcrawl.isSuspiciousURL(activeURL), CUcrawl.LOG_KEY);
+            CliqzUtils.log("loaded: " + activeURL + " " + CUcrawl.isSuspiciousURL(activeURL), CUcrawl.LOG_KEY);
 
             if (CUcrawl.isSuspiciousURL(activeURL)) return;
-
 
 
             if (activeURL.indexOf('about:')!=0) {
                 if (CUcrawl.state['v'][activeURL] == null) {
                     // we check for privacy, if not private the function will add the url
-                    // to the UrlsCache
+                    // to the urlsCache
                     CUcrawl.getPageFromDB(activeURL, function(page) {
                         /*TBF - Remove
                         if ((page!=null) && (page.checked==1) && (page.private==0)) {
-                            CUcrawl.UrlsCache[activeURL] = true;
+                            CUcrawl.urlsCache[activeURL] = true;
                         }*/
-                    });                    
+                    });
 
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
                     if (CUcrawl.checkIfSearchURL(activeURL)){
@@ -1215,17 +1500,17 @@ var CUcrawl = {
                                 try {
 
                                     // FIXME: this begs for refactoring!!
-                                    
+
                                     var activeURL = CUcrawl.currentURL();
-                                    var document = null;  
-                                    var searchURL = null;  
+                                    var document = null;
+                                    var searchURL = null;
 
                                     if (currURLAtTime == activeURL) {
                                         document = currwin.gBrowser.selectedBrowser.contentDocument;
                                         searchURL = activeURL;
                                     }
                                     else{
-                                        document = CUcrawl.getCDByURL(currURLAtTime);  
+                                        document = CUcrawl.getCDByURL(currURLAtTime);
                                         searchURL = currURLAtTime;
 
                                     }
@@ -1234,7 +1519,7 @@ var CUcrawl = {
                                     rq = CUcrawl.getSearchData(searchURL, document);
                                     CUcrawl.userSearchTransition(rq);
 
-                                    
+
                                 }
                                 catch(ee) {
                                     // silent fail
@@ -1246,7 +1531,7 @@ var CUcrawl = {
 
                         }, CUcrawl.WAIT_TIME, activeURL);
                     }
-                
+
 
                     var status = null;
 
@@ -1260,7 +1545,7 @@ var CUcrawl = {
                         //referral = CUcrawl.maskURL(CUcrawl.linkCache[activeURL]['s']);
                         referral = CUcrawl.linkCache[activeURL]['s'];
                     }
-                
+
 
                     CUcrawl.state['v'][activeURL] = {'url': activeURL, 'a': 0, 'x': null, 'tin': new Date().getTime(),
                             'e': {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0}, 'st': status, 'c': [], 'ref': referral};
@@ -1274,17 +1559,17 @@ var CUcrawl = {
                             CUcrawl.state['v'][activeURL]['qr']['d'] = CUcrawl.state['v'][referral]['qr']['d']+1;
 
                            //If the depth is greater then two, we need to check if the ref. is of same domain.
-                            //If not then drop the QR object, else keep it. 
+                            //If not then drop the QR object, else keep it.
                             if(CUcrawl.state['v'][activeURL]['qr']['d'] > 2){
                                 delete CUcrawl.state['v'][activeURL]['qr'];
                             }
-                            else if(CUcrawl.state['v'][activeURL]['qr']['d'] == 2){    
+                            else if(CUcrawl.state['v'][activeURL]['qr']['d'] == 2){
                                 if(CUcrawl.parseURL(activeURL)['hostname'] != CUcrawl.parseURL(referral)['hostname']){
                                     delete CUcrawl.state['v'][activeURL]['qr'];
                                 }
                             }
-                        }    
-                    }   
+                        }
+                    }
 
                     currwin.setTimeout(function(currWin, currURL) {
 
@@ -1300,8 +1585,6 @@ var CUcrawl = {
                             //
                             //var activeURL = CUcrawl.currentURL();
                             //if (activeURL != currURL) {}
-
-
 
 
                             var cd = CUcrawl.getCDByURL(currURL);
@@ -1427,7 +1710,9 @@ var CUcrawl = {
                 //CliqzUtils.log(JSON.stringify(CUcrawl.getAllOpenPages(), undefined, 2), CUcrawl.LOG_KEY);
             }
             CUcrawl.cleanHttpCache();
+            CUcrawl.cleanDocCache();
             CUcrawl.cleanUserTransitions(false);
+
         }
 
         if ((CUcrawl.counter/CUcrawl.tmult) % (1*60) == 0) {
@@ -1443,7 +1728,7 @@ var CUcrawl = {
 
                 /* TBF - No page to be sent without double-fetch
                 for(var i=0;i<v.length;i++) {
-                    if (CUcrawl.UrlsCache.hasOwnProperty(v[i]['url'])) {
+                    if (CUcrawl.urlsCache.hasOwnProperty(v[i]['url'])) {
                         CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': v[i]});
                     }
                 }
@@ -1458,7 +1743,7 @@ var CUcrawl = {
             }
             CUcrawl.fetchAndStoreConfig();
         }
-    
+
         CUcrawl.counter += 1;
 
     },
@@ -1502,7 +1787,7 @@ var CUcrawl = {
                 }
 
                 CUcrawl.state['m'].push(CUcrawl.state['v'][url]);
-                //CUcrawl.addURLtoDB(url, CUcrawl.state['v'][url]['ref'], CUcrawl.state['v'][url]);
+                CUcrawl.addURLtoDB(url, CUcrawl.state['v'][url]['ref'], CUcrawl.state['v'][url]);
                 delete CUcrawl.state['v'][url];
             }
         }
@@ -1515,7 +1800,7 @@ var CUcrawl = {
 
             /* TBF - No need to send without doubleFetch
             for(var i=0;i<v.length;i++) {
-                if (CUcrawl.UrlsCache.hasOwnProperty(v[i]['url'])){
+                if (CUcrawl.urlsCache.hasOwnProperty(v[i]['url'])){
                     CUcrawl.track({'type': CUcrawl.msgType, 'action': 'page', 'payload': v[i]});
                 }
             }
@@ -1782,108 +2067,159 @@ var CUcrawl = {
     },
     msgSanitize: function(msg){
 
-        if (CUcrawl.debug) CliqzUtils.log('Sanitize: ' , "CUcrawl.pushTrack");
+        try {
+            if (CUcrawl.debug) CliqzUtils.log('Sanitize: ' , "CUcrawl.pushTrack");
 
-        //Check and add time , else do not send the message
-        try {msg.ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+            //Check and add time , else do not send the message
+            try {msg.ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
 
-        if(!msg.ts || msg.ts == '') return null;
+            if(!msg.ts || msg.ts == '') return null;
 
-        if (msg.action == 'page') {
-            if(msg.payload.tend  && msg.payload.tin){
-                var duration = msg.payload.tend - msg.payload.tin;
-                if (CUcrawl.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CUcrawl.LOG_KEY);
-            }
-            else{
-                var duration = null;
-                if (CUcrawl.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CUcrawl.LOG_KEY);
-            }
+            if (msg.action == 'page') {
+                if(msg.payload.tend  && msg.payload.tin){
+                    var duration = msg.payload.tend - msg.payload.tin;
+                    if (CUcrawl.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CUcrawl.LOG_KEY);
+                }
+                else{
+                    var duration = null;
+                    if (CUcrawl.debug) CliqzUtils.log("Duration spent: " +  msg.payload.tend + " : " +  msg.payload.tin + " : " + duration ,CUcrawl.LOG_KEY);
+                }
 
-            msg.payload['dur'] = duration;
+                msg.payload['dur'] = duration;
 
-            delete msg.payload.tend;
-            delete msg.payload.tin;
+                delete msg.payload.tend;
+                delete msg.payload.tin;
 
-            if(msg.payload.x.t){
-                if(CUcrawl.isSuspiciousTitle(msg.payload.x.t)){
-                    if (CUcrawl.debug) CliqzUtils.log("Suspicious Title: " + msg.payload['title'], CUcrawl.LOG_KEY);
+                if(msg.payload.x.t){
+                    if(CUcrawl.isSuspiciousTitle(msg.payload.x.t)){
+                        if (CUcrawl.debug) CliqzUtils.log("Suspicious Title: " + msg.payload['title'], CUcrawl.LOG_KEY);
+                        return null;
+                    }
+                }
+                else{
+                    if (CUcrawl.debug) CliqzUtils.log("Missing Title: " + msg.payload['title'], CUcrawl.LOG_KEY);
                     return null;
                 }
-            }
-            else{
-                if (CUcrawl.debug) CliqzUtils.log("Missing Title: " + msg.payload['title'], CUcrawl.LOG_KEY);
-                return null;
-            }
-        }
 
-        //Remove ref.
-        if(msg.payload.ref){
-          delete msg.payload.ref;
-        }      
-        
-        //Check the depth. Just to be extra sure.
-        
-        if(msg.payload.qr){
-          if(msg.payload.qr.d > 2){
-            delete msg.payload.qr;
-          }
-        }
+                // validate that the url and the canonical_url pass the dropLongURL test, final sanity check.
 
-        // Remove the msg if the query is too long or looks suspicious
+                if (CUcrawl.dropLongURL(msg.payload.url)==true) {
+                    // the url is not safe, replace by the canonical if exists and is safe
+                    var canonical_url = msg.payload.x.canonical_url;
 
-        if(msg.action=='query') {
-
-            // Remove the message is query has less then n results, for now let n be 4.
-            var num_results = Object.keys(msg.payload.r).length;
-            if(num_results < 4){
-                return null;
-            }
-
-            //Remove the msg if the query is too long,
-            if ((msg.payload.q == null) || (msg.payload.q == '')) {
-                return null;
-            }
-            else {
-                //Remove the msg if the query is too long,
-                if (msg.payload.q.length > 50) return null;
-                if (msg.payload.q.split(' ').length > 7) return null;
-
-                // Remove the msg if the query contains a number longer than 7 digits
-                // can be 666666 but also things like (090)90-2, 5555 3235
-                // note that full dates will be removed 2014/12/12
-                //
-                var haslongnumber = CUcrawl.checkForLongNumber(msg.payload.q, 7);
-                if (haslongnumber!=null) return null;
-
-                //Remove if query looks like an http pass
-                if (/[^:]+:[^@]+@/.test(msg.payload.q)) return null;
-
-                //Remove if email
-                if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(msg.payload.q)) return null;
-
-                var v = msg.payload.q.split(' ');
-                for(let i=0;i<v.length;i++) {
-                    if (v[i].length > 20) return null;
-                    if (/[^:]+:[^@]+@/.test(v[i])) return null;
-                    if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return null;
+                    if (canonical_url != null && canonical_url != '' && CUcrawl.dropLongURL(canonical_url)==false) {
+                        // the canonical exists and is ok
+                        msg.payload.url = canonical_url;
+                    }
+                    else {
+                        if (CUcrawl.debug) CliqzUtils.log("Suspicious url with no/bad canonical: " + msg.payload.url, CUcrawl.LOG_KEY);
+                        return null;
+                    }
+                }
+                else {
+                    var canonical_url = msg.payload.x.canonical_url;
+                    if (canonical_url != null && canonical_url != '' && CUcrawl.dropLongURL(canonical_url)==true) {
+                        // the canonical is not safe, but the url is, remove only the canonical
+                        msg.payload.x.canonical_url = null;
+                    }
                 }
 
-                if (msg.payload.q.length > 12) {
+                // validate that is not a shortener url, they are not useful anyway
 
-                    var cquery = msg.payload.q.replace(/[^A-Za-z0-9]/g,'');
+                var short_url = CUcrawl.isShortenerURL(msg.payload.url);
+                var short_canonical_url = false;
+                if (msg.payload.x.canonical_url != null &&  msg.payload.x.canonical_url != '') {
+                    short_canonical_url = CUcrawl.isShortenerURL(msg.payload.x.canonical_url);
+                }
 
-                    if (cquery.length > 12) {
-                        var pp = CUcrawl.isHashProb(cquery);
-                        // we are a bit more strict here because the query
-                        // can have parts well formed
-                        if (pp < CUcrawl.probHashThreshold*1.5) return null;
+                if (short_url || short_canonical_url) return null;
+
+                // check if suspiciousURL
+                if (CUcrawl.isSuspiciousURL(msg.payload.url)) return null;
+
+                if (msg.payload.x.canonical_url != null &&  msg.payload.x.canonical_url != '') {
+                    if (CUcrawl.isSuspiciousURL(msg.payload.x.canonical_url)) return null;
+                }
+
+
+
+            }
+
+            // Remove referral,
+
+            if (msg.payload.ref) {
+                delete msg.payload.ref;
+            }
+
+            //Check the depth. Just to be extra sure.
+
+            if (msg.payload.qr) {
+                if(msg.payload.qr.d > 2) delete msg.payload.qr;
+            }
+
+            // Remove the msg if the query is too long or looks suspicious
+
+            if(msg.action=='query') {
+
+                // Remove the message is query has less then n results, for now let n be 4.
+                var num_results = Object.keys(msg.payload.r).length;
+                if(num_results < 4){
+                    return null;
+                }
+
+                //Remove the msg if the query is too long,
+                if ((msg.payload.q == null) || (msg.payload.q == '')) {
+                    return null;
+                }
+                else {
+                    //Remove the msg if the query is too long,
+                    if (msg.payload.q.length > 50) return null;
+                    if (msg.payload.q.split(' ').length > 7) return null;
+
+                    // Remove the msg if the query contains a number longer than 7 digits
+                    // can be 666666 but also things like (090)90-2, 5555 3235
+                    // note that full dates will be removed 2014/12/12
+                    //
+                    var haslongnumber = CUcrawl.checkForLongNumber(msg.payload.q, 7);
+                    if (haslongnumber!=null) return null;
+
+                    //Remove if email (exact), even if not totally well formed
+                    if (CUcrawl.checkForEmail(msg.payload.q)) return null;
+
+                    //Remove if query looks like an http pass
+                    if (/[^:]+:[^@]+@/.test(msg.payload.q)) return null;
+
+                    //Remove if email (exact)
+                    if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(msg.payload.q)) return null;
+
+                    var v = msg.payload.q.split(' ');
+                    for(let i=0;i<v.length;i++) {
+                        if (v[i].length > 20) return null;
+                        if (/[^:]+:[^@]+@/.test(v[i])) return null;
+                        if (/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v[i])) return null;
+                    }
+
+                    if (msg.payload.q.length > 12) {
+
+                        var cquery = msg.payload.q.replace(/[^A-Za-z0-9]/g,'');
+
+                        if (cquery.length > 12) {
+                            var pp = CUcrawl.isHashProb(cquery);
+                            // we are a bit more strict here because the query
+                            // can have parts well formed
+                            if (pp < CUcrawl.probHashThreshold*1.5) return null;
+                        }
                     }
                 }
             }
-        }
-               
 
-        return msg;
+
+            return msg;
+
+        } catch(ee) {
+            if (CUcrawl.debug) CliqzUtils.log("Error on message sanitiation, dropping it: " + ee, CUcrawl.LOG_KEY);
+            return null;
+        }
 
 
     },
@@ -1949,56 +2285,20 @@ var CUcrawl = {
         if ( FileUtils.getFile("ProfD", ["moz.dbusafe"]).exists() ) {
             if (CUcrawl.olddbConn==null) {
                  CUcrawl.olddbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbusafe"]));
-            } 
-            CUcrawl.removeTable();   
+            }
+            CUcrawl.removeTable();
         }
 
         if ( FileUtils.getFile("ProfD", ["moz.dbucrawl"]).exists() ) {
             if (CUcrawl.dbConn==null) {
                 CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbucrawl"]));
             }
-            var usafe = "create table if not exists usafe(\
-                url VARCHAR(255) PRIMARY KEY NOT NULL,\
-                ref VARCHAR(255),\
-                last_visit INTEGER,\
-                first_visit INTEGER,\
-                reason VARCHAR(256), \
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0, \
-                payload VARCHAR(4096), \
-                ft BOOLEAN DEFAULT 1 \
-            )";
-
-            var hash_usafe = "create table if not exists hashusafe(\
-                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
-                private BOOLEAN DEFAULT 0 \
-            )";
-
-            CUcrawl.dbConn.executeSimpleSQL(usafe);
-            CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
+            CUcrawl.createTable();
             return;
         }
         else {
             CUcrawl.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["moz.dbucrawl"]));
-            var usafe = "create table if not exists usafe(\
-                url VARCHAR(255) PRIMARY KEY NOT NULL,\
-                ref VARCHAR(255),\
-                last_visit INTEGER,\
-                first_visit INTEGER,\
-                reason VARCHAR(256), \
-                private BOOLEAN DEFAULT 0,\
-                checked BOOLEAN DEFAULT 0, \
-                payload VARCHAR(4096), \
-                ft BOOLEAN DEFAULT 1 \
-            )";
-
-            var hash_usafe = "create table if not exists hashusafe(\
-                hash VARCHAR(32) PRIMARY KEY NOT NULL,\
-                private BOOLEAN DEFAULT 0 \
-            )";
-
-            CUcrawl.dbConn.executeSimpleSQL(usafe);
-            CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
+            CUcrawl.createTable();
         }
 
     },
@@ -2040,9 +2340,9 @@ var CUcrawl = {
         });
     },
     isPrivate: function(url, depth, callback) {
-        // returns 1 is private (because of checked, of because the referrer is private)
-        // returns 0 if public
-        // returns -1 if not checked yet, handled as public in this cases,
+        // returns true if private (because of checked, of because the referrer is private)
+        // returns false otherwise, not private or unknown
+        // returns the url
         var res = [];
         var st = CUcrawl.dbConn.createStatement("SELECT * FROM usafe WHERE url = :url");
         st.params.url = url;
@@ -2071,25 +2371,25 @@ var CUcrawl = {
                             if (depth < 10) {
                                 if (CUcrawl.auxSameDomain(res[0].ref, url)) {
                                     CUcrawl.isPrivate(res[0].ref, depth+1, function(priv) {
-                                    callback(priv);
+                                        callback(priv, url);
                                     });
                                 }
-                                else callback(false);
+                                else callback(false, url);
                             }
                             else {
                                 // set to private (becasue we are not sure so beter safe than sorry),
                                 // there is a loop of length > 10 between a <- b <- .... <- a, so if we do not
                                 // break recursion it will continue to do the SELECT forever
                                 //
-                                callback(true);
+                                callback(true, url);
                             }
                         }
                         else {
-                            callback(false);
+                            callback(false, url);
                         }
                     }
                     else {
-                        callback(true);
+                        callback(true, url);
                     }
             }
         }
@@ -2142,9 +2442,16 @@ var CUcrawl = {
                 s = v.splice(1, v.length).join('/');
                 v = s.split('?')
                 o['path'] = '/' + v[0];
-                if (v.length>1) {
-                    o['query_string'] = v.splice(1, v.length).join('?');
-                }
+                if (v.length>1) o['query_string'] = v.splice(1, v.length).join('?');
+
+                v = o['path'].split(';');
+                o['path'] = v[0];
+                if (v.length>1) o['query_string'] = v.splice(1, v.length).join(';') + '&' + (o['query_string'] || '');
+
+                v = o['path'].split('#');
+                o['path'] = v[0];
+                if (v.length>1) o['query_string'] = v.splice(1, v.length).join('#') + '&' + (o['query_string'] || '');
+
             }
         }
         else {
@@ -2155,7 +2462,7 @@ var CUcrawl = {
 
     },
     addURLtoDB: function(url, ref, paylobj) {
-      
+
         var tt = new Date().getTime();
 
         var requery = /\/www.google/; // regex for google query
@@ -2185,7 +2492,11 @@ var CUcrawl = {
                 // we never seen it, let's add it
                  paylobj['ft'] = true;
             }
-        })
+
+            // FIXME: there is not guarantee that setting 'ft' will
+            // be done before saving to DB
+
+        });
 
         var stmt = CUcrawl.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
         stmt.params.url = url;
@@ -2289,7 +2600,6 @@ var CUcrawl = {
     setAsPrivate: function(url) {
         var st = CUcrawl.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        //while (st.executeStep()) {};
         st.executeAsync({
             handleError: function(aError) {
                 CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
@@ -2303,7 +2613,6 @@ var CUcrawl = {
         if(CUcrawl.state['v'][url]){
             delete CUcrawl.state['v'][url];
         }
-
 
         //Add has in the hashusafe table
         var hash_st = CUcrawl.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
@@ -2369,11 +2678,15 @@ var CUcrawl = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
+        var url_pagedocPair = {};
         for(var i=0;i<listOfUncheckedUrls.length;i++) {
             var url = listOfUncheckedUrls[i][0];
             var page_doc = listOfUncheckedUrls[i][1];
+            url_pagedocPair[url] = page_doc;
 
-            CUcrawl.isPrivate(url, 0, function(isPrivate) {
+            if (CUcrawl.debug) CliqzUtils.log('processUncheckes: ' + url, CUcrawl.LOG_KEY);
+
+            CUcrawl.isPrivate(url, 0, function(isPrivate, url) {
                 if (isPrivate) {
                     var st = CUcrawl.dbConn.createStatement("UPDATE usafe SET reason = :reason, checked = :checked, private = :private , ft = :ft WHERE url = :url");
                     st.params.url = url;
@@ -2385,7 +2698,7 @@ var CUcrawl = {
                     CUcrawl.setAsPrivate(url);
                 }
                 else {
-                    CUcrawl.doubleFetch(url, page_doc);
+                    CUcrawl.doubleFetch(url, url_pagedocPair[url]);
                 }
             });
         }
@@ -2407,6 +2720,10 @@ var CUcrawl = {
                     .getService(Components.interfaces.nsIWindowWatcher);
         try{var win = ww.openWindow(null, "chrome://ucrawlmodules/content/debugInterface",
                         "debugInterface", null, null);}catch(ee){CliqzUtils.log(ee,'debugInterface')}
+    },
+    checkForEmail: function(str) {
+        if (str.match(/[a-z0-9\-_@]+(@|%40|%(25)+40)[a-z0-9\-_]+\.[a-z0-9\-_]/i) != null) return true;
+        else return false;
     },
     checkForLongNumber: function(str, max_number_length) {
 
@@ -2615,7 +2932,7 @@ var CUcrawl = {
         // 1. Need to check if the title is suspicious or not.
         // 2. Title should should not contain number greater than 8.
         // 3. Title should not contain html.
-        
+
         var vt = title.split(' ');
         for(var i=0;i<vt.length;i++) {
             if (vt[i].length>CUcrawl.rel_segment_len) {
@@ -2627,6 +2944,10 @@ var CUcrawl = {
         }
 
         if (CUcrawl.checkForLongNumber(title, 8) != null) {
+            return true;
+        }
+
+        if (CUcrawl.checkForEmail(title)) {
             return true;
         }
 
@@ -2791,5 +3112,26 @@ var CUcrawl = {
                   return "\\"+char; */
           }
         });
+  },
+  createTable: function(){
+    var usafe = "create table if not exists usafe(\
+        url VARCHAR(255) PRIMARY KEY NOT NULL,\
+        ref VARCHAR(255),\
+        last_visit INTEGER,\
+        first_visit INTEGER,\
+        reason VARCHAR(256), \
+        private BOOLEAN DEFAULT 0,\
+        checked BOOLEAN DEFAULT 0, \
+        payload VARCHAR(4096), \
+        ft BOOLEAN DEFAULT 1 \
+    )";
+
+    var hash_usafe = "create table if not exists hashusafe(\
+        hash VARCHAR(32) PRIMARY KEY NOT NULL,\
+        private BOOLEAN DEFAULT 0 \
+    )";
+
+    CUcrawl.dbConn.executeSimpleSQL(usafe);
+    CUcrawl.dbConn.executeSimpleSQL(hash_usafe);
   }
 };

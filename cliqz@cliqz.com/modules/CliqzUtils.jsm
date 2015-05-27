@@ -73,7 +73,7 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+  TEMPLATES: {'aTob' : 2, 'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
@@ -783,12 +783,12 @@ var CliqzUtils = {
   // references to all the timers to avoid garbage collection before firing
   // automatically removed when fired
   _timers: [],
-  _setTimer: function(func, timeout, type, param) {
+  _setTimer: function(func, timeout, type, args) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
     CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
-        func(param);
+        func.apply(null, args);
         if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
       }
     };
@@ -801,11 +801,11 @@ var CliqzUtils = {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
   },
-  setInterval: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+  setInterval: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
   },
-  setTimeout: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+  setTimeout: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
   },
   clearTimeout: function(timer) {
     if (!timer) {
