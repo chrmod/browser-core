@@ -94,7 +94,7 @@ var CliqzLanguage = {
                                 win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
                             var container = win.document.createElement('panel'),
                                 content = win.document.createElement('div'),
-                                anchor = win.CLIQZ.Core.popup.parentElement;
+                                parent = win.CLIQZ.Core.popup.parentElement;
 
                             container.className = 'onboarding-container';
                             content.className = "onboarding-callout";
@@ -105,7 +105,7 @@ var CliqzLanguage = {
                             container.setAttribute("position", "topleft topleft");
                             container.appendChild(content);    
                             // FIXME: create and append only once
-                            anchor.appendChild(container);
+                            parent.appendChild(container);
                             content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout']({
                                 message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
                                 options: [
@@ -131,10 +131,13 @@ var CliqzLanguage = {
                                     }
                                 }
                             });
-                            container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
-                                 "end_before", -5, 0);
-
-
+                            var anchor = win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i];
+                            if (anchor) {
+                                container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
+                                    "end_before", -5, 0);
+                            } else {
+                                CliqzUtils.log("ext_onboarding: anchor not found");
+                            }
                             break;
 
                             // navigate to target
