@@ -61,7 +61,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
       },
       {
         'id': 'feedbackItem',
-        'label': 'Feedback',
+        'label': 'Feedback for CLIQZ',
         'command': openFeedback
       }
     ],
