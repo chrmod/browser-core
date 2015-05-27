@@ -1811,6 +1811,7 @@ function arrowNavigationTelemetry(el){
 /* TODO: move to a new CliqzContextMenu module */
 function enableContextMenu(resultsBox) {
   //contextMenu.setAttribute('onpopupshowing', '');
+  contextMenu.style.zIndex = "100";
   appendContextMenuItems(CONTEXT_MENU_ITEMS);
   resultsBox.addEventListener('contextmenu', rightClick);
 }
