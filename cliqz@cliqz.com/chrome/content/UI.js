@@ -560,10 +560,7 @@ var UI = {
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
 
-      // Check if running on Windows
-      var runtime = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime);
-      var os = runtime.OS.toLowerCase();
-      if (os.indexOf("win") === 0) {
+      if (CliqzUtils.isWindows()) {
         // Do nothing if alt is pressed
         if(alt) return;
         // On Windows: CTRL selects words, ALT does nothing
