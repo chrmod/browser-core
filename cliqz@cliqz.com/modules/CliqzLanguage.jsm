@@ -146,8 +146,6 @@ var CliqzLanguage = {
                             }
                             break;
 
-                            // navigate to target
-
                         }
                     }
                     if (!found) {
@@ -191,7 +189,6 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-            CliqzUtils.log("!!!! onStateChange " + aFlag);            
         }
     },
 
