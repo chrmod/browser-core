@@ -1836,12 +1836,13 @@ function rightClick(ev) {
   for(var i = 0; i < contextMenu.children.length; i++) {
     contextMenu.children[i].hidden = true;  
   }
-  
+    
   //show Feedback & Open in New tab menu items
   for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
     var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
     item.hidden = false;
     item.setAttribute('data-url', getResultOrChildAttr(ev.target, 'url'));
+    item.setAttribute('data-kind', getResultOrChildAttr(ev.target, 'kind'));
   }
   
   document.popupNode = ev.target;
@@ -1849,7 +1850,7 @@ function rightClick(ev) {
 }
   
 function openFeedback(e) {
-  CLIQZ.Core.openLink(CliqzUtils.FEEDBACK, true); 
+  CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true); 
 }
   
 function openNewTab(e) {
