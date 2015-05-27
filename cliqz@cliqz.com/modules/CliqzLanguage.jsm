@@ -85,13 +85,10 @@ var CliqzLanguage = {
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
                             // intercept
-                            CliqzUtils.log("!!!! FOUND");
-                            aRequest.cancel("NS_ERROR_ABORT");
+                            
                             var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                                         .getService(Components.interfaces.nsIWindowMediator)
-                                        .getMostRecentWindow("navigator:browser");
-                            win.CLIQZ.Core.popup._openAutocompletePopup(
-                                win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                                        .getMostRecentWindow("navigator:browser");                            
                             var container = win.document.createElement('panel'),
                                 content = win.document.createElement('div'),
                                 parent = win.CLIQZ.Core.popup.parentElement;
@@ -132,11 +129,20 @@ var CliqzLanguage = {
                                 }
                             });
                             var anchor = win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i];
+                            // cliqzBox.resultsBox
                             if (anchor) {
-                                container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
-                                    "end_before", -5, 0);
+                                if (anchor.offsetTop < 300) {
+                                    win.CLIQZ.Core.popup._openAutocompletePopup(
+                                        win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                                    container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
+                                        "end_before", -5, 0);                                    
+                                    aRequest.cancel("CLIQZ_INTERRUPT");
+                                }
+                                else {
+                                    CliqzUtils.log("ext_onboarding: result was below the fold");
+                                }
                             } else {
-                                CliqzUtils.log("ext_onboarding: anchor not found");
+                                CliqzUtils.log("ext_onboarding: result was not shown to user");
                             }
                             break;
 
