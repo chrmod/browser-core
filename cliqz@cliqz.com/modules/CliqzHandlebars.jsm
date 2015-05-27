@@ -141,7 +141,7 @@ function registerHelpers(){
 
     Handlebars.registerHelper('bm_rd_template', function(data_richData) {
         // 22May2015, thuy@cliqz.com, used for rich-snippet (rich-data) from BM. Originally used for: movie, games, recipe
-        return (this.data === CliqzAutocomplete.lastResult._results[0].data); // is the first result in the show list
+        return (CliqzAutocomplete.lastResult._results.length === 1 && this.data === CliqzAutocomplete.lastResult._results[0].data); // is the first result in the show list
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
