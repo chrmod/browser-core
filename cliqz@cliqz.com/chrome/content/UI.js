@@ -71,7 +71,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     // The number of times to attempt loading smart CLIQZ results asynchronously
     smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
-    smartCliqzWaitTime = 100
+    smartCliqzWaitTime = 100,
+    contextMenu = document.getElementById('contentAreaContextMenu')
     ;
 
 function lg(msg){
@@ -1809,12 +1810,12 @@ function arrowNavigationTelemetry(el){
 
 /* TODO: move to a new CliqzContextMenu module */
 function enableContextMenu(resultsBox) {
+  //contextMenu.setAttribute('onpopupshowing', '');
   appendContextMenuItems(CONTEXT_MENU_ITEMS);
   resultsBox.addEventListener('contextmenu', rightClick);
 }
   
 function appendContextMenuItems(config) {
-  var contextMenu = document.getElementById('contentAreaContextMenu');
   if(contextMenu) {
     for(var item = 0; item < config.length; item++) {
       console.log("ITEM: " + config[item].label);
@@ -1828,19 +1829,22 @@ function appendContextMenuItems(config) {
     contextMenu.addEventListener('popuphiding', hideContextMenuItem, true);
   }
 }
-  
+
 function rightClick(ev) {
-  var contextMenu = document.getElementById('contentAreaContextMenu');
+  var children = contextMenu.childNodes;
     
   //hide all elements
-  for(var i = 0; i < contextMenu.children.length; i++) {
-    contextMenu.children[i].hidden = true;  
+  for(var i = 0; i < contextMenu.childNodes.length; i++) {
+    var child = contextMenu.children[i];
+    child.hidden = true;
+    child.className += ' ' + 'context-menu-hidden';
   }
-    
+  
   //show Feedback & Open in New tab menu items
   for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
     var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
     item.hidden = false;
+    item.className = '';
     item.setAttribute('data-url', getResultOrChildAttr(ev.target, 'url'));
     item.setAttribute('data-kind', getResultOrChildAttr(ev.target, 'kind'));
   }
@@ -1862,11 +1866,16 @@ function openNewWindow(e) {
 }
 
 function hideContextMenuItem(e) {
-  var contextMenu = document.getElementById('contentAreaContextMenu');
   if(contextMenu) {
+    for(var i = 0; i < contextMenu.childNodes.length; i++) {
+      var child = contextMenu.children[i];
+      child.className = child.className.replace(/\bcontext-menu-hidden\b/,'');
+    }
+    
     for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
       var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
       item.setAttribute('hidden', true);
+      item.className = 'context-menu-hidden';
     }
   }
 }

@@ -433,3 +433,7 @@
 #cliqz-results .iconLabel {
    margin-left: 10px
 }
+
+.context-menu-hidden {
+ display:none !important; 
+}
