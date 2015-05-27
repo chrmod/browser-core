@@ -143,6 +143,15 @@
     "agoXYears":{
         "message":"vor {} Jahren"
     },
+    "onCalloutGoogle":{
+        "message":"Entschuldige die Unterbrechung. Zu demselben Ergebnis kommst Du schneller hier mit CLIQZ."
+    },
+    "onCalloutGoogleBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutGoogleBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
     "onCalloutIntro":{
         "message":"Hier ist Deine neue CLIQZ-Suchleiste"
     },

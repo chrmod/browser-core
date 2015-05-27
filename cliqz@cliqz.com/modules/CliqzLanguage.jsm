@@ -15,6 +15,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
+  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
 
 var CliqzLanguage = {
@@ -82,6 +84,61 @@ var CliqzLanguage = {
                             CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
+                            // intercept
+                            CliqzUtils.log("!!!! FOUND");
+                            aRequest.cancel("NS_ERROR_ABORT");
+                            var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
+                                        .getService(Components.interfaces.nsIWindowMediator)
+                                        .getMostRecentWindow("navigator:browser");
+                            win.CLIQZ.Core.popup._openAutocompletePopup(
+                                win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                            var container = win.document.createElement('panel'),
+                                content = win.document.createElement('div'),
+                                anchor = win.CLIQZ.Core.popup.parentElement;
+
+                            container.className = 'onboarding-container';
+                            content.className = "onboarding-callout";
+                            container.setAttribute("type", "arrow");
+                            container.style.marginLeft ='0px';
+                            container.style.marginTop = '0px';
+                            container.setAttribute("level", "top");
+                            container.setAttribute("position", "topleft topleft");
+                            container.appendChild(content);    
+                            // FIXME: create and append only once
+                            anchor.appendChild(container);
+                            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout']({
+                                message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
+                                options: [
+                                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
+                                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), action: 'onboarding-cancel', state: 'cancel' }
+                                ]
+                            });
+                            container.addEventListener('click', function (e) {
+                                var target = e.target;
+                                if (target && (e.button == 0 || e.button == 1)) {
+                                    var action = target.getAttribute('cliqz-action');
+                                    switch (action) {
+                                        case 'onboarding-start':
+                                            win.CLIQZ.Core.popup.hidePopup();
+                                            container.hidePopup();
+                                            win.CLIQZ.Core.openLink(dest_url, false);
+                                            break;
+                                        case 'onboarding-cancel':
+                                            win.CLIQZ.Core.popup.hidePopup();
+                                            container.hidePopup();
+                                            win.CLIQZ.Core.openLink(dest_url, false);
+                                            break;
+                                    }
+                                }
+                            });
+                            container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
+                                 "end_before", -5, 0);
+
+
+                            break;
+
+                            // navigate to target
+
                         }
                     }
                     if (!found) {
@@ -125,6 +182,7 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
+            CliqzUtils.log("!!!! onStateChange " + aFlag);            
         }
     },
 

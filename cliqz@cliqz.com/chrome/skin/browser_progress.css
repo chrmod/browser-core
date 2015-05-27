@@ -92,7 +92,7 @@
   background-color: transparent;
   position: relative;
   margin: 0px;
-  overflow: visible;
+  overflow: visible;  
 }
 
 .onboarding-cursor {
@@ -116,7 +116,6 @@
   font-weight: 700;
   padding: 2px 20px;
   font-size: 18px;
-  max-width: 400px;
 }
 
 .onboarding-callout .btn-container { right: 0px; position: absolute; text-align: right; margin-top: 10px; }
