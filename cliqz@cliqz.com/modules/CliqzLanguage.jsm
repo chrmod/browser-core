@@ -32,6 +32,7 @@ var CliqzLanguage = {
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
+    // FIXME: get new window ref if this happens in new window
     win: Components.classes['@mozilla.org/appshell/window-mediator;1']
         .getService(Components.interfaces.nsIWindowMediator)
         .getMostRecentWindow("navigator:browser"),
@@ -71,11 +72,13 @@ var CliqzLanguage = {
                             CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
+                            CliqzUtils.log("ext_onboarding: clicked on ok; remind user again in a bit");
                             break;
                         case 'onboarding-cancel':
                             CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
+                            CliqzUtils.log("ext_onboarding: clicked on cancel; don't remind user again");
                             break;
                     }
                 }
@@ -150,6 +153,7 @@ var CliqzLanguage = {
                                         CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
                                         "end_before", -5, 0);                                    
                                     aRequest.cancel("CLIQZ_INTERRUPT");
+                                    CliqzUtils.log("ext_onboarding: interrupted");
                                 }
                                 else {
                                     CliqzUtils.log("ext_onboarding: result was below the fold");
