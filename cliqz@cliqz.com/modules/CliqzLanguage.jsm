@@ -32,6 +32,60 @@ var CliqzLanguage = {
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
+    win: Components.classes['@mozilla.org/appshell/window-mediator;1']
+        .getService(Components.interfaces.nsIWindowMediator)
+        .getMostRecentWindow("navigator:browser"),
+
+    callout: undefined,
+
+    getCallout: function (dest_url) {
+        if (!this.callout) {
+            var container = this.win.document.createElement('panel'),
+                content = this.win.document.createElement('div'),
+                parent = this.win.CLIQZ.Core.popup.parentElement;
+
+            container.className = 'onboarding-container';
+            content.className = "onboarding-callout";
+            container.setAttribute("type", "arrow");
+            container.style.marginLeft ='0px';
+            container.style.marginTop = '0px';
+            container.setAttribute("level", "top");
+            container.setAttribute("position", "topleft topleft");
+            container.appendChild(content);    
+            parent.appendChild(container);
+
+            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout']({
+                message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
+                options: [
+                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
+                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), action: 'onboarding-cancel', state: 'cancel' }
+                ]
+            });
+
+            container.addEventListener('click', function (e) {
+                var target = e.target;
+                if (target && (e.button == 0 || e.button == 1)) {
+                    var action = target.getAttribute('cliqz-action');
+                    switch (action) {
+                        case 'onboarding-start':
+                            CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
+                            container.hidePopup();
+                            CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
+                            break;
+                        case 'onboarding-cancel':
+                            CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
+                            container.hidePopup();
+                            CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
+                            break;
+                    }
+                }
+            });
+
+            this.callout = container;
+        }
+        return this.callout;
+    },
+
     sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
         var action = {
             type: 'performance',
@@ -76,7 +130,7 @@ var CliqzLanguage = {
                         found = false;
 
 
-                    for (var i=0; i < LR.length; i++) {
+                    for (var i = 0; i < LR.length; i++) {
                         var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                         if (dest_url == comp_url) {
                             // now we have the same result
@@ -84,57 +138,16 @@ var CliqzLanguage = {
                             CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
-                            // intercept
                             
-                            var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                                        .getService(Components.interfaces.nsIWindowMediator)
-                                        .getMostRecentWindow("navigator:browser");                            
-                            var container = win.document.createElement('panel'),
-                                content = win.document.createElement('div'),
-                                parent = win.CLIQZ.Core.popup.parentElement;
-
-                            container.className = 'onboarding-container';
-                            content.className = "onboarding-callout";
-                            container.setAttribute("type", "arrow");
-                            container.style.marginLeft ='0px';
-                            container.style.marginTop = '0px';
-                            container.setAttribute("level", "top");
-                            container.setAttribute("position", "topleft topleft");
-                            container.appendChild(content);    
-                            // FIXME: create and append only once
-                            parent.appendChild(container);
-                            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout']({
-                                message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
-                                options: [
-                                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
-                                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), action: 'onboarding-cancel', state: 'cancel' }
-                                ]
-                            });
-                            container.addEventListener('click', function (e) {
-                                var target = e.target;
-                                if (target && (e.button == 0 || e.button == 1)) {
-                                    var action = target.getAttribute('cliqz-action');
-                                    switch (action) {
-                                        case 'onboarding-start':
-                                            win.CLIQZ.Core.popup.hidePopup();
-                                            container.hidePopup();
-                                            win.CLIQZ.Core.openLink(dest_url, false);
-                                            break;
-                                        case 'onboarding-cancel':
-                                            win.CLIQZ.Core.popup.hidePopup();
-                                            container.hidePopup();
-                                            win.CLIQZ.Core.openLink(dest_url, false);
-                                            break;
-                                    }
-                                }
-                            });
-                            var anchor = win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i];
+                            
+                            var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i];
                             // cliqzBox.resultsBox
                             if (anchor) {
                                 if (anchor.offsetTop < 300) {
-                                    win.CLIQZ.Core.popup._openAutocompletePopup(
-                                        win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
-                                    container.openPopup(win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
+                                    CliqzLanguage.win.CLIQZ.Core.popup._openAutocompletePopup(
+                                        CliqzLanguage.win.CLIQZ.Core.urlbar, CliqzLanguage.win.CLIQZ.Core.urlbar);
+                                    CliqzLanguage.getCallout(dest_url).openPopup(
+                                        CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
                                         "end_before", -5, 0);                                    
                                     aRequest.cancel("CLIQZ_INTERRUPT");
                                 }
@@ -145,7 +158,6 @@ var CliqzLanguage = {
                                 CliqzUtils.log("ext_onboarding: result was not shown to user");
                             }
                             break;
-
                         }
                     }
                     if (!found) {
