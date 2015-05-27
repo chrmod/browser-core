@@ -143,6 +143,15 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "onCalloutGoogle":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutGoogleBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutGoogleBtnCancel":{
+        "message":"Don't show again."
+    },
     "onCalloutIntro":{
         "message":"This is your new CLIQZ bar"
     },
