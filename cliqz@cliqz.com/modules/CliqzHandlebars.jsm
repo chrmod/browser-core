@@ -7,15 +7,17 @@
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+Cu.import("resource://gre/modules/Services.jsm");
+Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js', this);
+//Cu.import('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Cu.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-var CliqzHandlebars = Handlebars;
+var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -149,11 +151,20 @@ function registerHelpers(){
     Handlebars.registerHelper('log', function(value, key) {
         console.log('TEMPLATE LOG HELPER', value);
     });
+    
+    Handlebars.registerHelper('toLowerCase', function(str) {
+       return str.toLowerCase(); 
+    });
+    
+    Handlebars.registerHelper('toUpperCase', function(str) {
+       return str.toUpperCase(); 
+    });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        if(!q) return text;
         q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
@@ -238,7 +249,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('nameify', function(str) {
-        return str[0].toUpperCase() + str.slice(1);
+        if (str.length == 0) return "";
+        else return str[0].toUpperCase() + str.slice(1);
     });
 
     Handlebars.registerHelper('reduce_width', function(width, reduction) {
@@ -260,14 +272,29 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
-        if(!data.trending) return true;
+        // default setting is determined by latest-vs-trending AB test (50-50)
+        // or is "latest" if not part of the AB test
+        var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
+        
+        // news-toggle not active
+        if(!data.trending ||
+            data.trending.length == 0 ||
+            CliqzUtils.getPref('news-toggle', false) == false) {
+                return defaultSetting;
+        }
 
         try {
-          var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+          var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
               ezID = JSON.parse(data.subType).ez;
-          return latest[ezID];
+          // user-defined setting exists for EZ:
+          if (trending.hasOwnProperty(ezID)) {
+            return !trending[ezID];  
+          } else {
+            // no user-defined setting, use default value
+            return defaultSetting;
+          }          
         } catch(e){
-          return false;
+          return defaultSetting;
         }
     });
 }

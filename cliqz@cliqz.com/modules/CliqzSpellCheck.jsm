@@ -29,7 +29,7 @@ var CliqzSpellCheck = {
                     i == words.length - 1) continue;
                 if (i == words.length - 1 && words[i].length <= 10)  // long enough to correct the last word
                     continue
-                correctBack[correct] = words[i]
+                correctBack[correct] = words[i];
                 words[i] = correct;
             }
         }
@@ -45,9 +45,9 @@ var CliqzSpellCheck = {
         }
     },
     initSpellCorrection: function() {
-        if (CliqzUtils.getPref("config_location", "") == "de" && CliqzUtils.getPref("localSpellCheck", false) && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
+        if (CliqzUtils.getPref("config_location", "") == "de" && CliqzUtils.getPref("localSpellCheck", true) && Object.keys(CliqzAutocomplete.spellCorrectionDict).length == 0) {
             CliqzUtils.log('loading dict', 'spellcorr');
-            CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords)
+            CliqzUtils.loadResource('chrome://cliqzres/content/content/spell_check.list', CliqzSpellCheck.loadRecords);
         }
     }
 }

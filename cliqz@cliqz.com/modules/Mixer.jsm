@@ -50,8 +50,11 @@ function kindEnricher(data, newKindParams) {
 var Mixer = {
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
+    EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
+    TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
     init: function() {
-        // nothing
+        CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
+
     },
 	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
 		var results = [];
@@ -74,12 +77,16 @@ var Mixer = {
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
-        if(q.length > 2) { // only is query has more than 2 chars - avoids many unexpected EZ triggerings
-            if(cliqz && cliqz.length > 0) {
-                if(cliqz[0].extra) {
+        if(cliqz && cliqz.length > 0) {
+            if(cliqz[0].extra) {
+                // only if query has more than 2 chars and not in blacklist
+                //  - avoids many unexpected EZ triggerings
+                if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q.toLowerCase().trim()) == -1)) {
                     var extra = Result.cliqzExtra(cliqz[0].extra);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
+                } else {
+                    CliqzUtils.log("Suppressing EZ " + cliqz[0].extra.url + " because of ambiguious query " + q, "Mixer");
                 }
             }
         }
@@ -88,7 +95,7 @@ var Mixer = {
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
         var instant_new = [];
-        for(let i=0; i < cliqz.length; i++) {
+        for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
@@ -144,8 +151,15 @@ var Mixer = {
                     var eztype = JSON.parse(r.data.subType).ez;
                     var trigger_urls = r.data.trigger_urls || [];
                     if(eztype && trigger_urls.length > 0) {
+                        var wasCacheUpdated = false;
                         for(var j=0; j < trigger_urls.length; j++) {
-                            Mixer.ezURLs[trigger_urls[j]] = eztype;
+                            if(CliqzSmartCliqzCache.triggerUrls.retrieve(trigger_urls[j]) != eztype) {
+                                CliqzSmartCliqzCache.triggerUrls.store(trigger_urls[j], eztype);
+                                wasCacheUpdated = true;
+                            }
+                        }
+                        if (wasCacheUpdated) {
+                            CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
                         }
                         CliqzSmartCliqzCache.store(r);
                     }
@@ -164,14 +178,19 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            if(Mixer.ezURLs[url]) {
-                // TODO: update cached EZ from rich-header-server
-                // TODO: perhaps only use this cached data if newer than certain age
-                var ez = CliqzSmartCliqzCache.retrieve(Mixer.ezURLs[url]);
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
+                var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
+                var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
                     ez = Result.clone(ez);
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
+                } else {
+                    // start fetching now
+                    CliqzSmartCliqzCache.fetchAndStore(ezId);
+                }
+                if (CliqzSmartCliqzCache.triggerUrls.isStale(url)) {
+                    CliqzSmartCliqzCache.triggerUrls.delete(url);
                 }
             }
         }
@@ -220,8 +239,25 @@ var Mixer = {
                 for(let i=0; i < results.length; i++) {
                     if(results[i].style.indexOf("cliqz-pattern") == 0)
                         results_new.push(results[i]);
-                    else if(CliqzHistoryPattern.generalizeUrl(results[i].val) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
-                        results_new.push(results[i]);
+                    else {
+                        var matchedEZ = false;
+
+                        // Check if the main link matches
+                        if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
+                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                            matchedEZ = true;
+
+                        // Look for sublinks that match
+                        for(k in cliqzExtra[0].data) {
+                            for(l in cliqzExtra[0].data[k]) {
+                                if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
+                                   CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].data[k][l].url))
+                                    matchedEZ = true;
+                            }
+                        }
+                        if(!matchedEZ)
+                            results_new.push(results[i]);
+                    }
                 }
                 results = results_new;
 
@@ -270,43 +306,7 @@ var Mixer = {
 
         // ----------- noResult EntityZone---------------- //
         if(results.length == 0 && !only_instant){
-            var se = [// default
-                    {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
-                    {"name": "Bing", "base_url": "http://www.bing.com/search?q=&pc=MOZI"},
-                    {"name": "Google", "base_url": "http://www.google.de"},
-                    {"name": "Google Images", "base_url": "http://images.google.de/"},
-                    {"name": "Google Maps", "base_url": "http://maps.google.de/"}
-                ],
-                chosen = new Array();
-
-            for (var i = 0; i< se.length; i++){
-                var alt_s_e = CliqzResultProviders.getSearchEngines()[se[i].name];
-                if (typeof alt_s_e != 'undefined'){
-                    se[i].code = alt_s_e.code;
-                    var url = se[i].base_url || alt_s_e.base_url;
-                    se[i].style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
-                    se[i].text = alt_s_e.prefix.slice(1);
-
-                    chosen.push(se[i])
-                }
-            }
-
-            results.push(
-                Result.cliqzExtra(
-                    {
-                        data:
-                        {
-                            template:'noResult',
-                            text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                            text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
-                            "search_engines": chosen,
-                            //use local image in case of no internet connection
-                            "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
-                        },
-                        subType: JSON.stringify({empty:true})
-                    }
-                )
-            );
+            results.push(CliqzUtils.getNoResults());
         }
 
         return results;

@@ -5,11 +5,20 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'Extension',
   'chrome://cliqzmodules/content/Extension.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
+  'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
+  'chrome://cliqzmodules/content/CUcrawl.jsm');
+
+
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 }
 
 function shutdown(aData, aReason) {
+    CliqzHumanWeb.unload();
+    CUcrawl.destroy();
     if (aReason == APP_SHUTDOWN){
         eventLog('browser_shutdown');
         return;
@@ -18,7 +27,9 @@ function shutdown(aData, aReason) {
     if (aReason == ADDON_UNINSTALL) eventLog('addon_uninstall');
 
     Extension.unload(aData.version, aReason == ADDON_DISABLE || aReason == ADDON_UNINSTALL);
+    Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
     Cu.unload('chrome://cliqzmodules/content/Extension.jsm');
+    Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
 }
 
 function eventLog(ev){

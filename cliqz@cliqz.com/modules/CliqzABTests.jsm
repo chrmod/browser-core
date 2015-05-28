@@ -14,7 +14,36 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
+    PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
+
+    // Accessors to list of tests this user is current in
+    getCurrent: function() {
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
+            var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
+            return ABtests;
+        return undefined;
+    },
+    setCurrent: function(tests) {
+        CliqzUtils.setPref(CliqzABTests.PREF, JSON.stringify(tests))
+    },
+
+    // Accessors to list of tests in override list
+    getOverride: function() {
+        if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF_OVERRIDE)) {
+            var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE));
+            return ABtests;
+        }
+        return undefined;
+    },
+    setOverride: function(tests) {
+        if(tests)
+            CliqzUtils.setPref(CliqzABTests.PREF_OVERRIDE, JSON.stringify(tests));
+        else
+            CliqzUtils.cliqzPrefs.clearUserPref(CliqzABTests.PREF_OVERRIDE);
+    },
+
+    // Check for newest list of AB tests from server
     check: function() {
         CliqzABTests.retrieve(
             function(response){
@@ -24,6 +53,12 @@ var CliqzABTests = CliqzABTests || {
                         prevABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
 
                     var respABtests = JSON.parse(response.responseText);
+
+                    // Override the backend response - for local testing
+                    var overrideABtests = CliqzABTests.getOverride();
+                    if(overrideABtests)
+                        respABtests = overrideABtests;
+
                     var newABtests = {};
 
                     var changes = false; // any changes?
@@ -76,7 +111,9 @@ var CliqzABTests = CliqzABTests || {
             case "1016_A":
                 CliqzUtils.setPref("localSpellCheck", true);
                 break;
-
+            case "1017_A":
+                CliqzUtils.setPref("safeBrowsing", true);
+                break;
             case "1019_A":
                 CliqzUtils.setPref("newHistory", false);
                 break;
@@ -118,8 +155,62 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.setPref("categoryAssessment", true);
                 break;
+            case "1025_B":
+                //CliqzUtils.setPref("safeBrowsingMoz", true);
+                break;
+            case "1027_A":
+                CliqzUtils.setPref("news-toggle", false);
+                break;
             case "1027_B":
                 CliqzUtils.setPref("news-toggle", true);
+                break;
+            case "1028_A":
+                CliqzUtils.setPref("humanWeb", false);
+                break;
+            case "1028_B":
+                CliqzUtils.setPref("humanWeb", true);
+                break;
+            case "1029_A":
+                CliqzUtils.setPref("enableNewsCustomization", false);
+                break;
+            case "1029_B":
+                CliqzUtils.setPref("enableNewsCustomization", true);
+                break;
+            case "1030_A":
+                CliqzUtils.setPref("double-enter", false);
+                break;
+            case "1030_B":
+                CliqzUtils.setPref("double-enter", true);
+                break;
+            case "1031_A":
+                CliqzUtils.setPref("topSites", false);
+                break;
+            case "1031_B":
+                CliqzUtils.setPref("topSites", true);
+                break;
+            case "1032_A":
+                CliqzUtils.setPref("spellCorrMessage", false);
+                break;
+            case "1032_B":
+                CliqzUtils.setPref("spellCorrMessage", true);
+                break;
+            case "1033_A":
+                CliqzUtils.setPref("historyStats", false);
+                break;
+            case "1033_B":
+                CliqzUtils.setPref("historyStats", true);
+                break;
+            case "1034_A":
+                CliqzUtils.setPref("safeBrowsingMozTest", false);
+                break;
+            case "1034_B":
+                CliqzUtils.setPref("safeBrowsingMozTest", true);
+                break;
+            case "1035_A":
+                CliqzUtils.setPref("news-default-latest", true);
+                break;
+            case "1035_B":
+                CliqzUtils.setPref("news-default-latest", false);
                 break;
             default:
                 rule_executed = false;
@@ -217,7 +308,10 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1016_A":
                 CliqzUtils.cliqzPrefs.clearUserPref("localSpellCheck");
-                CliqzAutocomplete.spellCorrectionDict = {};
+                break;
+            case "1017_A":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsing");
+                //CliqzUCrawl.outOfABTest();
                 break;
             case "1018_A":
             case "1018_B":
@@ -243,8 +337,44 @@ var CliqzABTests = CliqzABTests || {
             case "1024_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("categoryAssessment");
                 break;
+            case "1025_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMoz");
+                break;
+            case "1027_A":
             case "1027_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-toggle");
+                break;
+            case "1028_A":
+            case "1028_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("humanWeb");
+                break;
+            case "1029_A":
+            case "1029_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("enableNewsCustomization");
+                break;
+            case "1030_A":
+            case "1030_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("double-enter");
+                break;
+            case "1031_A":
+            case "1031_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("topSites");
+                break;
+            case "1032_A":
+            case "1032_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("spellCorrMessage");
+                break;
+            case "1033_A":
+            case "1033_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("historyStats");
+                break;
+            case "1034_A":
+            case "1034_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("safeBrowsingMozTest");
+                break;
+            case "1035_A":
+            case "1035_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("news-default-latest");
                 break;
             default:
                 rule_executed = false;

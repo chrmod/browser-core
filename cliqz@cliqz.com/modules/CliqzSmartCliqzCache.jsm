@@ -2,8 +2,9 @@
 
 /*
  * This module caches SmartCliqz results in the extension. It
- * also customizes news SmartCliqz results by re-ordering categories
- * based on the user's browsing history.
+ * also customizes news SmartCliqz and a set of selected domains
+ * by re-ordering categories and links based on the user's browsing
+ * history.
  *
  * author: Dominik Schmidt (cliqz)
  */
@@ -15,10 +16,17 @@ var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
+// not available in older FF versions
+try {
+	Cu.import("resource://gre/modules/osfile.jsm");
+} catch(e) { }
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm');
 
 // this simple cache is a dictionary that addionally stores 
 // timestamps for each entry; life is time in seconds before 
@@ -41,6 +49,13 @@ Cache.prototype.store = function (key, value, time) {
 		};
 	}
 };
+
+// deletes entry
+Cache.prototype.delete = function (key) {
+	if (this.isCached(key)) {
+		delete this._cache[key];
+	}
+}
 
 // returns cached entry or false if no entry exists for key
 Cache.prototype.retrieve = function (key) {
@@ -78,13 +93,83 @@ Cache.prototype.refresh = function (key, time) {
 	}
 }
 
-var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
-	SMART_CLIQZ_ENDPOINT: 'http://rich-header-server.clyqz.com/id_to_snippet?q=',
+// save cache to file
+Cache.prototype.save = function (filename) {
+	try {
+		var data = (new TextEncoder()).encode(
+			JSON.stringify(this._cache));
+		var path = OS.Path.join(
+			OS.Constants.Path.profileDir, filename);
+		var _this = this;
 
-	// TODO: make caches persistent
+		OS.File.writeAtomic(path, data).then(
+			function(value) {
+    			_this._log("save: saved to " + path);
+			}, function(e) {
+				_this._log("save: failed saving to " + path + 
+					": " + e);
+			});
+	} catch (e) {
+		this._log("save: failed saving: " + e);
+	}	
+}
+
+// load cache from file
+Cache.prototype.load = function (filename) {
+	try {
+		var _this = this;
+		var path = OS.Path.join(
+			OS.Constants.Path.profileDir, filename);
+
+		OS.File.read(path).then(function(data) {
+			_this._cache = JSON.parse((new TextDecoder()).decode(data));
+			_this._log("load: loaded from: " + path);
+		}).catch(function(e) {
+			_this._log("load: failed loading: " + e);
+		});
+	} catch (e) {
+		this._log("load: failed loading: " + e);
+	}
+}
+
+Cache.prototype._log = function (msg) {
+	CliqzUtils.log(msg, 'Cache');	
+}
+
+var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
+	SMART_CLIQZ_ENDPOINT: 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=',
+	// TODO: move to external file
+	URL_PREPARSING_RULES: {
+		"amazon.de":    /(node=\d+)/,							// node id
+		"otto.de":      /otto.de\/([\w|-]{3,})/,				// first part of URL
+		"zalando.de":   /zalando.de\/([\w|-]{3,})/,				// first part of URL
+		"skygo.sky.de": /sky.de\/([\w|-]{3,})/,					// first part of URL
+		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
+		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
+	},
+	CUSTOM_DATA_CACHE_FILE: 'cliqz/smartcliqz-custom-data-cache.json',
+	// maximum number of items (e.g., categories or links) to keep
+	MAX_ITEMS: 5,
+
 	_smartCliqzCache: new Cache(),
 	_customDataCache: new Cache(3600), // re-customize after an hour
-	_isCustomizationEnabledByDefault: false,
+	_isCustomizationEnabledByDefault: true,
+	_isInitialized: false,
+
+	// to prevent fetching while fetching is still in progress
+	_fetchLock: { },
+
+	// TODO: clean-up
+	triggerUrls: new Cache(), 
+
+	// loads cache content from persistent storage
+	init: function () {
+		// TODO: detect when loaded; allow save only afterwards		
+		this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
+
+		this._isInitialized = true;
+		this._log('init: initialized');
+	},
 
 	// stores SmartCliqz if newer than chached version
 	store: function (smartCliqz) {
@@ -95,7 +180,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 		try {
 			if (this.isCustomizationEnabled() && 
-				this.isNews(smartCliqz) && this._customDataCache.isStale(id)) {				
+				(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz)) && 
+				this._customDataCache.isStale(id)) {				
 
 				this._log('store: found stale data for id ' + id);
 				this._prepareCustomData(id);
@@ -104,48 +190,95 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			this._log('store: error while customizing data: ' + e);
 		}
 	},
+
+	fetchAndStore: function (id) {
+		if (this._fetchLock.hasOwnProperty(id)) {
+			this._log('fetchAndStore: fetching already in progress for id ' + id);
+			return;
+		}
+
+		this._log('fetchAndStore: for id ' + id);		
+		this._fetchLock[id] = true;
+		var _this = this;
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {			
+			// limit number of categories/links
+			if (smartCliqz.hasOwnProperty('data')) {
+				if (smartCliqz.data.hasOwnProperty('links')) {
+					smartCliqz.data.links = smartCliqz.data.links.slice(0, _this.MAX_ITEMS);
+				}
+				if (smartCliqz.data.hasOwnProperty('categories')) {
+					smartCliqz.data.categories = smartCliqz.data.categories.slice(0, _this.MAX_ITEMS);
+				}
+			}
+			_this.store(smartCliqz);
+			delete _this._fetchLock[id];
+		}, function (reason) {
+			_this._log('fetchAndStore: error while fetching data: ' + reason);
+			delete _this._fetchLock[id];
+		});
+	},
+
 	// returns SmartCliqz from cache (false if not found);
-	// customizes SmartCliqz if news and preference is set
+	// customizes SmartCliqz if news or domain supported, and user preference is set
 	retrieve: function (id) {
 		var smartCliqz = this._smartCliqzCache.retrieve(id);
 
-		if (this.isCustomizationEnabled() && 
-			smartCliqz && this.isNews(smartCliqz)) {
+		if (this.isCustomizationEnabled() && smartCliqz && 
+			(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz))) {
 			try {	
 				this._customizeSmartCliqz(smartCliqz);
 			} catch (e) {
 				this._log('retrieveCustomized: error while customizing data: ' + e);
 			}
 		}
-
 		return smartCliqz;
 	},
+
+	// extracts domain from SmartCliqz
+	getDomain: function (smartCliqz) {
+		// TODO: define one place to store domain
+		if (smartCliqz.data.domain) {
+			return smartCliqz.data.domain;
+		} else if (smartCliqz.data.trigger_urls && smartCliqz.data.trigger_urls.length > 0) {
+			return CliqzHistoryPattern.generalizeUrl(smartCliqz.data.trigger_urls[0]);
+		} else {
+			return false;
+		}
+	},
+
 	// extracts id from SmartCliqz
 	getId: function (smartCliqz) {
 		return JSON.parse(smartCliqz.data.subType).ez;
 	},
-	getTimestamp: function (smartCliqz) {
-		//this._log('getTimestamp: from smartCliqz ' + smartCliqz.data.ts);
-		//this._log('getTimestamp: extension time ' + Date.now());
-		//this._log('getTimestamp: from smartCliqz converted ' + new Date(smartCliqz.data.ts));
 
+	// extracts timestamp from SmartCliqz
+	getTimestamp: function (smartCliqz) {
 		return smartCliqz.data.ts;
 	},
+
 	// returns true this is a news SmartCliqz
 	isNews: function (smartCliqz) {
 		return (typeof smartCliqz.data.news != 'undefined');
 	},
+
+	// returns true if there are pre-parsing rules available for the SmartCliqz's domain
+	isDomainSupported: function (smartCliqz) {
+		return this.URL_PREPARSING_RULES.hasOwnProperty(this.getDomain(smartCliqz));
+	},
+
+	// returns true if the user enabled customization
 	isCustomizationEnabled: function() {
 		try {
             var isEnabled =
-            	Services.prefs.getBoolPref("extensions.cliqz.enableNewsCustomization");
+            	CliqzUtils.getPref("enableSmartCliqzCustomization", undefined);
             
-            return isEnabled === null ? 
+            return isEnabled === undefined ? 
             	this._isCustomizationEnabledByDefault : isEnabled;
         } catch(e) {        	
             return this._isCustomizationEnabledByDefault;
         }
 	},
+
 	// re-orders categories based on visit frequency
 	_customizeSmartCliqz: function (smartCliqz) {		
 		var id = this.getId(smartCliqz);
@@ -189,25 +322,35 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			return;
 		}
 
+		// FIXME: if any of the following steps fail, stale custom data
+		//        will linger around; possible fix: if it fails, delete
+		//		  custom data from cache
+
 		// for stats
 		var oldCustomData = this._customDataCache.retrieve(id);	
 
 		// (1) fetch template from rich header
 		var _this = this;
-		this._fetchSmartCliqz(id, function callback(smartCliqz) {
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {
 			var id = _this.getId(smartCliqz);
-			var domain = smartCliqz.data.domain;
+			var domain = _this.getDomain(smartCliqz);
 
 			// (2) fetch history for SmartCliqz domain
 			_this._fetchVisitedUrls(domain, function callback(urls) {
 
 				// (3) re-order template categories based on history
+				
+				// TODO: define per SmartCliqz what the data field to be customized is called
+				if (!_this.isNews(smartCliqz)) {
+					smartCliqz.data.categories = smartCliqz.data.links;
+				}
+
 				var categories = smartCliqz.data.categories.slice();
 
 				// add some information to facilitate re-ordering
 				for (var j = 0; j < categories.length; j++) {
 					categories[j].genUrl =
-						CliqzHistoryPattern.generalizeUrl(categories[j].url);
+						_this._preparseUrl(categories[j].url, domain);
 					categories[j].matchCount = 0;
 					categories[j].originalOrder = j;
 				}
@@ -215,13 +358,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				// count category-visit matches (visit url contains category url)
 				for (var i = 0; i < urls.length; i++) {
 					var url = 
-                		CliqzHistoryPattern.generalizeUrl(urls[i]);
+						_this._preparseUrl(urls[i], domain);
 					for (var j = 0; j < categories.length; j++) {
-						if (url.indexOf(categories[j].genUrl) > -1) {
-							// TODO: check for subcategories, for example,
-							//       Spiegel "Soziales" has URL "wirtschaft/soziales",
-							//		 thus such entries are counted twice, for "Sozialez",
-							//		 but also for "Wirtschaft"
+						if (_this._isMatch(url, categories[j].genUrl)) {
 		                    categories[j].matchCount++;
 		                }
 					}
@@ -236,34 +375,86 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
                     }
                 });
 
-                categories = categories.slice(0, 5);
+                categories = categories.slice(0, _this.MAX_ITEMS);
+
+                var oldCategories = oldCustomData ?
+                	// previous customization: use either categories (news) or links (other SmartCliqz)
+                	(_this.isNews(smartCliqz) ? oldCustomData.categories : oldCustomData.links) : 
+                	// no previous customization: use default order
+                	smartCliqz.data.categories;
 
                 // send some stats
-                _this._sendStats(id, oldCustomData ? 
-                	oldCustomData.categories : smartCliqz.data.categories,
-                	categories, oldCustomData, urls);                         
+                _this._sendStats(id, oldCategories,
+                	categories, oldCustomData ? true : false, urls);
 
-                _this._customDataCache.store(id, { categories: categories });             
-                _this._log('_prepareCustomData: done preparing for id ' + id);           
+                // TODO: define per SmartCliqz what the data field to be customized is called
+                if (_this.isNews(smartCliqz)) {
+                	_this._customDataCache.store(id, { categories: categories });
+                } else {
+                	_this._customDataCache.store(id, { links: categories });
+                }
+
+                _this._log('_prepareCustomData: done preparing for id ' + id);
+                _this._customDataCache.save(_this.CUSTOM_DATA_CACHE_FILE);
 			})
 		});
+	},
+	// extracts relevant information to base matching on
+	_preparseUrl: function (url, domain) {
+		url = CliqzHistoryPattern.generalizeUrl(url);
+
+		// domain-specific preparations
+		if (domain) {
+			var rule = this.URL_PREPARSING_RULES[domain];
+			if (rule) {
+				var match = rule.exec(url);
+				if (match) {
+					// this._log('_preparseUrl: match "' + match[1] + '" for url ' + url);
+					url = match[1];
+				} else {
+					// leave URL untouched
+					// this._log('_preparseUrl: no match for url ' + url);
+				}
+			} else {
+				// no rule found (e.g., for news domains)
+				// this._log('_preparseUrl: no rule found for domain ' + domain);
+			}			
+		}
+
+		return url;
+	},
+	// checks if URL from history matches a category URL
+	_isMatch: function (historyUrl, categoryUrl) {
+		// TODO: check for subcategories, for example,
+		//       Spiegel "Soziales" has URL "wirtschaft/soziales",
+		//		 thus such entries are counted twice, for "Sozialez",
+		//		 but also for "Wirtschaft"
+		return historyUrl.indexOf(categoryUrl) > -1;
 	},
 	// fetches SmartCliqz from rich-header's id_to_snippet API (async.)
 	_fetchSmartCliqz: function (id, callback) {
 		this._log('_fetchSmartCliqz: start fetching for id ' + id);
-
-		var endpointUrl = this.SMART_CLIQZ_ENDPOINT + id;
-       
-        var _this = this;
-        CliqzUtils.httpGet(endpointUrl,
-        	function success(req) {
-        		var smartCliqz = 
-        			JSON.parse(req.response).extra.results[0];
-        		// match data structure if big machine results
-        		smartCliqz.data.subType = smartCliqz.subType;
-        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
-        		callback(smartCliqz);
+		var _this = this;
+		
+		var promise = new Promise(function (resolve, reject) {
+			var endpointUrl = _this.SMART_CLIQZ_ENDPOINT + id;
+			
+			CliqzUtils.httpGet(endpointUrl, function success(req) {
+        		try {
+	        		var smartCliqz = 
+	        			JSON.parse(req.response).extra.results[0];
+	        		smartCliqz = Result.cliqzExtra(smartCliqz);	        		
+	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
+        			resolve(smartCliqz);
+        		} catch (e) {
+        			_this._log('_fetchSmartCliqz: error fetching for id ' + id + ': ' + e);
+        			reject(e);
+        		}
+        	}, function onerror() {
+        		reject('http request failed for id ' + id);
         	});
+		});
+		return promise;
 	},
 	// from history, fetches all visits to given domain within 30 days from now (async.)
 	_fetchVisitedUrls: function (domain, callback) {
@@ -359,7 +550,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
     			
     		}
     	}
-    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount++;
+    	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount;
 
     	CliqzUtils.telemetry(stats);
 	},
@@ -368,3 +559,5 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		CliqzUtils.log(msg, 'SmartCliqzCache');
 	}
 }
+
+CliqzSmartCliqzCache.init();

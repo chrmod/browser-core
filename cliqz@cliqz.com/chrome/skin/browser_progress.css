@@ -6,6 +6,57 @@
     margin-bottom: 8px;
 }
 
+/* ------- RICH DATA Result----------*/
+#cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px)}
+#cliqz-results .cqz-rd-rateimg { height: 13px; padding-top:17px; transform: translateX(-2px);}
+#cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
+#cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
+#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
+
+#cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
+#cliqz-results .cqz-rd-h3img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  100%; width: 70px}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
+
+
+#cliqz-results .cqz-rd-recipe_img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  calc(100% - 3px);width: 106px}
+#cliqz-results .cqz-rd-recipe-snippet {height: 110px; margin: 16px 0px 12px 0px;}
+
+/* ------- END RICH DATA Result----------*/
+
+/* ------- Bundesliga EZ ----------*/
+#cliqz-results .ez-liga .cqz-ez-title::after {background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;}
+#cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -8px 0px 5px; }
+#cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 0px; }
+#cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 0px 0px 0px}
+#cliqz-results .ez-liga-oneGameScore  {margin:18px 0px;}
+#cliqz-results .ez-liga-teamName  {float:left;text-align:left;color: #333333;font-size: 18px;max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+#cliqz-results .ez-liga-score {color: #74d463; font-size: 18px; }
+#cliqz-results .ez-liga-vs {color: #999999;font-size: 18px;}
+#cliqz-results .ez-liga-live {text-align:center;color: #999999; font-size: 12px; margin-top:3px}
+#cliqz-results .ez-liga-connector {text-align:center;float:left; width:20%;}
+#cliqz-results .ez-liga-timezone {position: absolute; bottom: 14px; left: 22px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-sponsor {position: absolute; bottom: 14px; right: 22px; color: #cccccc; font-size: 12px}
+
+#cliqz-results .ez-liga-spieltag-ucg  { color: #cccccc; margin: -3px 0px 5px; }
+#cliqz-results .ez-liga-upcominggames {display:table; width: -moz-calc(100% - 35px); max-width:600px;padding-top:5px;border-style:none}
+#cliqz-results .ez-liga-1upcominggame {float:left; width:50%; padding:03px 0px 5px;}
+#cliqz-results .ez-liga-ucg-teamName  {float:left;text-align:left;color: #333333;width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+#cliqz-results .ez-liga-ucg-gameTime {float:left; color: #999999; padding-left:15px; max-width:30%;white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+#cliqz-results .ez-liga-button {position: absolute; bottom: 12px; left: 22px; background-color:#1B4AA3}
+#cliqz-results .ez-liga-ucg-timezone {position: absolute; bottom: 14px; left: 150px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-timezone-short{max-width: calc(100% - 350px);}
+#cliqz-results .ez-liga table {margin-top: 5px;border-collapse:collapse;text-align: center;}
+#cliqz-results .ez-liga th, #cliqz-results .ez-liga td {padding: 5px 0px;border-bottom: 1px solid #cccccc;}
+#cliqz-results .ez-liga th {color: #999999;font-weight:normal;}
+#cliqz-results .ez-liga td {width: 35px;}
+#cliqz-results .ez-liga td:nth-child(1) {color: #999999;width: 10px;padding-right: 15px;}
+#cliqz-results .ez-liga td:nth-child(2), #cliqz-results .ez-liga th:nth-child(2) {width: 130px;text-align: left;overflow: hidden;display: inline-block;text-overflow: ellipsis;white-space: nowrap;}
+#cliqz-results .ez-liga th:nth-child(2) {color: #999999;}
+#cliqz-results .ez-liga td:nth-child(10) {font-weight: bold;}
+#cliqz-results .ez-liga tr:nth-child(5) * {border-bottom: none;}
+/* ------- END Bundesliga EZ ----------*/
+
 
 /* ------- FLIGHT STATUS EZ ----------*/
 #cliqz-results .flightStatusEZ-flightNumber {color:#333333; font-size: 18px; overflow: hidden;}
@@ -32,6 +83,60 @@
 #cliqz-results .ez-text-msg .title { font-size: 25px; margin-top: -3px; }
 #cliqz-results .ez-text-msg .expression { font-size: 25px; margin-top: 10px; color: #999999 }
 /* --------- END Emergency contact -> text.tpl -------- */
+
+/* ------- START onboarding */
+
+.onboarding-container {
+  -moz-appearance: none;
+  border: none;
+  background-color: transparent;
+  position: relative;
+  margin: 0px;
+  overflow: visible;
+}
+
+.onboarding-cursor {
+  background-image: url(chrome://cliqz/content/onboarding/images/cursor.svg);
+  background-size: 20px;
+  background-repeat: no-repeat;
+  height: 32px;
+  width: 32px;
+}
+
+.onboarding-lens {
+  width: 48px;
+  height: 48px;
+  background-image: radial-gradient(50% 100%, rgba(119,136,153,0.4) 50%, rgba(119,136,153,0.6) 100%);
+  border-radius: 40px;
+  border: 2px solid white;
+}
+
+.onboarding-callout {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 2px 20px;
+  font-size: 18px;
+  max-width: 400px;
+}
+
+.onboarding-callout .btn-container { right: 0px; position: absolute; text-align: right; margin-top: 10px; }
+
+.onboarding-callout .cqz-btn {
+    margin: 0px;
+    cursor: pointer;
+    color: black;
+    border-radius: 3px;
+    padding: 4px 8px;
+    text-align: center;
+    display: inline-block;
+    background-color: #8CE12F;
+    font-weight: 300;    
+}
+
+.onboarding-callout .cqz-btn-ok { background-color: #8CE12F; }
+.onboarding-callout .cqz-btn-cancel { background-color: #c3043e; color: white; }
+
+/* ------- END onboarding */
 
 /* Images search (beta) */
 /*
@@ -73,7 +178,7 @@
 }
 
 #cliqz-results .cqz-result-images .cqz-ez-images-title::after {
-  background-image: url(http://cdn.cliqz.com/extension/EZ/images/camera.png);
+  background-image: url(https://cdn.cliqz.com/extension/EZ/images/camera.png);
 }
 
 
@@ -182,7 +287,7 @@
 #cliqz-results .cliqz-pattern-element-link { font-size: 14px; }
 #cliqz-results .cliqz-pattern-element { position: relative; padding-left: 0; overflow: visible}
 #cliqz-results .cqz-result-h3 .cliqz-pattern-element-title { font-size: 18px; }
-#cliqz-results .cliqz-history-logo { font-size: 8px; right: 0; top: -2px; position: absolute; }
+#cliqz-results .cliqz-history-logo { font-size: 8px; right: 0; top: -2px; position: absolute; cursor: pointer; }
 #cliqz-results .cqz-result-h3 .cliqz-history-logo { top: 3px; }
 
 #cliqz-results .ez-news-toggle .entity-stories { display: none; }
@@ -222,7 +327,7 @@
 #cliqz-results .ez-news-toggle .entity-story-comment { position: relative; }
 #cliqz-results .ez-news-toggle .twitter-likes {
     position: absolute;
-    background: url(http://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg) no-repeat left center;
+    background: url(https://cdn.cliqz.com/extension/EZ/cliqz/EZ-social-twitter.svg) no-repeat left center;
     background-size: 20px 20px;
     height: 20px;
     left: 200px;
@@ -231,4 +336,100 @@
     color: #49C0F2;
     padding-left: 26px;
     line-height: 19px;
+}
+
+.urlbar-history-dropmarker[cliqz-start="true"]{
+    -moz-image-region: var(--urlbar-dropmarker-region);
+    background-image: none;
+}
+
+#cliqz-message-container .cqz-message em {
+    font-style: normal;
+    font-weight: bold;
+}
+
+/* ---------- From A to B ----------- */
+#cliqz-results .cqz-ez-aTob h2 {
+  font-size: 18px;
+  color: #506bb8;
+  font-weight: normal;
+  margin-bottom: 2px;
+}
+
+#cliqz-results .cqz-ez-aTob .cqz-ez-title:hover{
+  text-decoration: none !important;
+}
+
+#cliqz-results .cqz-ez-aTob .cqz-ez-title span {
+  color: #cccccc;
+  font-size: 14px;
+}
+
+#cliqz-results .cqz-ez-aTob .cqz-ez-title span:hover,
+#cliqz-results .cqz-ez-aTob table.list .item:hover {
+  text-decoration: underline;
+}
+
+#cliqz-results .cqz-ez-aTob-title {
+  margin-bottom: 3px;   
+}
+
+#cliqz-results .cqz-ez-aTob table.list th {
+  color: #93999d;
+  font-size: 14px;
+  font-weight: normal;
+  padding: 0 0 9px;
+}
+            
+#cliqz-results .cqz-ez-aTob table.list td, 
+#cliqz-results .cqz-ez-aTob table.list th {
+  border-bottom: 1px solid #e7f1e5;
+}
+            
+#cliqz-results .cqz-ez-aTob table.list tbody > tr:last-child > td {
+  border-bottom: 0px;
+}
+            
+#cliqz-results .cqz-ez-aTob table.list td {
+  padding: 6px;
+  color: #506bb8;
+}
+
+#cliqz-results .cqz-ez-aTob table.list .item {
+  text-align: center;
+  width: 60px;
+}
+            
+#cliqz-results .cqz-ez-aTob table.list th.empty {
+  width: 130px;
+}
+
+#cliqz-results .cqz-ez-aTob table.list .label{
+  color: #000000;    
+}
+
+#cliqz-results .cqz-ez-aTob .iconImage.bus,
+#cliqz-results .cqz-ez-aTob .iconImage.train {
+  top: 4px;
+}
+
+#cliqz-results .cqz-ez-aTob .iconContainer {
+  height: 18px;
+  width: 18px; 
+}
+
+/* Common accessible styles to use icons as images instead of background-image */
+#cliqz-results .iconContainer {
+  float: left;
+  display: block;
+  overflow: hidden;
+  position:relative;
+}
+
+#cliqz-results .iconContainer img {
+   position: absolute;
+}
+
+#cliqz-results .iconLabel {
+   margin-left: 10px
 }
