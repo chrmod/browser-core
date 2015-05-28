@@ -559,6 +559,16 @@ var UI = {
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
+
+      if (CliqzUtils.isWindows()) {
+        // Do nothing if alt is pressed
+        if(alt) return;
+        // On Windows: CTRL selects words, ALT does nothing
+        // Meta key -> same behavior as ALT on OSX
+        alt = meta;
+        meta = false;
+      }
+
       if (key == LEFT) {
         if (shift && meta) {
             start = 0;
