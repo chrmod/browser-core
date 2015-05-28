@@ -187,6 +187,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
+
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
         // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
@@ -238,6 +239,7 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
+            Extension.addScript('ContextMenu', win);
 
             Extension.addButtons(win);
 

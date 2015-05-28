@@ -48,7 +48,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
-    CONTEXT_MENU_ITEMS = [
+    /*CONTEXT_MENU_ITEMS = [
       {
         'id': 'openNewTabItem',
         'label': 'Open Link in New Tab',
@@ -64,16 +64,14 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'label': 'Feedback for CLIQZ',
         'command': openFeedback
       }
-    ],
+    ],*/
     currentResults,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
     // The number of times to attempt loading smart CLIQZ results asynchronously
     smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
-    smartCliqzWaitTime = 100,
-    contextMenu = document.getElementById('contentAreaContextMenu')
-    ;
+    smartCliqzWaitTime = 100;
 
 function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
@@ -116,7 +114,7 @@ var UI = {
         });
         
         //enable right click context menu
-        enableContextMenu(resultsBox);
+        CLIQZ.ContextMenu.enableContextMenu(resultsBox);
       
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
@@ -670,7 +668,8 @@ var UI = {
       };
     },
     closeResults: closeResults,
-    sessionEnd: sessionEnd
+    sessionEnd: sessionEnd,
+    getResultOrChildAttr: getResultOrChildAttr
 };
 
 
@@ -1809,8 +1808,10 @@ function arrowNavigationTelemetry(el){
 }
 
 /* TODO: move to a new CliqzContextMenu module */
-function enableContextMenu(resultsBox) {
-  //contextMenu.setAttribute('onpopupshowing', '');
+/*function enableContextMenu(resultsBox) {
+  contextMenu.setAttribute('onpopupshowing', '');
+  contextMenu.setAttribute('onpopuphiding', '');
+
   contextMenu.style.zIndex = "100";
   appendContextMenuItems(CONTEXT_MENU_ITEMS);
   resultsBox.addEventListener('contextmenu', rightClick);
@@ -1832,7 +1833,16 @@ function appendContextMenuItems(config) {
 }
 
 function rightClick(ev) {
-  var children = contextMenu.childNodes;
+  
+  /*document.browser = ev.target.ownerDocument.defaultView;
+                                  .QueryInterface(Ci.nsIInterfaceRequestor)
+                                  .getInterface(Ci.nsIWebNavigation)
+                                  .QueryInterface(Ci.nsIDocShell)
+                                  .chromeEventHandler;
+  document.popupNode = ev.target;
+  gContextMenu = new nsContextMenu(ev.target, ev.shiftKey);*/
+  
+  /*var children = contextMenu.childNodes;
     
   //hide all elements
   for(var i = 0; i < contextMenu.childNodes.length; i++) {
@@ -1849,7 +1859,6 @@ function rightClick(ev) {
     item.setAttribute('data-url', getResultOrChildAttr(ev.target, 'url'));
     item.setAttribute('data-kind', getResultOrChildAttr(ev.target, 'kind'));
   }
-  
   document.popupNode = ev.target;
   return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
 }
@@ -1868,6 +1877,10 @@ function openNewWindow(e) {
 
 function hideContextMenuItem(e) {
   if(contextMenu) {
+    contextMenu.setAttribute('onpopupshowing', _popupshowing);
+
+    contextMenu.setAttribute('onpopuphiding', _popuphiding);
+    
     for(var i = 0; i < contextMenu.childNodes.length; i++) {
       var child = contextMenu.children[i];
       child.className = child.className.replace(/\bcontext-menu-hidden\b/,'');
@@ -1879,7 +1892,7 @@ function hideContextMenuItem(e) {
       item.className = 'context-menu-hidden';
     }
   }
-}
+}*/
 
 ctx.CLIQZ.UI = UI;
 
