@@ -50,7 +50,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     BACKSPACE = 8,
     currentResults,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
-    adultQueryTriggerAt = 0.66
+    adultQueryTriggerAt = 0.66,
     // The number of times to attempt loading smart CLIQZ results asynchronously
     smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
