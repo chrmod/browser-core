@@ -1015,7 +1015,7 @@ function enhanceResults(res){
             updateMessageState("show", {
               "footer-message": {
                 message: CliqzUtils.getLocalizedString(msg.text),
-                searchTerm: msg.searchTerm.localized ? CliqzUtils.getLocalizedString(msg.searchTerm.text) : msg.searchTerm.text,
+                searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
                 options: msg.buttons.map(function(b) {
                   return {
                     text: CliqzUtils.getLocalizedString(b.text),
