@@ -9,6 +9,39 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 (function(ctx) {
 
+  var CONTEXT_MENU_ITEMS = [
+    {
+      'id': 'openNewTabItem',
+      'label': 'Open Link in New Tab',
+      'command': openNewTab
+    },
+    {
+      'id': 'openNewWindowItem',
+      'label': 'Open Link in New Window',
+      'command': openNewWindow
+    },
+    {
+      'id': 'feedbackItem',
+      'label': 'Feedback for CLIQZ',
+      'command': openFeedback
+    }
+    ],
+    contextMenu = document.getElementById('contentAreaContextMenu'),
+    _popupshowing = contextMenu.getAttribute('onpopupshowing'),
+    _popuphiding = contextMenu.getAttribute('onpopuphiding');
+  
+    function openFeedback(e) {
+      CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true); 
+    }
+
+    function openNewTab(e) {
+      CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
+    }
+
+    function openNewWindow(e) {
+      window.open(e.target.getAttribute('data-url'), '_blank');
+    }
+
 var ContextMenu = {
   enableContextMenu: function(resultsBox) {
     contextMenu.setAttribute('onpopupshowing', '');
@@ -22,7 +55,6 @@ var ContextMenu = {
   function appendContextMenuItems(config) {
     if(contextMenu) {
       for(var item = 0; item < config.length; item++) {
-        console.log("ITEM: " + config[item].label);
         var menuItem = document.createElement('menuitem');
         menuItem.setAttribute('label', config[item].label);
         menuItem.setAttribute('hidden', 'true');
@@ -64,18 +96,6 @@ var ContextMenu = {
     return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);  
   }
   
-  function openFeedback(e) {
-    CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true); 
-  }
-  
-  function openNewTab(e) {
-    CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
-  }
-  
-  function openNewWindow(e) {
-    window.open(e.target.getAttribute('data-url'), '_blank');
-  }
-  
   function hideContextMenuItem(e) {
     if(contextMenu) {
       contextMenu.setAttribute('onpopupshowing', _popupshowing);
@@ -95,27 +115,6 @@ var ContextMenu = {
   }
   
 ctx.CLIQZ.ContextMenu = ContextMenu;
-  
-var CONTEXT_MENU_ITEMS = [
-      {
-        'id': 'openNewTabItem',
-        'label': 'Open Link in New Tab',
-        'command': CLIQZ.ContextMenu.openNewTab
-      },
-      {
-        'id': 'openNewWindowItem',
-        'label': 'Open Link in New Window',
-        'command': CLIQZ.ContextMenu.openNewWindow
-      },
-      {
-        'id': 'feedbackItem',
-        'label': 'Feedback for CLIQZ',
-        'command': CLIQZ.ContextMenu.openFeedback
-      }
-    ],
-    contextMenu = document.getElementById('contentAreaContextMenu'),
-    _popupshowing = contextMenu.getAttribute('onpopupshowing'),
-    _popuphiding = contextMenu.getAttribute('onpopuphiding');
 
 })(this);
 
