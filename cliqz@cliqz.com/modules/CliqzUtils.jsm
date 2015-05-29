@@ -90,6 +90,8 @@ var CliqzUtils = {
                 .getService(Components.interfaces.nsIPrefBranch),
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
+  _os: Components.classes["@mozilla.org/xre/app-info;1"]
+      .getService(Components.interfaces.nsIXULRuntime).OS.toLowerCase(),
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -965,11 +967,11 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(win){
-    return win.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(){
+    return CliqzUtils._os.indexOf("win") === 0;
   },
-  isMac: function(win){
-    return win.navigator.userAgent.indexOf('Macintosh') != -1;
+  isMac: function(){
+    return CliqzUtils._os.indexOf("darwin") === 0;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
