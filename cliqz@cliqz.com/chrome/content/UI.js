@@ -460,7 +460,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
