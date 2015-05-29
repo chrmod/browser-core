@@ -16,7 +16,7 @@
   </div>
   <div style="float:right" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
   	{{#each options}}
-    	<span data-cliqz="{{../data }}" class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}">{{ text }}</span>
+    	<span data-cliqz="{{../data }}" class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}" {{#if pref }} pref="{{../pref}}" {{/if}}  {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >{{ text }}</span>
     {{/each}}
   </div>
 </div>
