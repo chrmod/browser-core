@@ -1009,8 +1009,10 @@ function enhanceResults(res){
         }
 
     }
+  
 
     var spelC = CliqzAutocomplete.spellCorr;
+  
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1047,15 +1049,29 @@ function enhanceResults(res){
           ]
         }
       });
-    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true)) {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true) && !spelC.userConfirmed) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join(spelC.correctBack[c]);
+        var terms = s.split(" ");
+        var messages = [];
+        var termsObj = {};
+        for(var i = 0; i < terms.length; i++) {
+          console.log("!!Term: " + terms[i]);
+          termsObj = {
+            correct: terms[i]  
+          };
+          messages.push(termsObj);
+          if(spelC.correctBack[terms[i]]) {
+            messages[[i]].italic = true; 
+            messages[[i]].correctBack = spelC.correctBack[terms[i]];
+          } else {
+            messages[[i]].correctBack = terms[i];
+          }
         }
+          
         updateMessageState("show", {
             "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s,
+              messages: messages,
+              data: JSON.stringify(messages),
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
@@ -1228,6 +1244,17 @@ function messageClick(ev) {
                 updateMessageState("hide");
                 break;
               case 'spellcorrect-keep':
+                var spellCorData = JSON.parse(ev.target.getAttribute('data-cliqz'));
+                for(var i = 0; i < spellCorData.length; i++) {
+                                    
+                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
+                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];           
+                    }
+                  }
+                }
+                  
+                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
                 updateMessageState("hide");
                 break;
 
