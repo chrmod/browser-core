@@ -4,16 +4,16 @@
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
 		<em:name>Cliqz Beta</em:name>
-		<em:version>1.0.3.1b0</em:version>
+		<em:version>1.0.11.1b24</em:version>
 
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
-
-
+		
+		
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/beta/latest.rdf</em:updateURL>
-
+		
 
 		<em:description>
 		</em:description>

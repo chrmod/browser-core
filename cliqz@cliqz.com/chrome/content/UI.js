@@ -136,8 +136,11 @@ var UI = {
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+      if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+
+        snippetQualityTelemetry(curResAll);
+      }
 
       XULBrowserWindow.updateStatusField();
     },
@@ -1824,6 +1827,35 @@ function arrowNavigationTelemetry(el){
         action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.telemetry(action);
+}
+
+// only consider results which fill the first 3 slots
+function snippetQualityTelemetry(results){
+  var data = [], slots = 0;
+  for(var i=0; i<results.length && slots <3; i++){
+    var r = results[i];
+    if(r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+      data.push({
+        logo: r.logo.backgroundImage ? true : false,
+        desc: r.data.description ? true : false
+      })
+    // push empty data for EZones and history
+    else data.push({});
+
+    slots += CliqzUtils.TEMPLATES[r.vertical];
+
+    // entity generic can be 3 slots height
+    if(r.vertical == 'entity-generic' && r.data.urls) slots++;
+
+    // hq results are 3 slots height if they have images
+    if(r.vertical == 'hq' && r.data.richData && r.data.richData.images) slots++;
+  }
+
+  CliqzUtils.telemetry({
+    type: 'snippet',
+    action: 'quality',
+    data: data
+  });
 }
 
 ctx.CLIQZ.UI = UI;
