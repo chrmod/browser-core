@@ -11,7 +11,7 @@
     {{/if}}
     {{#with data}}
         <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
-            {{ emphasis name ../text 2 true }}
+          <a href="{{../url}}">{{ emphasis name ../text 2 true }}</a>
             <div class="after" style="background-image: url({{icon}})"></div>
         </div>
 

@@ -34,6 +34,10 @@
     overflow: hidden;
 }
 
+#cliqz-popup a:visited{
+ color: #8c275f; 
+}
+
 /* reset defaults for dropdown content */
 #cliqz-popup * {
     line-height: 1.2em;

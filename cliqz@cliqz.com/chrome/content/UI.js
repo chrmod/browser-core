@@ -91,9 +91,27 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-
-
+        
         resultsBox.addEventListener('mouseup', resultClick);
+      
+        resultsBox.addEventListener('mousedown', function(e) {
+          var walk_the_DOM = function walk(node) {
+            while(node) {
+              if(node.tagName === 'a') {
+                console.log("NODE", node);
+                node.setAttribute('href', 'javascript:return false;');
+                //e.stopPropagation();
+                e.preventDefault();
+                return false;
+              } else {
+                node = node.parentNode;
+                walk(node);
+              }
+            }
+          }
+          walk_the_DOM(e.originalTarget);
+        });
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -142,6 +160,7 @@ var UI = {
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -1366,7 +1385,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
