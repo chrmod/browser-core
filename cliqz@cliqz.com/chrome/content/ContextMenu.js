@@ -14,6 +14,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   function openFeedback(e) {
     CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
+    
+    var signal = {
+      type: 'activity',
+      action: 'right_click',
+      selection: 'open_feedback'
+    };
+    CliqzUtils.telemetry(signal);
   }
 
   function openNewTab(e) {
