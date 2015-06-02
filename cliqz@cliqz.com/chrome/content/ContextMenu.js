@@ -10,15 +10,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 (function(ctx) {
 
   var contextMenu,
-      CONTEXT_MENU_ITEMS;
+      CONTEXT_MENU_ITEMS,
+      action = "context_menu";
 
   function openFeedback(e) {
     CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
     
     var signal = {
       type: 'activity',
-      action: 'right_click',
-      selection: 'open_feedback'
+      action: action,
+      menu_open: 'open_feedback'
     };
     CliqzUtils.telemetry(signal);
   }
@@ -27,8 +28,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
     CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
     var signal = {
       type: 'activity',
-      action: 'right_click',
-      selection: 'open_new_tab'
+      action: action,
+      menu_open: 'open_new_tab'
     };
     CliqzUtils.telemetry(signal);
   }
@@ -38,8 +39,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
     
     var signal = {
       type: 'activity',
-      action: 'right_click',
-      selection: 'open_new_window'
+      action: action,
+      menu_open: 'open_new_window'
     };
     CliqzUtils.telemetry(signal);
   }
@@ -53,8 +54,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
     
     var signal = {
       type: 'activity',
-      action: 'right_click',
-      selection: 'open_private_window'
+      action: action,
+      menu_open: 'open_private_window'
     };
     CliqzUtils.telemetry(signal);
   }
@@ -84,22 +85,26 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
       box.addEventListener('contextmenu', rightClick);
     }
   };
-
-
+  
   function rightClick(ev) {
-    var children = contextMenu.childNodes;
-
-    for(var i = 0; i < children.length; i++) {
-      children[i].setAttribute('data-url', CLIQZ.UI.getResultOrChildAttr(ev.target, 'url'));
-      children[i].setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
-    }
-    contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+    var children, 
+        url = CLIQZ.UI.getResultOrChildAttr(ev.target, 'url');
     
-    var signal = {
-      type: 'activity',
-      action: 'right_click'
-    };
-    CliqzUtils.telemetry(signal);
+    if(url.trim() != '') {
+      children = contextMenu.childNodes;
+
+      for(var i = 0; i < children.length; i++) {
+        children[i].setAttribute('data-url', url);
+        children[i].setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
+      }
+      contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+
+      var signal = {
+        type: 'activity',
+        action: action
+      };
+      CliqzUtils.telemetry(signal);
+    }
   }
 
   ctx.CLIQZ.ContextMenu = ContextMenu;
