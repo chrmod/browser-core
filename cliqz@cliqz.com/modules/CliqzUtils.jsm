@@ -72,7 +72,7 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+  TEMPLATES: {'aTob' : 2, 'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
@@ -80,7 +80,8 @@ var CliqzUtils = {
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'weatherEZ-promise': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'recipe': 3, 'rd-h3-w-rating': 1
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -88,6 +89,8 @@ var CliqzUtils = {
                 .getService(Components.interfaces.nsIPrefBranch),
   _log: Components.classes['@mozilla.org/consoleservice;1']
       .getService(Components.interfaces.nsIConsoleService),
+  _os: Components.classes["@mozilla.org/xre/app-info;1"]
+      .getService(Components.interfaces.nsIXULRuntime).OS.toLowerCase(),
   init: function(win){
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
@@ -781,12 +784,12 @@ var CliqzUtils = {
   // references to all the timers to avoid garbage collection before firing
   // automatically removed when fired
   _timers: [],
-  _setTimer: function(func, timeout, type, param) {
+  _setTimer: function(func, timeout, type, args) {
     var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
     CliqzUtils._timers.push(timer);
     var event = {
       notify: function (timer) {
-        func(param);
+        func.apply(null, args);
         if(CliqzUtils) CliqzUtils._removeTimerRef(timer);
       }
     };
@@ -799,11 +802,11 @@ var CliqzUtils = {
       CliqzUtils._timers.splice(CliqzUtils._timers.indexOf(timer), 1);
     }
   },
-  setInterval: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+  setInterval: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, [].slice.call(arguments, 2));
   },
-  setTimeout: function(func, timeout, param) {
-    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+  setTimeout: function(func, timeout) {
+    return CliqzUtils._setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, [].slice.call(arguments, 2));
   },
   clearTimeout: function(timer) {
     if (!timer) {
@@ -963,11 +966,11 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(win){
-    return win.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(){
+    return CliqzUtils._os.indexOf("win") === 0;
   },
-  isMac: function(win){
-    return win.navigator.userAgent.indexOf('Macintosh') != -1;
+  isMac: function(){
+    return CliqzUtils._os.indexOf("darwin") === 0;
   },
   getWindow: function(){
     var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']

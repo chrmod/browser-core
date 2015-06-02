@@ -1,4 +1,22 @@
 {
+    "CookingIntruct":{
+        "message": "Zubereitungsschritte"
+    },
+    "Ingredients":{
+        "message": "Zutaten"
+    },
+    "Reviews":{
+        "message": "Stimmen"
+    },
+    "Serves":{
+        "message": "Portionen"
+    },
+    "CookTime":{
+        "message": "Gesamtzeit: {} Minute"
+    },
+    "KickerSponsor":{
+        "message": "powered by kicker online"
+    },
     "vs":{
         "message": "gegen"
     },
@@ -50,6 +68,9 @@
     "btnSafeSearchDesc":{
         "message": "Was ist das?"
     },
+    "btnStats":{
+        "message": "Stats"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -70,6 +91,9 @@
     },
     "search":{
         "message":"suche"
+    },
+    "searchUsing":{
+        "message":"Suche mit"
     },
     "on":{
         "message":"auf"
@@ -117,10 +141,19 @@
         "message":"vor einem Jahr"
     },
     "agoXYears":{
-        "message":"vor {} Jaren"
+        "message":"vor {} Jahren"
+    },
+    "onCalloutIntro":{
+        "message":"Hier ist Deine neue CLIQZ-Suchleiste"
+    },
+    "onCalloutIntroBtnStart":{
+        "message":"Demo starten"
+    },
+    "onCalloutIntroBtnCancel":{
+        "message":"Schließen"
     },
     "onButtonTryOut":{
-        "message":"Surf los!"
+        "message":"Demo starten"
     },
     "onButtonCancel":{
         "message":"Demo abbrechen"
@@ -156,7 +189,7 @@
         "message":"Danke, dass Du CLIQZ installiert hast!"
     },
     "onMsgExplanation":{
-        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durchs Web."
+        "message":"CLIQZ for Firefox verwandelt Deine Adressleiste in Deinen persönlichen Assistenten durch's Web."
     },
     "offRes_Cliqz":{
         "message":"CLIQZ"
@@ -365,6 +398,15 @@
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
     },
+    "statsText": {
+        "message": "In den letzten <b>7 Tagen</b> hast Du <b>{} Suchen</b> gestartet.<br/><br/>Bei <b>{}</b> dieser Suchen hat <b>cliqz</b> Dich zu Deinem Ziel geführt.<br/><br/>Dabei musstest Du im Schnitt <b>unter lediglich {} Vorschlägen aussuchen,</b> statt auf langenSuchmaschinen-Ergebnisseiten unter im Schnitt {} Vorschlägen das richtige Ergebnis zu suchen.<br/><br/>Zusätzlich hat cliqz Dir damit <b>{} Werbeplatzierungen erspart</b>(eine Suchmaschine zeigt im Schnitt 7 gekaufte Links auf ihnen Suchergebnis-Seiten an).<br/><br/>Und weil Du auf einer Suchmaschinen-Ergebnisseite im Schnitt 3,5 Sekunden verbringst,hat cliqz Dir zusätzlich <b>{} Minuten Deiner wertvollen Zeit gespart.</b>"
+    },
+    "statsShareMsg": {
+        "message": "@cliqz saved me {} minutes over the last 7 days"
+    },
+    "statsShareAction": {
+        "message": "Diese Statistik auf {} posten"
+    },
     "spell_correction": {
       "message":"Meintest Du wirklich"
     },
@@ -554,5 +596,35 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Flüge"
+    },
+    "train": {
+        "message": "Zug"
+    },
+    "bus": {
+        "message": "Bus"
+    },
+    "from": {
+        "message": "Von"
+    },
+    "from_price": {
+      "message": "ab"  
+    },
+    "to": {
+        "message": "nach"
+    },
+    "today": {
+        "message": "Heute"
+    },
+    "myQuery": {
+        "message": "Suchbegriff"
+    },
+    "ytDynamicSearch": {
+        "message": "Wusstest Du: Du kannst \"yt + Suchbegriff\" eingeben um direkt eine Vorschau auf Youtube Ergebnisse zu erhalten"
+    },
+    "dismiss": {
+        "message": "Nachricht schließen"
     }
 }

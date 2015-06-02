@@ -209,8 +209,8 @@ var UI = {
         for (var i in res) {
           var r = res[i];
           var query = r.text;
-          var qt = query + ": " + new Date().getTime();
-          CliqzUtils.log(qt, "QUERY TIMESTAMP");
+          //var qt = query + ": " + new Date().getTime();
+          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
           //CliqzUtils.log(r,"LOADINGASYNC");
           var loop_count = 0;
           var async_callback = function(req) {
@@ -225,7 +225,6 @@ var UI = {
               }
               //CliqzUtils.log(r.text, "Here's the query");
               //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
-
               if (resp &&  CLIQZ.Core.urlbar.value == query) {
 
                 var kind = r.data.kind;
@@ -234,7 +233,7 @@ var UI = {
                     if (loop_count < smartCliqzMaxAttempts) {
                       setTimeout(function() {
                         loop_count += 1;
-                        CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
                         //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
                         CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
                       }, smartCliqzWaitTime);
@@ -249,7 +248,9 @@ var UI = {
                   r.data.kind = kind;
                   r.data.subType = resp.subType;
                   r.data.trigger_urls = resp.trigger_urls;
-
+                  r.vertical = r.data.template;
+                  r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                  r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
 
                   if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
                       // Remove all existing extra results
@@ -558,6 +559,16 @@ var UI = {
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
+
+      if (CliqzUtils.isWindows()) {
+        // Do nothing if alt is pressed
+        if(alt) return;
+        // On Windows: CTRL selects words, ALT does nothing
+        // Meta key -> same behavior as ALT on OSX
+        alt = meta;
+        meta = false;
+      }
+
       if (key == LEFT) {
         if (shift && meta) {
             start = 0;
@@ -947,9 +958,10 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    updateMessageState("hide");
     var adult = false;
 
-    for(var i=0; i<res.results.length; i++){
+    for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
@@ -1007,8 +1019,28 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
+        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+          var msg = r.data.__message__;
+          if (CliqzUtils.getPref(msg.pref, true)) {
+            updateMessageState("show", {
+              "footer-message": {
+                message: CliqzUtils.getLocalizedString(msg.text),
+                searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
+                options: msg.buttons.map(function(b) {
+                  return {
+                    text: CliqzUtils.getLocalizedString(b.text),
+                    action: b.action,
+                    state: b.state || 'default',
+                    pref: msg.pref || 'null',
+                    prefVal: b.prefVal || 'null'
+                  }
+                })
+              }
+            });
+          }
+        }
     }
-    
+
     var spelC = CliqzAutocomplete.spellCorr;
     //filter adult results
     if(adult) {
@@ -1034,7 +1066,6 @@ function enhanceResults(res){
         "footer-message": {
           message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
-          searchTerm: '',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
               action: 'update-show',
@@ -1055,7 +1086,7 @@ function enhanceResults(res){
         updateMessageState("show", {
             "footer-message": {
               message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s, 
+              searchTerm: s,
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
@@ -1070,8 +1101,6 @@ function enhanceResults(res){
               ]
             }
         });
-    } else {
-      updateMessageState("hide");
     }
 
     return res;
@@ -1093,7 +1122,6 @@ function getNotSupported(){
     message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
-    searchTerm: '',
     options: [{
         text: CliqzUtils.getLocalizedString('keep-cliqz'),
         action: 'keep-cliqz',
@@ -1238,6 +1266,19 @@ function messageClick(ev) {
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
+                  break;
+              case 'dismiss':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  if (pref && pref != "null")
+                    CliqzUtils.setPref(pref,false);
+                  break;
+               case 'set':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  if (pref && prefVal && pref != "null" && prefVal != "null")
+                    CliqzUtils.setPref(pref,prefVal);
                   break;
               default:
                   break;

@@ -1,4 +1,22 @@
 {
+    "CookingIntruct":{
+        "message": "Direction"
+    },
+    "Ingredients":{
+        "message": "Ingredients"
+    },
+    "Reviews":{
+        "message": "Reviews"
+    },
+    "Serves":{
+        "message": "Serves"
+    },
+    "CookTime":{
+        "message": "Total time: {} minutes"
+    },
+    "KickerSponsor":{
+        "message": "powered by kicker online"
+    },
     "vs":{
         "message": "vs."
     },
@@ -50,6 +68,9 @@
     "btnSafeSearchDesc":{
         "message": "What is this?"
     },
+    "btnStats":{
+        "message": "Stats"
+    },
     "urlBarLastSearch":{
         "message":"↵  "
     },
@@ -70,6 +91,9 @@
     },
     "search":{
         "message":"search"
+    },
+    "searchUsing":{
+        "message":"search using"
     },
     "on":{
         "message":"on"
@@ -119,8 +143,17 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "onCalloutIntro":{
+        "message":"This is your new CLIQZ bar"
+    },
+    "onCalloutIntroBtnStart":{
+        "message":"Take tour"
+    },
+    "onCalloutIntroBtnCancel":{
+        "message":"Close"
+    },
     "onButtonTryOut":{
-       "message":"Surf now!"
+       "message":"Take tour"
     },
     "onButtonCancel":{
        "message":"Cancel tour"
@@ -129,7 +162,7 @@
        "message":"Show me again"
     },
     "onCalloutTypeHere":{
-       "message":"All the CLIQZ action happens in your url bar. Simply enter your search or a webaddress here."
+       "message":"All the CLIQZ action happens in your URL bar. Simply enter your search or a webaddress here."
     },
     "onCalloutCliqzResults":{
        "message":"Website suggestions appear in the CLIQZ Menu as you type."
@@ -365,6 +398,15 @@
     "country_code_VN": {
       "message":"Việt Nam - Vietnam"
     },
+    "statsText": {
+        "message": "You've initiated <b>{} searches</b> in the past <b>7 days</b>.<br/><br/><b>cliqz</b> answered <b>{}</b> of these successfully.<br/><br/><b>cliqz pre-selects an average of {} results</b> - that's versus the {} you'd receive with a typical search engine.<br/><br/>We've <b>spared you from viewing {} ads</b> (on average, search results contain 7 'sponsored' links). <br/><br/>Best of all, since you'd spend an average of 3.5 seconds (per search) reading a results page, we've <b>saved you {} full minutes of your precious time!</b>"
+    },
+    "statsShareMsg": {
+        "message": "@cliqz saved me {} minutes over the last 7 days"
+    },
+    "statsShareAction": {
+        "message": "Share this statistic on  {}"
+    },
     "spell_correction": {
       "message":"Did you really mean"
     },
@@ -562,5 +604,35 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Plane"
+    },
+    "train": {
+        "message": "Train"
+    },
+    "bus": {
+        "message": "Bus"
+    },
+    "from": {
+        "message": "From"
+    },
+    "from_price": {
+      "message": "from"  
+    },
+    "to": {
+        "message": "to"
+    },
+    "today": {
+        "message": "Today"
+    },
+    "myQuery": {
+        "message": "query"
+    },
+    "ytDynamicSearch": {
+        "message": "Did you know? You can type \"yt + query\" to get a preview of Youtube results for your search query"
+    },
+    "dismiss": {
+        "message": "Dismiss"
     }
 }

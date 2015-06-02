@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -151,11 +151,20 @@ function registerHelpers(){
     Handlebars.registerHelper('log', function(value, key) {
         console.log('TEMPLATE LOG HELPER', value);
     });
+    
+    Handlebars.registerHelper('toLowerCase', function(str) {
+       return str.toLowerCase(); 
+    });
+    
+    Handlebars.registerHelper('toUpperCase', function(str) {
+       return str.toUpperCase(); 
+    });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        if(!q) return text;
         q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
@@ -263,17 +272,29 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
+        // default setting is determined by latest-vs-trending AB test (50-50)
+        // or is "latest" if not part of the AB test
+        var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
+        
+        // news-toggle not active
         if(!data.trending ||
             data.trending.length == 0 ||
-            CliqzUtils.getPref('news-toggle', false) == false)
-            return true;
+            CliqzUtils.getPref('news-toggle', false) == false) {
+                return defaultSetting;
+        }
 
         try {
           var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
               ezID = JSON.parse(data.subType).ez;
-          return !trending[ezID];
+          // user-defined setting exists for EZ:
+          if (trending.hasOwnProperty(ezID)) {
+            return !trending[ezID];  
+          } else {
+            // no user-defined setting, use default value
+            return defaultSetting;
+          }          
         } catch(e){
-          return true;
+          return defaultSetting;
         }
     });
 }
