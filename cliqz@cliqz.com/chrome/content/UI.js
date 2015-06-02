@@ -1048,6 +1048,12 @@ function enhanceResults(res){
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
+        // if there no results after adult filter - show no results entry
+        if(res.results.length == 0){
+          res.results.push(CliqzUtils.getNoResults());
+          res.results[0].vertical = 'noResult';
+        }
+
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
                 "adult": {
@@ -1110,7 +1116,9 @@ function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de') return false
+        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        // in case location is unknown do not show the message
+        CliqzUtils.getPref("config_location", "de") == '') return false
 
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
