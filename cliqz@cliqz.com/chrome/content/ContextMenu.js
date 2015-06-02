@@ -74,6 +74,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
           var menuItem = document.createElement('menuitem');
           menuItem.setAttribute('label', CONTEXT_MENU_ITEMS[item].label);
           menuItem.addEventListener("command", CONTEXT_MENU_ITEMS[item].command, false);
+          if(menuItem.getAttribute('label') === CliqzUtils.getLocalizedString('cMenuFeedback')) {
+            menuItem.setAttribute('class', 'menuitem-iconic');
+            menuItem.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz.png)';
+          }
           contextMenu.appendChild(menuItem);
       }
 
