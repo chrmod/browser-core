@@ -1110,7 +1110,9 @@ function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de') return false
+        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        // in case location is unknown do not show the message
+        CliqzUtils.getPref("config_location", "de") == '') return false
 
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
