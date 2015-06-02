@@ -48,30 +48,14 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
-    /*CONTEXT_MENU_ITEMS = [
-      {
-        'id': 'openNewTabItem',
-        'label': 'Open Link in New Tab',
-        'command': openNewTab
-      },
-      {
-        'id': 'openNewWindowItem',
-        'label': 'Open Link in New Window',
-        'command': openNewWindow
-      },
-      {
-        'id': 'feedbackItem',
-        'label': 'Feedback for CLIQZ',
-        'command': openFeedback
-      }
-    ],*/
     currentResults,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
     // The number of times to attempt loading smart CLIQZ results asynchronously
     smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
-    smartCliqzWaitTime = 100;
+    smartCliqzWaitTime = 100
+    ;
 
 function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
@@ -112,10 +96,10 @@ var UI = {
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
-        
+
         //enable right click context menu
-        CLIQZ.ContextMenu.enableContextMenu(resultsBox);
-      
+        CLIQZ.ContextMenu.enableContextMenu(box);
+
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -1806,93 +1790,6 @@ function arrowNavigationTelemetry(el){
     }
     CliqzUtils.telemetry(action);
 }
-
-/* TODO: move to a new CliqzContextMenu module */
-/*function enableContextMenu(resultsBox) {
-  contextMenu.setAttribute('onpopupshowing', '');
-  contextMenu.setAttribute('onpopuphiding', '');
-
-  contextMenu.style.zIndex = "100";
-  appendContextMenuItems(CONTEXT_MENU_ITEMS);
-  resultsBox.addEventListener('contextmenu', rightClick);
-}
-  
-function appendContextMenuItems(config) {
-  if(contextMenu) {
-    for(var item = 0; item < config.length; item++) {
-      console.log("ITEM: " + config[item].label);
-      var menuItem = document.createElement('menuitem');
-      menuItem.setAttribute('label', config[item].label);
-      menuItem.setAttribute('hidden', 'true');
-      menuItem.setAttribute('id', config[item].id);
-      menuItem.addEventListener("command", config[item].command, false);
-      contextMenu.appendChild(menuItem); 
-    }
-    contextMenu.addEventListener('popuphiding', hideContextMenuItem, true);
-  }
-}
-
-function rightClick(ev) {
-  
-  /*document.browser = ev.target.ownerDocument.defaultView;
-                                  .QueryInterface(Ci.nsIInterfaceRequestor)
-                                  .getInterface(Ci.nsIWebNavigation)
-                                  .QueryInterface(Ci.nsIDocShell)
-                                  .chromeEventHandler;
-  document.popupNode = ev.target;
-  gContextMenu = new nsContextMenu(ev.target, ev.shiftKey);*/
-  
-  /*var children = contextMenu.childNodes;
-    
-  //hide all elements
-  for(var i = 0; i < contextMenu.childNodes.length; i++) {
-    var child = contextMenu.children[i];
-    child.hidden = true;
-    child.className += ' ' + 'context-menu-hidden';
-  }
-  
-  //show Feedback & Open in New tab menu items
-  for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
-    var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
-    item.hidden = false;
-    item.className = '';
-    item.setAttribute('data-url', getResultOrChildAttr(ev.target, 'url'));
-    item.setAttribute('data-kind', getResultOrChildAttr(ev.target, 'kind'));
-  }
-  document.popupNode = ev.target;
-  return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
-}
-  
-function openFeedback(e) {
-  CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true); 
-}
-  
-function openNewTab(e) {
-  CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
-}
-  
-function openNewWindow(e) {
-  window.open(e.target.getAttribute('data-url'), '_blank');
-}
-
-function hideContextMenuItem(e) {
-  if(contextMenu) {
-    contextMenu.setAttribute('onpopupshowing', _popupshowing);
-
-    contextMenu.setAttribute('onpopuphiding', _popuphiding);
-    
-    for(var i = 0; i < contextMenu.childNodes.length; i++) {
-      var child = contextMenu.children[i];
-      child.className = child.className.replace(/\bcontext-menu-hidden\b/,'');
-    }
-    
-    for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
-      var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
-      item.setAttribute('hidden', true);
-      item.className = 'context-menu-hidden';
-    }
-  }
-}*/
 
 ctx.CLIQZ.UI = UI;
 
