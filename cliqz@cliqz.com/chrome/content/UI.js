@@ -1048,6 +1048,12 @@ function enhanceResults(res){
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
 
+        // if there no results after adult filter - show no results entry
+        if(res.results.length == 0){
+          res.results.push(CliqzUtils.getNoResults())
+          res.results[0].vertical = 'noResult';
+        }
+
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
                 "adult": {
