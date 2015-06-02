@@ -435,7 +435,7 @@
       "message":"block"
     },
     "adultModerate": {
-      "message":"filter"
+      "message":"ask"
     },
     "adultLiberal": {
       "message":"always show"
