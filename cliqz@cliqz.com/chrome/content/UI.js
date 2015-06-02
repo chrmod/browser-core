@@ -1096,7 +1096,8 @@ function enhanceResults(res){
             messages[i].correctBack = "";
           }
         }
-        console.log(JSON.stringify(messages));
+        //cache searchTerms to check against when user keeps spellcorrect
+        spelC.searchTerms = messages;
           
         updateMessageState("show", {
             "footer-message": {
@@ -1272,9 +1273,9 @@ function messageClick(ev) {
                 updateMessageState("hide");
                 break;
               case 'spellcorrect-keep':
-                var spellCorData = JSON.parse(ev.target.getAttribute('data-cliqz'));
+                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
                 for(var i = 0; i < spellCorData.length; i++) {
-                                    
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)                  
                   for(var c in CliqzAutocomplete.spellCorr.correctBack) {
                     if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
                       delete CliqzAutocomplete.spellCorr.correctBack[c];           

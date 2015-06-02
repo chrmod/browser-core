@@ -65,7 +65,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'correctBack': {},
         'override': false,
         'pushed': null,
-        'userConfirmed' : false
+        'userConfirmed': false,
+        'searchTerms': []
     },
     init: function(){
         CliqzUtils.init();
@@ -118,7 +119,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             'on': false,
             'correctBack': {},
             'override': false,
-            'pushed': null
+            'pushed': null,
+            'userConfirmed': false,
+            'searchTerms': []
         }
     },
     initProvider: function(){
