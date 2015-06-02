@@ -836,7 +836,6 @@ var CliqzHistoryPattern = {
   createInstantResult: function(res, searchString) {
     var instant_results = [];
     var results = res.filteredResults();
-    CliqzUtils.log(res);
 
     if(results.length == 0 && !res.urls) {
       // no results, so do nothing
@@ -914,9 +913,6 @@ var CliqzHistoryPattern = {
       }
     }
 
-    // Needed?
-    //res.shown = instant.data.urls.length;
-    CliqzUtils.log(instant_results);
     return instant_results;
   },
   // Removes a given url from the instant.data.url list
