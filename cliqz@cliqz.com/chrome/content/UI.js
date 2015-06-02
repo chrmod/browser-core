@@ -1050,7 +1050,7 @@ function enhanceResults(res){
 
         // if there no results after adult filter - show no results entry
         if(res.results.length == 0){
-          res.results.push(CliqzUtils.getNoResults())
+          res.results.push(CliqzUtils.getNoResults());
           res.results[0].vertical = 'noResult';
         }
 
