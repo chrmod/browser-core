@@ -629,6 +629,9 @@
     "cMenuOpenInNewWindow": {
       "message": "Open Link in New Window"  
     },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Open Link in New Private Window"   
+    },
     "cMenuFeedback": {
       "message": "Feedback for CLIQZ"  
     }
