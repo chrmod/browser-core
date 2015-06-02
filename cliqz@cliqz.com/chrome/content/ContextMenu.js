@@ -10,11 +10,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 (function(ctx) {
 
   var contextMenu,
-      CONTEXT_MENU_ITEMS = [
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),     'command': openNewTab },
-        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),  'command': openNewWindow },
-        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),         'command': openFeedback }
-      ];
+      CONTEXT_MENU_ITEMS;
 
   function openFeedback(e) {
     CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
@@ -30,6 +26,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   var ContextMenu = {
     enableContextMenu: function(box) {
+      CONTEXT_MENU_ITEMS = [
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),        'command': openNewTab },
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),     'command': openNewWindow },
+        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),            'command': openFeedback }
+      ];
       contextMenu = document.createElement('menupopup');
       box.appendChild(contextMenu);
 
