@@ -606,19 +606,22 @@
         "message":"Trending"
     },
     "plane": {
-        "message":"Plane"    
+        "message":"Plane"
     },
     "train": {
-        "message": "Train"    
+        "message": "Train"
     },
     "bus": {
-        "message": "Bus"    
+        "message": "Bus"
     },
     "from": {
-        "message": "From"    
+        "message": "From"
+    },
+    "from_price": {
+      "message": "from"  
     },
     "to": {
-        "message": "to"    
+        "message": "to"
     },
     "today": {
         "message": "Today"    
@@ -633,6 +636,15 @@
       "message": "Open Link in New Private Window"   
     },
     "cMenuFeedback": {
-      "message": "Feedback for CLIQZ"  
+      "message": "Feedback for CLIQZ"
+    },
+    "myQuery": {
+        "message": "query"
+    },
+    "ytDynamicSearch": {
+        "message": "Did you know? You can type \"yt + query\" to get a preview of Youtube results for your search query"
+    },
+    "dismiss": {
+        "message": "Dismiss"
     }
 }

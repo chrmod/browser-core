@@ -563,6 +563,16 @@ var UI = {
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
+
+      if (CliqzUtils.isWindows()) {
+        // Do nothing if alt is pressed
+        if(alt) return;
+        // On Windows: CTRL selects words, ALT does nothing
+        // Meta key -> same behavior as ALT on OSX
+        alt = meta;
+        meta = false;
+      }
+
       if (key == LEFT) {
         if (shift && meta) {
             start = 0;
@@ -953,9 +963,10 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    updateMessageState("hide");
     var adult = false;
 
-    for(var i=0; i<res.results.length; i++){
+    for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
@@ -1013,6 +1024,26 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
+        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+          var msg = r.data.__message__;
+          if (CliqzUtils.getPref(msg.pref, true)) {
+            updateMessageState("show", {
+              "footer-message": {
+                message: CliqzUtils.getLocalizedString(msg.text),
+                searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
+                options: msg.buttons.map(function(b) {
+                  return {
+                    text: CliqzUtils.getLocalizedString(b.text),
+                    action: b.action,
+                    state: b.state || 'default',
+                    pref: msg.pref || 'null',
+                    prefVal: b.prefVal || 'null'
+                  }
+                })
+              }
+            });
+          }
+        }
     }
 
     var spelC = CliqzAutocomplete.spellCorr;
@@ -1021,6 +1052,12 @@ function enhanceResults(res){
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
+
+        // if there no results after adult filter - show no results entry
+        if(res.results.length == 0){
+          res.results.push(CliqzUtils.getNoResults());
+          res.results[0].vertical = 'noResult';
+        }
 
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
@@ -1040,7 +1077,6 @@ function enhanceResults(res){
         "footer-message": {
           message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
-          searchTerm: '',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
               action: 'update-show',
@@ -1076,8 +1112,6 @@ function enhanceResults(res){
               ]
             }
         });
-    } else {
-      updateMessageState("hide");
     }
 
     return res;
@@ -1087,7 +1121,9 @@ function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de') return false
+        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        // in case location is unknown do not show the message
+        CliqzUtils.getPref("config_location", "de") == '') return false
 
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
@@ -1099,7 +1135,6 @@ function getNotSupported(){
     message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
-    searchTerm: '',
     options: [{
         text: CliqzUtils.getLocalizedString('keep-cliqz'),
         action: 'keep-cliqz',
@@ -1244,6 +1279,19 @@ function messageClick(ev) {
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
+                  break;
+              case 'dismiss':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  if (pref && pref != "null")
+                    CliqzUtils.setPref(pref,false);
+                  break;
+               case 'set':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  if (pref && prefVal && pref != "null" && prefVal != "null")
+                    CliqzUtils.setPref(pref,prefVal);
                   break;
               default:
                   break;
