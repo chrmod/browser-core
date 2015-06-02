@@ -1086,18 +1086,18 @@ function enhanceResults(res){
         var messages = [];
         var termsObj = {};
         for(var i = 0; i < terms.length; i++) {
-          console.log("!!Term: " + terms[i]);
           termsObj = {
             correct: terms[i]  
           };
           messages.push(termsObj);
           if(spelC.correctBack[terms[i]]) {
-            messages[[i]].italic = true; 
-            messages[[i]].correctBack = spelC.correctBack[terms[i]];
+            messages[i].italic = true; 
+            messages[i].correctBack = spelC.correctBack[terms[i]];
           } else {
-            messages[[i]].correctBack = terms[i];
+            messages[i].correctBack = terms[i];
           }
         }
+        console.log(JSON.stringify(messages));
           
         updateMessageState("show", {
             "footer-message": {
