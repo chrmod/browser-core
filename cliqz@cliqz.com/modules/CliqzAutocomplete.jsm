@@ -283,18 +283,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.lastPattern = res;
 
                     // Create instant result
-                    var instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
-                    if(instant) {
-                        if (Array.isArray(instant)) {
-                            CliqzUtils.log("!!!! IS ARRAY");
-                            this.instant = instant;
-                        } else {
-                            this.instant = [instant];
-                        }
-                    }
-                    else {
-                        this.instant = [];
-                    }
+                    this.instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
 
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
