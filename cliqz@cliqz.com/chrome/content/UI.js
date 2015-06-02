@@ -1091,10 +1091,9 @@ function enhanceResults(res){
           };
           messages.push(termsObj);
           if(spelC.correctBack[terms[i]]) {
-            messages[i].italic = true; 
             messages[i].correctBack = spelC.correctBack[terms[i]];
           } else {
-            messages[i].correctBack = terms[i];
+            messages[i].correctBack = "";
           }
         }
         console.log(JSON.stringify(messages));

@@ -6,7 +6,7 @@
         {{message}}
 
         {{#each messages}}
-          {{#if this.italic}}
+          {{#if this.correctBack}}
             <i>{{this.correctBack}}</i>
          {{else}}
            {{this.correct}}  
