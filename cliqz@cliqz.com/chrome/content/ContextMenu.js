@@ -9,113 +9,53 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 (function(ctx) {
 
-  var CONTEXT_MENU_ITEMS = [
-    {
-      'id': 'openNewTabItem',
-      'label': 'Open Link in New Tab',
-      'command': openNewTab
-    },
-    {
-      'id': 'openNewWindowItem',
-      'label': 'Open Link in New Window',
-      'command': openNewWindow
-    },
-    {
-      'id': 'feedbackItem',
-      'label': 'Feedback for CLIQZ',
-      'command': openFeedback
-    }
-    ],
-    contextMenu = document.getElementById('contentAreaContextMenu'),
-    _popupshowing = contextMenu.getAttribute('onpopupshowing'),
-    _popuphiding = contextMenu.getAttribute('onpopuphiding');
-  
-    function openFeedback(e) {
-      CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true); 
-    }
+  var contextMenu,
+      CONTEXT_MENU_ITEMS = [
+        { 'label': 'Open Link in New Tab',     'command': openNewTab },
+        { 'label': 'Open Link in New Window',  'command': openNewWindow },
+        { 'label': 'Feedback for CLIQZ',       'command': openFeedback }
+      ];
 
-    function openNewTab(e) {
-      CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
-    }
-
-    function openNewWindow(e) {
-      window.open(e.target.getAttribute('data-url'), '_blank');
-    }
-
-var ContextMenu = {
-  enableContextMenu: function(resultsBox) {
-    contextMenu.setAttribute('onpopupshowing', '');
-    contextMenu.setAttribute('onpopuphiding', '');
-    contextMenu.style.zIndex = "100";
-    appendContextMenuItems(CONTEXT_MENU_ITEMS);
-    resultsBox.addEventListener('contextmenu', rightClick);
+  function openFeedback(e) {
+    CLIQZ.Core.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
   }
-};
-  
-  function appendContextMenuItems(config) {
-    if(contextMenu) {
-      for(var item = 0; item < config.length; item++) {
-        var menuItem = document.createElement('menuitem');
-        menuItem.setAttribute('label', config[item].label);
-        menuItem.setAttribute('hidden', 'true');
-        menuItem.setAttribute('id', config[item].id);
-        menuItem.addEventListener("command", config[item].command, false);
-        contextMenu.appendChild(menuItem); 
+
+  function openNewTab(e) {
+    CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
+  }
+
+  function openNewWindow(e) {
+    window.open(e.target.getAttribute('data-url'), '_blank');
+  }
+
+  var ContextMenu = {
+    enableContextMenu: function(box) {
+      contextMenu = document.createElement('menupopup');
+      box.appendChild(contextMenu);
+
+      for(var item = 0; item < CONTEXT_MENU_ITEMS.length; item++) {
+          var menuItem = document.createElement('menuitem');
+          menuItem.setAttribute('label', CONTEXT_MENU_ITEMS[item].label);
+          menuItem.addEventListener("command", CONTEXT_MENU_ITEMS[item].command, false);
+          contextMenu.appendChild(menuItem);
       }
-      contextMenu.addEventListener('popuphiding', hideContextMenuItem, true);
+
+      box.addEventListener('contextmenu', rightClick);
     }
-  }
-  
+  };
+
+
   function rightClick(ev) {
-    /*document.browser = ev.target.ownerDocument.defaultView;
-                                  .QueryInterface(Ci.nsIInterfaceRequestor)
-                                  .getInterface(Ci.nsIWebNavigation)
-                                  .QueryInterface(Ci.nsIDocShell)
-                                  .chromeEventHandler;
-    document.popupNode = ev.target;
-    gContextMenu = new nsContextMenu(ev.target, ev.shiftKey);*/
-  
     var children = contextMenu.childNodes;
-    
-    //hide all elements
-    for(var i = 0; i < contextMenu.childNodes.length; i++) {
-      var child = contextMenu.children[i];
-      child.hidden = true;
-      child.className += ' ' + 'context-menu-hidden';
+
+    for(var i = 0; i < children.length; i++) {
+      children[i].setAttribute('data-url', CLIQZ.UI.getResultOrChildAttr(ev.target, 'url'));
+      children[i].setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
     }
-  
-    //show Feedback & Open in New tab menu items
-    for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
-      var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
-      item.hidden = false;
-      item.className = '';
-      item.setAttribute('data-url', CLIQZ.UI.getResultOrChildAttr(ev.target, 'url'));
-      item.setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
-    }
-    document.popupNode = ev.target;
-    return contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);  
+    contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
   }
-  
-  function hideContextMenuItem(e) {
-    if(contextMenu) {
-      contextMenu.setAttribute('onpopupshowing', _popupshowing);
-      contextMenu.setAttribute('onpopuphiding', _popuphiding);
-    
-      for(var i = 0; i < contextMenu.childNodes.length; i++) {
-        var child = contextMenu.children[i];
-        child.className = child.className.replace(/\bcontext-menu-hidden\b/,'');
-      }
-    
-      for(var i = 0; i < CONTEXT_MENU_ITEMS.length; i++) {
-        var item = document.getElementById(CONTEXT_MENU_ITEMS[i].id);
-        item.setAttribute('hidden', true);
-        item.className = 'context-menu-hidden';
-      }
-    }  
-  }
-  
-ctx.CLIQZ.ContextMenu = ContextMenu;
+
+  ctx.CLIQZ.ContextMenu = ContextMenu;
 
 })(this);
-
 
