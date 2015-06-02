@@ -282,17 +282,21 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
                     CliqzAutocomplete.lastPattern = res;
 
-                    // Create instant result
-                    this.instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
-
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
                         latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
                     }
                     this.latency.patterns = latency;
 
-                    this.pushResults(this.searchString);
+                    // Create instant result
+                    CliqzHistoryPattern.createInstantResult(res, this.searchString, this.createInstantResultCallback);
                 }
+            },
+            createInstantResultCallback:function(instant) {
+                this.instant = instant;
+                CliqzUtils.log(instant);
+
+                this.pushResults(this.searchString);
             },
             pushTimeoutCallback: function(params) {
                 CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
@@ -509,6 +513,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+                this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 

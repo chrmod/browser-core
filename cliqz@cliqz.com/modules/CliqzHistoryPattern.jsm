@@ -220,6 +220,7 @@ var CliqzHistoryPattern = {
     if (query.length == 0 ||
       DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "firefox_no_cluster" ||
       (DATA_SOURCE == "cliqz" && CliqzHistoryPattern.noResultQuery == query)) {
+
       CliqzHistoryPattern.historyCallback(res);
     }
   },
@@ -833,7 +834,7 @@ var CliqzHistoryPattern = {
     }
   },
   // Creates one (or potentially more) instant results based on history
-  createInstantResult: function(res, searchString) {
+  createInstantResult: function(res, searchString, callback) {
     var instant_results = [];
     var results = res.filteredResults();
 
@@ -893,6 +894,7 @@ var CliqzHistoryPattern = {
             var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
             instant.comment += " (history generic)!"
             instant.data.kind = ["H"];
+            CliqzHistoryPattern.getDescription(callback, instant_results, instant);
             instant_results.push(instant);
           } else {
             break;
@@ -913,7 +915,23 @@ var CliqzHistoryPattern = {
       }
     }
 
-    return instant_results;
+    createInstantResultCheckIfDone(callback, instant_results);
+  },
+  // Nasty sychronization of multiple async calls.
+  expectedDescCallbacks: 0,
+  getDescription: function(callback, instant_results, instant) {
+    CliqzHistoryPattern.expectedDescCallbacks ++;
+    CliqzHistory.getDescription(instant.label,
+      function(desc) {
+        CliqzUtils.log(desc, "callback for " + instant.label);
+        instant.data.description = desc;
+        CliqzHistoryPattern.expectedDescCallbacks--;
+        CliqzHistoryPattern.createInstantResultCheckIfDone(callback, instant_results);
+      });
+  },
+  createInstantResultCheckIfDone: function(callback, instant_results) {
+    if(CliqzHistoryPattern.expectedDescCallbacks <= 0)
+      callback(instant_results);
   },
   // Removes a given url from the instant.data.url list
   removeUrlFromResult: function(urlList, url) {
