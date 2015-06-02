@@ -18,10 +18,23 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   function openNewTab(e) {
     CLIQZ.Core.openLink(e.target.getAttribute('data-url'), true);
+    var signal = {
+      type: 'activity',
+      action: 'right_click',
+      selection: 'open_new_tab'
+    };
+    CliqzUtils.telemetry(signal);
   }
 
   function openNewWindow(e) {
     window.open(e.target.getAttribute('data-url'), '_blank');
+    
+    var signal = {
+      type: 'activity',
+      action: 'right_click',
+      selection: 'open_new_window'
+    };
+    CliqzUtils.telemetry(signal);
   }
   
   function openInPrivateWindow(e) {
@@ -30,6 +43,13 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
               { charset: doc.characterSet,
                 referrerURI: doc.documentURIObject,
                 private: true });
+    
+    var signal = {
+      type: 'activity',
+      action: 'right_click',
+      selection: 'open_private_window'
+    };
+    CliqzUtils.telemetry(signal);
   }
 
   var ContextMenu = {
@@ -63,6 +83,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
       children[i].setAttribute('data-kind', CLIQZ.UI.getResultOrChildAttr(ev.target, 'kind'));
     }
     contextMenu.openPopupAtScreen(ev.screenX, ev.screenY, false);
+    
+    var signal = {
+      type: 'activity',
+      action: 'right_click'
+    };
+    CliqzUtils.telemetry(signal);
   }
 
   ctx.CLIQZ.ContextMenu = ContextMenu;
