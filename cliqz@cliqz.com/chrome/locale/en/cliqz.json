@@ -622,5 +622,14 @@
     },
     "today": {
         "message": "Today"    
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Open Link in New Tab"  
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Open Link in New Window"  
+    },
+    "cMenuFeedback": {
+      "message": "Feedback for CLIQZ"  
     }
 }

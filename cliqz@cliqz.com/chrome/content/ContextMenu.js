@@ -11,9 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
   var contextMenu,
       CONTEXT_MENU_ITEMS = [
-        { 'label': 'Open Link in New Tab',     'command': openNewTab },
-        { 'label': 'Open Link in New Window',  'command': openNewWindow },
-        { 'label': 'Feedback for CLIQZ',       'command': openFeedback }
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewTab'),     'command': openNewTab },
+        { 'label': CliqzUtils.getLocalizedString('cMenuOpenInNewWindow'),  'command': openNewWindow },
+        { 'label': CliqzUtils.getLocalizedString('cMenuFeedback'),         'command': openFeedback }
       ];
 
   function openFeedback(e) {
