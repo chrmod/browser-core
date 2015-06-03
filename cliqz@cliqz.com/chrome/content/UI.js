@@ -460,7 +460,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
@@ -1040,8 +1040,10 @@ function enhanceResults(res){
           }
         }
     }
+  
 
     var spelC = CliqzAutocomplete.spellCorr;
+  
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1084,15 +1086,28 @@ function enhanceResults(res){
           ]
         }
       });
-    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true)) {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true) && !spelC.userConfirmed) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join(spelC.correctBack[c]);
+        var terms = s.split(" ");
+        var messages = [];
+        var termsObj = {};
+        for(var i = 0; i < terms.length; i++) {
+          termsObj = {
+            correct: terms[i]  
+          };
+          messages.push(termsObj);
+          if(spelC.correctBack[terms[i]]) {
+            messages[i].correctBack = spelC.correctBack[terms[i]];
+          } else {
+            messages[i].correctBack = "";
+          }
         }
+        //cache searchTerms to check against when user keeps spellcorrect
+        spelC.searchTerms = messages;
+          
         updateMessageState("show", {
             "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s,
+              messages: messages,
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
@@ -1265,6 +1280,17 @@ function messageClick(ev) {
                 updateMessageState("hide");
                 break;
               case 'spellcorrect-keep':
+                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                for(var i = 0; i < spellCorData.length; i++) {
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)                  
+                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
+                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];           
+                    }
+                  }
+                }
+                  
+                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
                 updateMessageState("hide");
                 break;
 

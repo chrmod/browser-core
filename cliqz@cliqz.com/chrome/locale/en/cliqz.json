@@ -617,6 +617,9 @@
     "from": {
         "message": "From"
     },
+    "from_price": {
+      "message": "from"  
+    },
     "to": {
         "message": "to"
     },

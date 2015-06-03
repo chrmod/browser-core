@@ -609,6 +609,9 @@
     "from": {
         "message": "Von"
     },
+    "from_price": {
+      "message": "ab"  
+    },
     "to": {
         "message": "nach"
     },
