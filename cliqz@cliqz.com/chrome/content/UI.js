@@ -1102,7 +1102,6 @@ function enhanceResults(res){
         updateMessageState("show", {
             "footer-message": {
               messages: messages,
-              data: JSON.stringify(messages),
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
