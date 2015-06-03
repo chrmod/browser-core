@@ -343,11 +343,6 @@
     background-image: none;
 }
 
-#cliqz-message-container .cqz-message em {
-    font-style: normal;
-    font-weight: bold;
-}
-
 /* ---------- From A to B ----------- */
 #cliqz-results .cqz-ez-aTob h2 {
   font-size: 18px;
