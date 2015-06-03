@@ -47,7 +47,11 @@ var VERTICAL_ENCODINGS = {
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
     BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false,
-    MINUTE = 60*1e3;
+    MINUTE = 60*1e3,
+    ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", // numbers 0 - 255
+    ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "([:]([0-9])+)?$"), // port number
+    ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$");
+
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
@@ -386,8 +390,10 @@ var CliqzUtils = {
 
     // Parse Port number
     var port = "";
-    var isIPv4 = CliqzUtils.isIPv4(host);
-    var isIPv6 = CliqzUtils.isIPv6(host);
+
+    var isIPv4 = ipv4_regex.test(host);
+    var isIPv6 = ipv6_regex.test(host);
+
 
     var indexOfColon = host.indexOf(":");
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
@@ -428,8 +434,11 @@ var CliqzUtils = {
     if(fragment)
       extra += "#" + fragment;
 
+    isIPv4 = ipv4_regex.test(host);
+    isIPv6 = ipv6_regex.test(host);
+    var isLocalhost = CliqzUtils.isLocalhost(host, isIPv4, isIPv6);
     // find parts of hostname
-    if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
+    if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
         var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
                                     .getService(Components.interfaces.nsIEffectiveTLDService);
@@ -454,7 +463,7 @@ var CliqzUtils = {
       }
     }
     else {
-      name = CliqzUtils.isLocalhost(host) ? "localhost" : "IP";
+      name = isLocalhost ? "localhost" : "IP";
     }
 
     var urlDetails = {
@@ -514,10 +523,10 @@ var CliqzUtils = {
     */
   },
 
-  isLocalhost: function(host) {
+  isLocalhost: function(host, isIPv4, isIPv6) {
     if (host == "localhost") return true;
-    if (CliqzUtils.isIPv4(host) && host.substr(0,3) == "127") return true;
-    if (CliqzUtils.isIPv6(host) && host == "::1") return true;
+    if (isIPv4 && host.substr(0,3) == "127") return true;
+    if (isIPv6 && host == "::1") return true;
 
     return false;
 
@@ -560,7 +569,8 @@ var CliqzUtils = {
               CliqzUtils.encodeQuerySeq() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry();
+              CliqzUtils.encodeCountry() +
+              CliqzUtils.encodeFilter();
 
     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
       function(res){
@@ -599,6 +609,16 @@ var CliqzUtils = {
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
+  },
+  encodeFilter: function() {
+    var data = {
+      'conservative': 3,
+      'moderate': 0,
+      'liberal': 1
+    },
+    state = data[CliqzUtils.getPref('adultContentFilter', 'moderate')];
+
+    return '&adult='+state;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
