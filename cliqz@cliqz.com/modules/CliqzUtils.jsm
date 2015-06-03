@@ -569,7 +569,8 @@ var CliqzUtils = {
               CliqzUtils.encodeQuerySeq() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry();
+              CliqzUtils.encodeCountry() +
+              CliqzUtils.encodeFilter();
 
     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
       function(res){
@@ -608,6 +609,16 @@ var CliqzUtils = {
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
+  },
+  encodeFilter: function() {
+    var data = {
+      'conservative': 3,
+      'moderate': 0,
+      'liberal': 1
+    },
+    state = data[CliqzUtils.getPref('adultContentFilter', 'moderate')];
+
+    return '&adult='+state;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
