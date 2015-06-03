@@ -34,7 +34,7 @@
     overflow: hidden;
 }
 
-#cliqz-popup a:visited{
+#cliqz-popup a:visited {
  color: #8c275f; 
 }
 
@@ -201,6 +201,7 @@
 
 /* EZ generic */
 #cliqz-results .cqz-ez-title { cursor: pointer; font-size: 18px; display: inline-block; margin-bottom: 11px; }
+#cliqz-results .cqz-ez-title a { font-size: 18px; }
 #cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-ez-title .after {
     display: inline-block;
     background-size: auto 18px;

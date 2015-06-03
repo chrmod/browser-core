@@ -1,7 +1,7 @@
 <div class="cqz-result-h1 cqz-rd cqz-result-padding">
  {{#with data}}
     <div class="cqz-rd-body">
-        <div class="cqz-result-title overflow">{{richData.name}}</div>
+      <div class="cqz-result-title overflow"><a href="{{../url}}">{{richData.name}}</a></div>
         <div class="cqz-result-url overflow">{{richData.url_title}}</div>
         <div class="cqz-rd-recipe-snippet">
                <div class="cqz-rd-recipe_img cqz-image-round" style="background-image: url({{richData.image}});"></div>

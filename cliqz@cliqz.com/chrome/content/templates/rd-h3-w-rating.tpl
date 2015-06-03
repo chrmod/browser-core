@@ -9,7 +9,7 @@ used initially for food, movie, game (in 1 height results)-->
         {{/if}}
 
         <div class="cqz-rhh3-snipet-txt">
-            <div class="cqz-result-title overflow">{{richData.name}}</div>
+            <div class="cqz-result-title overflow"><a href="{{../url}}">{{richData.name}}</a></div>
             <div class="cqz-result-url overflow">{{richData.url_title}}</div>
             <div>
                 <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg"/> {{richData.des}}
