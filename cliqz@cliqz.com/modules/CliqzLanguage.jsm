@@ -84,6 +84,13 @@ var CliqzLanguage = {
                 }
             });
 
+            // close callout whenever dropdown closes
+            CliqzLanguage.win.CLIQZ.Core.popup.addEventListener("popuphidden", function () {
+                if (CliqzLanguage.callout.state == "open") {
+                    CliqzLanguage.callout.hidePopup();
+                }
+            });  
+
             this.callout = container;
         }
         return this.callout;
@@ -151,7 +158,7 @@ var CliqzLanguage = {
                                         CliqzLanguage.win.CLIQZ.Core.urlbar, CliqzLanguage.win.CLIQZ.Core.urlbar);
                                     CliqzLanguage.getCallout(dest_url).openPopup(
                                         CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
-                                        "end_before", -5, 0);                                    
+                                        "end_before", -5, 0);                                                          
                                     aRequest.cancel("CLIQZ_INTERRUPT");
                                     CliqzUtils.log("ext_onboarding: interrupted");
                                 }
