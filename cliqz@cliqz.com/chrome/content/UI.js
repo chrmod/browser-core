@@ -75,7 +75,8 @@ var UI = {
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
             if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
-              CLIQZ.UI.handleResults();
+              //try to break the call stack which cause 'too much recursion' exception on linux systems
+              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
         }
 
@@ -1043,10 +1044,10 @@ function enhanceResults(res){
           }
         }
     }
-  
+
 
     var spelC = CliqzAutocomplete.spellCorr;
-  
+
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1096,7 +1097,7 @@ function enhanceResults(res){
         var termsObj = {};
         for(var i = 0; i < terms.length; i++) {
           termsObj = {
-            correct: terms[i]  
+            correct: terms[i]
           };
           messages.push(termsObj);
           if(spelC.correctBack[terms[i]]) {
@@ -1107,7 +1108,7 @@ function enhanceResults(res){
         }
         //cache searchTerms to check against when user keeps spellcorrect
         spelC.searchTerms = messages;
-          
+
         updateMessageState("show", {
             "footer-message": {
               messages: messages,
@@ -1285,14 +1286,14 @@ function messageClick(ev) {
               case 'spellcorrect-keep':
                 var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
                 for(var i = 0; i < spellCorData.length; i++) {
-                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)                  
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)
                   for(var c in CliqzAutocomplete.spellCorr.correctBack) {
                     if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
-                      delete CliqzAutocomplete.spellCorr.correctBack[c];           
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];
                     }
                   }
                 }
-                  
+
                 CliqzAutocomplete.spellCorr['userConfirmed'] = true;
                 updateMessageState("hide");
                 break;
