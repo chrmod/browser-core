@@ -150,8 +150,7 @@ var CliqzLanguage = {
                             found = true;
                             
                             
-                            var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i];
-                            // cliqzBox.resultsBox
+                            var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[i];
                             if (anchor) {
                                 if (anchor.offsetTop < 300) {
                                     CliqzLanguage.win.CLIQZ.Core.popup._openAutocompletePopup(
