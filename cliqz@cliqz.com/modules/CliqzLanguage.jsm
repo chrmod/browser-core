@@ -38,6 +38,7 @@ var CliqzLanguage = {
         .getMostRecentWindow("navigator:browser"),
 
     callout: undefined,
+    lastPrefs: undefined,
 
     getCallout: function (dest_url) {
         if (!this.callout) {
@@ -67,18 +68,35 @@ var CliqzLanguage = {
                 var target = e.target;
                 if (target && (e.button == 0 || e.button == 1)) {
                     var action = target.getAttribute('cliqz-action');
-                    switch (action) {
+                    var duration = Date.now() - CliqzLanguage.callout.getAttribute("show_ts");
+                    switch (action) {                        
                         case 'onboarding-start':
                             CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
                             CliqzUtils.log("ext_onboarding: clicked on ok; remind user again in a bit");
+                            
+                            CliqzLanguage.lastPrefs["state"] = "seen";
+                            CliqzLanguage.lastPrefs["log"].push({
+                                "duration": duration,
+                                "action": "ok"
+                            });
+                            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                                { "same_result": CliqzLanguage.lastPrefs }));
                             break;
                         case 'onboarding-cancel':
                             CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
                             CliqzUtils.log("ext_onboarding: clicked on cancel; don't remind user again");
+
+                            CliqzLanguage.lastPrefs["state"] = "discarded";
+                            CliqzLanguage.lastPrefs["log"].push({
+                                "duration": duration,
+                                "action": "discard"
+                            });
+                            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                                { "same_result": CliqzLanguage.lastPrefs }));
                             break;
                     }
                 }
@@ -149,15 +167,40 @@ var CliqzLanguage = {
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
                             
-                            
+                            // ///////////////// EXTENDED ONBOARDING START
+                            // extended_onboarding { "same_result": { "state": "seen|discarded", "log": [ { ts: "", "duration": 500, "action": "ok|discard|other" } ] } }
+                            var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
+                            var maxShow = 3;
+                            if (prefs) {
+                                try {
+                                    prefs = JSON.parse(prefs)["same_result"];
+                                } catch (e) { }
+                            }
+                            if (!prefs) {
+                                prefs = {
+                                    "state": "seen",
+                                    "log": []
+                                };
+                                CliqzUtils.log("ext_onboarding: creating prefs");
+                            }
+
+                            if (prefs["state"] == "discarded") {
+                                CliqzUtils.log("ext_onboarding: user had discarded before; not interrupting");
+                                break;
+                            } else if (prefs["log"].length > maxShow) {
+                                CliqzUtils.log("ext_onboarding: max. show reached; not interrupting");
+                                break;
+                            }
+
                             var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[i];
+                            CliqzLanguage.lastPrefs = prefs;
                             if (anchor) {
-                                if (anchor.offsetTop < 300) {
+                                if (anchor.offsetTop < 300) {                                    
                                     CliqzLanguage.win.CLIQZ.Core.popup._openAutocompletePopup(
                                         CliqzLanguage.win.CLIQZ.Core.urlbar, CliqzLanguage.win.CLIQZ.Core.urlbar);
-                                    CliqzLanguage.getCallout(dest_url).openPopup(
-                                        CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.firstChild.firstElementChild.children[i],
-                                        "end_before", -5, 0);                                                          
+                                    CliqzLanguage.getCallout(dest_url).openPopup(anchor,
+                                        "end_before", -5, 0);
+                                    CliqzLanguage.callout.setAttribute("show_ts", Date.now());
                                     aRequest.cancel("CLIQZ_INTERRUPT");
                                     CliqzUtils.log("ext_onboarding: interrupted");
                                 }
@@ -166,8 +209,9 @@ var CliqzLanguage = {
                                 }
                             } else {
                                 CliqzUtils.log("ext_onboarding: result was not shown to user");
-                            }
+                            }                            
                             break;
+                            // ///////////////// EXTENDED ONBOARDING END
                         }
                     }
                     if (!found) {
