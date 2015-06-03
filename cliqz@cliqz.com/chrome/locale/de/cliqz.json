@@ -607,21 +607,33 @@
         "message":"Trending"
     },
     "plane": {
-        "message":"Flüge"    
+        "message":"Flüge"
     },
     "train": {
-        "message": "Zug"    
+        "message": "Zug"
     },
     "bus": {
-        "message": "Bus"    
+        "message": "Bus"
     },
     "from": {
-        "message": "Von"    
+        "message": "Von"
+    },
+    "from_price": {
+      "message": "ab"  
     },
     "to": {
-        "message": "nach"    
+        "message": "nach"
     },
     "today": {
-        "message": "Heute"    
+        "message": "Heute"
+    },
+    "myQuery": {
+        "message": "Suchbegriff"
+    },
+    "ytDynamicSearch": {
+        "message": "Wusstest Du: Du kannst \"yt + Suchbegriff\" eingeben um direkt eine Vorschau auf Youtube Ergebnisse zu erhalten"
+    },
+    "dismiss": {
+        "message": "Nachricht schließen"
     }
 }
