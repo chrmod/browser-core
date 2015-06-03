@@ -106,6 +106,15 @@ var CliqzLanguage = {
             CliqzLanguage.win.CLIQZ.Core.popup.addEventListener("popuphidden", function () {
                 if (CliqzLanguage.callout.state == "open") {
                     CliqzLanguage.callout.hidePopup();
+
+                    var duration = Date.now() - CliqzLanguage.callout.getAttribute("show_ts");
+                    CliqzLanguage.lastPrefs["state"] = "seen";
+                    CliqzLanguage.lastPrefs["log"].push({
+                        "duration": duration,
+                        "action": "other"
+                    });
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                        { "same_result": CliqzLanguage.lastPrefs }));                    
                 }
             });  
 
