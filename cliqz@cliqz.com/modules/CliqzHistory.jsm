@@ -273,8 +273,8 @@ var CliqzHistory = {
       var target = aTarget.childNodes[0];
       while ((!title || title.trim().length === 0) && target) {
         var tmpTarget = target;
-        while (tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
-        title = tmpTarget.nodeValue;
+        while (tmpTarget && tmpTarget.hasChildNodes()) tmpTarget = tmpTarget.childNodes[0];
+        title = tmpTarget ? tmpTarget.nodeValue : '';
         target = target.nextSibling;
       }
 
