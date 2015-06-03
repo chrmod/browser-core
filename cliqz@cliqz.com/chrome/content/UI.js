@@ -1871,8 +1871,8 @@ function snippetQualityTelemetry(results){
     var r = results[i];
     if(r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
       data.push({
-        logo: r.logo.backgroundImage ? true : false,
-        desc: r.data.description ? true : false
+        logo: (r.logo && r.logo.backgroundImage) ? true : false,
+        desc: (r.data && r.data.description) ? true : false
       })
     // push empty data for EZones and history
     else data.push({});
