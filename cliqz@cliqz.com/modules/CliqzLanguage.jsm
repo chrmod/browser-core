@@ -180,6 +180,7 @@ var CliqzLanguage = {
                             // extended_onboarding { "same_result": { "state": "seen|discarded", "log": [ { ts: "", "duration": 500, "action": "ok|discard|other" } ] } }
                             var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
                             var maxShow = 3;
+                            var resultCountThreshold = 4;
                             if (prefs) {
                                 try {
                                     prefs = JSON.parse(prefs)["same_result"];
@@ -188,7 +189,8 @@ var CliqzLanguage = {
                             if (!prefs) {
                                 prefs = {
                                     "state": "seen",
-                                    "log": []
+                                    "log": [],
+                                    "show_count": 0
                                 };
                                 CliqzUtils.log("ext_onboarding: creating prefs");
                             }
@@ -196,11 +198,18 @@ var CliqzLanguage = {
                             if (prefs["state"] == "discarded") {
                                 CliqzUtils.log("ext_onboarding: user had discarded before; not interrupting");
                                 break;
-                            } else if (prefs["log"].length > maxShow) {
+                            } else if (prefs["log"].length >= maxShow) {
                                 CliqzUtils.log("ext_onboarding: max. show reached; not interrupting");
+                                break;
+                            } else if (prefs["show_count"] < resultCountThreshold) {
+                                prefs["show_count"]++;
+                                CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                                    { "same_result": prefs }));                    
+                                CliqzUtils.log("ext_onboarding: not enough result clicks yet, waiting");
                                 break;
                             }
 
+                            prefs["show_count"] = 0;
                             var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[i];
                             CliqzLanguage.lastPrefs = prefs;
                             if (anchor) {
