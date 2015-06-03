@@ -56,12 +56,14 @@ var CliqzLanguage = {
             container.appendChild(content);    
             parent.appendChild(container);
 
-            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout']({
+            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout-extended']({
                 message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
                 options: [
                     { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
                     { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), action: 'onboarding-cancel', state: 'cancel' }
-                ]
+                ],
+                // FIXME: not shown
+                cliqz_logo: 'chrome://cliqzres/content/skin/img/cliqz.svg'
             });
 
             container.addEventListener('click', function (e) {
@@ -179,8 +181,8 @@ var CliqzLanguage = {
                             // ///////////////// EXTENDED ONBOARDING START
                             // extended_onboarding { "same_result": { "state": "seen|discarded", "log": [ { ts: "", "duration": 500, "action": "ok|discard|other" } ] } }
                             var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
-                            var maxShow = 3;
-                            var resultCountThreshold = 4;
+                            var maxShow = 1000;
+                            var resultCountThreshold = 0;
                             if (prefs) {
                                 try {
                                     prefs = JSON.parse(prefs)["same_result"];
@@ -205,7 +207,8 @@ var CliqzLanguage = {
                                 prefs["show_count"]++;
                                 CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                                     { "same_result": prefs }));                    
-                                CliqzUtils.log("ext_onboarding: not enough result clicks yet, waiting");
+                                CliqzUtils.log("ext_onboarding: got only " + 
+                                    (prefs["show_count"] - 1) + " result clicks so far, waiting for " + resultCountThreshold);
                                 break;
                             }
 

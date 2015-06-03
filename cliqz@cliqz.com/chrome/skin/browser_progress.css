@@ -122,23 +122,35 @@
   display: block;
 }
 
+.onboarding-callout { background-color: #FA544F; color: white; }
+
 .onboarding-callout .msg-container { position: relative; display: block; white-space: pre-line; max-width: 300px; }
 
-.onboarding-callout .btn-container { position: relative; display: block; right: 0px; text-align: right; margin-top: 10px; }
+.onboarding-callout .btn-container,
+.onboarding-callout .btn-container-extended { position: relative; display: block; right: 0px; text-align: right; margin-top: 10px; }
+.onboarding-callout .btn-container-extended { text-align: center; width: 100%; }
 
-.onboarding-callout .cqz-btn {
+.onboarding-callout .btn-container .cqz-btn,
+.onboarding-callout .btn-container-extended .cqz-btn {
     margin: 0px;
     cursor: pointer;
     color: black;
     border-radius: 3px;
     padding: 4px 8px;
     text-align: center;
-    display: inline-block;
+    display: inline;
     background-color: #8CE12F;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.onboarding-callout .cqz-btn-ok { background-color: #8CE12F; }
-.onboarding-callout .cqz-btn-cancel { background-color: #c3043e; color: white; }
+.onboarding-callout .btn-container-extended .cqz-btn { display: block; max-width: 160px; }
+
+.onboarding-callout .btn-container .cqz-btn-ok { background-color: #8CE12F; }
+.onboarding-callout .btn-container .cqz-btn-cancel { background-color: #c3043e; color: white; }
+
+.onboarding-callout .btn-container-extended .cqz-btn-ok { background-color: #63A4F6; color: white; }
+.onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #DDD; text-decoration: underline; font-size: 10px; }
 
 /* ------- END onboarding */
 
