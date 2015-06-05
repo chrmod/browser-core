@@ -95,23 +95,7 @@ var UI = {
         
         resultsBox.addEventListener('mouseup', resultClick);
       
-        resultsBox.addEventListener('mousedown', function(e) {
-          var walk_the_DOM = function walk(node) {
-            while(node) {
-              if(node.tagName === 'a') {
-                console.log("NODE", node);
-                node.setAttribute('href', 'javascript:return false;');
-                //e.stopPropagation();
-                e.preventDefault();
-                return false;
-              } else {
-                node = node.parentNode;
-                walk(node);
-              }
-            }
-          }
-          walk_the_DOM(e.originalTarget);
-        });
+        resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
@@ -1911,6 +1895,24 @@ function snippetQualityTelemetry(results){
     action: 'quality',
     data: data
   });
+}
+  
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        //e.stopPropagation();
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;
