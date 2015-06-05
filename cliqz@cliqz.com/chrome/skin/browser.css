@@ -99,10 +99,10 @@
 #cliqz-results .cqz-result-selected[active="true"] { left: -8px; }
 #cliqz-results .cqz-result-debug { float: right; }
 
-/* visited result - history, bookmark, ... */
-#cliqz-results .cqz-result-title { font-size: 18px;	color: #8c275f; }
+#cliqz-results .cqz-result-title { font-size: 18px; }
 #cliqz-results .cqz-result-title * { font-size: inherit; }
 #cliqz-results .cqz-result-title span { color: #cccccc; }
+
 /* unvisited result - cliqz */
 #cliqz-results .cqz-result-box[type^="cliqz-results sources-"] .cqz-result-title,
 #cliqz-results .cqz-result-box[type="cliqz-extra"] .cqz-result-title { color: #506bb8; }
