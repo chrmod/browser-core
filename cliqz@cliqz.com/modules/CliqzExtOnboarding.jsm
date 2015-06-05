@@ -37,9 +37,8 @@ var CliqzExtOnboarding = {
     		return;
     	}
 
+    	// getting current state from user prefs
         var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
-        var maxShow = 3;
-        var resultCountThreshold = 4;
         if (prefs) {
             try {
                 prefs = JSON.parse(prefs)["same_result"];
@@ -51,24 +50,26 @@ var CliqzExtOnboarding = {
                 "log": [],
                 "show_count": 0
             };
-            CliqzUtils.log("ext_onboarding: creating prefs");
+            this._log("creating prefs");
         }
 
+        // checking for reasons _not_ to interrupt the users...
         if (prefs["state"] == "discarded") {
-            CliqzUtils.log("ext_onboarding: user had discarded before; not interrupting");
+            this._log("user had discarded before; not interrupting");
             return;
         } else if (prefs["log"].length >= CliqzExtOnboarding.MAX_INTERRUPTS) {
-            CliqzUtils.log("ext_onboarding: max. show reached; not interrupting");
+            this._log("max. show reached; not interrupting");
             return;
         } else if (prefs["show_count"] < CliqzExtOnboarding.REQUIREED_RESULTS_COUNT) {
             prefs["show_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                 { "same_result": prefs }));                    
-            CliqzUtils.log("ext_onboarding: got only " + 
+            this._log("got only " + 
                 (prefs["show_count"] - 1) + " result clicks so far, waiting for " + resultCountThreshold);
             return;
         }
 
+        // ...seems we should interrupt the user
         prefs["show_count"] = 0;
         var anchor = CliqzExtOnboarding.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
         CliqzExtOnboarding.lastPrefs = prefs;
@@ -80,13 +81,17 @@ var CliqzExtOnboarding = {
                     "end_before", -5, 0);
                 CliqzExtOnboarding.callout.setAttribute("show_ts", Date.now());
                 request.cancel("CLIQZ_INTERRUPT");
-                CliqzUtils.log("ext_onboarding: interrupted");
+                this._log("interrupted");
+                this._telemetry("show", {
+                	count: prefs["log"].length,
+                	result_index: resultIndex
+                });
             }
             else {
-                CliqzUtils.log("ext_onboarding: result was below the fold");
+                this._log("result was below the fold");
             }
         } else {
-            CliqzUtils.log("ext_onboarding: result was not shown to user");
+            this._log("result was not shown to user");
         }                            
     },
 
@@ -121,12 +126,13 @@ var CliqzExtOnboarding = {
                 if (target && (e.button == 0 || e.button == 1)) {
                     var action = target.getAttribute('cliqz-action');
                     var duration = Date.now() - CliqzExtOnboarding.callout.getAttribute("show_ts");
+                    CliqzExtOnboarding.callout.setAttribute("show_ts", -1);
                     switch (action) {                        
                         case 'onboarding-start':
                             CliqzExtOnboarding.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzExtOnboarding.win.CLIQZ.Core.openLink(dest_url, false);
-                            CliqzUtils.log("ext_onboarding: clicked on ok; remind user again in a bit");
+                            CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
                             
                             CliqzExtOnboarding.lastPrefs["state"] = "seen";
                             CliqzExtOnboarding.lastPrefs["log"].push({
@@ -135,12 +141,17 @@ var CliqzExtOnboarding = {
                             });
                             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                                 { "same_result": CliqzExtOnboarding.lastPrefs }));
+
+                            CliqzExtOnboarding._telemetry("close", {
+                            	duration: duration,
+                            	reason: "ok"
+			                });
                             break;
                         case 'onboarding-cancel':
                             CliqzExtOnboarding.win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
                             CliqzExtOnboarding.win.CLIQZ.Core.openLink(dest_url, false);
-                            CliqzUtils.log("ext_onboarding: clicked on cancel; don't remind user again");
+                            CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
 
                             CliqzExtOnboarding.lastPrefs["state"] = "discarded";
                             CliqzExtOnboarding.lastPrefs["log"].push({
@@ -149,6 +160,11 @@ var CliqzExtOnboarding = {
                             });
                             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                                 { "same_result": CliqzExtOnboarding.lastPrefs }));
+
+                            CliqzExtOnboarding._telemetry("close", {
+                            	duration: duration,
+                            	reason: "discard"
+			                });
                             break;
                     }
                 }
@@ -159,14 +175,27 @@ var CliqzExtOnboarding = {
                 if (CliqzExtOnboarding.callout.state == "open") {
                     CliqzExtOnboarding.callout.hidePopup();
 
+                    // we already handled this close event (user clicked on button)
+                    var showTs = CliqzExtOnboarding.callout.getAttribute("show_ts");
+                    if (showTs == -1) {
+                    	CliqzExtOnboarding._log("callout close event handled previously");
+                    	return;
+                    }
+
                     var duration = Date.now() - CliqzExtOnboarding.callout.getAttribute("show_ts");
                     CliqzExtOnboarding.lastPrefs["state"] = "seen";
                     CliqzExtOnboarding.lastPrefs["log"].push({
                         "duration": duration,
                         "action": "other"
                     });
+
                     CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                        { "same_result": CliqzExtOnboarding.lastPrefs }));                    
+                        { "same_result": CliqzExtOnboarding.lastPrefs }));
+
+                    CliqzExtOnboarding._telemetry("close", {
+                    	duration: duration,
+                    	reason: "other"
+	                });              
                 }
             });  
 
@@ -177,5 +206,21 @@ var CliqzExtOnboarding = {
 
 	_log: function (msg) {
 		CliqzUtils.log(msg, 'CliqzExtOnboarding');
-	}
+	},
+	_telemetry: function (action, data) {
+        var signal = {
+            type: 'extended_onboarding',
+            // make configurable once there are more components
+            component: 'same_result',
+            action: action
+        };
+
+        for (var key in data) {
+            if (data.hasOwnProperty(key)) {
+                signal[key] = data[key];
+            }
+        }
+
+        CliqzUtils.telemetry(signal);
+    },
 }
