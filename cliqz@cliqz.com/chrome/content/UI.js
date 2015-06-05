@@ -1870,7 +1870,7 @@ function snippetQualityTelemetry(results){
   var data = [], slots = 0;
   for(var i=0; i<results.length && slots <3; i++){
     var r = results[i];
-    if(r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
       data.push({
         logo: (r.logo && r.logo.backgroundImage) ? true : false,
         desc: (r.data && r.data.description) ? true : false
