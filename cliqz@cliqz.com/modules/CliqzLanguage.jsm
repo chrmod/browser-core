@@ -246,7 +246,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.getPref('locale',''));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();
