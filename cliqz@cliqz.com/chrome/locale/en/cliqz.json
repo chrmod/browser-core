@@ -435,7 +435,7 @@
       "message":"block"
     },
     "adultModerate": {
-      "message":"filter"
+      "message":"ask"
     },
     "adultLiberal": {
       "message":"always show"
@@ -616,6 +616,9 @@
     },
     "from": {
         "message": "From"
+    },
+    "from_price": {
+      "message": "from"  
     },
     "to": {
         "message": "to"

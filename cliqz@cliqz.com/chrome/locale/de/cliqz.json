@@ -435,7 +435,7 @@
       "message":"blockieren"
     },
     "adultModerate": {
-      "message":"filtern"
+      "message":"nachfragen"
     },
     "adultLiberal": {
       "message":"immer anzeigen"
@@ -608,6 +608,9 @@
     },
     "from": {
         "message": "Von"
+    },
+    "from_price": {
+      "message": "ab"  
     },
     "to": {
         "message": "nach"
