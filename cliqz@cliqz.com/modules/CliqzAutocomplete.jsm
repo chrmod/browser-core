@@ -526,7 +526,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     current_length: searchString.length
                 };
                 CliqzUtils.telemetry(action);
-
+                
+                if(CliqzAutocomplete.lastSearch.length > searchString.length) {
+                  CliqzAutocomplete.spellCorr.override = true;  
+                }
                 // analyse and modify query for custom results
                 CliqzAutocomplete.lastSearch = searchString;
                 searchString = this.analyzeQuery(searchString);
