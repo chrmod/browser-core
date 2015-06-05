@@ -1028,7 +1028,8 @@ function enhanceResults(res){
           if (CliqzUtils.getPref(msg.pref, true)) {
             updateMessageState("show", {
               "footer-message": {
-                message: CliqzUtils.getLocalizedString(msg.text),
+                simple_message: CliqzUtils.getLocalizedString(msg.text),
+                telemetry: "rh_message-" + msg.pref || 'null',
                 searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
                 options: msg.buttons.map(function(b) {
                   return {
@@ -1076,7 +1077,7 @@ function enhanceResults(res){
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
       updateMessageState("show", {
         "footer-message": {
-          message: CliqzUtils.getLocalizedString('updateMessage'),
+          simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
@@ -1111,6 +1112,7 @@ function enhanceResults(res){
 
         updateMessageState("show", {
             "footer-message": {
+              simple_message: CliqzUtils.getLocalizedString('spell_correction'),
               messages: messages,
               telemetry: 'spellcorrect',
               options: [{
@@ -1146,7 +1148,7 @@ function notSupported(r){
 
 function getNotSupported(){
   return {
-    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
     options: [{
@@ -1869,7 +1871,7 @@ function snippetQualityTelemetry(results){
   var data = [], slots = 0;
   for(var i=0; i<results.length && slots <3; i++){
     var r = results[i];
-    if(r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
       data.push({
         logo: (r.logo && r.logo.backgroundImage) ? true : false,
         desc: (r.data && r.data.description) ? true : false

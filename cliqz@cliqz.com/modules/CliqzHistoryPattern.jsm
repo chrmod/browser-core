@@ -520,10 +520,10 @@ var CliqzHistoryPattern = {
   simplifyUrl: function(url) {
     // Ignore bitly redirections
     if (url.search(/http(s?):\/\/bit\.ly\/.*/i) === 0) {
-      return null;
+      return '';
     // Ignore Twitter redirections
     } else if (url.search(/http(s?):\/\/t\.co\/.*/i) === 0) {
-      return null;
+      return '';
     // Google redirect urls
     } else if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
       // Return target URL instead
