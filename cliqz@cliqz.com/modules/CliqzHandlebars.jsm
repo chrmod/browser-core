@@ -130,7 +130,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
             if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
                 return 'cqz-result-h2';
             // BM hq result, but not the 1st result -> remove images
@@ -155,13 +155,13 @@ function registerHelpers(){
     Handlebars.registerHelper('log', function(value, key) {
         console.log('TEMPLATE LOG HELPER', value);
     });
-    
+
     Handlebars.registerHelper('toLowerCase', function(str) {
-       return str.toLowerCase(); 
+       return str.toLowerCase();
     });
-    
+
     Handlebars.registerHelper('toUpperCase', function(str) {
-       return str.toUpperCase(); 
+       return str.toUpperCase();
     });
 
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
@@ -279,7 +279,7 @@ function registerHelpers(){
         // default setting is determined by latest-vs-trending AB test (50-50)
         // or is "latest" if not part of the AB test
         var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
-        
+
         // news-toggle not active
         if(!data.trending ||
             data.trending.length == 0 ||
@@ -292,11 +292,11 @@ function registerHelpers(){
               ezID = JSON.parse(data.subType).ez;
           // user-defined setting exists for EZ:
           if (trending.hasOwnProperty(ezID)) {
-            return !trending[ezID];  
+            return !trending[ezID];
           } else {
             // no user-defined setting, use default value
             return defaultSetting;
-          }          
+          }
         } catch(e){
           return defaultSetting;
         }
