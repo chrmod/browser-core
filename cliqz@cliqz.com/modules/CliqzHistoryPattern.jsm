@@ -824,6 +824,7 @@ var CliqzHistoryPattern = {
         title: urls[i].title,
         extra: "history-" + i,
         favicon: favicon,
+        // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
         logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(urls[i].url))
       });
       if ((result.data.urls.length > 9 && result.data.template == "pattern-h1") ||
@@ -884,7 +885,6 @@ var CliqzHistoryPattern = {
 
     } else {
       // generic history
-
       var simple_generic = true;
 
       if(simple_generic) {
@@ -915,23 +915,26 @@ var CliqzHistoryPattern = {
       }
     }
 
-    createInstantResultCheckIfDone(callback, instant_results);
+    CliqzHistoryPattern.createInstantResultCheckIfDone(callback, instant_results);
   },
-  // Nasty sychronization of multiple async calls.
+  // Nasty sychronization of multiple async calls:
+  // only call callback() when expectedDescCallbacks reaches 0.
   expectedDescCallbacks: 0,
   getDescription: function(callback, instant_results, instant) {
     CliqzHistoryPattern.expectedDescCallbacks ++;
     CliqzHistory.getDescription(instant.label,
       function(desc) {
-        CliqzUtils.log(desc, "callback for " + instant.label);
         instant.data.description = desc;
         CliqzHistoryPattern.expectedDescCallbacks--;
+        CliqzUtils.log(desc, "callback for " + instant.label + " left: " + CliqzHistoryPattern.expectedDescCallbacks);
         CliqzHistoryPattern.createInstantResultCheckIfDone(callback, instant_results);
       });
   },
   createInstantResultCheckIfDone: function(callback, instant_results) {
-    if(CliqzHistoryPattern.expectedDescCallbacks <= 0)
+    if(CliqzHistoryPattern.expectedDescCallbacks <= 0) {
+      CliqzUtils.log(instant_results, "callback" );
       callback(instant_results);
+    }
   },
   // Removes a given url from the instant.data.url list
   removeUrlFromResult: function(urlList, url) {

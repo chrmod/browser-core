@@ -357,19 +357,19 @@ var CliqzHistory = {
     }
   },
   updateDescription: function(url, description) {
-    if (desciption) {
+    if (description) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urldescriptions (url, description)\
                         VALUES (:url, :description)", null, null, {
-        url: url,
+        url: CliqzHistoryPattern.generalizeUrl(url),
         description: description
       });
     }
   },
   getDescription: function(url, callback) {
+    url = CliqzHistoryPattern.generalizeUrl(url);
     // first try urldescriptions table
     CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
       function(r) { // onRow for urldescriptions
-        CliqzUtils.log("Found description in urldescriptions table for " + url, "CliqzHistory")
         callback(r[0]);
       },
       function(n) { // onCompletion for urldescription
@@ -379,17 +379,14 @@ var CliqzHistory = {
             function(r) {  // onRow for opengrah
               var data = JSON.parse(r[0]);
               if(data.description) {
-                CliqzUtils.log("Found description in opengraph table for " + url, "CliqzHistory");
                 callback(r[0]);
               } else {
-                CliqzUtils.log("Found og data but no description in opengraph table for " + url, "CliqzHistory");
                 callback("");
               }
             },
             function(n) { // onCompletion for opengraph
               if(!n) {
                 // found nothing, just return empty string
-                CliqzUtils.log("Could not find description for " + url, "CliqzHistory");
                 callback("");
               }
             }, {
@@ -664,7 +661,7 @@ var CliqzHistory = {
       CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
       CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='descriptions'", null, function(n) {
+      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='urldescriptions'", null, function(n) {
         if (n == 0) CliqzHistory.SQL(descriptions);
       });
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {

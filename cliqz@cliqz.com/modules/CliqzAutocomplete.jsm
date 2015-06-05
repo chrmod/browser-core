@@ -298,7 +298,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             createInstantResultCallback:function(instant) {
                 this.instant = instant;
-                CliqzUtils.log(instant);
 
                 this.pushResults(this.searchString);
             },
@@ -495,7 +494,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     searchString = newSearchString;
                     CliqzAutocomplete.spellCorr['userConfirmed'] = false;
                 }
-              
+
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
