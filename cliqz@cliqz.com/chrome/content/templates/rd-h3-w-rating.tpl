@@ -11,9 +11,12 @@ IT IS USED AS A PARTIAL template
 
         <div class="cqz-rhh3-snipet-txt">
             <div class="cqz-result-title overflow">{{richData.name}}</div>
-            <div class="cqz-result-url overflow">{{richData.url_title}}</div>
+            <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
             <div>
-                <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg"/> {{richData.des}}
+                {{#if richData.url_ratingimg}}
+                    <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg"/>
+                {{/if}}
+                {{richData.des}}
             </div>
         </div>
 
