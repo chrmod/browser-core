@@ -1900,10 +1900,11 @@ function snippetQualityTelemetry(results){
 function handleMouseDown(e) {
   var walk_the_DOM = function walk(node) {
     while(node) {
-      if(node.className === IC) return;
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
       if(node.tagName === 'a') {
         node.setAttribute('onclick', 'return false;');
-        //e.stopPropagation();
         e.preventDefault();
         return false;
       } else {
