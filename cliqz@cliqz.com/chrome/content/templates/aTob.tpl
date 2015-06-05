@@ -1,7 +1,7 @@
 <div class="cqz-result-h2 cqz-result-padding cqz-ez-aTob">
     {{#with data}}
     <div class="cqz-ez-title cqz-ez-aTob-title">
-        <h2>{{local 'from'}} {{from_city }} {{local 'to'}} {{ to_city }}</h2>
+      <h2><a class="titleLink" href="{{../url}}">{{local 'from'}} {{from_city }} {{local 'to'}} {{ to_city }}</a></h2>
         <span>{{friendly_url}}</span>
     </div>
     <table class="list">
@@ -24,7 +24,7 @@
                 {{#each prices}}
                 <td class="item">
                     {{#if this}}
-                        {{local 'from_price'}} {{ this }}
+                      <a href="{{../../../../url}}">{{local 'from_price'}} {{ this }}</a>
                     {{else}}
                         ---
                     {{/if}}
