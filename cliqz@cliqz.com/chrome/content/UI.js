@@ -1029,6 +1029,7 @@ function enhanceResults(res){
             updateMessageState("show", {
               "footer-message": {
                 simple_message: CliqzUtils.getLocalizedString(msg.text),
+                telemetry: "rh_message-" + msg.pref || 'null',
                 searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
                 options: msg.buttons.map(function(b) {
                   return {
