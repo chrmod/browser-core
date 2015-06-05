@@ -41,7 +41,8 @@ var VERTICAL_ENCODINGS = {
     'gaming':'g',
     'dictionary':'l',
     'qaa':'q',
-    'bm': 'm'
+    'bm': 'm',
+    'reciperd': 'r'
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
