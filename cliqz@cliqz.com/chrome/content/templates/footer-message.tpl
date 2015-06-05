@@ -1,7 +1,6 @@
 <div class="cqz-message-bar">
   <div class="cqz-message {{type}}">
-   
-      {{local 'spell_correction'}}
+      {{ simple_message }}
       <b>
         {{message}}
 
@@ -9,7 +8,7 @@
           {{#if this.correctBack}}
             <i>{{this.correctBack}}</i>
          {{else}}
-           {{this.correct}}  
+           {{this.correct}}
          {{/if}}
         {{/each}}
       </b>
