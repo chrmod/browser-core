@@ -15,9 +15,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
-  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
+  'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
@@ -31,99 +30,6 @@ var CliqzLanguage = {
 
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
-
-    // FIXME: get new window ref if this happens in new window
-    win: Components.classes['@mozilla.org/appshell/window-mediator;1']
-        .getService(Components.interfaces.nsIWindowMediator)
-        .getMostRecentWindow("navigator:browser"),
-
-    callout: undefined,
-    lastPrefs: undefined,
-
-    getCallout: function (dest_url) {
-        if (!this.callout) {
-            var container = this.win.document.createElement('panel'),
-                content = this.win.document.createElement('div'),
-                parent = this.win.CLIQZ.Core.popup.parentElement;
-
-            container.className = 'onboarding-container';
-            content.className = "onboarding-callout";
-            container.setAttribute("type", "arrow");
-            container.style.marginLeft ='0px';
-            container.style.marginTop = '0px';
-            container.setAttribute("level", "top");
-            container.setAttribute("position", "topleft topleft");
-            container.appendChild(content);    
-            parent.appendChild(container);
-
-            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout-extended']({
-                message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
-                options: [
-                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
-                    { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), action: 'onboarding-cancel', state: 'cancel' }
-                ],
-                // FIXME: not shown
-                cliqz_logo: 'chrome://cliqzres/content/skin/img/cliqz.svg'
-            });
-
-            container.addEventListener('click', function (e) {
-                var target = e.target;
-                if (target && (e.button == 0 || e.button == 1)) {
-                    var action = target.getAttribute('cliqz-action');
-                    var duration = Date.now() - CliqzLanguage.callout.getAttribute("show_ts");
-                    switch (action) {                        
-                        case 'onboarding-start':
-                            CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
-                            container.hidePopup();
-                            CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
-                            CliqzUtils.log("ext_onboarding: clicked on ok; remind user again in a bit");
-                            
-                            CliqzLanguage.lastPrefs["state"] = "seen";
-                            CliqzLanguage.lastPrefs["log"].push({
-                                "duration": duration,
-                                "action": "ok"
-                            });
-                            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                                { "same_result": CliqzLanguage.lastPrefs }));
-                            break;
-                        case 'onboarding-cancel':
-                            CliqzLanguage.win.CLIQZ.Core.popup.hidePopup();
-                            container.hidePopup();
-                            CliqzLanguage.win.CLIQZ.Core.openLink(dest_url, false);
-                            CliqzUtils.log("ext_onboarding: clicked on cancel; don't remind user again");
-
-                            CliqzLanguage.lastPrefs["state"] = "discarded";
-                            CliqzLanguage.lastPrefs["log"].push({
-                                "duration": duration,
-                                "action": "discard"
-                            });
-                            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                                { "same_result": CliqzLanguage.lastPrefs }));
-                            break;
-                    }
-                }
-            });
-
-            // close callout whenever dropdown closes
-            CliqzLanguage.win.CLIQZ.Core.popup.addEventListener("popuphidden", function () {
-                if (CliqzLanguage.callout.state == "open") {
-                    CliqzLanguage.callout.hidePopup();
-
-                    var duration = Date.now() - CliqzLanguage.callout.getAttribute("show_ts");
-                    CliqzLanguage.lastPrefs["state"] = "seen";
-                    CliqzLanguage.lastPrefs["log"].push({
-                        "duration": duration,
-                        "action": "other"
-                    });
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                        { "same_result": CliqzLanguage.lastPrefs }));                    
-                }
-            });  
-
-            this.callout = container;
-        }
-        return this.callout;
-    },
 
     sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
         var action = {
@@ -179,58 +85,7 @@ var CliqzLanguage = {
                             found = true;
                             
                             // ///////////////// EXTENDED ONBOARDING START
-                            // extended_onboarding { "same_result": { "state": "seen|discarded", "log": [ { ts: "", "duration": 500, "action": "ok|discard|other" } ] } }
-                            var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
-                            var maxShow = 1000;
-                            var resultCountThreshold = 0;
-                            if (prefs) {
-                                try {
-                                    prefs = JSON.parse(prefs)["same_result"];
-                                } catch (e) { }
-                            }
-                            if (!prefs) {
-                                prefs = {
-                                    "state": "seen",
-                                    "log": [],
-                                    "show_count": 0
-                                };
-                                CliqzUtils.log("ext_onboarding: creating prefs");
-                            }
-
-                            if (prefs["state"] == "discarded") {
-                                CliqzUtils.log("ext_onboarding: user had discarded before; not interrupting");
-                                break;
-                            } else if (prefs["log"].length >= maxShow) {
-                                CliqzUtils.log("ext_onboarding: max. show reached; not interrupting");
-                                break;
-                            } else if (prefs["show_count"] < resultCountThreshold) {
-                                prefs["show_count"]++;
-                                CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                                    { "same_result": prefs }));                    
-                                CliqzUtils.log("ext_onboarding: got only " + 
-                                    (prefs["show_count"] - 1) + " result clicks so far, waiting for " + resultCountThreshold);
-                                break;
-                            }
-
-                            prefs["show_count"] = 0;
-                            var anchor = CliqzLanguage.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[i];
-                            CliqzLanguage.lastPrefs = prefs;
-                            if (anchor) {
-                                if (anchor.offsetTop < 300) {                                    
-                                    CliqzLanguage.win.CLIQZ.Core.popup._openAutocompletePopup(
-                                        CliqzLanguage.win.CLIQZ.Core.urlbar, CliqzLanguage.win.CLIQZ.Core.urlbar);
-                                    CliqzLanguage.getCallout(dest_url).openPopup(anchor,
-                                        "end_before", -5, 0);
-                                    CliqzLanguage.callout.setAttribute("show_ts", Date.now());
-                                    aRequest.cancel("CLIQZ_INTERRUPT");
-                                    CliqzUtils.log("ext_onboarding: interrupted");
-                                }
-                                else {
-                                    CliqzUtils.log("ext_onboarding: result was below the fold");
-                                }
-                            } else {
-                                CliqzUtils.log("ext_onboarding: result was not shown to user");
-                            }                            
+                            CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
                             break;
                             // ///////////////// EXTENDED ONBOARDING END
                         }
