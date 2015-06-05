@@ -1900,6 +1900,7 @@ function snippetQualityTelemetry(results){
 function handleMouseDown(e) {
   var walk_the_DOM = function walk(node) {
     while(node) {
+      if(node.className === IC) return;
       if(node.tagName === 'a') {
         node.setAttribute('onclick', 'return false;');
         //e.stopPropagation();
