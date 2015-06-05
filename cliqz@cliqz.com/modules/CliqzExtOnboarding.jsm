@@ -27,7 +27,7 @@ var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
     MAX_INTERRUPTS: 3,
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 0,
+    REQUIRED_RESULTS_COUNT: 5,
 
 
     onSameResult: function (request, resultIndex, destinationUrl) {
@@ -65,8 +65,7 @@ var CliqzExtOnboarding = {
             prefs["result_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                 { "same_result": prefs }));                    
-            this._log("got only " + 
-                (prefs["result_count"] - 1) + " result clicks so far, waiting for " + resultCountThreshold);
+            this._log("not enoygh result clicks so far; not interrupting");
             return;
         }
 
@@ -112,7 +111,7 @@ var CliqzExtOnboarding = {
             container.appendChild(content);    
             parent.appendChild(container);
 
-            content.innerHTML = CliqzHandlebars.tplCache['onboarding-callout-extended']({
+            content.innerHTML = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
                 message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
                 options: [
                     { label: CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), action: 'onboarding-start', state: 'ok' },
