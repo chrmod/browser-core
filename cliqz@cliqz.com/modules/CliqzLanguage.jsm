@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
   'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
+
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
     READING_THRESHOLD: 10000,
@@ -75,7 +76,7 @@ var CliqzLanguage = {
                         found = false;
 
 
-                    for (var i = 0; i < LR.length; i++) {
+                    for (var i=0; i < LR.length; i++) {
                         var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                         if (dest_url == comp_url) {
                             // now we have the same result
@@ -84,10 +85,8 @@ var CliqzLanguage = {
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
                             
-                            // ///////////////// EXTENDED ONBOARDING START
                             CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
-                            break;
-                            // ///////////////// EXTENDED ONBOARDING END
+                            break;                            
                         }
                     }
                     if (!found) {

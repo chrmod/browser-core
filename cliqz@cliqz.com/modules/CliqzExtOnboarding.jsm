@@ -31,8 +31,6 @@ var CliqzExtOnboarding = {
 
 
     onSameResult: function (request, resultIndex, destinationUrl) {
-    	// ///////////////// EXTENDED ONBOARDING START
-        // extended_onboarding { "same_result": { "state": "seen|discarded", "log": [ { ts: "", "duration": 500, "action": "ok|discard|other" } ] } }
         var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
         var maxShow = 3;
         var resultCountThreshold = 4;
@@ -84,7 +82,6 @@ var CliqzExtOnboarding = {
         } else {
             CliqzUtils.log("ext_onboarding: result was not shown to user");
         }                            
-        // ///////////////// EXTENDED ONBOARDING END
     },
 
 	_getCallout: function (dest_url) {
