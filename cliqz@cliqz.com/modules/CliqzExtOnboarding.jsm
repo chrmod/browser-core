@@ -60,7 +60,7 @@ var CliqzExtOnboarding = {
             prefs["result_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                 { "same_result": prefs }));                    
-            this._log("not enoygh result clicks so far; not interrupting");
+            this._log("not enough result clicks so far; not interrupting");
             return;
         }
 
