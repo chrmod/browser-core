@@ -31,6 +31,12 @@ var CliqzExtOnboarding = {
 
 
     onSameResult: function (request, resultIndex, destinationUrl) {
+    	var isActive = CliqzUtils.getPref("extended_onboarding_same_result", false);
+    	if (!isActive) {
+    		this._log("same result AB test not active; aborting");
+    		return;
+    	}
+
         var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
         var maxShow = 3;
         var resultCountThreshold = 4;
