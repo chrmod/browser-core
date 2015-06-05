@@ -122,7 +122,8 @@
   display: block;
 }
 
-.onboarding-callout { background-color: #FA544F; color: white; }
+/*.onboarding-callout { background-color: #FA544F; color: white; }*/
+.onboarding-callout { background-color: white; color: black; }
 
 .onboarding-callout .msg-container { position: relative; display: block; white-space: pre-line; max-width: 300px; }
 
@@ -150,7 +151,9 @@
 .onboarding-callout .btn-container .cqz-btn-cancel { background-color: #c3043e; color: white; }
 
 .onboarding-callout .btn-container-extended .cqz-btn-ok { background-color: #63A4F6; color: white; }
-.onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #DDD; text-decoration: underline; font-size: 10px; }
+.onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #333; text-decoration: underline; font-size: 10px; font-weight: 300; margin-top: 5px;}
+
+.onboarding-callout .cliqz-logo { width: 100px; margin-top: 30px; }
 
 /* ------- END onboarding */
 
