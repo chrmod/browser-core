@@ -16,11 +16,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
 var CliqzExtOnboarding = {
-	// FIXME: get new window ref if this happens in new window
-    win: Components.classes['@mozilla.org/appshell/window-mediator;1']
-        .getService(Components.interfaces.nsIWindowMediator)
-        .getMostRecentWindow("navigator:browser"),
-
     callout: undefined,
     lastPrefs: undefined,
 
@@ -71,12 +66,13 @@ var CliqzExtOnboarding = {
 
         // ...seems we should interrupt the user
         prefs["result_count"] = 0;
-        var anchor = CliqzExtOnboarding.win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
+        var win = this._getWin();
+        var anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
         CliqzExtOnboarding.lastPrefs = prefs;
         if (anchor) {
             if (anchor.offsetTop < 300) {                                    
-                CliqzExtOnboarding.win.CLIQZ.Core.popup._openAutocompletePopup(
-                    CliqzExtOnboarding.win.CLIQZ.Core.urlbar, CliqzExtOnboarding.win.CLIQZ.Core.urlbar);
+                win.CLIQZ.Core.popup._openAutocompletePopup(
+                   	win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
                 CliqzExtOnboarding._getCallout(destinationUrl).openPopup(anchor,
                     "end_before", -5, 0);
                 CliqzExtOnboarding.callout.setAttribute("show_ts", Date.now());
@@ -95,11 +91,17 @@ var CliqzExtOnboarding = {
         }                            
     },
 
+    _getWin: function () {
+    	return Components.classes['@mozilla.org/appshell/window-mediator;1']
+		    .getService(Components.interfaces.nsIWindowMediator)
+		    .getMostRecentWindow("navigator:browser");
+	},
 	_getCallout: function (dest_url) {
         if (!this.callout) {
-            var container = this.win.document.createElement('panel'),
-                content = this.win.document.createElement('div'),
-                parent = this.win.CLIQZ.Core.popup.parentElement;
+        	var win = this._getWin();
+            var container = win.document.createElement('panel'),
+                content = win.document.createElement('div'),
+                parent = win.CLIQZ.Core.popup.parentElement;
 
             container.className = 'onboarding-container';
             content.className = "onboarding-callout";
@@ -129,9 +131,9 @@ var CliqzExtOnboarding = {
                     CliqzExtOnboarding.callout.setAttribute("show_ts", -1);
                     switch (action) {                        
                         case 'onboarding-start':
-                            CliqzExtOnboarding.win.CLIQZ.Core.popup.hidePopup();
+                            win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
-                            CliqzExtOnboarding.win.CLIQZ.Core.openLink(dest_url, false);
+                            win.CLIQZ.Core.openLink(dest_url, false);
                             CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
                             
                             CliqzExtOnboarding.lastPrefs["state"] = "seen";
@@ -148,9 +150,9 @@ var CliqzExtOnboarding = {
 			                });
                             break;
                         case 'onboarding-cancel':
-                            CliqzExtOnboarding.win.CLIQZ.Core.popup.hidePopup();
+                            win.CLIQZ.Core.popup.hidePopup();
                             container.hidePopup();
-                            CliqzExtOnboarding.win.CLIQZ.Core.openLink(dest_url, false);
+                            win.CLIQZ.Core.openLink(dest_url, false);
                             CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
 
                             CliqzExtOnboarding.lastPrefs["state"] = "discarded";
@@ -171,7 +173,7 @@ var CliqzExtOnboarding = {
             });
 
             // close callout whenever dropdown closes
-            CliqzExtOnboarding.win.CLIQZ.Core.popup.addEventListener("popuphidden", function () {
+            win.CLIQZ.Core.popup.addEventListener("popuphidden", function () {
                 if (CliqzExtOnboarding.callout.state == "open") {
                     CliqzExtOnboarding.callout.hidePopup();
 
