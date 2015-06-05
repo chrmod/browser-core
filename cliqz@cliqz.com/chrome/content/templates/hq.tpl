@@ -21,7 +21,7 @@
             {{#if data.richData.images.length}}
                 arrow="false" arrow-override=''
             {{/if}}
-        >{{ emphasis title text 2 true }}</div>
+             ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
