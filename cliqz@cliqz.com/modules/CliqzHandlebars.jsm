@@ -131,11 +131,12 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0){
             if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
                 return 'cqz-result-h2';
             // BM hq result, but not the 1st result -> remove images
             data_richData.images = [];
+        }
 
         return 'cqz-result-h3';
     });
