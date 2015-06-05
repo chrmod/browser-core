@@ -31,6 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
+        'r': 'recipe'
+//        'r': 'rd-h3-w-rating'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -997,7 +999,7 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
