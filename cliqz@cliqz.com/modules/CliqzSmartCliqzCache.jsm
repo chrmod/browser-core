@@ -147,7 +147,8 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
 		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
 	},
-	CUSTOM_DATA_CACHE_FILE: 'cliqz/smartcliqz-custom-data-cache.json',
+	CUSTOM_DATA_CACHE_FOLDER: 'cliqz',
+	CUSTOM_DATA_CACHE_FILE: 'smartcliqz-custom-data-cache.json',
 	// maximum number of items (e.g., categories or links) to keep
 	MAX_ITEMS: 5,
 
@@ -164,9 +165,19 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	// loads cache content from persistent storage
 	init: function () {
-		// TODO: detect when loaded; allow save only afterwards		
-		this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
+		// create folder underneath profile folder to store persistent cache
+		try {
+			var folderPath = OS.Path.join(
+				OS.Constants.Path.profileDir, this.CUSTOM_DATA_CACHE_FOLDER);
+			OS.File.makeDir(folderPath, { ignoreExisting: true });
 
+			// TODO: detect when loaded; allow save only afterwards
+			var filePath = OS.Path.join(folderPath, this.CUSTOM_DATA_CACHE_FILE);
+			this._customDataCache.load(filePath);
+		} catch (e) {
+			this._log('init: unable to create cache folder:' + e);
+		}
+		
 		this._isInitialized = true;
 		this._log('init: initialized');
 	},
