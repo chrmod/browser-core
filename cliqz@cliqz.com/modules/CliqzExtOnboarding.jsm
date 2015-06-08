@@ -42,7 +42,7 @@ var CliqzExtOnboarding = {
 
         var callout = CliqzExtOnboarding._createCallout(win);
         CliqzExtOnboarding._addCalloutListeners(callout);
-        CliqzExtOnboarding._addDropdownListeners(callout);
+        CliqzExtOnboarding._addDropdownListeners(win);
 
         CliqzExtOnboarding._log("init: done");
     },
@@ -205,11 +205,8 @@ var CliqzExtOnboarding = {
         callout.removeEventListener("click", CliqzExtOnboarding._calloutClickListener);
     },
 
-    // FIXME: this might be attached/dettached from different window instances
-    // close callout when dropdown closes (e.g., user clicking on result)
-    _addDropdownListeners: function (callout) {
-        CliqzUtils.getWindow().CLIQZ.Core.popup.
-            addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+    _addDropdownListeners: function (win) {
+        win.addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _removeDropdownListeners: function (win) {
