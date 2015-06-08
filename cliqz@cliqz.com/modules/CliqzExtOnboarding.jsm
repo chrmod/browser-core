@@ -300,6 +300,8 @@ var CliqzExtOnboarding = {
             duration: duration,
             reason: "other"
         }); 
+
+        CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
     },
 
     _dropdownCloseListener: function () {
@@ -315,6 +317,7 @@ var CliqzExtOnboarding = {
             }
 
             var duration = Date.now() - callout.getAttribute("show_ts");
+            callout.setAttribute("show_ts", -1);
 
             lastPrefs["state"] = "seen";
             lastPrefs["show_count"]++;
