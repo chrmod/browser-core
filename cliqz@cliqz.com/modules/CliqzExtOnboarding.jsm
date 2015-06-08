@@ -67,7 +67,7 @@ var CliqzExtOnboarding = {
     onSameResult: function (request, resultIndex, destinationUrl) {
         var isActive = CliqzUtils.getPref("extended_onboarding_same_result", false);
         if (!isActive) {
-            this._log("same result AB test not active; aborting");
+            CliqzExtOnboarding._log("same result AB test not active; aborting");
             return;
         }
 
@@ -85,21 +85,21 @@ var CliqzExtOnboarding = {
                 "show_count": 0,
                 "max_show_duration": 0
             };
-            this._log("creating prefs");
+            CliqzExtOnboarding._log("creating prefs");
         }
 
         // checking for reasons _not_ to interrupt the users...
         if (prefs["state"] == "discarded") {
-            this._log("user had discarded before; not interrupting");
+            CliqzExtOnboarding._log("user had discarded before; not interrupting");
             return;
         } else if (prefs["show_count"] >= CliqzExtOnboarding.MAX_INTERRUPTS) {
-            this._log("max. show reached; not interrupting");
+            CliqzExtOnboarding._log("max. show reached; not interrupting");
             return;
         } else if (prefs["result_count"] < CliqzExtOnboarding.REQUIRED_RESULTS_COUNT) {
             prefs["result_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                 { "same_result": prefs }));                    
-            this._log("not enough result clicks so far; not interrupting");
+            CliqzExtOnboarding._log("not enough result clicks so far; not interrupting");
             return;
         }
 
@@ -120,17 +120,17 @@ var CliqzExtOnboarding = {
                 callout.setAttribute("show_ts", Date.now());
 
                 request.cancel("CLIQZ_INTERRUPT");
-                this._log("interrupted");
-                this._telemetry("show", {
+                CliqzExtOnboarding._log("interrupted");
+                CliqzExtOnboarding._telemetry("show", {
                     count: prefs["show_count"],
                     result_index: resultIndex
                 });
             }
             else {
-                this._log("result was below the fold");
+                CliqzExtOnboarding._log("result was below the fold");
             }
         } else {
-            this._log("result was not shown to user");
+            CliqzExtOnboarding._log("result was not shown to user");
         }                            
     },
 
@@ -147,6 +147,7 @@ var CliqzExtOnboarding = {
         callout.setAttribute("id", CliqzExtOnboarding.CALLOUT_DOM_ID);
         callout.setAttribute("type", "arrow");
         callout.setAttribute("level", "top");
+        callout.setAttribute("ignorekeys", "true");
 
         // set HTML content
         CliqzExtOnboarding._initCalloutContent(content);
