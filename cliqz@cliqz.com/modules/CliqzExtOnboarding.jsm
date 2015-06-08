@@ -7,6 +7,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzExtOnboarding'];
 
+Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
@@ -16,13 +17,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 
 var lastPrefs = undefined,
     // cache destination URL
-    destUrl = undefined;
+    destUrl = undefined,
+    wasUnloaded = false;
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    MAX_INTERRUPTS: 3, // 3
+    MAX_INTERRUPTS: 100, // 3
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 5, // 5
+    REQUIRED_RESULTS_COUNT: 0, // 5
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // called for each new window
@@ -30,11 +32,10 @@ var CliqzExtOnboarding = {
         // workaround: after de- and re-activating the extension,
         // CliqzUtils and CliqzHandlebars point to outdated objects
         // and defineLazyModuleGetter does not reload them
-        if (!CliqzUtils) {
-            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');            
-        }
-        if (!CliqzHandlebars) {
-            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+        if (wasUnloaded) {
+            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');   
+            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');   
+            wasUnloaded = false;      
         }
 
         CliqzExtOnboarding._log("init: initializing");
@@ -60,8 +61,7 @@ var CliqzExtOnboarding = {
 
         CliqzExtOnboarding._log("unload: done");
 
-        CliqzHandlebars = undefined;
-        CliqzUtils = undefined;
+        wasUnloaded = true;
     },
 
     onSameResult: function (request, resultIndex, destinationUrl) {
@@ -211,10 +211,17 @@ var CliqzExtOnboarding = {
             addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
-    // FIXME: won't remove from all windows on extension unload if there are multiple windows
     _removeDropdownListeners: function () {
-        CliqzUtils.getWindow().CLIQZ.Core.popup.
-            removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+        var enumerator = 
+            Services.wm.getEnumerator('navigator:browser');
+        while (enumerator.hasMoreElements()) {
+            var win = enumerator.getNext();
+            win.CLIQZ.Core.popup.
+                removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+        }
+
+        // CliqzUtils.getWindow().CLIQZ.Core.popup.
+        //     removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _calloutClickListener: function (e) {
