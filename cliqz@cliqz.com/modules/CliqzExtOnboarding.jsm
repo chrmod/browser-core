@@ -3,7 +3,6 @@
  *
  */
 
-
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzExtOnboarding'];
@@ -21,29 +20,50 @@ var callout = undefined,
     // cache destination URL
     destUrl = undefined;
 
-var i = 0;
-
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
     MAX_INTERRUPTS: 100, // 3
     // number of results required before we interrupt
     REQUIRED_RESULTS_COUNT: 0, // 5
+    CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
+    // called for each new window
     init: function () {
-        CliqzExtOnboarding._createCallout();
-        CliqzUtils.log("init callout " + callout);
-        CliqzExtOnboarding._addCalloutListeners();
-        CliqzExtOnboarding._addDropdownListeners();
+        // workaround: after de- and re-activating the extension,
+        // CliqzUtils and CliqzHandlebars point to outdated objects
+        // and defineLazyModuleGetter does not reload them
+        if (!CliqzUtils) {
+            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');            
+        }
+        if (!CliqzHandlebars) {
+            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+        }
+
+        CliqzExtOnboarding._log("init: initializing");
+
+        var callout = CliqzExtOnboarding._createCallout();
+        CliqzExtOnboarding._addCalloutListeners(callout);
+        CliqzExtOnboarding._addDropdownListeners(callout);
 
         CliqzExtOnboarding._log("init: done");
     },
 
     unload: function () {
-        CliqzExtOnboarding._removeCalloutListeners();
-        CliqzExtOnboarding._removeDropdownListeners();
-        CliqzExtOnboarding._destroyCallout();
+        CliqzExtOnboarding._log("unload: unloading...");
 
-        CliqzExtOnboarding._log("unload: done");     
+        var callout = CliqzExtOnboarding._getCallout();
+        if (callout) {
+            CliqzExtOnboarding._removeCalloutListeners(callout);
+            CliqzExtOnboarding._removeDropdownListeners(callout);
+            CliqzExtOnboarding._destroyCallout(callout);
+        } else {
+            CliqzExtOnboarding._log("unload: callout is not defined"); 
+        }
+
+        CliqzExtOnboarding._log("unload: done");
+
+        CliqzHandlebars = undefined;
+        CliqzUtils = undefined;
     },
 
     onSameResult: function (request, resultIndex, destinationUrl) {
@@ -88,7 +108,10 @@ var CliqzExtOnboarding = {
         // ...seems we should interrupt the user
         prefs["result_count"] = 0;
         var win = CliqzUtils.getWindow(),
+            callout = CliqzExtOnboarding._getCallout(),
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
+
+        CliqzExtOnboarding._log("!!!!!! " + callout.firstChild.innerHTML);
 
         if (anchor) {
             if (anchor.offsetTop < 300) {  
@@ -117,17 +140,15 @@ var CliqzExtOnboarding = {
 
     // create callout element and attach to DOM
     _createCallout: function () {
-        var win = CliqzUtils.getWindow(),            
+        var win = CliqzUtils.getWindow(),
+            callout = win.document.createElement('panel'),
             content = win.document.createElement('div'),
             parent = win.CLIQZ.Core.popup.parentElement;
-
-        // file scope
-        callout = win.document.createElement('panel');
-
+        
         callout.className = "onboarding-container";
         content.className = "onboarding-callout";
 
-        callout.setAttribute("id", "cliqzExtOnboardingCallout");
+        callout.setAttribute("id", CliqzExtOnboarding.CALLOUT_DOM_ID);
         callout.setAttribute("type", "arrow");
         callout.setAttribute("level", "top");
 
@@ -139,15 +160,22 @@ var CliqzExtOnboarding = {
         // callout.style.marginLeft ='0px';
         // callout.style.marginTop = '0px';
         // callout.setAttribute("position", "topleft topleft");
+
+        return callout;
     },
 
+    _getCallout: function () {
+        return CliqzUtils.getWindow().
+            document.getElementById(CliqzExtOnboarding.CALLOUT_DOM_ID)
+    },
 
     _initCalloutContent: function (contentElement) {
         // wait until template has been loaded
         if (!CliqzHandlebars.tplCache["onboarding-callout-extended"]) {
             CliqzUtils.setTimeout(function () {
                 CliqzExtOnboarding._initCalloutContent(contentElement);
-            }, 100);
+            }, 250);
+            CliqzExtOnboarding._log("_initCalloutContent: templates not ready; waiting");
             return;
         }
 
@@ -156,37 +184,40 @@ var CliqzExtOnboarding = {
             options: [
                 { label: 
                     CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), 
-                    action: 'onboarding-start', state: 'ok' },
+                    action: "onboarding-start", state: "ok" },
                 { label: 
                     CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), 
-                    action: 'onboarding-cancel', state: 'cancel' }
+                    action: "onboarding-cancel", state: "cancel" }
             ],
             // FIXME: not shown
-            cliqz_logo: 'chrome://cliqzres/content/skin/img/cliqz.svg'
+            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
         });
+
+        CliqzExtOnboarding._log("_initCalloutContent: template parsed");
+        CliqzExtOnboarding._log(contentElement.innerHTML);
     },
 
-    _destroyCallout: function () {
-        callout && callout.parentNode.removeChild(callout);
+    _destroyCallout: function (callout) {
+        callout.parentNode.removeChild(callout);
     },
 
     // handle user clicks on ok and cancel buttons
-    _addCalloutListeners: function () {
+    _addCalloutListeners: function (callout) {
         callout.addEventListener("click", CliqzExtOnboarding._calloutClickListener);
     },
 
-    _removeCalloutListeners: function () {
+    _removeCalloutListeners: function (callout) {
         callout.removeEventListener("click", CliqzExtOnboarding._calloutClickListener);
     },
 
     // FIXME: this might be attached/dettached from different window instances
     // close callout when dropdown closes (e.g., user clicking on result)
-    _addDropdownListeners: function () {
+    _addDropdownListeners: function (callout) {
         CliqzUtils.getWindow().CLIQZ.Core.popup.
             addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
-    _removeDropdownListeners: function () {
+    _removeDropdownListeners: function (callout) {
         CliqzUtils.getWindow().CLIQZ.Core.popup.
             removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
@@ -194,9 +225,11 @@ var CliqzExtOnboarding = {
     _calloutClickListener: function (e) {
         var target = e.target;
         if (target && (e.button == 0 || e.button == 1)) {
-            var action = target.getAttribute("cliqz-action"),
-                duration = Date.now() - callout.getAttribute("show_ts"),
-                win = CliqzUtils.getWindow();
+            var win = CliqzUtils.getWindow(),
+                callout = CliqzExtOnboarding._getCallout(),
+                action = target.getAttribute("cliqz-action"),
+                duration = Date.now() - callout.getAttribute("show_ts");
+                
             // to indicate to the popup hiding event that
             // we are already handling this here
             callout.setAttribute("show_ts", -1);
@@ -250,16 +283,18 @@ var CliqzExtOnboarding = {
     },
 
     _dropdownCloseListener: function () {
+        var callout = CliqzExtOnboarding._getCallout();
         // close callout whenever dropdown closes
         if (callout.state == "open") {
             // we already handled this close event (user clicked on button)
-            var showTs = CliqzExtOnboarding.callout.getAttribute("show_ts");
+            var showTs = callout.getAttribute("show_ts");
+
             if (showTs == -1) {
                 CliqzExtOnboarding._log("callout close event handled previously");
                 return;
             }
 
-            var duration = Date.now() - CliqzExtOnboarding.callout.getAttribute("show_ts");
+            var duration = Date.now() - callout.getAttribute("show_ts");
 
             lastPrefs["state"] = "seen";
             lastPrefs["show_count"]++;
