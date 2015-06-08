@@ -52,7 +52,7 @@ var CliqzExtOnboarding = {
         var callout = CliqzExtOnboarding._getCallout();
         if (callout) {
             CliqzExtOnboarding._removeCalloutListeners(callout);
-            CliqzExtOnboarding._removeDropdownListeners(callout);
+            CliqzExtOnboarding._removeDropdownListeners();
             CliqzExtOnboarding._destroyCallout(callout);
         } else {
             CliqzExtOnboarding._log("unload: callout is not defined"); 
@@ -211,7 +211,8 @@ var CliqzExtOnboarding = {
             addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
-    _removeDropdownListeners: function (callout) {
+    // FIXME: won't remove from all windows on extension unload if there are multiple windows
+    _removeDropdownListeners: function () {
         CliqzUtils.getWindow().CLIQZ.Core.popup.
             removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
