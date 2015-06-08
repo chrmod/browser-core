@@ -8,7 +8,7 @@
         {{/with}}
 
         <div class="cqz-result-h2">
-            <div class='cqz-ez-title' arrow-override=''>{{ returned_location }}</div>
+          <div class='cqz-ez-title' arrow-override=''><a href="{{../url}}">{{ returned_location }}</a></div>
 
             <div class='EZ-weather-container'>
                 <div class='EZ-weather-date'>{{ todayWeekday }}</div>

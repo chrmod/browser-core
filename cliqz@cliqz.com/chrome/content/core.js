@@ -25,6 +25,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
+  'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
+  'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
+
 //XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
 //  'chrome://cliqzmodules/content/CliqzHistory.jsm');
 
@@ -225,6 +231,8 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
         CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
+        CliqzExtOnboarding.init();
+
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
 
@@ -340,6 +348,7 @@ window.CLIQZ.Core = {
 
         CliqzAutocomplete.unload();
         CliqzRedirect.unload();
+        CliqzExtOnboarding.unload();
 
 
         // remove listeners
@@ -426,6 +435,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
+            delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
             delete window.CliqzABTests;

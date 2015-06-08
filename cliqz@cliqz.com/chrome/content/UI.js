@@ -31,6 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
+        'r': 'recipe'
+//        'r': 'rd-h3-w-rating'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -92,9 +94,11 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-
-
+        
         resultsBox.addEventListener('mouseup', resultClick);
+      
+        resultsBox.addEventListener('mousedown', handleMouseDown);
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -146,6 +150,7 @@ var UI = {
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -997,7 +1002,7 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
@@ -1406,7 +1411,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1893,6 +1897,26 @@ function snippetQualityTelemetry(results){
     action: 'quality',
     data: data
   });
+}
+  
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;
