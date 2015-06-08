@@ -22,9 +22,9 @@ var lastPrefs = undefined,
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    MAX_INTERRUPTS: 100, // 3
+    MAX_INTERRUPTS: 3, // 3
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 0, // 5
+    REQUIRED_RESULTS_COUNT: 5, // 5
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // called for each new window
