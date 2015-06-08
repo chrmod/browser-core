@@ -223,27 +223,12 @@ var CliqzExtOnboarding = {
                 callout = CliqzExtOnboarding._getCallout(),
                 action = target.getAttribute("cliqz-action"),
                 duration = Date.now() - callout.getAttribute("show_ts");
-                
-            // to indicate to the popup hiding event that
-            // we are already handling this here
-            callout.setAttribute("show_ts", -1);
             
             switch (action) {                        
                 case "onboarding-start":
                     CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
-                    
-                    lastPrefs["state"] = "seen";
-                    lastPrefs["show_count"]++;
-                    lastPrefs["max_show_duration"] =
-                        Math.max(lastPrefs["max_show_duration"], duration);
-                    
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                        { "same_result": lastPrefs }));
 
-                    CliqzExtOnboarding._telemetry("close", {
-                        duration: duration,
-                        reason: "ok"
-                    });
+                    CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
 
                     callout.hidePopup();
                     win.CLIQZ.Core.popup.hidePopup();
@@ -254,19 +239,8 @@ var CliqzExtOnboarding = {
                 case "onboarding-cancel":
                     CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
 
-                    lastPrefs["state"] = "discarded";
-                    lastPrefs["show_count"]++;
-                    lastPrefs["max_show_duration"] =
-                        Math.max(lastPrefs["max_show_duration"], duration);
-
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                        { "same_result": lastPrefs }));
-
-                    CliqzExtOnboarding._telemetry("close", {
-                        duration: duration,
-                        reason: "discard"
-                    });
-
+                    CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
+                  
                     callout.hidePopup();
                     win.CLIQZ.Core.popup.hidePopup();
                     win.CLIQZ.Core.openLink(destUrl, false);
@@ -277,63 +251,51 @@ var CliqzExtOnboarding = {
     },
 
     _calloutCloseListener: function () {
-        var callout = CliqzExtOnboarding._getCallout(),
-            showTs = callout.getAttribute("show_ts");
+        var callout = CliqzExtOnboarding._getCallout();
+
+        if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
+            CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+        }
+    },
+
+    _dropdownCloseListener: function () {
+        var callout = CliqzExtOnboarding._getCallout();
+
+        // close callout whenever dropdown closes
+        if (callout.state == "open") {
+            if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "result")) {
+                callout.hidePopup();
+            }
+        }
+    },
+
+    _handleCalloutClosed: function (callout, newState, reason) {
+        // we already handled this close event
+        var showTs = callout.getAttribute("show_ts");
 
         if (showTs == -1) {
             CliqzExtOnboarding._log("callout close event handled previously");
-            return;
+            return false;
         }
 
         var duration = Date.now() - callout.getAttribute("show_ts");
+        // flag as "handled"
         callout.setAttribute("show_ts", -1);
 
-        lastPrefs["state"] = "seen";
+        lastPrefs["state"] = newState;
         lastPrefs["show_count"]++;
         lastPrefs["max_show_duration"] =
             Math.max(lastPrefs["max_show_duration"], duration);
 
         CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-          { "same_result": lastPrefs }));
+            { "same_result": lastPrefs }));
 
         CliqzExtOnboarding._telemetry("close", {
             duration: duration,
-            reason: "other"
+            reason: reason
         }); 
 
-        CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
-    },
-
-    _dropdownCloseListener: function () {
-        var callout = CliqzExtOnboarding._getCallout();
-        // close callout whenever dropdown closes
-        if (callout.state == "open") {
-            // we already handled this close event (user clicked on button)
-            var showTs = callout.getAttribute("show_ts");
-
-            if (showTs == -1) {
-                CliqzExtOnboarding._log("callout close event handled previously");
-                return;
-            }
-
-            var duration = Date.now() - callout.getAttribute("show_ts");
-            callout.setAttribute("show_ts", -1);
-
-            lastPrefs["state"] = "seen";
-            lastPrefs["show_count"]++;
-            lastPrefs["max_show_duration"] =
-                Math.max(lastPrefs["max_show_duration"], duration);
-
-            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                { "same_result": lastPrefs }));
-
-            CliqzExtOnboarding._telemetry("close", {
-                duration: duration,
-                reason: "other"
-            });  
-
-            callout.hidePopup();            
-        }
+        return true;
     },
 
 	_log: function (msg) {
