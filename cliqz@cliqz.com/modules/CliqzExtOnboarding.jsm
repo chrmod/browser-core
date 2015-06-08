@@ -14,17 +14,15 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-var callout = undefined,
-    // cache prefs
-    lastPrefs = undefined,
+var lastPrefs = undefined,
     // cache destination URL
     destUrl = undefined;
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    MAX_INTERRUPTS: 100, // 3
+    MAX_INTERRUPTS: 3, // 3
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 0, // 5
+    REQUIRED_RESULTS_COUNT: 5, // 5
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // called for each new window
@@ -110,8 +108,6 @@ var CliqzExtOnboarding = {
         var win = CliqzUtils.getWindow(),
             callout = CliqzExtOnboarding._getCallout(),
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
-
-        CliqzExtOnboarding._log("!!!!!! " + callout.firstChild.innerHTML);
 
         if (anchor) {
             if (anchor.offsetTop < 300) {  
