@@ -455,3 +455,8 @@
 #cliqz-results .iconLabel {
    margin-left: 10px
 }
+#cliqz-results .cqz-ez-subtitle {
+  margin-bottom: 10px;
+  color: #999999;
+  display:inline-block;
+}

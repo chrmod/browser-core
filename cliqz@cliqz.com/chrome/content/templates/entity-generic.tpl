@@ -14,6 +14,7 @@
           <a href="{{../url}}">{{ emphasis name ../text 2 true }}</a>
           <div class="after" style="background-image: url({{icon}})"></div>
         </div>
+        <span class="cqz-ez-subtitle">{{friendly_url}}</span>
 
         <div class="cqz-ez-generic-elems">
             <div class="cqz-ez-generic-box">
