@@ -28,7 +28,7 @@ var CliqzExtOnboarding = {
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // called for each new window
-    init: function () {
+    init: function (win) {
         // workaround: after de- and re-activating the extension,
         // CliqzUtils and CliqzHandlebars point to outdated objects
         // and defineLazyModuleGetter does not reload them
@@ -40,23 +40,23 @@ var CliqzExtOnboarding = {
 
         CliqzExtOnboarding._log("init: initializing");
 
-        var callout = CliqzExtOnboarding._createCallout();
+        var callout = CliqzExtOnboarding._createCallout(win);
         CliqzExtOnboarding._addCalloutListeners(callout);
         CliqzExtOnboarding._addDropdownListeners(callout);
 
         CliqzExtOnboarding._log("init: done");
     },
 
-    unload: function () {
+    unload: function (win) {
         CliqzExtOnboarding._log("unload: unloading...");
-
-        var callout = CliqzExtOnboarding._getCallout();
+       
+        CliqzExtOnboarding._removeDropdownListeners(win);
+        var callout = CliqzExtOnboarding._getCallout(win);        
         if (callout) {
             CliqzExtOnboarding._removeCalloutListeners(callout);
-            CliqzExtOnboarding._removeDropdownListeners();
             CliqzExtOnboarding._destroyCallout(callout);
         } else {
-            CliqzExtOnboarding._log("unload: callout is not defined"); 
+            CliqzExtOnboarding._log("unload: no callout element found");
         }
 
         CliqzExtOnboarding._log("unload: done");
@@ -135,9 +135,10 @@ var CliqzExtOnboarding = {
     },
 
     // create callout element and attach to DOM
-    _createCallout: function () {
-        var win = CliqzUtils.getWindow(),
-            callout = win.document.createElement('panel'),
+    _createCallout: function (win) {
+        win = win || CliqzUtils.getWindow();
+
+        var callout = win.document.createElement('panel'),
             content = win.document.createElement('div'),
             parent = win.CLIQZ.Core.popup.parentElement;
         
@@ -158,9 +159,10 @@ var CliqzExtOnboarding = {
         return callout;
     },
 
-    _getCallout: function () {
-        return CliqzUtils.getWindow().
-            document.getElementById(CliqzExtOnboarding.CALLOUT_DOM_ID)
+    _getCallout: function (win) {
+        win = win || CliqzUtils.getWindow();
+
+        return win.document.getElementById(CliqzExtOnboarding.CALLOUT_DOM_ID)
     },
 
     _initCalloutContent: function (contentElement) {
@@ -187,8 +189,7 @@ var CliqzExtOnboarding = {
             cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
         });
 
-        CliqzExtOnboarding._log("_initCalloutContent: template parsed");
-        CliqzExtOnboarding._log(contentElement.innerHTML);
+        CliqzExtOnboarding._log("_initCalloutContent: template parsed");        
     },
 
     _destroyCallout: function (callout) {
@@ -211,17 +212,9 @@ var CliqzExtOnboarding = {
             addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
-    _removeDropdownListeners: function () {
-        var enumerator = 
-            Services.wm.getEnumerator('navigator:browser');
-        while (enumerator.hasMoreElements()) {
-            var win = enumerator.getNext();
-            win.CLIQZ.Core.popup.
-                removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
-        }
-
-        // CliqzUtils.getWindow().CLIQZ.Core.popup.
-        //     removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+    _removeDropdownListeners: function (win) {
+        CliqzUtils.getWindow().CLIQZ.Core.popup.
+            removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _calloutClickListener: function (e) {

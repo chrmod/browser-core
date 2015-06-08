@@ -231,7 +231,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
         CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
-        CliqzExtOnboarding.init();
+        CliqzExtOnboarding.init(window);
 
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
@@ -348,7 +348,7 @@ window.CLIQZ.Core = {
 
         CliqzAutocomplete.unload();
         CliqzRedirect.unload();
-        CliqzExtOnboarding.unload();
+        CliqzExtOnboarding.unload(window);
 
 
         // remove listeners
