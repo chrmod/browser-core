@@ -154,9 +154,6 @@ var CliqzExtOnboarding = {
 
         callout.appendChild(content);
         parent.appendChild(callout);
-        // callout.style.marginLeft ='0px';
-        // callout.style.marginTop = '0px';
-        // callout.setAttribute("position", "topleft topleft");
 
         return callout;
     },
