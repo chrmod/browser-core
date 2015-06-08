@@ -31,6 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
+        'r': 'recipe'
+//        'r': 'rd-h3-w-rating'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -75,7 +77,8 @@ var UI = {
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
             if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
-              CLIQZ.UI.handleResults();
+              //try to break the call stack which cause 'too much recursion' exception on linux systems
+              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
         }
 
@@ -93,6 +96,9 @@ var UI = {
         var messageContainer = document.getElementById('cliqz-message-container');
 
         resultsBox.addEventListener('mouseup', resultClick);
+      
+        resultsBox.addEventListener('mousedown', handleMouseDown);
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -139,12 +145,16 @@ var UI = {
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+      if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+
+        snippetQualityTelemetry(curResAll);
+      }
 
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -464,7 +474,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
@@ -998,7 +1008,7 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
@@ -1029,7 +1039,8 @@ function enhanceResults(res){
           if (CliqzUtils.getPref(msg.pref, true)) {
             updateMessageState("show", {
               "footer-message": {
-                message: CliqzUtils.getLocalizedString(msg.text),
+                simple_message: CliqzUtils.getLocalizedString(msg.text),
+                telemetry: "rh_message-" + msg.pref || 'null',
                 searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
                 options: msg.buttons.map(function(b) {
                   return {
@@ -1046,7 +1057,9 @@ function enhanceResults(res){
         }
     }
 
+
     var spelC = CliqzAutocomplete.spellCorr;
+
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
@@ -1075,7 +1088,7 @@ function enhanceResults(res){
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
       updateMessageState("show", {
         "footer-message": {
-          message: CliqzUtils.getLocalizedString('updateMessage'),
+          simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
@@ -1089,15 +1102,29 @@ function enhanceResults(res){
           ]
         }
       });
-    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true)) {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true) && !spelC.userConfirmed) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join(spelC.correctBack[c]);
+        var terms = s.split(" ");
+        var messages = [];
+        var termsObj = {};
+        for(var i = 0; i < terms.length; i++) {
+          termsObj = {
+            correct: terms[i]
+          };
+          messages.push(termsObj);
+          if(spelC.correctBack[terms[i]]) {
+            messages[i].correctBack = spelC.correctBack[terms[i]];
+          } else {
+            messages[i].correctBack = "";
+          }
         }
+        //cache searchTerms to check against when user keeps spellcorrect
+        spelC.searchTerms = messages;
+
         updateMessageState("show", {
             "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s,
+              simple_message: CliqzUtils.getLocalizedString('spell_correction'),
+              messages: messages,
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
@@ -1132,7 +1159,7 @@ function notSupported(r){
 
 function getNotSupported(){
   return {
-    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
     options: [{
@@ -1270,6 +1297,17 @@ function messageClick(ev) {
                 updateMessageState("hide");
                 break;
               case 'spellcorrect-keep':
+                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                for(var i = 0; i < spellCorData.length; i++) {
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)
+                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
+                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];
+                    }
+                  }
+                }
+
+                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
                 updateMessageState("hide");
                 break;
 
@@ -1335,7 +1373,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = el.getAttribute('extra'), //extra data about the link
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data.kind; }),
+          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1379,7 +1417,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1837,6 +1874,55 @@ function arrowNavigationTelemetry(el){
         action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.telemetry(action);
+}
+
+// only consider results which fill the first 3 slots
+function snippetQualityTelemetry(results){
+  var data = [], slots = 0;
+  for(var i=0; i<results.length && slots <3; i++){
+    var r = results[i];
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+      data.push({
+        logo: (r.logo && r.logo.backgroundImage) ? true : false,
+        desc: (r.data && r.data.description) ? true : false
+      })
+    // push empty data for EZones and history
+    else data.push({});
+
+    slots += CliqzUtils.TEMPLATES[r.vertical];
+
+    // entity generic can be 3 slots height
+    if(r.vertical == 'entity-generic' && r.data.urls) slots++;
+
+    // hq results are 3 slots height if they have images
+    if(r.vertical == 'hq' && r.data.richData && r.data.richData.images) slots++;
+  }
+
+  CliqzUtils.telemetry({
+    type: 'snippet',
+    action: 'quality',
+    data: data
+  });
+}
+  
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;

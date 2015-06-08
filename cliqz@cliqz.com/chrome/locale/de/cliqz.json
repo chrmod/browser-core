@@ -6,7 +6,7 @@
         "message": "Zutaten"
     },
     "Reviews":{
-        "message": "Stimmen"
+        "message": "Bewertungen"
     },
     "Serves":{
         "message": "Portionen"
@@ -435,7 +435,7 @@
       "message":"blockieren"
     },
     "adultModerate": {
-      "message":"filtern"
+      "message":"nachfragen"
     },
     "adultLiberal": {
       "message":"immer anzeigen"

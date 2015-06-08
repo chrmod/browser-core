@@ -1,6 +1,17 @@
 <div class="cqz-message-bar">
   <div class="cqz-message {{type}}">
-    {{emphasis message searchTerm true}}
+      {{ simple_message }}
+      <b>
+        {{message}}
+
+        {{#each messages}}
+          {{#if this.correctBack}}
+            <i>{{this.correctBack}}</i>
+         {{else}}
+           {{this.correct}}
+         {{/if}}
+        {{/each}}
+      </b>
   </div>
   <div style="float:right" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
   	{{#each options}}

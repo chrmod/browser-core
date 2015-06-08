@@ -64,7 +64,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'on': false,
         'correctBack': {},
         'override': false,
-        'pushed': null
+        'pushed': null,
+        'userConfirmed': false,
+        'searchTerms': []
     },
     init: function(){
         CliqzUtils.init();
@@ -117,7 +119,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             'on': false,
             'correctBack': {},
             'override': false,
-            'pushed': null
+            'pushed': null,
+            'userConfirmed': false,
+            'searchTerms': []
         }
     },
     initProvider: function(){
@@ -522,7 +526,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     current_length: searchString.length
                 };
                 CliqzUtils.telemetry(action);
-
+                
+                if(CliqzAutocomplete.lastSearch.length > searchString.length) {
+                  CliqzAutocomplete.spellCorr.override = true;  
+                }
                 // analyse and modify query for custom results
                 CliqzAutocomplete.lastSearch = searchString;
                 searchString = this.analyzeQuery(searchString);
@@ -535,9 +542,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var parts = CliqzSpellCheck.check(searchString);
                     var newSearchString = parts[0];
                     var correctBack = parts[1];
+
                     for (var c in correctBack) {
                         CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
                     }
+
                 } else {
                     // user don't want spell correction
                     var newSearchString = searchString;
@@ -553,7 +562,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.telemetry(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
+                    CliqzAutocomplete.spellCorr['userConfirmed'] = false;
                 }
+              
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
