@@ -1028,7 +1028,7 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
-        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+        if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
           var msg = r.data.__message__;
           if (CliqzUtils.getPref(msg.pref, true)) {
             updateMessageState("show", {
