@@ -199,10 +199,12 @@ var CliqzExtOnboarding = {
     // handle user clicks on ok and cancel buttons
     _addCalloutListeners: function (callout) {
         callout.addEventListener("click", CliqzExtOnboarding._calloutClickListener);
+        callout.addEventListener("popuphidden", CliqzExtOnboarding._calloutCloseListener);
     },
 
     _removeCalloutListeners: function (callout) {
         callout.removeEventListener("click", CliqzExtOnboarding._calloutClickListener);
+        callout.removeEventListener("popuphidden", CliqzExtOnboarding._calloutCloseListener);
     },
 
     _addDropdownListeners: function (win) {
@@ -272,6 +274,32 @@ var CliqzExtOnboarding = {
                     break;
             }
         }
+    },
+
+    _calloutCloseListener: function () {
+        var callout = CliqzExtOnboarding._getCallout(),
+            showTs = callout.getAttribute("show_ts");
+
+        if (showTs == -1) {
+            CliqzExtOnboarding._log("callout close event handled previously");
+            return;
+        }
+
+        var duration = Date.now() - callout.getAttribute("show_ts");
+        callout.setAttribute("show_ts", -1);
+
+        lastPrefs["state"] = "seen";
+        lastPrefs["show_count"]++;
+        lastPrefs["max_show_duration"] =
+            Math.max(lastPrefs["max_show_duration"], duration);
+
+        CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+          { "same_result": lastPrefs }));
+
+        CliqzExtOnboarding._telemetry("close", {
+            duration: duration,
+            reason: "other"
+        }); 
     },
 
     _dropdownCloseListener: function () {
