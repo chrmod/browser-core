@@ -191,7 +191,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.historyDropMarker = document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker")
 
         // Add search history dropdown
-        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement();
+        var searchHistoryContainer = CliqzSearchHistory.insertBeforeElement(null, window);
         CLIQZ.Core.elem.push(searchHistoryContainer);
 
         // detecting the languages that the person speak
