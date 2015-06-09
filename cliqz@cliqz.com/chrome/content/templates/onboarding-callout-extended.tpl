@@ -8,7 +8,7 @@
 			<span class="cqz-btn cqz-btn-{{ state }}" cliqz-action="{{ action }}">{{ label }}</span>	
 		{{/each}}
 	</div>
-	<!-- <div class="btn-container-extended">
+	<div class="btn-container-extended">
 		<img class="cliqz-logo" src="{{cliqz_logo}}" />
-	</div> -->
+	</div>
 </div>
