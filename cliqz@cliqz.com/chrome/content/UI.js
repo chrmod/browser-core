@@ -165,11 +165,11 @@ var UI = {
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
-        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data; } );
         var query = currentResults.q;
         if (!query)
           query = "";
-        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
         //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
         //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
