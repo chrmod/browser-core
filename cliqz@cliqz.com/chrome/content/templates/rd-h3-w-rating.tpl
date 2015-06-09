@@ -10,7 +10,7 @@ IT IS USED AS A PARTIAL template
         {{/if}}
 
         <div class="cqz-rhh3-snipet-txt">
-            <div class="cqz-result-title overflow">{{richData.name}}</div>
+            <div class="cqz-result-title overflow"><a href="{{../url}}">{{richData.name}}</a></div>
             <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
             <div>
                 {{#if richData.url_ratingimg}}

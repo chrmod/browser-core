@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -39,10 +39,10 @@ CliqzHandlebars.tplCache = {};
 compileTemplates();
 registerHelpers();
 
-function compileTemplates(){
+function compileTemplates(){    
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
-    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
+    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });   
 }
 
 function fetchTemplate(tName, isPartial) {
@@ -130,11 +130,12 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0){
             if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
                 return 'cqz-result-h2';
             // BM hq result, but not the 1st result -> remove images
             data_richData.images = [];
+        }
 
         return 'cqz-result-h3';
     });

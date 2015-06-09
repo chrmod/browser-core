@@ -165,6 +165,18 @@ var Result = {
             return false;
         }
 
+        // Ignore bitly redirections
+        if (url.search(/http(s?):\/\/bit\.ly\/.*/i) === 0) {
+            log("Discarding result page from history: " + url)
+            return false;
+        }
+
+        // Ignore Twitter redirections
+        if (url.search(/http(s?):\/\/t\.co\/.*/i) === 0) {
+            log("Discarding result page from history: " + url)
+            return false;
+        }
+
         return true;
     },
     // rich data and image

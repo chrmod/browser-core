@@ -94,9 +94,11 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-
-
+        
         resultsBox.addEventListener('mouseup', resultClick);
+      
+        resultsBox.addEventListener('mousedown', handleMouseDown);
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -148,6 +150,7 @@ var UI = {
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -1025,12 +1028,12 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
-        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+        if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
           var msg = r.data.__message__;
           if (CliqzUtils.getPref(msg.pref, true)) {
             updateMessageState("show", {
               "footer-message": {
-                message: CliqzUtils.getLocalizedString(msg.text),
+                simple_message: CliqzUtils.getLocalizedString(msg.text),
                 telemetry: "rh_message-" + msg.pref || 'null',
                 searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
                 options: msg.buttons.map(function(b) {
@@ -1079,7 +1082,7 @@ function enhanceResults(res){
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
       updateMessageState("show", {
         "footer-message": {
-          message: CliqzUtils.getLocalizedString('updateMessage'),
+          simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
@@ -1114,6 +1117,7 @@ function enhanceResults(res){
 
         updateMessageState("show", {
             "footer-message": {
+              simple_message: CliqzUtils.getLocalizedString('spell_correction'),
               messages: messages,
               telemetry: 'spellcorrect',
               options: [{
@@ -1149,7 +1153,7 @@ function notSupported(r){
 
 function getNotSupported(){
   return {
-    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
     options: [{
@@ -1407,7 +1411,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1872,7 +1875,7 @@ function snippetQualityTelemetry(results){
   var data = [], slots = 0;
   for(var i=0; i<results.length && slots <3; i++){
     var r = results[i];
-    if(r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
       data.push({
         logo: (r.logo && r.logo.backgroundImage) ? true : false,
         desc: (r.data && r.data.description) ? true : false
@@ -1894,6 +1897,26 @@ function snippetQualityTelemetry(results){
     action: 'quality',
     data: data
   });
+}
+  
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;
