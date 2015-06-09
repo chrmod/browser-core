@@ -379,11 +379,6 @@
   font-size: 14px;
 }
 
-#cliqz-results .cqz-ez-aTob .cqz-ez-title span:hover,
-#cliqz-results .cqz-ez-aTob table.list .item:hover {
-  text-decoration: underline;
-}
-
 #cliqz-results .cqz-ez-aTob-title {
   margin-bottom: 3px;   
 }
