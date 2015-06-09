@@ -49,7 +49,8 @@
 
 #cliqz-popup a:hover,
 #cliqz-results .cqz-ez-title span.subtitle:hover{
- text-decoration:underline;
+  text-decoration:underline;
+  cursor:pointer;
 }
 
 /* reset defaults for dropdown content */
