@@ -7,7 +7,7 @@
 }
 
 /*--------------- New Skin Generic EZ ----------- */
-#cliqz-results .cqz-result-desc-3line { margin-top: 4px; white-space: normal; overflow: hidden; height: 3.6em; line-height: 1.2em;}
+#cliqz-results .cqz-result-desc-3line { width:calc(100% - 85px); margin-top: 12px; margin-bottom: 20px; white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em;}
 
 
 /* ------- RICH DATA Result----------*/
