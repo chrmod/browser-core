@@ -67,7 +67,23 @@ var CliqzExtOnboarding = {
     onSameResult: function (request, resultIndex, destinationUrl) {
         var isActive = CliqzUtils.getPref("extended_onboarding_same_result", false);
         if (!isActive) {
-            CliqzExtOnboarding._log("same result AB test not active; aborting");
+            CliqzExtOnboarding._log("onSameResult: same result AB test not active; aborting");
+            return;
+        }
+
+        try {
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                .getService(Components.interfaces.nsIXULAppInfo);
+            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                .getService(Components.interfaces.nsIVersionComparator);
+
+            // running under Firefox 36.0 or later
+            if(versionChecker.compare(appInfo.version, "36.0") < 0) {
+                CliqzExtOnboarding._log("onSameResult: requires Firefox 36.0 or higher");
+                return;
+            }
+        } catch (e) {
+            CliqzExtOnboarding._log("onSameResult: unable to check Firefox version");
             return;
         }
 
@@ -90,16 +106,16 @@ var CliqzExtOnboarding = {
 
         // checking for reasons _not_ to interrupt the users...
         if (prefs["state"] == "discarded") {
-            CliqzExtOnboarding._log("user had discarded before; not interrupting");
+            CliqzExtOnboarding._log("onSameResult: user had discarded before; not interrupting");
             return;
         } else if (prefs["show_count"] >= CliqzExtOnboarding.MAX_INTERRUPTS) {
-            CliqzExtOnboarding._log("max. show reached; not interrupting");
+            CliqzExtOnboarding._log("onSameResult: max. show reached; not interrupting");
             return;
         } else if (prefs["result_count"] < CliqzExtOnboarding.REQUIRED_RESULTS_COUNT) {
             prefs["result_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
                 { "same_result": prefs }));                    
-            CliqzExtOnboarding._log("not enough result clicks so far; not interrupting");
+            CliqzExtOnboarding._log("onSameResult: not enough result clicks so far; not interrupting");
             return;
         }
 
@@ -127,10 +143,10 @@ var CliqzExtOnboarding = {
                 });
             }
             else {
-                CliqzExtOnboarding._log("result was below the fold");
+                CliqzExtOnboarding._log("onSameResult: result was below the fold");
             }
         } else {
-            CliqzExtOnboarding._log("result was not shown to user");
+            CliqzExtOnboarding._log("onSameResult: result was not shown to user");
         }                            
     },
 
