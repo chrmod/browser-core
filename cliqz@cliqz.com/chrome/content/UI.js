@@ -94,9 +94,9 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-        
+
         resultsBox.addEventListener('mouseup', resultClick);
-      
+
         resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
@@ -1754,6 +1754,7 @@ function onEnter(ev, item){
       action: "result_enter",
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted_length: CliqzAutocomplete.lastAutocompleteLength,
       position_type: ['inbar_url'],
       source: getResultKind(item),
       current_position: -1,
@@ -1898,7 +1899,7 @@ function snippetQualityTelemetry(results){
     data: data
   });
 }
-  
+
 function handleMouseDown(e) {
   var walk_the_DOM = function walk(node) {
     while(node) {
