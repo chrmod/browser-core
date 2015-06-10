@@ -172,7 +172,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		// "zdf.de": 		/(\w{4,})?\.de/,							// won't work since all links are from different domains
 
 	},
-	CUSTOM_DATA_CACHE_FOLDER: 'cliqz',	
+	CUSTOM_DATA_CACHE_FOLDER: 'cliqz',
 	CUSTOM_DATA_CACHE_FILE: 'smartcliqz-custom-data-cache.json',
 	// maximum number of items (e.g., categories or links) to keep
 	MAX_ITEMS: 5,
