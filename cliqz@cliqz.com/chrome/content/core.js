@@ -474,7 +474,7 @@ window.CLIQZ.Core = {
         };
 
         if (open) {
-            action['width'] = CLIQZ.Core.popup ? 
+            action['width'] = CLIQZ.Core.popup ?
                 Math.round(CLIQZ.Core.popup.width) : 0;
         }
 
@@ -731,6 +731,7 @@ window.CLIQZ.Core = {
 
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
+        CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
