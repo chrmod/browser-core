@@ -212,6 +212,9 @@ var CliqzABTests = CliqzABTests || {
             case "1035_B":
                 CliqzUtils.setPref("news-default-latest", false);
                 break;
+            case "1036_B":
+                CliqzUtils.setPref("extended_onboarding_same_result", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -375,6 +378,11 @@ var CliqzABTests = CliqzABTests || {
             case "1035_A":
             case "1035_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-default-latest");
+                break;
+            case "1035_A":
+            case "1036_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding_same_result");
+                CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding");
                 break;
             default:
                 rule_executed = false;

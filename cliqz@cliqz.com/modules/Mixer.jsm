@@ -56,6 +56,7 @@ var Mixer = {
     EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
     TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
     init: function() {
+        // TODO: get folder name from variable in CliqzSmartCliqzCache
         CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
 
     },

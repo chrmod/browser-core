@@ -6,7 +6,7 @@
         "message": "Zutaten"
     },
     "Reviews":{
-        "message": "Stimmen"
+        "message": "Bewertungen"
     },
     "Serves":{
         "message": "Portionen"
@@ -142,6 +142,15 @@
     },
     "agoXYears":{
         "message":"vor {} Jahren"
+    },
+    "onCalloutGoogle":{
+        "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
+    },
+    "onCalloutGoogleBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutGoogleBtnCancel":{
+        "message":"Nicht mehr zeigen."
     },
     "onCalloutIntro":{
         "message":"Hier ist Deine neue CLIQZ-Suchleiste"

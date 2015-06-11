@@ -185,7 +185,6 @@ var CliqzHistoryPattern = {
       }
 
       if (title.length > 0 && url.length > 0 &&
-          CliqzHistoryPattern.simplifyUrl(url) != null &&
           Result.isValid(url, CliqzUtils.getDetailsFromUrl(url))) {
 
         patterns.push({
@@ -518,14 +517,8 @@ var CliqzHistoryPattern = {
   },
   // Remove clutter from urls that prevents pattern detection, e.g. checksum
   simplifyUrl: function(url) {
-    // Ignore bitly redirections
-    if (url.search(/http(s?):\/\/bit\.ly\/.*/i) === 0) {
-      return '';
-    // Ignore Twitter redirections
-    } else if (url.search(/http(s?):\/\/t\.co\/.*/i) === 0) {
-      return '';
     // Google redirect urls
-    } else if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
+    if (url.search(/http(s?):\/\/www\.google\..*\/url\?.*url=.*/i) === 0) {
       // Return target URL instead
       url = url.substring(url.lastIndexOf("url=")).split("&")[0];
       url = url.substr(4);

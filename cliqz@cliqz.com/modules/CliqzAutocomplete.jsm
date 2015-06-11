@@ -460,6 +460,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.telemetry(action);
 
+                if(CliqzAutocomplete.lastSearch.length > searchString.length) {
+                  CliqzAutocomplete.spellCorr.override = true;
+                }
                 // analyse and modify query for custom results
                 CliqzAutocomplete.lastSearch = searchString;
                 searchString = this.analyzeQuery(searchString);
@@ -601,6 +604,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if (CliqzAutocomplete.lastAutocompleteType) {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                  action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
                 if(country)
                     action.country = country;

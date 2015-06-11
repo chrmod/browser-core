@@ -92,7 +92,8 @@
   background-color: transparent;
   position: relative;
   margin: 0px;
-  overflow: visible;
+  padding: 0px;
+  overflow: visible;  
 }
 
 .onboarding-cursor {
@@ -112,29 +113,60 @@
 }
 
 .onboarding-callout {
+  padding: 2px 2px;
+  margin: 0px;
   font-size: 16px;
-  font-weight: 700;
-  padding: 2px 20px;
-  font-size: 18px;
-  max-width: 400px;
+  position: relative;
+  display: block;
+  font-weight: 500;
 }
 
-.onboarding-callout .btn-container { right: 0px; position: absolute; text-align: right; margin-top: 10px; }
+#cliqzExtOnboardingCallout .onboarding-callout { font-weight: 300; }
 
-.onboarding-callout .cqz-btn {
+#cliqzExtOnboardingCallout .panel-arrowcontent {padding-top: 0px;}
+
+#cliqzExtOnboardingCallout .panel-arrowcontent { background: #FD544F; color: white; }
+
+/*#cliqzExtOnboardingCallout .panel-arrow { list-style-image: url(chrome://cliqzres/content/skin/panelarrow-vertical-red.png); }*/
+
+.onboarding-callout .msg-container { position: relative; display: block; white-space: pre-line; max-width: 300px; line-height: 1.4; }
+
+.onboarding-callout .btn-container,
+.onboarding-callout .btn-container-extended { position: relative; display: block; right: 0px; text-align: right; margin-top: 10px; }
+.onboarding-callout .btn-container-extended { text-align: center; width: 100%; }
+
+.onboarding-callout .btn-container .cqz-btn,
+.onboarding-callout .btn-container-extended .cqz-btn {
     margin: 0px;
     cursor: pointer;
     color: black;
     border-radius: 3px;
     padding: 4px 8px;
     text-align: center;
-    display: inline-block;
+    display: inline;
     background-color: #8CE12F;
-    font-weight: 300;    
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: 500;
 }
 
-.onboarding-callout .cqz-btn-ok { background-color: #8CE12F; }
-.onboarding-callout .cqz-btn-cancel { background-color: #c3043e; color: white; }
+.onboarding-callout .btn-container-extended .cqz-btn { display: block; max-width: 160px; }
+
+.onboarding-callout .btn-container .cqz-btn-ok { background-color: #8CE12F; }
+.onboarding-callout .btn-container .cqz-btn-cancel { background-color: #c3043e; color: white; }
+
+.onboarding-callout .btn-container-extended .cqz-btn-ok { background-color: #63A4F6; color: white; margin-top: 30px; }
+.onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #EEE; text-decoration: underline; font-size: 12px; font-weight: 300; margin-top: 5px;}
+
+.onboarding-callout .cliqz-logo { width: 100px; margin-top: 30px; }
+
+
+#cliqzExtOnboardingCallout .cliqz-logo {
+  background-image: url(chrome://cliqzres/content/skin/img/cliqz.svg);
+  background-repeat: no-repeat;
+  height: 20px;  
+  margin-left: 20px;
+}
 
 /* ------- END onboarding */
 
@@ -358,11 +390,6 @@
 #cliqz-results .cqz-ez-aTob .cqz-ez-title span {
   color: #cccccc;
   font-size: 14px;
-}
-
-#cliqz-results .cqz-ez-aTob .cqz-ez-title span:hover,
-#cliqz-results .cqz-ez-aTob table.list .item:hover {
-  text-decoration: underline;
 }
 
 #cliqz-results .cqz-ez-aTob-title {
