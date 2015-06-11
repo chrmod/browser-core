@@ -526,9 +526,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     current_length: searchString.length
                 };
                 CliqzUtils.telemetry(action);
-                
+
                 if(CliqzAutocomplete.lastSearch.length > searchString.length) {
-                  CliqzAutocomplete.spellCorr.override = true;  
+                  CliqzAutocomplete.spellCorr.override = true;
                 }
                 // analyse and modify query for custom results
                 CliqzAutocomplete.lastSearch = searchString;
@@ -564,7 +564,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     searchString = newSearchString;
                     CliqzAutocomplete.spellCorr['userConfirmed'] = false;
                 }
-              
+
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
@@ -670,6 +670,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 if (CliqzAutocomplete.lastAutocompleteType) {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                  action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
                 if(country)
                     action.country = country;
