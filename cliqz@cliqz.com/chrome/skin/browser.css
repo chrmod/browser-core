@@ -1,6 +1,6 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    min-height: 303px; /* fixes bug with popup auto-sizing */
+    min-height: 348px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
 
@@ -68,7 +68,7 @@
 }
 
 #cliqz-results {
-    height: 303px;
+    height: 348px;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
