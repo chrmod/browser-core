@@ -84,7 +84,9 @@ var UI = {
 
         CLIQZ.Core.popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
-              if (!this.mPopupOpen) {
+              if (!(CliqzUtils.getPref('cliqzOpenState', false) ?
+                        CliqzAutocomplete.isPopupOpen :
+                        this.mPopupOpen)){
                 this.mInput = aInput;
                 this._invalidate();
 
