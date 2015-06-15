@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -39,10 +39,10 @@ CliqzHandlebars.tplCache = {};
 compileTemplates();
 registerHelpers();
 
-function compileTemplates(){
+function compileTemplates(){    
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
-    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
+    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });   
 }
 
 function fetchTemplate(tName, isPartial) {

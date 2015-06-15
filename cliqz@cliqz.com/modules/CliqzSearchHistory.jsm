@@ -20,8 +20,8 @@ var EXPORTED_SYMBOLS = ['CliqzSearchHistory'];
 var CliqzSearchHistory = {
     windows: {},
     /* Inserts the 'Letzte Eingabe' button/dropdown before given element. */
-    insertBeforeElement: function (element) {
-        var window = CliqzUtils.getWindow();
+    insertBeforeElement: function (element, window) {
+        window = window || CliqzUtils.getWindow();
         var window_id = CliqzUtils.getWindowID();
         var document = window.document;
         var gBrowser = window.gBrowser;

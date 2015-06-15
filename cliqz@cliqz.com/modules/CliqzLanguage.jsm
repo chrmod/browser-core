@@ -15,7 +15,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
-
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
+  'chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var CliqzLanguage = {
     DOMAIN_THRESHOLD: 3,
@@ -70,18 +73,21 @@ var CliqzLanguage = {
                 // action.redirect = true;
                 var m = this.currentURL.match(rerefurl);
                 if (m) {
-                    var dest_url = CliqzUtils.cleanUrlProtocol(decodeURIComponent(m[1]), true),
+                    var dest_url = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(m[1])), // CliqzUtils.cleanUrlProtocol(decodeURIComponent(m[1]), true),
                         found = false;
 
 
                     for (var i=0; i < LR.length; i++) {
-                        var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
+                        var comp_url = CliqzHistoryPattern.generalizeUrl(LR[i]['val']); // CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
                         if (dest_url == comp_url) {
                             // now we have the same result
                             var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
                             CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
+                            
+                            CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
+                            break;                            
                         }
                     }
                     if (!found) {

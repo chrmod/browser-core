@@ -35,7 +35,6 @@
     <script type="text/javascript">
         Components.utils.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-        console.log("start");
         var current = CliqzABTests.getCurrent();
 
         var override = CliqzUtils.getPref(CliqzABTests.PREF_OVERRIDE) != undefined;
@@ -156,7 +155,6 @@
                 showTest(t);
             }
         }
-//        document.getElementById('offImg').src = 'chrome://cliqzres/content/skin/offboarding_' + lang + '.png';
     </script>
 </body>
 </html>

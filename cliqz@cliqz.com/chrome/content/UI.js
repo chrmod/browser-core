@@ -178,11 +178,11 @@ var UI = {
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
-        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data; } );
         var query = currentResults.q;
         if (!query)
           query = "";
-        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
         //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
         //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
@@ -1041,7 +1041,7 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
-        if (r.type == 'cliqz-extra' && "__message__" in r.data) {
+        if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
           var msg = r.data.__message__;
           if (CliqzUtils.getPref(msg.pref, true)) {
             updateMessageState("show", {
@@ -1767,6 +1767,7 @@ function onEnter(ev, item){
       action: "result_enter",
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted_length: CliqzAutocomplete.lastAutocompleteLength,
       position_type: ['inbar_url'],
       source: getResultKind(item),
       current_position: -1,

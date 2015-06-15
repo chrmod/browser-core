@@ -36,7 +36,7 @@
            arrow="false">
         <div class="entity-story-image cqz-image-round" style="background-image: url({{ thumbnail }})"></div>
         <div class="entity-story-description">
-          <div class="entity-story-title">{{ title }}</div>
+          <div class="entity-story-title"><a href="{{url}}">{{ title }}</a></div>
           <div class="entity-story-comment">
             {{ time }}
             <div class="twitter-likes">{{ tweet_count }}</div>

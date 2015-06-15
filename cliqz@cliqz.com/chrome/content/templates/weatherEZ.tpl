@@ -1,4 +1,4 @@
-<div class="cqz-result-h2 ez-weather">
+<div class="cqz-result-h2 ez-weather cqz-ez-black-title">
     {{#with data}}
   <div class='cqz-ez-title' arrow-override=''><a href="{{../url}}">{{ returned_location }}</a></div>
 
