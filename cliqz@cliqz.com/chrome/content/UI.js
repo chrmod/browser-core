@@ -82,6 +82,19 @@ var UI = {
             }
         }
 
+        CLIQZ.Core.popup._openAutocompletePopup = function(){
+            (function(aInput, aElement){
+              if (!this.mPopupOpen) {
+                this.mInput = aInput;
+                this._invalidate();
+
+                var width = aElement.getBoundingClientRect().width;
+                this.setAttribute("width", width > 500 ? width : 500);
+                this.openPopup(aElement, "after_start", 0, 0, false, true);
+              }
+            }).apply(CLIQZ.Core.popup, arguments)
+        }
+
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
@@ -94,9 +107,9 @@ var UI = {
 
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
-        
+
         resultsBox.addEventListener('mouseup', resultClick);
-      
+
         resultsBox.addEventListener('mousedown', handleMouseDown);
 
         resultsBox.addEventListener('mouseout', function(){
@@ -1898,7 +1911,7 @@ function snippetQualityTelemetry(results){
     data: data
   });
 }
-  
+
 function handleMouseDown(e) {
   var walk_the_DOM = function walk(node) {
     while(node) {
