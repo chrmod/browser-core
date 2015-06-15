@@ -215,6 +215,12 @@ var CliqzABTests = CliqzABTests || {
             case "1036_B":
                 CliqzUtils.setPref("extended_onboarding_same_result", true);
                 break;
+            case "1037_A":
+                CliqzUtils.setPref("cliqzOpenState", false);
+                break;
+            case "1037_B":
+                CliqzUtils.setPref("cliqzOpenState", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -383,6 +389,10 @@ var CliqzABTests = CliqzABTests || {
             case "1036_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding_same_result");
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding");
+                break;
+            case "1037_A":
+            case "1037_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("cliqzOpenState");
                 break;
             default:
                 rule_executed = false;

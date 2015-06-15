@@ -82,6 +82,21 @@ var UI = {
             }
         }
 
+        CLIQZ.Core.popup._openAutocompletePopup = function(){
+            (function(aInput, aElement){
+              if (!(CliqzUtils.getPref('cliqzOpenState', false) ?
+                        CliqzAutocomplete.isPopupOpen :
+                        this.mPopupOpen)){
+                this.mInput = aInput;
+                this._invalidate();
+
+                var width = aElement.getBoundingClientRect().width;
+                this.setAttribute("width", width > 500 ? width : 500);
+                this.openPopup(aElement, "after_start", 0, 0, false, true);
+              }
+            }).apply(CLIQZ.Core.popup, arguments)
+        }
+
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
     main: function(box){
