@@ -1,4 +1,4 @@
-{{#if (bm_rd_template data.richData)}}
+{{#if (recipe_rd_template data.richData)}}
 <div class="cqz-result-h1 cqz-rd cqz-result-padding">
   {{#with data}}
     <div class="cqz-rd-body">

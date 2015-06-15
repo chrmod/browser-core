@@ -6,6 +6,10 @@
     margin-bottom: 8px;
 }
 
+/*--------------- New Skin Generic EZ ----------- */
+#cliqz-results .cqz-result-desc-3line { width:calc(100% - 85px); margin-top: 12px; margin-bottom: 20px; white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em;}
+
+
 /* ------- RICH DATA Result----------*/
 #cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px)}
 #cliqz-results .cqz-rd-rateimg { height: 13px; padding-top:17px; transform: translateX(-2px);}
