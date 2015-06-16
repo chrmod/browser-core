@@ -221,6 +221,15 @@ var CliqzABTests = CliqzABTests || {
             case "1037_B":
                 CliqzUtils.setPref("cliqzOpenState", true);
                 break;
+            case "1038_A":
+                CliqzUtils.setPref("alternative_ez", "");
+                break;
+            case "1038_B":
+                CliqzUtils.setPref("alternative_ez", "none");
+                break;
+            case "1038_C":
+                CliqzUtils.setPref("alternative_ez", "description");
+                break;
             default:
                 rule_executed = false;
         }
@@ -393,6 +402,11 @@ var CliqzABTests = CliqzABTests || {
             case "1037_A":
             case "1037_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("cliqzOpenState");
+                break;
+            case "1038_A":
+            case "1038_B":
+            case "1038_C":
+                CliqzUtils.cliqzPrefs.clearUserPref("alternative_ez");
                 break;
             default:
                 rule_executed = false;

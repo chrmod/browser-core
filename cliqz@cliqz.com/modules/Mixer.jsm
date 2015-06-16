@@ -204,7 +204,7 @@ var Mixer = {
         cliqzExtra = cliqzExtra.slice(0, 1);
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
-        if(cliqzExtra && cliqzExtra.length > 0) {
+        if(CliqzUtils.getPref("alternative_ez", "") != "none" && cliqzExtra && cliqzExtra.length > 0) {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
@@ -293,12 +293,12 @@ var Mixer = {
           results[0].data.template = "pattern-h3-cluster";
         }*/
 
-        CliqzUtils.log(results);
-
         // Modify EZ template - for test
-        for(var i=0; i<results.length; i++) {
-            if(results[i].data && results[i].data.template == "entity-generic")
-                results[i].data.template = "ez-generic-2"
+        if(CliqzUtils.getPref("alternative_ez", "") == "description") {
+            for(var i=0; i<results.length; i++) {
+                if(results[i].data && results[i].data.template == "entity-generic")
+                    results[i].data.template = "ez-generic-2"
+            }
         }
 
         // Add custom results to the beginning if there are any
