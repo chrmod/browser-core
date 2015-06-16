@@ -49,7 +49,7 @@ function kindEnricher(data, newKindParams) {
 
 var Mixer = {
     ezURLs: {},
-    EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
+    EZ_COMBINE: ['entity-generic', 'ez-generic-2', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
     TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
     init: function() {
@@ -179,7 +179,7 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
@@ -292,6 +292,14 @@ var Mixer = {
         /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
         }*/
+
+        CliqzUtils.log(results);
+
+        // Modify EZ template - for test
+        for(var i=0; i<results.length; i++) {
+            if(results[i].data && results[i].data.template == "entity-generic")
+                results[i].data.template = "ez-generic-2"
+        }
 
         // Add custom results to the beginning if there are any
         if(customResults && customResults.length > 0) {
