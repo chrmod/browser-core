@@ -12,6 +12,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 
 function log(msg){
     //CliqzUtils.log(msg, 'Result.jsm');
@@ -107,6 +110,10 @@ var Result = {
         result.data.subType = result.subType;
         result.data.trigger_urls = result.trigger_urls;
         result.data.ts = result.ts;
+
+        // The backend can supply a friendly URL, if not generate it here
+        if(!result.data.friendly_url)
+            result.data.friendly_url = CliqzHistoryPattern.generalizeUrl(result.url);
 
         return Result.generic(
             Result.CLIQZE, //style
