@@ -385,7 +385,7 @@ var CliqzABTests = CliqzABTests || {
             case "1035_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-default-latest");
                 break;
-            case "1035_A":
+            case "1036_A":
             case "1036_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding_same_result");
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding");
