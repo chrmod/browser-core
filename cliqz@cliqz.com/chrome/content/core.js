@@ -70,8 +70,10 @@ var Services = Services || CliqzUtils.getWindow().Services;
 if(window.CLIQZ === undefined)
     Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
 else {
-    //faulty uninstall of previous version
-    window.CLIQZ = window.CLIQZ || {};
+    try{
+        //faulty uninstall of previous version
+        window.CLIQZ = window.CLIQZ || {};
+    } catch(e){}
 }
 
 window.CLIQZ.Core = {
@@ -474,7 +476,7 @@ window.CLIQZ.Core = {
         };
 
         if (open) {
-            action['width'] = CLIQZ.Core.popup ? 
+            action['width'] = CLIQZ.Core.popup ?
                 Math.round(CLIQZ.Core.popup.width) : 0;
         }
 
@@ -731,6 +733,7 @@ window.CLIQZ.Core = {
 
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
+        CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
