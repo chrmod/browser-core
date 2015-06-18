@@ -2908,8 +2908,13 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
+            var hash_cans = "create table if not exists hashcans(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL \
+            )";
+
             (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
             (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_cans);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
