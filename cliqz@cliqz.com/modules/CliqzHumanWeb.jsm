@@ -206,7 +206,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.3',
+    VERSION: '1.4',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -1886,15 +1886,33 @@ var CliqzHumanWeb = {
                 msg.payload.red = cleanRed;
             }
 
+            // Check for canonical seen or not.
+            if(msg.payload['x']['canonical_url']) {
+                if(msg.payload['url'] == msg.payload['x']['canonical_url']){
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial is same: ",CliqzHumanWeb.LOG_KEY);
+                    // canonicalSeen = CliqzHumanWeb.canoincalUrlSeen(msg.payload['x']['canonical_url']);
+                    if(msg.payload['csb'] && msg.payload['ft']) {
+                        if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial seen before: ",CliqzHumanWeb.LOG_KEY);
+                        delete msg.payload.csb;
+                        delete msg.payload.ft;
+                    }
+                }
+
+                // if the url is not replaces by canonical then also clear the csb key.
+                if(msg.payload['csb']) delete msg.payload.csb;
+            }
+
         }
 
         // FIXME: this cannot be here, telemetry is only for sending logic. The object needs to be
         // handled beforehand!!!
         // Canonical URLs and Referrals.
 
+        /*
         if(CliqzHumanWeb.can_urls[msg.payload.url]){
             msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
         }
+        */
 
         //Check the depth. Just to be extra sure.
 
@@ -2111,6 +2129,36 @@ var CliqzHumanWeb = {
             }
         });
     },
+    getCanUrlFromHashTable: function(canUrl, callback) {
+        var res = [];
+        var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashcans WHERE hash = :hash");
+        st.params.hash = (md5(canUrl)).substring(0,16);
+        st.executeAsync({
+            handleResult: function(aResultSet) {
+                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+                    res.push({"hash": row.getResultByName("hash")});
+                }
+            },
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                callback(true);
+            },
+            handleCompletion: function(aReason) {
+                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    callback(null);
+                }
+                else {
+                    if (res.length == 1) {
+                        callback(res[0]);
+                    }
+                    else {
+                        callback(null);
+                    }
+                }
+            }
+        });
+    },
     isPrivate: function(url, depth, callback) {
         // returns 1 is private (because of checked, of because the referrer is private)
         // returns 0 if public
@@ -2251,6 +2299,14 @@ var CliqzHumanWeb = {
             }
         })
 
+        if(paylobj['x'] && paylobj['x']['canonical_url']){
+            CliqzHumanWeb.getCanUrlFromHashTable(paylobj['x']['canonical_url'], function(_res) {
+                if (_res) {
+                    paylobj['csb'] = true;
+                }
+            })
+        }
+
 
         var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
         stmt.params.url = url;
@@ -2320,6 +2376,11 @@ var CliqzHumanWeb = {
                                 }
                             }
                         });
+
+                        // If the URL has canonical then insert the canonical url into hashcan table:
+                        if(paylobj['x'] && paylobj['x']['canonical_url']) CliqzHumanWeb.insertCanUrl(paylobj['x']['canonical_url'])
+
+                       
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2908,8 +2969,13 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
+            var hash_cans = "create table if not exists hashcans(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL \
+            )";
+
             (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
             (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_cans);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
@@ -3013,6 +3079,25 @@ var CliqzHumanWeb = {
     }
     else{
         if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
+    }
+  },
+  insertCanUrl: function(canUrl){
+    //Add canUrl in the hashcans table
+    var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashcans (hash) VALUES (:hash)")
+    hash_st.params.hash = (md5(canUrl)).substring(0,16);
+    //while (hash_st.executeStep()) {};
+    hash_st.executeAsync({
+        handleError: function(aError) {
+            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+        },
+        handleCompletion: function(aReason) {
+            if(CliqzHumanWeb.debug){
+                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+            }
+        }
+    });
+    if (CliqzHumanWeb.debug) {
+        CliqzUtils.log('MD5: ' + canUrl + md5(canUrl), CliqzHumanWeb.LOG_KEY);
     }
   }
 
