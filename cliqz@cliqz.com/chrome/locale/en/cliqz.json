@@ -143,6 +143,15 @@
     "agoXYears":{
         "message":"{} years ago"
     },
+    "onCalloutGoogle":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutGoogleBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutGoogleBtnCancel":{
+        "message":"Don't show again."
+    },
     "onCalloutIntro":{
         "message":"This is your new CLIQZ bar"
     },
@@ -435,7 +444,7 @@
       "message":"block"
     },
     "adultModerate": {
-      "message":"filter"
+      "message":"ask"
     },
     "adultLiberal": {
       "message":"always show"
@@ -604,5 +613,35 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Plane"
+    },
+    "train": {
+        "message": "Train"
+    },
+    "bus": {
+        "message": "Bus"
+    },
+    "from": {
+        "message": "From"
+    },
+    "from_price": {
+      "message": "from"  
+    },
+    "to": {
+        "message": "to"
+    },
+    "today": {
+        "message": "Today"
+    },
+    "myQuery": {
+        "message": "query"
+    },
+    "ytDynamicSearch": {
+        "message": "Did you know? You can type \"yt + query\" to get a preview of Youtube results for your search query"
+    },
+    "dismiss": {
+        "message": "Dismiss"
     }
 }

@@ -6,7 +6,7 @@
         "message": "Zutaten"
     },
     "Reviews":{
-        "message": "Stimmen"
+        "message": "Bewertungen"
     },
     "Serves":{
         "message": "Portionen"
@@ -142,6 +142,15 @@
     },
     "agoXYears":{
         "message":"vor {} Jahren"
+    },
+    "onCalloutGoogle":{
+        "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
+    },
+    "onCalloutGoogleBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutGoogleBtnCancel":{
+        "message":"Nicht mehr zeigen."
     },
     "onCalloutIntro":{
         "message":"Hier ist Deine neue CLIQZ-Suchleiste"
@@ -435,7 +444,7 @@
       "message":"blockieren"
     },
     "adultModerate": {
-      "message":"filtern"
+      "message":"nachfragen"
     },
     "adultLiberal": {
       "message":"immer anzeigen"
@@ -596,5 +605,35 @@
     },
     "ez_video-trending": {
         "message":"Trending"
+    },
+    "plane": {
+        "message":"Flüge"
+    },
+    "train": {
+        "message": "Zug"
+    },
+    "bus": {
+        "message": "Bus"
+    },
+    "from": {
+        "message": "Von"
+    },
+    "from_price": {
+      "message": "ab"  
+    },
+    "to": {
+        "message": "nach"
+    },
+    "today": {
+        "message": "Heute"
+    },
+    "myQuery": {
+        "message": "Suchbegriff"
+    },
+    "ytDynamicSearch": {
+        "message": "Wusstest Du: Du kannst \"yt + Suchbegriff\" eingeben um direkt eine Vorschau auf Youtube Ergebnisse zu erhalten"
+    },
+    "dismiss": {
+        "message": "Nachricht schließen"
     }
 }

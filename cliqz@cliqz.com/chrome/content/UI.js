@@ -31,6 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
+        'r': 'recipe'
+//        'r': 'rd-h3-w-rating'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -75,8 +77,22 @@ var UI = {
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
             if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
-              CLIQZ.UI.handleResults();
+              //try to break the call stack which cause 'too much recursion' exception on linux systems
+              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
+        }
+
+        CLIQZ.Core.popup._openAutocompletePopup = function(){
+            (function(aInput, aElement){
+              if (!CliqzAutocomplete.isPopupOpen){
+                this.mInput = aInput;
+                this._invalidate();
+
+                var width = aElement.getBoundingClientRect().width;
+                this.setAttribute("width", width > 500 ? width : 500);
+                this.openPopup(aElement, "after_start", 0, 0, false, true);
+              }
+            }).apply(CLIQZ.Core.popup, arguments)
         }
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
@@ -92,8 +108,10 @@ var UI = {
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
 
-
         resultsBox.addEventListener('mouseup', resultClick);
+
+        resultsBox.addEventListener('mousedown', handleMouseDown);
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -136,12 +154,16 @@ var UI = {
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+      if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+
+        snippetQualityTelemetry(curResAll);
+      }
 
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -156,11 +178,11 @@ var UI = {
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
-        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && "__callback_url__" in r.data; } );
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data; } );
         var query = currentResults.q;
         if (!query)
           query = "";
-        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && "__callback_url__" in r.data); } );
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
         //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
         //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
@@ -460,7 +482,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
@@ -559,6 +581,16 @@ var UI = {
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
+
+      if (CliqzUtils.isWindows()) {
+        // Do nothing if alt is pressed
+        if(alt) return;
+        // On Windows: CTRL selects words, ALT does nothing
+        // Meta key -> same behavior as ALT on OSX
+        alt = meta;
+        meta = false;
+      }
+
       if (key == LEFT) {
         if (shift && meta) {
             start = 0;
@@ -948,9 +980,10 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    updateMessageState("hide");
     var adult = false;
 
-    for(var i=0; i<res.results.length; i++){
+    for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
@@ -982,7 +1015,7 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
@@ -1008,14 +1041,43 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
+        if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
+          var msg = r.data.__message__;
+          if (CliqzUtils.getPref(msg.pref, true)) {
+            updateMessageState("show", {
+              "footer-message": {
+                simple_message: CliqzUtils.getLocalizedString(msg.text),
+                telemetry: "rh_message-" + msg.pref || 'null',
+                searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
+                options: msg.buttons.map(function(b) {
+                  return {
+                    text: CliqzUtils.getLocalizedString(b.text),
+                    action: b.action,
+                    state: b.state || 'default',
+                    pref: msg.pref || 'null',
+                    prefVal: b.prefVal || 'null'
+                  }
+                })
+              }
+            });
+          }
+        }
     }
 
+
     var spelC = CliqzAutocomplete.spellCorr;
+
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
+
+        // if there no results after adult filter - show no results entry
+        if(res.results.length == 0){
+          res.results.push(CliqzUtils.getNoResults());
+          res.results[0].vertical = 'noResult';
+        }
 
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
@@ -1033,9 +1095,8 @@ function enhanceResults(res){
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
       updateMessageState("show", {
         "footer-message": {
-          message: CliqzUtils.getLocalizedString('updateMessage'),
+          simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
-          searchTerm: '',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
               action: 'update-show',
@@ -1048,15 +1109,29 @@ function enhanceResults(res){
           ]
         }
       });
-    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true)) {
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true) && !spelC.userConfirmed) {
         var s = CLIQZ.Core.urlbar.mInputField.value;
-        for(var c in spelC.correctBack){
-            s = s.split(c).join(spelC.correctBack[c]);
+        var terms = s.split(" ");
+        var messages = [];
+        var termsObj = {};
+        for(var i = 0; i < terms.length; i++) {
+          termsObj = {
+            correct: terms[i]
+          };
+          messages.push(termsObj);
+          if(spelC.correctBack[terms[i]]) {
+            messages[i].correctBack = spelC.correctBack[terms[i]];
+          } else {
+            messages[i].correctBack = "";
+          }
         }
+        //cache searchTerms to check against when user keeps spellcorrect
+        spelC.searchTerms = messages;
+
         updateMessageState("show", {
             "footer-message": {
-              message: CliqzUtils.getLocalizedString('spell_correction') + ' ' + s + '?',
-              searchTerm: s,
+              simple_message: CliqzUtils.getLocalizedString('spell_correction'),
+              messages: messages,
               telemetry: 'spellcorrect',
               options: [{
                   text: CliqzUtils.getLocalizedString('yes'),
@@ -1071,8 +1146,6 @@ function enhanceResults(res){
               ]
             }
         });
-    } else {
-      updateMessageState("hide");
     }
 
     return res;
@@ -1082,7 +1155,9 @@ function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de') return false
+        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        // in case location is unknown do not show the message
+        CliqzUtils.getPref("config_location", "de") == '') return false
 
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
@@ -1091,10 +1166,9 @@ function notSupported(r){
 
 function getNotSupported(){
   return {
-    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
-    searchTerm: '',
     options: [{
         text: CliqzUtils.getLocalizedString('keep-cliqz'),
         action: 'keep-cliqz',
@@ -1230,6 +1304,17 @@ function messageClick(ev) {
                 updateMessageState("hide");
                 break;
               case 'spellcorrect-keep':
+                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                for(var i = 0; i < spellCorData.length; i++) {
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)
+                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
+                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];
+                    }
+                  }
+                }
+
+                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
                 updateMessageState("hide");
                 break;
 
@@ -1239,6 +1324,19 @@ function messageClick(ev) {
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
+                  break;
+              case 'dismiss':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  if (pref && pref != "null")
+                    CliqzUtils.setPref(pref,false);
+                  break;
+               case 'set':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  if (pref && prefVal && pref != "null" && prefVal != "null")
+                    CliqzUtils.setPref(pref,prefVal);
                   break;
               default:
                   break;
@@ -1282,7 +1380,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = el.getAttribute('extra'), //extra data about the link
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data.kind; }),
+          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1326,7 +1424,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1670,6 +1767,7 @@ function onEnter(ev, item){
       action: "result_enter",
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted_length: CliqzAutocomplete.lastAutocompleteLength,
       position_type: ['inbar_url'],
       source: getResultKind(item),
       current_position: -1,
@@ -1784,6 +1882,55 @@ function arrowNavigationTelemetry(el){
         action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.telemetry(action);
+}
+
+// only consider results which fill the first 3 slots
+function snippetQualityTelemetry(results){
+  var data = [], slots = 0;
+  for(var i=0; i<results.length && slots <3; i++){
+    var r = results[i];
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+      data.push({
+        logo: (r.logo && r.logo.backgroundImage) ? true : false,
+        desc: (r.data && r.data.description) ? true : false
+      })
+    // push empty data for EZones and history
+    else data.push({});
+
+    slots += CliqzUtils.TEMPLATES[r.vertical];
+
+    // entity generic can be 3 slots height
+    if(r.vertical == 'entity-generic' && r.data.urls) slots++;
+
+    // hq results are 3 slots height if they have images
+    if(r.vertical == 'hq' && r.data.richData && r.data.richData.images) slots++;
+  }
+
+  CliqzUtils.telemetry({
+    type: 'snippet',
+    action: 'quality',
+    data: data
+  });
+}
+
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;

@@ -139,15 +139,41 @@ Cache.prototype._log = function (msg) {
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=',
 	// TODO: move to external file
+	// TODO: allow for fetching related history URLs from different domains (e.g., chefkoch.de)
 	URL_PREPARSING_RULES: {
-		"amazon.de":    /(node=\d+)/,							// node id
-		"otto.de":      /otto.de\/([\w|-]{3,})/,				// first part of URL
-		"zalando.de":   /zalando.de\/([\w|-]{3,})/,				// first part of URL
-		"skygo.sky.de": /sky.de\/([\w|-]{3,})/,					// first part of URL
-		"strato.de":    /strato.de\/([\w|-]{3,})/,			 	// first part of URL
-		"bonprix.de":   /bonprix.de\/kategorie\/([\w|-]{3,})/	// first part of URL after "kategorie"
+		"amazon.de":     /(node=\d+)/,									// node id
+		"otto.de":       /otto.de\/([\w|-]{3,})/,						// first part of URL
+		"zalando.de":    /zalando.de\/([\w|-]{3,})/,					// first part of URL
+		"skygo.sky.de":  /sky.de\/([\w|-]{3,})/,						// first part of URL
+		"strato.de":     /strato.de\/([\w|-]{3,})/,			 			// first part of URL
+		"bonprix.de":    /bonprix.de\/kategorie\/([\w|-]{3,})/,			// first part of URL after "kategorie"
+		"expedia.de": 	 /(?:expedia.de\/([\w|-]{3,})|([\w|-]{4,})\.expedia.de)/,
+																		// first part of URL or subdomain
+		"linguee.de": 	 /linguee.de\/[\?]?([\w|-]{3,})/,				// first part of URL, also allowing for parameters
+		"tvspielfilm.de":/tvspielfilm.de\/(?:tv-programm\/)?(?:sendungen\/)?([\w|-]{3,})/,
+																		// first part of URL, ignoring some paths
+		"kino.de": 		 /kino.de\/(?:filme|trailer)?\/?([\w|-]{3,})/,  // first part of URL, ignoring some paths
+		"ricardo.ch": 	 /(\w{4,})?\.?ricardo.ch\/(?:kaufen)?\/?([\w|-]{3,})?/,
+																		// first part of URL, ignoring some paths, or subdomain
+		"kabeldeutschland.de":
+						/kabeldeutschland.de\/(?:csc\/produkte\/)?([\w|-]{3,})/,
+																		// first part of URL, ignoring some paths
+		"tchibo.de":  	/(\w{4,})?\.?tchibo.de\/([\w|-]{3,})?/,			// first part of URL or subdomain
+		"holidaycheck.de":
+						/holidaycheck.de\/([\w|-]{3,})/,				// first part of URL
+		"chefkoch.de": 	/chefkoch\-?(blog)?.de\/([\w|-]{3,})?/,			// first part of URL or blog (FIXME: won't get fetched from history since different domain)
+		"1und1.de": 	/(?:hosting\.)?(\w{4,})?\.?1und1.de\/([\w|-]{3,})?/,
+																		// first part of URL or subdomain (ignoring some)
+		"immowelt.de": 	/immowelt.de\/(?:immobilien|wohnen)?\/?([\w|-]{3,})?/,
+																		// first part of URL, ignoring some paths
+		"mediamarkt.de":/mediamarkt.de\/mcs\/productlist\/([\w|-]{3,})?/,
+																		// product list name
+		"saturn.de":  	/saturn.de\/mcs\/productlist\/([\w|-]{3,})?/	// product list name
+		// "zdf.de": 		/(\w{4,})?\.de/,							// won't work since all links are from different domains
+
 	},
-	CUSTOM_DATA_CACHE_FILE: 'cliqz/smartcliqz-custom-data-cache.json',
+	CUSTOM_DATA_CACHE_FOLDER: 'cliqz',
+	CUSTOM_DATA_CACHE_FILE: 'smartcliqz-custom-data-cache.json',
 	// maximum number of items (e.g., categories or links) to keep
 	MAX_ITEMS: 5,
 
@@ -164,9 +190,19 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 	// loads cache content from persistent storage
 	init: function () {
-		// TODO: detect when loaded; allow save only afterwards		
-		this._customDataCache.load(this.CUSTOM_DATA_CACHE_FILE);
+		// create folder underneath profile folder to store persistent cache
+		try {
+			var folderPath = OS.Path.join(
+				OS.Constants.Path.profileDir, this.CUSTOM_DATA_CACHE_FOLDER);
+			OS.File.makeDir(folderPath, { ignoreExisting: true });
 
+			// TODO: detect when loaded; allow save only afterwards
+			var filePath = OS.Path.join(folderPath, this.CUSTOM_DATA_CACHE_FILE);
+			this._customDataCache.load(filePath);
+		} catch (e) {
+			this._log('init: unable to create cache folder:' + e);
+		}
+		
 		this._isInitialized = true;
 		this._log('init: initialized');
 	},
@@ -410,7 +446,13 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 				var match = rule.exec(url);
 				if (match) {
 					// this._log('_preparseUrl: match "' + match[1] + '" for url ' + url);
-					url = match[1];
+					// find first match
+					for (var i = 1; i < match.length; i++) {
+						if (match[i]) {
+							url = match[i];
+							break;
+						}
+					}
 				} else {
 					// leave URL untouched
 					// this._log('_preparseUrl: no match for url ' + url);
