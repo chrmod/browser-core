@@ -215,12 +215,6 @@ var CliqzABTests = CliqzABTests || {
             case "1036_B":
                 CliqzUtils.setPref("extended_onboarding_same_result", true);
                 break;
-            case "1037_A":
-                CliqzUtils.setPref("cliqzOpenState", false);
-                break;
-            case "1037_B":
-                CliqzUtils.setPref("cliqzOpenState", true);
-                break;
             default:
                 rule_executed = false;
         }
