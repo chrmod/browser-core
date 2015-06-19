@@ -232,7 +232,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://localhost/patterns',
+    patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
