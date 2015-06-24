@@ -1,3 +1,4 @@
 content cliqz chrome/content/
 content cliqzres chrome/
 content cliqzmodules modules/
+content cliqztests tests/
