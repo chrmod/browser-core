@@ -36,6 +36,7 @@ beforeEach(function () {
 
 afterEach(function () {
   CliqzUtils.telemetry = telemetry;
+  CliqzUtils.extensionRestart();
 });
 
 mocha.run();
