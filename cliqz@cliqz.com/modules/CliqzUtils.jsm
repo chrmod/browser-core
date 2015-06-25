@@ -1119,6 +1119,12 @@ var CliqzUtils = {
           CliqzUtils.genericPrefs.getIntPref("browser.urlbar.maxRichResults"));
       CliqzUtils.genericPrefs.setIntPref("browser.urlbar.maxRichResults", 30);
     }
+
+    var unifiedComplete = CliqzUtils.genericPrefs.getPrefType("browser.urlbar.unifiedcomplete");
+    if(unifiedComplete == 128 && CliqzUtils.genericPrefs.getBoolPref("browser.urlbar.unifiedcomplete") == true){
+      CliqzUtils.setPref('unifiedcomplete', true);
+      CliqzUtils.genericPrefs.setBoolPref("browser.urlbar.unifiedcomplete", false)
+    }
   },
   /** Reset changed prefs on uninstall */
   resetOriginalPrefs: function() {
@@ -1132,6 +1138,11 @@ var CliqzUtils = {
       CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
     } else {
       CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
+    }
+
+    if(CliqzUtils.getPref('unifiedcomplete', false)){
+      CliqzUtils.genericPrefs.setBoolPref("browser.urlbar.unifiedcomplete", true);
+      CliqzUtils.setPref('unifiedcomplete', false);
     }
   },
   openTabInWindow: function(win, url){
