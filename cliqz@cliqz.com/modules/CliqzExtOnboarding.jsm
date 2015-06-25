@@ -92,6 +92,13 @@ var CliqzExtOnboarding = {
         if (prefs) {
             try {
                 prefs = JSON.parse(prefs)["same_result"];
+                // for those users who were already in the AB test when
+                // "sub_group" was introduced
+                if (!prefs.hasOwnProperty("sub_group")) {
+                    prefs["sub_group"] = "na";
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                        { "same_result": prefs }));
+                }
             } catch (e) { }
         }
         if (!prefs) {
@@ -99,7 +106,8 @@ var CliqzExtOnboarding = {
                 "state": "seen",
                 "result_count": 0,
                 "show_count": 0,
-                "max_show_duration": 0
+                "max_show_duration": 0,
+                "sub_group": "tbd" // set only when we would show the message for the first time
             };
             CliqzExtOnboarding._log("creating prefs");
         }
@@ -119,6 +127,14 @@ var CliqzExtOnboarding = {
             return;
         }
 
+        // decide which subgroup we are going to be in
+        if (prefs["sub_group"] == "tbd") {            
+            prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            CliqzExtOnboarding._log("decided for subgroup " + prefs["sub_group"]);
+            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                { "same_result": prefs }));
+        }
+
         // ...seems we should interrupt the user
         prefs["result_count"] = 0;
         var win = CliqzUtils.getWindow(),
@@ -127,6 +143,11 @@ var CliqzExtOnboarding = {
 
         if (anchor) {
             if (anchor.offsetTop < 300) {
+                if (prefs["sub_group"] == "no_show") {
+                    CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
+                    return;
+                }
+
                 lastPrefs = prefs;
                 destUrl = destinationUrl;
 
