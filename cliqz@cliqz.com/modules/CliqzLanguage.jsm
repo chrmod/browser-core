@@ -104,6 +104,9 @@ var CliqzLanguage = {
                     if (dest_url == comp_url) {
                         var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
                         CliqzLanguage.sendCompSignal('result_compare', false, true, resType, i);
+
+                        CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
+                        break; 
                     }
                 }
             }
