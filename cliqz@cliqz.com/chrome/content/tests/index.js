@@ -36,7 +36,7 @@ beforeEach(function () {
 
 afterEach(function () {
   CliqzUtils.telemetry = telemetry;
-  CliqzUtils.extensionRestart();
+  CliqzUtils.getWindow().CLIQZ.Core.urlbar.mInputField.setUserInput("");
 });
 
 mocha.run();
