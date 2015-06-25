@@ -22,8 +22,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
   'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
+
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
+
 
 var refineFuncMappings ;
 
@@ -206,7 +208,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.4',
+    VERSION: '1.5',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -237,6 +239,7 @@ var CliqzHumanWeb = {
     searchCache: {},
     ts : "",
     mRefresh : {},
+    can_url_match :{},
     ismRefresh : false,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -1053,7 +1056,14 @@ var CliqzHumanWeb = {
         // extract the canonical url if available
         var link_tag = cd.getElementsByTagName('link');
         for (var j=0;j<link_tag.length;j++) {
-            if (link_tag[j].getAttribute("rel") == "canonical") canonical_url = link_tag[j].href;
+            if (link_tag[j].getAttribute("rel") == "canonical") {
+                canonical_url = link_tag[j].href;
+
+                // This check is done because of misplaces titles on sites like 500px, youtube etc.
+                // Since could not find a proper fix, hence dropping canonical URL looks like a safe idea.
+
+                if(CliqzHumanWeb.can_url_match[canonical_url] && CliqzHumanWeb.can_url_match[canonical_url] != url) canonical_url = null;
+            }
         }
 
 
@@ -1120,8 +1130,7 @@ var CliqzHumanWeb = {
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
-
-
+ 
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
@@ -1346,6 +1355,8 @@ var CliqzHumanWeb = {
 
                             if (x['canonical_url']) {
                                 CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
+                                CliqzHumanWeb.can_url_match[x['canonical_url']] = currURL;
+
                             }
 
                             if (CliqzHumanWeb.state['v'][currURL] != null) {
@@ -1387,7 +1398,7 @@ var CliqzHumanWeb = {
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-            //CliqzUtils.log('state change: ' + aWebProgress, CliqzHumanWeb.LOG_KEY);
+
         }
     },
     pacemaker: function() {
