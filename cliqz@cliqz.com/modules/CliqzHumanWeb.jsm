@@ -898,6 +898,11 @@ var CliqzHumanWeb = {
                 if (CliqzHumanWeb.validDoubleFetch(page_doc['st'], st_code, page_doc['x'], data)) {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("success on doubleFetch, need further validation" + url, CliqzHumanWeb.LOG_KEY);
                     CliqzHumanWeb.setAsPublic(url);
+
+                    // Also add canonical seen
+                    // If the URL has canonical then insert the canonical url into hashcan table:
+                    if(page_doc['x'] && page_doc['x']['canonical_url']) CliqzHumanWeb.insertCanUrl(page_doc['x']['canonical_url'])
+
                     //
                     // we need to modify the 'x' field of page_doc to substitute any structural information about
                     // the page content by the data coming from the doubleFetch (no session)
@@ -2310,7 +2315,11 @@ var CliqzHumanWeb = {
             }
         })
 
-        if(paylobj['x'] && paylobj['x']['canonical_url']){
+        // Need to add if canonical is seen before or not.
+        // This is helpful, becuase now we replace the url with canonical incase of dropLongUrl(url) => true.
+        // Hence, in the event log, lot of URL's look ft => true.
+
+        if(paylobj['x'] && paylobj['x']['canonical_url'] && paylobj['x']['canonical_url'] != url){
             CliqzHumanWeb.getCanUrlFromHashTable(paylobj['x']['canonical_url'], function(_res) {
                 if (_res) {
                     paylobj['csb'] = true;
@@ -2387,10 +2396,6 @@ var CliqzHumanWeb = {
                                 }
                             }
                         });
-
-                        // If the URL has canonical then insert the canonical url into hashcan table:
-                        if(paylobj['x'] && paylobj['x']['canonical_url']) CliqzHumanWeb.insertCanUrl(paylobj['x']['canonical_url'])
-
                        
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
