@@ -5,6 +5,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
   
   function fillIn(text) {
     urlBar.focus();
+    urlBar.mInputField.focus();
     urlBar.mInputField.setUserInput(text);
   }
   
@@ -35,7 +36,6 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
     beforeEach(function() {
       getCliqzResults = CliqzUtils.getCliqzResults;
-      console.log(getCliqzResults);
       respondWith({
         "result": [
               {

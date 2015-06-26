@@ -1,7 +1,8 @@
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/osfile.jsm');
 
 var MODULES = {};
-
 mocha.setup('bdd');
 
 function getFunctionArguments(fn) {
@@ -17,6 +18,26 @@ function loadModule(moduleName) {
   return MODULES[moduleName];
 }
 
+function writeToFile(testData) {
+ try {
+  var _this = this,
+      filename = "mocha-report.txt",
+      path = OS.Path.join(OS.Constants.Path.profileDir, filename);
+   
+  var data = (new TextEncoder()).encode(
+			JSON.stringify(testData));
+
+  OS.File.writeAtomic(path, data).then(
+    function(value) {
+      console.log("save: saved to" + path);
+    }, function(e) {
+      console.log("save: failed saving to" + path + ":" +e);
+    });  
+ } catch(e) {
+    console.log("save: failed saving to" + path + ":" +e);  
+ }
+}
+
 Object.keys(TESTS).forEach(function (testName) {
   var testFunction = TESTS[testName];
   var moduleNames = getFunctionArguments(testFunction);
@@ -24,6 +45,12 @@ Object.keys(TESTS).forEach(function (testName) {
   testFunction.apply(null, modules);
 });
 
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
 
 /* Turn off telemetry during tests */
 var telemetry, CliqzUtils;
@@ -39,4 +66,24 @@ afterEach(function () {
   CliqzUtils.getWindow().CLIQZ.Core.urlbar.mInputField.setUserInput("");
 });
 
-mocha.run();
+window.focus();
+
+var runner =  mocha.run();
+
+var XMLReport = "";
+Mocha.reporters.XUnit.prototype.write = function (line) {
+  XMLReport += line;
+};
+new Mocha.reporters.XUnit(runner, {});
+
+runner.on('end', function () { 
+  writeToFile(XMLReport);
+
+  if(getParameterByName('closeOnFinish') === "1") {
+    console.log("test");
+    Components
+      .classes['@mozilla.org/toolkit/app-startup;1']
+      .getService(Components.interfaces.nsIAppStartup)
+      .quit(Components.interfaces.nsIAppStartup.eForceQuit);
+  }
+});
