@@ -21,7 +21,7 @@
             {{#if data.richData.images.length}}
                 arrow="false" arrow-override=''
             {{/if}}
-        >{{ emphasis title text 2 true }}</div>
+             ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
@@ -29,7 +29,7 @@
         '>
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow' style="white-space: normal;height: 20px;">{{ emphasis data.description text 2 true }}
+        <div class='cqz-result-desc overflow' style="height: 20px;">{{ emphasis data.description text 2 true }}
             {{#unless data.richData.images.length}}
                 {{#each (links_or_sources data.richData) }}
                     <span url='{{url}}' show-status='true'
@@ -54,4 +54,3 @@
     </div>
     {{> logo}}
 </div>
-

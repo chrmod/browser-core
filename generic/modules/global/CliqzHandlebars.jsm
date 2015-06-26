@@ -5,18 +5,21 @@
 */
 
 var EXPORTED_SYMBOLS = ['CliqzHandlebars'];
-
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
 Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
 
-var CliqzHandlebars = Handlebars;
+Components.utils.import("resource://gre/modules/Services.jsm");
+Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js', this);
+Components.utils.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
+var CliqzHandlebars = Handlebars || this.Handlebars;
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -36,7 +39,6 @@ CliqzHandlebars.tplCache = {};
 
 compileTemplates();
 registerHelpers();
-
 
 function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
@@ -129,13 +131,19 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('wikiEZ_height', function(data_richData){
-        if (data_richData.hasOwnProperty('images') && data_richData.images.length > 0)
+        if (data_richData && data_richData.hasOwnProperty('images') && data_richData.images.length > 0){
             if ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data))  // is the first result in the show list
                 return 'cqz-result-h2';
             // BM hq result, but not the 1st result -> remove images
             data_richData.images = [];
+        }
 
         return 'cqz-result-h3';
+    });
+
+    Handlebars.registerHelper('bm_rd_template', function(data_richData) {
+        // 22May2015, thuy@cliqz.com, used for rich-snippet (rich-data) from BM. Originally used for: movie, games, recipe
+        return (CliqzAutocomplete.lastResult._results.length === 1); // is the only result in the show list
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
@@ -150,10 +158,19 @@ function registerHelpers(){
         console.log('TEMPLATE LOG HELPER', value);
     });
 
+    Handlebars.registerHelper('toLowerCase', function(str) {
+       return str.toLowerCase();
+    });
+
+    Handlebars.registerHelper('toUpperCase', function(str) {
+       return str.toUpperCase();
+    });
+
     Handlebars.registerHelper('emphasis', function(text, q, minQueryLength, cleanControlChars) {
         // lucian: questionable solution performance wise
         // strip out all the control chars
         // eg :text = "... \u001a"
+        if(!q) return text;
         q = q.trim();
         if(text && cleanControlChars) text = text.replace(/[\u0000-\u001F]/g, ' ')
 
@@ -261,17 +278,29 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('isLatest', function(data) {
+        // default setting is determined by latest-vs-trending AB test (50-50)
+        // or is "latest" if not part of the AB test
+        var defaultSetting = CliqzUtils.getPref('news-default-latest', true);
+
+        // news-toggle not active
         if(!data.trending ||
             data.trending.length == 0 ||
-            CliqzUtils.getPref('news-toggle', false) == false)
-            return true;
+            CliqzUtils.getPref('news-toggle', false) == false) {
+                return defaultSetting;
+        }
 
         try {
-          var latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+          var trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
               ezID = JSON.parse(data.subType).ez;
-          return latest[ezID];
+          // user-defined setting exists for EZ:
+          if (trending.hasOwnProperty(ezID)) {
+            return !trending[ezID];
+          } else {
+            // no user-defined setting, use default value
+            return defaultSetting;
+          }
         } catch(e){
-          return false;
+          return defaultSetting;
         }
     });
 }

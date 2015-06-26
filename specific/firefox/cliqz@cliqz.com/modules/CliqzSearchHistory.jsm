@@ -20,8 +20,8 @@ var EXPORTED_SYMBOLS = ['CliqzSearchHistory'];
 var CliqzSearchHistory = {
     windows: {},
     /* Inserts the 'Letzte Eingabe' button/dropdown before given element. */
-    insertBeforeElement: function (element) {
-        var window = CliqzUtils.getWindow();
+    insertBeforeElement: function (element, window) {
+        window = window || CliqzUtils.getWindow();
         var window_id = CliqzUtils.getWindowID();
         var document = window.document;
         var gBrowser = window.gBrowser;
@@ -105,16 +105,13 @@ var CliqzSearchHistory = {
     },
 
     tabChanged: function(ev){
-        var window = CliqzUtils.getWindow();
-        var window_id = CliqzUtils.getWindowID();
-        var document = window.document;
-        var gBrowser = window.gBrowser;
+        var curWin = this.windows[CliqzUtils.getWindowID()];
 
         // Clean last search to avoid conflicts
         CliqzAutocomplete.lastSearch = '';
 
-        if(this.windows[window_id].lastQueryInTab[ev.target.linkedPanel])
-            this.showLastQuery(this.windows[window_id].lastQueryInTab[ev.target.linkedPanel]);
+        if(curWin.lastQueryInTab && curWin.lastQueryInTab[ev.target.linkedPanel])
+            this.showLastQuery(curWin.lastQueryInTab[ev.target.linkedPanel]);
         else
             this.hideLastQuery();
     },

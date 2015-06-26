@@ -10,20 +10,14 @@ var init = function () {
 
     CliqzTour.init();
 
-    btn = document.getElementById('tour-btn'),
-    btnCancel = document.getElementById('tour-btn-cancel');
+    var btn = document.getElementById('tour-btn'),
+        btnCancel = document.getElementById('tour-btn-cancel');
 
     btn.addEventListener('click', function () {
-        CliqzTour.start();
+        CliqzTour.start("page");    
     });
 
     btnCancel.addEventListener('click', function () {
         CliqzTour.cancel();
-    });
-
-    btnCancel.addEventListener('mouseover', function () {
-        // close popup to focus on main window; otherwise user has to click twice
-        CliqzTour.hideCallout();
-        CliqzTour.hideCursor();
-    });
+    });          
 };

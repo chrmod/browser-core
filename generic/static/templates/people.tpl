@@ -15,7 +15,7 @@
             style="width: calc(85% - 60px); position:relative;"
          {{/if}}>
         <div class='cqz-result-title overflow'>
-            {{ data.richData.full_name }}
+          <a href="{{../url}}">{{ data.richData.full_name }}</a>
         </div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}

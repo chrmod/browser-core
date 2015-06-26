@@ -31,6 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
+        'r': 'recipe'
+//        'r': 'rd-h3-w-rating'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -49,7 +51,12 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     DEL = 46,
     BACKSPACE = 8,
     currentResults,
-    adultMessage = 0 //0 - show, 1 - temp allow, 2 - temp dissalow
+    adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
+
+    // The number of times to attempt loading smart CLIQZ results asynchronously
+    smartCliqzMaxAttempts = 10,
+    // The number of milliseconds to wait after each attempt
+    smartCliqzWaitTime = 100
     ;
 
 function lg(msg){
@@ -70,8 +77,22 @@ var UI = {
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
             if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
-              CLIQZ.UI.handleResults();
+              //try to break the call stack which cause 'too much recursion' exception on linux systems
+              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
+        }
+
+        CLIQZ.Core.popup._openAutocompletePopup = function(){
+            (function(aInput, aElement){
+              if (!CliqzAutocomplete.isPopupOpen){
+                this.mInput = aInput;
+                this._invalidate();
+
+                var width = aElement.getBoundingClientRect().width;
+                this.setAttribute("width", width > 500 ? width : 500);
+                this.openPopup(aElement, "after_start", 0, 0, false, true);
+              }
+            }).apply(CLIQZ.Core.popup, arguments)
         }
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
@@ -87,8 +108,10 @@ var UI = {
         var resultsBox = document.getElementById('cliqz-results',box);
         var messageContainer = document.getElementById('cliqz-message-container');
 
-
         resultsBox.addEventListener('mouseup', resultClick);
+
+        resultsBox.addEventListener('mousedown', handleMouseDown);
+
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
@@ -131,12 +154,16 @@ var UI = {
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
-      if(curResAll && curResAll.length > 0 && curResAll[0].url)
+      if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
+
+        snippetQualityTelemetry(curResAll);
+      }
 
       XULBrowserWindow.updateStatusField();
     },
     results: function(res){
+
         if (!gCliqzBox)
             return;
 
@@ -147,20 +174,28 @@ var UI = {
                 UI.main(cliqzBox);
             }
         }
-
         currentResults = enhanceResults(res);
+        //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
+
+        // Results that are not ready (extra results, for which we received a callback_url)
+        var asyncResults = currentResults.results.filter(function(r) { return r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data; } );
+        var query = currentResults.q;
+        if (!query)
+          query = "";
+        currentResults.results = currentResults.results.filter(function(r) { return !(r.type == "cliqz-extra" && r.data && "__callback_url__" in r.data); } );
+        //CliqzUtils.log(JSON.stringify(currentResults), "SLICED RESULT SAMPLE");
+        //CliqzUtils.log(currentResults, "RESULTS AFTER ENHANCE");
         // Images-layout for Cliqz-Images-Search
         //CliqzImages.process_images_result(res,
         //   CliqzImages.IM_SEARCH_CONF.CELL_HEIGHT-CliqzImages.IM_SEARCH_CONF.MARGIN,
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
-
+        //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         if(gCliqzBox.resultsBox) {
-            var now = Date.now();
-            UI.lastDispatch = now;
-            UI.redrawResultHTML(CliqzHandlebars.tplCache.results(currentResults), res.q);
-            //UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now, res.q);
-          }
+          UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+          UI.loadAsyncResult(asyncResults, query);
+        }
+
 
         //might be unset at the first open
         CLIQZ.Core.popup.mPopupOpen = true;
@@ -180,20 +215,90 @@ var UI = {
 
         return currentResults;
     },
-    nextRedraw: 0,
-    lastDispatch: 0,
-    dispatchRedraw: function(html, id, q) {
-      var now = Date.now();
-      if(id < UI.lastDispatch) return;
-      if(now < UI.nextRedraw) {
-        setTimeout(function(){ UI.dispatchRedraw(html, id, q); }, 100);
-      } else {
-        UI.redrawResultHTML(html, q);
+
+
+    loadAsyncResult: function(res, query) {
+
+      if (res && res.length > 0) {
+        for (var i in res) {
+          var r = res[i];
+          var query = r.text;
+          //var qt = query + ": " + new Date().getTime();
+          //CliqzUtils.log(qt, "QUERY TIMESTAMP");
+          //CliqzUtils.log(r,"LOADINGASYNC");
+          var loop_count = 0;
+          var async_callback = function(req) {
+              //CliqzUtils.log(r, "GOT SOME RESULTS");
+              var resp = undefined;
+              try {
+                resp = JSON.parse(req.response).results[0];
+                //CliqzUtils.log(resp, "FINAL RESPONSE");
+              }
+              catch(err) {
+                res.splice(i,1);
+              }
+              //CliqzUtils.log(r.text, "Here's the query");
+              //CliqzUtils.log(CLIQZ.Core.urlbar.value, "And the urlbar value");
+              if (resp &&  CLIQZ.Core.urlbar.value == query) {
+
+                var kind = r.data.kind;
+                if ("__callback_url__" in resp.data) {
+                    // If the result is again a promise, retry.
+                    if (loop_count < smartCliqzMaxAttempts) {
+                      setTimeout(function() {
+                        loop_count += 1;
+                        //CliqzUtils.log( loop_count + " " + qt + ": " + query, "ATTEMPT NUMBER");
+                        //CliqzUtils.log("Attempt number " + loop_count + " failed", "ASYNC ATTEMPTS " + query );
+                        CliqzUtils.httpGet(resp.data.__callback_url__, async_callback, async_callback);
+                      }, smartCliqzWaitTime);
+                    }
+                    else if (currentResults.results.length == 0) {
+                      UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                    }
+                }
+                else {
+                  r.data = resp.data;
+                  r.url = resp.url;
+                  r.data.kind = kind;
+                  r.data.subType = resp.subType;
+                  r.data.trigger_urls = resp.trigger_urls;
+                  r.vertical = r.data.template;
+                  r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
+                  r.logo = CliqzUtils.getLogoDetails(r.urlDetails);
+
+                  if(gCliqzBox.resultsBox && CLIQZ.Core.urlbar.value == query) {
+                      // Remove all existing extra results
+                      currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
+                      // add the current one on top of the list
+                      currentResults.results.unshift(r);
+
+                      if (currentResults.results.length > 0) {
+                        UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+                      }
+                      else {
+                        UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
+                      }
+                  }
+                }
+              }
+              else {
+                res.splice(i,1);
+                if (currentResults.results.length == 0)
+                  UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+              }
+
+          };
+          CliqzUtils.httpGet(r.data.__callback_url__, async_callback, async_callback);
+        }
+
+
       }
+
     },
+
     lastInstantLength: 0,
     lastQuery: "",
-    redrawResultHTML: function(newHTML, query) {
+    redrawDropdown: function(newHTML, query) {
       var box = gCliqzBox.resultsBox;
 
       if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";
@@ -218,31 +323,23 @@ var UI = {
             box.replaceChild(newResults[i], box.children[i]);
           }
         }
+        // Detect duplicate entries
+        var historyShown = false;
+        for(var i=0; i<box.children.length; i++) {
+          var res = box.children[i], type = res.getAttribute("type");
+          if(type && type.indexOf("cliqz-pattern") != -1) {
+            if(historyShown)
+              box.removeChild(res);
+            historyShown = true;
+          }
+        }
+
         if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
         return;
       }
 
-
-      var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       box.innerHTML = newHTML;
-      newResults = box.getElementsByClassName("cqz-result-box");
 
-      // Result animation
-      var delay = 0;
-      /*
-      for(var i=UI.lastInstantLength; i<max; i++) {
-        var oldRes = oldResults[i];
-        var newRes = newResults[i];
-        if(i != 0 && !oldRes && newRes && newRes.getAttribute("type").indexOf("cliqz-pattern") == -1) {
-          //newRes.style.left = "-500px";
-          newRes.style.opacity = 0;
-          setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
-          delay += 100;
-        }
-      }
-      */
-      var t = Date.now() + delay + (delay>0?100:0);
-      if(t > UI.nextRedraw) UI.nextRedraw = t;
       if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
     },
     // Returns a concatenated string of all urls in a result list
@@ -326,7 +423,7 @@ var UI = {
                 urlbar.setSelectionRange(selection.selectionStart, selection.selectionEnd);
 
                 if (CliqzAutocomplete.spellCorr.on) {
-                    CliqzAutocomplete.spellCorr.override = true
+                    CliqzAutocomplete.spellCorr.override = true;
                 }
 
                 return true;
@@ -339,7 +436,7 @@ var UI = {
             case BACKSPACE:
             case DEL:
                 UI.lastInput = "";
-                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions) {
+                if (CliqzAutocomplete.spellCorr.on && CliqzAutocomplete.lastSuggestions && Object.getOwnPropertyNames(CliqzAutocomplete.spellCorr.correctBack).length != 0) {
                     CliqzAutocomplete.spellCorr.override = true
                     // correct back the last word if it was changed
                     var words = CLIQZ.Core.urlbar.mInputField.value.split(' ');
@@ -370,7 +467,6 @@ var UI = {
                 return false;
             default:
                 UI.lastInput = "";
-                UI.nextRedraw = (Date.now() + 150 > UI.nextRedraw) ? (Date.now() + 150) : UI.nextRedraw;
                 UI.preventAutocompleteHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
@@ -438,6 +534,16 @@ var UI = {
     cursor: 0,
     getSelectionRange: function(key, curStart, curEnd, shift, alt, meta) {
       var start = curStart, end = curEnd;
+
+      if (CliqzUtils.isWindows()) {
+        // Do nothing if alt is pressed
+        if(alt) return;
+        // On Windows: CTRL selects words, ALT does nothing
+        // Meta key -> same behavior as ALT on OSX
+        alt = meta;
+        meta = false;
+      }
+
       if (key == LEFT) {
         if (shift && meta) {
             start = 0;
@@ -827,9 +933,10 @@ function unEscapeUrl(url){
 
 var TYPE_LOGO_WIDTH = 100; //the width of the type and logo elements in each result
 function enhanceResults(res){
+    updateMessageState("hide");
     var adult = false;
 
-    for(var i=0; i<res.results.length; i++){
+    for(var i=0; i<res.results.length; i++) {
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
@@ -861,7 +968,7 @@ function enhanceResults(res){
             r.vertical = getPartial(r.type);
 
             //extract debug info from title
-            var _tmp = getDebugMsg(r.title)
+            var _tmp = getDebugMsg(r.title);
             r.title = _tmp[0];
             r.debug = _tmp[1];
             if(!UI.showDebug)
@@ -887,13 +994,43 @@ function enhanceResults(res){
             r.logo.add_logo_url = true;
         }
 
+        if (r.type == 'cliqz-extra' && r.data && "__message__" in r.data) {
+          var msg = r.data.__message__;
+          if (CliqzUtils.getPref(msg.pref, true)) {
+            updateMessageState("show", {
+              "footer-message": {
+                simple_message: CliqzUtils.getLocalizedString(msg.text),
+                telemetry: "rh_message-" + msg.pref || 'null',
+                searchTerm: CliqzUtils.getLocalizedString(msg.searchTerm),
+                options: msg.buttons.map(function(b) {
+                  return {
+                    text: CliqzUtils.getLocalizedString(b.text),
+                    action: b.action,
+                    state: b.state || 'default',
+                    pref: msg.pref || 'null',
+                    prefVal: b.prefVal || 'null'
+                  }
+                })
+              }
+            });
+          }
+        }
     }
+
+
+    var spelC = CliqzAutocomplete.spellCorr;
 
     //filter adult results
     if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
+
+        // if there no results after adult filter - show no results entry
+        if(res.results.length == 0){
+          res.results.push(CliqzUtils.getNoResults());
+          res.results[0].vertical = 'noResult';
+        }
 
         if(level == 'moderate' && adultMessage == 0){
             updateMessageState("show", {
@@ -911,7 +1048,7 @@ function enhanceResults(res){
     else if(CliqzUtils.getPref('changeLogState', 0) == 1){
       updateMessageState("show", {
         "footer-message": {
-          message: CliqzUtils.getLocalizedString('updateMessage'),
+          simple_message: CliqzUtils.getLocalizedString('updateMessage'),
           telemetry: 'changelog',
           options: [{
               text: CliqzUtils.getLocalizedString('updatePage'),
@@ -925,9 +1062,43 @@ function enhanceResults(res){
           ]
         }
       });
-    }
-    else {
-      updateMessageState("hide");
+    } else if (spelC.on && !spelC.override && CliqzUtils.getPref('spellCorrMessage', true) && !spelC.userConfirmed) {
+        var s = CLIQZ.Core.urlbar.mInputField.value;
+        var terms = s.split(" ");
+        var messages = [];
+        var termsObj = {};
+        for(var i = 0; i < terms.length; i++) {
+          termsObj = {
+            correct: terms[i]
+          };
+          messages.push(termsObj);
+          if(spelC.correctBack[terms[i]]) {
+            messages[i].correctBack = spelC.correctBack[terms[i]];
+          } else {
+            messages[i].correctBack = "";
+          }
+        }
+        //cache searchTerms to check against when user keeps spellcorrect
+        spelC.searchTerms = messages;
+
+        updateMessageState("show", {
+            "footer-message": {
+              simple_message: CliqzUtils.getLocalizedString('spell_correction'),
+              messages: messages,
+              telemetry: 'spellcorrect',
+              options: [{
+                  text: CliqzUtils.getLocalizedString('yes'),
+                  action: 'spellcorrect-revert',
+                  state: 'default'
+                },
+                {
+                  text: CliqzUtils.getLocalizedString('no'),
+                  action: 'spellcorrect-keep',
+                  state: 'default'
+                }
+              ]
+            }
+        });
     }
 
     return res;
@@ -937,7 +1108,9 @@ function notSupported(r){
     // Has the user seen our warning about cliqz not being optimized for their country, but chosen to ignore it? (i.e: By clicking OK)
     // or he is in germany
     if(CliqzUtils.getPref("ignored_location_warning", false) ||
-        CliqzUtils.getPref("config_location", "de") == 'de') return false
+        CliqzUtils.getPref("config_location", "de") == 'de' ||
+        // in case location is unknown do not show the message
+        CliqzUtils.getPref("config_location", "de") == '') return false
 
     //if he is not in germany he might still be  german speaking
     var lang = navigator.language.toLowerCase();
@@ -946,7 +1119,7 @@ function notSupported(r){
 
 function getNotSupported(){
   return {
-    message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
+    simple_message: CliqzUtils.getLocalizedString('OutOfCoverageWarning'),
     telemetry: 'international',
     type: 'cqz-message-alert',
     options: [{
@@ -1074,6 +1247,29 @@ function messageClick(ev) {
                   CliqzUtils.setPref('ignored_location_warning', true);
                   break;
 
+              case 'spellcorrect-revert':
+                var s = CLIQZ.Core.urlbar.value;
+                for(var c in CliqzAutocomplete.spellCorr.correctBack){
+                    s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                }
+                CLIQZ.Core.urlbar.mInputField.setUserInput(s);
+                CliqzAutocomplete.spellCorr.override = true;
+                updateMessageState("hide");
+                break;
+              case 'spellcorrect-keep':
+                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                for(var i = 0; i < spellCorData.length; i++) {
+                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)
+                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
+                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                      delete CliqzAutocomplete.spellCorr.correctBack[c];
+                    }
+                  }
+                }
+
+                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
+                updateMessageState("hide");
+                break;
 
               //changelog
               case 'update-show':
@@ -1081,6 +1277,19 @@ function messageClick(ev) {
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
+                  break;
+              case 'dismiss':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  if (pref && pref != "null")
+                    CliqzUtils.setPref(pref,false);
+                  break;
+               case 'set':
+                  updateMessageState("hide");
+                  var pref = ev.originalTarget.getAttribute("pref");
+                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  if (pref && prefVal && pref != "null" && prefVal != "null")
+                    CliqzUtils.setPref(pref,prefVal);
                   break;
               default:
                   break;
@@ -1114,6 +1323,8 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
           queryAutocompleted = query;
+      if(extraData.action != "result_click")
+        var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
   if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
@@ -1122,7 +1333,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = el.getAttribute('extra'), //extra data about the link
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data.kind; }),
+          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1156,7 +1367,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
           }
       }
     }
-    CliqzHistory.updateQuery(query);
+    CliqzHistory.updateQuery(query, autocompleteUrl);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
 
@@ -1166,7 +1377,6 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
@@ -1219,21 +1429,21 @@ function resultClick(ev){
                     break;
                 case 'news-toggle':
                     setTimeout(function(){
-                      var newLatest = document.getElementById('actual', el.parentElement).checked,
-                          latest = JSON.parse(CliqzUtils.getPref('news-toggle-latest', '{}')),
+                      var newTrending = !document.getElementById('actual', el.parentElement).checked,
+                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
                           ezID = JSON.parse(el.getAttribute('data-subType')).ez,
-                          oldLatest = latest[ezID];
+                          oldTrending = trending[ezID];
 
-                      latest[ezID] = newLatest
+                      trending[ezID] = newTrending;
 
-                      CliqzUtils.setPref('news-toggle-latest', JSON.stringify(latest));
+                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
 
                       CliqzUtils.telemetry({
                         type: 'activity',
                         action: 'news-toggle',
                         ezID: ezID,
-                        old_setting: oldLatest ? 'latest': 'trends',
-                        new_setting: newLatest ? 'latest': 'trends'
+                        old_setting: oldTrending ? 'trends': 'latest',
+                        new_setting: newTrending ? 'trends': 'latest'
                       });
                     }, 0);
 
@@ -1510,6 +1720,7 @@ function onEnter(ev, item){
       action: "result_enter",
       urlbar_time: urlbar_time,
       autocompleted: CliqzAutocomplete.lastAutocompleteType,
+      autocompleted_length: CliqzAutocomplete.lastAutocompleteLength,
       position_type: ['inbar_url'],
       source: getResultKind(item),
       current_position: -1,
@@ -1518,12 +1729,26 @@ function onEnter(ev, item){
   }
   // Google
   else if (!CliqzUtils.isUrl(input) && !CliqzUtils.isUrl(cleanInput)) {
+    if(CliqzUtils.getPref("double-enter", false) && (CliqzAutocomplete.lastQueryTime + 1500 > Date.now())){
+      var r = currentResults.results;
+      if(!currentResults.blocked && r.length > 0 && (r.length > 1 || r[0].vertical != 'noResult')){
+        currentResults.blocked = true;
+        var signal = {
+            type: 'activity',
+            action: 'double_enter'
+        };
+        CliqzUtils.telemetry(signal);
+        return true;
+      }
+    }
+
     logUIEvent({url: input}, "google", {
       action: "result_enter",
       position_type: ['inbar_query'],
       urlbar_time: urlbar_time,
       current_position: -1
     });
+    CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "extQuery", input);
     CLIQZ.Core.triggerLastQ = true;
 
     var customQuery = CliqzResultProviders.isCustomQuery(input);
@@ -1540,7 +1765,7 @@ function onEnter(ev, item){
       urlbar_time: urlbar_time,
       current_position: -1,
       new_tab: newTab
-    });
+    }, CLIQZ.Core.urlbar.mInputField.value);
     CLIQZ.Core.triggerLastQ = true;
   // Result
   } else {
@@ -1610,6 +1835,55 @@ function arrowNavigationTelemetry(el){
         action.search = CliqzUtils.isSearch(url);
     }
     CliqzUtils.telemetry(action);
+}
+
+// only consider results which fill the first 3 slots
+function snippetQualityTelemetry(results){
+  var data = [], slots = 0;
+  for(var i=0; i<results.length && slots <3; i++){
+    var r = results[i];
+    if(r.vertical && r.vertical.indexOf('pattern') != 0 && r.type != 'cliqz-extra')
+      data.push({
+        logo: (r.logo && r.logo.backgroundImage) ? true : false,
+        desc: (r.data && r.data.description) ? true : false
+      })
+    // push empty data for EZones and history
+    else data.push({});
+
+    slots += CliqzUtils.TEMPLATES[r.vertical];
+
+    // entity generic can be 3 slots height
+    if(r.vertical == 'entity-generic' && r.data.urls) slots++;
+
+    // hq results are 3 slots height if they have images
+    if(r.vertical == 'hq' && r.data.richData && r.data.richData.images) slots++;
+  }
+
+  CliqzUtils.telemetry({
+    type: 'snippet',
+    action: 'quality',
+    data: data
+  });
+}
+
+function handleMouseDown(e) {
+  var walk_the_DOM = function walk(node) {
+    while(node) {
+      if(node.className === IC) return; //do not go higher that results box
+      //disable onclick handling for anchor tags, click event handling is left on the div
+      //type window.location.href = SOME_URL in the console to see what would happen otherwise:-)
+      if(node.tagName === 'a') {
+        node.setAttribute('onclick', 'return false;');
+        e.preventDefault();
+        return false;
+      } else {
+        //case we clicked on an em, we need to walk up the DOM
+        node = node.parentNode;
+        walk(node);
+      }
+    }
+  }
+  walk_the_DOM(e.originalTarget);
 }
 
 ctx.CLIQZ.UI = UI;
