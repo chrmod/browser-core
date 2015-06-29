@@ -71,8 +71,7 @@
 
 #cliqz-results .ramadanEZ_info {max-width: 550px;}
 #cliqz-results .ramadanEZ_info_table {float: left;}
-#cliqz-results .ramadanEZ_info_buttons {float:right; padding: 110px 0px 0px 20px}
-
+#cliqz-results .ramadanEZ_info_buttons {float:right; padding: 110px 0px 0px 20px;}
 
 #cliqz-results .ramadanEZ-daylef{max-width: 550px; width: -moz-calc(100% - 100px);}
 #cliqz-results .ramadanEZ-daylef-bar { overflow: hidden; height: 2px; float:left; width:100%; padding-right: 10px; background-color: #999; position: relative;}
@@ -87,18 +86,6 @@
 
 #cliqz-results .cqz-ramadan table td.name {color: #1F69AF; }
 #cliqz-results .cqz-ramadan-desc {margin: 12px 0px 15px 0px;width: -moz-calc(100% - 100px);}
-
-#cliqz-results .cqz-ramadan-btn {
-    border-radius: 3px;
-    cursor: pointer;
-    color: black;
-    padding: 0 9px 2px;
-    line-height: 28px;
-    margin: 0 7px 4px 0;
-    max-width: 150px;
-}
-
-
 
 /* ------- END Ramadan EZ ----------*/
 

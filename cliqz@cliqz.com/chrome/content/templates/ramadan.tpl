@@ -17,7 +17,7 @@
     {{/with}}
 
    <div class="ramadanEZ_info">
-        <div class="ramadanEZ_info_left">
+        <div class="ramadanEZ_info_table">
             <table cellpadding="0" cellspacing="0">
                <tr>
                     <td><div class="turkishflag icon">Icon</div></td>
