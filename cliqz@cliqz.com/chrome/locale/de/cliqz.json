@@ -1,4 +1,16 @@
 {
+    "Turkish Calendar":{
+        "message": "Türkischer Kalender"
+    },
+    "MWL":{
+        "message": "MWL"
+    },
+    "TillEndRamadan":{
+        "message": "Noch {} Tage bis zum 17. September"
+    },
+    "RamadanDes":{
+        "message": "Der Ramadan ist der Fastenmonat der Muslime und der neunte Monat des islamischen Mondkalenders."
+    },
     "CookingIntruct":{
         "message": "Zubereitungsschritte"
     },

@@ -6,6 +6,7 @@
     margin-bottom: 8px;
 }
 
+
 /*--------------- New Skin Generic EZ ----------- */
 #cliqz-results .cqz-result-desc-3line { width:calc(100% - 85px); margin-top: 12px; margin-bottom: 20px; white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em;}
 
@@ -61,6 +62,45 @@
 #cliqz-results .ez-liga tr:nth-child(5) * {border-bottom: none;}
 /* ------- END Bundesliga EZ ----------*/
 
+
+/* ------- Ramadan EZ ----------*/
+#cliqz-results .cqz-ramadan table .icon {height: 14px; background-repeat: no-repeat; text-indent: -9999px; margin: 0 0 10px;}
+#cliqz-results .icon.turkishflag {background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/turkish-flag.svg"); width: 21px; }
+#cliqz-results .icon.sunup {background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/sunrise.svg"); width: 29px; }
+#cliqz-results .icon.sundown {background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/sunset.svg"); width: 29px; }
+
+#cliqz-results .ramadanEZ_info {max-width: 550px;}
+#cliqz-results .ramadanEZ_info_table {float: left;}
+#cliqz-results .ramadanEZ_info_buttons {float:right; padding: 110px 0px 0px 20px}
+
+
+#cliqz-results .ramadanEZ-daylef{max-width: 550px; width: -moz-calc(100% - 100px);}
+#cliqz-results .ramadanEZ-daylef-bar { overflow: hidden; height: 2px; float:left; width:100%; padding-right: 10px; background-color: #999; position: relative;}
+#cliqz-results .ramadanEZ-daylef-bar-dayover { position: absolute; background-color: #56eac6; height: 100%}
+#cliqz-results .ramadanEZ-dayinfo {padding-top: 10px}
+#cliqz-results .ramadanEZ-dayinfo-left {float:left}
+#cliqz-results .ramadanEZ-dayinfo-right {float:right}
+#cliqz-results .ramadanEZ-dayinfo-txt {color: #cccccc}
+#cliqz-results .cqz-ramadan table {padding: 20px 0; }
+#cliqz-results .cqz-ramadan td { padding: 0 20px; line-height: 25px; color: #333; border-bottom: 1px solid #cccccc;}
+#cliqz-results .cqz-ramadan tr:nth-child(5) * {border-bottom: none;}
+
+#cliqz-results .cqz-ramadan table td.name {color: #1F69AF; }
+#cliqz-results .cqz-ramadan-desc {margin: 12px 0px 15px 0px;width: -moz-calc(100% - 100px);}
+
+#cliqz-results .cqz-ramadan-btn {
+    border-radius: 3px;
+    cursor: pointer;
+    color: black;
+    padding: 0 9px 2px;
+    line-height: 28px;
+    margin: 0 7px 4px 0;
+    max-width: 150px;
+}
+
+
+
+/* ------- END Ramadan EZ ----------*/
 
 /* ------- FLIGHT STATUS EZ ----------*/
 #cliqz-results .flightStatusEZ-flightNumber {color:#333333; font-size: 18px; overflow: hidden;}
