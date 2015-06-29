@@ -84,9 +84,7 @@ var UI = {
 
         CLIQZ.Core.popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
-              if (!(CliqzUtils.getPref('cliqzOpenState', false) ?
-                        CliqzAutocomplete.isPopupOpen :
-                        this.mPopupOpen)){
+              if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
 
@@ -194,14 +192,8 @@ var UI = {
 
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         if(gCliqzBox.resultsBox) {
-            var now = Date.now();
-            UI.lastDispatch = now;
-
-            if(CliqzUtils.getPref("animations", false))
-              UI.dispatchRedraw(CliqzHandlebars.tplCache.results(currentResults), now);
-            else
-              gCliqzBox.resultsBox.innerHTML = CliqzHandlebars.tplCache.results(currentResults);
-            UI.loadAsyncResult(asyncResults);
+          UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
+          UI.loadAsyncResult(asyncResults, query);
         }
 
 
@@ -223,11 +215,9 @@ var UI = {
 
         return currentResults;
     },
-    nextRedraw: 0,
-    lastDispatch: 0,
 
 
-    loadAsyncResult: function(res) {
+    loadAsyncResult: function(res, query) {
 
       if (res && res.length > 0) {
         for (var i in res) {
@@ -281,13 +271,12 @@ var UI = {
                       currentResults.results = currentResults.results.filter(function(r) { return r.type != "cliqz-extra"; } );
                       // add the current one on top of the list
                       currentResults.results.unshift(r);
-                      var now = Date.now();
-                      UI.lastDispatch = now;
+
                       if (currentResults.results.length > 0) {
-                        UI.setDropdownContents(CliqzHandlebars.tplCache.results(currentResults), now);
+                        UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
                       }
                       else {
-                        UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                        UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                       }
                   }
                 }
@@ -307,27 +296,9 @@ var UI = {
 
     },
 
-
-    setDropdownContents: function(html, now) {
-      if(CliqzUtils.getPref("animations", false)) {
-        UI.dispatchRedraw(html, now);
-      }
-      else
-        gCliqzBox.resultsBox.innerHTML = html;
-    },
-
-    dispatchRedraw: function(html, id, q) {
-      var now = Date.now();
-      if(id < UI.lastDispatch) return;
-      if(now < UI.nextRedraw) {
-        setTimeout(function(){ UI.dispatchRedraw(html, id, q); }, 100);
-      } else {
-        UI.redrawResultHTML(html, q);
-      }
-    },
     lastInstantLength: 0,
     lastQuery: "",
-    redrawResultHTML: function(newHTML, query) {
+    redrawDropdown: function(newHTML, query) {
       var box = gCliqzBox.resultsBox;
 
       if(query && query.indexOf(UI.lastQuery) == -1) box.innerHTML = "";
@@ -367,27 +338,8 @@ var UI = {
         return;
       }
 
-
-      var max = oldResults.length > newResults.length ? oldResults.length : newResults.length;
       box.innerHTML = newHTML;
-      newResults = box.getElementsByClassName("cqz-result-box");
 
-      // Result animation
-      var delay = 0;
-      /*
-      for(var i=UI.lastInstantLength; i<max; i++) {
-        var oldRes = oldResults[i];
-        var newRes = newResults[i];
-        if(i != 0 && !oldRes && newRes && newRes.getAttribute("type").indexOf("cliqz-pattern") == -1) {
-          //newRes.style.left = "-500px";
-          newRes.style.opacity = 0;
-          setTimeout(function(r){r.className += " fadeIn"}, delay, newRes);
-          delay += 100;
-        }
-      }
-      */
-      var t = Date.now() + delay + (delay>0?100:0);
-      if(t > UI.nextRedraw) UI.nextRedraw = t;
       if(CliqzAutocomplete.selectAutocomplete) UI.selectAutocomplete();
     },
     // Returns a concatenated string of all urls in a result list
@@ -515,7 +467,6 @@ var UI = {
                 return false;
             default:
                 UI.lastInput = "";
-                UI.nextRedraw = (Date.now() + 150 > UI.nextRedraw) ? (Date.now() + 150) : UI.nextRedraw;
                 UI.preventAutocompleteHighlight = false;
                 UI.cursor = CLIQZ.Core.urlbar.selectionStart;
                 return false;
