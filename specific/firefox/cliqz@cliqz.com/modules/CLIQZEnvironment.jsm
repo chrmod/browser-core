@@ -33,6 +33,7 @@ var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
     cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
+    OS: Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS.toLowerCase(),
     log: function(msg, key){
         _log.logStringMessage(
           'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +

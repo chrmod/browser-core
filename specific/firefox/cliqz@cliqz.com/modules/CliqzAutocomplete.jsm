@@ -32,6 +32,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'NewTabUtils',
+  'resource://gre/modules/NewTabUtils.jsm');
 
 var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
@@ -50,6 +52,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastResultsUpdateTime: null, // to measure how long a result has been shown for
     resultsOverflowHeight: 0, // to determine if scrolling is possible (i.e., overflow > 0px)
     afterQueryCount: 0,
+    discardedResults: 0,
     isPopupOpen: false,
     lastPopupOpen: null,
     lastQueryTime: null,
@@ -61,7 +64,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'on': false,
         'correctBack': {},
         'override': false,
-        'pushed': null
+        'pushed': null,
+        'userConfirmed': false,
+        'searchTerms': []
     },
     init: function(){
         CliqzUtils.init();
@@ -118,7 +123,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             'on': false,
             'correctBack': {},
             'override': false,
-            'pushed': null
+            'pushed': null,
+            'userConfirmed': false,
+            'searchTerms': []
         }
     },
     initProvider: function(){
@@ -216,6 +223,36 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
                 this.historyTimeout = true;
                 this.onSearchResult({}, this.historyResults);
+            },
+            fetchTopSites: function(){
+                var results = NewTabUtils.links.getLinks().slice(0, 5);
+                if(results.length>0){
+                    var top = Result.generic('cliqz-extra', '', null, '', null, '', null, JSON.stringify({topsites:true}));
+                    top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
+                    top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
+                    top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
+                    top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
+                    top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
+                    top.data.url = results[0].url;
+                    top.data.template = 'topsites';
+                    top.data.urls = results.map(function(r, i){
+                        var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
+                            logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+
+                        return {
+                          url: r.url,
+                          href: r.url.replace(urlDetails.path, ''),
+                          link: r.url.replace(urlDetails.path, ''),
+                          name: urlDetails.name,
+                          text: logoDetails.text,
+                          style: logoDetails.style,
+                          extra: "top-sites-" + i
+                        }
+                    });
+                    this.cliqzResultsExtra = [top];
+                }
+                this.historyTimeout = true;
+                this.pushResults(this.searchString);
             },
             // history sink, could be called multiple times per query
             onSearchResult: function(search, result) {
@@ -400,7 +437,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             },
             // handles fetched results from the cache
             cliqzResultFetcher: function(req, q) {
-                if(q == this.searchString){ // be sure this is not a delayed result
+                // be sure this is not a delayed result
+                if(q != this.searchString) {
+                    this.discardedResults += 1; // count results discarded from backend because they were out of date
+                } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
@@ -491,6 +531,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 };
                 CliqzUtils.telemetry(action);
 
+                if(CliqzAutocomplete.lastSearch.length > searchString.length) {
+                  CliqzAutocomplete.spellCorr.override = true;
+                }
                 // analyse and modify query for custom results
                 CliqzAutocomplete.lastSearch = searchString;
                 searchString = this.analyzeQuery(searchString);
@@ -503,9 +546,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var parts = CliqzSpellCheck.check(searchString);
                     var newSearchString = parts[0];
                     var correctBack = parts[1];
+
                     for (var c in correctBack) {
                         CliqzAutocomplete.spellCorr.correctBack[c] = correctBack[c];
                     }
+
                 } else {
                     // user don't want spell correction
                     var newSearchString = searchString;
@@ -521,7 +566,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzUtils.telemetry(action);
                     CliqzAutocomplete.spellCorr.on = true;
                     searchString = newSearchString;
+                    CliqzAutocomplete.spellCorr['userConfirmed'] = false;
                 }
+
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
                 this.cliqzCountry = null;
@@ -585,12 +632,17 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
 
                 // trigger history search
-                this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
-                CliqzUtils.clearTimeout(this.historyTimer);
-                this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
-                this.historyTimeout = false;
+                if(searchString.trim().length == 0 && CliqzAutocomplete.sessionStart ){
+                    CliqzAutocomplete.sessionStart = false;
+                    this.fetchTopSites = this.fetchTopSites.bind(this);
+                    NewTabUtils.links.populateCache(this.fetchTopSites)
+                } else {
+                    this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
+                    CliqzUtils.clearTimeout(this.historyTimer);
+                    this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+                    this.historyTimeout = false;
+                }
             },
-
             /**
             * Stops an asynchronous search that is in progress
             */
@@ -613,10 +665,16 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     latency_backend: this.latency.backend,
                     latency_mixed: this.latency.mixed,
                     latency_all: this.startTime? Date.now() - this.startTime : null,
+                    discarded: this.discardedResults,
                     v: 1
                 };
+
+                // reset count of discarded backend results
+                this.discardedResults = 0;
+
                 if (CliqzAutocomplete.lastAutocompleteType) {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
+                  action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
                 if(country)
                     action.country = country;

@@ -46,9 +46,11 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+        Cu.import('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
@@ -91,6 +93,10 @@ var Extension = {
             CliqzHumanWeb.initAtBrowser();
         }
 
+        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
+           CUcrawl.initAtBrowser();
+        }
+
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
@@ -116,6 +122,9 @@ var Extension = {
             CliqzHumanWeb.unloadAtBrowser();
         }
 
+        if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
+            CUcrawl.destroyAtBrowser();
+        }
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -174,11 +183,13 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -285,7 +296,7 @@ var Extension = {
         button.setAttribute('label', 'CLIQZ');
         button.setAttribute('tooltiptext', 'CLIQZ');
         button.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.png)';
+        button.style.listStyleImage = 'url(chrome://cliqzres/content/skin/cliqz_btn.svg)';
 
         var menupopup = doc.createElement('menupopup');
         menupopup.setAttribute('id', 'cliqz_menupopup');
@@ -339,19 +350,26 @@ var Extension = {
     },
     /** Change some prefs for a better cliqzperience -- always do a backup! */
     setOurOwnPrefs: function() {
+        var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
+
         var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
         if (!cliqzBackup || CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup") == 0) {
-            var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
             CliqzUtils.cliqzPrefs.setIntPref("maxRichResultsBackup",
                 urlBarPref.getIntPref("maxRichResults"));
             urlBarPref.setIntPref("maxRichResults", 30);
         }
+
+        var unifiedComplete = urlBarPref.getPrefType("unifiedcomplete");
+        if(unifiedComplete == 128 && urlBarPref.getBoolPref("unifiedcomplete") == true){
+          CliqzUtils.setPref('unifiedcomplete', true);
+          urlBarPref.setBoolPref("unifiedcomplete", false)
+        }
     },
     /** Reset changed prefs on uninstall */
     resetOriginalPrefs: function() {
+        var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
         var cliqzBackup = CliqzUtils.cliqzPrefs.getPrefType("maxRichResultsBackup");
         if (cliqzBackup) {
-            var urlBarPref = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
             CliqzUtils.log("Loading maxRichResults backup...", "CliqzUtils.setOurOwnPrefs");
             urlBarPref.setIntPref("maxRichResults",
                 CliqzUtils.cliqzPrefs.getIntPref("maxRichResultsBackup"));
@@ -360,6 +378,11 @@ var Extension = {
             CliqzUtils.cliqzPrefs.clearUserPref("maxRichResultsBackup");
         } else {
             CliqzUtils.log("maxRichResults backup does not exist; doing nothing.", "CliqzUtils.setOurOwnPrefs")
+        }
+
+        if(CliqzUtils.getPref('unifiedcomplete', false)){
+          urlBarPref.setBoolPref("unifiedcomplete", true);
+          CliqzUtils.setPref('unifiedcomplete', false);
         }
     }
 };

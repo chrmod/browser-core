@@ -1,4 +1,5 @@
-  'use strict';
+
+'use strict';
 /*
  * This module determines the language of visited pages and
  * creates a list of known languages for a user
@@ -17,6 +18,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
+  'chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
 
 var nsIAO = Components.interfaces.nsIHttpActivityObserver;
 var nsIHttpChannel = Components.interfaces.nsIHttpChannel;
@@ -202,7 +206,7 @@ function add32(a, b) {
 }
 
 var CliqzHumanWeb = {
-    VERSION: '1.0',
+    VERSION: '1.4',
     WAIT_TIME: 2000,
     LOG_KEY: 'humanweb',
     debug: false,
@@ -228,7 +232,7 @@ var CliqzHumanWeb = {
     payloads: {}, //Variable for content extraction fw.
     messageTemplate: {},
     idMappings: {},
-    patternsURL: 'http://cdn.cliqz.com/human-web/patterns',
+    patternsURL: 'https://cdn.cliqz.com/human-web/patterns',
     configURL: 'https://safe-browsing.cliqz.com/config',
     searchCache: {},
     ts : "",
@@ -248,6 +252,9 @@ var CliqzHumanWeb = {
     },
     activeUsage : 0,
     activeUsageThreshold : 2,
+    _md5: function(str) {
+        return md5(str);
+    },
     parseUri: function (str) {
         //var o   = parseUri.options,
         var m = null;
@@ -283,17 +290,24 @@ var CliqzHumanWeb = {
         return url;
     },
     getTime:function() {
-        var d = null;
-        var m = null;
-        var y = null;
-        var h = null;
-        var hr = null;
-        var _ts = null;
-        d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
-        m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
-        h = (new Date().getHours() < 10 ? "0" : "" ) + new Date().getHours();
-        y = new Date().getFullYear();
-        _ts = y + "" + m + "" + h + "" + d;
+        try { var ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        if(!ts){
+            var d = null;
+            var m = null;
+            var y = null;
+            var h = null;
+            var hr = null;
+            var _ts = null;
+            d = (new Date().getDate()  < 10 ? "0" : "" ) + new Date().getDate();
+            m = (new Date().getMonth() < 10 ? "0" : "" ) + parseInt((new Date().getMonth()) + 1);
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            y = new Date().getFullYear();
+            _ts = y + "" + m + "" + d + "" + h;
+        }
+        else{
+            h = (new Date().getUTCHours() < 10 ? "0" : "" ) + new Date().getUTCHours();
+            _ts = ts + "" + h;
+        }
         return _ts;
     },
     isSuspiciousURL: function(aURI) {
@@ -862,7 +876,12 @@ var CliqzHumanWeb = {
                 }
             }
             else {
-                isok = false;
+                if(page_doc['isMU']){
+                    isok = true;
+                }
+                else{
+                    isok = false;
+                }
             }
         }
 
@@ -881,10 +900,45 @@ var CliqzHumanWeb = {
                     // the page content by the data coming from the doubleFetch (no session)
                     // replace the url with canonical url, if it's long
                     if (CliqzHumanWeb.dropLongURL(url)) {
-                        page_doc['url'] = page_doc['x']['canonical_url'];
+                        if(page_doc['x']['canonical_url']){
+                            page_doc['url'] = page_doc['x']['canonical_url'];
+                        }
                     }
                     page_doc['x'] = data;
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                    if(page_doc['isMU']){
+                        // This needs a better handling, currently sites like booking.com, etc are being sent via this signal.
+                        var payload = {};
+                        payload['reason'] = page_doc['isMU'];
+                        payload['qurl'] = url;
+                        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+                        payload['ctry'] = location;
+
+                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'suspiciousUrl', 'payload': payload});
+
+                        // Check if we can still send the url as page model as well. 
+                        // To not drop good URLs.
+                        // Onlye send ig they have canonical.
+
+                        
+                        //delete page_doc['isMU'];
+
+                        if (!CliqzHumanWeb.dropLongURL(url)) {
+                            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                         }
+                        else{
+                           if(page_doc['x']['canonical_url']){
+                                page_doc['url'] = page_doc['x']['canonical_url'];
+                                CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+
+                            }
+                        }
+                        
+                        
+
+                    }
+                    else{
+                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'page', 'payload': page_doc});
+                    }
                 }
                 else {
                     if (CliqzHumanWeb.debug) CliqzUtils.log("failure on doubleFetch! " + "structure did not match" + url, CliqzHumanWeb.LOG_KEY);
@@ -1081,13 +1135,13 @@ var CliqzHumanWeb = {
                         CliqzHumanWeb.state['v'][mrefreshUrl]['qr'] = CliqzHumanWeb.state['v'][parentRef]['qr'];
                         if(CliqzHumanWeb.state['v'][mrefreshUrl]['qr']){
                             //Change type to ad, else might create confusion.
-                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';   
+                            CliqzHumanWeb.state['v'][mrefreshUrl]['qr']['t'] = 'gad';
                         }
                         CliqzHumanWeb.ismRefresh = false;
                         delete CliqzHumanWeb.mRefresh[tabID];
                     }
                 }
-                catch(ee){};    
+                catch(ee){};
             }
 
 
@@ -1146,6 +1200,9 @@ var CliqzHumanWeb = {
             if (activeURL.indexOf('about:')!=0) {
                 if (CliqzHumanWeb.state['v'][activeURL] == null) {
                     //if ((requery.test(activeURL) || yrequery.test(activeURL) || brequery.test(activeURL) ) && !reref.test(activeURL)) {
+
+                    CliqzAntiPhishing.auxOnPageLoad(activeURL);
+
                     var se = CliqzHumanWeb.checkSearchURL(activeURL);
                     if (se > -1){
                         currwin.setTimeout(function(currURLAtTime) {
@@ -1286,8 +1343,6 @@ var CliqzHumanWeb = {
                             }
 
                             var x = CliqzHumanWeb.getPageData(currURL, cd);
-
-
 
                             if (x['canonical_url']) {
                                 CliqzHumanWeb.can_urls[currURL] = x['canonical_url'];
@@ -1437,7 +1492,7 @@ var CliqzHumanWeb = {
         }
 
         //Load ts config
-        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 60 * 1) == 0) {
+        if ((CliqzHumanWeb.counter/CliqzHumanWeb.tmult) % (60 * 20 * 1) == 0) {
             if (CliqzHumanWeb.debug) {
                 CliqzUtils.log('Load ts config', CliqzHumanWeb.LOG_KEY);
             }
@@ -1509,6 +1564,17 @@ var CliqzHumanWeb = {
         }
     },
     unload: function() {
+        //Check is active usage, was sent
+        try {var activeUsageTrk = CliqzUtils.getPref('config_activeUsage', null)} catch(ee){};
+        if(activeUsageTrk){
+            var tDiff = parseInt((new Date().getTime() - activeUsageTrk) / 1000);
+            if(tDiff && tDiff > 3600){
+                CliqzHumanWeb.checkActiveUsage();
+            }
+            else{
+                CliqzUtils.setPref('config_activeUsageCount', CliqzHumanWeb.activeUsage);
+            }
+        }
         // send all the data
         CliqzHumanWeb.pushTelemetry();
         CliqzUtils.clearTimeout(CliqzHumanWeb.pacemakerId);
@@ -1820,15 +1886,33 @@ var CliqzHumanWeb = {
                 msg.payload.red = cleanRed;
             }
 
+            // Check for canonical seen or not.
+            if(msg.payload['x']['canonical_url']) {
+                if(msg.payload['url'] == msg.payload['x']['canonical_url']){
+                    if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial is same: ",CliqzHumanWeb.LOG_KEY);
+                    // canonicalSeen = CliqzHumanWeb.canoincalUrlSeen(msg.payload['x']['canonical_url']);
+                    if(msg.payload['csb'] && msg.payload['ft']) {
+                        if (CliqzHumanWeb.debug) CliqzUtils.log("Canoncial seen before: ",CliqzHumanWeb.LOG_KEY);
+                        delete msg.payload.csb;
+                        delete msg.payload.ft;
+                    }
+                }
+
+                // if the url is not replaces by canonical then also clear the csb key.
+                if(msg.payload['csb']) delete msg.payload.csb;
+            }
+
         }
 
         // FIXME: this cannot be here, telemetry is only for sending logic. The object needs to be
         // handled beforehand!!!
         // Canonical URLs and Referrals.
 
+        /*
         if(CliqzHumanWeb.can_urls[msg.payload.url]){
             msg.payload.url = CliqzHumanWeb.can_urls[msg.payload.url];
         }
+        */
 
         //Check the depth. Just to be extra sure.
 
@@ -1904,18 +1988,34 @@ var CliqzHumanWeb = {
     _telemetry_sending: [],
     _telemetry_start: undefined,
     telemetry_MAX_SIZE: 500,
+    previousDataPost: null,
     pushTelemetry: function() {
         if(CliqzHumanWeb._telemetry_req) return;
 
         // put current data aside in case of failure
-        CliqzHumanWeb.trk.forEach(function(element){
-            CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
-            CliqzHumanWeb.trk = [];
-            CliqzHumanWeb._telemetry_start = (new Date()).getTime();
+        // Changing the slice and empty array function to splice.
 
-            CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, JSON.stringify(CliqzHumanWeb._telemetry_sending), CliqzHumanWeb.pushTelemetryError);
+        //CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.slice(0);
+        //CliqzHumanWeb.trk = [];
 
-        })
+        // Check if track has duplicate messages.
+        // Generate a telemetry signal, with base64 endocing of data and respective count.
+        CliqzHumanWeb.duplicateEvents(CliqzHumanWeb.trk);
+
+        CliqzHumanWeb._telemetry_sending = CliqzHumanWeb.trk.splice(0);
+        CliqzHumanWeb._telemetry_start = (new Date()).getTime();
+        var data = JSON.stringify(CliqzHumanWeb._telemetry_sending);
+        if (data.length > 10) {
+            if (CliqzHumanWeb.previousDataPost && data == CliqzHumanWeb.previousDataPost) {
+                // duplicated , send telemetry notification.
+                var notificationMsg = {};
+                notificationMsg['reason'] = "duplicate payload";
+                notificationMsg['payload'] = data;
+                CliqzHumanWeb.notification(notificationMsg);
+            }
+            CliqzHumanWeb.previousDataPost = data;
+        }
+        CliqzHumanWeb._telemetry_req = CliqzUtils.httpPost(CliqzUtils.SAFE_BROWSING, CliqzHumanWeb.pushTelemetryCallback, data, CliqzHumanWeb.pushTelemetryError);
     },
     pushTelemetryCallback: function(req){
         try {
@@ -1951,8 +2051,9 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]))
-                CliqzHumanWeb.createTable();
+                
             }
+            CliqzHumanWeb.createTable();
             return;
         }
         else {
@@ -2006,6 +2107,36 @@ var CliqzHumanWeb = {
             handleResult: function(aResultSet) {
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
                     res.push({"hash": row.getResultByName("hash"), "private": row.getResultByName("private")});
+                }
+            },
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                callback(true);
+            },
+            handleCompletion: function(aReason) {
+                if (aReason != Components.interfaces.mozIStorageStatementCallback.REASON_FINISHED) {
+                    CliqzUtils.log("SQL canceled or aborted", CliqzHumanWeb.LOG_KEY);
+                    callback(null);
+                }
+                else {
+                    if (res.length == 1) {
+                        callback(res[0]);
+                    }
+                    else {
+                        callback(null);
+                    }
+                }
+            }
+        });
+    },
+    getCanUrlFromHashTable: function(canUrl, callback) {
+        var res = [];
+        var st = CliqzHumanWeb.dbConn.createStatement("SELECT * FROM hashcans WHERE hash = :hash");
+        st.params.hash = (md5(canUrl)).substring(0,16);
+        st.executeAsync({
+            handleResult: function(aResultSet) {
+                for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
+                    res.push({"hash": row.getResultByName("hash")});
                 }
             },
             handleError: function(aError) {
@@ -2168,6 +2299,14 @@ var CliqzHumanWeb = {
             }
         })
 
+        if(paylobj['x'] && paylobj['x']['canonical_url']){
+            CliqzHumanWeb.getCanUrlFromHashTable(paylobj['x']['canonical_url'], function(_res) {
+                if (_res) {
+                    paylobj['csb'] = true;
+                }
+            })
+        }
+
 
         var stmt = CliqzHumanWeb.dbConn.createStatement("SELECT url, checked, ft, private, payload FROM usafe WHERE url = :url");
         stmt.params.url = url;
@@ -2226,7 +2365,22 @@ var CliqzHumanWeb = {
                             }
                         }
 
-                        while (st.executeStep()) {};
+                        //while (st.executeStep()) {};
+                        st.executeAsync({
+                            handleError: function(aError) {
+                                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                            },
+                            handleCompletion: function(aReason) {
+                                if(CliqzHumanWeb.debug){
+                                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                }
+                            }
+                        });
+
+                        // If the URL has canonical then insert the canonical url into hashcan table:
+                        if(paylobj['x'] && paylobj['x']['canonical_url']) CliqzHumanWeb.insertCanUrl(paylobj['x']['canonical_url'])
+
+                       
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2246,7 +2400,17 @@ var CliqzHumanWeb = {
                                 st.params.url = url;
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                         }
                         else{
@@ -2261,7 +2425,17 @@ var CliqzHumanWeb = {
                                 st.params.last_visit = tt;
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 st.params.checked = 0;
-                                while (st.executeStep()) {};
+                                //while (st.executeStep()) {};
+                                st.executeAsync({
+                                    handleError: function(aError) {
+                                        CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                                    },
+                                    handleCompletion: function(aReason) {
+                                        if(CliqzHumanWeb.debug){
+                                            CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                                        }
+                                    }
+                                });
                                 paylobj['e'] = {'cp': 0, 'mm': 0, 'kp': 0, 'sc': 0, 'md': 0};
                             }
                         }
@@ -2273,7 +2447,17 @@ var CliqzHumanWeb = {
     setAsPrivate: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Delete success", CliqzHumanWeb.LOG_KEY);
+                 }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2283,7 +2467,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 1;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CliqzHumanWeb.LOG_KEY);
         }
@@ -2291,7 +2485,17 @@ var CliqzHumanWeb = {
     setAsPublic: function(url) {
         var st = CliqzHumanWeb.dbConn.createStatement("DELETE from usafe WHERE url = :url")
         st.params.url = url;
-        while (st.executeStep()) {};
+        //while (st.executeStep()) {};
+        st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if(CliqzHumanWeb.state['v'][url]){
             delete CliqzHumanWeb.state['v'][url];
         }
@@ -2300,7 +2504,17 @@ var CliqzHumanWeb = {
         var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashusafe (hash, private) VALUES (:hash, :private)")
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 0;
-        while (hash_st.executeStep()) {};
+        //while (hash_st.executeStep()) {};
+        hash_st.executeAsync({
+            handleError: function(aError) {
+                CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+            },
+            handleCompletion: function(aReason) {
+                if(CliqzHumanWeb.debug){
+                    CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                }
+            }
+        });
         if (CliqzHumanWeb.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url), CliqzHumanWeb.LOG_KEY);
         }
@@ -2343,6 +2557,17 @@ var CliqzHumanWeb = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
+        
+        if(listOfUncheckedUrls.length > 1){
+            // Notify is the list of unchecked urls recieved is more than one
+            // Generate a telemetry signal.
+            var notificationMsg = {};
+            notificationMsg['reason'] = "listOfUncheckedUrls greater than one";
+            notificationMsg['count'] = listOfUncheckedUrls.length;
+            CliqzHumanWeb.notification(notificationMsg);
+
+        }
+
         for(var i=0;i<listOfUncheckedUrls.length;i++) {
             var url = listOfUncheckedUrls[i][0];
             var page_doc = listOfUncheckedUrls[i][1];
@@ -2356,7 +2581,17 @@ var CliqzHumanWeb = {
                     st.params.private = 1;
                     st.params.ft = 0;
                     st.params.reason = 'priv. st.';
-                    while (st.executeStep()) {};
+                    //while (st.executeStep()) {};
+                    st.executeAsync({
+                        handleError: function(aError) {
+                            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+                        },
+                        handleCompletion: function(aReason) {
+                            if(CliqzHumanWeb.debug){
+                                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+                            }
+                        }
+                    });
                     CliqzHumanWeb.setAsPrivate(url);
                 }
                 else {
@@ -2367,14 +2602,20 @@ var CliqzHumanWeb = {
     },
     // to invoke in console: CliqzHumanWeb.listOfUnchecked(1000000000000, 0, null, function(x) {console.log(x)})
     forceDoubleFetch: function(url) {
+        // Notify when force double fetch is triggered.
+        // Generate a telemetry signal.
+        var notificationMsg = {};
+        notificationMsg['reason'] = "force double fetch triggered";
+        CliqzHumanWeb.notification(notificationMsg);
+
         CliqzHumanWeb.listOfUnchecked(1000000000000, 0, url, CliqzHumanWeb.processUnchecks);
     },
     outOfABTest: function() {
-        CliqzHumanWeb.dbConn.executeSimpleSQL('DROP TABLE usafe;');
+        (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)('DROP TABLE usafe;');
     },
     removeTable: function(reason) {
         try{
-            CliqzHumanWeb.olddbConn.executeSimpleSQL('DROP TABLE usafe;');
+            (CliqzHumanWeb.olddbConn.executeSimpleSQLAsync || CliqzHumanWeb.olddbConn.executeSimpleSQL)('DROP TABLE usafe;');
         }catch(ee){};
     },
     debugInterface: function() {
@@ -2728,8 +2969,13 @@ var CliqzHumanWeb = {
                 private BOOLEAN DEFAULT 0 \
             )";
 
-            CliqzHumanWeb.dbConn.executeSimpleSQL(usafe);
-            CliqzHumanWeb.dbConn.executeSimpleSQL(hash_usafe);
+            var hash_cans = "create table if not exists hashcans(\
+                hash VARCHAR(32) PRIMARY KEY NOT NULL \
+            )";
+
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_usafe);
+            (CliqzHumanWeb.dbConn.executeSimpleSQLAsync || CliqzHumanWeb.dbConn.executeSimpleSQL)(hash_cans);
 
     },
     aggregateMetrics:function (metricsBefore, metricsAfter){
@@ -2777,19 +3023,82 @@ var CliqzHumanWeb = {
         });
   },
   checkActiveUsage: function(){
-        //This function needs to be scheduled every one hour.
-        if(CliqzHumanWeb.activeUsage && CliqzHumanWeb.activeUsage > CliqzHumanWeb.activeUsageThreshold){
-            //Sample event to be sent
-            var payload = {};
-            payload['status'] = true;
-            payload['t'] = CliqzHumanWeb.getTime();
-            try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
-            payload['ctry'] = location;
-            CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
-            CliqzHumanWeb.activeUsage = 0;
+    //This function needs to be scheduled every one hour.
+    var oldUsage = 0;
+    try {oldUsage = CliqzUtils.getPref('config_activeUsageCount', 0)} catch(ee){};
+    var activeUsage = CliqzHumanWeb.activeUsage + oldUsage;
+    if(activeUsage && activeUsage > CliqzHumanWeb.activeUsageThreshold){
+        //Sample event to be sent
+        var payload = {};
+        payload['status'] = true;
+        payload['t'] = CliqzHumanWeb.getTime();
+        try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+        payload['ctry'] = location;
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'alive', 'payload':payload})
+        CliqzHumanWeb.activeUsage = 0;
+        CliqzUtils.setPref('config_activeUsage', new Date().getTime().toString());
+        CliqzUtils.setPref('config_activeUsageCount', 0);
+    }
+  },
+  duplicateEvents: function(arr){
+    var duplicate = {};
+    var duplicates = {};
 
+    // Calculate duplicates
+    arr.forEach(function(i, idx) {
+        if (typeof(i) == 'object' && i.action == 'page'){ 
+            var d = JSON.stringify(i);
+            duplicate[d] = (duplicate[d]||0)+1; 
         }
-  }
+    });
 
+    Object.keys(duplicate).forEach(function(key){
+        if(duplicate[key] > 1){
+            duplicates[key] = duplicate[key];
+            
+        }
+
+    })
+
+    if (Object.keys(duplicates).length > 0) {
+        if (CliqzHumanWeb.debug) CliqzUtils.log("duplicate: " + JSON.stringify(duplicates), CliqzHumanWeb.LOG_KEY);
+        // If count greater than one, then add and post
+        var notificationMsg = {};
+        notificationMsg['reason'] = "duplicate elements in trk";
+        notificationMsg['payload'] = duplicates;
+        CliqzHumanWeb.notification(notificationMsg);
+    }
+    
+  },
+  notification: function(payload){
+    try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
+    if(payload && typeof(payload) == 'object'){
+        payload['ctry'] = location;
+        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
+  
+    }
+    else{
+        if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
+    }
+  },
+  insertCanUrl: function(canUrl){
+    //Add canUrl in the hashcans table
+    var hash_st = CliqzHumanWeb.dbConn.createStatement("INSERT OR IGNORE INTO hashcans (hash) VALUES (:hash)")
+    hash_st.params.hash = (md5(canUrl)).substring(0,16);
+    //while (hash_st.executeStep()) {};
+    hash_st.executeAsync({
+        handleError: function(aError) {
+            CliqzUtils.log("SQL error: " + aError.message, CliqzHumanWeb.LOG_KEY);
+        },
+        handleCompletion: function(aReason) {
+            if(CliqzHumanWeb.debug){
+                CliqzUtils.log("Insertion success", CliqzHumanWeb.LOG_KEY);
+            }
+        }
+    });
+    if (CliqzHumanWeb.debug) {
+        CliqzUtils.log('MD5: ' + canUrl + md5(canUrl), CliqzHumanWeb.LOG_KEY);
+    }
+  }
 
 };

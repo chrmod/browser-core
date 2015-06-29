@@ -12,6 +12,7 @@ CLIQZEnvironment = {
     	//lucian: temp - FIX IT
     	return host.split('.').splice(-1)[0];
     },
+    OS: 'darwin',
     isPrivate: function(){ return false; },
     getWindow: function(){ return window; },
     httpHandler: function(method, url, callback, onerror, timeout, data){
@@ -59,7 +60,9 @@ CLIQZEnvironment = {
 CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
-CliqzAutocomplete = {}
+CliqzAutocomplete = {
+    spellCorr: {}
+}
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){}
 }

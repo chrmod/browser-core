@@ -27,6 +27,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
   'chrome://cliqzmodules/content/CliqzABTests.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -40,19 +43,24 @@ var VERTICAL_ENCODINGS = {
     'gaming':'g',
     'dictionary':'l',
     'qaa':'q',
-    'bm': 'm'
+    'bm': 'm',
+    'reciperd': 'r'
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
     LOGOS = ['wikipedia', 'google', 'facebook', 'youtube', 'duckduckgo', 'sternefresser', 'zalando', 'bild', 'web', 'ebay', 'gmx', 'amazon', 't-online', 'wiwo', 'wwe', 'weightwatchers', 'rp-online', 'wmagazine', 'chip', 'spiegel', 'yahoo', 'paypal', 'imdb', 'wikia', 'msn', 'autobild', 'dailymotion', 'hm', 'hotmail', 'zeit', 'bahn', 'softonic', 'handelsblatt', 'stern', 'cnn', 'mobile', 'aetv', 'postbank', 'dkb', 'bing', 'adobe', 'bbc', 'nike', 'starbucks', 'techcrunch', 'vevo', 'time', 'twitter', 'weatherunderground', 'xing', 'yelp', 'yandex', 'weather', 'flickr'],
     BRANDS_DATABASE = { domains: {}, palette: ["999"] }, brand_loaded = false,
-    MINUTE = 60*1e3;
+    MINUTE = 60*1e3,
+    ipv4_part = "0*([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])", // numbers 0 - 255
+    ipv4_regex = new RegExp("^" + ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "\\."+ ipv4_part + "([:]([0-9])+)?$"), // port number
+    ipv6_regex = new RegExp("^\\[?(([0-9]|[a-f]|[A-F])*[:.]+([0-9]|[a-f]|[A-F])+[:.]*)+[\\]]?([:][0-9]+)?$");
+
 
 var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rh-staging-mixer.clyqz.com:8080/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=', //http://rich-header-server.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -67,14 +75,16 @@ var CliqzUtils = {
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  TEMPLATES: {'bitcoin': 1, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+  TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
-      'airlinesEZ': 2, 'entity-portal': 3,
+      'entity-portal': 3, 'topsites': 3,
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
-      'entity-search-1': 2, 'entity-banking-2': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
-      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1
+      'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'recipe': 3, 'rd-h3-w-rating': 1
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
@@ -94,7 +104,7 @@ var CliqzUtils = {
       if (dev) this.BRANDS_DATABASE_VERSION = dev
       else if (config) this.BRANDS_DATABASE_VERSION = config
 
-      var brandsDataUrl = "http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
+      var brandsDataUrl = "https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/data/database.json",
           retryPattern = [60*MINUTE, 10*MINUTE, 5*MINUTE, 2*MINUTE, MINUTE];
 
       (function getLogoDB(){
@@ -171,7 +181,7 @@ var CliqzUtils = {
         if (i == imax - 1 || check(urlDetails.host,rule.r)) {
           result = {
             backgroundColor: rule.b?rule.b:null,
-            backgroundImage: rule.l?"url(http://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
+            backgroundImage: rule.l?"url(https://cdn.cliqz.com/brands-database/database/" + this.BRANDS_DATABASE_VERSION + "/logos/" + base + "/" + rule.r + ".svg)":"",
             text: rule.t,
             color: rule.c?"":"#fff"
           }
@@ -297,8 +307,10 @@ var CliqzUtils = {
 
     // Parse Port number
     var port = "";
-    var isIPv4 = CliqzUtils.isIPv4(host);
-    var isIPv6 = CliqzUtils.isIPv6(host);
+
+    var isIPv4 = ipv4_regex.test(host);
+    var isIPv6 = ipv6_regex.test(host);
+
 
     var indexOfColon = host.indexOf(":");
     if ((!isIPv6 || isIPv4) && indexOfColon >= 0) {
@@ -339,8 +351,11 @@ var CliqzUtils = {
     if(fragment)
       extra += "#" + fragment;
 
+    isIPv4 = ipv4_regex.test(host);
+    isIPv6 = ipv6_regex.test(host);
+    var isLocalhost = CliqzUtils.isLocalhost(host, isIPv4, isIPv6);
     // find parts of hostname
-    if (!CliqzUtils.isIPv4(host) && !CliqzUtils.isIPv6(host) && !CliqzUtils.isLocalhost(host) ) {
+    if (!isIPv4 && !isIPv6 && !isLocalhost) {
       try {
         tld = CLIQZEnvironment.tldExtractor(host);
 
@@ -362,7 +377,7 @@ var CliqzUtils = {
       }
     }
     else {
-      name = CliqzUtils.isLocalhost(host) ? "localhost" : "IP";
+      name = isLocalhost ? "localhost" : "IP";
     }
 
     var urlDetails = {
@@ -422,10 +437,10 @@ var CliqzUtils = {
     */
   },
 
-  isLocalhost: function(host) {
+  isLocalhost: function(host, isIPv4, isIPv6) {
     if (host == "localhost") return true;
-    if (CliqzUtils.isIPv4(host) && host.substr(0,3) == "127") return true;
-    if (CliqzUtils.isIPv6(host) && host == "::1") return true;
+    if (isIPv4 && host.substr(0,3) == "127") return true;
+    if (isIPv6 && host == "::1") return true;
 
     return false;
 
@@ -468,7 +483,8 @@ var CliqzUtils = {
               CliqzUtils.encodeQuerySeq() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
-              CliqzUtils.encodeCountry();
+              CliqzUtils.encodeCountry() +
+              CliqzUtils.encodeFilter();
 
     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
       function(res){
@@ -501,6 +517,16 @@ var CliqzUtils = {
 
     //var flag = 'forceCountry';
     //return CliqzUtils.getPref(flag, false)?'&country=' + CliqzUtils.getPref(flag):'';
+  },
+  encodeFilter: function() {
+    var data = {
+      'conservative': 3,
+      'moderate': 0,
+      'liberal': 1
+    },
+    state = data[CliqzUtils.getPref('adultContentFilter', 'moderate')];
+
+    return '&adult='+state;
   },
   encodeResultType: function(type){
     if(type.indexOf('action') !== -1) return ['T'];
@@ -657,6 +683,15 @@ var CliqzUtils = {
   setTimeout: CLIQZEnvironment.setTimeout,
   clearTimeout: CLIQZEnvironment.clearTimeout,
   clearInterval: CLIQZEnvironment.clearTimeout,
+  loadFile: function (fileName, callback) {
+    var self = this;
+    $.ajax({
+        url: fileName,
+        dataType: 'text',
+        success: callback,
+        error: function(data){ callback(data.responseText); }
+    });
+  },
   locale: {},
   currLocale: null,
   loadLocale : function(lang_locale){
@@ -740,8 +775,11 @@ var CliqzUtils = {
         }
     }
   },
-  isWindows: function(win){
-    return win.navigator.userAgent.indexOf('Win') != -1;
+  isWindows: function(){
+    return CLIQZEnvironment.OS.indexOf("win") === 0;
+  },
+  isMac: function(){
+    return CLIQZEnvironment.OS.indexOf("darwin") === 0;
   },
   getWindow: CLIQZEnvironment.getWindow,
   getWindowID: CLIQZEnvironment.getWindowID,
