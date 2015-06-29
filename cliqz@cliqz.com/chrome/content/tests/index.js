@@ -21,13 +21,10 @@ function loadModule(moduleName) {
 function writeToFile(testData) {
  try {
   var _this = this,
-      filename = "mocha-report.txt",
+      filename = "mocha-report.xml",
       path = OS.Path.join(OS.Constants.Path.profileDir, filename);
    
-  var data = (new TextEncoder()).encode(
-			JSON.stringify(testData));
-
-  OS.File.writeAtomic(path, data).then(
+  OS.File.writeAtomic(path, testData).then(
     function(value) {
       console.log("save: saved to" + path);
     }, function(e) {
