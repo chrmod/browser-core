@@ -2,6 +2,14 @@
 var EXPORTED_SYMBOLS = ['CLIQZEnvironment'];
 
 Components.utils.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/NewTabUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
+  'chrome://cliqzmodules/content/CliqzUtils.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'Result',
+  'chrome://cliqzmodules/content/Result.jsm');
 
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     PREF_STRING = 32,
@@ -171,5 +179,70 @@ var CLIQZEnvironment = {
         var tBrowser = win.document.getElementById('content');
         var tab = tBrowser.addTab(url);
         tBrowser.selectedTab = tab;
+    },
+
+    // from CliqzAutocomplete
+    loadSearch: function(){
+    },
+    unloadSearch: function(){
+
+    },
+
+    // lazy init
+    // callback called multiple times
+    historySearch: (function(){
+        var hist = {};
+
+        XPCOMUtils.defineLazyServiceGetter(
+            hist,
+            'search',
+            '@mozilla.org/autocomplete/search;1?name=history',
+            'nsIAutoCompleteSearch');
+
+        return function(q, callback, searchParam, sessionStart){
+            if(q.length == 0 && sessionStart){
+                NewTabUtils.links.populateCache(function(){
+                    callback(null, getTopSites());
+                })
+            }
+            else {
+                hist.search.startSearch(q, searchParam, null, {
+                    onSearchResult: function(ctx, result) {
+                        callback(result)
+                    }
+                });
+            }
+        }
+    })()
+
+    // END from CliqzAutocomplete
+}
+
+function getTopSites(){
+    var results = NewTabUtils.links.getLinks().slice(0, 5);
+    if(results.length>0){
+        var top = Result.generic('cliqz-extra', '', null, '', null, '', null, JSON.stringify({topsites:true}));
+        top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
+        top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
+        top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
+        top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
+        top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
+        top.data.url = results[0].url;
+        top.data.template = 'topsites';
+        top.data.urls = results.map(function(r, i){
+            var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
+                logoDetails = CliqzUtils.getLogoDetails(urlDetails);
+
+            return {
+              url: r.url,
+              href: r.url.replace(urlDetails.path, ''),
+              link: r.url.replace(urlDetails.path, ''),
+              name: urlDetails.name,
+              text: logoDetails.text,
+              style: logoDetails.style,
+              extra: "top-sites-" + i
+            }
+        });
+        return top
     }
 }

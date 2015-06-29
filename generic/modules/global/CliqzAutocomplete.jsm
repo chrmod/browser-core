@@ -4,12 +4,11 @@
  * http://mxr.mozilla.org/mozilla-central/source/toolkit/components/autocomplete/nsIAutoCompleteResult.idl
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
 var EXPORTED_SYMBOLS = ['CliqzAutocomplete'];
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Mixer.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/Mixer.jsm');
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -31,13 +30,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'NewTabUtils',
-  'resource://gre/modules/NewTabUtils.jsm');
-
-var prefs = Components.classes['@mozilla.org/preferences-service;1']
-                    .getService(Components.interfaces.nsIPrefService)
-                    .getBranch('browser.urlbar.');
 
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
@@ -71,10 +63,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     init: function(){
         CliqzUtils.init();
         CliqzAutocomplete.initProvider();
-        CliqzAutocomplete.initResults();
 
-        XPCOMUtils.defineLazyServiceGetter(CliqzAutocomplete.CliqzResults.prototype, 'historyAutoCompleteProvider',
-                  '@mozilla.org/autocomplete/search;1?name=history', 'nsIAutoCompleteSearch');
+
+        CliqzAutocomplete.initResults();
 
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
         var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
@@ -88,9 +79,13 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
         reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
 
+
+        //CLIQZEnvironment.loadSearch();
+
         CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
     },
     unload: function() {
+        //CLIQZEnvironment.unloadSearch();
         var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
         var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
         try{
@@ -213,7 +208,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
             classDescription : 'Cliqz',
             contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-            QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
+            QueryInterface: XPCOMUtils.generateQI([ Components.interfaces.nsIAutoCompleteSearch ]),
             resultsTimer: null,
             historyTimer: null,
             historyTimeout: false,
@@ -222,123 +217,30 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             historyTimeoutCallback: function(params) {
                 CliqzUtils.log('history timeout', CliqzAutocomplete.LOG_KEY);
                 this.historyTimeout = true;
-                this.onSearchResult({}, this.historyResults);
             },
-            fetchTopSites: function(){
-                var results = NewTabUtils.links.getLinks().slice(0, 5);
-                if(results.length>0){
-                    var top = Result.generic('cliqz-extra', '', null, '', null, '', null, JSON.stringify({topsites:true}));
-                    top.data.title = CliqzUtils.getLocalizedString('topSitesTitle');
-                    top.data.message = CliqzUtils.getLocalizedString('topSitesMessage');
-                    top.data.message1 = CliqzUtils.getLocalizedString('topSitesMessage1');
-                    top.data.cliqz_logo = 'chrome://cliqzres/content/skin/img/cliqz.svg';
-                    top.data.lastQ = CliqzUtils.getWindow().gBrowser.selectedTab.cliqz;
-                    top.data.url = results[0].url;
-                    top.data.template = 'topsites';
-                    top.data.urls = results.map(function(r, i){
-                        var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
-                            logoDetails = CliqzUtils.getLogoDetails(urlDetails);
-
-                        return {
-                          url: r.url,
-                          href: r.url.replace(urlDetails.path, ''),
-                          link: r.url.replace(urlDetails.path, ''),
-                          name: urlDetails.name,
-                          text: logoDetails.text,
-                          style: logoDetails.style,
-                          extra: "top-sites-" + i
-                        }
-                    });
-                    this.cliqzResultsExtra = [top];
-                }
-                this.historyTimeout = true;
-                this.pushResults(this.searchString);
-            },
-            // history sink, could be called multiple times per query
-            onSearchResult: function(search, result) {
+            onHistoryDone: function(result, resultExtra) {
+                CliqzUtils.log('4');
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
 
                 var now = Date.now();
 
-                this.historyResults = result;
+                if(result)this.historyResults = result;
+                if(resultExtra) {
+                    //Lucian: not very elegant
+                    this.cliqzResultsExtra = [resultExtra];
+                    this.historyTimeout = true;
+                    this.pushResults(this.searchString);
+                    return;
+                }
                 this.latency.history = now - this.startTime;
-
-                //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
-                //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
 
                 // Choose an instant result if we have all history results (timeout)
                 // and we haven't already chosen one
                 if(result && (this.isHistoryReady() || this.historyTimeout) && this.mixedResults.matchCount == 0) {
                     CliqzUtils.clearTimeout(this.historyTimer);
                     CliqzHistoryPattern.addFirefoxHistory(result);
-                }
-            },
-            // Pick one history result or a cluster as the instant result to be shown to the user first
-            // TODO: no longer used, see if some of this logic can be moved to HistoryPattern
-            instantResult: function(search, result) {
-                var _res = CliqzClusterHistory.cluster(this.historyResults);
-                history_left = _res[0];
-                cluster_data = _res[1];
-
-                // If we could cluster the history, put that as the instant result
-                if(cluster_data) {
-                    var instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
-                    instant_cluster.comment += " (instant history cluster)!";
-
-                    this.instant = [instant_cluster];
-                    this.pushResults(result.searchString);
-                } else {
-                    // Pick the url that is the shortest subset of the first entry
-                    // candidate for instant history
-                    var candidate_idx = -1;
-                    var candidate_url = '';
-
-                    var searchString = this.searchString.replace('http://','').replace('https://','');
-
-                    for(var i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
-
-                        var url = this.historyResults.getLabelAt(i);
-                        var url_noprotocol = url.replace('http://','').replace('https://','');
-
-                        var urlparts = CliqzUtils.getDetailsFromUrl(url);
-
-                        // check if it should not be filtered, and matches the url
-                        if(Result.isValid(url, urlparts) &&
-                           url_noprotocol.toLowerCase().indexOf(searchString) != -1) {
-
-                            if(candidate_idx == -1) {
-                                // first entry
-                                CliqzUtils.log("first instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
-                                candidate_idx = i;
-                                candidate_url = url;
-                            } else if(candidate_url.indexOf(url_noprotocol) != -1 &&
-                                      candidate_url != url) {
-                                // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
-                                candidate_idx = i;
-                                candidate_url = url;
-                            }
-                        }
-                    }
-
-                    if(candidate_idx != -1) {
-                        var style = this.historyResults.getStyleAt(candidate_idx),
-                            value = this.historyResults.getValueAt(candidate_idx),
-                            image = this.historyResults.getImageAt(candidate_idx),
-                            comment = this.historyResults.getCommentAt(candidate_idx),
-                            label = this.historyResults.getLabelAt(candidate_idx);
-
-                        var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        instant.comment += " (instant history)!";
-
-                        this.historyResults.removeValueAt(candidate_idx, false);
-                        this.instant = [instant];
-                    } else {
-                        this.instant = [];
-                    }
-                    this.pushResults(result.searchString);
                 }
             },
             isHistoryReady: function() {
@@ -582,7 +484,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.mixedResults = new CliqzAutocomplete.ProviderAutoCompleteResultCliqz(
                         this.searchString,
-                        Ci.nsIAutoCompleteResult.RESULT_SUCCESS,
+                        Components.interfaces.nsIAutoCompleteResult.RESULT_SUCCESS,
                         -2, // blocks autocomplete
                         '');
 
@@ -632,16 +534,16 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
 
                 // trigger history search
-                if(searchString.trim().length == 0 && CliqzAutocomplete.sessionStart ){
-                    CliqzAutocomplete.sessionStart = false;
-                    this.fetchTopSites = this.fetchTopSites.bind(this);
-                    NewTabUtils.links.populateCache(this.fetchTopSites)
-                } else {
-                    this.historyAutoCompleteProvider.startSearch(searchString, searchParam, null, this);
-                    CliqzUtils.clearTimeout(this.historyTimer);
-                    this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
-                    this.historyTimeout = false;
-                }
+                CLIQZEnvironment.historySearch(
+                    searchString.trim(),
+                    this.onHistoryDone.bind(this),
+                    searchParam,
+                    CliqzAutocomplete.sessionStart);
+                CliqzUtils.log('1');
+
+                CliqzUtils.clearTimeout(this.historyTimer);
+                this.historyTimer = CliqzUtils.setTimeout(this.historyTimeoutCallback, CliqzAutocomplete.HISTORY_TIMEOUT, this.searchString);
+                this.historyTimeout = false;
             },
             /**
             * Stops an asynchronous search that is in progress

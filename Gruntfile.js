@@ -56,6 +56,7 @@ module.exports = function(grunt) {
                     //Lucian can we include them all at once /* ?
                     "generic/modules/global/CliqzUtils.jsm",
                     "generic/modules/global/CliqzHandlebars.jsm",
+                    "generic/modules/global/CliqzAutocomplete.jsm",
                 ],
                 options: {
                     banner: "'use strict';\n\nvar CLIQZ = {};\n\n",

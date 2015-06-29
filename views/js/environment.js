@@ -1,4 +1,6 @@
-var db = {};
+var db = {
+    showConsoleLogs: true
+};
 
 CLIQZEnvironment = {
 	TEMPLATES_PATH: '/generic/static/templates/',
@@ -60,11 +62,14 @@ CLIQZEnvironment = {
 CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
+/*
 CliqzAutocomplete = {
     spellCorr: {}
 }
+*/
 XPCOMUtils = {
-	defineLazyModuleGetter: function(){}
+	defineLazyModuleGetter: function(){},
+    generateQI: function(){},
 }
 Services = {
 	scriptloader: {
