@@ -21,6 +21,10 @@ urlbar.onkeyup = function(e){
 			q: res.q,
 			results: extra.concat((res.result || []).map(function(r){
 				//Lucian: we need some more modules in the middle
+				if(r.extra) {
+					r.extra.type = 'cliqz-extra';
+					return r.extra;
+				}
 				r.type='';
 				if(r.snippet){
 					r.title = r.snippet.title  || '';
