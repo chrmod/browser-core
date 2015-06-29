@@ -221,6 +221,13 @@ var CliqzABTests = CliqzABTests || {
             case "1037_B":
                 CliqzUtils.setPref("cliqzOpenState", true);
                 break;
+            case "1038_A":
+                CliqzUtils.setPref("newsTopsitesAssessment", false);
+                break;
+            case "1038_B":
+                CliqzUtils.setPref("newsTopsitesAssessment", true);
+                CliqzUtils.setPref("newsTopsitesAssessmentDone", false);                
+                break;
             default:
                 rule_executed = false;
         }
@@ -385,7 +392,7 @@ var CliqzABTests = CliqzABTests || {
             case "1035_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("news-default-latest");
                 break;
-            case "1035_A":
+            case "1036_A":
             case "1036_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding_same_result");
                 CliqzUtils.cliqzPrefs.clearUserPref("extended_onboarding");
@@ -393,6 +400,11 @@ var CliqzABTests = CliqzABTests || {
             case "1037_A":
             case "1037_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("cliqzOpenState");
+                break;
+            case "1038_A":
+            case "1038_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("newsTopsitesAssessment");
+                CliqzUtils.cliqzPrefs.clearUserPref("newsTopsitesAssessmentDone");
                 break;
             default:
                 rule_executed = false;

@@ -22,7 +22,7 @@
         ]]>
       </constructor>
       <property name="selectedIndex"
-                onget="return 0;">
+                onget="return -1;">
         <setter>
           <![CDATA[
             //mask default FF

@@ -133,6 +133,11 @@ window.CLIQZ.Core = {
             CliqzCategories.init();
         }
 
+        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
+            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
+            CliqzCategories.assessNewsTopsites();
+        }
+
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
