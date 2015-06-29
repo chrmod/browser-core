@@ -67,7 +67,7 @@ window.focus();
 
 var runner =  mocha.run();
 
-var XMLReport = "";
+var XMLReport = '<?xml version="1.0" encoding="UTF-8"?>';
 Mocha.reporters.XUnit.prototype.write = function (line) {
   XMLReport += line;
 };
