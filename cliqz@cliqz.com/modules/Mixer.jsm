@@ -52,7 +52,7 @@ function kindEnricher(data, newKindParams) {
 
 var Mixer = {
     ezURLs: {},
-    EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
+    EZ_COMBINE: ['entity-generic', 'ez-generic-2', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
     TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
     init: function() {
@@ -208,7 +208,7 @@ var Mixer = {
         cliqzExtra = cliqzExtra.slice(0, 1);
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
-        if(cliqzExtra && cliqzExtra.length > 0) {
+        if(CliqzUtils.getPref("alternative_ez", "") != "none" && cliqzExtra && cliqzExtra.length > 0) {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
@@ -296,6 +296,14 @@ var Mixer = {
         /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
         }*/
+
+        // Modify EZ template - for test
+        if(CliqzUtils.getPref("alternative_ez", "") == "description") {
+            for(var i=0; i<results.length; i++) {
+                if(results[i].data && results[i].data.template == "entity-generic")
+                    results[i].data.template = "ez-generic-2"
+            }
+        }
 
         // Add custom results to the beginning if there are any
         if(customResults && customResults.length > 0) {
