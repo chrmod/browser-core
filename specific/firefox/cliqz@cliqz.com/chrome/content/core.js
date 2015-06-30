@@ -46,9 +46,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
-  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
@@ -63,6 +60,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
   'chrome://cliqzmodules/content/CUcrawl.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
@@ -138,8 +138,6 @@ window.CLIQZ.Core = {
             CliqzCategories.assessNewsTopsites();
         }
 
-        CliqzSpellCheck.initSpellCorrection();
-
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
@@ -191,7 +189,7 @@ window.CLIQZ.Core = {
         //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
-        CliqzAutocomplete.init();
+        CLIQZEnvironment.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -460,7 +458,6 @@ window.CLIQZ.Core = {
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
-            delete window.CliqzSpellCheck;
             delete window.CliqzHistory;
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
@@ -572,7 +569,6 @@ window.CLIQZ.Core = {
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
-            CliqzSpellCheck.initSpellCorrection();
         });
     },
 

@@ -1,5 +1,5 @@
 var db = {
-    showConsoleLogs: true
+    showConsoleLogs: false
 };
 
 CLIQZEnvironment = {
@@ -7,9 +7,9 @@ CLIQZEnvironment = {
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     setPref: function(k,v){db[k] = v},
-    setInterval: setInterval,
-    setTimeout: setTimeout,
-    clearTimeout: clearTimeout,
+    setInterval: function(){ setInterval.apply(null, arguments) },
+    setTimeout: function(){ setTimeout.apply(null, arguments) },
+    clearTimeout: function(){ clearTimeout.apply(null, arguments) },
     tldExtractor: function(host){
     	//lucian: temp - FIX IT
     	return host.split('.').splice(-1)[0];
@@ -56,6 +56,23 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
+    historySearch: function(q, callback, searchParam, sessionStart){
+        var res = [];
+        for (var i = 0; i<5; i++) {
+            res.push({
+                style:   'favicon',
+                value:   'http://coolurl_' + i + '.com',
+                image:   '',
+                comment: query + 'Title ' +i,
+                label:   ''
+            });
+        }
+        callback({
+            query: q,
+            results: res,
+            ready:  true
+        })
+    }
 }
 
 //Lucian: temp hopefully
@@ -67,6 +84,14 @@ CliqzAutocomplete = {
     spellCorr: {}
 }
 */
+CliqzResultProviders = {
+    getCustomResults: function(q){
+        return [q]
+    }
+}
+CliqzHistoryPattern = {
+    detectPattern: function(){}
+}
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){},
     generateQI: function(){},
@@ -78,9 +103,13 @@ Services = {
 }
 
 Components = {
+    interfaces: {
+        nsIAutoCompleteResult: {}
+    },
 	utils: {
 		import: function(){}
-	}
+	},
+    ID: function(){}
 }
 
 XULBrowserWindow = {

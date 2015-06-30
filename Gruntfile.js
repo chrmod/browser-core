@@ -57,6 +57,7 @@ module.exports = function(grunt) {
                     "generic/modules/global/CliqzUtils.jsm",
                     "generic/modules/global/CliqzHandlebars.jsm",
                     "generic/modules/global/CliqzAutocomplete.jsm",
+                    "generic/modules/global/CliqzSpellCheck.jsm",
                 ],
                 options: {
                     banner: "'use strict';\n\nvar CLIQZ = {};\n\n",

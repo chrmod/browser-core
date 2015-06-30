@@ -603,11 +603,11 @@ var CliqzUtils = {
     msg.ts = Date.now();
 
     CliqzUtils.trk.push(msg);
-    CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
+ //   CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
     if(instantPush || CliqzUtils.trk.length % 100 == 0){
       CliqzUtils.pushTelemetry();
     } else {
-      CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
+      //CliqzUtils.trkTimer = CliqzUtils.setTimeout(CliqzUtils.pushTelemetry, 60000);
     }
   },
   resultTelemetry: function(query, queryAutocompleted, resultIndex, resultUrl, resultOrder, extra) {

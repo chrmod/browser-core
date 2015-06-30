@@ -11,6 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
+
 var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
     PREF_STRING = 32,
     PREF_INT    = 64,
@@ -35,6 +38,12 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
         if (i >= 0) {
             _timers.splice(_timers.indexOf(timer), 1);
         }
+    },
+    FFcontract = {
+        classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
+        classDescription : 'Cliqz',
+        contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
+        QueryInterface: XPCOMUtils.generateQI([ Components.interfaces.nsIAutoCompleteSearch ]),
     };
 
 var CLIQZEnvironment = {
@@ -42,6 +51,9 @@ var CLIQZEnvironment = {
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
     cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
     OS: Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS.toLowerCase(),
+    init: function(){
+        CLIQZEnvironment.loadSearch();
+    },
     log: function(msg, key){
         _log.logStringMessage(
           'CLIQZ ' + (new Date()).toISOString() + (key? ' ' + key : '') + ': ' +
@@ -183,9 +195,30 @@ var CLIQZEnvironment = {
 
     // from CliqzAutocomplete
     loadSearch: function(){
+        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+        try{
+            reg.unregisterFactory(
+                reg.contractIDToCID(FFcontract.contractID),
+                reg.getClassObjectByContractID(FFcontract.contractID, Ci.nsISupports)
+            )
+        }catch(e){}
+
+        //extend prototype
+        for(var k in FFcontract) CliqzAutocomplete.CliqzResults.prototype[k] = FFcontract[k];
+
+        var cp = CliqzAutocomplete.CliqzResults.prototype;
+        var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
+        reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
+
     },
     unloadSearch: function(){
-
+        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+        try{
+          reg.unregisterFactory(
+            reg.contractIDToCID(FFcontract.contractID),
+            reg.getClassObjectByContractID(FFcontract.contractID, Ci.nsISupports)
+          );
+        }catch(e){}
     },
 
     // lazy init
@@ -208,7 +241,22 @@ var CLIQZEnvironment = {
             else {
                 hist.search.startSearch(q, searchParam, null, {
                     onSearchResult: function(ctx, result) {
-                        callback(result)
+                        var res = [];
+                        for (var i = 0; result && i < result.matchCount; i++) {
+                            res.push({
+                                style:   result.getStyleAt(i),
+                                value:   result.getValueAt(i),
+                                image:   result.getImageAt(i),
+                                comment: result.getCommentAt(i),
+                                label:   result.getLabelAt(i)
+                            });
+                        }
+                        callback({
+                            query: q,
+                            results: res,
+                            ready:  result.searchResult != result.RESULT_NOMATCH_ONGOING &&
+                                    result.searchResult != result.RESULT_SUCCESS_ONGOING
+                        })
                     }
                 });
             }

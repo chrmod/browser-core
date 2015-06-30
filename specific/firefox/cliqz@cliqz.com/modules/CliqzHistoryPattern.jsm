@@ -165,17 +165,17 @@ var CliqzHistoryPattern = {
   },
   // This method is triggered when the Firefox history has finished loading
   addFirefoxHistory: function(history) {
-    var query = history.searchString;
+    var query = history.query;
     // attempt rule-based clustering first
-    var clustered_result = CliqzClusterHistory.cluster(history);
+    var clustered_result = CliqzClusterHistory.cluster(history.results);
     //var history_left = clustered_result[0]
     var cluster_data = clustered_result[1];
 
     // Extract results
     var patterns = [];
-    for (var i = 0; i < history.matchCount; i++) {
-      var url = CliqzUtils.cleanMozillaActions(history.getValueAt(i)),
-          title = history.getCommentAt(i);
+    for (var i = 0; i < history.results.length; i++) {
+      var url = CliqzUtils.cleanMozillaActions(history.results[i].value),
+          title = history.results[i].comment;
 
       if (!title) {
         //construct title from url
@@ -190,7 +190,7 @@ var CliqzHistoryPattern = {
         patterns.push({
           url: url,
           title: title,
-          favicon: history.getImageAt(i),
+          favicon: history.results[i].image,
           _genUrl: CliqzHistoryPattern.generalizeUrl(url, true)
         });
       }

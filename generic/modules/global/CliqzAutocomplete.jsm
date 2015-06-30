@@ -31,7 +31,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
   'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
-var CliqzAutocomplete = CliqzAutocomplete || {
+var CliqzAutocomplete = {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
     HISTORY_TIMEOUT: 200,
@@ -59,41 +59,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         'pushed': null,
         'userConfirmed': false,
         'searchTerms': []
-    },
-    init: function(){
-        CliqzUtils.init();
-        CliqzAutocomplete.initProvider();
-
-
-        CliqzAutocomplete.initResults();
-
-        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-        var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
-        try{
-            reg.unregisterFactory(
-                reg.contractIDToCID(CONTRACT_ID),
-                reg.getClassObjectByContractID(CONTRACT_ID, Ci.nsISupports)
-            )
-        }catch(e){}
-        var cp = CliqzAutocomplete.CliqzResults.prototype;
-        var factory = XPCOMUtils.generateNSGetFactory([CliqzAutocomplete.CliqzResults])(cp.classID);
-        reg.registerFactory(cp.classID, cp.classDescription, cp.contractID, factory);
-
-
-        //CLIQZEnvironment.loadSearch();
-
-        CliqzUtils.log('initialized', CliqzAutocomplete.LOG_KEY);
-    },
-    unload: function() {
-        //CLIQZEnvironment.unloadSearch();
-        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-        var CONTRACT_ID = CliqzAutocomplete.CliqzResults.prototype.contractID;
-        try{
-          reg.unregisterFactory(
-            reg.contractIDToCID(CONTRACT_ID),
-            reg.getClassObjectByContractID(CONTRACT_ID, Ci.nsISupports)
-          );
-        }catch(e){}
     },
     getResultsOrder: function(results){
         return results.map(function(r){
@@ -205,10 +170,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     },
     initResults: function(){
         CliqzAutocomplete.CliqzResults.prototype = {
-            classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
-            classDescription : 'Cliqz',
-            contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-            QueryInterface: XPCOMUtils.generateQI([ Components.interfaces.nsIAutoCompleteSearch ]),
             resultsTimer: null,
             historyTimer: null,
             historyTimeout: false,
@@ -219,7 +180,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeout = true;
             },
             onHistoryDone: function(result, resultExtra) {
-                CliqzUtils.log('4');
                 if(!this.startTime) {
                     return; // no current search, just discard
                 }
@@ -244,12 +204,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 }
             },
             isHistoryReady: function() {
-                if(this.historyResults &&
-                   this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
-                   this.historyResults.searchResult != this.historyResults.RESULT_SUCCESS_ONGOING)
-                    return true;
-                else
-                    return false;
+                return this.historyResults && this.historyResults.ready;
             },
             historyPatternCallback: function(res) {
                 // abort if we already have results
@@ -596,3 +551,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }
     }
 }
+
+CliqzAutocomplete.initProvider();
+CliqzAutocomplete.initResults();

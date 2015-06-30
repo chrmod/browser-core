@@ -47,21 +47,13 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null)
             return [null, null];
-
+        CliqzUtils.getWindow().console.log(history)
         var freqHash = {};
         var maxCounter = -1;
         var maxDomain = null;
-        var historyTrans = [];
 
-        for (var i = 0; history && i < history.matchCount; i++) {
-            var style = history.getStyleAt(i),
-                value = history.getValueAt(i),
-                image = history.getImageAt(i),
-                comment = history.getCommentAt(i),
-                label = history.getLabelAt(i);
-
-            historyTrans.push({style: style, value: value, image: image, comment: comment, label: label});
-            var urlDetails = CliqzUtils.getDetailsFromUrl(value),
+        for (var i = 0; history && i < history.length; i++) {
+            var urlDetails = CliqzUtils.getDetailsFromUrl(history[i].value),
                 domain = urlDetails.host;
 
             if (freqHash[domain]==null) freqHash[domain]=[];
@@ -75,26 +67,26 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
         CliqzClusterHistory.log('Trying to cluster: ' + maxDomain);
 
-        if (history.matchCount < 10) {
+        if (history.length < 10) {
             CliqzClusterHistory.log('History cannot be clustered, matchCount < 10');
-            return [historyTrans, null];
+            return [history, null];
         }
 
-        var historyTransFiltered = [];
-        var historyTransRemained = [];
+        var historyFiltered = [];
+        var historyRemained = [];
         var j = 0;
         for (i=0; i<freqHash[maxDomain].length; i++) {
             for (; j <= freqHash[maxDomain][i]; j++) {
                 if (j < freqHash[maxDomain][i]) {
-                    historyTransRemained.push(historyTrans[j]);
+                    historyRemained.push(history[j]);
                 } else {
-                    historyTransFiltered.push( { url: historyTrans[j].value,
-                                                 title: historyTrans[j].comment });
+                    historyFiltered.push( { url: history[j].value,
+                                                 title: history[j].comment });
                 }
             }
         }
-        while (j < historyTrans.length) {
-            historyTransRemained.push(historyTrans[j]);
+        while (j < history.length) {
+            historyRemained.push(history[j]);
             j++;
         }
 
@@ -112,24 +104,24 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         var threshold = CliqzUtils.getPref("domainClusterThreshold", 0.5)
-        if (maxCounter < (history.matchCount * threshold)) {
+        if (maxCounter < (history.length * threshold)) {
             CliqzClusterHistory.log('History cannot be clustered, maxCounter < belowThreshold: ' + maxCounter + ' < ' + history.matchCount * threshold);
-            return [historyTrans, null];
+            return [history, null];
         }
 
         // No rules, abort and continue history as normal
         var clusteredHistory = null;
         if (rules) {
-            clusteredHistory = CliqzClusterHistory.collapse(maxDomain, rules, historyTransFiltered);
+            clusteredHistory = CliqzClusterHistory.collapse(maxDomain, rules, historyFiltered);
         }
 
         if (!clusteredHistory) {
             // the collapse failed, perhaps: too few data?, missing template, error?
             // if clusteredHistory return the normal history
             CliqzClusterHistory.log('History cannot be clustered, clusteredHistory is null');
-            return [historyTrans, null];
+            return [history, null];
         } else {
-            return [historyTransRemained, clusteredHistory];
+            return [historyRemained, clusteredHistory];
         }
     },
     match_url: function(cond, history) {
