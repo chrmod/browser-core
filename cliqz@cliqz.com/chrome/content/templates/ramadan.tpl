@@ -38,6 +38,7 @@
            {{#each data.categories}}
                 <div
                   class="cqz-ez-btn {{ ../logo.buttonsClass }}"
+                  style="max-width: 100px"
                   url="{{ url }}"
                   extra="cat-{{ @index }}" arrow="false" arrow-if-visible='true'>
                     {{ emphasis (local title_key) ../../text 2 true}}
