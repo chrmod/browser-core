@@ -12,8 +12,11 @@
         <div class='cqz-result-url overflow' arrow-override=''>
             {{ emphasis friendly_url text 2 true }}
         </div>
-        <div class='cqz-result-desc-3line'>
-            {{description}}
+        <div class='cqz-result-desc-3line multi-ellipsis'>
+            <p>
+              {{description}}
+            </p>
+            
         </div>
     {{/with}}
 
