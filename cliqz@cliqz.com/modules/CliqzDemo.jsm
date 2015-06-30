@@ -20,6 +20,8 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+var PROXY_ID = "cliqzDemoProxy";
+
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzDemo');
 }
@@ -28,6 +30,12 @@ function _onPageLoad (aEvent) {
 	var doc = aEvent.originalTarget;
 	if (doc.nodeName != "#document") return;
 	_log("loaded event processed");
+
+	var proxy = doc.getElementById(PROXY_ID);
+	if (proxy) {
+		_log("proxy found");
+		Cu.exportFunction(CliqzDemo.openDropdown, proxy, {  defineAs: "openDropdown" });
+	}
 }
 
 var CliqzDemo = {
@@ -37,5 +45,10 @@ var CliqzDemo = {
 	},
 	unload: function (window) {
 		window.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);	
+	},
+	openDropdown: function () {
+		var core = CliqzUtils.getWindow().CLIQZ.Core;
+		_log("core is " + core);
+		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
 	}
 }
