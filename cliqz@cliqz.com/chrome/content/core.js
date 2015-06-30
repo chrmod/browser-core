@@ -70,8 +70,10 @@ var Services = Services || CliqzUtils.getWindow().Services;
 if(window.CLIQZ === undefined)
     Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
 else {
-    //faulty uninstall of previous version
-    window.CLIQZ = window.CLIQZ || {};
+    try{
+        //faulty uninstall of previous version
+        window.CLIQZ = window.CLIQZ || {};
+    } catch(e){}
 }
 
 window.CLIQZ.Core = {
@@ -129,6 +131,11 @@ window.CLIQZ.Core = {
 
         if(CliqzUtils.getPref('categoryAssessment', false)){
             CliqzCategories.init();
+        }
+
+        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
+            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
+            CliqzCategories.assessNewsTopsites();
         }
 
         CliqzSpellCheck.initSpellCorrection();

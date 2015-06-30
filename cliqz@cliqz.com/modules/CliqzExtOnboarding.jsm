@@ -33,9 +33,9 @@ var CliqzExtOnboarding = {
         // CliqzUtils and CliqzHandlebars point to outdated objects
         // and defineLazyModuleGetter does not reload them
         if (wasUnloaded) {
-            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');   
-            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');   
-            wasUnloaded = false;      
+            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
+            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+            wasUnloaded = false;
         }
 
         CliqzExtOnboarding._log("init: initializing");
@@ -49,9 +49,9 @@ var CliqzExtOnboarding = {
 
     unload: function (win) {
         CliqzExtOnboarding._log("unload: unloading...");
-       
+
         CliqzExtOnboarding._removeDropdownListeners(win);
-        var callout = CliqzExtOnboarding._getCallout(win);        
+        var callout = CliqzExtOnboarding._getCallout(win);
         if (callout) {
             CliqzExtOnboarding._removeCalloutListeners(callout);
             CliqzExtOnboarding._destroyCallout(callout);
@@ -92,6 +92,13 @@ var CliqzExtOnboarding = {
         if (prefs) {
             try {
                 prefs = JSON.parse(prefs)["same_result"];
+                // for those users who were already in the AB test when
+                // "sub_group" was introduced
+                if (!prefs.hasOwnProperty("sub_group")) {
+                    prefs["sub_group"] = "na";
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                        { "same_result": prefs }));
+                }
             } catch (e) { }
         }
         if (!prefs) {
@@ -99,7 +106,8 @@ var CliqzExtOnboarding = {
                 "state": "seen",
                 "result_count": 0,
                 "show_count": 0,
-                "max_show_duration": 0
+                "max_show_duration": 0,
+                "sub_group": "tbd" // set only when we would show the message for the first time
             };
             CliqzExtOnboarding._log("creating prefs");
         }
@@ -114,9 +122,17 @@ var CliqzExtOnboarding = {
         } else if (prefs["result_count"] < CliqzExtOnboarding.REQUIRED_RESULTS_COUNT) {
             prefs["result_count"]++;
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                { "same_result": prefs }));                    
+                { "same_result": prefs }));
             CliqzExtOnboarding._log("onSameResult: not enough result clicks so far; not interrupting");
             return;
+        }
+
+        // decide which subgroup we are going to be in
+        if (prefs["sub_group"] == "tbd") {            
+            prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            CliqzExtOnboarding._log("decided for subgroup " + prefs["sub_group"]);
+            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                { "same_result": prefs }));
         }
 
         // ...seems we should interrupt the user
@@ -126,7 +142,12 @@ var CliqzExtOnboarding = {
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
 
         if (anchor) {
-            if (anchor.offsetTop < 300) {  
+            if (anchor.offsetTop < 300) {
+                if (prefs["sub_group"] == "no_show") {
+                    CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
+                    return;
+                }
+
                 lastPrefs = prefs;
                 destUrl = destinationUrl;
 
@@ -147,7 +168,7 @@ var CliqzExtOnboarding = {
             }
         } else {
             CliqzExtOnboarding._log("onSameResult: result was not shown to user");
-        }                            
+        }
     },
 
     // create callout element and attach to DOM
@@ -157,7 +178,7 @@ var CliqzExtOnboarding = {
         var callout = win.document.createElement('panel'),
             content = win.document.createElement('div'),
             parent = win.CLIQZ.Core.popup.parentElement;
-        
+
         callout.className = "onboarding-container";
         content.className = "onboarding-callout";
 
@@ -194,18 +215,18 @@ var CliqzExtOnboarding = {
         contentElement.innerHTML = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
             message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
             options: [
-                { label: 
-                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"), 
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"),
                     action: "onboarding-start", state: "ok" },
-                { label: 
-                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"), 
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
             // FIXME: not shown
             cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
         });
 
-        CliqzExtOnboarding._log("_initCalloutContent: template parsed");        
+        CliqzExtOnboarding._log("_initCalloutContent: template parsed");
     },
 
     _destroyCallout: function (callout) {
@@ -228,7 +249,7 @@ var CliqzExtOnboarding = {
     },
 
     _removeDropdownListeners: function (win) {
-        CliqzUtils.getWindow().CLIQZ.Core.popup.
+        win.CLIQZ.Core.popup.
             removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
@@ -239,8 +260,8 @@ var CliqzExtOnboarding = {
                 callout = CliqzExtOnboarding._getCallout(),
                 action = target.getAttribute("cliqz-action"),
                 duration = Date.now() - callout.getAttribute("show_ts");
-            
-            switch (action) {                        
+
+            switch (action) {
                 case "onboarding-start":
                     CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
 
@@ -256,7 +277,7 @@ var CliqzExtOnboarding = {
                     CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
 
                     CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
-                  
+
                     callout.hidePopup();
                     win.CLIQZ.Core.popup.hidePopup();
                     win.CLIQZ.Core.openLink(destUrl, false);
@@ -309,7 +330,7 @@ var CliqzExtOnboarding = {
         CliqzExtOnboarding._telemetry("close", {
             duration: duration,
             reason: reason
-        }); 
+        });
 
         return true;
     },
