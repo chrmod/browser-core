@@ -28,7 +28,10 @@ function _log(msg) {
 
 function _onPageLoad (aEvent) {
 	var doc = aEvent.originalTarget;
-	if (doc.nodeName != "#document") return;
+
+	if (doc.nodeName != "#document") return;	
+	if (CliqzUtils.getDetailsFromUrl(doc.location.toString()).name != "cliqz") return;
+
 	_log("loaded event processed");
 
 	var proxy = doc.getElementById(PROXY_ID);
@@ -39,12 +42,12 @@ function _onPageLoad (aEvent) {
 }
 
 var CliqzDemo = {
-	init: function (window) {
+	init: function (win) {
 		_log("added event listener to gBrowser");
-		window.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);	
+		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);	
 	},
-	unload: function (window) {
-		window.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);	
+	unload: function (win) {
+		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);	
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
