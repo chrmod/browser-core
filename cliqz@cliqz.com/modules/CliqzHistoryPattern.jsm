@@ -878,7 +878,7 @@ var CliqzHistoryPattern = {
 
     } else {
       // generic history
-      var simple_generic = true;
+      var simple_generic = CliqzUtils.getPref("simpleHistory", false);
 
       if(simple_generic) {
         var maxHistoryResults = 2;
