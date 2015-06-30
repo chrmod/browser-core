@@ -10,10 +10,45 @@
 #cliqz-results .cqz-result-desc-3line { 
   max-width: 550px;
   margin: 12px 105px 20px 0px;
+}
+
+/*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
+#cliqz-results .multi-ellipsis { 
   white-space: normal; 
   overflow: hidden; 
   height: 3.9em; 
   line-height: 1.3em;
+}
+
+#cliqz-results .multi-ellipsis:before {
+  content:"";
+  float: left;
+  width: 5px;
+  height: 3.9em;
+  white-space: normal;
+}
+
+#cliqz-results .multi-ellipsis > *:first-child {
+  float: right;
+  width: 100%;
+  margin-left: -5px;
+  white-space: normal;
+} 
+
+#cliqz-results .multi-ellipsis:after {
+  content: "\02026";
+  box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  float: right; 
+  position: relative;
+  top: -22px; 
+  left: 100%; 
+  width: 3em; 
+  margin-left: -3em;
+  padding-right: 5px;
+  text-align: right;
+  white-space: normal;
 }
 
 
