@@ -34,9 +34,12 @@ function _onPageLoad (aEvent) {
 
 	var proxy = doc.getElementById(PROXY_ID);
 	if (proxy) {
+		Cu.exportFunction(CliqzDemo.demoQuery, proxy, {  defineAs: "demoQuery" });
 		Cu.exportFunction(CliqzDemo.openDropdown, proxy, {  defineAs: "openDropdown" });
 		Cu.exportFunction(CliqzDemo.clearDropdown, proxy, {  defineAs: "clearDropdown" });
 		Cu.exportFunction(CliqzDemo.typeInUrlbar, proxy, {  defineAs: "typeInUrlbar" });
+
+		proxy.style.visibility = 'visible';
 	}
 }
 
@@ -46,6 +49,11 @@ var CliqzDemo = {
 	},
 	unload: function (win) {
 		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);	
+	},
+	demoQuery: function (query) {
+		CliqzDemo.clearDropdown();
+		CliqzDemo.openDropdown();
+		CliqzDemo.typeInUrlbar(query);
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
