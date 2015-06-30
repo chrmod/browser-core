@@ -7,36 +7,17 @@ CLIQZ.Core = {
 }
 urlbar.onkeyup = function(e){
 	CLIQZ.UI.main(document.getElementById('results'));
-	CliqzUtils.getCliqzResults(urlbar.value, function(r){
-		var res = JSON.parse(r.response)
-		var extra = (res.extra.results || []).map(function(r){
-			r.template = r.data.template;
-			r.value = r.url;
-			r.type = 'cliqz-extra';
-			r.text = res.q;
-			return r;
-		});
 
+	(new CliqzAutocomplete.CliqzResults()).search(urlbar.value, function(r){
 		var currentResults = CLIQZ.UI.results({
-			q: res.q,
-			results: extra.concat((res.result || []).map(function(r){
-				//Lucian: we need some more modules in the middle
-				if(r.extra) {
-					r.extra.type = 'cliqz-extra';
-					return r.extra;
-				}
-				r.type='';
-				if(r.snippet){
-					r.title = r.snippet.title  || '';
-					r.data = {
-						description: r.snippet.desc
-					};
-				}
-				r.text = res.q;
-				r.value = r.url;
+			q: r._searchString,
+			results: r._results.map(function(r){
+				r.type = r.style;
+				r.url = r.value;
+				r.title = r.comment;
 				return r;
-			})),
+			}),
 			isInstant: false
 		});
-	})
+	});
 }

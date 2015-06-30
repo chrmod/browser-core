@@ -1,17 +1,12 @@
 'use strict';
-const {
-  classes: Cc,
-  interfaces: Ci,
-  utils: Cu
-} = Components;
+
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryPattern'];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -248,7 +243,7 @@ var CliqzHistoryPattern = {
     if (share[1] > 0.5 && fRes.length > 2
     && !(CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) !== 0 && share[1] < 0.8)) {
       // Check if base domain changed due to filtering
-      var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
+      var tmpBaseUrl = CliqzHistoryPattern.adjustBaseDomain(fRes, query)[1],
       baseUrl = tmpBaseUrl;
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;

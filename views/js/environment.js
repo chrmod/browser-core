@@ -63,7 +63,7 @@ CLIQZEnvironment = {
                 style:   'favicon',
                 value:   'http://coolurl_' + i + '.com',
                 image:   '',
-                comment: query + 'Title ' +i,
+                comment: q + 'Title ' +i,
                 label:   ''
             });
         }

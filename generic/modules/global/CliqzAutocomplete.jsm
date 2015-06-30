@@ -256,7 +256,7 @@ var CliqzAutocomplete = {
 
                         this.latency.mixed = Date.now() - this.startTime;
 
-                        this.listener.onSearchResult(this, this.mixedResults);
+                        this.callback(this.mixedResults, this);
 
                         this.latency.all = Date.now() - this.startTime;
                         if(this.cliqzResults)
@@ -282,7 +282,7 @@ var CliqzAutocomplete = {
 
                         // try to update as offen as possible if new results are ready
                         // TODO - try to check if the same results are currently displaying
-                        this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
+                        this.mixedResults.matchCount && this.callback(this.mixedResults, this);
 
                         this.latency.all = Date.now() - this.startTime;
                         //instant result, no country info yet
@@ -364,7 +364,14 @@ var CliqzAutocomplete = {
                 this.customResults = parts[1];
                 return parts[0];
             },
-            startSearch: function(searchString, searchParam, previousResult, listener) {
+            //FF entry point
+            //Lucian: to be moved to Environment!
+            startSearch: function(searchString, searchParam, previousResult, listener){
+                this.search(searchString, function(results, ctx){
+                    listener.onSearchResult(ctx, results);
+                })
+            },
+            search: function(searchString, callback) {
                 CliqzAutocomplete.lastQueryTime = Date.now();
                 CliqzAutocomplete.lastDisplayTime = null;
                 CliqzAutocomplete.lastResult = null;
@@ -433,7 +440,7 @@ var CliqzAutocomplete = {
                 this.historyResults = null;
                 this.instant = [];
 
-                this.listener = listener;
+                this.callback = callback;
                 this.searchString = searchString;
                 this.searchStringSuggest = null;
 
@@ -492,7 +499,6 @@ var CliqzAutocomplete = {
                 CLIQZEnvironment.historySearch(
                     searchString.trim(),
                     this.onHistoryDone.bind(this),
-                    searchParam,
                     CliqzAutocomplete.sessionStart);
                 CliqzUtils.log('1');
 

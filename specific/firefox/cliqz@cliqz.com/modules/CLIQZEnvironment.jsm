@@ -203,6 +203,7 @@ var CLIQZEnvironment = {
             )
         }catch(e){}
 
+        debugger;
         //extend prototype
         for(var k in FFcontract) CliqzAutocomplete.CliqzResults.prototype[k] = FFcontract[k];
 
@@ -232,14 +233,14 @@ var CLIQZEnvironment = {
             '@mozilla.org/autocomplete/search;1?name=history',
             'nsIAutoCompleteSearch');
 
-        return function(q, callback, searchParam, sessionStart){
+        return function(q, callback, sessionStart){
             if(q.length == 0 && sessionStart){
                 NewTabUtils.links.populateCache(function(){
                     callback(null, getTopSites());
                 })
             }
             else {
-                hist.search.startSearch(q, searchParam, null, {
+                hist.search.startSearch(q, 'enable-actions', null, {
                     onSearchResult: function(ctx, result) {
                         var res = [];
                         for (var i = 0; result && i < result.matchCount; i++) {
