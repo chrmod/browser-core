@@ -32,18 +32,16 @@ function _onPageLoad (aEvent) {
 	if (doc.nodeName != "#document") return;	
 	if (CliqzUtils.getDetailsFromUrl(doc.location.toString()).name != "cliqz") return;
 
-	_log("loaded event processed");
-
 	var proxy = doc.getElementById(PROXY_ID);
 	if (proxy) {
-		_log("proxy found");
 		Cu.exportFunction(CliqzDemo.openDropdown, proxy, {  defineAs: "openDropdown" });
+		Cu.exportFunction(CliqzDemo.clearDropdown, proxy, {  defineAs: "clearDropdown" });
+		Cu.exportFunction(CliqzDemo.typeInUrlbar, proxy, {  defineAs: "typeInUrlbar" });
 	}
 }
 
 var CliqzDemo = {
 	init: function (win) {
-		_log("added event listener to gBrowser");
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);	
 	},
 	unload: function (win) {
@@ -51,7 +49,31 @@ var CliqzDemo = {
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
-		_log("core is " + core);
 		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
-	}
+	},
+	clearDropdown: function () {
+		var results = 
+			CliqzUtils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox;
+
+        while (results.firstChild) {
+            results.removeChild(results.firstChild);
+        }        
+    },
+	typeInUrlbar: function (text, pos, core) {
+        if (!pos) {
+            pos = 0;
+        }
+
+        if (!core) {
+        	core = CliqzUtils.getWindow().CLIQZ.Core;
+        	core.urlbar.focus();
+        }
+
+        if (pos < text.length) {
+            CliqzUtils.setTimeout(function() {
+            	core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));                
+                CliqzDemo.typeInUrlbar(text, pos, core);
+            }, 125 + Math.random(250)); 
+        }
+    }
 }
