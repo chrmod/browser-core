@@ -261,8 +261,6 @@ var CliqzHistoryPattern = {
       };
     }
 
-    // Make sure base domain is added
-    CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
     // Remove automatically added patterns if they don't match query
     if(patterns && patterns.length > 0 &&
       patterns[0].autoAdd && CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) != 0)
