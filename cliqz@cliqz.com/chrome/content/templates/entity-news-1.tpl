@@ -1,5 +1,7 @@
 <div class="cqz-result-h1 ez-news ez-news-toggle cqz-result-padding">
   <div class="cqz-ez-title" selectable=''><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></div>
+  <span class="cqz-ez-subtitle">{{data.friendly_url}}</span>
+
 
   <input type="radio" id="actual" class="latest" name="news-switcher"
     {{#if (isLatest data)}}
