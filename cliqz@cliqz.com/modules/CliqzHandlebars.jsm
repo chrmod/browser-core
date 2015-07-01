@@ -269,8 +269,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('links_or_sources', function(richData) {
-        return (richData.internal_links && richData.internal_links.length > 0) ?
-                  richData.internal_links : richData.additional_sources
+        return richData ? ((richData.internal_links && richData.internal_links.length > 0) ? richData.internal_links : (richData.additional_sources ? richData.additional_sources : [])) : 0;
     });
 
     Handlebars.registerHelper('pref', function(key) {
