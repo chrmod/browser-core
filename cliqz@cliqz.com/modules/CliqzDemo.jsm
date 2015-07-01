@@ -74,7 +74,6 @@ function _destroyFakeCursor(win) {
 	cursor.parentNode.removeChild(cursor);
 }
 
-
 var CliqzDemo = {
 	init: function (win) {
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
@@ -90,9 +89,23 @@ var CliqzDemo = {
 		CliqzDemo.typeInUrlbar(query);
 	
 		CliqzUtils.setTimeout(function () {
-			var win = CliqzUtils.getWindow();
-			_getFakeCursor(win).openPopup(win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 150, 40);				
+			CliqzDemo.indicateClicking();
+		}, 10);
+	},
+	demoQueryAndClicking: function (query) {
+		CliqzDemo.demoQuery(query);
+		CliqzUtils.setTimeout(function () {
+			CliqzDemo.indicateClicking();
 		}, TYPING_INTERVAL * query.length + 750);
+	},
+	indicateClicking: function () {
+		var win = CliqzUtils.getWindow(),
+			cursor = _getFakeCursor(win);
+
+		cursor.classList.remove("pulsate");
+		cursor.openPopup(
+			win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 150, 40);
+		cursor.classList.add("pulsate");		
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
