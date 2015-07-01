@@ -37,6 +37,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         //'k': 'science' ,
         //'l': 'dictionary'
     },
+    urlbar = null,
     IC = 'cqz-result-box', // result item class
     gCliqzBox = null,
     TAB = 9,
@@ -56,7 +57,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     // The number of times to attempt loading smart CLIQZ results asynchronously
     smartCliqzMaxAttempts = 10,
     // The number of milliseconds to wait after each attempt
-    smartCliqzWaitTime = 100
+    smartCliqzWaitTime = 100,
+    urlbarEvents = ['keydown']
     ;
 
 function lg(msg){
@@ -73,29 +75,22 @@ var UI = {
     lastInput: "",
     lastSelectedUrl: null,
     mouseOver: false,
-    init: function(){
-        //patch this method to avoid any caching FF might do for components.xml
-        CLIQZ.Core.popup._appendCurrentResult = function(){
-            if(CLIQZ.Core.popup._matchCount > 0 && CLIQZ.Core.popup.mInput){
-              //try to break the call stack which cause 'too much recursion' exception on linux systems
-              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
-            }
-        }
-
-        CLIQZ.Core.popup._openAutocompletePopup = function(){
-            (function(aInput, aElement){
-              if (!CliqzAutocomplete.isPopupOpen){
-                this.mInput = aInput;
-                this._invalidate();
-
-                var width = aElement.getBoundingClientRect().width;
-                this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", 0, 0, false, true);
-              }
-            }).apply(CLIQZ.Core.popup, arguments)
-        }
+    init: function(_urlbar){
+        urlbar = _urlbar
+        CLIQZEnvironment.initWindow && CLIQZEnvironment.initWindow(window);
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
+
+        for(var i in urlbarEvents){
+            var ev = urlbarEvents[i];
+            urlbar.addEventListener(ev, CLIQZ.UI['urlbar' + ev]);
+        }
+    },
+    unload: function(){
+        for(var i in urlbarEvents){
+            var ev = urlbarEvents[i];
+            urlbar.removeEventListener(ev, CLIQZ.UI['urlbar' + ev]);
+        }
     },
     main: function(box){
         gCliqzBox = box;
@@ -366,6 +361,12 @@ var UI = {
         var result;
         if(result =$('.' + IC + filter, gCliqzBox))
             result.innerHTML = CliqzHandlebars.tplCache[template](data);
+    },
+    urlbarkeydown: function(ev){
+        CliqzAutocomplete._lastKey = ev.keyCode;
+        var cancel = CLIQZ.UI.keyDown(ev);
+        cancel && ev.preventDefault();
+        cancel && ev.stopImmediatePropagation();
     },
     keyDown: function(ev){
         var sel = getResultSelection(),

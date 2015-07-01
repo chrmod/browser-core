@@ -1,11 +1,13 @@
 var urlbar = document.getElementById('urlbar');
 CliqzUtils.init(window);
+CLIQZ.UI.init(urlbar);
+
 CLIQZ.Core = {
 	urlbar: urlbar,
 	popup: document.getElementById('results'),
 	refreshButtons: function(){}
 }
-urlbar.onkeyup = function(e){
+urlbar.addEventListener('keydown', function(e){
 	CLIQZ.UI.main(document.getElementById('results'));
 
 	(new CliqzAutocomplete.CliqzResults()).search(urlbar.value, function(r){
@@ -20,4 +22,4 @@ urlbar.onkeyup = function(e){
 			isInstant: false
 		});
 	});
-}
+});

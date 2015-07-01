@@ -81,7 +81,7 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
+    urlbarEvents: ['focus', 'blur', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
 
@@ -153,7 +153,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = popup;
 
-        CLIQZ.UI.init();
+        CLIQZ.UI.init(CLIQZ.Core.urlbar);
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -335,6 +335,8 @@ window.CLIQZ.Core = {
     unload: function(soft){
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
+
+        CLIQZ.UI.unload();
 
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
@@ -616,11 +618,6 @@ window.CLIQZ.Core = {
               CLIQZ.Core.historyDropMarker.showPopup();
           }
         }
-    },
-    urlbarkeydown: function(ev){
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {

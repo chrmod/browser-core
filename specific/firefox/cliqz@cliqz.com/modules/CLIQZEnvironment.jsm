@@ -224,6 +224,29 @@ var CLIQZEnvironment = {
     getSearchEngines: function(){
         return Services.search.getEngines();
     },
+    initWindow: function(win){
+        var popup = win.CLIQZ.Core.popup;
+        //patch this method to avoid any caching FF might do for components.xml
+        popup._appendCurrentResult = function(){
+            if(popup._matchCount > 0 && popup.mInput){
+              //try to break the call stack which cause 'too much recursion' exception on linux systems
+              win.setTimeout(function(){ win.CLIQZ.UI.handleResults.apply(win); }, 0);
+            }
+        }
+
+        popup._openAutocompletePopup = function(){
+            (function(aInput, aElement){
+              if (!win.CliqzAutocomplete.isPopupOpen){
+                this.mInput = aInput;
+                this._invalidate();
+
+                var width = aElement.getBoundingClientRect().width;
+                this.setAttribute("width", width > 500 ? width : 500);
+                this.openPopup(aElement, "after_start", 0, 0, false, true);
+              }
+            }).apply(popup, arguments)
+        }
+    },
     // lazy init
     // callback called multiple times
     historySearch: (function(){
