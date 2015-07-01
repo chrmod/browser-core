@@ -73,14 +73,27 @@ function _destroyFakeCursor(win) {
 	cursor.parentNode.removeChild(cursor);
 }
 
+function _dropdownHiddenListener() {
+	var win = CliqzUtils.getWindow(),
+	    cursor = _getFakeCursor(win);
+	if (cursor.state == "open") {
+		cursor.hidePopup();
+	}
+}
+
+
 var CliqzDemo = {
 	init: function (win) {
-		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
-		_createFakeCursor(win);
+		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);		
+		win.CLIQZ.Core.popup.
+            addEventListener("popuphidden", _dropdownHiddenListener, false);
+        _createFakeCursor(win);
 	},
 	unload: function (win) {
-		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);
-		_destroyFakeCursor(win);
+		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);		
+		win.CLIQZ.Core.popup.
+            removeEventListener("popuphidden", _dropdownHiddenListener, false);
+        _destroyFakeCursor(win);
 	},
 
 
