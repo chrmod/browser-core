@@ -1,4 +1,16 @@
 {
+    "Turkish Calendar":{
+        "message": "Turkish Calendar"
+    },
+    "MWL":{
+        "message": "Muslim World League"
+    },
+    "TillEndRamadan":{
+        "message": "{} days til 17. September (Küçük Bayram)"
+    },
+    "RamadanDes":{
+        "message": "Ramadan is the ninth month of the Islamic calendar, and is observed by Muslims worldwide as a month of fasting to commemorate the first revelation of the Quran to Muhammad according to Islamic belief"
+    },
     "CookingIntruct":{
         "message": "Direction"
     },
