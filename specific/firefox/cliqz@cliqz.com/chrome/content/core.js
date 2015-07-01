@@ -83,7 +83,6 @@ window.CLIQZ.Core = {
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
-    _lastKey:0,
     _updateAvailable: false,
 
     init: function(){
@@ -619,7 +618,6 @@ window.CLIQZ.Core = {
         }
     },
     urlbarkeydown: function(ev){
-        CLIQZ.Core._lastKey = ev.keyCode;
         CliqzAutocomplete._lastKey = ev.keyCode;
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
@@ -688,8 +686,8 @@ window.CLIQZ.Core = {
             // need to make it compatible with auto suggestion
             urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
         }
-        if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
-           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
+        if(CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_BACK_SPACE ||
+           CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_DELETE){
             if (CliqzAutocomplete.selectAutocomplete) {
                 CLIQZ.UI.selectAutocomplete();
             }
@@ -883,7 +881,7 @@ window.CLIQZ.Core = {
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = CLIQZEnvironment.getSearchEngines(),
+            engines = CliqzResultProviders.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));

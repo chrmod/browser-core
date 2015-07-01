@@ -222,23 +222,7 @@ var CLIQZEnvironment = {
         }catch(e){}
     },
     getSearchEngines: function(){
-        var engines = {},
-            defEngines = Services.search.getEngines();
-        for(var i=0; i<defEngines.length; i++){
-            var engine = defEngines[i];
-            if(engine.hidden != true && engine.iconURI){
-                engines[engine.name] = {
-                    prefix: CliqzResultProviders.getShortcut(engine.name),
-                    name: engine.name,
-                    icon: engine.iconURI.spec,
-                    code: CliqzResultProviders.getEngineCode(engine.name),
-                    base_url: engine.searchForm
-                }
-
-
-            }
-        }
-        return engines;
+        return Services.search.getEngines();
     },
     // lazy init
     // callback called multiple times

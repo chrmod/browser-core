@@ -824,8 +824,9 @@ var CliqzUtils = {
           ],
           chosen = new Array();
 
+      var engines = CliqzResultProviders.getSearchEngines();
       for (var i = 0; i< se.length; i++){
-          var alt_s_e = CliqzResultProviders.getSearchEngines()[se[i].name];
+          var alt_s_e = engines[se[i].name];
           if (typeof alt_s_e != 'undefined'){
               se[i].code = alt_s_e.code;
               var url = se[i].base_url || alt_s_e.base_url;
@@ -843,7 +844,7 @@ var CliqzUtils = {
                   {
                       template:'noResult',
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', Services.search.currentEngine.name),
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', engines[Object.keys(engines)[0]].name /* Lucian smarter way to determine the default search Engine*/),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
                       "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"

@@ -19,6 +19,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
 
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+
 
 var INIT_KEY = 'newProvidersAdded',
 	LOG_KEY = 'NonDefaultProviders.jsm',
@@ -154,6 +156,25 @@ var CliqzResultProviders = {
 			}
 		}
 	},
+    getSearchEngines: function(){
+        var engines = {},
+            defEngines = CLIQZEnvironment.getSearchEngines();
+        for(var i=0; i<defEngines.length; i++){
+            var engine = defEngines[i];
+            if(engine.hidden != true && engine.iconURI){
+                engines[engine.name] = {
+                    prefix: CliqzResultProviders.getShortcut(engine.name),
+                    name: engine.name,
+                    icon: engine.iconURI.spec,
+                    code: CliqzResultProviders.getEngineCode(engine.name),
+                    base_url: engine.searchForm
+                }
+
+
+            }
+        }
+        return engines;
+    },
     getM: function(){ return MAPPING }
 }
 
