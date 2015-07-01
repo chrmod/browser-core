@@ -140,9 +140,10 @@ function registerHelpers(){
         return 'cqz-result-h3';
     });
 
-    Handlebars.registerHelper('bm_rd_template', function(data_richData) {
-        // 22May2015, thuy@cliqz.com, used for rich-snippet (rich-data) from BM. Originally used for: movie, games, recipe
-        return (CliqzAutocomplete.lastResult._results.length === 1); // is the only result in the show list
+    Handlebars.registerHelper('recipe_rd_template', function(data_richData) {
+        var minimalData = typeof(data_richData["cook_time"]) !== "undefined" && typeof(data_richData["numportion"]) !== "undefined" && typeof(data_richData["total_review"]) !== "undefined";
+        // 22May2015, thuy@cliqz.com, used for recipe rich-snippet (rich-data) from BM.
+        return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData); // is the only result in the show list
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
@@ -268,8 +269,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('links_or_sources', function(richData) {
-        return (richData.internal_links && richData.internal_links.length > 0) ?
-                  richData.internal_links : richData.additional_sources
+        return richData ? ((richData.internal_links && richData.internal_links.length > 0) ? richData.internal_links : (richData.additional_sources ? richData.additional_sources : [])) : 0;
     });
 
     Handlebars.registerHelper('pref', function(key) {
