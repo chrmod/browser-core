@@ -1,5 +1,5 @@
 var urlbar = document.getElementById('urlbar');
-CliqzUtils.init();
+CliqzUtils.init(window);
 CLIQZ.Core = {
 	urlbar: urlbar,
 	popup: document.getElementById('results'),
