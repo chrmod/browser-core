@@ -128,6 +128,36 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
+    openLink: function(url, newTab){
+        // make sure there is a protocol (this is required
+        // for storing it properly in Firefoxe's history DB)
+        if(url.indexOf("://") == -1)
+            url = "http://" + url;
+
+        // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
+        // or selected from the history dropbdown; thus, mark page the user is
+        // going to see as "typed" (i.e, the value Firefox would assign to such URLs)
+        try {
+            var historyService =
+                Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
+            var ioService =
+                Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+            var urlObject = ioService.newURI(url, null, null);
+                historyService.markPageAsTyped(urlObject);
+        } catch(e) { }
+
+        CLIQZ.Core.triggerLastQ = true;
+        if(newTab) gBrowser.addTab(url);
+        else {
+            //clean selected text to have a valid last Query
+            //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
+            //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
+
+            // Set urlbar value to url immediately
+            CLIQZ.Core.urlbar.value = url;
+            openUILink(url);
+        }
+    },
     tldExtractor: function(host){
         var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
                                     .getService(Components.interfaces.nsIEffectiveTLDService);

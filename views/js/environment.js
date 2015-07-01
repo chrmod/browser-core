@@ -126,6 +126,9 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
+    openLink: function(url, newTab){
+        window.open(url,newTab?'_blank':'_self');
+    },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
         for (var i = 0; i<5; i++) {
@@ -154,11 +157,12 @@ CLIQZEnvironment = {
 CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
-/*
-CliqzAutocomplete = {
-    spellCorr: {}
+
+CliqzHumanWeb = {}
+CliqzHistory = {
+    updateQuery: function(){},
+    setTabData: function(){}
 }
-*/
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){},
     generateQI: function(){},

@@ -128,7 +128,7 @@ var CliqzExtOnboarding = {
         }
 
         // decide which subgroup we are going to be in
-        if (prefs["sub_group"] == "tbd") {            
+        if (prefs["sub_group"] == "tbd") {
             prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
             CliqzExtOnboarding._log("decided for subgroup " + prefs["sub_group"]);
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
@@ -269,7 +269,7 @@ var CliqzExtOnboarding = {
 
                     callout.hidePopup();
                     win.CLIQZ.Core.popup.hidePopup();
-                    win.CLIQZ.Core.openLink(destUrl, false);
+                    win.CLIQZEnvironment.openLink(destUrl, false);
 
                     break;
 
@@ -280,7 +280,7 @@ var CliqzExtOnboarding = {
 
                     callout.hidePopup();
                     win.CLIQZ.Core.popup.hidePopup();
-                    win.CLIQZ.Core.openLink(destUrl, false);
+                    win.CLIQZEnvironment.openLink(destUrl, false);
 
                     break;
             }
@@ -291,7 +291,7 @@ var CliqzExtOnboarding = {
         var callout = CliqzExtOnboarding._getCallout();
 
         if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
-            CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+            CliqzUtils.getWindow().CLIQZEnvironment.openLink(destUrl, false);
         }
     },
 

@@ -637,7 +637,6 @@ var UI = {
     sessionEnd: sessionEnd
 };
 
-
 function navigateToEZinput(element){
     var provider_name = element.getAttribute("search-provider"),
         search_url = element.getAttribute("search-url"),
@@ -1274,7 +1273,7 @@ function messageClick(ev) {
 
               //changelog
               case 'update-show':
-                  CLIQZ.Core.openLink(CliqzUtils.CHANGELOG, true);
+                  CLIQZEnvironment.openLink(CliqzUtils.CHANGELOG, true);
               case 'update-dismiss':
                   updateMessageState("hide");
                   CliqzUtils.setPref('changeLogState', 2);
@@ -1368,6 +1367,9 @@ function logUIEvent(el, historyLogType, extraData, query) {
           }
       }
     }
+    //LUCIAN: TODO - decouple CliqzHistory
+    if(!window.gBrowser)return;
+
     CliqzHistory.updateQuery(query, autocompleteUrl);
     CliqzHistory.setTabData(window.gBrowser.selectedTab.linkedPanel, "type", historyLogType);
 }
@@ -1390,7 +1392,7 @@ function resultClick(ev){
               new_tab: newTab
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
-            CLIQZ.Core.openLink(url, newTab);
+            CLIQZEnvironment.openLink(url, newTab);
             CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1777,7 +1779,7 @@ function onEnter(ev, item){
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZ.Core.openLink(input, newTab);
+  CLIQZEnvironment.openLink(input, newTab);
   CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
@@ -1807,7 +1809,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                CLIQZ.Core.openLink(url, true);
+                CLIQZEnvironment.openLink(url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.contentDocument.location = url;
