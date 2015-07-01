@@ -7,10 +7,8 @@
 
 var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -55,8 +53,6 @@ var INIT_KEY = 'newProvidersAdded',
 
 var CliqzResultProviders = {
     init: function(){
-        // creates shortcuts for all the engines
-        this.getSearchEngines();
     },
     getCustomResults: function(q){
         var results = null;
@@ -86,25 +82,6 @@ var CliqzResultProviders = {
         }
         return [q, results];
     },
-    getSearchEngines: function(){
-        var engines = {},
-            defEngines = Services.search.getEngines();
-        for(var i=0; i<defEngines.length; i++){
-            var engine = defEngines[i];
-            if(engine.hidden != true && engine.iconURI){
-                engines[engine.name] = {
-                    prefix: CliqzResultProviders.getShortcut(engine.name),
-                    name: engine.name,
-                    icon: engine.iconURI.spec,
-                    code: CliqzResultProviders.getEngineCode(engine.name),
-                    base_url: engine.searchForm
-                }
-
-
-            }
-        }
-        return engines;
-    },
     getEngineCode: function(engineName){
         for(var c in ENGINE_CODES){
             if(engineName.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
@@ -113,9 +90,6 @@ var CliqzResultProviders = {
         }
         // unknown engine
         return 0;
-    },
-    getEngineSubmission: function(engine, q){
-        return Services.search.getEngineByName(engine).getSubmission(q);
     },
     setCurrentSearchEngine: function(engine){
         Services.search.currentEngine = Services.search.getEngineByName(engine);

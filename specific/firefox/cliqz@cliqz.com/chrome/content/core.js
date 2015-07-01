@@ -883,7 +883,7 @@ window.CLIQZ.Core = {
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
             menupopup = doc.createElement('menupopup'),
-            engines = CliqzResultProviders.getSearchEngines(),
+            engines = CLIQZEnvironment.getSearchEngines(),
             def = Services.search.currentEngine.name;
 
         menu.setAttribute('label', CliqzUtils.getLocalizedString('btnDefaultSearchEngine'));

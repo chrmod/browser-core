@@ -1,5 +1,5 @@
 var db = {
-    showConsoleLogs: false
+    showConsoleLogs: true
 };
 
 CLIQZEnvironment = {
@@ -86,14 +86,6 @@ CliqzAutocomplete = {
     spellCorr: {}
 }
 */
-CliqzResultProviders = {
-    getCustomResults: function(q){
-        return [q]
-    }
-}
-CliqzHistoryPattern = {
-    detectPattern: function(){}
-}
 XPCOMUtils = {
 	defineLazyModuleGetter: function(){},
     generateQI: function(){},
