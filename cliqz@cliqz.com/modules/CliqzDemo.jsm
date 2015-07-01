@@ -8,7 +8,10 @@
  * web page.
  *
  * Example usage on web page (needs to be under cliqz.com domain):
-
+ * 		<a id="cliqzDemoProxy" href="#" 
+ *         onclick="cliqzDemoProxy.demoQuery('wetter in frankfurt');"
+ *         style="visibility: collapse;">DEMO</a>
+ *
  * author: Dominik Schmidt (cliqz)
  */
 
