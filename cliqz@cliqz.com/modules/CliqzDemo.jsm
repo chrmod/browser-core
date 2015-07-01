@@ -7,10 +7,10 @@
  * attaching these functions to an element in the DOM of the target
  * web page.
  *
+ * Example usage on web page (needs to be under cliqz.com domain):
+
  * author: Dominik Schmidt (cliqz)
  */
-
- // FIXME: add telemtry signal for click on demo
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
@@ -44,7 +44,8 @@ function _onPageLoad (aEvent) {
 	var doc = aEvent.originalTarget;
 
 	if (doc.nodeName != "#document") return;
-	if (CliqzUtils.getDetailsFromUrl(doc.location.toString()).name != "cliqz") return;
+	var details = CliqzUtils.getDetailsFromUrl(doc.location.toString());
+	if (!(details.name == "cliqz" && details.tld == "com")) return;
 
 	var proxy = doc.getElementById(PROXY_ID);
 	if (proxy) {
@@ -86,14 +87,24 @@ function _destroyFakeCursor(win) {
 
 function _dropdownHiddenListener() {
 	var win = CliqzUtils.getWindow(),
-	    cursor = _getFakeCursor(win);
+		dropdown = win.CLIQZ.Core.popup,
+	    cursor = _getFakeCursor(win),
+	    clearUrlBarOnHidden = dropdown.getAttribute("clearUrlBarOnHidden");
+
+	if (clearUrlBarOnHidden == "true") {
+		win.CLIQZ.Core.urlbar.mInputField.setUserInput(CliqzDemo.oldUrlbarValue);
+		CliqzDemo.oldUrlbarValue = "";
+		dropdown.setAttribute("clearUrlBarOnHidden", false);
+	}
 	if (cursor.state == "open") {
-		cursor.hidePopup();
+		cursor.hidePopup();		
 	}
 }
 
 
 var CliqzDemo = {
+	oldUrlbarValue: "",
+
 	init: function (win) {
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);		
 		win.CLIQZ.Core.popup.
@@ -113,13 +124,26 @@ var CliqzDemo = {
 		CliqzDemo.openDropdown();
 		CliqzDemo.typeInUrlbar(query);
 
-		_sendTelemetrySignal("start");	
+		var dropdown = 
+			CliqzUtils.getWindow().CLIQZ.Core.popup;
+		dropdown.setAttribute("clearUrlBarOnHidden", "true");		
+
+		_sendTelemetrySignal("start");
 	},
 	demoQueryAndClicking: function (query) {
-		CliqzDemo.demoQuery(query);
+		CliqzDemo.clearDropdown();
+		CliqzDemo.openDropdown();
+		CliqzDemo.typeInUrlbar(query);
+
 		CliqzUtils.setTimeout(function () {
 			CliqzDemo.demoClicking();
 		}, TYPING_INTERVAL * query.length + 750);
+
+		var dropdown = 
+			CliqzUtils.getWindow().CLIQZ.Core.popup;
+		dropdown.setAttribute("clearUrlBarOnHidden", "false");
+
+		_sendTelemetrySignal("start");
 	},
 
 
@@ -152,6 +176,7 @@ var CliqzDemo = {
         if (!core) {
         	core = CliqzUtils.getWindow().CLIQZ.Core;
         	core.urlbar.focus();
+        	CliqzDemo.oldUrlbarValue = core.urlbar.value;
         }
 
         if (pos < text.length) {
