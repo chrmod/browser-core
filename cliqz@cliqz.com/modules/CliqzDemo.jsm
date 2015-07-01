@@ -9,8 +9,8 @@
  *
  * Example usage on web page (needs to be under cliqz.com domain):
  * 		<a id="cliqzDemoProxy" href="#" 
- *         onclick="cliqzDemoProxy.demoQuery('wetter in frankfurt');"
- *         style="visibility: collapse;">DEMO</a>
+ *		 onclick="cliqzDemoProxy.demoQuery('wetter in frankfurt');"
+ *		 style="visibility: collapse;">DEMO</a>
  *
  * author: Dominik Schmidt (cliqz)
  */
@@ -27,7 +27,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 
 var PROXY_ID = "cliqzDemoProxy",
 	FAKE_CURSOR_ID = "CliqzDemoCursor",
-    TYPING_INTERVAL = 1000.0 / 10;
+	TYPING_INTERVAL = 1000.0 / 10;
 
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzDemo');
@@ -35,12 +35,12 @@ function _log(msg) {
 
 function _sendTelemetrySignal(action) {
 	var signal = {
-        type: "demo",
-        url: CliqzUtils.getWindow().gBrowser.contentDocument.location.toString(),
-        action: action
-    };
+		type: "demo",
+		url: CliqzUtils.getWindow().gBrowser.contentDocument.location.toString(),
+		action: action
+	};
 
-    CliqzUtils.telemetry(signal);
+	CliqzUtils.telemetry(signal);
 }
 
 function _onPageLoad (aEvent) {
@@ -62,21 +62,21 @@ function _onPageLoad (aEvent) {
 
 function _createFakeCursor (win) {
 	var callout = win.document.createElement("panel"),
-        content = win.document.createElement("div"),
-        parent = win.CLIQZ.Core.popup.parentElement;
+		content = win.document.createElement("div"),
+		parent = win.CLIQZ.Core.popup.parentElement;
 
-    callout.className = "onboarding-container";
+	callout.className = "onboarding-container";
 	content.className = "onboarding-cursor";
 
 	callout.setAttribute("id", FAKE_CURSOR_ID);	
-    callout.setAttribute("level", "top");
-    callout.setAttribute("noautofocus", "true");
-    callout.setAttribute("noautohide", "false");
+	callout.setAttribute("level", "top");
+	callout.setAttribute("noautofocus", "true");
+	callout.setAttribute("noautohide", "false");
 
 	callout.appendChild(content);
-    parent.appendChild(callout);
+	parent.appendChild(callout);
 
-    return callout;
+	return callout;
 }
 
 function _getFakeCursor(win) {
@@ -90,7 +90,7 @@ function _destroyFakeCursor(win) {
 
 function _dropdownHiddenListener() {
 	var win = CliqzUtils.getWindow(),		
-	    cursor = _getFakeCursor(win);	    
+		cursor = _getFakeCursor(win);		
 
 	if (cursor.state == "open") {
 		cursor.hidePopup();		
@@ -102,14 +102,14 @@ var CliqzDemo = {
 	init: function (win) {
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);		
 		win.CLIQZ.Core.popup.
-            addEventListener("popuphidden", _dropdownHiddenListener, false);
-        _createFakeCursor(win);
+			addEventListener("popuphidden", _dropdownHiddenListener, false);
+		_createFakeCursor(win);
 	},
 	unload: function (win) {
 		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);		
 		win.CLIQZ.Core.popup.
-            removeEventListener("popuphidden", _dropdownHiddenListener, false);
-        _destroyFakeCursor(win);
+			removeEventListener("popuphidden", _dropdownHiddenListener, false);
+		_destroyFakeCursor(win);
 	},
 
 
@@ -146,29 +146,29 @@ var CliqzDemo = {
 		var results = 
 			CliqzUtils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox;
 
-        while (results.firstChild) {
-            results.removeChild(results.firstChild);
-        }        
-    },
+		while (results.firstChild) {
+			results.removeChild(results.firstChild);
+		}		
+	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
 		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
 	},	
 	typeInUrlbar: function (text, pos, core) {
-        if (!pos) {
-            pos = 0;
-        }
+		if (!pos) {
+			pos = 0;
+		}
 
-        if (!core) {
-        	core = CliqzUtils.getWindow().CLIQZ.Core;
-        	core.urlbar.focus();
-        }
+		if (!core) {
+			core = CliqzUtils.getWindow().CLIQZ.Core;
+			core.urlbar.focus();
+		}
 
-        if (pos < text.length) {
-            CliqzUtils.setTimeout(function() {
-            	core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));                
-                CliqzDemo.typeInUrlbar(text, pos, core);
-            }, TYPING_INTERVAL); 
-        }
-    }
+		if (pos < text.length) {
+			CliqzUtils.setTimeout(function() {
+				core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));				
+				CliqzDemo.typeInUrlbar(text, pos, core);
+			}, TYPING_INTERVAL); 
+		}
+	}
 }
