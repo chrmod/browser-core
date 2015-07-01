@@ -30,10 +30,20 @@ function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzDemo');
 }
 
+function _sendTelemetrySignal() {
+	var signal = {
+        type: "demo",
+        url: CliqzUtils.getWindow().gBrowser.contentDocument.location.toString(),
+        action: "click"
+    };
+
+    CliqzUtils.telemetry(signal);
+}
+
 function _onPageLoad (aEvent) {
 	var doc = aEvent.originalTarget;
 
-	if (doc.nodeName != "#document") return;	
+	if (doc.nodeName != "#document") return;
 	if (CliqzUtils.getDetailsFromUrl(doc.location.toString()).name != "cliqz") return;
 
 	var proxy = doc.getElementById(PROXY_ID);
@@ -46,8 +56,8 @@ function _onPageLoad (aEvent) {
 }
 
 function _createFakeCursor (win) {
-	var callout = win.document.createElement('panel'),
-        content = win.document.createElement('div'),
+	var callout = win.document.createElement("panel"),
+        content = win.document.createElement("div"),
         parent = win.CLIQZ.Core.popup.parentElement;
 
     callout.className = "onboarding-container";
@@ -100,7 +110,9 @@ var CliqzDemo = {
 	demoQuery: function (query) {
 		CliqzDemo.clearDropdown();
 		CliqzDemo.openDropdown();
-		CliqzDemo.typeInUrlbar(query);	
+		CliqzDemo.typeInUrlbar(query);
+
+		_sendTelemetrySignal();	
 	},
 	demoQueryAndClicking: function (query) {
 		CliqzDemo.demoQuery(query);
