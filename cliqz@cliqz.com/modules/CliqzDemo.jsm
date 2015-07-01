@@ -86,16 +86,9 @@ function _destroyFakeCursor(win) {
 }
 
 function _dropdownHiddenListener() {
-	var win = CliqzUtils.getWindow(),
-		dropdown = win.CLIQZ.Core.popup,
-	    cursor = _getFakeCursor(win),
-	    clearUrlBarOnHidden = dropdown.getAttribute("clearUrlBarOnHidden");
+	var win = CliqzUtils.getWindow(),		
+	    cursor = _getFakeCursor(win);	    
 
-	if (clearUrlBarOnHidden == "true") {
-		win.CLIQZ.Core.urlbar.mInputField.setUserInput(CliqzDemo.oldUrlbarValue);
-		CliqzDemo.oldUrlbarValue = "";
-		dropdown.setAttribute("clearUrlBarOnHidden", false);
-	}
 	if (cursor.state == "open") {
 		cursor.hidePopup();		
 	}
@@ -103,8 +96,6 @@ function _dropdownHiddenListener() {
 
 
 var CliqzDemo = {
-	oldUrlbarValue: "",
-
 	init: function (win) {
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);		
 		win.CLIQZ.Core.popup.
@@ -124,10 +115,6 @@ var CliqzDemo = {
 		CliqzDemo.openDropdown();
 		CliqzDemo.typeInUrlbar(query);
 
-		var dropdown = 
-			CliqzUtils.getWindow().CLIQZ.Core.popup;
-		dropdown.setAttribute("clearUrlBarOnHidden", "true");		
-
 		_sendTelemetrySignal("start");
 	},
 	demoQueryAndClicking: function (query) {
@@ -138,10 +125,6 @@ var CliqzDemo = {
 		CliqzUtils.setTimeout(function () {
 			CliqzDemo.demoClicking();
 		}, TYPING_INTERVAL * query.length + 750);
-
-		var dropdown = 
-			CliqzUtils.getWindow().CLIQZ.Core.popup;
-		dropdown.setAttribute("clearUrlBarOnHidden", "false");
 
 		_sendTelemetrySignal("start");
 	},
@@ -176,7 +159,6 @@ var CliqzDemo = {
         if (!core) {
         	core = CliqzUtils.getWindow().CLIQZ.Core;
         	core.urlbar.focus();
-        	CliqzDemo.oldUrlbarValue = core.urlbar.value;
         }
 
         if (pos < text.length) {
