@@ -30,11 +30,11 @@ function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzDemo');
 }
 
-function _sendTelemetrySignal() {
+function _sendTelemetrySignal(action) {
 	var signal = {
         type: "demo",
         url: CliqzUtils.getWindow().gBrowser.contentDocument.location.toString(),
-        action: "click"
+        action: action
     };
 
     CliqzUtils.telemetry(signal);
@@ -52,6 +52,7 @@ function _onPageLoad (aEvent) {
 		Cu.exportFunction(CliqzDemo.demoQueryAndClicking, proxy, {  defineAs: "demoQueryAndClicking" });
 
 		proxy.style.visibility = 'visible';
+		_sendTelemetrySignal("show");
 	}
 }
 
@@ -112,7 +113,7 @@ var CliqzDemo = {
 		CliqzDemo.openDropdown();
 		CliqzDemo.typeInUrlbar(query);
 
-		_sendTelemetrySignal();	
+		_sendTelemetrySignal("start");	
 	},
 	demoQueryAndClicking: function (query) {
 		CliqzDemo.demoQuery(query);
