@@ -1616,7 +1616,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         var offset = target.offsetTop;
 
-        if(el.hasAttribute('arrow-override')){
+        if(el.hasAttribute('arrow-override') || target.hasAttribute('arrow-override')){
           offset += closest(el, '.cqz-result-box').offsetTop;
         }
 

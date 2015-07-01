@@ -8,19 +8,20 @@
 >
     {{#with data}}
 
-      <div class='cqz-result-title overflow'><a href="{{../url}}">{{ emphasis name text 2 true }}</a></div>
-        <div class='cqz-result-url overflow' arrow-override=''>
-            {{ emphasis friendly_url text 2 true }}
-        </div>
-        <div class='cqz-result-desc-3line multi-ellipsis'>
-            <p>
-              {{description}}
-            </p>
-            
-        </div>
+    <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}">{{ emphasis name text 2 true }}</a></div>
+    <div class='cqz-result-url overflow'>
+        {{ emphasis friendly_url text 2 true }}
+    </div>
+    <div class='cqz-result-content'> 
+      <div class='multi-ellipsis'>
+        <p>
+          {{description}}
+        </p>
+      </div>
     {{/with}}
 
-    {{>EZ-history}}
+      {{>EZ-history}}
+    </div>
     {{>EZ-actions}}
     {{> logo}}
 </div>

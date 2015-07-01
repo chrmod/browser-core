@@ -2,14 +2,22 @@
 #cliqz-results .cliqz-history-results { margin-top: 16px; }
 
 /* Overrides corresponding line in browsers.css */
-#cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
+#cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
     margin-bottom: 8px;
 }
 
+#cliqz-results .cliqz-pattern-title-h1 {
+  margin-bottom: 20px;
+}
+
 /*--------------- New Skin Generic EZ ----------- */
-#cliqz-results .cqz-result-desc-3line { 
+#cliqz-results .cqz-result-content { 
   max-width: 550px;
-  margin: 12px 105px 20px 0px;
+  margin: 12px 105px 39px 0px;
+}
+
+#cliqz-results .cqz-result-h1 .cqz-result-content {
+  height: 185px;  
 }
 
 /*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
@@ -61,7 +69,6 @@
 
 #cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
 #cliqz-results .cqz-rd-h3img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  100%; width: 70px}
-#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
 
 
@@ -111,8 +118,6 @@
 #cliqz-results .icon.sundown {background-image: url("http://cdn.cliqz.com/extension/EZ/EntityRamadan/sunset.svg"); width: 29px; }
 
 #cliqz-results .ramadanEZ_info {max-width: 550px;}
-#cliqz-results .ramadanEZ_info_table {float: left;}
-#cliqz-results .ramadanEZ_info_buttons {float:right; padding: 110px 0px 0px 20px;}
 
 #cliqz-results .ramadanEZ-daylef{max-width: 550px; width: -moz-calc(100% - 100px);}
 #cliqz-results .ramadanEZ-daylef-bar { overflow: hidden; height: 2px; float:left; width:100%; padding-right: 10px; background-color: #999; position: relative;}
@@ -529,8 +534,7 @@
 }
 #cliqz-results .cqz-ez-subtitle {
   display: block;
-  /*margin-top: -7px;*/
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   color: #999999;
 }
 

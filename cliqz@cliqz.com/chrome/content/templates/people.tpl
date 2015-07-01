@@ -10,11 +10,8 @@
                     width: 54px;">
         </div>
     {{/if}}
-    <div class='cqz-result-center cqz-vert-center'
-         {{#if image.src}}
-            style="width: calc(85% - 60px); position:relative;"
-         {{/if}}>
-        <div class='cqz-result-title overflow'>
+    <div>
+        <div class='cqz-result-title overflow' arrow-override=''>
           <a href="{{../url}}">{{ data.richData.full_name }}</a>
         </div>
         <div class='cqz-result-url overflow

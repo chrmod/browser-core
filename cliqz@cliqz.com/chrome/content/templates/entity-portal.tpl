@@ -1,6 +1,6 @@
 <div class="cqz-result-h1 ez-news cqz-result-padding">
   <div class="cqz-ez-title" selectable=''><a href="{{url}}">{{ emphasis data.name text 2 true }}</a></div>
-  <span class="cqz-ez-subtitle">{{friendly_url}}</span>
+  <span class="cqz-ez-subtitle">{{data.friendly_url}}</span>
   <div class="entity-stories">
     {{#each data.news}}
       <div class="entity-story"

@@ -18,10 +18,8 @@
 
     <div class='cqz-result-center' style="{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h2') }}margin-top: -5px{{/if}}">
         <div class='cqz-result-title overflow'
-            {{#if data.richData.images.length}}
-                arrow="false" arrow-override=''
-            {{/if}}
-             ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+          arrow="false" arrow-override=''
+          ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl

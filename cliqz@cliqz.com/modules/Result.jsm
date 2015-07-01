@@ -199,6 +199,8 @@ var Result = {
             },
             source = getSuperType(result) || result.source;
 
+        resp.friendly_url = CliqzHistoryPattern.generalizeUrl(result.url);
+
         resp.type = "other";
         for(var type in Result.RULES){
             var rules = Result.RULES[type];
