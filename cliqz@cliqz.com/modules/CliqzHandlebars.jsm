@@ -269,14 +269,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('links_or_sources', function(richData) {
-        try {
-            return (richData.internal_links && richData.internal_links.length > 0) ?
-                richData.internal_links : richData.additional_sources
-        }
-        catch(e){
-            CliqzUtils.log(e, "richData undefined THUY");
-            return [];
-        }
+        return richData ? ((richData.internal_links && richData.internal_links.length > 0) ? richData.internal_links : (richData.additional_sources ? richData.additional_sources : [])) : 0;
     });
 
     Handlebars.registerHelper('pref', function(key) {
