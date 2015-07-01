@@ -61,17 +61,19 @@ CLIQZEnvironment = {
         for (var i = 0; i<5; i++) {
             res.push({
                 style:   'favicon',
-                value:   'http://coolurl_' + i + '.com',
+                value:   'http://coolurl.com/' + i ,
                 image:   '',
-                comment: q + 'Title ' +i,
+                comment: q + ' Title ' +i,
                 label:   ''
             });
         }
-        callback({
-            query: q,
-            results: res,
-            ready:  true
-        })
+        setTimeout(function(q,res){
+            callback({
+                query: q,
+                results: res,
+                ready:  true
+            });
+        }, 10, q, res);
     }
 }
 

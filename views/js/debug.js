@@ -13,7 +13,7 @@ urlbar.onkeyup = function(e){
 			q: r._searchString,
 			results: r._results.map(function(r){
 				r.type = r.style;
-				r.url = r.value;
+				r.url = r.val;
 				r.title = r.comment;
 				return r;
 			}),
