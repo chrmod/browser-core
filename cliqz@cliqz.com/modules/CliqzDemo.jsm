@@ -39,9 +39,7 @@ function _onPageLoad (aEvent) {
 	var proxy = doc.getElementById(PROXY_ID);
 	if (proxy) {
 		Cu.exportFunction(CliqzDemo.demoQuery, proxy, {  defineAs: "demoQuery" });
-		Cu.exportFunction(CliqzDemo.openDropdown, proxy, {  defineAs: "openDropdown" });
-		Cu.exportFunction(CliqzDemo.clearDropdown, proxy, {  defineAs: "clearDropdown" });
-		Cu.exportFunction(CliqzDemo.typeInUrlbar, proxy, {  defineAs: "typeInUrlbar" });
+		Cu.exportFunction(CliqzDemo.demoQueryAndClicking, proxy, {  defineAs: "demoQueryAndClicking" });
 
 		proxy.style.visibility = 'visible';
 	}
@@ -58,6 +56,7 @@ function _createFakeCursor (win) {
 	callout.setAttribute("id", FAKE_CURSOR_ID);	
     callout.setAttribute("level", "top");
     callout.setAttribute("noautofocus", "true");
+    callout.setAttribute("noautohide", "false");
 
 	callout.appendChild(content);
     parent.appendChild(callout);
@@ -83,33 +82,29 @@ var CliqzDemo = {
 		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);
 		_destroyFakeCursor(win);
 	},
+
+
 	demoQuery: function (query) {
 		CliqzDemo.clearDropdown();
 		CliqzDemo.openDropdown();
-		CliqzDemo.typeInUrlbar(query);
-	
-		CliqzUtils.setTimeout(function () {
-			CliqzDemo.indicateClicking();
-		}, 10);
+		CliqzDemo.typeInUrlbar(query);	
 	},
 	demoQueryAndClicking: function (query) {
 		CliqzDemo.demoQuery(query);
 		CliqzUtils.setTimeout(function () {
-			CliqzDemo.indicateClicking();
+			CliqzDemo.demoClicking();
 		}, TYPING_INTERVAL * query.length + 750);
 	},
-	indicateClicking: function () {
+
+
+	demoClicking: function () {
 		var win = CliqzUtils.getWindow(),
 			cursor = _getFakeCursor(win);
 
 		cursor.classList.remove("pulsate");
 		cursor.openPopup(
-			win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 150, 40);
+			win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 160, 55);
 		cursor.classList.add("pulsate");		
-	},
-	openDropdown: function () {
-		var core = CliqzUtils.getWindow().CLIQZ.Core;
-		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
 	},
 	clearDropdown: function () {
 		var results = 
@@ -119,6 +114,10 @@ var CliqzDemo = {
             results.removeChild(results.firstChild);
         }        
     },
+	openDropdown: function () {
+		var core = CliqzUtils.getWindow().CLIQZ.Core;
+		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
+	},	
 	typeInUrlbar: function (text, pos, core) {
         if (!pos) {
             pos = 0;
