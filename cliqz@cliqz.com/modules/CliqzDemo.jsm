@@ -22,7 +22,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var PROXY_ID = "cliqzDemoProxy";
+var PROXY_ID = "cliqzDemoProxy",
+	FAKE_CURSOR_ID = "CliqzDemoCursor",
+    TYPING_INTERVAL = 1000.0 / 10;
 
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzDemo');
@@ -53,9 +55,8 @@ function _createFakeCursor (win) {
     callout.className = "onboarding-container";
 	content.className = "onboarding-cursor";
 
-	callout.setAttribute("id", "CliqzDemoCursor");	
+	callout.setAttribute("id", FAKE_CURSOR_ID);	
     callout.setAttribute("level", "top");
-    //callout.setAttribute("ignorekeys", "true");
     callout.setAttribute("noautofocus", "true");
 
 	callout.appendChild(content);
@@ -64,17 +65,24 @@ function _createFakeCursor (win) {
     return callout;
 }
 
-// FIXME: NOT GLOBAL
-var callout;
+function _getFakeCursor(win) {
+	 return win.document.getElementById(FAKE_CURSOR_ID);
+}
+
+function _destroyFakeCursor(win) {
+	var cursor = _getFakeCursor(win);
+	cursor.parentNode.removeChild(cursor);
+}
+
 
 var CliqzDemo = {
 	init: function (win) {
 		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
-		callout = _createFakeCursor(win);
+		_createFakeCursor(win);
 	},
 	unload: function (win) {
 		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);
-		// FIXME: DELETE CURSOR CALLOUT
+		_destroyFakeCursor(win);
 	},
 	demoQuery: function (query) {
 		CliqzDemo.clearDropdown();
@@ -82,10 +90,9 @@ var CliqzDemo = {
 		CliqzDemo.typeInUrlbar(query);
 	
 		CliqzUtils.setTimeout(function () {
-			
-			callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 150, 40);	
-			
-		}, 500);
+			var win = CliqzUtils.getWindow();
+			_getFakeCursor(win).openPopup(win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 150, 40);				
+		}, TYPING_INTERVAL * query.length + 750);
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
@@ -113,7 +120,7 @@ var CliqzDemo = {
             CliqzUtils.setTimeout(function() {
             	core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));                
                 CliqzDemo.typeInUrlbar(text, pos, core);
-            }, 125); 
+            }, TYPING_INTERVAL); 
         }
     }
 }
