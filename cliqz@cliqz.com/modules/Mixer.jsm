@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
@@ -92,29 +95,37 @@ var Mixer = {
             }
         }
 
+        // Record all descriptions found in cliqz results.
+        // To be used later when displaying history entries.
+        for(var i=0; i<cliqz.length; i++){
+            if(cliqz[i].snippet && cliqz[i].snippet.desc) {
+                CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
+            }
+        }
+
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
-        var instant_new = [];
+        for (var j = 0; j < instant.length; j++) {
+            // clone all instant entries so they can be modified for this mix only
+            instant[j] = Result.clone(instant[j]);
+        }
         for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
-            if(instant.length > 0) {
+            for (var j = 0; j < instant.length; j++) {
                 // Does the main link match?
-                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
+                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].label, true);
                 if(cl_url == instant_url) {
-                    var temp = Result.combine(cliqz[i], instant[0]);
-                    // don't keep this one if we already have one entry like this
-                    if(instant_new.length == 0)
-                        instant_new.push(temp);
+                    instant[j] = Result.combine(cliqz[i], instant[j]);
                     duplicate = true;
                 }
 
                 // Do any of the sublinks match?
-                if(instant[0].style == 'cliqz-pattern') {
-                    for(var u in instant[0].data.urls) {
-                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
+                if(instant[j].style == 'cliqz-pattern') {
+                    for(var u in instant[j].data.urls) {
+                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
                             duplicate = true;
@@ -127,13 +138,6 @@ var Mixer = {
                 cliqz_new.push(cliqz[i]);
             }
         }
-
-        // Later in this function, we will modify the contents of instant.
-        // To avoid changing the source object, make a copy here, if not already
-        // done so in the duplication handling above.
-        if(instant_new.length == 0 && instant.length > 0)
-            instant_new.push(Result.clone(instant[0]));
-        instant = instant_new;
 
         cliqz = cliqz_new;
 

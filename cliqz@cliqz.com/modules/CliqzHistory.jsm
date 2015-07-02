@@ -356,6 +356,47 @@ var CliqzHistory = {
       });
     }
   },
+  updateDescription: function(url, description) {
+    if (description) {
+      CliqzHistory.SQL("INSERT OR REPLACE INTO urldescriptions (url, description)\
+                        VALUES (:url, :description)", null, null, {
+        url: CliqzHistoryPattern.generalizeUrl(url),
+        description: description
+      });
+    }
+  },
+  getDescription: function(url, callback) {
+    url = CliqzHistoryPattern.generalizeUrl(url);
+    // first try urldescriptions table
+    CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
+      function(r) { // onRow for urldescriptions
+        callback(r[0]);
+      },
+      function(n) { // onCompletion for urldescription
+        if(!n) {
+          // next try to get description from opengraph data
+          CliqzHistory.SQL("SELECT data FROM opengraph WHERE url=:url",
+            function(r) {  // onRow for opengrah
+              var data = JSON.parse(r[0]);
+              if(data.description) {
+                callback(r[0]);
+              } else {
+                callback("");
+              }
+            },
+            function(n) { // onCompletion for opengraph
+              if(!n) {
+                // found nothing, just return empty string
+                callback("");
+              }
+            }, {
+              url: url
+            });
+        }
+      }, {
+        url: url
+      });
+  },
   lastMouseMove: 0,
   mouseMove: function(gBrowser) {
     return function(e) {
@@ -595,6 +636,11 @@ var CliqzHistory = {
             linktitle VARCHAR(255)\
         )";
 
+    var descriptions = "create table urldescriptions(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            description VARCHAR(1024)\
+        )";
+
     var opengraph = "create table opengraph(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
             data VARCHAR(2048)\
@@ -615,6 +661,9 @@ var CliqzHistory = {
       CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
       CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
       CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
+      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='urldescriptions'", null, function(n) {
+        if (n == 0) CliqzHistory.SQL(descriptions);
+      });
       CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
         if (n == 0) CliqzHistory.SQL(opengraph);
       });
@@ -624,6 +673,7 @@ var CliqzHistory = {
     } else {
       CliqzHistory.SQL(visits);
       CliqzHistory.SQL(titles);
+      CliqzHistory.SQL(descriptions);
       CliqzHistory.SQL(opengraph);
       CliqzHistory.SQL(thumbnails);
     }
@@ -655,6 +705,9 @@ var CliqzHistory = {
     CliqzHistory.SQL("delete from urltitles where url = :url", null, null, {
       url: url
     });
+    CliqzHistory.SQL("delete from urldescriptions where url = :url", null, null, {
+      url: url
+    });
     CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, {
       url: url
     });
@@ -682,6 +735,7 @@ var CliqzHistory = {
   clearHistory: function() {
     CliqzHistory.SQL("delete from visits");
     CliqzHistory.SQL("delete from urltitles");
+    CliqzHistory.SQL("delete from urldescriptions");
     CliqzHistory.SQL("delete from thumbnails");
     CliqzHistory.SQL("delete from opengraph");
     // Delete thumbnails and recreate directory
