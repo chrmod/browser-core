@@ -1451,12 +1451,50 @@ function resultClick(ev){
                 default:
                     break;
             }
+        } else if (el.getAttribute('id') == 'cqz_location_yes') {
+          ev.preventDefault();
+          CliqzUtils.setPref("location_always_allow", true);
+          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
+              "&q=" + CLIQZ.Core.urlbar.value +
+              CliqzUtils.encodeLocation() + ",U" + // Indicate that location is provided by the user
+              "&bmresult=" + el.getAttribute('bm_url'),
+              handleNewCinemaResults);
+          break;
+        } else if (el.getAttribute('id') == "cqz_location_once") {
+          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
+              "&q=" + CLIQZ.Core.urlbar.value +
+              CliqzUtils.encodeLocation(true) + ",U" + // Indicate that location is provided by the user
+              "&bmresult=" + el.getAttribute('bm_url'),
+              handleNewCinemaResults);
+          break;
+        } else if (el.getAttribute('id') == 'cqz_location_never') {
+          CliqzUtils.setPref('location_never_ask',true);
+          var container = $(".cinema-showtimes-container",gCliqzBox);
+          container.innerHTML = "";
+          var result = $('.local-movie-result', gCliqzBox);
+          result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
+          break;
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
 }
 
+
+function handleNewCinemaResults(req) {
+      //CliqzUtils.log(req, "RESPONSE FROM RH");
+      var resp = JSON.parse(req.response);
+      var container = $(".cinema-showtimes-container",gCliqzBox);
+      //CliqzUtils.log(container,'cinema-container');
+      if (resp.results && resp.results.length > 0) {
+        var data = resp.results[0].data;
+        if (data && data.cinemas.length > 0)
+          container.innerHTML = CliqzHandlebars.tplCache.cinema_showtimes_partial(data);
+        else
+          container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+
+      }
+}
 
 
 function handleAdultClick(ev){

@@ -17,8 +17,8 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended','cinema_showtimes_partial'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -39,10 +39,10 @@ CliqzHandlebars.tplCache = {};
 compileTemplates();
 registerHelpers();
 
-function compileTemplates(){    
+function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
-    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });   
+    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 }
 
 function fetchTemplate(tName, isPartial) {
@@ -301,5 +301,39 @@ function registerHelpers(){
         } catch(e){
           return defaultSetting;
         }
+    });
+
+    Handlebars.registerHelper('for', function(from, to, incr, block) {
+      var accum = '';
+      for(var i = from; i < to; i += incr)
+          accum += block.fn(i);
+      return accum;
+    });
+
+    Handlebars.registerHelper('ifeq', function(v1, v2, options) {
+      return v1 == v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifleq', function(v1, v2, options) {
+      return v1 <= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('iflt', function(v1, v2, options) {
+      return v1 < v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgeq', function(v1, v2, options) {
+      return v1 >= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgt', function(v1, v2, options) {
+      return v1 > v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifpref', function(name, options) {
+      return CliqzUtils.getPref(name) ? options.fn(this) : options.inverse(this) ;
+    });
+    Handlebars.registerHelper('unlesspref', function(name, options) {
+      return CliqzUtils.getPref(name) ? options.inverse(this) : options.fn(this) ;
     });
 }

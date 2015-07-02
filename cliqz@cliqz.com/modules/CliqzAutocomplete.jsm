@@ -440,7 +440,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
                     var country = "";
-
                     var json = JSON.parse(req.response);
                     results = json.result || [];
                     country = json.country;

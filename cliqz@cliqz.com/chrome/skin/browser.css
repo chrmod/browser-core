@@ -36,7 +36,8 @@
 
 #cliqz-results .cqz-result-title,
 #cliqz-results .cqz-ez-title a,
-#cliqz-results .entity-story-title { color: #506bb8; }
+#cliqz-results .entity-story-title,
+#cliqz-results .cqz-url { color: #506bb8; }
 
 #cliqz-results .cqz-ez-black-title a { color: #333333; }
 
@@ -44,7 +45,7 @@
 #cliqz-results .cqz-result-title:visited,
 #cliqz-results .cliqz-pattern-element-title
 {
- color: #8c275f !important; 
+ color: #8c275f !important;
 }
 
 #cliqz-popup a:hover,

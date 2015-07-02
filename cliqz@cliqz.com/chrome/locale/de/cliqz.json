@@ -619,7 +619,7 @@
         "message": "Von"
     },
     "from_price": {
-      "message": "ab"  
+      "message": "ab"
     },
     "to": {
         "message": "nach"
@@ -635,5 +635,65 @@
     },
     "dismiss": {
         "message": "Nachricht schließen"
+    },
+    "cqz_watch_trailer": {
+      "message": "Trailer Abspielen"
+    },
+    "Monday": {
+      "message": "Montag"
+    },
+    "Tuesday": {
+      "message": "Dienstag"
+    },
+    "Wednesday": {
+      "message": "Mittwoch"
+    },
+    "Thursday": {
+      "message": "Donnerstag"
+    },
+    "Friday": {
+      "message": "Freitag"
+    },
+    "Saturday": {
+      "message": "Samstag"
+    },
+    "Sunday": {
+      "message": "Sonntag"
+    },
+    "January": {
+      "message": "Januar"
+    },
+    "February": {
+      "message": "Februar"
+    },
+    "March": {
+      "message": "März"
+    },
+    "April": {
+      "message": "April"
+    },
+    "May": {
+      "message": "Mai"
+    },
+    "June": {
+      "message": "Juni"
+    },
+    "July": {
+      "message": "Juli"
+    },
+    "August": {
+      "message": "August"
+    },
+    "September": {
+      "message": "September"
+    },
+    "October": {
+      "message": "Oktober"
+    },
+    "November": {
+      "message": "November"
+    },
+    "December": {
+      "message": "Dezember"
     }
 }

@@ -58,7 +58,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',, //'http://rich-header.fbt.co/mixer?q=',
+  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -85,7 +86,7 @@ var CliqzUtils = {
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
@@ -103,6 +104,7 @@ var CliqzUtils = {
         CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
         CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
+    CliqzUtils.updateGeoLocation(); // Returns immediately - stores user's location in the preferences userLat and userLon
 
     if(!brand_loaded){
       brand_loaded = true;
@@ -571,7 +573,8 @@ var CliqzUtils = {
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeFilter();
+              CliqzUtils.encodeFilter() +
+              CliqzUtils.encodeLocation(); // @TODO encodeLocation only if user accepts to share it.
 
     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
       function(res){
@@ -663,6 +666,13 @@ var CliqzUtils = {
   },
   encodeQuerySeq: function(){
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
+  },
+  encodeLocation: function(allowOnce) {
+    if (!(allowOnce || CliqzUtils.getPref("location_always_allow"))) return ""
+
+    var lat = CliqzUtils.getPref('userLat');
+    var lon = CliqzUtils.getPref('userLon');
+    return lat && lon ? '&loc=' + lat + ',' + lon: '';
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -1372,6 +1382,12 @@ var CliqzUtils = {
                   subType: JSON.stringify({empty:true})
               }
           )
+    },
+    updateGeoLocation: function() {
+      Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports).getCurrentPosition(function(p){
+        CliqzUtils.setPref('userLat', JSON.stringify(p.coords.latitude));
+        CliqzUtils.setPref('userLon', JSON.stringify(p.coords.longitude));
+      }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); })
     }
     /*
     toggleMenuSettings: function(new_state) {
