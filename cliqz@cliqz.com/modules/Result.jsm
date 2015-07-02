@@ -77,6 +77,10 @@ var Result = {
         data = data || {};
         data.kind = [CliqzUtils.encodeResultType(style) + (subtype? '|' + subtype : '')];
 
+        // The backend can supply a friendly URL, if not generate it here
+        if(!data.friendly_url)
+            data.friendly_url = CliqzHistoryPattern.generalizeUrl(value);
+
         var item = {
             style: style,
             val: value,
@@ -110,10 +114,6 @@ var Result = {
         result.data.subType = result.subType;
         result.data.trigger_urls = result.trigger_urls;
         result.data.ts = result.ts;
-
-        // The backend can supply a friendly URL, if not generate it here
-        if(!result.data.friendly_url)
-            result.data.friendly_url = CliqzHistoryPattern.generalizeUrl(result.url);
 
         return Result.generic(
             Result.CLIQZE, //style
@@ -198,8 +198,6 @@ var Result = {
                 adult: result.snippet.adult || false
             },
             source = getSuperType(result) || result.source;
-
-        resp.friendly_url = CliqzHistoryPattern.generalizeUrl(result.url);
 
         resp.type = "other";
         for(var type in Result.RULES){
