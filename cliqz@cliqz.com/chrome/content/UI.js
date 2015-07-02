@@ -1594,6 +1594,8 @@ function selectPrevResult(pos, allArrowable) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+    var DROPDOWN_HEIGHT = 349;
+
     if(el && el.getAttribute("url")){
         //focus on the title - or on the aroww element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
@@ -1625,7 +1627,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
           if(context = $('.cqz-result-pattern', gCliqzBox))
             offset += context.parentElement.offsetTop;
         }
-        var scroll = parseInt(offset/303) * 303;
+        var scroll = parseInt(offset/DROPDOWN_HEIGHT) * DROPDOWN_HEIGHT;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
         target.setAttribute('arrow', 'true');
