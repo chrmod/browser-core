@@ -424,8 +424,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
                         domain: CliqzUtils.cleanUrlProtocol(CliqzHistoryPattern.simplifyUrl(url_parts.host), true).split("/")[0],
                         title: entry.title,
                         old_urls: entry.old_urls,
-                        category: clean_categories[i].label,
-                        extra: "history-" + i,
+                        category: clean_categories[i].label
                     }
 
                     last_per_topic[i] = new_entry;
@@ -442,6 +441,10 @@ var CliqzClusterHistory = CliqzClusterHistory || {
 
             topic_pos++;
         }
+
+        // set extra field
+        for(var i = 0; i < slots.length; i++)
+            slots[i].extra = 'history-' + i;
 
         // remove any extras
         slots = slots.slice(slots.length - num_slots);
