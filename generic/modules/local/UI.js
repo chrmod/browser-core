@@ -430,7 +430,7 @@ var UI = {
                 return true;
             case KeyEvent.DOM_VK_HOME:
                 // set the caret at the beginning of the text box
-                ev.originalTarget.setSelectionRange(0, 0);
+                (ev.originalTarget || ev.srcElement).setSelectionRange(0, 0);
                 // return true to prevent the default action
                 // on linux the default action will autocomplete to the url of the first result
                 return true;
@@ -1280,14 +1280,14 @@ function messageClick(ev) {
                   break;
               case 'dismiss':
                   updateMessageState("hide");
-                  var pref = ev.originalTarget.getAttribute("pref");
+                  var pref = (ev.originalTarget || ev.srcElement).getAttribute("pref");
                   if (pref && pref != "null")
                     CliqzUtils.setPref(pref,false);
                   break;
                case 'set':
                   updateMessageState("hide");
-                  var pref = ev.originalTarget.getAttribute("pref");
-                  var prefVal = ev.originalTarget.getAttribute("prefVal");
+                  var pref = (ev.originalTarget || ev.srcElement).getAttribute("pref");
+                  var prefVal = (ev.originalTarget || ev.srcElement).getAttribute("prefVal");
                   if (pref && prefVal && pref != "null" && prefVal != "null")
                     CliqzUtils.setPref(pref,prefVal);
                   break;
@@ -1886,7 +1886,7 @@ function handleMouseDown(e) {
       }
     }
   }
-  walk_the_DOM(e.originalTarget);
+  walk_the_DOM(e.originalTarget || e.srcElement);
 }
 
 ctx.CLIQZ.UI = UI;

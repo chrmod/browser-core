@@ -605,8 +605,8 @@ window.CLIQZ.Core = {
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSites', false)) return;
         //only consider the URLbar not the other icons in the urlbar
-        if(ev.originalTarget.className == 'anonymous-div' ||
-          ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+        if((ev.originalTarget || ev.srcElement).className == 'anonymous-div' ||
+          (ev.originalTarget || ev.srcElement).className.indexOf('urlbar-input-box') != -1) {
           var urlBar = CLIQZ.Core.urlbar;
           if(urlBar.value.trim().length == 0){
               //link to historydropmarker

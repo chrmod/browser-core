@@ -46,7 +46,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         // returns null (do nothing) if less that 5 results from history and one domains does not take >=70%
         if (history==null)
             return [null, null];
-        CliqzUtils.getWindow().console.log(history)
+
         var freqHash = {};
         var maxCounter = -1;
         var maxDomain = null;
