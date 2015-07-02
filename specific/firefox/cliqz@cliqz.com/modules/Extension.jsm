@@ -52,12 +52,14 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
 
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
         CLIQZEnvironment.init();
+        CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
         CliqzClusterHistory.init();
@@ -137,6 +139,7 @@ var Extension = {
 
         CliqzCategories.unload();
         CLIQZEnvironment.unload();
+        CliqzABTests.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -259,6 +262,7 @@ var Extension = {
                 // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
                 win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
                 win.CLIQZ.Core.whoAmI(true); //startup
+                CliqzABTests.check();
 
             } catch(e) {Cu.reportError(e); }
         }

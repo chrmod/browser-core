@@ -5,18 +5,24 @@
  */
 
 var EXPORTED_SYMBOLS = ['CliqzABTests'];
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CliqzABTests = CliqzABTests || {
+var timer=null, ONE_HOUR = 60 * 60 * 1000;
+
+var CliqzABTests = {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
     URL: 'https://logging.cliqz.com/abtests/check?session=',
-
+    init: function(){
+        CliqzABTests.check();
+    },
+    unload: function(){
+        CliqzUtils.clearTimeout(timer);
+    },
     // Accessors to list of tests this user is current in
     getCurrent: function() {
         if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
@@ -45,6 +51,12 @@ var CliqzABTests = CliqzABTests || {
 
     // Check for newest list of AB tests from server
     check: function() {
+        CliqzUtils.log('AB checking');
+        // clear the last timer
+        CliqzUtils.clearTimeout(timer);
+        // set a new timer to be triggered after 1 hour
+        timer = CliqzUtils.setTimeout(CliqzABTests.check, 2000);
+
         CliqzABTests.retrieve(
             function(response){
                 try{
@@ -226,7 +238,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1038_B":
                 CliqzUtils.setPref("newsTopsitesAssessment", true);
-                CliqzUtils.setPref("newsTopsitesAssessmentDone", false);                
+                CliqzUtils.setPref("newsTopsitesAssessmentDone", false);
                 break;
             default:
                 rule_executed = false;

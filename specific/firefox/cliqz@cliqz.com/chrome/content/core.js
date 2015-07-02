@@ -37,9 +37,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
-  'chrome://cliqzmodules/content/CliqzABTests.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
@@ -452,7 +449,6 @@ window.CLIQZ.Core = {
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
-            delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
@@ -554,8 +550,6 @@ window.CLIQZ.Core = {
         CLIQZ.Core._whoAmItimer = setTimeout(function(){
             if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
-
-        CliqzABTests.check();
 
         //executed after the services are fetched
         CliqzUtils.fetchAndStoreConfig(function(){
