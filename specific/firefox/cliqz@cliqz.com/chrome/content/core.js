@@ -188,8 +188,6 @@ window.CLIQZ.Core = {
         //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
 
-        CLIQZEnvironment.init();
-
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         CLIQZ.Core.historyDropMarker = document.getAnonymousElementByAttribute(CLIQZ.Core.urlbar, "anonid", "historydropmarker")
@@ -363,7 +361,6 @@ window.CLIQZ.Core = {
 
         document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
 
-        CliqzAutocomplete.unload();
         CliqzRedirect.unload();
         CliqzExtOnboarding.unload(window);
 

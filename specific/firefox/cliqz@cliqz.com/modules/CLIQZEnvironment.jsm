@@ -1,9 +1,15 @@
 'use strict';
 var EXPORTED_SYMBOLS = ['CLIQZEnvironment'];
+const {
+  classes:    Cc,
+  interfaces: Ci,
+  utils:      Cu,
+  manager:    Cm
+} = Components;
 
-Components.utils.import('resource://gre/modules/Services.jsm');
-Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
-Components.utils.import('resource://gre/modules/NewTabUtils.jsm');
+Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import('resource://gre/modules/NewTabUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -14,7 +20,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
+var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     PREF_STRING = 32,
     PREF_INT    = 64,
     PREF_BOOL   = 128,
@@ -22,7 +28,7 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
     // automatically removed when fired
     _timers = [],
     _setTimer = function(func, timeout, type, param) {
-        var timer = Components.classes['@mozilla.org/timer;1'].createInstance(Components.interfaces.nsITimer);
+        var timer = Cc['@mozilla.org/timer;1'].createInstance(Ci.nsITimer);
         _timers.push(timer);
         var event = {
             notify: function (timer) {
@@ -43,16 +49,20 @@ var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Compon
         classID: Components.ID('{59a99d57-b4ad-fa7e-aead-da9d4f4e77c8}'),
         classDescription : 'Cliqz',
         contractID : '@mozilla.org/autocomplete/search;1?name=cliqz-results',
-        QueryInterface: XPCOMUtils.generateQI([ Components.interfaces.nsIAutoCompleteSearch ]),
+        QueryInterface: XPCOMUtils.generateQI([ Ci.nsIAutoCompleteSearch ]),
     };
 
 var CLIQZEnvironment = {
     LOCALE_PATH: 'chrome://cliqzres/content/locale/',
     TEMPLATES_PATH: 'chrome://cliqzres/content/templates/',
-    cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
-    OS: Components.classes["@mozilla.org/xre/app-info;1"].getService(Components.interfaces.nsIXULRuntime).OS.toLowerCase(),
+    cliqzPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Ci.nsIPrefService).getBranch('extensions.cliqz.'),
+    OS: Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS.toLowerCase(),
     init: function(){
         CLIQZEnvironment.loadSearch();
+    },
+    unload: function() {
+        CLIQZEnvironment.unloadSearch();
+        _timers.forEach(_removeTimerRef);
     },
     log: function(msg, key){
         _log.logStringMessage(
@@ -90,7 +100,7 @@ var CLIQZEnvironment = {
           }
     },
     httpHandler: function(method, url, callback, onerror, timeout, data){
-        var req = Components.classes['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+        var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
         req.open(method, url, true);
         req.overrideMimeType('application/json');
         req.onload = function(){
@@ -141,7 +151,7 @@ var CLIQZEnvironment = {
             var historyService =
                 Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             var ioService =
-                Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
+                Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
             var urlObject = ioService.newURI(url, null, null);
                 historyService.markPageAsTyped(urlObject);
         } catch(e) { }
@@ -159,8 +169,8 @@ var CLIQZEnvironment = {
         }
     },
     tldExtractor: function(host){
-        var eTLDService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
-                                    .getService(Components.interfaces.nsIEffectiveTLDService);
+        var eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
+                                    .getService(Ci.nsIEffectiveTLDService);
 
         return eTLDService.getPublicSuffixFromHost(host);
     },
@@ -168,16 +178,16 @@ var CLIQZEnvironment = {
         if(window.cliqzIsPrivate === undefined){
             try {
                 // Firefox 20+
-                Components.utils.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
+                Cu.import('resource://gre/modules/PrivateBrowsingUtils.jsm');
                 window.cliqzIsPrivate = PrivateBrowsingUtils.isWindowPrivate(window);
             } catch(e) {
                 // pre Firefox 20
                 try {
-                  window.cliqzIsPrivate = Components.classes['@mozilla.org/privatebrowsing;1'].
-                                          getService(Components.interfaces.nsIPrivateBrowsingService).
+                  window.cliqzIsPrivate = Cc['@mozilla.org/privatebrowsing;1'].
+                                          getService(Ci.nsIPrivateBrowsingService).
                                           privateBrowsingEnabled;
                 } catch(ex) {
-                  Components.utils.reportError(ex);
+                  Cu.reportError(ex);
                   window.cliqzIsPrivate = 5;
                 }
             }
@@ -186,10 +196,10 @@ var CLIQZEnvironment = {
         return window.cliqzIsPrivate
     },
     setInterval: function(func, timeout, param) {
-        return _setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_REPEATING_PRECISE, param);
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE, param);
     },
     setTimeout: function(func, timeout, param) {
-        return _setTimer(func, timeout, Components.interfaces.nsITimer.TYPE_ONE_SHOT, param);
+        return _setTimer(func, timeout, Ci.nsITimer.TYPE_ONE_SHOT, param);
     },
     clearTimeout: function(timer) {
         if (!timer) {
@@ -200,21 +210,21 @@ var CLIQZEnvironment = {
     },
     clearInterval: this.clearTimeout,
     getVersion: function(callback){
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                         .getService(Components.interfaces.nsIWindowMediator),
+        var wm = Cc['@mozilla.org/appshell/window-mediator;1']
+                         .getService(Ci.nsIWindowMediator),
             win = wm.getMostRecentWindow("navigator:browser");
           win.Application.getExtensions(function(extensions) {
                 callback(extensions.get('cliqz@cliqz.com').version);
           });
     },
     getWindow: function(){
-        var wm = Components.classes['@mozilla.org/appshell/window-mediator;1']
-                            .getService(Components.interfaces.nsIWindowMediator);
+        var wm = Cc['@mozilla.org/appshell/window-mediator;1']
+                            .getService(Ci.nsIWindowMediator);
         return wm.getMostRecentWindow("navigator:browser");
     },
     getWindowID: function(){
         var win = CLIQZEnvironment.getWindow();
-        var util = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+        var util = win.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
         return util.outerWindowID;
     },
     openTabInWindow: function(win, url){
@@ -225,7 +235,7 @@ var CLIQZEnvironment = {
 
     // from CliqzAutocomplete
     loadSearch: function(){
-        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+        var reg = Cm.QueryInterface(Ci.nsIComponentRegistrar);
         try{
             reg.unregisterFactory(
                 reg.contractIDToCID(FFcontract.contractID),
@@ -233,7 +243,6 @@ var CLIQZEnvironment = {
             )
         }catch(e){}
 
-        debugger;
         //extend prototype
         for(var k in FFcontract) CliqzAutocomplete.CliqzResults.prototype[k] = FFcontract[k];
 
@@ -243,7 +252,7 @@ var CLIQZEnvironment = {
 
     },
     unloadSearch: function(){
-        var reg = Components.manager.QueryInterface(Components.interfaces.nsIComponentRegistrar);
+        var reg = Cm.QueryInterface(Ci.nsIComponentRegistrar);
         try{
           reg.unregisterFactory(
             reg.contractIDToCID(FFcontract.contractID),
