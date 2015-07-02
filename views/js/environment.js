@@ -77,8 +77,8 @@ CLIQZEnvironment = {
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     setPref: function(k,v){db[k] = v},
-    setInterval: function(){ setInterval.apply(null, arguments) },
-    setTimeout: function(){ setTimeout.apply(null, arguments) },
+    setInterval: function(){ return setInterval.apply(null, arguments) },
+    setTimeout: function(){ return setTimeout.apply(null, arguments) },
     clearTimeout: function(){ clearTimeout.apply(null, arguments) },
     tldExtractor: function(host){
     	//lucian: temp - FIX IT
@@ -131,7 +131,7 @@ CLIQZEnvironment = {
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
-        for (var i = 0; i<5; i++) {
+        for (var i = 0; i<30; i++) {
             res.push({
                 style:   'favicon',
                 value:   'http://coolurl.com/' + i ,
