@@ -4,13 +4,11 @@
  *
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('chrome://cliqzmodules/content/Result.jsm');
-Cu.import("resource://gre/modules/Services.jsm");
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('chrome://cliqzmodules/content/Result.jsm');
+Components.utils.import("resource://gre/modules/Services.jsm");
 Services.scriptloader.loadSubScript('chrome://cliqzmodules/content/extern/math.min.js', this);
-var math = this.math;
+var mathLib = math || this.math;
 
 // REF:
 //      http://mathjs.org/docs/index.html
@@ -97,7 +95,7 @@ var CliqzCalculator = {
 
     get: function(q){
       if (this.CALCULATOR_RES == null || this.CALCULATOR_RES == q){return null;}
-      var expanded_expression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : math.parse(q).toString();
+      var expanded_expression = this.IS_UNIT_CONVERTER ? this.BASE_UNIT_CONVERTER : mathLib.parse(q).toString();
       var result_sign = '= ';
 
       // fix 1feet -> 1foot
@@ -224,14 +222,8 @@ var CliqzCalculator = {
             return false;
         }
 
-//        try{
-//            math.unit(tmp);
-//            return false;
-//        }
-//        catch (err){}
-
         try {
-            this.CALCULATOR_RES = math.eval(tmp);
+            this.CALCULATOR_RES = mathLib.eval(tmp);
 
             if (typeof(this.CALCULATOR_RES) === 'number') {
                 this.IS_UNIT_CONVERTER = false;

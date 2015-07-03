@@ -51,10 +51,15 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+        Cu.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzABTests.jsm');
+
         Cu.import('resource://gre/modules/Services.jsm');
 
         Extension.setDefaultPrefs();
         CliqzUtils.init();
+        CLIQZEnvironment.init();
+        CliqzABTests.init();
         this.telemetry = CliqzUtils.telemetry;
 
         CliqzClusterHistory.init();
@@ -133,6 +138,8 @@ var Extension = {
         }
 
         CliqzCategories.unload();
+        CLIQZEnvironment.unload();
+        CliqzABTests.unload();
         Extension.unloadModules();
 
         Services.ww.unregisterNotification(Extension.windowWatcher);
@@ -190,6 +197,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -254,6 +262,7 @@ var Extension = {
                 // We need the urlbar, so that we can activate cliqz from a different window that was already open at the moment of deactivation
                 win.CLIQZ.Core.urlbar = win.document.getElementById('urlbar');
                 win.CLIQZ.Core.whoAmI(true); //startup
+                CliqzABTests.check();
 
             } catch(e) {Cu.reportError(e); }
         }

@@ -7,10 +7,8 @@
 
 var EXPORTED_SYMBOLS = ['CliqzResultProviders'];
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/Services.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/Services.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -20,6 +18,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCalculator',
   'chrome://cliqzmodules/content/CliqzCalculator.jsm');
+
+Components.utils.import('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 
 var INIT_KEY = 'newProvidersAdded',
@@ -55,8 +55,6 @@ var INIT_KEY = 'newProvidersAdded',
 
 var CliqzResultProviders = {
     init: function(){
-        // creates shortcuts for all the engines
-        this.getSearchEngines();
     },
     getCustomResults: function(q){
         var results = null;
@@ -86,25 +84,6 @@ var CliqzResultProviders = {
         }
         return [q, results];
     },
-    getSearchEngines: function(){
-        var engines = {},
-            defEngines = Services.search.getEngines();
-        for(var i=0; i<defEngines.length; i++){
-            var engine = defEngines[i];
-            if(engine.hidden != true && engine.iconURI){
-                engines[engine.name] = {
-                    prefix: CliqzResultProviders.getShortcut(engine.name),
-                    name: engine.name,
-                    icon: engine.iconURI.spec,
-                    code: CliqzResultProviders.getEngineCode(engine.name),
-                    base_url: engine.searchForm
-                }
-
-
-            }
-        }
-        return engines;
-    },
     getEngineCode: function(engineName){
         for(var c in ENGINE_CODES){
             if(engineName.toLowerCase().indexOf(ENGINE_CODES[c]) != -1){
@@ -113,9 +92,6 @@ var CliqzResultProviders = {
         }
         // unknown engine
         return 0;
-    },
-    getEngineSubmission: function(engine, q){
-        return Services.search.getEngineByName(engine).getSubmission(q);
     },
     setCurrentSearchEngine: function(engine){
         Services.search.currentEngine = Services.search.getEngineByName(engine);
@@ -144,7 +120,7 @@ var CliqzResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
-                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
+                queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
                 engineCode: CliqzResultProviders.getEngineCode(MAPPING[start])
             };
         } else if(MAPPING.hasOwnProperty(end)) {
@@ -152,12 +128,20 @@ var CliqzResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
-                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec,
+                queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
                 engineCode: CliqzResultProviders.getEngineCode(MAPPING[end])
             };
         }
 
         return null;
+    },
+    getSubmissionByEngineName: function(name, query){
+        var engines = CliqzResultProviders.getSearchEngines();
+        for(var eName in engines){
+            if(eName == name){
+                return engines[eName].getSubmissionForQuery(query);
+            }
+        }
     },
     // called once at visual hashtag creation
 	getShortcut: function(name){
@@ -180,6 +164,15 @@ var CliqzResultProviders = {
 			}
 		}
 	},
+    getSearchEngines: function(){
+        return CLIQZEnvironment.getSearchEngines()
+                 .map(function(e){
+                    e.prefix = CliqzResultProviders.getShortcut(e.name);
+                    e.code   = CliqzResultProviders.getEngineCode(e.name);
+
+                    return e;
+                 });
+    },
     getM: function(){ return MAPPING }
 }
 

@@ -5,12 +5,6 @@
  */
 
 var EXPORTED_SYMBOLS = ['Filter'];
-const { classes: Cc, interfaces: Ci } = Components;
-
-var _log = Components.classes['@mozilla.org/consoleservice;1'].getService(Components.interfaces.nsIConsoleService),
-    log = function(str){
-        _log.logStringMessage('Filter.jsm: ' + str);
-    };
 
 // TLD list extracted from http://www.iana.org/domains/root/db,
 // cc stands fro country code, the other are generic

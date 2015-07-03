@@ -9,16 +9,15 @@
  * author: Dominik Schmidt (cliqz)
  */
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 var EXPORTED_SYMBOLS = ['CliqzSmartCliqzCache'];
 
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import("resource://gre/modules/Services.jsm");
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 // not available in older FF versions
 try {
-	Cu.import("resource://gre/modules/osfile.jsm");
+	Components.utils.import("resource://gre/modules/osfile.jsm");
 } catch(e) { }
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
@@ -28,9 +27,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
-// this simple cache is a dictionary that addionally stores 
-// timestamps for each entry; life is time in seconds before 
-// entries are marked stale (if life is not specified entries 
+// this simple cache is a dictionary that addionally stores
+// timestamps for each entry; life is time in seconds before
+// entries are marked stale (if life is not specified entries
 // are good forever); going stale has no immediate consequences
 var Cache = function (life) {
 	this._cache = { };
@@ -38,7 +37,7 @@ var Cache = function (life) {
 };
 
 // stores entry only if it is newer than current entry,
-// current time is used if time is not specified 
+// current time is used if time is not specified
 Cache.prototype.store = function (key, value, time) {
 	time = time || Date.now();
 
@@ -71,7 +70,7 @@ Cache.prototype.isCached = function (key) {
 
 // returns true if there is no newer entry already cached for key
 Cache.prototype.isNew = function (key, value, time) {
-	return !this.isCached(key) || 
+	return !this.isCached(key) ||
 		(time > this._cache[key].time);
 };
 
@@ -106,12 +105,12 @@ Cache.prototype.save = function (filename) {
 			function(value) {
     			_this._log("save: saved to " + path);
 			}, function(e) {
-				_this._log("save: failed saving to " + path + 
+				_this._log("save: failed saving to " + path +
 					": " + e);
 			});
 	} catch (e) {
 		this._log("save: failed saving: " + e);
-	}	
+	}
 }
 
 // load cache from file
@@ -133,7 +132,7 @@ Cache.prototype.load = function (filename) {
 }
 
 Cache.prototype._log = function (msg) {
-	CliqzUtils.log(msg, 'Cache');	
+	CliqzUtils.log(msg, 'Cache');
 }
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
@@ -186,7 +185,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_fetchLock: { },
 
 	// TODO: clean-up
-	triggerUrls: new Cache(), 
+	triggerUrls: new Cache(),
 
 	// loads cache content from persistent storage
 	init: function () {
@@ -202,7 +201,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		} catch (e) {
 			this._log('init: unable to create cache folder:' + e);
 		}
-		
+
 		this._isInitialized = true;
 		this._log('init: initialized');
 	},
@@ -211,13 +210,13 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	store: function (smartCliqz) {
 		var id = this.getId(smartCliqz);
 
-		this._smartCliqzCache.store(id, smartCliqz, 
+		this._smartCliqzCache.store(id, smartCliqz,
 			this.getTimestamp(smartCliqz));
 
 		try {
-			if (this.isCustomizationEnabled() && 
-				(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz)) && 
-				this._customDataCache.isStale(id)) {				
+			if (this.isCustomizationEnabled() &&
+				(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz)) &&
+				this._customDataCache.isStale(id)) {
 
 				this._log('store: found stale data for id ' + id);
 				this._prepareCustomData(id);
@@ -233,10 +232,10 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			return;
 		}
 
-		this._log('fetchAndStore: for id ' + id);		
+		this._log('fetchAndStore: for id ' + id);
 		this._fetchLock[id] = true;
 		var _this = this;
-		this._fetchSmartCliqz(id).then(function (smartCliqz) {			
+		this._fetchSmartCliqz(id).then(function (smartCliqz) {
 			// limit number of categories/links
 			if (smartCliqz.hasOwnProperty('data')) {
 				if (smartCliqz.data.hasOwnProperty('links')) {
@@ -259,9 +258,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	retrieve: function (id) {
 		var smartCliqz = this._smartCliqzCache.retrieve(id);
 
-		if (this.isCustomizationEnabled() && smartCliqz && 
+		if (this.isCustomizationEnabled() && smartCliqz &&
 			(this.isNews(smartCliqz) || this.isDomainSupported(smartCliqz))) {
-			try {	
+			try {
 				this._customizeSmartCliqz(smartCliqz);
 			} catch (e) {
 				this._log('retrieveCustomized: error while customizing data: ' + e);
@@ -307,20 +306,20 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		try {
             var isEnabled =
             	CliqzUtils.getPref("enableSmartCliqzCustomization", undefined);
-            
-            return isEnabled === undefined ? 
+
+            return isEnabled === undefined ?
             	this._isCustomizationEnabledByDefault : isEnabled;
-        } catch(e) {        	
+        } catch(e) {
             return this._isCustomizationEnabledByDefault;
         }
 	},
 
 	// re-orders categories based on visit frequency
-	_customizeSmartCliqz: function (smartCliqz) {		
+	_customizeSmartCliqz: function (smartCliqz) {
 		var id = this.getId(smartCliqz);
-		
+
 		if (this._customDataCache.isCached(id)) {
-			this._injectCustomData(smartCliqz, 
+			this._injectCustomData(smartCliqz,
 				this._customDataCache.retrieve(id));
 
 			if (this._customDataCache.isStale(id)) {
@@ -338,7 +337,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		var id = this.getId(smartCliqz);
 		this._log('_injectCustomData: injecting for id ' + id);
 		for (var key in customData) {
-			if (customData.hasOwnProperty(key)) {				
+			if (customData.hasOwnProperty(key)) {
 				smartCliqz.data[key] = customData[key];
 				this._log('_injectCustomData: injecting key ' + key);
 			}
@@ -363,7 +362,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 		//		  custom data from cache
 
 		// for stats
-		var oldCustomData = this._customDataCache.retrieve(id);	
+		var oldCustomData = this._customDataCache.retrieve(id);
 
 		// (1) fetch template from rich header
 		var _this = this;
@@ -375,7 +374,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			_this._fetchVisitedUrls(domain, function callback(urls) {
 
 				// (3) re-order template categories based on history
-				
+
 				// TODO: define per SmartCliqz what the data field to be customized is called
 				if (!_this.isNews(smartCliqz)) {
 					smartCliqz.data.categories = smartCliqz.data.links;
@@ -393,7 +392,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 				// count category-visit matches (visit url contains category url)
 				for (var i = 0; i < urls.length; i++) {
-					var url = 
+					var url =
 						_this._preparseUrl(urls[i], domain);
 					for (var j = 0; j < categories.length; j++) {
 						if (_this._isMatch(url, categories[j].genUrl)) {
@@ -404,9 +403,9 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
 				// re-order by match count; on tie use original order
 				categories.sort(function compare(a, b) {
-                    if (a.matchCount != b.matchCount) {                        
+                    if (a.matchCount != b.matchCount) {
                         return b.matchCount - a.matchCount; // descending
-                    } else {                        
+                    } else {
                         return a.originalOrder - b.originalOrder; // ascending
                     }
                 });
@@ -415,7 +414,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
                 var oldCategories = oldCustomData ?
                 	// previous customization: use either categories (news) or links (other SmartCliqz)
-                	(_this.isNews(smartCliqz) ? oldCustomData.categories : oldCustomData.links) : 
+                	(_this.isNews(smartCliqz) ? oldCustomData.categories : oldCustomData.links) :
                 	// no previous customization: use default order
                 	smartCliqz.data.categories;
 
@@ -460,7 +459,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 			} else {
 				// no rule found (e.g., for news domains)
 				// this._log('_preparseUrl: no rule found for domain ' + domain);
-			}			
+			}
 		}
 
 		return url;
@@ -477,15 +476,15 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	_fetchSmartCliqz: function (id, callback) {
 		this._log('_fetchSmartCliqz: start fetching for id ' + id);
 		var _this = this;
-		
+
 		var promise = new Promise(function (resolve, reject) {
 			var endpointUrl = _this.SMART_CLIQZ_ENDPOINT + id;
-			
+
 			CliqzUtils.httpGet(endpointUrl, function success(req) {
         		try {
-	        		var smartCliqz = 
+	        		var smartCliqz =
 	        			JSON.parse(req.response).extra.results[0];
-	        		smartCliqz = Result.cliqzExtra(smartCliqz);	        		
+	        		smartCliqz = Result.cliqzExtra(smartCliqz);
 	        		_this._log('_fetchSmartCliqz: done fetching for id ' + id);
         			resolve(smartCliqz);
         		} catch (e) {
@@ -523,7 +522,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 
         var _this = this;
         CliqzUtils.setTimeout(function fetch() {
-        	var result = 
+        	var result =
         		historyService.executeQuery(query, options);
 
 	        var container = result.root;
@@ -535,7 +534,7 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	        }
 
 	        _this._log(
-	        		'_fetchVisitedUrls: done fetching ' +  urls.length + 
+	        		'_fetchVisitedUrls: done fetching ' +  urls.length +
 	        		' URLs for domain ' + domain);
 	        callback(urls);
         }, 0);
@@ -578,18 +577,18 @@ var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
     	stats.urlMatchCountAvg = stats.urlMatchCount / length;
 
     	for (var i = 0; i < length; i++) {
-    		stats.urlMatchCountSd += 
+    		stats.urlMatchCountSd +=
     			Math.pow(stats.urlMatchCountAvg - newCategories[i].matchCount, 2);
     	}
     	stats.urlMatchCountSd /= length;
     	stats.urlMatchCountSd = Math.sqrt(stats.urlMatchCountSd);
 
-    	for (var i = 0; i < length; i++) { 
+    	for (var i = 0; i < length; i++) {
     		if (oldPositions.hasOwnProperty(newCategories[i].title)) {
     			stats.categoriesKeptCount++;
-    			stats.categoriesKeptPosChangeAvg += 
+    			stats.categoriesKeptPosChangeAvg +=
     				Math.abs(i - oldPositions[newCategories[i].title]);
-    			
+
     		}
     	}
     	stats.categoriesKeptPosChangeAvg /= stats.categoriesKeptCount;

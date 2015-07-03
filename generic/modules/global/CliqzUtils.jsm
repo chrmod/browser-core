@@ -24,9 +24,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
-  'chrome://cliqzmodules/content/CliqzABTests.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
@@ -119,13 +116,6 @@ var CliqzUtils = {
           , MINUTE/2);
       })();
     }
-
-    //if(win)this.UNINSTALL = 'https://cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
-
-    //set the custom restul provider
-    CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
-    CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING = CliqzUtils.getPref("customResultsProviderPing", null);
-    CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG = CliqzUtils.getPref("customResultsProviderLog", null);
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
@@ -465,19 +455,11 @@ var CliqzUtils = {
   _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
-    if(CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING){
-      //on timeout - permanently fallback to the default results provider
-      CliqzUtils.httpHandler('HEAD', CliqzUtils.CUSTOM_RESULTS_PROVIDER_PING, null, function(){
-        CliqzABTests.disable('1015_A');
-      });
-    }
-    else {
-      CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
-    }
+    CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._querySeq++;
-    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
+    var url = CliqzUtils.RESULTS_PROVIDER +
               encodeURIComponent(q) +
               CliqzUtils.encodeQuerySession() +
               CliqzUtils.encodeQuerySeq() +
@@ -623,8 +605,7 @@ var CliqzUtils = {
       CliqzUtils.encodeQuerySeq() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
-    CliqzUtils.httpGet(
-      (CliqzUtils.CUSTOM_RESULTS_PROVIDER_LOG || CliqzUtils.RESULTS_PROVIDER_LOG) + params);
+    CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
     CliqzUtils.setResultOrder('');
     CliqzUtils.log(params, 'Utils.resultTelemetry');
   },
@@ -813,5 +794,48 @@ var CliqzUtils = {
     data[CliqzUtils.getPref('adultContentFilter', 'moderate')].selected = true;
 
     return data;
-  }
+  },
+  getNoResults: function() {
+      var se = [// default
+              {"name": "DuckDuckGo", "base_url": "https://duckduckgo.com"},
+              {"name": "Bing", "base_url": "https://www.bing.com/search?q=&pc=MOZI"},
+              {"name": "Google", "base_url": "https://www.google.de"},
+              {"name": "Google Images", "base_url": "https://images.google.de/"},
+              {"name": "Google Maps", "base_url": "https://maps.google.de/"}
+          ],
+          chosen = new Array();
+
+      var engines = CliqzResultProviders.getSearchEngines();
+
+      se.forEach(function(def){
+        engines.forEach(function(e){
+          if(def.name == e.name){
+              var url = def.base_url || e.base_url;
+
+              def.code = e.code;
+              def.style = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(url)).style;
+              def.text = e.prefix.slice(1);
+
+              chosen.push(def)
+          }
+        })
+      })
+
+
+
+      return Result.cliqzExtra(
+              {
+                  data:
+                  {
+                      template:'noResult',
+                      text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', engines[0].name /* Lucian smarter way to determine the default search Engine*/),
+                      "search_engines": chosen,
+                      //use local image in case of no internet connection
+                      "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
+                  },
+                  subType: JSON.stringify({empty:true})
+              }
+          )
+    }
 };

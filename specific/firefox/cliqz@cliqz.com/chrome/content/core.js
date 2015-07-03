@@ -37,17 +37,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzExtOnboarding',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
   'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzABTests',
-  'chrome://cliqzmodules/content/CliqzABTests.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSearchHistory',
   'chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
   'chrome://cliqzmodules/content/CliqzRedirect.jsm');
-
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
-  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
@@ -63,6 +57,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
   'chrome://cliqzmodules/content/CUcrawl.jsm');
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
+  'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
@@ -81,9 +78,8 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
+    urlbarEvents: ['focus', 'blur', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
-    _lastKey:0,
     _updateAvailable: false,
 
     init: function(){
@@ -138,8 +134,6 @@ window.CLIQZ.Core = {
             CliqzCategories.assessNewsTopsites();
         }
 
-        CliqzSpellCheck.initSpellCorrection();
-
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
@@ -156,7 +150,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
         CLIQZ.Core.popup = popup;
 
-        CLIQZ.UI.init();
+        CLIQZ.UI.init(CLIQZ.Core.urlbar);
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('browser.urlbar.');
@@ -190,8 +184,6 @@ window.CLIQZ.Core = {
         // preferences
         //CLIQZ.Core._popupMaxHeight = CLIQZ.Core.popup.style.maxHeight;
         //CLIQZ.Core.popup.style.maxHeight = CliqzUtils.getPref('popupHeight', 190) + 'px';
-
-        CliqzAutocomplete.init();
 
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -339,6 +331,8 @@ window.CLIQZ.Core = {
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
+        CLIQZ.UI.unload();
+
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
             item && item.parentNode && item.parentNode.removeChild(item);
@@ -364,7 +358,6 @@ window.CLIQZ.Core = {
 
         document.getElementById('urlbar-go-button').setAttribute('onclick', CLIQZ.Core._urlbarGoButtonClick);
 
-        CliqzAutocomplete.unload();
         CliqzRedirect.unload();
         CliqzExtOnboarding.unload(window);
 
@@ -456,11 +449,9 @@ window.CLIQZ.Core = {
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
-            delete window.CliqzABTests;
             delete window.CliqzSearchHistory;
             delete window.CliqzRedirect;
             delete window.CliqzHumanWeb;
-            delete window.CliqzSpellCheck;
             delete window.CliqzHistory;
             delete window.CliqzHistoryPattern;
             delete window.CliqzHandlebars;
@@ -560,8 +551,6 @@ window.CLIQZ.Core = {
             if(CLIQZ && CLIQZ.Core) CLIQZ.Core.whoAmI();
         }, CLIQZ.Core.INFO_INTERVAL);
 
-        CliqzABTests.check();
-
         //executed after the services are fetched
         CliqzUtils.fetchAndStoreConfig(function(){
             // wait for search component initialization
@@ -572,7 +561,6 @@ window.CLIQZ.Core = {
             } else {
                 CLIQZ.Core.sendEnvironmentalSignal(startup, Services.search.currentEngine.name);
             }
-            CliqzSpellCheck.initSpellCorrection();
         });
     },
 
@@ -611,8 +599,8 @@ window.CLIQZ.Core = {
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSites', false)) return;
         //only consider the URLbar not the other icons in the urlbar
-        if(ev.originalTarget.className == 'anonymous-div' ||
-          ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+        if((ev.originalTarget || ev.srcElement).className == 'anonymous-div' ||
+          (ev.originalTarget || ev.srcElement).className.indexOf('urlbar-input-box') != -1) {
           var urlBar = CLIQZ.Core.urlbar;
           if(urlBar.value.trim().length == 0){
               //link to historydropmarker
@@ -621,12 +609,6 @@ window.CLIQZ.Core = {
               CLIQZ.Core.historyDropMarker.showPopup();
           }
         }
-    },
-    urlbarkeydown: function(ev){
-        CLIQZ.Core._lastKey = ev.keyCode;
-        CliqzAutocomplete._lastKey = ev.keyCode;
-        var cancel = CLIQZ.UI.keyDown(ev);
-        cancel && ev.preventDefault();
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
@@ -654,36 +636,6 @@ window.CLIQZ.Core = {
            CliqzAutosuggestion.active = false;
         } */
     },
-    openLink: function(url, newTab){
-        // make sure there is a protocol (this is required
-        // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1)
-            url = "http://" + url;
-
-        // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
-        // or selected from the history dropbdown; thus, mark page the user is
-        // going to see as "typed" (i.e, the value Firefox would assign to such URLs)
-        try {
-            var historyService =
-                Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
-            var ioService =
-                Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-            var urlObject = ioService.newURI(url, null, null);
-                historyService.markPageAsTyped(urlObject);
-        } catch(e) { }
-
-        CLIQZ.Core.triggerLastQ = true;
-        if(newTab) gBrowser.addTab(url);
-        else {
-            //clean selected text to have a valid last Query
-            //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
-            //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
-
-            // Set urlbar value to url immediately
-            CLIQZ.Core.urlbar.value = url;
-            openUILink(url);
-        }
-    },
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle, data){
         var urlBar = CLIQZ.Core.urlbar;
@@ -692,8 +644,8 @@ window.CLIQZ.Core = {
             // need to make it compatible with auto suggestion
             urlBar.mInputField.value = urlBar.mInputField.value.slice(0, urlBar.selectionStart);
         }
-        if(CLIQZ.Core._lastKey === KeyEvent.DOM_VK_BACK_SPACE ||
-           CLIQZ.Core._lastKey === KeyEvent.DOM_VK_DELETE){
+        if(CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_BACK_SPACE ||
+           CliqzAutocomplete._lastKey  === KeyEvent.DOM_VK_DELETE){
             if (CliqzAutocomplete.selectAutocomplete) {
                 CLIQZ.UI.selectAutocomplete();
             }

@@ -5,11 +5,9 @@
  */
 
 var EXPORTED_SYMBOLS = ['Mixer'];
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 Components.utils.import('resource://gre/modules/Services.jsm');
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'Filter',
   'chrome://cliqzmodules/content/Filter.jsm');
@@ -179,7 +177,7 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {

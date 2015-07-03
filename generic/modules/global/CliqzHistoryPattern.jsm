@@ -1,17 +1,12 @@
 'use strict';
-const {
-  classes: Cc,
-  interfaces: Ci,
-  utils: Cu
-} = Components;
+
 
 var EXPORTED_SYMBOLS = ['CliqzHistoryPattern'];
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/FileUtils.jsm");
 Components.utils.import("resource://gre/modules/NetUtil.jsm");
-
-Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -165,17 +160,17 @@ var CliqzHistoryPattern = {
   },
   // This method is triggered when the Firefox history has finished loading
   addFirefoxHistory: function(history) {
-    var query = history.searchString;
+    var query = history.query;
     // attempt rule-based clustering first
-    var clustered_result = CliqzClusterHistory.cluster(history);
+    var clustered_result = CliqzClusterHistory.cluster(history.results);
     //var history_left = clustered_result[0]
     var cluster_data = clustered_result[1];
 
     // Extract results
     var patterns = [];
-    for (var i = 0; i < history.matchCount; i++) {
-      var url = CliqzUtils.cleanMozillaActions(history.getValueAt(i)),
-          title = history.getCommentAt(i);
+    for (var i = 0; i < history.results.length; i++) {
+      var url = CliqzUtils.cleanMozillaActions(history.results[i].value),
+          title = history.results[i].comment;
 
       if (!title) {
         //construct title from url
@@ -190,7 +185,7 @@ var CliqzHistoryPattern = {
         patterns.push({
           url: url,
           title: title,
-          favicon: history.getImageAt(i),
+          favicon: history.results[i].image,
           _genUrl: CliqzHistoryPattern.generalizeUrl(url, true)
         });
       }
@@ -248,7 +243,7 @@ var CliqzHistoryPattern = {
     if (share[1] > 0.5 && fRes.length > 2
     && !(CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) !== 0 && share[1] < 0.8)) {
       // Check if base domain changed due to filtering
-      var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
+      var tmpBaseUrl = CliqzHistoryPattern.adjustBaseDomain(fRes, query)[1],
       baseUrl = tmpBaseUrl;
       CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
       res.cluster = true;
