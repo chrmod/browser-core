@@ -6,10 +6,7 @@
     <span class="cqz-btn-default" id="cqz_location_yes" bm_url='{{friendly_url}}'>
       {{local 'yes'}}
     </span>
-    <span class="cqz-btn-error" id="cqz_location_once" bm_url='{{friendly_url}}'>
-      {{local 'location_just_once'}}
-    </span>
-    <span class="cqz-btn-error" id="cqz_location_never">
+    <span class="cqz-btn-error" id="cqz_location_no" bm_url='{{friendly_url}}'>
       {{local 'location_never'}}
     </span>
   </div>

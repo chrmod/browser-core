@@ -715,6 +715,12 @@
     },
     "no_cinemas_to_show": {
       "message": "It seems like this movie is not currently playing in your area."
+    },
+    "location_confirm_no": {
+      "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
+    },
+    "show_local_movies": {
+      "message": "No. Show me where I can watch it!"
     }
 
 }

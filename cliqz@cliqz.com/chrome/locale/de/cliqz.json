@@ -695,5 +695,20 @@
     },
     "December": {
       "message": "Dezember"
+    },
+    "location_permission_prompt": {
+      "message": "Wir würden Dir gerne zeigen in welchen Kinos der Film gerade läuft. Möchtest Du Deinen Standort mit uns teilen?"
+    },
+    "location_never": {
+      "message": "Nein, ich mag coole Sachen nicht."
+    },
+    "no_cinemas_to_show": {
+      "message": "Leider spielt der Film in keinem Kino in Deiner Nähe"
+    },
+    "location_confirm_no": {
+      "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
+    },
+    "show_local_movies": {
+      "message": "Nein, zeig mir wo ich den Film schauen kann."
     }
 }

@@ -1460,13 +1460,11 @@ function resultClick(ev){
               "&bmresult=" + el.getAttribute('bm_url'),
               handleNewCinemaResults);
           break;
-        } else if (el.getAttribute('id') == "cqz_location_once") {
-          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-              "&q=" + CLIQZ.Core.urlbar.value +
-              CliqzUtils.encodeLocation(true) + ",U" + // Indicate that location is provided by the user
-              "&bmresult=" + el.getAttribute('bm_url'),
-              handleNewCinemaResults);
-          break;
+        } else if (el.getAttribute('id') == 'cqz_location_no') {
+          var container = $(".cinema-showtimes-container",gCliqzBox);
+          container.innerHTML = CliqzHandlebars.tplCache.location_confirm_no({
+            'friendly_url': el.getAttribute('bm_url')
+          });
         } else if (el.getAttribute('id') == 'cqz_location_never') {
           CliqzUtils.setPref('location_never_ask',true);
           var container = $(".cinema-showtimes-container",gCliqzBox);
@@ -1492,8 +1490,9 @@ function handleNewCinemaResults(req) {
           container.innerHTML = CliqzHandlebars.tplCache.cinema_showtimes_partial(data);
         else
           container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
-
       }
+      else
+        container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');  
 }
 
 
