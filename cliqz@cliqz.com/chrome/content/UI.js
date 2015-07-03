@@ -1488,11 +1488,17 @@ function handleNewCinemaResults(req) {
         var data = resp.results[0].data;
         if (data && data.cinemas.length > 0)
           container.innerHTML = CliqzHandlebars.tplCache.cinema_showtimes_partial(data);
-        else
+        else {
           container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+          var result = $('.local-movie-result', gCliqzBox);
+          result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
+        }
       }
-      else
-        container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');  
+      else {
+        container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+        var result = $('.local-movie-result', gCliqzBox);
+        result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
+      }
 }
 
 

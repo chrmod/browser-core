@@ -590,7 +590,7 @@
   border: none;
   height: 18px;
   background-color: rgb(47, 196, 252);
-  width: 40px;
+  width: auto;
   text-align: center;
 }
 
