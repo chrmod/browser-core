@@ -106,10 +106,12 @@ var Mixer = {
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
         var cliqz_new = [];
+        var instant_new = [];
         for (var j = 0; j < instant.length; j++) {
             // clone all instant entries so they can be modified for this mix only
-            instant[j] = Result.clone(instant[j]);
+            instant_new[j] = Result.clone(instant[j]);
         }
+        instant = instant_new;
         for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
