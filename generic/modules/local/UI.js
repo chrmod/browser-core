@@ -1791,8 +1791,7 @@ function enginesClick(ev){
     if(engineName = ev && ((el && el.getAttribute('engine')) || (el.parentElement && el.parentElement.getAttribute('engine')))){
         var engine;
         if(engine = Services.search.getEngineByName(engineName)){
-            var urlbar = urlbar,
-                userInput = urlbar.value;
+            var userInput = urlbar.value;
 
             // avoid autocompleted urls
             if(urlbar.selectionStart &&

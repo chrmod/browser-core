@@ -16,7 +16,7 @@ urlbar.addEventListener('keydown', function(e){
 				results: r._results.map(function(r){
 					r.type = r.style;
 					r.url = r.val || '';
-					r.title = r.comment;
+					r.title = r.comment || '';
 					return r;
 				}),
 				isInstant: false

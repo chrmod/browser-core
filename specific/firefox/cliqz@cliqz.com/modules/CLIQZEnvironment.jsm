@@ -260,8 +260,24 @@ var CLIQZEnvironment = {
           );
         }catch(e){}
     },
+    //TODO: cache this
     getSearchEngines: function(){
-        return Services.search.getEngines();
+        return Services.search.getEngines()
+                .filter(function(e){
+                    return !e.hidden && e.iconURI != null;
+                })
+                .map(function(e){
+                    var r = {
+                        name: e.name,
+                        icon: e.iconURI.spec,
+                        base_url: e.searchForm,
+                        getSubmissionForQuery: function(q){
+                            //TODO: create the correct search URL
+                            return e.getSubmission(q).uri.spec;
+                        }
+                    }
+                    return r;
+                });
     },
     initWindow: function(win){
         var popup = win.CLIQZ.Core.popup;

@@ -55,7 +55,7 @@ var CliqzABTests = {
         // clear the last timer
         CliqzUtils.clearTimeout(timer);
         // set a new timer to be triggered after 1 hour
-        timer = CliqzUtils.setTimeout(CliqzABTests.check, 2000);
+        timer = CliqzUtils.setTimeout(CliqzABTests.check, ONE_HOUR);
 
         CliqzABTests.retrieve(
             function(response){

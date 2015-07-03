@@ -120,7 +120,7 @@ var CliqzResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
-                queryURI  : Services.search.getEngineByName(MAPPING[start]).getSubmission(uq).uri.spec,
+                queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
                 engineCode: CliqzResultProviders.getEngineCode(MAPPING[start])
             };
         } else if(MAPPING.hasOwnProperty(end)) {
@@ -128,12 +128,20 @@ var CliqzResultProviders = {
             return {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
-                queryURI  : Services.search.getEngineByName(MAPPING[end]).getSubmission(uq).uri.spec,
+                queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
                 engineCode: CliqzResultProviders.getEngineCode(MAPPING[end])
             };
         }
 
         return null;
+    },
+    getSubmissionByEngineName: function(name, query){
+        var engines = CliqzResultProviders.getSearchEngines();
+        for(var eName in engines){
+            if(eName == name){
+                return engines[eName].getSubmissionForQuery(query);
+            }
+        }
     },
     // called once at visual hashtag creation
 	getShortcut: function(name){
@@ -157,23 +165,13 @@ var CliqzResultProviders = {
 		}
 	},
     getSearchEngines: function(){
-        var engines = {},
-            defEngines = CLIQZEnvironment.getSearchEngines();
-        for(var i=0; i<defEngines.length; i++){
-            var engine = defEngines[i];
-            if(engine.hidden != true && engine.iconURI){
-                engines[engine.name] = {
-                    prefix: CliqzResultProviders.getShortcut(engine.name),
-                    name: engine.name,
-                    icon: engine.iconURI.spec,
-                    code: CliqzResultProviders.getEngineCode(engine.name),
-                    base_url: engine.searchForm
-                }
+        return CLIQZEnvironment.getSearchEngines()
+                 .map(function(e){
+                    e.prefix = CliqzResultProviders.getShortcut(e.name);
+                    e.code   = CliqzResultProviders.getEngineCode(e.name);
 
-
-            }
-        }
-        return engines;
+                    return e;
+                 });
     },
     getM: function(){ return MAPPING }
 }
