@@ -25,6 +25,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
+  'chrome://cliqzmodules/content/CliqzDemo.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
@@ -204,6 +207,7 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
+            CliqzDemo.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -371,6 +375,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzHistory.tabSelect, false);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
+            CliqzDemo.unload(window);
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -442,6 +447,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
+            delete window.CliqzDemo;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
