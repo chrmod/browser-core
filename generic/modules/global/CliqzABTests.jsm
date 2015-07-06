@@ -76,7 +76,7 @@ var CliqzABTests = {
                     var changes = false; // any changes?
 
                     // find old AB tests to leave
-                    for(let o in prevABtests) {
+                    for(var o in prevABtests) {
                         if(!respABtests[o]) {
                             if(CliqzABTests.leave(o))
                                 changes = true;
@@ -88,7 +88,7 @@ var CliqzABTests = {
                     }
 
                     // find new AB tests to enter
-                    for(let n in respABtests) {
+                    for(var n in respABtests) {
                         if(!(prevABtests[n])) {
                             if(CliqzABTests.enter(n, respABtests[n])) {
                                 changes = true;
