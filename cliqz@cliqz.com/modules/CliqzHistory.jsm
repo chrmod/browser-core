@@ -365,37 +365,42 @@ var CliqzHistory = {
       });
     }
   },
-  getDescription: function(url, callback) {
-    url = CliqzHistoryPattern.generalizeUrl(url);
-    // first try urldescriptions table
-    CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
-      function(r) { // onRow for urldescriptions
-        callback(r[0]);
-      },
-      function(n) { // onCompletion for urldescription
-        if(!n) {
-          // next try to get description from opengraph data
-          CliqzHistory.SQL("SELECT data FROM opengraph WHERE url=:url",
-            function(r) {  // onRow for opengrah
-              var data = JSON.parse(r[0]);
-              if(data.description) {
-                callback(r[0]);
-              } else {
-                callback("");
-              }
-            },
-            function(n) { // onCompletion for opengraph
-              if(!n) {
-                // found nothing, just return empty string
-                callback("");
-              }
-            }, {
-              url: url
-            });
-        }
-      }, {
-        url: url
-      });
+  getDescription: function(url) {
+    if(!Promise)
+      return;
+
+    return new Promise( function(resolve, reject) {
+      url = CliqzHistoryPattern.generalizeUrl(url);
+      // first try urldescriptions table
+      CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
+        function(r) { // onRow for urldescriptions
+          resolve(r[0]);
+        },
+        function(n) { // onCompletion for urldescription
+          if(!n) {
+            // next try to get description from opengraph data
+            CliqzHistory.SQL("SELECT data FROM opengraph WHERE url=:url",
+              function(r) {  // onRow for opengrah
+                var data = JSON.parse(r[0]);
+                if(data.description) {
+                  resolve(r[0]);
+                } else {
+                  resolve("");
+                }
+              },
+              function(n) { // onCompletion for opengraph
+                if(!n) {
+                  // found nothing, just return empty string
+                  resolve("");
+                }
+              }, {
+                url: url
+              });
+          }
+        }, {
+          url: url
+        });
+    });
   },
   lastMouseMove: 0,
   mouseMove: function(gBrowser) {

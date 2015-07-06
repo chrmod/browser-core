@@ -86,7 +86,7 @@ var Mixer = {
                 // only if query has more than 2 chars and not in blacklist
                 //  - avoids many unexpected EZ triggerings
                 if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q.toLowerCase().trim()) == -1)) {
-                    var extra = Result.cliqzExtra(cliqz[0].extra);
+                    var extra = Result.cliqzExtra(cliqz[0].extra, cliqz[0].snippet);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
                 } else {
@@ -121,7 +121,7 @@ var Mixer = {
                 // Does the main link match?
                 var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].label, true);
                 if(cl_url == instant_url) {
-                    instant[j] = Result.combine(cliqz[i], instant[j]);
+                    instant[j] = Result.combine(instant[j], Result.cliqz(cliqz[i]));
                     duplicate = true;
                 }
 
@@ -191,6 +191,12 @@ var Mixer = {
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
                     ez = Result.clone(ez);
+
+                    // copy over title and description from history entry
+                    ez.data.title = results[0].data.title;
+                    if(!ez.data.description)
+                        ez.data.description = results[0].data.description;
+
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
                 } else {
@@ -252,8 +258,11 @@ var Mixer = {
 
                         // Check if the main link matches
                         if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
-                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val)) {
+                            cliqzExtra[0] = Result.combine(cliqzExtra[0], results[i]);
+
                             matchedEZ = true;
+                        }
 
                         // Look for sublinks that match
                         for(k in cliqzExtra[0].data) {
@@ -271,7 +280,8 @@ var Mixer = {
 
                 // if the first result is a history cluster and
                 // there is an EZ of a supported types then make a combined entry
-                if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
+                if(results.length > 0 && results[0].data &&
+                   (results[0].data.template == "pattern-h2" || results[0].data.template == "pattern-h3") &&
                    Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1 &&
                    CliqzHistoryPattern.generalizeUrl(results[0].val, true) == CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true) ) {
 
@@ -294,6 +304,7 @@ var Mixer = {
                 }
             }
         }
+
 
         // Change history cluster size if there are less than three links and it is h2
         /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
