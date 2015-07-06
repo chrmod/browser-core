@@ -639,7 +639,7 @@
         "message": "From"
     },
     "from_price": {
-      "message": "from"  
+      "message": "from"
     },
     "to": {
         "message": "to"
