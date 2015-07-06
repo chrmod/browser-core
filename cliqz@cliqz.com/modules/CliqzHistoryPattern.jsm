@@ -903,17 +903,24 @@ var CliqzHistoryPattern = {
       }
     }
 
-    Promise.all(promises).then( function(data) {
+    if(typeof(Promise) === 'undefined') {
+      // Firefox versions < 29
       callback(instant_results);
-    });
+    } else {
+      Promise.all(promises).then( function(data) {
+        callback(instant_results);
+      });
+    }
   },
   // Retrieve description and save in instant results
   getDescription: function(instant) {
     var instant_data = instant.data;
-
-    return CliqzHistory.getDescription(instant.val).then( function(desc) {
-      instant_data.description = desc;
-    });
+    var promise = CliqzHistory.getDescription(instant.val);
+    if(promise) {
+      return promise.then( function(desc) {
+        instant_data.description = desc;
+      });
+    }
   },
 
   // Removes a given url from the instant.data.url list

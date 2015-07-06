@@ -366,7 +366,7 @@ var CliqzHistory = {
     }
   },
   getDescription: function(url) {
-    if(!Promise)
+    if (typeof(Promise) === 'undefined')
       return;
 
     return new Promise( function(resolve, reject) {
