@@ -10,7 +10,7 @@
 
     <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}">{{ emphasis name text 2 true }}</a></div>
     <div class='cqz-result-url overflow'>
-        {{ emphasis friendly_url text 2 true }}
+      {{ emphasis ../urlDetails.domain text 2 true }}{{ emphasis ../urlDetails.extra text 2 true }}
     </div>
     <div class='cqz-result-content'> 
       <div class='multi-ellipsis'>

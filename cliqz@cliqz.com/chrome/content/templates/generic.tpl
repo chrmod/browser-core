@@ -6,7 +6,7 @@
                          cqz-result-url-ssl
                     {{/if}}
         '>
-            {{ emphasis data.friendly_url text 2 true}}
+          {{ emphasis urlDetails.domain text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
         <div class='cqz-result-desc overflow'>
             {{ emphasis data.description text 2 true }}
