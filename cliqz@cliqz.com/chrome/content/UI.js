@@ -31,8 +31,8 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'r': 'recipe'
-//        'r': 'rd-h3-w-rating'
+        'r': 'recipe',
+        'g': 'cpgame'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'

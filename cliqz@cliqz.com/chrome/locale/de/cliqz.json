@@ -1,4 +1,19 @@
 {
+    "Review":{
+        "message": "Tests"
+    },
+    "Tips":{
+        "message": "Tipps"
+    },
+    "Photos":{
+        "message": "Bilder"
+    },
+    "locale_lang_code":{
+        "message": "de-DE"
+    },
+    "GameCategory":{
+        "message": "Spiele-Genre"
+    },
     "Turkish Calendar":{
         "message": "Türkischer Kalender"
     },

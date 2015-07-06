@@ -146,6 +146,16 @@ function registerHelpers(){
         return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData); // is the only result in the show list
     });
 
+    Handlebars.registerHelper('cpgame_rd_template', function(data_richData) {
+        var minimalData = true;
+        // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
+        return (CliqzAutocomplete.lastResult._results.length == 1 && minimalData); // is the only result in the show list
+    });
+
+    Handlebars.registerHelper('localize_numbers', function(num) {
+        return num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code'));
+    });
+
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
         return idx < max_idx;
     });
@@ -302,4 +312,11 @@ function registerHelpers(){
           return defaultSetting;
         }
     });
+
+//    Handlebars.registerHelper('thuy', function(data) {
+//
+////        data.richData.image = "http://www.pcgames.de/screenshots/medium/2014/06/Batman_Arkham_Knight_E3_07-pc-games.jpg";
+//
+//        return data;
+//    });
 }
