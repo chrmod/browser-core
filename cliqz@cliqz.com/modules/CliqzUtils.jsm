@@ -1188,6 +1188,9 @@ var CliqzUtils = {
 
         //feedback and FAQ
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
+        menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
+          CliqzUtils.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
+        }));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         //menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
