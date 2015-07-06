@@ -1,6 +1,24 @@
 {
+    "from_lcase":{
+        "message": "from"
+    },
+    "Cast":{
+        "message": "Cast"
+    },
+    "Movie_Length":{
+        "message": "{} minutes"
+    },
+    "Creator":{
+        "message": "Creator"
+    },
+    "Director":{
+        "message": "Director"
+    },
     "Review":{
         "message": "Review"
+    },
+    "Reviews":{
+        "message": "Reviews"
     },
     "Tips":{
         "message": "Tips"
@@ -32,8 +50,8 @@
     "Ingredients":{
         "message": "Ingredients"
     },
-    "Reviews":{
-        "message": "Reviews"
+    "Votes":{
+        "message": "reviews"
     },
     "Serves":{
         "message": "Serves"

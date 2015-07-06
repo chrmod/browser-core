@@ -12,6 +12,8 @@
 #cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
 #cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
 
+#cliqz-results .cqz-rd-link{color: #506bb8;}
+
 #cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
 #cliqz-results .cqz-rd-h3img-div {height: 68px; float:left; margin-right: 20px; max-width: 130px}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}

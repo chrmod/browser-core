@@ -13,7 +13,7 @@
                           <div class="cqz-rd-info">{{local 'Serves'}}: {{richData.numportion}}</div>
                           {{#if richData.url_ratingimg}}
                               <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg cqz-rd-snippet_hspacing" onerror="this.style.display='none';"/>
-                              <div class="cqz-rd-rate">{{richData.total_review}} {{local 'Reviews'}}</div>
+                              <div class="cqz-rd-rate">{{richData.total_review}} {{local 'Votes'}}</div>
                           {{/if}}
                </div>
         </div>
