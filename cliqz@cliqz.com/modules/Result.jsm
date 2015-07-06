@@ -77,10 +77,6 @@ var Result = {
         data = data || {};
         data.kind = [CliqzUtils.encodeResultType(style) + (subtype? '|' + subtype : '')];
 
-        // The backend can supply a friendly URL, if not generate it here
-        if(!data.friendly_url)
-            data.friendly_url = CliqzHistoryPattern.generalizeUrl(value);
-
         var item = {
             style: style,
             val: value,
