@@ -944,7 +944,19 @@ function enhanceResults(res){
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
-
+        
+        if(r.data) {
+          //always use data.btns independetly of whether the buttons come from (history, rich header etc)
+          r.data.btnExtra = 'cat';
+          if(r.data.categories) {
+            r.data.btns = r.data.categories;
+          } else if(r.data.richData && r.data.richData.categories) {
+            r.data.btns = r.data.richData.categories;
+          } else if(r.data.actions) {
+            r.data.btns = r.data.actions;
+            r.data.btnExtra = 'action';
+          }
+        }
 
         if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
             var d = r.data;

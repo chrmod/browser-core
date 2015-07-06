@@ -22,6 +22,6 @@
 
       {{>EZ-history}}
     </div>
-    {{>EZ-actions}}
+    {{>EZ-category}}
     {{> logo}}
 </div>
