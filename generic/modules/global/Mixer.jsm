@@ -137,7 +137,7 @@ var Mixer = {
 
         var results = instant;
 
-        for(let i = 0; i < cliqz.length; i++) {
+        for(var i = 0; i < cliqz.length; i++) {
             results.push(Result.cliqz(cliqz[i]));
         }
 
@@ -235,7 +235,7 @@ var Mixer = {
 
                 // remove any BM results covered by EZ
                 var results_new = [];
-                for(let i=0; i < results.length; i++) {
+                for(var i=0; i < results.length; i++) {
                     if(results[i].style.indexOf("cliqz-pattern") == 0)
                         results_new.push(results[i]);
                     else {
