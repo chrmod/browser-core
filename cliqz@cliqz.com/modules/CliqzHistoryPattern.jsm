@@ -224,7 +224,7 @@ var CliqzHistoryPattern = {
   preparePatterns: function(patterns, query) {
     var baseUrl, favicon, orig_query = query;
 
-    query = CliqzUtils.cleanUrlProtocol(query, true);
+    query = CliqzUtils.cleanUrlProtocol(query, true).trim();
 
     // Filter patterns that don't match search
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query.toLowerCase());
