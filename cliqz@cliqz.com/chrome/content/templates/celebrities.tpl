@@ -9,7 +9,7 @@
     	<a href="{{../url}}">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span>
     </div>
     <span class="cqz-ez-subtitle">
-      {{ emphasis ../urlDetails.domain text 2 true }}{{ emphasis ../urlDetails.extra text 2 true }}
+      {{ emphasis ../urlDetails.friendly_url text 2 true }}
     </span>
 
     <div class='cqz-celeb-desc'>

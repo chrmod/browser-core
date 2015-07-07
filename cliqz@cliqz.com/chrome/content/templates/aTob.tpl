@@ -3,7 +3,7 @@
     <div class="cqz-ez-title cqz-ez-aTob-title">
       <h2><a class="titleLink" href="{{../url}}">{{local 'from'}} {{from_city }} {{local 'to'}} {{ to_city }}</a></h2>
         <span class="subtitle">
-          {{ emphasis ../urlDetails.domain text 2 true }}{{ emphasis ../urlDetails.extra text 2 true }}
+          {{ emphasis ../urlDetails.friendly_url text 2 true }}
         </span>
     </div>
     <table class="list">

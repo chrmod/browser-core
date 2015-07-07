@@ -15,7 +15,7 @@
           <div class="after" style="background-image: url({{icon}})"></div>
         </div>
         <div class="clearfix cqz-ez-subtitle">
-          {{ emphasis ../urlDetails.domain text 2 true }}{{ emphasis ../urlDetails.extra text 2 true }}
+          {{ emphasis ../urlDetails.friendly_url text 2 true }}
         </div>
 
         <div class="cqz-ez-generic-elems">

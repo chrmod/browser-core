@@ -468,6 +468,16 @@ var CliqzUtils = {
       name = isLocalhost ? "localhost" : "IP";
     }
 
+    // remove www from beginning, we need cleanHost in the friendly url
+    var cleanHost = host;
+    if(host.toLowerCase().indexOf('www.') == 0) {
+      cleanHost = host.slice(4);
+    }
+
+    var friendly_url = cleanHost + extra;
+    //remove trailing slash from the end
+    friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
+
     var urlDetails = {
               scheme: scheme,
               name: name,
@@ -480,10 +490,17 @@ var CliqzUtils = {
               extra: extra,
               host: host,
               ssl: ssl,
-              port: port
+              port: port,
+              friendly_url: friendly_url
         };
 
     return urlDetails;
+  },
+  stripTrailingSlash: function(str) {
+    if(str.substr(-1) === '/') {
+        return str.substr(0, str.length - 1);
+    }
+    return str;  
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
