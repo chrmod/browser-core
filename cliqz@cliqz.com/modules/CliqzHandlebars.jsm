@@ -318,11 +318,4 @@ function registerHelpers(){
           return defaultSetting;
         }
     });
-
-//    Handlebars.registerHelper('thuy', function(data) {
-//
-////        data.richData.image = "http://www.pcgames.de/screenshots/medium/2014/06/Batman_Arkham_Knight_E3_07-pc-games.jpg";
-//
-//        return data;
-//    });
 }
