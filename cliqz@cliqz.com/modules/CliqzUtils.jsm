@@ -675,8 +675,11 @@ var CliqzUtils = {
       });
   },
   combineSources: function(internal, cliqz){
-    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+    // do not add extra sources to end of EZs
+    if(internal == "cliqz-extra")
+      return internal;
 
+    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
   },
   shouldLoad: function(window){
