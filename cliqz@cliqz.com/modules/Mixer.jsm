@@ -193,9 +193,11 @@ var Mixer = {
                     ez = Result.clone(ez);
 
                     // copy over title and description from history entry
-                    ez.data.title = results[0].data.title;
-                    if(!ez.data.description)
-                        ez.data.description = results[0].data.description;
+                    if(!results[0].data.generic) {
+                        ez.data.title = results[0].data.title;
+                        if(!ez.data.description)
+                            ez.data.description = results[0].data.description;
+                    }
 
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
