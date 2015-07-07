@@ -61,6 +61,7 @@ beforeEach(function () {
 afterEach(function () {
   CliqzUtils.telemetry = telemetry;
   CliqzUtils.getWindow().CLIQZ.Core.urlbar.mInputField.setUserInput("");
+  CliqzUtils.extensionRestart()
 });
 
 window.focus();

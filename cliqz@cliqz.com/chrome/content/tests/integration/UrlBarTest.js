@@ -22,6 +22,16 @@ TESTS.UrlBarTest = function (CliqzUtils) {
     return interval;
   }
 
+  function click(el) {
+    var ev = new MouseEvent("mouseup", {
+      bubbles: true,
+      cancelable: false,
+      ctrlKey: true,
+      metaKey: true
+    });
+    el.dispatchEvent(ev)
+  }
+
   function respondWith(res) {
     CliqzUtils.getCliqzResults = function(q, callback) {
       callback({
@@ -32,14 +42,17 @@ TESTS.UrlBarTest = function (CliqzUtils) {
   }
   
   describe('UrlBar integration', function(){
-    var checker;
-
+    var checker,
+        query = "xxx-face";
     beforeEach(function() {
+      var tabs = Array.prototype.slice.apply(chrome.gBrowser.tabs);
+      tabs.forEach( (tab, i)  => i !== 0 ? tab.remove() : null );
+            
       getCliqzResults = CliqzUtils.getCliqzResults;
       respondWith({
         "result": [
               {
-                  "q": "face",
+                  "q": query,
                   "url": "https://www.facebook.com/",
                   "score": 0,
                   "confidence": null,
@@ -67,13 +80,49 @@ TESTS.UrlBarTest = function (CliqzUtils) {
     });
     
     it('popup opens', function(done) {
-      fillIn("face");
+      fillIn(query);
 
         
       checker = waitFor(function () {
         var popup = chrome.document.getElementById("PopupAutoCompleteRichResultCliqz");
         return popup.mPopupOpen === true;
       }, done);
+    });
+
+    it('should displays results', function (done) {
+      fillIn(query);
+
+      checker = waitFor(function () {
+        var results = $(chrome.document.getElementById("cliqz-results"));
+        return  results.find(".cqz-result-box").length === 1;
+      }, done);
+    });
+
+    it('includes results from bigmachine', function (done) {
+      fillIn(query);
+
+      checker = waitFor(function () {
+        var results = $(chrome.document.getElementById("cliqz-results"));
+        var res = results.find(".cqz-result-box");
+        return  results.find(".cqz-result-box .cqz-result-title").length === 1;
+      }, done);
+    });
+
+    it('clicking on a results trigger Core#openLink', function (done) {
+      fillIn(query);
+
+      var results = $(chrome.document.getElementById("cliqz-results"));
+      
+      checker = waitFor(function () {
+        var res = results.find(".cqz-result-box");
+        return  results.find(".cqz-result-box .cqz-result-title").length === 1;
+      }, function () {
+        var el = results.find(".cqz-result-box .cqz-result-title")[0];
+        click(el);
+        var tabs = Array.prototype.slice.apply(chrome.gBrowser.tabs);
+        //chai.expect(tabs.length).to.equal(2);
+        done();
+      });
     });
   });
 };
