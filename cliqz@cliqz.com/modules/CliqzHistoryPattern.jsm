@@ -891,8 +891,7 @@ var CliqzHistoryPattern = {
       } else {
         // 3-up combined generic history entry
         var instant = Result.generic('cliqz-pattern', "", null, "", null, searchString);
-        instant.data.title = CliqzUtils.getLocalizedString("history_results")
-        instant.data.url = instant.val;
+        instant.data.title = "";
         instant.comment += " (history generic)!";
         instant.data.template = "pattern-h3";
         instant.data.generic = true;
