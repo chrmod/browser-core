@@ -83,9 +83,7 @@
 #cliqz-results i { font-style: italic; }
 
 #cliqz-results .cqz-result-h1, #cliqz-results .cqz-result-h2, #cliqz-results .cqz-result-h3 {
-    padding: 17px 0 17px 22px;
-    padding-right: -moz-calc(44px + 65px + 22px);
-    padding-right: calc(44px + 65px + 22px);
+    padding: 17px 125px 17px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
