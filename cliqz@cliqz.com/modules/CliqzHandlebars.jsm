@@ -150,7 +150,14 @@ function registerHelpers(){
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
         // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
-        return (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
+        var big_template = (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
+        if (big_template && data_richData["categories"])
+            data_richData["categories"].forEach(function(item){
+                if(item["title"]  && !item["title_key"])
+                    item["title_key"] = item["title"];
+            });
+
+        return big_template
     });
 
     Handlebars.registerHelper('localize_numbers', function(num) {

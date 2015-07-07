@@ -7,7 +7,7 @@
       {{#if title_key}}
         {{ emphasis (local title_key) ../../text 2 true}}
       {{else}}
-        {{ emphasis (local title) ../../text 2 true}}
+        {{ emphasis title ../../text 2 true}}
       {{/if}}
     </div>
 {{/each}}
