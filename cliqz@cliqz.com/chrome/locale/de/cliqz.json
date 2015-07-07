@@ -1,4 +1,37 @@
 {
+    "from_lcase":{
+        "message": "von"
+    },
+    "Cast":{
+        "message": "Besetzung"
+    },
+    "Movie_Length":{
+        "message": "{} Minuten"
+    },
+    "Creator":{
+        "message": "Regie"
+    },
+    "Director":{
+        "message": "Regisseur[in]"
+    },
+    "Review":{
+        "message": "Tests"
+    },
+    "Reviews":{
+        "message": "Kritik"
+    },
+    "Tips":{
+        "message": "Tipps"
+    },
+    "Photos":{
+        "message": "Bilder"
+    },
+    "locale_lang_code":{
+        "message": "de-DE"
+    },
+    "GameCategory":{
+        "message": "Spiele-Genre"
+    },
     "Turkish Calendar":{
         "message": "Türkischer Kalender"
     },
@@ -17,14 +50,14 @@
     "Ingredients":{
         "message": "Zutaten"
     },
-    "Reviews":{
+    "Votes":{
         "message": "Bewertungen"
     },
     "Serves":{
         "message": "Portionen"
     },
     "CookTime":{
-        "message": "Gesamtzeit: {} Minute"
+        "message": "Gesamtzeit: {} Minuten"
     },
     "KickerSponsor":{
         "message": "powered by kicker online"

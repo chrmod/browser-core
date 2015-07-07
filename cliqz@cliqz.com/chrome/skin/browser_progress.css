@@ -2,25 +2,29 @@
 #cliqz-results .cliqz-history-results { margin-top: 16px; }
 
 /* Overrides corresponding line in browsers.css */
-#cliqz-results .cliqz-pattern-title-h1, #cliqz-results .cliqz-pattern-title-h2, #cliqz-results .cliqz-pattern-title-h3 {
-    margin-bottom: 8px;
-}
 
 /* ------- RICH DATA Result----------*/
 #cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px)}
-#cliqz-results .cqz-rd-rateimg { height: 13px; padding-top:17px; transform: translateX(-2px);}
+#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
 #cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
+#cliqz-results .cqz-rd-max-lines3 {white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em}
+#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 4.8em; line-height: 1.2em}
 #cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
 #cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
 
+#cliqz-results .cqz-rd-link{color: #506bb8;}
+
 #cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
-#cliqz-results .cqz-rd-h3img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  100%; width: 70px}
+#cliqz-results .cqz-rd-h3img-div {height: 68px; float:left; margin-right: 20px; max-width: 130px}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
 
+#cliqz-results .cqz-rd-img {height:  100%; display:block;}
+#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 16px;}
+#cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 200px}
+#cliqz-results .cqz-rd-h3-snippet {height: 110px; margin: 16px 0px 12px 0px;}
 
-#cliqz-results .cqz-rd-recipe_img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  calc(100% - 3px);width: 106px}
-#cliqz-results .cqz-rd-recipe-snippet {height: 110px; margin: 16px 0px 12px 0px;}
+#cliqz-results .cqz-rd-h2-snippet {height: 155px; margin: 16px 0px 12px 0px;}
 
 /* ------- END RICH DATA Result----------*/
 
