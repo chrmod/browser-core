@@ -475,50 +475,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         return r.url != undefined && r.url != '';
                     });
 
-//                    // THUY-------------- testing rich-data
-//                    if (this.cliqzResults && this.cliqzResults[0]) {
-//                        this.cliqzResults[0]['url'] = "http://www.pcgames.de/The-Witcher-3-PC-237266";
-//                        this.cliqzResults[0]['snippet']["title"] = "The Witcher 3: Test, Tipps, Videos, News, Release Termin - PCGames.de";
-//                        this.cliqzResults[0]['snippet']["desc"] = "The Witcher 3: Auf der Gamescom 2011 bestätigte CD Project Red, dass The Witcher als Trilogie geplant ist. The Witcher 3 ist somit offiziell bestätigt.";
-//                        this.cliqzResults[0]['snippet']["rich_data"] = {
-//                                                                          "rating": {
-//                                                                            "scale": 5,
-//                                                                            "val": 4.7,
-//                                                                            "img": "http://cdn.cliqz.com/extension/EZ/richresult/stars5.svg"
-//                                                                          },
-//                                                                          "game_cat": "Rollenspiel",
-//                                                                          "name": "The Witcher 3",
-//                                                                          "image": "http://www.pcgames.de/screenshots/medium/2014/06/Batman_Arkham_Knight_E3_07-pc-games.jpg", //http://www.pcgames.de/screenshots/original/2014/06/71Mwnn0rLvL._SL1103_.jpg",
-//                                                                          "des": "The Witcher 3: Auf der Gamescom 2011 bestätigte CD Project Red, dass The Witcher als Trilogie geplant ist. The Witcher 3 ist somit offiziell bestätigt.The Witcher 3: Auf der Gamescom 2011 bestätigte CD Project Red, dass The Witcher als Trilogie geplant ist. The Witcher 3 ist somit offiziell bestätigt.The Witcher 3: Auf der Gamescom 2011 bestätigte CD Project Red, dass The Witcher als Trilogie geplant ist. The Witcher 3 ist somit offiziell bestätigt.The Witcher 3: Auf der Gamescom 2011 bestätigte CD Project Red, dass The Witcher als Trilogie geplant ist. The Witcher 3 ist somit offiziell bestätigt.",
-//                                                                          "type": "game",
-//                                                                          "categories": [
-//                                                                            {
-//                                                                              "url": "http://www.pcgames.de/The-Witcher-3-PC-237266/News/",
-//                                                                              "title": "News"
-//                                                                            },
-//                                                                            {
-//                                                                              "url": "http://www.pcgames.de/The-Witcher-3-PC-237266/Tests/",
-//                                                                              "title": "Review"
-//                                                                            },
-//                                                                            {
-//                                                                              "url": "http://www.pcgames.de/The-Witcher-3-PC-237266/Tipps/",
-//                                                                              "title": "Tips"
-//                                                                            },
-//                                                                            {
-//                                                                              "url": "http://www.pcgames.de/The-Witcher-3-PC-237266/Videos/",
-//                                                                              "title": "Videos"
-//                                                                            },
-//                                                                            {
-//                                                                              "url": "http://www.pcgames.de/The-Witcher-3-PC-237266/Bilder/",
-//                                                                              "title": "Photos"
-//                                                                            }
-//                                                                          ]
-//                                                                        }
-//
-//                    }
-//
-//                    // THUY -------------- end testing rich-data
-
                     this.cliqzCountry = country;
                 }
                 this.pushResults(q);
