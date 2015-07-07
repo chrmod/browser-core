@@ -349,7 +349,7 @@ var UI = {
     urlListsEqual: function(a, b) {
       if(a && b) {
         var s, l, m;
-      
+
         if(a.length > b.length) {
           s = b;
           l = a;
@@ -944,7 +944,7 @@ function enhanceResults(res){
         var r = res.results[i];
 
         if(r.data && r.data.adult) adult = true;
-        
+
         if(r.data) {
           //always use data.btns independetly of whether the buttons come from (history, rich header etc)
           r.data.btnExtra = 'cat';
@@ -972,6 +972,9 @@ function enhanceResults(res){
                     r.dontCountAsResult = true;
                 }
 
+              // Display the title instead of the name, if available
+              if(d.title)
+                d.name = d.title;
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);

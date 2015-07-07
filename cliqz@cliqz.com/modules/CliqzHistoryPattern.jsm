@@ -178,10 +178,7 @@ var CliqzHistoryPattern = {
           title = history.getCommentAt(i);
 
       if (!title) {
-        //construct title from url
-        title = CliqzHistoryPattern.domainFromUrl(url, false).split(".")[0];
-        if(title)
-          title = title[0].toUpperCase() + title.substr(1);
+        title = CliqzHistoryPattern.generalizeUrl(url);
       }
 
       if (title.length > 0 && url.length > 0 &&
@@ -468,6 +465,7 @@ var CliqzHistoryPattern = {
         favicon: favicon
       });
       patterns[0].autoAdd = true;
+      CliqzUtils.log("Added base domain to history cluster: " + baseUrl, "CliqzHistoryPattern");
     }
     return baseUrl;
   },
@@ -829,6 +827,7 @@ var CliqzHistoryPattern = {
   createInstantResult: function(res, searchString, callback) {
     var instant_results = [];
     var results = res.filteredResults();
+    var promises = [];
 
     if(results.length == 0 && !res.urls) {
       // no results, so do nothing
@@ -855,12 +854,10 @@ var CliqzHistoryPattern = {
 
     } else if (res.cluster) {
       // domain-based cluster
-      var domain = res.top_domain.indexOf(".") ? res.top_domain.split(".")[0] : res.top_domain;
       var instant = Result.generic('cliqz-pattern', results[0].url, null, results[0].title, null, searchString);
       var title = results[0].title;
       if(!title) {
-        title = CliqzHistoryPattern.domainFromUrl(results[0].url).split(".")[0];
-        title = title[0].toUpperCase() + title.substr(1);
+        title = results[0].url;
       }
       instant.data.title = title;
       instant.data.url = results[0].url;
@@ -885,7 +882,7 @@ var CliqzHistoryPattern = {
             var instant = Result.generic('favicon', results[i].url, null, results[i].title, null, searchString);
             instant.comment += " (history generic)!"
             instant.data.kind = ["H"];
-            CliqzHistoryPattern.getDescription(callback, instant_results, instant);
+            promises.push(CliqzHistoryPattern.getDescription(instant));
             instant_results.push(instant);
           } else {
             break;
@@ -906,27 +903,26 @@ var CliqzHistoryPattern = {
       }
     }
 
-    CliqzHistoryPattern.createInstantResultCheckIfDone(callback, instant_results);
-  },
-  // Nasty sychronization of multiple async calls:
-  // only call callback() when expectedDescCallbacks reaches 0.
-  expectedDescCallbacks: 0,
-  getDescription: function(callback, instant_results, instant) {
-    CliqzHistoryPattern.expectedDescCallbacks ++;
-    CliqzHistory.getDescription(instant.label,
-      function(desc) {
-        instant.data.description = desc;
-        CliqzHistoryPattern.expectedDescCallbacks--;
-        CliqzUtils.log(desc, "callback for " + instant.label + " left: " + CliqzHistoryPattern.expectedDescCallbacks);
-        CliqzHistoryPattern.createInstantResultCheckIfDone(callback, instant_results);
-      });
-  },
-  createInstantResultCheckIfDone: function(callback, instant_results) {
-    if(CliqzHistoryPattern.expectedDescCallbacks <= 0) {
-      CliqzUtils.log(instant_results, "callback" );
+    if(typeof(Promise) === 'undefined') {
+      // Firefox versions < 29
       callback(instant_results);
+    } else {
+      Promise.all(promises).then( function(data) {
+        callback(instant_results);
+      });
     }
   },
+  // Retrieve description and save in instant results
+  getDescription: function(instant) {
+    var instant_data = instant.data;
+    var promise = CliqzHistory.getDescription(instant.val);
+    if(promise) {
+      return promise.then( function(desc) {
+        instant_data.description = desc;
+      });
+    }
+  },
+
   // Removes a given url from the instant.data.url list
   removeUrlFromResult: function(urlList, url) {
     var url = CliqzHistoryPattern.generalizeUrl(url);
