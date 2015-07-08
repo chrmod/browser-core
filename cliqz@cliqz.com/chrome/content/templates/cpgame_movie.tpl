@@ -2,8 +2,8 @@
 <div class="cqz-result-h1 cqz-rd cqz-result-padding">
   {{#with data}}
     <div class="cqz-rd-body">
-        <div class="cqz-result-title overflow"><a href="{{../url}}">{{richData.name}}</a></div>
-        <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
+        <div class="cqz-result-title overflow"><a extra="title" href="{{../url}}">{{richData.name}}</a></div>
+        <div class="cqz-result-url overflow" extra="url">{{../urlDetails.host}}</div>
 
         <div class="cqz-rd-h2-snippet">
             {{#if richData.image}}

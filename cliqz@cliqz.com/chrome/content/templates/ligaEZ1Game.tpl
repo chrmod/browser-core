@@ -1,6 +1,6 @@
 <div class="cqz-result-h2 ez-liga">
      {{#with data}}
-      <div class="cqz-ez-title"><a href="{{../url}}">{{club}}</a></div>
+      <div class="cqz-ez-title" extra="title"><a href="{{../url}}">{{club}}</a></div>
       <div class="ez-liga-rank">{{rank}}</div>
       <div class="ez-liga-spieltag">{{spielTag}}</div>
       <div class="ez-liga-gameTimeLoc">{{gameTime}}</div>

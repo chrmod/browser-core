@@ -14,14 +14,14 @@
          {{#if image.src}}
             style="width: calc(85% - 60px); position:relative;"
          {{/if}}>
-        <div class='cqz-result-title overflow'>
+        <div class='cqz-result-title overflow' extra="title">
           <a href="{{../url}}">{{ data.richData.full_name }}</a>
         </div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
                     {{/if}}
-        '>
+        ' extra="url">
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
         {{#with data.richData}}

@@ -18,7 +18,7 @@
   <div class='cliqz-result-mid-box'
     style='width:{{ width }}px;'>
     <div class='cliqz-result-title-box overflow'
-         style='padding-bottom: 0px;'>
+         style='padding-bottom: 0px;' extra="title">
       {{ title }}
     </div>
     {{#if debug}}
@@ -32,6 +32,7 @@
           cliqz-result-url-ssl
         {{/if}}
         '
+        extra="url"
       >
         {{ urlDetails.host }}
       </span>

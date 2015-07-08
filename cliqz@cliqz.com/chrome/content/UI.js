@@ -81,7 +81,7 @@ var UI = {
               //try to break the call stack which cause 'too much recursion' exception on linux systems
               setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
-        }
+        };
 
         CLIQZ.Core.popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
@@ -1316,10 +1316,10 @@ function messageClick(ev) {
 }
 
 
-
 function logUIEvent(el, historyLogType, extraData, query) {
   if(!query) var query = CLIQZ.Core.urlbar.value;
   var queryAutocompleted = null;
+
   if (CLIQZ.Core.urlbar.selectionEnd !== CLIQZ.Core.urlbar.selectionStart) {
       var first = gCliqzBox.resultsBox && gCliqzBox.resultsBox.children[0];
       if (first && !CliqzUtils.isPrivateResultType(getResultKind(first)))
@@ -1328,12 +1328,12 @@ function logUIEvent(el, historyLogType, extraData, query) {
         var autocompleteUrl = CLIQZ.Core.urlbar.mInputField.value;
       query = query.substr(0, CLIQZ.Core.urlbar.selectionStart);
   }
-  if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; }
+  if(el && !el.getAttribute) el.getAttribute = function(k) { return this[k]; };
 
   if(el && el.getAttribute('url')){
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
-          extra = el.getAttribute('extra'), //extra data about the link
+          extra = extraData['extra'] || el.getAttribute('extra'), //extra data about the link. Note: resultCliqz passes extra in extraData, but not other events, e.g. enter (8Jul2015)
           result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
           action = {
               type: 'activity',
@@ -1348,7 +1348,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
               result_order: result_order,
-              v: 1
+              v: 2
           };
       for(var key in extraData) {
         action[key] = extraData[key];
@@ -1382,19 +1382,22 @@ function resultClick(ev){
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
+        var extra = null;
 
     while (el && (ev.button == 0 || ev.button == 1)) {
+        extra = extra || el.getAttribute("extra");
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
               action: "result_click",
-              new_tab: newTab
+              new_tab: newTab,
+              extra: extra
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZ.Core.openLink(url, newTab);
             CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
-        } else if (el.getAttribute('cliqz-action')) {
+        }else if (el.getAttribute('cliqz-action')) {
             switch(el.getAttribute('cliqz-action')) {
                 case 'stop-click-event-propagation':
                     return;
@@ -1596,7 +1599,7 @@ function selectPrevResult(pos, allArrowable) {
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
     if(el && el.getAttribute("url")){
-        //focus on the title - or on the aroww element inside the element
+        //focus on the title - or on the arrow element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
         var arrow = $('.cqz-result-selected', gCliqzBox);
 

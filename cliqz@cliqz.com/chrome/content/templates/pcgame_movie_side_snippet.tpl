@@ -12,7 +12,7 @@
 {{#if (logic type '===' 'movie')}}
 <div>
     {{#if (logic director '&&' director.title)}}
-        <div class="cqz-rd-info">{{local director.title}}: <a href="{{director.info.url}}" class="cqz-rd-link" >{{director.info.name}}</a> </div>
+        <div class="cqz-rd-info">{{local director.title}}: <a href="{{director.info.url}}" class="cqz-rd-link" extra="director">{{director.info.name}}</a> </div>
     {{/if}}
 
     {{#if (is_not_dummy length)}}
