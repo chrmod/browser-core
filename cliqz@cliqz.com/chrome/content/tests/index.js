@@ -18,10 +18,19 @@ function loadModule(moduleName) {
   return MODULES[moduleName];
 }
 
+function getBrowserVersion() {
+  var userAgent = navigator.userAgent,
+      userAgentParts = userAgent.split('/'),
+      version = userAgentParts[userAgentParts.length - 1];
+  
+  return version;
+}
+
 function writeToFile(testData) {
- try {
+  var version = getBrowserVersion();
+  try {
   var _this = this,
-      filename = "mocha-report.xml",
+      filename = "mocha-report-" + version + ".xml",
       path = OS.Path.join(OS.Constants.Path.profileDir, filename);
    
   OS.File.writeAtomic(path, testData).then(
@@ -81,7 +90,6 @@ runner.on('end', function () {
   writeToFile(XMLReport);
 
   if(getParameterByName('closeOnFinish') === "1") {
-    console.log("test");
     Components
       .classes['@mozilla.org/toolkit/app-startup;1']
       .getService(Components.interfaces.nsIAppStartup)
