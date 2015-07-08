@@ -72,12 +72,8 @@
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
 #cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
-<<<<<<< HEAD
-#cliqz-results .cqz-rd-h3img {background-size: cover;background-position: center center; float: left; margin-right: 20px; height:  100%; width: 70px}
-=======
 #cliqz-results .cqz-rd-h3img-div {height: 68px; float:left; margin-right: 20px; max-width: 130px}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
->>>>>>> master
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
 
 #cliqz-results .cqz-rd-img {height:  100%; display:block;}
