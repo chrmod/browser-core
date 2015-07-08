@@ -6,9 +6,12 @@
         <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
 
         <div class="cqz-rd-h2-snippet">
+            {{#if richData.image}}
             <div class="cqz-rd-img_div cqz-image-round">
                <img src="{{richData.image}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
             </div>
+            {{/if}}
+
             {{>pcgame_movie_side_snippet}}
         </div>
     </div>

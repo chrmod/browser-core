@@ -5,9 +5,11 @@
         <div class="cqz-result-title overflow"><a href="{{../url}}">{{richData.name}}</a></div>
         <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
         <div class="cqz-rd-h3-snippet">
+            {{#if richData.image}}
                <div class="cqz-rd-img_div cqz-image-round">
                    <img src="{{richData.image}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
                </div>
+            {{/if}}
                <div>
                           <div class="cqz-rd-info">{{local 'CookTime' richData.cook_time}}</div>
                           <div class="cqz-rd-info">{{local 'Serves'}}: {{richData.numportion}}</div>
