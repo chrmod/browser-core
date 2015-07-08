@@ -39,10 +39,10 @@ CliqzHandlebars.tplCache = {};
 compileTemplates();
 registerHelpers();
 
-function compileTemplates(){    
+function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
-    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });   
+    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 }
 
 function fetchTemplate(tName, isPartial) {

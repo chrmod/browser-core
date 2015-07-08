@@ -348,18 +348,22 @@ var UI = {
       return str.match(/((?:(http|https|Http|Https|rtsp|Rtsp):\/\/(?:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,64}(?:\:(?:[a-zA-Z0-9\$\-\_\.\+\!\*\'\(\)\,\;\?\&\=]|(?:\%[a-fA-F0-9]{2})){1,25})?\@)?)?((?:(?:[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}\.)+(?:(?:aero|arpa|asia|a[cdefgilmnoqrstuwxz])|(?:biz|b[abdefghijmnorstvwyz])|(?:cat|com|coop|c[acdfghiklmnoruvxyz])|d[ejkmoz]|(?:edu|e[cegrstu])|f[ijkmor]|(?:gov|g[abdefghilmnpqrstuwy])|h[kmnrtu]|(?:info|int|i[delmnoqrst])|(?:jobs|j[emop])|k[eghimnrwyz]|l[abcikrstuvy]|(?:mil|mobi|museum|m[acdghklmnopqrstuvwxyz])|(?:name|net|n[acefgilopruz])|(?:org|om)|(?:pro|p[aefghklmnrstwy])|qa|r[eouw]|s[abcdeghijklmnortuvyz]|(?:tel|travel|t[cdfghjklmnoprtvwz])|u[agkmsyz]|v[aceginu]|w[fs]|y[etu]|z[amw]))|(?:(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9])\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[1-9]|0)\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}|[1-9][0-9]|[0-9])))(?:\:\d{1,5})?)(\/(?:(?:[a-zA-Z0-9\;\/\?\:\@\&\=\#\~\-\.\+\!\*\'\(\)\,\_])|(?:\%[a-fA-F0-9]{2}))*)?(?:\b|$)/gi);
     },
     urlListsEqual: function(a, b) {
-      var s, l, m;
-      if(a.length > b.length) {
-        s = b;
-        l = a;
-      } else {
-        s = a;
-        l = b;
+      if(a && b) {
+        var s, l, m;
+
+        if(a.length > b.length) {
+          s = b;
+          l = a;
+        } else {
+          s = a;
+          l = b;
+        }
+        for(var i=0; i<s.length; i++) {
+          if (l.indexOf(s[i]) == -1) return false;
+        }
+        return true;
       }
-      for(var i=0; i<s.length; i++) {
-        if (l.indexOf(s[i]) == -1) return false;
-      }
-      return true;
+      return false;
     },
     // redraws a result
     // usage: redrawResult('[type="cliqz-cluster"]', 'clustering', {url:...}
@@ -942,6 +946,18 @@ function enhanceResults(res){
 
         if(r.data && r.data.adult) adult = true;
 
+        if(r.data) {
+          //always use data.btns independetly of whether the buttons come from (history, rich header etc)
+          r.data.btnExtra = 'cat';
+          if(r.data.categories) {
+            r.data.btns = r.data.categories;
+          } else if(r.data.richData && r.data.richData.categories) {
+            r.data.btns = r.data.richData.categories;
+          } else if(r.data.actions) {
+            r.data.btns = r.data.actions;
+            r.data.btnExtra = 'action';
+          }
+        }
 
         if(r.type == 'cliqz-extra' || r.type.indexOf('cliqz-pattern') == 0){
             var d = r.data;
@@ -957,6 +973,9 @@ function enhanceResults(res){
                     r.dontCountAsResult = true;
                 }
 
+              // Display the title instead of the name, if available
+              if(d.title)
+                d.name = d.title;
             }
         } else {
             r.urlDetails = CliqzUtils.getDetailsFromUrl(r.url);
@@ -1598,6 +1617,8 @@ function selectPrevResult(pos, allArrowable) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
+    var DROPDOWN_HEIGHT = 349;
+
     if(el && el.getAttribute("url")){
         //focus on the title - or on the arrow element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
@@ -1620,7 +1641,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
 
         var offset = target.offsetTop;
 
-        if(el.hasAttribute('arrow-override')){
+        if(el.hasAttribute('arrow-override') || target.hasAttribute('arrow-override')){
           offset += closest(el, '.cqz-result-box').offsetTop;
         }
 
@@ -1629,7 +1650,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
           if(context = $('.cqz-result-pattern', gCliqzBox))
             offset += context.parentElement.offsetTop;
         }
-        var scroll = parseInt(offset/303) * 303;
+        var scroll = parseInt(offset/DROPDOWN_HEIGHT) * DROPDOWN_HEIGHT;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
         target.setAttribute('arrow', 'true');
@@ -1860,7 +1881,7 @@ function snippetQualityTelemetry(results){
     if(r.vertical == 'entity-generic' && r.data.urls) slots++;
 
     // hq results are 3 slots height if they have images
-    if(r.vertical == 'hq' && r.data.richData && r.data.richData.images) slots++;
+    if(r.vertical == 'hq' && r.data && r.data.richData && r.data.richData.images) slots++;
   }
 
   CliqzUtils.telemetry({

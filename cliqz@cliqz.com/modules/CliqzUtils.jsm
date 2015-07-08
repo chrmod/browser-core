@@ -89,8 +89,8 @@ var CliqzUtils = {
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
       'recipe': 3, 'rd-h3-w-rating': 1,
-      'cpgame_movie': 3,
-      'ramadan': 3
+      'ramadan': 3, 'ez-generic-2': 3,
+      'cpgame_movie': 3
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -471,6 +471,16 @@ var CliqzUtils = {
       name = isLocalhost ? "localhost" : "IP";
     }
 
+    // remove www from beginning, we need cleanHost in the friendly url
+    var cleanHost = host;
+    if(host.toLowerCase().indexOf('www.') == 0) {
+      cleanHost = host.slice(4);
+    }
+
+    var friendly_url = cleanHost + extra;
+    //remove trailing slash from the end
+    friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
+
     var urlDetails = {
               scheme: scheme,
               name: name,
@@ -483,10 +493,17 @@ var CliqzUtils = {
               extra: extra,
               host: host,
               ssl: ssl,
-              port: port
+              port: port,
+              friendly_url: friendly_url
         };
 
     return urlDetails;
+  },
+  stripTrailingSlash: function(str) {
+    if(str.substr(-1) === '/') {
+        return str.substr(0, str.length - 1);
+    }
+    return str;  
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
@@ -678,8 +695,11 @@ var CliqzUtils = {
       });
   },
   combineSources: function(internal, cliqz){
-    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+    // do not add extra sources to end of EZs
+    if(internal == "cliqz-extra")
+      return internal;
 
+    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
   },
   shouldLoad: function(window){

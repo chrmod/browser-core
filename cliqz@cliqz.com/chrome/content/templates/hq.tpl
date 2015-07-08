@@ -17,17 +17,16 @@
     {{/if}}
 
     <div class='cqz-result-center' style="{{#if (logic (wikiEZ_height data.richData) 'is' 'cqz-result-h2') }}margin-top: -5px{{/if}}">
+
         <div extra="title" class='cqz-result-title overflow'
-            {{#if data.richData.images.length}}
-                arrow="false" arrow-override=''
-            {{/if}}
-             ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+          arrow="false" arrow-override=''
+          ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
                     {{/if}}
         ' extra="url">
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
+            {{ emphasis urlDetails.friendly_url text 2 true }}
         </div>
         <div class='cqz-result-desc overflow' style="height: 20px;"><span extra="des">{{ emphasis data.description text 2 true }}</span>
             {{#unless data.richData.images.length}}
