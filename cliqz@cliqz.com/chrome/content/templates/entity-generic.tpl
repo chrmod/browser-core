@@ -11,7 +11,8 @@
     {{/if}}
     {{#with data}}
         <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
-          <a href="{{../url}}">{{ emphasis name ../text 2 true }}</a>
+
+          <a href="{{../url}}" extra="title">{{ emphasis name ../text 2 true }}</a>
         </div>
         <div class="clearfix cqz-ez-subtitle">
           {{ emphasis ../urlDetails.friendly_url text 2 true }}

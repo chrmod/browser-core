@@ -1,6 +1,6 @@
 <div class='cqz-result-h1 cqz-result-padding'>
   {{#with data}}
-    <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title">
+    <div class="cqz-ez-title custom-after cqz-ez-generic-title cqz-ez-banking-title" extra="title">
         {{ title }}
         <div class="after" style="background-image: url({{icon}})"></div>
     </div>
