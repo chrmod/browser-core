@@ -42,7 +42,9 @@ var VERTICAL_ENCODINGS = {
     'dictionary':'l',
     'qaa':'q',
     'bm': 'm',
-    'reciperd': 'r'
+    'reciperd': 'r',
+    'game': 'g',
+    'movie': 'o'
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
@@ -87,7 +89,8 @@ var CliqzUtils = {
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
       'recipe': 3, 'rd-h3-w-rating': 1,
-      'ramadan': 3, 'ez-generic-2': 3
+      'ramadan': 3, 'ez-generic-2': 3,
+      'cpgame_movie': 3
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
