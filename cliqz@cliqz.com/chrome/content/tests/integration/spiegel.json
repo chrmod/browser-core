@@ -1,0 +1,143 @@
+{
+	"result": [
+		{
+			"q": "spiegel",
+			"url": "http://www.spiegel.de/",
+			"score": 0,
+			"source": "bm",
+			"snippet": {
+				"alternatives": [ ],
+				"desc": "Deutschlands führende Nachrichtenseite. Alles Wichtige aus Politik, Wirtschaft, Sport, Kultur, Wissenschaft, Technik und mehr.",
+				"language": {
+					"de": 1
+				},
+				"og": { },
+				"title": "SPIEGEL ONLINE - Nachrichten"
+			},
+			"extra": {
+				"ts": 1436285103,
+				"data": {
+					"categories": [
+						{
+							"title": "Politik",
+							"url": "http://www.spiegel.de/politik/"
+						},
+						{
+							"title": "Wirtschaft",
+							"url": "http://www.spiegel.de/wirtschaft/"
+						},
+						{
+							"title": "Sport",
+							"url": "http://www.spiegel.de/sport/"
+						},
+						{
+							"title": "Panorama",
+							"url": "http://www.spiegel.de/panorama/"
+						},
+						{
+							"title": "Netzwelt",
+							"url": "http://www.spiegel.de/netzwelt/"
+						}
+					],
+					"domain": "spiegel.de",
+					"friendly_url": "spiegel.de",
+					"name": "SPIEGEL ONLINE",
+					"news": [
+						{
+							"created_at": "2015-07-07 15:25:00",
+							"description": "Was passiert in Studenten-Städten, wenn es Nacht wird? UNI-SPIEGEL-Autor André Boße zog durch Bochum und lernte, was Fiege und Trinkhallen sind, warum Zweifel an Herbert Grönemeyer angebracht sind. Und was der VfL damit zu tun hat.",
+							"hash_url": "b2fb769f332d3bd5ffc6ebec23d23255b0181459",
+							"media": "http://cdn3.spiegel.de/images/image-856566-galleryV9-cdix.jpg",
+							"score": 31918.50727668564,
+							"source": "cluster101",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/de2633a372c4fbf19ee1be0f04b862e4189ba6e3.jpeg",
+							"time": "vor 40 Minuten",
+							"title": "Feiern in Bochum: Auf dem Marsch der Schande",
+							"tweet_count": 13,
+							"url": "http://www.spiegel.de/unispiegel/wunderbar/party-und-clubs-vfl-und-groenemeyer-in-bochum-a-1036980.html"
+						},
+						{
+							"created_at": "2015-07-07 15:03:00",
+							"description": "Während AfD-Gründer Bernd Lucke noch überlegt, kehrt Uwe Zimmermann in Rheinland-Pfalz seiner Partei den Rücken. Zwei weitere Vorstandsmitglieder folgen dem Landeschef.",
+							"hash_url": "b5b0f54703b40a9f91e6780966a2319b7ce97832",
+							"media": "http://cdn1.spiegel.de/images/image-869934-galleryV9-auyr.jpg",
+							"score": 31918.59444892138,
+							"source": "cluster101",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/1212d1c01cd2885987f3bcd0cecebdf08fa5ba94.jpeg",
+							"time": "vor einer Stunde",
+							"title": "Rheinland-Pfalz: AfD-Landesspitze zerfällt",
+							"tweet_count": 17,
+							"url": "http://www.spiegel.de/politik/deutschland/afd-landeschef-in-rheinland-pfalz-uwe-zimmermann-tritt-zurueck-a-1042530.html"
+						},
+						{
+							"created_at": "2015-07-07 15:02:00",
+							"description": "Einst war Pluto ein Planet, dann wurde er degradiert. Nun nähert sich erstmals eine Sonde von der Erde der fernen Eiswelt - und macht im Vorbeiflug historische Bilder.",
+							"hash_url": "3aef175ea5fec54b617edbbf0f23b2a491988571",
+							"media": "http://cdn1.spiegel.de/images/image-869644-galleryV9-oejc.jpg",
+							"score": 31918.61793917177,
+							"source": "cluster101",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/4994a72abb7a5d020404ed2b41f3ed5378635753.jpeg",
+							"time": "vor einer Stunde",
+							"title": "New Horizons - Mission: Die bisher besten Fotos von Pluto",
+							"tweet_count": 18,
+							"url": "http://www.spiegel.de/wissenschaft/weltall/new-horizons-nasa-sonde-macht-fotos-von-pluto-a-1042425.html"
+						}
+					],
+					"template": "entity-news-1",
+					"trending": [
+						{
+							"created_at": "2015-07-07 14:33:03",
+							"description": "Die Wutbürger haben sich eine neue Chefin gewählt. Frauke Petry steht nun also den schlecht Gelaunten mit der nachlassenden Libido vor. Sie ist genau die Richtige: eine Frau für Menschen mit Bestrafungsfantasien.",
+							"hash_url": "25e157cd00fbe5aad434d9c8f7a7a4cdb6e628b5",
+							"media": "http://cdn2.spiegel.de/images/image-868931-galleryV9-pynx.jpg",
+							"score": 31919.306337899707,
+							"source": "twitter",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/d08b28b04052190edda20cda52958e2a173bda39.jpeg",
+							"time": "vor einer Stunde",
+							"title": "AfD-Chefin Petry: Die deutsche Sarah Palin",
+							"tweet_count": 96,
+							"url": "http://www.spiegel.de/politik/deutschland/frauke-petry-die-deutsche-sarah-palin-fleischhauer-kolumne-a-1042432.html"
+						},
+						{
+							"created_at": "2015-07-07 15:38:02",
+							"description": "Was ist schön? Was ist hässlich? Und wer entscheidet darüber? Zwei YouTuberinnen offenbaren mit klugen Clips Flachheit und Feigheit der Beauty-Debatte.",
+							"hash_url": "0337d41e4d30302110b3369c6e00bdca9d8a4124",
+							"media": "http://cdn1.spiegel.de/images/image-869790-galleryV9-mjki.jpg",
+							"score": 31919.126714454746,
+							"source": "twitter",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/43cd755fcec7aced9ee28ebcc1d3cf668addd363.jpeg",
+							"time": "vor 27 Minuten",
+							"title": "Schönheitsdebatte im Netz: Du siehst widerlich aus - Du bist so hübsch",
+							"tweet_count": 52,
+							"url": "http://www.spiegel.de/netzwelt/web/videos-you-look-disgusting-und-power-of-make-up-a-1042470.html"
+						},
+						{
+							"created_at": "2015-07-07 09:27:29",
+							"description": "Mütter arbeiten in Teilzeit oder gar nicht und Väter in Vollzeit: Die meisten deutschen Familien leben so - obwohl vor allem viele Männer sich seit Jahren Veränderung wünschen. Wie kommt das?",
+							"hash_url": "cfce6b02393932723119960c898c2e4904e14f08",
+							"media": "http://cdn3.spiegel.de/images/image-107192-galleryV9-ecpu.jpg",
+							"score": 31919.03721837565,
+							"source": "twitter",
+							"sources": [ ],
+							"thumbnail": "http://cdn2.cliqz.com/news-fetcher/3b9dae230e64afdb2b03575f26951f0a34f49169.jpeg",
+							"time": "vor 6 Stunden",
+							"title": "Allensbach-Studie: Deutsche Eltern halten's konservativ",
+							"tweet_count": 132,
+							"url": "http://www.spiegel.de/politik/deutschland/so-teilen-deutsche-eltern-die-arbeit-auf-allensbach-studie-a-1042242.html"
+						}
+					]
+				},
+				"url": "http://www.spiegel.de",
+				"subType": "{\"ez\": \"2116501414516858838\"}",
+				"trigger_urls": [
+					"spiegel.de"
+				]
+			}
+		}
+	]
+}

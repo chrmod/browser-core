@@ -40,13 +40,21 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       }, q);
     };
   }
+
+  function mockSmartCliqz(ez, callback) {
+    CliqzUtils.loadResource('chrome://cliqz/content/tests/scripts/EZ/' + ez + '.json',
+      function(req){
+        if(CliqzUtils) {
+          callback && callback(req, ez);
+        }
+      }); 
+  }
   
   describe('UrlBar integration', function(){
     var checker,
         query = "xxx-face";
     beforeEach(function() {
-      var tabs = Array.prototype.slice.apply(chrome.gBrowser.tabs);
-      tabs.forEach( (tab, i)  => i !== 0 ? tab.remove() : null );
+      chrome.gBrowser.removeAllTabsBut(chrome.gBrowser.selectedTab);
             
       getCliqzResults = CliqzUtils.getCliqzResults;
       respondWith({
@@ -108,7 +116,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       }, done);
     });
 
-    it('clicking on a results trigger Core#openLink', function (done) {
+    it('should trigger Core#openLink when clicking on a result', function (done) {
       fillIn(query);
 
       var results = $(chrome.document.getElementById("cliqz-results"));
@@ -120,9 +128,60 @@ TESTS.UrlBarTest = function (CliqzUtils) {
         var el = results.find(".cqz-result-box .cqz-result-title")[0];
         click(el);
         var tabs = Array.prototype.slice.apply(chrome.gBrowser.tabs);
-        //chai.expect(tabs.length).to.equal(2);
+        chai.expect(tabs.length).to.equal(2);
         done();
       });
+    });
+
+    it('should trigger firefox history search', function(done) {
+      respondWith({
+        "result": []
+      });
+      fillIn("mozilla");
+
+      var results = $(chrome.document.getElementById("cliqz-results"));
+      checker = waitFor(function () {
+        var res = results.find(".cqz-result-box");
+        return results.find(".cqz-result-box .cqz-ez-title").length === 1;
+      }, function() {
+        var title = results.find(".cqz-result-box .cqz-ez-title")[0],
+          expectedTitle = "Mozilla",
+          actualTitle,
+          patternElement = results.find(".cqz-result-box .cliqz-pattern-element"),
+          actualTitle = title.textContent.trim();
+
+          console.log(patternElement.length);
+        
+        chai.expect(1).to.equal(1);
+        chai.expect(expectedTitle, actualTitle);
+        chai.expect(patternElement).to.have.length.above(1);
+        done();
+      });
+    });
+
+    it('should display spiegel smart cliqz', function(done) {
+      var json,
+          results = [];
+      
+      fillIn("spiegel");
+
+      var p1 = new Promise(
+        function(resolve, reject) {
+          mockSmartCliqz('spiegel', function(req, ez){
+            json = JSON.parse(req.response);
+            respondWith(json);
+            resolve();
+          });  
+        }
+      );
+
+      p1.then(function() {
+        checker = waitFor(function () {
+        var popup = chrome.document.getElementById("PopupAutoCompleteRichResultCliqz");
+        return popup.mPopupOpen === true;
+      }, done);
+      })
+
     });
   });
 };

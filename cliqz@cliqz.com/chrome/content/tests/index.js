@@ -52,6 +52,9 @@ function getParameterByName(name) {
 /* Turn off telemetry during tests */
 var telemetry, CliqzUtils;
 
+CliqzUtils = loadModule("CliqzUtils");
+//CliqzUtils.getWindow().CLIQZ.Core.unload = function() {};
+
 beforeEach(function () {
   CliqzUtils = loadModule("CliqzUtils");
   telemetry = CliqzUtils.telemetry;
