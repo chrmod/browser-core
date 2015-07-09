@@ -82,6 +82,7 @@ else {
 window.CLIQZ.Core = {
     ITEM_HEIGHT: 50,
     POPUP_HEIGHT: 100,
+    POPUP_TOPLEFT: [0, 0],  // from the url bar bottom left
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
     urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],

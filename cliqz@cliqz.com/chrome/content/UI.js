@@ -75,7 +75,8 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     urlbar_box: null,
-    popup_topleft: [0, 0],
+    last_popup_height: null,
+    popup_topleft: CLIQZ.Core.POPUP_TOPLEFT,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -95,13 +96,11 @@ var UI = {
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", popup_topleft[0], popup_topleft[1], false, true);
-
+                this.openPopup(aElement, "after_start", UI.popup_topleft[0], UI.popup_topleft[1], false, true);
                 UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(CLIQZ.Core.popup, arguments)
         };
-
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
@@ -1374,7 +1373,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
               result_order: result_order,
-              v: 2
+              v: 2.1
           };
       for(var key in extraData) {
         action[key] = extraData[key];
@@ -1410,13 +1409,9 @@ function resultClick(ev){
                  (ev.target.getAttribute('newtab') || false);
         var extra = null;
 
-    var coordinate = {
-        'clientX': ev.clientX,
-        'clientY': ev.clientY,
-        'screenX': ev.screenX,
-        'screenY': ev.screenY
-    };
-    CliqzUtils.log(coordinate, 'THUY------');
+    var coordinate = null;
+    if (UI.urlbar_box)
+        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width];
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
@@ -1424,7 +1419,9 @@ function resultClick(ev){
             logUIEvent(el, "result", {
               action: "result_click",
               new_tab: newTab,
-              extra: extra
+              extra: extra,
+              mouse: coordinate,
+              thuy_test: "HUU"
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZ.Core.openLink(url, newTab);

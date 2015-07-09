@@ -1,6 +1,6 @@
 <div class="cqz-result-h1 cqz-result-padding ez-video">
   <div class="cqz-ez-title" extra="title"><a href="{{url}}">{{data.name}}{{#if data.name_cat }} - {{ local data.name_cat }} {{/if}}</a></div>
-  <span class="cqz-ez-subtitle">
+  <span class="cqz-ez-subtitle"  extra="url">
     {{ emphasis urlDetails.friendly_url text 2 true }}
   </span>
   <div class="entity-stories">

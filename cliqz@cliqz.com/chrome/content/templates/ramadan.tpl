@@ -2,7 +2,7 @@
 
     {{#with data}}
         <div class="cqz-result-title overflow"><a href="{{../url}}" extra="title">Ramadan</a></div>
-        <div class="cqz-result-url overflow" extra="url">{{../urlDetails.host}}</div>
+        <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
         <div class="cqz-result-desc overflow cqz-ramadan-desc">{{local 'RamadanDes'}}</div>
 
         <div class="ramadanEZ-daylef">
