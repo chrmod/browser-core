@@ -79,6 +79,14 @@ var runner =  mocha.run();
 
 var XMLReport = '<?xml version="1.0" encoding="UTF-8"?>';
 Mocha.reporters.XUnit.prototype.write = function (line) {
+  //append project="ff-version" in the test report for jenkins purposes
+  if(line.indexOf('<testsuite') !== -1) {
+    var testSuite = line,
+        testSuiteParts = testSuite.split(" "),
+        version = getBrowserVersion();
+    testSuiteParts.splice(1, 0, 'project="' + 'ff-' + version + '"');
+    line = testSuiteParts.join(" ");
+  }
   XMLReport += line;
 };
 new Mocha.reporters.XUnit(runner, {});
