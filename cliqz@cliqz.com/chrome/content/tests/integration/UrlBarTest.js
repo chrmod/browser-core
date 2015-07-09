@@ -47,9 +47,9 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       }, cb);
     }
 
-    function $cliqzResults() {
-      return $(chrome.document.getElementById("cliqz-results"));
-    }
+  function $cliqzResults() {
+    return $(chrome.document.getElementById("cliqz-results"));
+  }
 
   function mockSmartCliqz(ez) {
     return new Promise(function (resolve, reject) {
