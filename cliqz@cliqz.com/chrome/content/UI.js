@@ -75,7 +75,6 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     urlbar_box: null,
-    last_popup_height: null,
     popup_topleft: CLIQZ.Core.POPUP_TOPLEFT,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
