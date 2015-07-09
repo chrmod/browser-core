@@ -84,7 +84,7 @@ Mocha.reporters.XUnit.prototype.write = function (line) {
     var testSuite = line,
         testSuiteParts = testSuite.split(" "),
         version = getBrowserVersion();
-    testSuiteParts.splice(1, 0, 'project="' + 'ff-' + version + '"');
+    testSuiteParts.splice(1, 0, 'package="' + 'ff-' + version + '"');
     line = testSuiteParts.join(" ");
   }
   XMLReport += line;
