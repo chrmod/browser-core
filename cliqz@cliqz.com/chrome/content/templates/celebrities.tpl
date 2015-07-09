@@ -8,6 +8,10 @@
     <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false" arrow-override='' extra="title">
     	<a href="{{../url}}">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span>
     </div>
+    <span class="cqz-ez-subtitle">
+      {{ emphasis ../urlDetails.friendly_url text 2 true }}
+    </span>
+
     <div class='cqz-celeb-desc'>
         <span extra="des">{{ emphasis description_wiki ../text 2 true }}</span>
     </div>

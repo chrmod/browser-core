@@ -20,6 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistory',
+  'chrome://cliqzmodules/content/CliqzHistory.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
   'chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
 
@@ -49,7 +52,7 @@ function kindEnricher(data, newKindParams) {
 
 var Mixer = {
     ezURLs: {},
-    EZ_COMBINE: ['entity-generic', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
+    EZ_COMBINE: ['entity-generic', 'ez-generic-2', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
     EZ_QUERY_BLACKLIST: ['www', 'www.', 'http://www', 'https://www', 'http://www.', 'https://www.'],
     TRIGGER_URLS_CACHE_FILE: 'cliqz/smartcliqz-trigger-urls-cache.json',
     init: function() {
@@ -83,7 +86,7 @@ var Mixer = {
                 // only if query has more than 2 chars and not in blacklist
                 //  - avoids many unexpected EZ triggerings
                 if(q.length > 2 && (Mixer.EZ_QUERY_BLACKLIST.indexOf(q.toLowerCase().trim()) == -1)) {
-                    var extra = Result.cliqzExtra(cliqz[0].extra);
+                    var extra = Result.cliqzExtra(cliqz[0].extra, cliqz[0].snippet);
                     kindEnricher(extra.data, { 'trigger_method': 'backend_url' });
                     cliqzExtra.push(extra);
                 } else {
@@ -92,29 +95,40 @@ var Mixer = {
             }
         }
 
+        // Record all descriptions found in cliqz results.
+        // To be used later when displaying history entries.
+        for(var i=0; i<cliqz.length; i++){
+            if(cliqz[i].snippet && cliqz[i].snippet.desc) {
+                CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
+            }
+        }
+
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
-        var cliqz_new = [];
-        var instant_new = [];
+        var cliqz_new = [],
+            instant_new = [],
+            j;
+        for (j = 0; j < instant.length; j++) {
+            // clone all instant entries so they can be modified for this mix only
+            instant_new[j] = Result.clone(instant[j]);
+        }
+        instant = instant_new;
         for(var i=0; i < cliqz.length; i++) {
             var cl_url = CliqzHistoryPattern.generalizeUrl(cliqz[i].url, true);
             var duplicate = false;
 
-            if(instant.length > 0) {
+            for (var j = 0; j < instant.length; j++) {
                 // Does the main link match?
-                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].label, true);
+                var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].label, true);
                 if(cl_url == instant_url) {
-                    var temp = Result.combine(cliqz[i], instant[0]);
-                    // don't keep this one if we already have one entry like this
-                    if(instant_new.length == 0)
-                        instant_new.push(temp);
+                    instant[j] = Result.combine(instant[j], Result.cliqz(cliqz[i]));
                     duplicate = true;
                 }
 
                 // Do any of the sublinks match?
-                if(instant[0].style == 'cliqz-pattern') {
-                    for(var u in instant[0].data.urls) {
-                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[0].data.urls[u].href);
+                if(instant[j].style == 'cliqz-pattern') {
+                    for(var u in instant[j].data.urls) {
+                        var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].data.urls[u].href);
                         if (instant_url == cl_url) {
                             // TODO: find a way to combine sources for clustered results
                             duplicate = true;
@@ -127,13 +141,6 @@ var Mixer = {
                 cliqz_new.push(cliqz[i]);
             }
         }
-
-        // Later in this function, we will modify the contents of instant.
-        // To avoid changing the source object, make a copy here, if not already
-        // done so in the duplication handling above.
-        if(instant_new.length == 0 && instant.length > 0)
-            instant_new.push(Result.clone(instant[0]));
-        instant = instant_new;
 
         cliqz = cliqz_new;
 
@@ -179,11 +186,19 @@ var Mixer = {
                 url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
-            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {                
+            if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
                 var ezId = CliqzSmartCliqzCache.triggerUrls.retrieve(url);
                 var ez = CliqzSmartCliqzCache.retrieve(ezId);
                 if(ez) {
                     ez = Result.clone(ez);
+
+                    // copy over title and description from history entry
+                    if(!results[0].data.generic) {
+                        ez.data.title = results[0].data.title;
+                        if(!ez.data.description)
+                            ez.data.description = results[0].data.description;
+                    }
+
                     kindEnricher(ez.data, { 'trigger_method': 'history_url' });
                     cliqzExtra = [ez];
                 } else {
@@ -204,7 +219,7 @@ var Mixer = {
         cliqzExtra = cliqzExtra.slice(0, 1);
 
         // add extra (fun search) results at the beginning if a history cluster is not already there
-        if(cliqzExtra && cliqzExtra.length > 0) {
+        if(CliqzUtils.getPref("alternative_ez", "") != "none" && cliqzExtra && cliqzExtra.length > 0) {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
             if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
@@ -245,8 +260,11 @@ var Mixer = {
 
                         // Check if the main link matches
                         if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
-                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val))
+                           CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val)) {
+                            cliqzExtra[0] = Result.combine(cliqzExtra[0], results[i]);
+
                             matchedEZ = true;
+                        }
 
                         // Look for sublinks that match
                         for(k in cliqzExtra[0].data) {
@@ -264,7 +282,8 @@ var Mixer = {
 
                 // if the first result is a history cluster and
                 // there is an EZ of a supported types then make a combined entry
-                if(results.length > 0 && results[0].data && results[0].data.template == "pattern-h2" &&
+                if(results.length > 0 && results[0].data &&
+                   (results[0].data.template == "pattern-h2" || results[0].data.template == "pattern-h3") &&
                    Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1 &&
                    CliqzHistoryPattern.generalizeUrl(results[0].val, true) == CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true) ) {
 
@@ -288,10 +307,19 @@ var Mixer = {
             }
         }
 
+
         // Change history cluster size if there are less than three links and it is h2
         /*if(results.length > 0 && results[0].data.template == "pattern-h2" && results[0].data.urls.length < 3) {
           results[0].data.template = "pattern-h3-cluster";
         }*/
+
+        // Modify EZ template - for test
+        if(CliqzUtils.getPref("alternative_ez", "") == "description") {
+            for(var i=0; i<results.length; i++) {
+                if(results[i].data && results[i].data.template == "entity-generic")
+                    results[i].data.template = "ez-generic-2"
+            }
+        }
 
         // Add custom results to the beginning if there are any
         if(customResults && customResults.length > 0) {

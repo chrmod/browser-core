@@ -2,7 +2,9 @@
     {{#with data}}
     <div class="cqz-ez-title cqz-ez-aTob-title" extra="title">
       <h2 extra="title"><a class="titleLink" href="{{../url}}">{{local 'from'}} {{from_city }} {{local 'to'}} {{ to_city }}</a></h2>
-        <span class="subtitle" extra="url">{{friendly_url}}</span>
+        <span class="subtitle">
+          {{ emphasis ../urlDetails.friendly_url text 2 true }}
+        </span>
     </div>
     <table class="list">
         <tbody>
