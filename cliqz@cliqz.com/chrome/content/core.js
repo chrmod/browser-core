@@ -157,6 +157,7 @@ window.CLIQZ.Core = {
         document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
+
         CLIQZ.Core.popup = popup;
 
         CLIQZ.UI.init();

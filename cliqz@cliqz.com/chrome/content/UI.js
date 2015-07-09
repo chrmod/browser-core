@@ -74,6 +74,8 @@ var UI = {
     lastInput: "",
     lastSelectedUrl: null,
     mouseOver: false,
+    urlbar_box: null,
+    popup_topleft: [0, 0],
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -83,6 +85,8 @@ var UI = {
             }
         };
 
+        UI.urlbar_box = CLIQZ.Core.urlbar.getBoundingClientRect();
+
         CLIQZ.Core.popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
               if (!CliqzAutocomplete.isPopupOpen){
@@ -91,10 +95,13 @@ var UI = {
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", 0, 0, false, true);
+                this.openPopup(aElement, "after_start", popup_topleft[0], popup_topleft[1], false, true);
+
+                UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(CLIQZ.Core.popup, arguments)
-        }
+        };
+
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
@@ -1384,6 +1391,14 @@ function resultClick(ev){
                  (ev.target.getAttribute('newtab') || false);
         var extra = null;
 
+    var coordinate = {
+        'clientX': ev.clientX,
+        'clientY': ev.clientY,
+        'screenX': ev.screenX,
+        'screenY': ev.screenY
+    };
+    CliqzUtils.log(coordinate, 'THUY------');
+
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(el.getAttribute('url')){
@@ -1460,8 +1475,6 @@ function resultClick(ev){
         el = el.parentElement;
     }
 }
-
-
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),
