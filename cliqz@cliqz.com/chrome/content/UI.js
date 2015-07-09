@@ -1419,8 +1419,7 @@ function resultClick(ev){
               action: "result_click",
               new_tab: newTab,
               extra: extra,
-              mouse: coordinate,
-              thuy_test: "HUU"
+              mouse: coordinate
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZ.Core.openLink(url, newTab);
