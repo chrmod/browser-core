@@ -432,7 +432,8 @@
 #cliqz-results .cliqz-pattern-element-title { max-width: 50%; display: inline-block; cursor: pointer; }
 #cliqz-results .cliqz-pattern-element-link { max-width: 30%; margin-left: 8px; color: #cccccc; display: inline-block; }
 #cliqz-results .cliqz-pattern-logo { background-image: url(chrome://cliqzres/content/skin/cliqz.png); background-color: #efefef }
-#cliqz-results .cqz-3-history-results .cliqz-pattern-element { margin: -3px 0 6px; padding: 0; }
+#cliqz-results .cqz-3-history-results { padding-top: 20px; }
+#cliqz-results .cqz-3-history-results .cliqz-pattern-element { margin: 0px 0 6px; padding: 0; }
 #cliqz-results .cqz-3-history-results .cliqz-pattern-element:nth-of-type(1n+4) {display: none;}
 #cliqz-results .cqz-5-history-results .cliqz-pattern-element:nth-of-type(1n+6) {display: none;}
 #cliqz-results .cqz-ez-generic .cqz-3-history-results { margin-top: 21px; }
