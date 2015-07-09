@@ -365,6 +365,22 @@ var CliqzHistory = {
       });
     }
   },
+  getTitle: function(url) {
+    if (typeof(Promise) === 'undefined')
+      return;
+
+    return new Promise( function(resolve, reject) {
+      // first try urldescriptions table
+      CliqzHistory.SQL("SELECT title FROM urltitles WHERE url=:url",
+        function(r) { // onRow for urltitles
+          resolve(r[0]);
+        },
+        function(n) { // onCompletion for urldescription
+        }, {
+          url: url
+        });
+    });
+  },
   getDescription: function(url) {
     if (typeof(Promise) === 'undefined')
       return;

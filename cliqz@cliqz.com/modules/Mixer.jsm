@@ -109,6 +109,8 @@ var Mixer = {
                     // will have the same title as backend results. Important to avoid flickering
                     // when the backend result comes in.
                     CliqzHistoryManager.updatePageTitle(cliqz[i].url, cliqz[i].snippet.title);
+                    // Also in the CLIQZ DB
+                    CliqzHistory.updateTitle(cliqz[i].url, cliqz[i].snippet.title);
                 }
             }
         }
