@@ -1,6 +1,6 @@
 # To Do:
-# * handle different languages effectively. Currently done by looking up title/category label in 
-#   the internationalization database in the extension. This does not scale. Need to find a 
+# * handle different languages effectively. Currently done by looking up title/category label in
+#   the internationalization database in the extension. This does not scale. Need to find a
 #   backend-based solution.
 
 brands:
@@ -12,7 +12,7 @@ brands:
     #     rules:
     #     -
     #         # base entry is required and used to specify info for the cluster as a whole
-    #         category: base 
+    #         category: base
     #         title: Google
     #         url: https://www.google.com/
     #         always_show: true
@@ -43,7 +43,7 @@ brands:
         rules:
         -
             # base entry is required and used to specify info for the cluster as a whole
-            category: base 
+            category: base
             title: YouTube
             url: https://www.youtube.com/
             always_show: true
@@ -107,7 +107,7 @@ brands:
         -
             category: exclude
             match:
-                path: /watchvideos # redirect 
+                path: /watchvideos # redirect
         -
             category: Sitemap_Youtube_Channels
             title:
@@ -150,7 +150,7 @@ brands:
         -
             category: base
             title: GitHub
-            url: https://www.github.com/
+            url: https://github.com/
             always_show: true
             match:  # group all urls that match this condition with the base URL
                 domain: github.com

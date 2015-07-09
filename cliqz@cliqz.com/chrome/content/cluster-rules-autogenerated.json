@@ -7,7 +7,7 @@
             "rules": [
                 {
                     "category": "base", 
-                    "url": "https://www.github.com/", 
+                    "url": "https://github.com/", 
                     "always_show": true, 
                     "match": {
                         "path": "^/$", 
