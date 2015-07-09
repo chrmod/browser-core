@@ -673,31 +673,46 @@ var CliqzHistory = {
             date DATE\
         )";
 
+    var newDB = true;
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
-      CliqzHistory.addColumn("urltitles", "linktitle", "VARCHAR(255)");
-      CliqzHistory.addColumn("visits", "prev_visit", "DATE");
-      CliqzHistory.addColumn("visits", "time_spent", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "click_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
-      CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='urldescriptions'", null, function(n) {
-        if (n == 0) CliqzHistory.SQL(descriptions);
-      });
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
-        if (n == 0) CliqzHistory.SQL(opengraph);
-      });
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
-        if (n == 0) CliqzHistory.SQL(thumbnails);
-      });
-    } else {
+      // make sure current database contains all the required columns
+      newDB = false;
+      try {
+        CliqzHistory.addColumn("urltitles", "linktitle", "VARCHAR(255)");
+        CliqzHistory.addColumn("visits", "prev_visit", "DATE");
+        CliqzHistory.addColumn("visits", "time_spent", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "click_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
+        CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='urldescriptions'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(descriptions);
+        });
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(opengraph);
+        });
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(thumbnails);
+        });
+
+      } catch (e) {
+        CliqzUtils.log('Error setting up CLIQZ DB' + e, "CliqzHistory");
+
+        // erase it and start fresh
+        FileUtils.getFile("ProfD", ["cliqz.db"]).remove(false);
+      }
+    }
+
+    // build new DB
+    if(newDB) {
       CliqzHistory.SQL(visits);
       CliqzHistory.SQL(titles);
       CliqzHistory.SQL(descriptions);
       CliqzHistory.SQL(opengraph);
       CliqzHistory.SQL(thumbnails);
     }
+
     // Make sure thumbnail directory exists
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
 
