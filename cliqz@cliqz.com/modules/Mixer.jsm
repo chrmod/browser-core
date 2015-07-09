@@ -100,20 +100,23 @@ var Mixer = {
 
         // Record all titles and descriptions found in cliqz results.
         // To be used later when displaying history entries.
-        for(var i=0; i<cliqz.length; i++){
-            if(cliqz[i].snippet) {
-                if(cliqz[i].snippet.desc)
-                    CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
-                if(cliqz[i].snippet.title) {
-                    // Override current title in FF history DB, so instant result from history
-                    // will have the same title as backend results. Important to avoid flickering
-                    // when the backend result comes in.
-                    CliqzHistoryManager.updatePageTitle(cliqz[i].url, cliqz[i].snippet.title);
-                    // Also in the CLIQZ DB
-                    CliqzHistory.updateTitle(cliqz[i].url, cliqz[i].snippet.title);
+        CliqzUtils.setTimeout( function() {
+            for(var i=0; i<cliqz.length; i++){
+                if(cliqz[i].snippet) {
+                    if(cliqz[i].snippet.desc)
+                        CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
+                    if(cliqz[i].snippet.title) {
+                        // Override current title in FF history DB, so instant result from history
+                        // will have the same title as backend results. Important to avoid flickering
+                        // when the backend result comes in.
+                        CliqzHistoryManager.updatePageTitle(cliqz[i].url, cliqz[i].snippet.title);
+                        // Also in the CLIQZ DB
+                        CliqzHistory.updateTitle(cliqz[i].url, cliqz[i].snippet.title);
+                    }
                 }
             }
-        }
+        }, 25);
+
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
