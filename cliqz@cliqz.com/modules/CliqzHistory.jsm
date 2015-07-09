@@ -701,6 +701,7 @@ var CliqzHistory = {
 
         // erase it and start fresh
         FileUtils.getFile("ProfD", ["cliqz.db"]).remove(false);
+        newDB = true;
       }
     }
 
