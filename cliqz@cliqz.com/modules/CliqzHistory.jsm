@@ -18,6 +18,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
@@ -333,6 +335,23 @@ var CliqzHistory = {
         prevVisit: prevVisit,
         acQuery: autocompleteQuery
       });
+  },
+  // Update descriptions and titles in the local databases
+  // Takes a dictionary with URLs as keys
+  updateTitlesDescriptions: function(data) {
+    for(var url in data) {
+      if(data[url].desc)
+        CliqzHistory.updateDescription(url, data[url].desc);
+
+      if(data[url].title) {
+        // Override current title in FF history DB, so instant result from history
+        // will have the same title as backend results. Important to avoid flickering
+        // when the backend result comes in.
+        CliqzHistoryManager.updatePageTitle(url, data[url].title);
+        // Also in the CLIQZ DB
+        CliqzHistory.updateTitle(url, data[url].title);
+      }
+    }
   },
   updateTitle: function(url, title, linkTitle) {
     if (title && !linkTitle) {

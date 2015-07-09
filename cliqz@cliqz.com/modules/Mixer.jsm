@@ -29,9 +29,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzClusterHistory',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
-XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
-  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
-
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
     'chrome://cliqzmodules/content/CliqzResultProviders.jsm');
 
@@ -100,23 +97,17 @@ var Mixer = {
 
         // Record all titles and descriptions found in cliqz results.
         // To be used later when displaying history entries.
-        CliqzUtils.setTimeout( function() {
-            for(var i=0; i<cliqz.length; i++){
-                if(cliqz[i].snippet) {
-                    if(cliqz[i].snippet.desc)
-                        CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
-                    if(cliqz[i].snippet.title) {
-                        // Override current title in FF history DB, so instant result from history
-                        // will have the same title as backend results. Important to avoid flickering
-                        // when the backend result comes in.
-                        CliqzHistoryManager.updatePageTitle(cliqz[i].url, cliqz[i].snippet.title);
-                        // Also in the CLIQZ DB
-                        CliqzHistory.updateTitle(cliqz[i].url, cliqz[i].snippet.title);
-                    }
-                }
+        var title_desc = {};
+        for(var i=0; i<cliqz.length; i++){
+            if(cliqz[i].snippet) {
+                title_desc[cliqz[i].url] = {};
+                if(cliqz[i].snippet.desc)
+                    title_desc[cliqz[i].url].desc = cliqz[i].snippet.desc;
+                if(cliqz[i].snippet.title)
+                    title_desc[cliqz[i].url].title = cliqz[i].snippet.title;
             }
-        }, 25);
-
+        }
+        CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25, title_desc);
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
