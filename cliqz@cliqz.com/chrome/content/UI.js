@@ -75,7 +75,6 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     urlbar_box: null,
-    popup_topleft: CLIQZ.Core.POPUP_TOPLEFT,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -95,7 +94,8 @@ var UI = {
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", UI.popup_topleft[0], UI.popup_topleft[1], false, true);
+                // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
+                this.openPopup(aElement, "after_start", 0, 0 , false, true);
                 UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(CLIQZ.Core.popup, arguments)
@@ -156,7 +156,7 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      var curResAll = currentResults.results
+      var curResAll = currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
