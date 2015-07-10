@@ -955,7 +955,8 @@ var CliqzHistoryPattern = {
     var promise = CliqzHistory.getTitle(instant.val);
     if(promise) {
       return promise.then( function(title) {
-        instant_data.title = title;
+        if(title)
+          instant_data.title = title;
       });
     }
   },
