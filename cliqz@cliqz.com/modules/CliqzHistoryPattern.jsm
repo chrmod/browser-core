@@ -238,6 +238,7 @@ var CliqzHistoryPattern = {
     patterns = adjustedResults[0];
     baseUrl = adjustedResults[1];
     favicon = adjustedResults[2];
+    var https = adjustedResults[3];
     var res = CliqzHistoryPattern.generateResult(patterns, orig_query, false, baseUrl);
 
     // Add base domain if above threshold
@@ -248,7 +249,7 @@ var CliqzHistoryPattern = {
       // Check if base domain changed due to filtering
       var [tmpResults, tmpBaseUrl] = CliqzHistoryPattern.adjustBaseDomain(fRes, query);
       baseUrl = tmpBaseUrl;
-      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon);
+      CliqzHistoryPattern.addBaseDomain(patterns, baseUrl, favicon, https);
       res.cluster = true;
     // Threshold not reached or clustering not enabled -> no domain clustering
     } else {
@@ -446,13 +447,21 @@ var CliqzHistoryPattern = {
       newPatterns.push(basePattern);
     }
 
+    var https = false;
     for (var key in patterns) {
+      // if any pattern uses an https domain, use that for
+      // base domain too.
+      var pUrl = patterns[key].url;
+      if (pUrl.indexOf("https://") == 0)
+        https = true;
+
+      // keep everything else except for base
       if (patterns[key] != basePattern) newPatterns.push(patterns[key]);
     }
-    return [newPatterns, baseUrl, favicon];
+    return [newPatterns, baseUrl, favicon, https];
   },
   // Add base domain of given result to top of patterns
-  addBaseDomain: function(patterns, baseUrl, favicon) {
+  addBaseDomain: function(patterns, baseUrl, favicon, https) {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
     //if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
     // Add base domain if not in list
@@ -467,6 +476,18 @@ var CliqzHistoryPattern = {
       patterns[0].autoAdd = true;
       CliqzUtils.log("Added base domain to history cluster: " + baseUrl, "CliqzHistoryPattern");
     }
+
+    // Add https if required
+    if(https)
+      baseUrl = "https://" + baseUrl;
+
+    // Add trailing slash if not there
+    var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
+    if(urldetails.path == "")
+      baseUrl = baseUrl + '/';
+
+    patterns[0].url = baseUrl;
+
     return baseUrl;
   },
   // Extract all possible paths in sessions and count their frequencies
@@ -835,7 +856,10 @@ var CliqzHistoryPattern = {
     } else if(res.urls) {
       // Rule-based clustering has already been performed, just take the entry as it is
       var instant = Result.generic('cliqz-pattern', res.url, null, res.title, null, searchString, res);
-      instant.title += " (history rules cluster)"
+      instant.comment += " (history rules cluster)"
+      // override with any titles we have saved
+      promises.push(CliqzHistoryPattern.getTitle(instant));
+
       instant.data.template = "pattern-h2";
       instant_results.push(instant);
 
@@ -858,8 +882,12 @@ var CliqzHistoryPattern = {
       var title = results[0].title;
       if(!title) {
         title = results[0].url;
+        CliqzUtils.log("No title, assigning " + title, "CliqzHistoryPattern");
       }
       instant.data.title = title;
+      // override with any titles we have saved
+      promises.push(CliqzHistoryPattern.getTitle(instant));
+
       instant.data.url = results[0].url;
       instant.comment += " (history domain cluster)!";
       instant.data.template = "pattern-h2";
@@ -918,6 +946,16 @@ var CliqzHistoryPattern = {
     if(promise) {
       return promise.then( function(desc) {
         instant_data.description = desc;
+      });
+    }
+  },
+  // Retrieve title and save in instant reuslt
+  getTitle: function(instant) {
+    var instant_data = instant.data;
+    var promise = CliqzHistory.getTitle(instant.val);
+    if(promise) {
+      return promise.then( function(title) {
+        instant_data.title = title;
       });
     }
   },

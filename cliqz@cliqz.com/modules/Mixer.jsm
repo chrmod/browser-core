@@ -95,13 +95,19 @@ var Mixer = {
             }
         }
 
-        // Record all descriptions found in cliqz results.
+        // Record all titles and descriptions found in cliqz results.
         // To be used later when displaying history entries.
+        var title_desc = {};
         for(var i=0; i<cliqz.length; i++){
-            if(cliqz[i].snippet && cliqz[i].snippet.desc) {
-                CliqzHistory.updateDescription(cliqz[i].url, cliqz[i].snippet.desc);
+            if(cliqz[i].snippet) {
+                title_desc[cliqz[i].url] = {};
+                if(cliqz[i].snippet.desc)
+                    title_desc[cliqz[i].url].desc = cliqz[i].snippet.desc;
+                if(cliqz[i].snippet.title)
+                    title_desc[cliqz[i].url].title = cliqz[i].snippet.title;
             }
         }
+        CliqzUtils.setTimeout(CliqzHistory.updateTitlesDescriptions, 25, title_desc);
 
         // Was instant history result also available as a cliqz result?
         //  if so, remove from backend list and combine sources in instant result
