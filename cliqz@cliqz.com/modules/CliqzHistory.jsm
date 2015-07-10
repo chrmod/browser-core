@@ -395,6 +395,9 @@ var CliqzHistory = {
           resolve(r[0]);
         },
         function(n) { // onCompletion for urldescription
+          if(!n) {
+            resolve(undefined);
+          }
         }, {
           url: url
         });
