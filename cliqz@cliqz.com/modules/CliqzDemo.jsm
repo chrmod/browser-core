@@ -51,7 +51,7 @@ function _onPageLoad (aEvent) {
 	if (!(details.name == "cliqz" && details.tld == "com")) return;
 
 	var proxy = doc.getElementById(PROXY_ID);
-	if (proxy) {
+	if (proxy && Cu.exportFunction) {
 		Cu.exportFunction(CliqzDemo.demoQuery, proxy, {  defineAs: "demoQuery" });
 		Cu.exportFunction(CliqzDemo.demoQueryAndClicking, proxy, {  defineAs: "demoQueryAndClicking" });
 
