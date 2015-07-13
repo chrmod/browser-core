@@ -234,7 +234,8 @@ var CliqzExtOnboarding = {
     },
 
     _addDropdownListeners: function (win) {
-        win.addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+        win.CLIQZ.Core.popup.
+            addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _removeDropdownListeners: function (win) {
