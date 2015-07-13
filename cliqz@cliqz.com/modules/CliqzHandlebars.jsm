@@ -141,9 +141,13 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('recipe_rd_template', function(data_richData) {
-        var minimalData = typeof(data_richData["cook_time"]) !== "undefined" && typeof(data_richData["numportion"]) !== "undefined" && typeof(data_richData["total_review"]) !== "undefined";
-        // 22May2015, thuy@cliqz.com, used for recipe rich-snippet (rich-data) from BM.
-        return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData); // is the only result in the show list
+        var minimalData = data_richData
+                          && typeof(data_richData["cook_time"]) !== "undefined"
+                          && typeof(data_richData["numportion"]) !== "undefined"
+                          && typeof(data_richData["total_review"]) !== "undefined";
+
+        // is the only result in the show list
+        return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData);
     });
 
     Handlebars.registerHelper('cpgame_movie_rd_template', function(data_richData) {
