@@ -22,7 +22,7 @@
         <div class="cqz-rd-max-lines3">{{richData.des}}</div>
     </div>
   {{/with}}
-  <!--{{>EZ-category}}-->
+  {{>EZ-category}}
   {{> logo}}
 </div>
 {{else}}
