@@ -42,12 +42,15 @@ var CliqzExtOnboarding = {
     init: function (win) {
         CliqzExtOnboarding._log("init: initializing");
 
+        CliqzExtOnboarding._checkFirefoxVersionRequirements();
+
         var callout = CliqzExtOnboarding._createCallout(win);
         CliqzExtOnboarding._addCalloutListeners(callout);
         CliqzExtOnboarding._addDropdownListeners(win);
-        CliqzExtOnboarding._addUrlbarKeydownListener(win);
 
-        CliqzExtOnboarding._checkFirefoxVersionRequirements();
+        if (CliqzExtOnboarding._isFirefoxVersionSupported) {
+            CliqzExtOnboarding._addUrlbarKeydownListener(win);
+        }
 
         CliqzExtOnboarding._log("init: done");
     },
@@ -63,7 +66,10 @@ var CliqzExtOnboarding = {
         } else {
             CliqzExtOnboarding._log("unload: no callout element found");
         }
-        CliqzExtOnboarding._removeUrlbarKeydownListener(win);
+
+        if (CliqzExtOnboarding._isFirefoxVersionSupported) {
+            CliqzExtOnboarding._removeUrlbarKeydownListener(win);
+        }
 
         CliqzExtOnboarding._log("unload: done");
     },
@@ -131,7 +137,7 @@ var CliqzExtOnboarding = {
         // ...seems we should interrupt the user
         prefs["result_count"] = 0;
         var win = CliqzUtils.getWindow(),
-            callout = CliqzExtOnboarding._getCallout(),
+            callout = CliqzExtOnboarding._getCallout(win),
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
 
         if (anchor) {
@@ -148,10 +154,11 @@ var CliqzExtOnboarding = {
                     win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
                 callout.openPopup(anchor, "end_before", -5, 0);
                 callout.setAttribute("show_ts", Date.now());
+                callout.setAttribute("msg_type", "same_result");
 
                 request.cancel("CLIQZ_INTERRUPT");
                 CliqzExtOnboarding._log("interrupted");
-                CliqzExtOnboarding._telemetry("show", {
+                CliqzExtOnboarding._telemetry("same_result", "show", {
                     count: prefs["show_count"],
                     result_index: resultIndex
                 });
@@ -234,7 +241,6 @@ var CliqzExtOnboarding = {
                     CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
-            // FIXME: not shown
             cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
         });
 
@@ -280,32 +286,34 @@ var CliqzExtOnboarding = {
         var target = e.target;
         if (target && (e.button == 0 || e.button == 1)) {
             var win = CliqzUtils.getWindow(),
-                callout = CliqzExtOnboarding._getCallout(),
+                callout = CliqzExtOnboarding._getCallout(win),
                 action = target.getAttribute("cliqz-action"),
                 duration = Date.now() - callout.getAttribute("show_ts");
 
-            switch (action) {
-                case "onboarding-start":
-                    CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
+            if (callout.getAttribute("msg_type") == "same_result") {
+                switch (action) {
+                    case "onboarding-start":
+                        CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
 
-                    CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
+                        CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
 
-                    callout.hidePopup();
-                    win.CLIQZ.Core.popup.hidePopup();
-                    win.CLIQZ.Core.openLink(destUrl, false);
+                        callout.hidePopup();
+                        win.CLIQZ.Core.popup.hidePopup();
+                        win.CLIQZ.Core.openLink(destUrl, false);
 
-                    break;
+                        break;
 
-                case "onboarding-cancel":
-                    CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
+                    case "onboarding-cancel":
+                        CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
 
-                    CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
+                        CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
 
-                    callout.hidePopup();
-                    win.CLIQZ.Core.popup.hidePopup();
-                    win.CLIQZ.Core.openLink(destUrl, false);
+                        callout.hidePopup();
+                        win.CLIQZ.Core.popup.hidePopup();
+                        win.CLIQZ.Core.openLink(destUrl, false);
 
-                    break;
+                        break;
+                }
             }
         }
     },
@@ -313,13 +321,14 @@ var CliqzExtOnboarding = {
     _calloutCloseListener: function () {
         var callout = CliqzExtOnboarding._getCallout();
 
-        if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
-            CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+        if (callout.getAttribute("msg_type") == "same_result") {
+            if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
+                CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+            }
         }
     },
 
     _dropdownCloseListener: function () {
-        // FIXME: CliqzExtOnboarding is undefined after re-enabling extension
         var callout = CliqzExtOnboarding._getCallout();
 
         // close callout whenever dropdown closes
@@ -330,7 +339,7 @@ var CliqzExtOnboarding = {
         }
     },
 
-    _urlbarKeydownListener: function (e) {    
+    _urlbarKeydownListener: function (e) {
         if (CliqzAutocomplete.selectAutocomplete) {
             if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
                 // CliqzExtOnboarding._log("_urlbarKeydownListener: new autcompleted url, update");
@@ -348,6 +357,10 @@ var CliqzExtOnboarding = {
                     currentAutocompleteMinSelectionStart;
                 if (charsTyped > 4) {
                     CliqzExtOnboarding._log("###### use autocomplete");
+                    var callout = CliqzExtOnboarding._getCallout();
+                    callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.urlbar, "end_before", -5, 0);
+                    callout.setAttribute("show_ts", Date.now());
+                    callout.setAttribute("msg_type", "typed_url");
                 } else {
                     CliqzExtOnboarding._log("_urlbarKeydownListener: not enough characters typed (" + charsTyped + ")");
                 }
@@ -371,31 +384,33 @@ var CliqzExtOnboarding = {
         // flag as "handled"
         callout.setAttribute("show_ts", -1);
 
-        lastPrefs["state"] = newState;
-        lastPrefs["show_count"]++;
-        lastPrefs["max_show_duration"] =
-            Math.max(lastPrefs["max_show_duration"], duration);
+        if (callout.getAttribute("msg_type") == "same_result") {
+            lastPrefs["state"] = newState;
+            lastPrefs["show_count"]++;
+            lastPrefs["max_show_duration"] =
+                Math.max(lastPrefs["max_show_duration"], duration);
 
-        CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-            { "same_result": lastPrefs }));
+            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
+                { "same_result": lastPrefs }));
 
-        CliqzExtOnboarding._telemetry("close", {
-            duration: duration,
-            reason: reason
-        });
+            CliqzExtOnboarding._telemetry("same_result", "close", {
+                duration: duration,
+                reason: reason
+            });
 
-        return true;
+            return true;
+        }
     },
 
 	_log: function (msg) {
 		CliqzUtils.log(msg, 'CliqzExtOnboarding');
 	},
 
-	_telemetry: function (action, data) {
+	_telemetry: function (component, action, data) {
         var signal = {
             type: 'extended_onboarding',
             // make configurable once there are more components
-            component: 'same_result',
+            component: component,
             action: action
         };
 
