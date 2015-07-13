@@ -2,4 +2,4 @@ content cliqz chrome/content/
 content cliqzres chrome/
 content cliqzmodules modules/
 content cliqztests tests/
-resource cliqz_bower_components bower_components/
+content cliqz_bower_components bower_components/
