@@ -388,14 +388,12 @@ var CliqzExtOnboarding = {
                 // CliqzExtOnboarding._log("_urlbarKeydownListener: same autocompleted url, no update");
             }
         } else {
+            var charsTyped = 
+                currentAutocompleteUrlbar.length - 
+                currentAutocompleteMinSelectionStart;
+            currentAutocompleteUrlbar = "";
+            currentAutocompleteMinSelectionStart = 0;
             if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
-                var charsTyped = 
-                    currentAutocompleteUrlbar.length - 
-                    currentAutocompleteMinSelectionStart;
-
-                currentAutocompleteUrlbar = "";
-                currentAutocompleteMinSelectionStart = 0;
-
                 if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {    
                     // getting current state from user prefs                    
                     if (!prefs["typed_url"]) {
