@@ -12,14 +12,14 @@ IT IS USED AS A PARTIAL template
         {{/if}}
 
         <div class="cqz-rhh3-snipet-txt">
-            <div class="cqz-result-title overflow"><a href="{{../url}}" extra="title">{{richData.name}}</a></div>
-            <div class="cqz-result-url overflow" extra="url">{{../urlDetails.host}}</div>
+            <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{richData.name}}</a></div>
+            <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
             <div>
                 {{#if richData.url_ratingimg}}
-                    <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg cqrd-snippet_hspacing" onerror="this.style.display='none';" extra="des-rate"/>
+                    <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
                 {{else}}
                     {{#if (logic richData.rating '&&' richData.rating.img)}}
-                        <img src="{{richData.rating.img}}" class="cqz-rd-rateimg cqz-rd-snippet_hspacing" onerror="this.style.display='none';" extra="des-rate"/>
+                        <img src="{{richData.rating.img}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
                     {{/if}}
                 {{/if}}
                 <span extra="des">{{richData.des}}</span>

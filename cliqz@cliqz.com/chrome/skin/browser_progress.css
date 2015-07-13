@@ -61,27 +61,27 @@
 
 
 /* ------- RICH DATA Result----------*/
-#cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px)}
+#cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px); max-width: 800px;}
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
 #cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
 #cliqz-results .cqz-rd-max-lines3 {white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em}
-#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 4.8em; line-height: 1.2em}
+#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.2em; line-height: 1.3em}
 #cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
 #cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
 #cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
-#cliqz-results .cqz-rd-h3img-div {height: 68px; float:left; margin-right: 20px; max-width: 130px}
-#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px;}
-#cliqz-results .cqz-rhh3-snipet-txt .cqz-rd-rateimg{padding-top: 12px;}
+#cliqz-results .cqz-rd-h3img-div {height: 82px; float:left; margin-right: 20px; max-width: 130px}
+#cliqz-results .cqz-rhh3-snipet-txt {max-width: 700px;}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; max-width: 500px;}
 
 #cliqz-results .cqz-rd-img {height:  100%; display:block;}
-#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 16px;}
+#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 20px;}
 #cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 200px}
-#cliqz-results .cqz-rd-h3-snippet {height: 110px; margin: 16px 0px 12px 0px;}
+#cliqz-results .cqz-rd-h3-snippet {height: 110px; margin: 22px 0px 22px 0px;}
 
-#cliqz-results .cqz-rd-h2-snippet {height: 155px; margin: 16px 0px 12px 0px;}
+#cliqz-results .cqz-rd-h2-snippet {height: 200px; margin: 22px 0px 12px 0px;}
 
 /* ------- END RICH DATA Result----------*/
 

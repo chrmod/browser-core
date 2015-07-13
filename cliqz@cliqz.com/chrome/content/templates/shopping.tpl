@@ -34,7 +34,7 @@
         '
         extra="url"
       >
-        {{ urlDetails.host }}
+        {{ urlDetails.friendly_url }}
       </span>
     </div>
     <div>

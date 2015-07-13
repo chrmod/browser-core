@@ -14,7 +14,7 @@
 
           <a href="{{../url}}" extra="title">{{ emphasis name ../text 2 true }}</a>
         </div>
-        <div class="clearfix cqz-ez-subtitle">
+        <div class="clearfix cqz-ez-subtitle" extra="url">
           {{ emphasis ../urlDetails.friendly_url text 2 true }}
         </div>
 

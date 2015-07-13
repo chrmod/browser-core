@@ -74,6 +74,7 @@ var UI = {
     lastInput: "",
     lastSelectedUrl: null,
     mouseOver: false,
+    urlbar_box: null,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -83,6 +84,8 @@ var UI = {
             }
         };
 
+        UI.urlbar_box = CLIQZ.Core.urlbar.getBoundingClientRect();
+
         CLIQZ.Core.popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
               if (!CliqzAutocomplete.isPopupOpen){
@@ -91,10 +94,12 @@ var UI = {
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", 0, 0, false, true);
+                // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
+                this.openPopup(aElement, "after_start", 0, 0 , false, true);
+                UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(CLIQZ.Core.popup, arguments)
-        }
+        };
 
         UI.showDebug = CliqzUtils.getPref('showQueryDebug', false);
     },
@@ -151,7 +156,7 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
-      var curResAll = currentResults.results
+      var curResAll = currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
@@ -1367,7 +1372,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
               reaction_time: (new Date()).getTime() - CliqzAutocomplete.lastQueryTime,
               display_time: CliqzAutocomplete.lastDisplayTime ? (new Date()).getTime() - CliqzAutocomplete.lastDisplayTime : null,
               result_order: result_order,
-              v: 2
+              v: 2.1
           };
       for(var key in extraData) {
         action[key] = extraData[key];
@@ -1403,13 +1408,18 @@ function resultClick(ev){
                  (ev.target.getAttribute('newtab') || false);
         var extra = null;
 
+    var coordinate = null;
+    if (UI.urlbar_box)
+        coordinate = [ev.clientX - (UI.urlbar_box.left || UI.urlbar_box.x), ev.clientY - UI.urlbar_box.bottom, CLIQZ.Core.popup.width];
+
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
               action: "result_click",
               new_tab: newTab,
-              extra: extra
+              extra: extra,
+              mouse: coordinate
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZ.Core.openLink(url, newTab);
@@ -1479,8 +1489,6 @@ function resultClick(ev){
         el = el.parentElement;
     }
 }
-
-
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),

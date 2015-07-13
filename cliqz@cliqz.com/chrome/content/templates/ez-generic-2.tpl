@@ -8,8 +8,8 @@
 >
     {{#with data}}
 
-    <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}">{{ emphasis name text 2 true }}</a></div>
-    <div class='cqz-result-url overflow'>
+    <div class='cqz-result-title overflow' arrow-override=''><a href="{{../url}}"  extra="title">{{ emphasis name text 2 true }}</a></div>
+    <div class='cqz-result-url overflow'  extra="url">
       {{ emphasis ../urlDetails.friendly_url text 2 true }}
     </div>
     <div class='cqz-result-content'> 
