@@ -10,6 +10,9 @@ var EXPORTED_SYMBOLS = ['CliqzExtOnboarding'];
 Cu.import('resource://gre/modules/Services.jsm');
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 
+
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
+  'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
@@ -17,14 +20,19 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 
 var lastPrefs = undefined,
     // cache destination URL
-    destUrl = undefined,
-    wasUnloaded = false;
+    destUrl = undefined;
+
+
+// cache autocomplete state
+var currentAutocompleteUrlbar = "",
+    currentAutocompleteMinSelectionStart = 0;
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
     MAX_INTERRUPTS: 3, // 3
     // number of results required before we interrupt
     REQUIRED_RESULTS_COUNT: 5, // 5
+    KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // called for each new window
@@ -34,6 +42,7 @@ var CliqzExtOnboarding = {
         var callout = CliqzExtOnboarding._createCallout(win);
         CliqzExtOnboarding._addCalloutListeners(callout);
         CliqzExtOnboarding._addDropdownListeners(win);
+        CliqzExtOnboarding._addUrlbarKeydownListener(win);
 
         CliqzExtOnboarding._log("init: done");
     },
@@ -49,6 +58,7 @@ var CliqzExtOnboarding = {
         } else {
             CliqzExtOnboarding._log("unload: no callout element found");
         }
+        CliqzExtOnboarding._removeUrlbarKeydownListener(win);
 
         CliqzExtOnboarding._log("unload: done");
     },
@@ -243,6 +253,16 @@ var CliqzExtOnboarding = {
             removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
+    _addUrlbarKeydownListener: function (win) {
+        win.CLIQZ.Core.urlbar.
+            addEventListener("keydown", CliqzExtOnboarding._urlbarKeydownListener);
+    },
+
+    _removeUrlbarKeydownListener: function (win) {
+        win.CLIQZ.Core.urlbar.
+            removeEventListener("keydown", CliqzExtOnboarding._urlbarKeydownListener);
+    },
+
     _calloutClickListener: function (e) {
         var target = e.target;
         if (target && (e.button == 0 || e.button == 1)) {
@@ -294,6 +314,34 @@ var CliqzExtOnboarding = {
             if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "result")) {
                 callout.hidePopup();
             }
+        }
+    },
+
+    _urlbarKeydownListener: function (e) {    
+        if (CliqzAutocomplete.selectAutocomplete) {
+            if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
+                // CliqzExtOnboarding._log("_urlbarKeydownListener: new autcompleted url, update");
+                currentAutocompleteUrlbar = 
+                    CliqzAutocomplete.lastAutocompleteUrlbar;
+                currentAutocompleteMinSelectionStart = 
+                    CliqzAutocomplete.lastAutocompleteSelectionStart;
+            } else {
+                // CliqzExtOnboarding._log("_urlbarKeydownListener: same autocompleted url, no update");
+            }
+        } else {
+            if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
+                var charsTyped = 
+                    currentAutocompleteUrlbar.length - 
+                    currentAutocompleteMinSelectionStart;
+                if (charsTyped > 4) {
+                    CliqzExtOnboarding._log("###### use autocomplete");
+                } else {
+                    CliqzExtOnboarding._log("_urlbarKeydownListener: not enough characters typed (" + charsTyped + ")");
+                }
+            }
+
+            currentAutocompleteUrlbar = "";
+            currentAutocompleteMinSelectionStart = 0;
         }
     },
 
