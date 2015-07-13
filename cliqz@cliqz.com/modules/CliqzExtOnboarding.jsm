@@ -49,7 +49,8 @@ var CliqzExtOnboarding = {
         CliqzExtOnboarding._addCalloutListeners(callout);
         CliqzExtOnboarding._addDropdownListeners(win);
 
-        if (CliqzExtOnboarding._isFirefoxVersionSupported) {
+        if (CliqzExtOnboarding._isFirefoxVersionSupported &&
+            CliqzUtils.getPref("extended_onboarding_typed_url", false)) {
             CliqzExtOnboarding._addUrlbarKeydownListener(win);
         }
 
@@ -68,9 +69,7 @@ var CliqzExtOnboarding = {
             CliqzExtOnboarding._log("unload: no callout element found");
         }
 
-        if (CliqzExtOnboarding._isFirefoxVersionSupported) {
-            CliqzExtOnboarding._removeUrlbarKeydownListener(win);
-        }
+        CliqzExtOnboarding._removeUrlbarKeydownListener(win);
 
         CliqzExtOnboarding._log("unload: done");
     },
@@ -374,12 +373,6 @@ var CliqzExtOnboarding = {
     },
 
     _urlbarKeydownListener: function (e) {
-        var isActive = CliqzUtils.getPref("extended_onboarding_typed_url", false);
-        if (!isActive) {
-            CliqzExtOnboarding._log("_urlbarKeydownListener: typed url AB test not active; aborting");
-            return;
-        }
-
         if (CliqzAutocomplete.selectAutocomplete) {
             if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
                 // CliqzExtOnboarding._log("_urlbarKeydownListener: new autcompleted url, update");
