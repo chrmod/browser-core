@@ -29,14 +29,15 @@ var currentAutocompleteUrlbar = "",
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    MAX_INTERRUPTS: 3, // 3
+    MAX_INTERRUPTS: 30, // 3
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 5, // 5
+    REQUIRED_RESULTS_COUNT: 0, // 5
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     // will be checked on module load
     _isFirefoxVersionSupported: false,
+    _calloutParsedContent: { },
 
     // called for each new window
     init: function (win) {
@@ -152,6 +153,7 @@ var CliqzExtOnboarding = {
 
                 win.CLIQZ.Core.popup._openAutocompletePopup(
                     win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                CliqzExtOnboarding._setCalloutContent("same_result");
                 callout.openPopup(anchor, "end_before", -5, 0);
                 callout.setAttribute("show_ts", Date.now());
                 callout.setAttribute("msg_type", "same_result");
@@ -231,20 +233,39 @@ var CliqzExtOnboarding = {
             return;
         }
 
-        contentElement.innerHTML = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
-            message: CliqzUtils.getLocalizedString("onCalloutGoogle"),
+        CliqzExtOnboarding._calloutParsedContent["same_result"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
+            message: CliqzUtils.getLocalizedString("onCalloutSameResult"),
             options: [
                 { label:
-                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnOk"),
+                    CliqzUtils.getLocalizedString("onCalloutSameResultBtnOk"),
                     action: "onboarding-start", state: "ok" },
                 { label:
-                    CliqzUtils.getLocalizedString("onCalloutGoogleBtnCancel"),
+                    CliqzUtils.getLocalizedString("onCalloutSameResultBtnCancel"),
+                    action: "onboarding-cancel", state: "cancel" }
+            ],
+            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+        });
+
+        CliqzExtOnboarding._calloutParsedContent["typed_url"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
+            message: CliqzUtils.getLocalizedString("onCalloutTypedUrl"),
+            options: [
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutTypedUrlBtnOk"),
+                    action: "onboarding-start", state: "ok" },
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutTypedUrlBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
             cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
         });
 
         CliqzExtOnboarding._log("_initCalloutContent: template parsed");
+    },
+
+    _setCalloutContent: function (messageType) {
+        var callout = CliqzExtOnboarding._getCallout();
+        callout.firstChild.innerHTML = 
+            CliqzExtOnboarding._calloutParsedContent[messageType];
     },
 
     _destroyCallout: function (callout) {
@@ -353,6 +374,12 @@ var CliqzExtOnboarding = {
     },
 
     _urlbarKeydownListener: function (e) {
+        var isActive = CliqzUtils.getPref("extended_onboarding_typed_url", false);
+        if (!isActive) {
+            CliqzExtOnboarding._log("_urlbarKeydownListener: typed url AB test not active; aborting");
+            return;
+        }
+
         if (CliqzAutocomplete.selectAutocomplete) {
             if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
                 // CliqzExtOnboarding._log("_urlbarKeydownListener: new autcompleted url, update");
@@ -371,6 +398,7 @@ var CliqzExtOnboarding = {
                 if (charsTyped > 4) {
                     CliqzExtOnboarding._log("###### use autocomplete");
                     var callout = CliqzExtOnboarding._getCallout();
+                    CliqzExtOnboarding._setCalloutContent("typed_url");
                     callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.urlbar, "after_start", 20, -5);
                     callout.setAttribute("show_ts", Date.now());
                     callout.setAttribute("msg_type", "typed_url");

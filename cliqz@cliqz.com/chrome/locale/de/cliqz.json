@@ -188,13 +188,22 @@
     "agoXYears":{
         "message":"vor {} Jahren"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Alles klar!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Tipp' nicht so viel!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Nicht mehr zeigen."
     },
     "onCalloutIntro":{
