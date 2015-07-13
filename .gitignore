@@ -1,4 +1,5 @@
 *.xpi
+bower_components
 .DS_Store
 *.pyc
 mozilla-release

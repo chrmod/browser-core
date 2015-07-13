@@ -53,7 +53,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
   function mockSmartCliqz(ez) {
     return new Promise(function (resolve, reject) {
-      CliqzUtils.loadResource('chrome://cliqz/content/tests/scripts/EZ/' + ez + '.json', function (req) {
+      CliqzUtils.loadResource('chrome://cliqztests/content/scripts/EZ/' + ez + '.json', function (req) {
         json = JSON.parse(req.response);
         respondWith(json);
         resolve();
