@@ -34,6 +34,7 @@ var CliqzExtOnboarding = {
     TYPED_URL_MAX_INTERRUPTS: 30, // 3
     // number of results required before we interrupt
     SAME_RESULT_REQUIRED_RESULTS_COUNT: 0, // 5
+    TYPED_URL_REQUIRED_RESULTS_COUNT: 3,
     TYPED_URL_MIN_CHARS_TYPED: 4,
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
@@ -413,6 +414,7 @@ var CliqzExtOnboarding = {
                         prefs["typed_url"] = {
                             "state": "seen",
                             "show_count": 0,
+                            "result_count": 0,
                             "max_show_duration": 0,
                             "sub_group": "tbd" // set only when we would show the message for the first time
                         };
@@ -425,6 +427,11 @@ var CliqzExtOnboarding = {
                         return;
                     } else if (prefs["typed_url"]["show_count"] >= CliqzExtOnboarding.TYPED_URL_MAX_INTERRUPTS) {
                         CliqzExtOnboarding._log("typed url: max. show reached; not interrupting");
+                        return;
+                    } else if (prefs["typed_url"]["result_count"] < CliqzExtOnboarding.TYPED_URL_REQUIRED_RESULTS_COUNT) {
+                        prefs["typed_url"]["result_count"]++;
+                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+                        CliqzExtOnboarding._log("typed url: not enough typed url instances; not interrupting");
                         return;
                     }
 
