@@ -501,7 +501,7 @@ var CliqzUtils = {
     if(str.substr(-1) === '/') {
         return str.substr(0, str.length - 1);
     }
-    return str;  
+    return str;
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
@@ -583,6 +583,21 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._querySeq++;
+
+    if(q.length < CliqzUtils._queryLastLength){
+      CliqzUtils._queriesDel++;
+      CliqzUtils._queriesTSDel = CliqzUtils._queriesTSDel.map(function(v){ return v+1; });
+    } else {
+      [100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000].forEach(function(v, i){
+        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + v)){
+          CliqzUtils._queriesTS[i]++;
+          CliqzUtils._queriesTSDel[i]++;
+        }
+      });
+    }
+    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+    CliqzUtils._queryLastLength = q.length;
+
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
               CliqzUtils.encodeQuerySession() +
@@ -673,15 +688,30 @@ var CliqzUtils = {
   },
   _querySession: '',
   _querySeq: 0,
+  _queryLastLength: null,
+  _queryLastDraw: null,
+  _queriesTS: null,
+  _queriesTSDel: null,
+  _queriesDel: null,
   setQuerySession: function(querySession){
     CliqzUtils._querySession = querySession;
     CliqzUtils._querySeq = 0;
+    CliqzUtils._queriesTS = [0,0,0,0,0,0,0,0,0,0];
+    CliqzUtils._queriesTSDel = [0,0,0,0,0,0,0,0,0,0];
+    CliqzUtils._queriesDel = 0;
+    CliqzUtils._queryLastLength = 0;
+    CliqzUtils._queryLastDraw = 0;
   },
   encodeQuerySession: function(){
     return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
   },
   encodeQuerySeq: function(){
-    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
+    if(CliqzUtils._querySession.length){
+      return '&n=' + CliqzUtils._querySeq +
+             '&nd=' + CliqzUtils._queriesDel +
+             '&nts=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTS)) +
+             '&ntsd=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTSDel));
+    } else return '';
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
