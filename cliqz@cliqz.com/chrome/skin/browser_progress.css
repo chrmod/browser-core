@@ -228,7 +228,7 @@
 
 #cliqzExtOnboardingCallout .onboarding-callout { font-weight: 300; }
 
-#cliqzExtOnboardingCallout .panel-arrowcontent {padding-top: 0px;}
+#cliqzExtOnboardingCallout .panel-arrowcontent { padding-top: 0px; }
 
 #cliqzExtOnboardingCallout .panel-arrowcontent { background: #FD544F; color: white; }
 
@@ -263,14 +263,13 @@
 .onboarding-callout .btn-container-extended .cqz-btn-ok { background-color: #63A4F6; color: white; margin-top: 30px; }
 .onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #EEE; text-decoration: underline; font-size: 12px; font-weight: 300; margin-top: 5px;}
 
-.onboarding-callout .cliqz-logo { width: 100px; margin-top: 30px; }
-
-
 #cliqzExtOnboardingCallout .cliqz-logo {
   background-image: url(chrome://cliqzres/content/skin/img/cliqz.svg);
   background-repeat: no-repeat;
   height: 20px;  
   margin-left: 20px;
+  width: 100px;
+  margin-top: 30px;
 }
 
 /* ------- END onboarding */

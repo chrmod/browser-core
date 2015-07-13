@@ -18,7 +18,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-var lastPrefs = undefined,
+var sameResultLastPrefs = undefined,
+    typedUrlLastPrefs = undefined,
     // cache destination URL
     destUrl = undefined;
 
@@ -29,9 +30,11 @@ var currentAutocompleteUrlbar = "",
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    MAX_INTERRUPTS: 30, // 3
+    SAME_RESULT_MAX_INTERRUPTS: 30, // 3
+    TYPED_URL_MAX_INTERRUPTS: 30, // 3
     // number of results required before we interrupt
-    REQUIRED_RESULTS_COUNT: 0, // 5
+    SAME_RESULT_REQUIRED_RESULTS_COUNT: 0, // 5
+    TYPED_URL_MIN_CHARS_TYPED: 4,
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
@@ -90,64 +93,65 @@ var CliqzExtOnboarding = {
         var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
         if (prefs) {
             try {
-                prefs = JSON.parse(prefs)["same_result"];
+                prefs = JSON.parse(prefs);
                 // for those users who were already in the AB test when
                 // "sub_group" was introduced
-                if (!prefs.hasOwnProperty("sub_group")) {
-                    prefs["sub_group"] = "na";
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                        { "same_result": prefs }));
+                if (prefs["same_result"] && !prefs["same_result"].hasOwnProperty("sub_group")) {
+                    prefs["same_result"]["sub_group"] = "na";
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
                 }
             } catch (e) { }
         }
         if (!prefs) {
-            prefs = {
+            prefs = { };
+            CliqzExtOnboarding._log("creating empty prefs");
+        }
+        if (!prefs["same_result"]) {
+            prefs["same_result"] = {                
                 "state": "seen",
                 "result_count": 0,
                 "show_count": 0,
                 "max_show_duration": 0,
                 "sub_group": "tbd" // set only when we would show the message for the first time
             };
-            CliqzExtOnboarding._log("creating prefs");
+            CliqzExtOnboarding._log("creating same results prefs");
         }
 
         // checking for reasons _not_ to interrupt the users...
-        if (prefs["state"] == "discarded") {
+        if (prefs["same_result"]["state"] == "discarded") {
             CliqzExtOnboarding._log("onSameResult: user had discarded before; not interrupting");
             return;
-        } else if (prefs["show_count"] >= CliqzExtOnboarding.MAX_INTERRUPTS) {
+        } else if (prefs["same_result"]["show_count"] >= CliqzExtOnboarding.SAME_RESULT_MAX_INTERRUPTS) {
             CliqzExtOnboarding._log("onSameResult: max. show reached; not interrupting");
             return;
-        } else if (prefs["result_count"] < CliqzExtOnboarding.REQUIRED_RESULTS_COUNT) {
-            prefs["result_count"]++;
-            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                { "same_result": prefs }));
+        } else if (prefs["same_result"]["result_count"] < CliqzExtOnboarding.SAME_RESULT_REQUIRED_RESULTS_COUNT) {
+            prefs["same_result"]["result_count"]++;
+            CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
             CliqzExtOnboarding._log("onSameResult: not enough result clicks so far; not interrupting");
             return;
         }
 
         // decide which subgroup we are going to be in
-        if (prefs["sub_group"] == "tbd") {            
-            prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
-            CliqzExtOnboarding._log("decided for subgroup " + prefs["sub_group"]);
-            CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                { "same_result": prefs }));
+        if (prefs["same_result"]["sub_group"] == "tbd") {            
+            prefs["same_result"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            CliqzExtOnboarding._log("decided for subgroup " + prefs["same_result"]["sub_group"]);
+            CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
         }
 
         // ...seems we should interrupt the user
-        prefs["result_count"] = 0;
+        prefs["same_result"]["result_count"] = 0;
         var win = CliqzUtils.getWindow(),
             callout = CliqzExtOnboarding._getCallout(win),
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
 
         if (anchor) {
             if (anchor.offsetTop < 300) {
-                if (prefs["sub_group"] == "no_show") {
+                if (prefs["same_result"]["sub_group"] == "no_show") {
                     CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
                     return;
                 }
 
-                lastPrefs = prefs;
+                sameResultLastPrefs = prefs;
                 destUrl = destinationUrl;
 
                 win.CLIQZ.Core.popup._openAutocompletePopup(
@@ -160,7 +164,7 @@ var CliqzExtOnboarding = {
                 request.cancel("CLIQZ_INTERRUPT");
                 CliqzExtOnboarding._log("interrupted");
                 CliqzExtOnboarding._telemetry("same_result", "show", {
-                    count: prefs["show_count"],
+                    count: prefs["same_result"]["show_count"],
                     result_index: resultIndex
                 });
             }
@@ -354,10 +358,15 @@ var CliqzExtOnboarding = {
     _calloutCloseListener: function () {
         var callout = CliqzExtOnboarding._getCallout();
 
-        if (callout.getAttribute("msg_type") == "same_result") {
-            if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
-                CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
-            }
+        switch (callout.getAttribute("msg_type")) {
+            case "same_result":
+                if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
+                    CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+                }
+                break;
+            case "typed_url":
+                CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")
+                break;
         }
     },
 
@@ -388,8 +397,56 @@ var CliqzExtOnboarding = {
                 var charsTyped = 
                     currentAutocompleteUrlbar.length - 
                     currentAutocompleteMinSelectionStart;
-                if (charsTyped > 4) {
-                    CliqzExtOnboarding._log("###### use autocomplete");
+                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {    
+                    // getting current state from user prefs
+                    var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
+                    if (prefs) {
+                        try {
+                            prefs = JSON.parse(prefs);
+                        } catch (e) { }
+                    }
+                    if (!prefs) {
+                        prefs = { };
+                        CliqzExtOnboarding._log("creating empty prefs");
+                    }
+                    if (!prefs["typed_url"]) {
+                        prefs["typed_url"] = {
+                            "state": "seen",
+                            "show_count": 0,
+                            "max_show_duration": 0,
+                            "sub_group": "tbd" // set only when we would show the message for the first time
+                        };
+                        CliqzExtOnboarding._log("creating prefs for typed_url");
+                    }
+
+                    // checking for reasons _not_ to interrupt the users...
+                    if (prefs["typed_url"]["state"] == "discarded") {
+                        CliqzExtOnboarding._log("typed url: user had discarded before; not interrupting");
+                        return;
+                    } else if (prefs["typed_url"]["show_count"] >= CliqzExtOnboarding.TYPED_URL_MAX_INTERRUPTS) {
+                        CliqzExtOnboarding._log("typed url: max. show reached; not interrupting");
+                        return;
+                    }
+
+                    // decide which subgroup we are going to be in
+                    if (prefs["typed_url"]["sub_group"] == "tbd") {            
+                        prefs["typed_url"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+                        CliqzExtOnboarding._log("typed url: decided for subgroup " + prefs["typed_url"]["sub_group"]);
+                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(typedUrlLastPrefs));
+                    }
+                    
+                    if (prefs["typed_url"]["sub_group"] == "no_show") {
+                        CliqzExtOnboarding._log("typed url: user is in sub_group no show: do nothing");
+                        return;
+                    }
+
+                    typedUrlLastPrefs = prefs;
+
+                    CliqzExtOnboarding._log("typed url: showing message");
+                    CliqzExtOnboarding._telemetry("typed_url", "show", {
+                        count: prefs["typed_url"]["show_count"]
+                    });
+
                     var callout = CliqzExtOnboarding._getCallout();
                     CliqzExtOnboarding._setCalloutContent("typed_url");
                     callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.urlbar, "after_start", 20, -5);
@@ -420,13 +477,12 @@ var CliqzExtOnboarding = {
 
         switch (callout.getAttribute("msg_type")) {
             case "same_result":
-                lastPrefs["state"] = newState;
-                lastPrefs["show_count"]++;
-                lastPrefs["max_show_duration"] =
-                    Math.max(lastPrefs["max_show_duration"], duration);
+                sameResultLastPrefs["same_result"]["state"] = newState;
+                sameResultLastPrefs["same_result"]["show_count"]++;
+                sameResultLastPrefs["same_result"]["max_show_duration"] =
+                    Math.max(sameResultLastPrefs["max_show_duration"], duration);
 
-                CliqzUtils.setPref("extended_onboarding", JSON.stringify(
-                    { "same_result": lastPrefs }));
+                CliqzUtils.setPref("extended_onboarding", JSON.stringify(sameResultLastPrefs));
 
                 CliqzExtOnboarding._telemetry("same_result", "close", {
                     duration: duration,
@@ -435,6 +491,13 @@ var CliqzExtOnboarding = {
 
                 return true;
             case "typed_url":
+                typedUrlLastPrefs["typed_url"]["state"] = newState;
+                typedUrlLastPrefs["typed_url"]["show_count"]++;
+                typedUrlLastPrefs["typed_url"]["max_show_duration"] =
+                    Math.max(typedUrlLastPrefs["typed_url"]["max_show_duration"], duration);
+
+                CliqzUtils.setPref("extended_onboarding", JSON.stringify(typedUrlLastPrefs));
+
                 CliqzExtOnboarding._telemetry("typed_url", "close", {
                     duration: duration,
                     reason: reason
