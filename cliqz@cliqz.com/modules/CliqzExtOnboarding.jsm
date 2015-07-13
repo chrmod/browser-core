@@ -35,6 +35,9 @@ var CliqzExtOnboarding = {
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
+    // will be checked on module load
+    _isFirefoxVersionSupported: false,
+
     // called for each new window
     init: function (win) {
         CliqzExtOnboarding._log("init: initializing");
@@ -43,6 +46,8 @@ var CliqzExtOnboarding = {
         CliqzExtOnboarding._addCalloutListeners(callout);
         CliqzExtOnboarding._addDropdownListeners(win);
         CliqzExtOnboarding._addUrlbarKeydownListener(win);
+
+        CliqzExtOnboarding._checkFirefoxVersionRequirements();
 
         CliqzExtOnboarding._log("init: done");
     },
@@ -70,21 +75,10 @@ var CliqzExtOnboarding = {
             return;
         }
 
-        try {
-            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
-                .getService(Components.interfaces.nsIXULAppInfo);
-            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
-                .getService(Components.interfaces.nsIVersionComparator);
-
-            // running under Firefox 36.0 or later
-            if(versionChecker.compare(appInfo.version, "36.0") < 0) {
-                CliqzExtOnboarding._log("onSameResult: requires Firefox 36.0 or higher");
-                return;
-            }
-        } catch (e) {
-            CliqzExtOnboarding._log("onSameResult: unable to check Firefox version");
+        if (!CliqzExtOnboarding._isFirefoxVersionSupported) {
+            CliqzExtOnboarding._log("onSameResult: Firefox version not supported");
             return;
-        }
+        }      
 
         // getting current state from user prefs
         var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
@@ -170,6 +164,25 @@ var CliqzExtOnboarding = {
         }
     },
 
+    _checkFirefoxVersionRequirements: function () {
+        try {
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                .getService(Components.interfaces.nsIXULAppInfo);
+            var versionChecker = Components.classes["@mozilla.org/xpcom/version-comparator;1"]
+                .getService(Components.interfaces.nsIVersionComparator);
+
+            // running under Firefox 36.0 or later
+            if(versionChecker.compare(appInfo.version, "36.0") < 0) {
+                CliqzExtOnboarding._log("_checkFirefoxVersionRequirements: requires Firefox 36.0 or higher");                
+            } else {
+                CliqzExtOnboarding._isFirefoxVersionSupported = true;
+            }
+        } catch (e) {
+            CliqzExtOnboarding._log("_checkFirefoxVersionRequirements: unable to check Firefox version");
+            return;
+        }
+    },
+        
     // create callout element and attach to DOM
     _createCallout: function (win) {
         win = win || CliqzUtils.getWindow();
