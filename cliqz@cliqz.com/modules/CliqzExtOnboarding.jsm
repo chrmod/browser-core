@@ -18,8 +18,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
-var sameResultLastPrefs = undefined,
-    typedUrlLastPrefs = undefined,
+var prefs = { },
     // cache destination URL
     destUrl = undefined;
 
@@ -58,6 +57,11 @@ var CliqzExtOnboarding = {
             CliqzExtOnboarding._addUrlbarKeydownListener(win);
         }
 
+        try {
+            prefs = 
+                JSON.parse(CliqzUtils.getPref("extended_onboarding"));
+        } catch (e) { }
+
         CliqzExtOnboarding._log("init: done");
     },
 
@@ -90,24 +94,13 @@ var CliqzExtOnboarding = {
             return;
         }      
 
-        // getting current state from user prefs
-        var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
-        if (prefs) {
-            try {
-                prefs = JSON.parse(prefs);
-                // for those users who were already in the AB test when
-                // "sub_group" was introduced
-                if (prefs["same_result"] && !prefs["same_result"].hasOwnProperty("sub_group")) {
-                    prefs["same_result"]["sub_group"] = "na";
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
-                }
-            } catch (e) { }
-        }
-        if (!prefs) {
-            prefs = { };
-            CliqzExtOnboarding._log("creating empty prefs");
-        }
-        if (!prefs["same_result"]) {
+        if (prefs["same_result"]) {
+            // for those users who were already in the AB test when
+            // "sub_group" was introduced
+            if (!prefs["same_result"].hasOwnProperty("sub_group")) {
+                prefs["same_result"]["sub_group"] = "na";                
+            }
+        } else {
             prefs["same_result"] = {                
                 "state": "seen",
                 "result_count": 0,
@@ -117,6 +110,7 @@ var CliqzExtOnboarding = {
             };
             CliqzExtOnboarding._log("creating same results prefs");
         }
+        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
 
         // checking for reasons _not_ to interrupt the users...
         if (prefs["same_result"]["state"] == "discarded") {
@@ -135,12 +129,14 @@ var CliqzExtOnboarding = {
         // decide which subgroup we are going to be in
         if (prefs["same_result"]["sub_group"] == "tbd") {            
             prefs["same_result"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
-            CliqzExtOnboarding._log("decided for subgroup " + prefs["same_result"]["sub_group"]);
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+            CliqzExtOnboarding._log("decided for subgroup " + prefs["same_result"]["sub_group"]);            
         }
 
         // ...seems we should interrupt the user
         prefs["same_result"]["result_count"] = 0;
+        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+
         var win = CliqzUtils.getWindow(),
             callout = CliqzExtOnboarding._getCallout(win),
             anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
@@ -151,8 +147,6 @@ var CliqzExtOnboarding = {
                     CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
                     return;
                 }
-
-                sameResultLastPrefs = prefs;
                 destUrl = destinationUrl;
 
                 win.CLIQZ.Core.popup._openAutocompletePopup(
@@ -403,17 +397,7 @@ var CliqzExtOnboarding = {
                 currentAutocompleteMinSelectionStart = 0;
 
                 if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {    
-                    // getting current state from user prefs
-                    var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
-                    if (prefs) {
-                        try {
-                            prefs = JSON.parse(prefs);
-                        } catch (e) { }
-                    }
-                    if (!prefs) {
-                        prefs = { };
-                        CliqzExtOnboarding._log("creating empty prefs");
-                    }
+                    // getting current state from user prefs                    
                     if (!prefs["typed_url"]) {
                         prefs["typed_url"] = {
                             "state": "seen",
@@ -424,6 +408,7 @@ var CliqzExtOnboarding = {
                         };
                         CliqzExtOnboarding._log("creating prefs for typed_url");
                     }
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
 
                     // checking for reasons _not_ to interrupt the users...
                     if (prefs["typed_url"]["state"] == "discarded") {
@@ -443,7 +428,7 @@ var CliqzExtOnboarding = {
                     if (prefs["typed_url"]["sub_group"] == "tbd") {            
                         prefs["typed_url"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
                         CliqzExtOnboarding._log("typed url: decided for subgroup " + prefs["typed_url"]["sub_group"]);
-                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(typedUrlLastPrefs));
+                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
                     }
                     
                     if (prefs["typed_url"]["sub_group"] == "no_show") {
@@ -451,7 +436,8 @@ var CliqzExtOnboarding = {
                         return;
                     }
 
-                    typedUrlLastPrefs = prefs;
+                    prefs["typed_url"]["result_count"] = 0;
+                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
 
                     CliqzExtOnboarding._log("typed url: showing message");
                     CliqzExtOnboarding._telemetry("typed_url", "show", {
@@ -485,12 +471,12 @@ var CliqzExtOnboarding = {
 
         switch (callout.getAttribute("msg_type")) {
             case "same_result":
-                sameResultLastPrefs["same_result"]["state"] = newState;
-                sameResultLastPrefs["same_result"]["show_count"]++;
-                sameResultLastPrefs["same_result"]["max_show_duration"] =
-                    Math.max(sameResultLastPrefs["max_show_duration"], duration);
+                prefs["same_result"]["state"] = newState;
+                prefs["same_result"]["show_count"]++;
+                prefs["same_result"]["max_show_duration"] =
+                    Math.max(prefs["same_result"]["max_show_duration"], duration);
 
-                CliqzUtils.setPref("extended_onboarding", JSON.stringify(sameResultLastPrefs));
+                CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
 
                 CliqzExtOnboarding._telemetry("same_result", "close", {
                     duration: duration,
@@ -499,12 +485,12 @@ var CliqzExtOnboarding = {
 
                 return true;
             case "typed_url":
-                typedUrlLastPrefs["typed_url"]["state"] = newState;
-                typedUrlLastPrefs["typed_url"]["show_count"]++;
-                typedUrlLastPrefs["typed_url"]["max_show_duration"] =
-                    Math.max(typedUrlLastPrefs["typed_url"]["max_show_duration"], duration);
+                prefs["typed_url"]["state"] = newState;
+                prefs["typed_url"]["show_count"]++;
+                prefs["typed_url"]["max_show_duration"] =
+                    Math.max(prefs["typed_url"]["max_show_duration"], duration);
 
-                CliqzUtils.setPref("extended_onboarding", JSON.stringify(typedUrlLastPrefs));
+                CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
 
                 CliqzExtOnboarding._telemetry("typed_url", "close", {
                     duration: duration,
