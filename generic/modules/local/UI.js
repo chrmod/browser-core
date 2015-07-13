@@ -65,8 +65,6 @@ function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
-
-
 var UI = {
     showDebug: false,
     preventAutocompleteHighlight: false,
@@ -146,6 +144,10 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
+      // set the width
+      gCliqzBox.style.width = width + 1 + "px"
+      gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
+
       var curResAll = currentResults.results
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
@@ -198,9 +200,6 @@ var UI = {
 
         var width = Math.max(urlbar.clientWidth,500)
 
-        // set the width
-        gCliqzBox.style.width = width + 1 + "px"
-        gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
         setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
