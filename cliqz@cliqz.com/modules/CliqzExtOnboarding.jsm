@@ -29,15 +29,6 @@ var CliqzExtOnboarding = {
 
     // called for each new window
     init: function (win) {
-        // workaround: after de- and re-activating the extension,
-        // CliqzUtils and CliqzHandlebars point to outdated objects
-        // and defineLazyModuleGetter does not reload them
-        if (wasUnloaded) {
-            Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
-            Cu.import('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
-            wasUnloaded = false;
-        }
-
         CliqzExtOnboarding._log("init: initializing");
 
         var callout = CliqzExtOnboarding._createCallout(win);
@@ -60,8 +51,6 @@ var CliqzExtOnboarding = {
         }
 
         CliqzExtOnboarding._log("unload: done");
-
-        wasUnloaded = true;
     },
 
     onSameResult: function (request, resultIndex, destinationUrl) {
@@ -296,6 +285,7 @@ var CliqzExtOnboarding = {
     },
 
     _dropdownCloseListener: function () {
+        // FIXME: CliqzExtOnboarding is undefined after re-enabling extension
         var callout = CliqzExtOnboarding._getCallout();
 
         // close callout whenever dropdown closes
