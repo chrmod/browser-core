@@ -57,11 +57,7 @@ var CliqzExtOnboarding = {
             CliqzExtOnboarding._addUrlbarKeydownListener(win);
         }
 
-        try {
-            prefs = 
-                JSON.parse(CliqzUtils.getPref("extended_onboarding"));
-        } catch (e) { }
-
+        CliqzExtOnboarding._loadPrefs();
         CliqzExtOnboarding._log("init: done");
     },
 
@@ -169,6 +165,13 @@ var CliqzExtOnboarding = {
         } else {
             CliqzExtOnboarding._log("onSameResult: result was not shown to user");
         }
+    },
+
+    _loadPrefs: function () {
+        try {
+            prefs = 
+                JSON.parse(CliqzUtils.getPref("extended_onboarding"));
+        } catch (e) { }
     },
 
     _checkFirefoxVersionRequirements: function () {
@@ -393,8 +396,8 @@ var CliqzExtOnboarding = {
                 currentAutocompleteMinSelectionStart;
             currentAutocompleteUrlbar = "";
             currentAutocompleteMinSelectionStart = 0;
-            if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
-                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {    
+            if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {                
+                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {                    
                     // getting current state from user prefs                    
                     if (!prefs["typed_url"]) {
                         prefs["typed_url"] = {
