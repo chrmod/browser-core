@@ -30,11 +30,11 @@ var currentAutocompleteUrlbar = "",
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    SAME_RESULT_MAX_INTERRUPTS: 300, // 3
-    TYPED_URL_MAX_INTERRUPTS: 300, // 3
+    SAME_RESULT_MAX_INTERRUPTS: 3, // 3
+    TYPED_URL_MAX_INTERRUPTS: 3, // 3
     // number of results required before we interrupt
-    SAME_RESULT_REQUIRED_RESULTS_COUNT: 0, // 5
-    TYPED_URL_REQUIRED_RESULTS_COUNT: 0, // 3
+    SAME_RESULT_REQUIRED_RESULTS_COUNT: 5, // 5
+    TYPED_URL_REQUIRED_RESULTS_COUNT: 3, // 3
     TYPED_URL_MIN_CHARS_TYPED: 4,
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
@@ -401,7 +401,7 @@ var CliqzExtOnboarding = {
 
                 currentAutocompleteUrlbar = "";
                 currentAutocompleteMinSelectionStart = 0;
-                
+
                 if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {    
                     // getting current state from user prefs
                     var prefs = CliqzUtils.getPref("extended_onboarding", undefined);
