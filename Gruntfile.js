@@ -146,6 +146,33 @@ module.exports = function(grunt) {
                 },
                 dest: build("tool_iOS/js/global.js")
             },
+            global: {
+                src: [
+                    "generic/modules/global/CliqzUtils.jsm",
+                    "generic/modules/global/*.jsm"
+                ],
+                options: {
+                    banner: "'use strict';\n\nvar CLIQZ = {};\n\n",
+                    sourceMap: true,
+                    process: function(src,filepath) {
+                        var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
+                        /* Lucian
+                        return "// start module " + modulename + "\n"
+                               + ";CLIQZ." + modulename + " = (function(Q,E){\n"
+                               + src
+                               + "})(CLIQZ,CLIQZEnvironment);\n"
+                               + "// end module " + modulename + "\n\n"
+                        */
+                        return "// start module " + modulename + "\n"
+                               + "(function(ctx,Q,E){\n"
+                               + src
+                               + "ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
+                               + "})(this, CLIQZ,CLIQZEnvironment);\n"
+                               + "// end module " + modulename + "\n\n"
+                    }
+                },
+                dest: build("tool_iOS/js/global.js")
+            },
             local: {
                 src: [
                     "generic/modules/local/core.js",
