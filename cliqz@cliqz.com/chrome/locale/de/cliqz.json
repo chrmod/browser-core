@@ -198,7 +198,7 @@
         "message":"Nicht mehr zeigen."
     },
     "onCalloutTypedUrl":{
-        "message":"Entschuldige die Unterbrechung, aber Du musst die Adresse nicht komplett eingeben. Drücke einfach auf ENTER, sobald die Adresse erscheint."
+        "message":"Entschuldige die Unterbrechung, aber Du musst die Adresse nicht immer komplett eintippen. Drücke einfach auf ENTER, sobald die Adresse erscheint!"
     },
     "onCalloutTypedUrlBtnOk":{
         "message":"Alles klar!"
