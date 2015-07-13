@@ -61,7 +61,7 @@
 
 
 /* ------- RICH DATA Result----------*/
-#cliqz-results .cqz-rd-body {height: calc(100% - 40px); width: calc(100% - 80px); max-width: 800px;}
+#cliqz-results .cqz-rd-body {height: calc(100% - 48px); width: calc(100% - 80px); max-width: 550px;}
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
 #cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
 #cliqz-results .cqz-rd-max-lines3 {white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em}
