@@ -145,8 +145,8 @@ var UI = {
       });
 
       // set the width
-      // gCliqzBox.style.width = width + 1 + "px"
-      // gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
+      gCliqzBox.style.width = width + 1 + "px"
+      gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows(CliqzUtils.getWindow())?-1:1) + "px"
 
       var curResAll = currentResults.results
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
