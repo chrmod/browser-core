@@ -1,6 +1,33 @@
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
-Cu.import('resource://gre/modules/osfile.jsm');
+//Cu.import('resource://gre/modules/osfile.jsm');
+Cu.import("resource://gre/modules/FileUtils.jsm");
+Cu.import("resource://gre/modules/NetUtil.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
+
+
+function writeToFile(testData) {
+      var version = getBrowserVersion(),
+          filename = "mocha-report-fileUtils-" + version + ".xml",
+          file = FileUtils.getFile("ProfD", [filename]);
+
+      var ostream = FileUtils.openSafeFileOutputStream(file);
+
+      var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+                      createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+      converter.charset = "UTF-8";
+      var istream = converter.convertToInputStream(testData);
+
+      // The last argument (the callback) is optional.
+      NetUtil.asyncCopy(istream, ostream, function(status) {
+        if (!Components.isSuccessCode(status)) {
+          // Handle error!
+          return;
+        }
+      });
+}
+
+
 
 var MODULES = {};
 mocha.setup('bdd');
@@ -26,7 +53,10 @@ function getBrowserVersion() {
   return version;
 }
 
-function writeToFile(testData) {
+/* Using osfile 
+ * TODO make an abstraction
+ */
+/*function writeToFile(testData) {
   var version = getBrowserVersion();
   try {
   var _this = this,
@@ -42,7 +72,7 @@ function writeToFile(testData) {
  } catch(e) {
     console.log("save: failed saving to" + path + ":" +e);  
  }
-}
+}*/
 
 Object.keys(TESTS).forEach(function (testName) {
   var testFunction = TESTS[testName];
