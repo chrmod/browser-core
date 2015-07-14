@@ -5,7 +5,6 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 
-
 function writeToFile(testData) {
       var version = getBrowserVersion(),
           filename = "mocha-report-fileUtils-" + version + ".xml",
