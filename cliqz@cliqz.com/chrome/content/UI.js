@@ -31,9 +31,9 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'r': 'recipe',
-        //'g': 'cpgame_movie',
-        //'o': 'cpgame_movie'
+        'r': 'recipe' ,
+        'g': 'cpgame_movie',
+        'o': 'cpgame_movie'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -63,7 +63,6 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
 function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
-
 
 
 var UI = {
