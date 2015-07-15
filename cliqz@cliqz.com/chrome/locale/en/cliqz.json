@@ -197,6 +197,15 @@
     "onCalloutSameResultBtnCancel":{
         "message":"Don't show again."
     },
+    "onCalloutSmartCliqz":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Don't show again."
+    },
     "onCalloutTypedUrl":{
         "message":"Sorry about interrupting. You don't have to type the full address. Just press ENTER as soon as the address appears!"
     },

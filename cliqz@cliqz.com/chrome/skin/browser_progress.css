@@ -235,6 +235,7 @@
 .onboarding-callout .msg-container { position: relative; display: block; white-space: pre-line; max-width: 300px; line-height: 1.4; }
 #cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .msg-container { max-width: 200px; }
 #cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .msg-container { max-width: 600px; }
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .msg-container { max-width: 400px; }
 
 .onboarding-callout .btn-container,
 .onboarding-callout .btn-container-extended { position: relative; display: block; right: 0px; text-align: right; margin-top: 10px; }
@@ -243,7 +244,8 @@
 .onboarding-callout .logo-container { position: relative; display: block; right: 0px; text-align: center; margin-top: 10px; }
 
 #cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended { text-align: center; width: 100%; }
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended { text-align: right; width: 100%; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended { text-align: right; width: 100%; }
 
 .onboarding-callout .btn-container .cqz-btn,
 .onboarding-callout .btn-container-extended .cqz-btn {
@@ -261,7 +263,8 @@
 }
 
 #cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended .cqz-btn { display: block; max-width: 160px; }
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended .cqz-btn { display: inline; max-width: 160px; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended .cqz-btn,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended .cqz-btn { display: inline; max-width: 160px; }
 
 .onboarding-callout .btn-container .cqz-btn-ok { background-color: #8CE12F; }
 .onboarding-callout .btn-container .cqz-btn-cancel { background-color: #c3043e; color: white; }
@@ -277,7 +280,8 @@
 }
 
 #cliqzExtOnboardingCallout[msg_type="same_result"] .cliqz-logo { margin-left: 20px;  margin-top: 30px; }
-#cliqzExtOnboardingCallout[msg_type="typed_url"] .cliqz-logo { margin: 0px; float: left;}
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .cliqz-logo,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .cliqz-logo { margin: 0px; float: left;}
 
 /* ------- END onboarding */
 

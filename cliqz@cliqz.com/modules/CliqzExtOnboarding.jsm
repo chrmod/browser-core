@@ -206,7 +206,9 @@ var CliqzExtOnboarding = {
                                                 callout = CliqzExtOnboarding._getCallout(win);
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
                                                 win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
-                                            CliqzExtOnboarding._setCalloutContent("same_result");
+                                            CliqzExtOnboarding._setCalloutContent("smart_cliqz");
+                                            callout.setAttribute("show_ts", Date.now());
+                                            callout.setAttribute("msg_type", "smart_cliqz");
                                             callout.openPopup(button, "after_start", 10, -5);
                                         }
                                     }
@@ -416,6 +418,19 @@ var CliqzExtOnboarding = {
                     action: "onboarding-start", state: "ok" },
                 { label:
                     CliqzUtils.getLocalizedString("onCalloutTypedUrlBtnCancel"),
+                    action: "onboarding-cancel", state: "cancel" }
+            ],
+            cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
+        });
+
+        CliqzExtOnboarding._calloutParsedContent["smart_cliqz"] = CliqzHandlebars.tplCache["onboarding-callout-extended"]({
+            message: CliqzUtils.getLocalizedString("onCalloutSmartCliqz"),
+            options: [
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutSmartCliqzBtnOk"),
+                    action: "onboarding-start", state: "ok" },
+                { label:
+                    CliqzUtils.getLocalizedString("onCalloutSmartCliqzBtnCancel"),
                     action: "onboarding-cancel", state: "cancel" }
             ],
             cliqz_logo: "chrome://cliqzres/content/skin/img/cliqz.svg"
