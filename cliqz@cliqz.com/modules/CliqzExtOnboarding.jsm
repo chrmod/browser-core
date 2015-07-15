@@ -23,10 +23,11 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 var prefs = { },
     // cache destination URL
     destUrl = undefined,
-    smartCliqzCache = undefined,
+    isSmartCliqzReady = false,
     smartCliqzLinks = [],
     smartCliqzStepCounter = 0,
-    isSmartCliqzReady = false,
+    smartCliqzTs = 0,
+    smartCliqzTab = undefined,
     SMART_CLIQZ_LINK_FIELDS = ["actions", "categories", "links", "news"];
 
 
@@ -42,6 +43,8 @@ var CliqzExtOnboarding = {
     SAME_RESULT_REQUIRED_RESULTS_COUNT: 5, // 5
     TYPED_URL_REQUIRED_RESULTS_COUNT: 3, // 3
     TYPED_URL_MIN_CHARS_TYPED: 4,
+    SMART_CLIQZ_MAX_STEPS: 3,
+    SMART_CLIQZ_MAX_TIME: 10000,
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
@@ -85,6 +88,7 @@ var CliqzExtOnboarding = {
         CliqzExtOnboarding._removeUrlbarKeydownListener(win);
         win.gBrowser.removeProgressListener(CliqzExtOnboarding.progressListener);
 
+        smartCliqzTab = undefined;
         CliqzExtOnboarding._log("unload: done");
     },
 
@@ -186,9 +190,11 @@ var CliqzExtOnboarding = {
                     CliqzExtOnboarding._log("new result");
                     if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
                         CliqzExtOnboarding._log("SmartCliqz");
+                        smartCliqzTs = Date.now();
                         smartCliqzLinks = 
                             CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
                         smartCliqzStepCounter = 0;
+                        smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
                         isSmartCliqzReady = true;                        
                     } else {
                         CliqzExtOnboarding._log("regular result");
@@ -201,23 +207,29 @@ var CliqzExtOnboarding = {
                         smartCliqzStepCounter++;
                         CliqzExtOnboarding._log("SmartCliqz ready, step count: " + 
                             smartCliqzStepCounter);
+
+                        if (smartCliqzTab != CliqzUtils.getWindow().gBrowser.selectedTab) {
+                            CliqzExtOnboarding._log("different tab, aborting");
+                            isSmartCliqzReady = false;
+                        }
+                        else if (smartCliqzStepCounter > CliqzExtOnboarding.SMART_CLIQZ_MAX_STEPS) {
+                            CliqzExtOnboarding._log("too many steps, aborting");
+                            isSmartCliqzReady = false;
+                        } else if (Date.now() - smartCliqzTs > CliqzExtOnboarding.SMART_CLIQZ_MAX_TIME) {
+                            CliqzExtOnboarding._log("took too long, aborting");
+                            isSmartCliqzReady = false;
+                        }
+                        else {
+                            var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                            if (smartCliqzLinks.indexOf(url) >= 0) {
+                                CliqzExtOnboarding._log("url found " + url);
+                                isSmartCliqzReady = false;
+                            }
+                        }
                     } else {
                         CliqzExtOnboarding._log("no SmartCliqz or already handled");
                     }
-                }
-
-                if (isSmartCliqzReady) {
-                    if (smartCliqzStepCounter > 2) {
-                        CliqzExtOnboarding._log("too many steps, aborting");
-                        isSmartCliqzReady = false;
-                    } else {
-                        var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
-                        if (smartCliqzLinks.indexOf(url) >= 0) {
-                            CliqzExtOnboarding._log("url found " + url);
-                            isSmartCliqzReady = false;
-                        }
-                    }
-                }       
+                }    
             }
            
             // find anchor
