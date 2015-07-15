@@ -119,7 +119,9 @@ var CliqzExtOnboarding = {
         if (CliqzExtOnboarding._shouldShowMessage("same_result")) {
             var win = CliqzUtils.getWindow(),
                 callout = CliqzExtOnboarding._getCallout(win),
-                anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
+                anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex],
+                _prefs = CliqzExtOnboarding._getPrefs("same_result");
+            CliqzExtOnboarding._savePrefs("same_result", _prefs);
 
             if (anchor) {
                 if (anchor.offsetTop < 300) {
@@ -135,7 +137,7 @@ var CliqzExtOnboarding = {
                     request.cancel("CLIQZ_INTERRUPT");
                     CliqzExtOnboarding._log("interrupted");
                     CliqzExtOnboarding._telemetry("same_result", "show", {
-                        count: prefs["same_result"]["show_count"],
+                        count: _prefs["show_count"],
                         result_index: resultIndex
                     });
                 }
@@ -203,13 +205,20 @@ var CliqzExtOnboarding = {
                                     if (button) {
                                         if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
                                             var win = CliqzUtils.getWindow(),
-                                                callout = CliqzExtOnboarding._getCallout(win);
+                                                callout = CliqzExtOnboarding._getCallout(win),
+                                                _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");
+                                            CliqzExtOnboarding._savePrefs("smart_cliqz", _prefs);
+
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
                                                 win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
                                             CliqzExtOnboarding._setCalloutContent("smart_cliqz");
                                             callout.setAttribute("show_ts", Date.now());
                                             callout.setAttribute("msg_type", "smart_cliqz");
                                             callout.openPopup(button, "after_start", 10, -5);
+
+                                            CliqzExtOnboarding._telemetry("smart_cliqz", "show", {
+                                                count: _prefs["show_count"]
+                                            });
                                         }
                                     }
                                     isSmartCliqzReady = false;
@@ -548,7 +557,7 @@ var CliqzExtOnboarding = {
             currentAutocompleteMinSelectionStart = 0;
             if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {                
                 if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) { 
-                    var _prefs = CliqzExtOnboarding._getPrefs("typed_url");                   
+                    var _prefs = CliqzExtOnboarding._getPrefs("typed_url");  
                     CliqzExtOnboarding._savePrefs("typed_url", _prefs);
 
                     if (CliqzExtOnboarding._shouldShowMessage("typed_url")) {
