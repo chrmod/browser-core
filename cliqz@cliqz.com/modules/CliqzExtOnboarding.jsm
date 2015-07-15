@@ -173,67 +173,73 @@ var CliqzExtOnboarding = {
     progressListener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
         onLocationChange: function(aProgress, aRequest, aURI) {
-            if (CliqzAutocomplete.lastResult) {
-                var lastResults = CliqzAutocomplete.lastResult["_results"];
-                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
-                    CliqzExtOnboarding._log("new result");
-                    if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
-                        CliqzExtOnboarding._log("SmartCliqz");
-                        smartCliqzTs = Date.now();
-                        smartCliqzLinks = 
-                            CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
-                        smartCliqzStepCounter = 0;
-                        smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
+            if (CliqzExtOnboarding._isFirefoxVersionSupported && 
+                CliqzExtOnboarding._isTypeActive("smart_cliqz")) {
 
-                        var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
-                        if (smartCliqzLinks.indexOf(url) >= 0) {
-                            isSmartCliqzReady = false;
-                            CliqzExtOnboarding._log("first landing was SmartCliqz link, aborting");
-                        } else {
-                            isSmartCliqzReady = true;
-                        }
-                    } else {
-                        CliqzExtOnboarding._log("regular result");
-                        isSmartCliqzReady = false;
-                    }
-                    CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
-                } else {
-                    CliqzExtOnboarding._log("previous result");
-                    if (isSmartCliqzReady) {                        
-                        smartCliqzStepCounter++;
-                        CliqzExtOnboarding._log("SmartCliqz ready, step count: " + 
-                            smartCliqzStepCounter);
+                if (CliqzAutocomplete.lastResult) {
+                    var lastResults = CliqzAutocomplete.lastResult["_results"];
+                    if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
+                        CliqzExtOnboarding._log("new result");
+                        if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
+                            CliqzExtOnboarding._log("SmartCliqz");
+                            smartCliqzTs = Date.now();
+                            smartCliqzLinks = 
+                                CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
+                            smartCliqzStepCounter = 0;
+                            smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
 
-                        if (smartCliqzTab != CliqzUtils.getWindow().gBrowser.selectedTab) {
-                            CliqzExtOnboarding._log("different tab, aborting");
-                            isSmartCliqzReady = false;
-                        }
-                        else if (smartCliqzStepCounter > CliqzExtOnboarding.SMART_CLIQZ_MAX_STEPS) {
-                            CliqzExtOnboarding._log("too many steps, aborting");
-                            isSmartCliqzReady = false;
-                        } else if (Date.now() - smartCliqzTs > CliqzExtOnboarding.SMART_CLIQZ_MAX_TIME) {
-                            CliqzExtOnboarding._log("took too long, aborting");
-                            isSmartCliqzReady = false;
-                        } else {
                             var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
                             if (smartCliqzLinks.indexOf(url) >= 0) {
-                                CliqzExtOnboarding._log("url found " + url);
-                                var button = CliqzExtOnboarding._getDomElementForUrl(url);
-                                if (button) {
-                                    var win = CliqzUtils.getWindow(),
-                                        callout = CliqzExtOnboarding._getCallout(win);
-                                    win.CLIQZ.Core.popup._openAutocompletePopup(
-                                        win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
-                                    CliqzExtOnboarding._setCalloutContent("same_result");
-                                    callout.openPopup(button, "after_start", 10, -5);
-                                }
+                                isSmartCliqzReady = false;
+                                CliqzExtOnboarding._log("first landing was SmartCliqz link, aborting");
+                            } else {
+                                isSmartCliqzReady = true;
+                            }
+                        } else {
+                            CliqzExtOnboarding._log("regular result");
+                            isSmartCliqzReady = false;
+                        }
+                        CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
+                    } else {
+                        CliqzExtOnboarding._log("previous result");
+                        if (isSmartCliqzReady) {                        
+                            smartCliqzStepCounter++;
+                            CliqzExtOnboarding._log("SmartCliqz ready, step count: " + 
+                                smartCliqzStepCounter);
+
+                            if (smartCliqzTab != CliqzUtils.getWindow().gBrowser.selectedTab) {
+                                CliqzExtOnboarding._log("different tab, aborting");
                                 isSmartCliqzReady = false;
                             }
+                            else if (smartCliqzStepCounter > CliqzExtOnboarding.SMART_CLIQZ_MAX_STEPS) {
+                                CliqzExtOnboarding._log("too many steps, aborting");
+                                isSmartCliqzReady = false;
+                            } else if (Date.now() - smartCliqzTs > CliqzExtOnboarding.SMART_CLIQZ_MAX_TIME) {
+                                CliqzExtOnboarding._log("took too long, aborting");
+                                isSmartCliqzReady = false;
+                            } else {
+                                var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                                if (smartCliqzLinks.indexOf(url) >= 0) {
+                                    CliqzExtOnboarding._log("url found " + url);
+                                    var button = CliqzExtOnboarding._getDomElementForUrl(url);
+                                    if (button) {
+                                        if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz", 100, 0)) {
+                                            var win = CliqzUtils.getWindow(),
+                                                callout = CliqzExtOnboarding._getCallout(win);
+                                            win.CLIQZ.Core.popup._openAutocompletePopup(
+                                                win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                                            CliqzExtOnboarding._setCalloutContent("same_result");
+                                            callout.openPopup(button, "after_start", 10, -5);
+                                        }
+                                    }
+                                    isSmartCliqzReady = false;
+                                }
+                            }
+                        } else {
+                            CliqzExtOnboarding._log("no SmartCliqz or already handled");
                         }
-                    } else {
-                        CliqzExtOnboarding._log("no SmartCliqz or already handled");
-                    }
-                }    
+                    }    
+                }
             }
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
@@ -269,6 +275,39 @@ var CliqzExtOnboarding = {
         return results.length > 0 &&
             results[0].style && results[0].style == "cliqz-extra" &&
             results[0].data;
+    },
+
+    _shouldShowMessage: function (type, maxInterrupts, requiredResultsCount) {
+        var _prefs = CliqzExtOnboarding._getPrefs(type);
+
+        if (_prefs["state"] == "discarded") {
+            CliqzExtOnboarding._log(type + ": user discarded before; not interrupting");
+            return false;
+        } else if (_prefs["show_count"] >= maxInterrupts) {
+            CliqzExtOnboarding._log(type + ": max. show reached; not interrupting");
+            return false;
+        } else if (_prefs["result_count"] < requiredResultsCount) {
+            _prefs["result_count"]++;
+            CliqzExtOnboarding._savePrefs(type, _prefs);
+            CliqzExtOnboarding._log(type + ": not enough results; not interrupting");
+            return false;
+        }
+
+        // decide which subgroup we are going to be in
+        if (_prefs["sub_group"] == "tbd") {            
+            _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            CliqzExtOnboarding._savePrefs(type, _prefs);
+            CliqzExtOnboarding._log(type + ": decided for subgroup " + _prefs["sub_group"]);                        
+        }
+        
+        if (_prefs["sub_group"] == "no_show") {
+            CliqzExtOnboarding._log(type + ": user is in sub_group no show; not interrupting");
+            return false;
+        }
+
+        _prefs["result_count"] = 0;
+        CliqzExtOnboarding._savePrefs(type, _prefs);
+        return true;
     },
 
     _getSmartCliqzLinks: function (smartCliqz) {
