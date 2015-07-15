@@ -167,6 +167,7 @@ var UI = {
       }
 
       XULBrowserWindow.updateStatusField();
+      CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
 
