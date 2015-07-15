@@ -203,10 +203,12 @@ var CliqzExtOnboarding = {
                                     CliqzExtOnboarding._log("url found " + url);
                                     var button = CliqzExtOnboarding._getDomElementForUrl(url);
                                     if (button) {
-                                        if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
+                                        if (button.offsetTop > 200) {
+                                             CliqzExtOnboarding._log("button not visible, ignoring");
+                                        } else if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
                                             var win = CliqzUtils.getWindow(),
                                                 callout = CliqzExtOnboarding._getCallout(win),
-                                                _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");
+                                                _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");                                                
                                             CliqzExtOnboarding._savePrefs("smart_cliqz", _prefs);
 
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
