@@ -250,6 +250,7 @@ var CliqzExtOnboarding = {
                 "max_show_duration": 0,
                 "sub_group":         "tbd"
             };
+            CliqzExtOnboarding._log("creating prefs for " + type);
         }
         return prefs[type];
     },
@@ -536,52 +537,41 @@ var CliqzExtOnboarding = {
             currentAutocompleteUrlbar = "";
             currentAutocompleteMinSelectionStart = 0;
             if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {                
-                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {                    
-                    // getting current state from user prefs                    
-                    if (!prefs["typed_url"]) {
-                        prefs["typed_url"] = {
-                            "state": "seen",
-                            "show_count": 0,
-                            "result_count": 0,
-                            "max_show_duration": 0,
-                            "sub_group": "tbd" // set only when we would show the message for the first time
-                        };
-                        CliqzExtOnboarding._log("creating prefs for typed_url");
-                    }
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) { 
+                    var _prefs = CliqzExtOnboarding._getPrefs("typed_url");                   
+                    CliqzExtOnboarding._savePrefs("typed_url", _prefs);
 
                     // checking for reasons _not_ to interrupt the users...
-                    if (prefs["typed_url"]["state"] == "discarded") {
+                    if (_prefs["state"] == "discarded") {
                         CliqzExtOnboarding._log("typed url: user had discarded before; not interrupting");
                         return;
-                    } else if (prefs["typed_url"]["show_count"] >= CliqzExtOnboarding.TYPED_URL_MAX_INTERRUPTS) {
+                    } else if (_prefs["show_count"] >= CliqzExtOnboarding.TYPED_URL_MAX_INTERRUPTS) {
                         CliqzExtOnboarding._log("typed url: max. show reached; not interrupting");
                         return;
-                    } else if (prefs["typed_url"]["result_count"] < CliqzExtOnboarding.TYPED_URL_REQUIRED_RESULTS_COUNT) {
-                        prefs["typed_url"]["result_count"]++;
-                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+                    } else if (_prefs["result_count"] < CliqzExtOnboarding.TYPED_URL_REQUIRED_RESULTS_COUNT) {
+                        _prefs["result_count"]++;                        
                         CliqzExtOnboarding._log("typed url: not enough typed url instances; not interrupting");
                         return;
                     }
 
                     // decide which subgroup we are going to be in
-                    if (prefs["typed_url"]["sub_group"] == "tbd") {            
-                        prefs["typed_url"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
-                        CliqzExtOnboarding._log("typed url: decided for subgroup " + prefs["typed_url"]["sub_group"]);
-                        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+                    if (_prefs["sub_group"] == "tbd") {            
+                        _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+                        CliqzExtOnboarding._savePrefs("typed_url", _prefs);
+                        CliqzExtOnboarding._log("typed url: decided for subgroup " + _prefs["sub_group"]);                        
                     }
                     
-                    if (prefs["typed_url"]["sub_group"] == "no_show") {
+                    if (_prefs["sub_group"] == "no_show") {
                         CliqzExtOnboarding._log("typed url: user is in sub_group no show: do nothing");
                         return;
                     }
 
-                    prefs["typed_url"]["result_count"] = 0;
-                    CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+                    _prefs["result_count"] = 0;
+                    CliqzExtOnboarding._savePrefs("typed_url", _prefs);
 
                     CliqzExtOnboarding._log("typed url: showing message");
                     CliqzExtOnboarding._telemetry("typed_url", "show", {
-                        count: prefs["typed_url"]["show_count"]
+                        count: _prefs["show_count"]
                     });
 
                     var callout = CliqzExtOnboarding._getCallout();
