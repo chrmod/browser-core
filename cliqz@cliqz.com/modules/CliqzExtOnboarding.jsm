@@ -191,20 +191,27 @@ var CliqzExtOnboarding = {
                         smartCliqzLinks = CliqzExtOnboarding._getSmartCliqzLinks(smartCliqzCache);
                         CliqzExtOnboarding._log("onLocationChange: extracted " + smartCliqzLinks.length + " links");
                         smartCliqzStepCounter = 0;
+                    } else {
+                        smartCliqzStepCounter = undefined;
                     }
                     CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
                 } else {
                     CliqzExtOnboarding._log("onLocationChange: result already handled");
-                    if (CliqzAutocomplete.lastResult.CliqzExtOnboarding_isSmartCliqz) {
+                    if (smartCliqzCache) {
                         smartCliqzStepCounter++;
                         CliqzExtOnboarding._log("onLocationChange: smartCliqzStepCounter " + smartCliqzStepCounter);
                     }
-                }          
+                }
+
+                if (smartCliqzCache && smartCliqzStepCounter >= 0) {
+                    var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                    CliqzExtOnboarding._log("onLocationChange: checking links");
+                    if (smartCliqzLinks.indexOf(url) >= 0) {
+                        CliqzExtOnboarding._log("onLocationChange: url found " + url);
+                    }
+                }       
             }
            
-            
-            // extract URLs from SmartCliqz
-            // does SmartCliqz URL match?
             // find anchor
 
         },
