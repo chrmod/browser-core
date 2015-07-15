@@ -41,6 +41,7 @@ var CliqzHistoryPattern = {
   latencies: [],
   historyService: null,
   ioService: null,
+  baseUrlCache: {}, 
   // This method uses the cliqz history to detect patterns
   dbConn: null,
   initDbConn: function() {
@@ -511,18 +512,31 @@ var CliqzHistoryPattern = {
     }
 
     
-    // Add https if required
-    if(https) {
-      // ...but only if there is a history entry with title
-      var hs = CliqzHistoryPattern.getHistoryService();
-      var uri = CliqzHistoryPattern.makeURI("https://" + baseUrl)
-      if (hs && uri) {        
-        if (hs.getPageTitle(uri)) {
-          CliqzUtils.log("found https base URL with title");
-          baseUrl = "https://" + baseUrl;
-        } else {
-          CliqzUtils.log("no https base URL with title, keeping original base URL");
+    // Add https if required, but only if there is a history entry for it
+    if (https) {
+      // not yet cached?
+      if (!CliqzHistoryPattern.baseUrlCache.hasOwnProperty(baseUrl)) {
+        // CliqzUtils.log("caching base URL " + baseUrl);
+        var hs = CliqzHistoryPattern.getHistoryService(),
+            uri = CliqzHistoryPattern.makeURI("https://" + baseUrl)
+        if (hs && uri) {
+            var options = hs.getNewQueryOptions(),
+                query = hs.getNewQuery();
+            query.uri = uri;
+            query.uriIsPrefix = false;
+
+            var result = hs.executeQuery(query, options);
+            result.root.containerOpen = true;
+            CliqzHistoryPattern.baseUrlCache[baseUrl] = 
+              result.root.childCount > 0;
         }
+      }
+
+      if (CliqzHistoryPattern.baseUrlCache[baseUrl]) {
+        baseUrl = "https://" + baseUrl;
+        // CliqzUtils.log("https entry found for base URL " + baseUrl);
+      } else {
+        // CliqzUtils.log("no https entry found for base URL " + baseUrl);
       }
     }
 
