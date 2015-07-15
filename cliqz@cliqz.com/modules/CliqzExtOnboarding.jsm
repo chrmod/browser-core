@@ -63,7 +63,7 @@ var CliqzExtOnboarding = {
         CliqzExtOnboarding._addDropdownListeners(win);
 
         if (CliqzExtOnboarding._isFirefoxVersionSupported &&
-            CliqzUtils.getPref("extended_onboarding_typed_url", false)) {
+            CliqzExtOnboarding._isTypeActive("typed_url")) {
             CliqzExtOnboarding._addUrlbarKeydownListener(win);
         }
 
@@ -93,8 +93,7 @@ var CliqzExtOnboarding = {
     },
 
     onSameResult: function (request, resultIndex, destinationUrl) {
-        var isActive = CliqzUtils.getPref("extended_onboarding_same_result", false);
-        if (!isActive) {
+        if (!CliqzExtOnboarding._isTypeActive("same_result")) {
             CliqzExtOnboarding._log("onSameResult: same result AB test not active; aborting");
             return;
         }
@@ -259,6 +258,11 @@ var CliqzExtOnboarding = {
         prefs[type] = data;
         CliqzUtils.setPref("extended_onboarding", 
             JSON.stringify(prefs));
+    },
+
+    _isTypeActive: function(type) {
+        return CliqzUtils.getPref(
+            "extended_onboarding_" + type, false);
     },
 
     _containsSmartCliqzResult: function (results) {
