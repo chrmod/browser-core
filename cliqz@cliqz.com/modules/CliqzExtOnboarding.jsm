@@ -588,7 +588,7 @@ var CliqzExtOnboarding = {
                     CliqzExtOnboarding._setCalloutContent("typed_url");
                     callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.urlbar, "after_start", 20, -5);
                     callout.setAttribute("show_ts", Date.now());
-                    callout.setAttribute("msg_type", "typed_url");
+                    callout.setAttribute("msg_type", "typed_url");                    
                 } else {
                     CliqzExtOnboarding._log("_urlbarKeydownListener: not enough characters typed (" + charsTyped + ")");
                 }
@@ -623,6 +623,7 @@ var CliqzExtOnboarding = {
                     reason: reason
                 });
 
+                isSmartCliqzReady = false;
                 return true;
             case "typed_url":
                 prefs["typed_url"]["state"] = newState;
@@ -636,6 +637,8 @@ var CliqzExtOnboarding = {
                     duration: duration,
                     reason: reason
                 });
+
+                isSmartCliqzReady = false;
                 return true;
         }
     },
