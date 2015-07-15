@@ -48,6 +48,17 @@ var CliqzExtOnboarding = {
     KEYCODE_ENTER: 13,
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
+    REQUIRED_RESULTS_COUNT: {
+        "same_result": 0,
+        "typed_url": 0,
+        "smart_cliqz": 0
+    },
+    MAX_INTERRUPTS: {
+        "same_result": 100,
+        "typed_url": 100,
+        "smart_cliqz": 100
+    },
+
     // will be checked on module load
     _isFirefoxVersionSupported: false,
     _calloutParsedContent: { },
@@ -109,65 +120,38 @@ var CliqzExtOnboarding = {
         if (!_prefs.hasOwnProperty("sub_group")) {
             _prefs["sub_group"] = "na";                
         }
-        CliqzExtOnboarding._savePrefs("same_result", _prefs);        
-
-        // checking for reasons _not_ to interrupt the users...
-        if (_prefs["state"] == "discarded") {
-            CliqzExtOnboarding._log("onSameResult: user had discarded before; not interrupting");
-            return;
-        } else if (_prefs["show_count"] >= CliqzExtOnboarding.SAME_RESULT_MAX_INTERRUPTS) {
-            CliqzExtOnboarding._log("onSameResult: max. show reached; not interrupting");
-            return;
-        } else if (_prefs["result_count"] < CliqzExtOnboarding.SAME_RESULT_REQUIRED_RESULTS_COUNT) {
-            _prefs["result_count"]++;
-            CliqzExtOnboarding._savePrefs("same_result", _prefs);
-            CliqzExtOnboarding._log("onSameResult: not enough result clicks so far; not interrupting");
-            return;
-        }
-
-        // decide which subgroup we are going to be in
-        if (_prefs["sub_group"] == "tbd") {            
-            _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
-            CliqzExtOnboarding._savePrefs("same_result", _prefs);
-            CliqzExtOnboarding._log("decided for subgroup " + prefs["same_result"]["sub_group"]);            
-        }
-
-        // ...seems we should interrupt the user
-        _prefs["result_count"] = 0;
         CliqzExtOnboarding._savePrefs("same_result", _prefs);
 
-        var win = CliqzUtils.getWindow(),
-            callout = CliqzExtOnboarding._getCallout(win),
-            anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
+        if (CliqzExtOnboarding._shouldShowMessage("same_result")) {
+            var win = CliqzUtils.getWindow(),
+                callout = CliqzExtOnboarding._getCallout(win),
+                anchor = win.CLIQZ.Core.popup.cliqzBox.resultsBox.children[resultIndex];
 
-        if (anchor) {
-            if (anchor.offsetTop < 300) {
-                if (_prefs["sub_group"] == "no_show") {
-                    CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
-                    return;
+            if (anchor) {
+                if (anchor.offsetTop < 300) {
+                    destUrl = destinationUrl;
+
+                    win.CLIQZ.Core.popup._openAutocompletePopup(
+                        win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
+                    CliqzExtOnboarding._setCalloutContent("same_result");
+                    callout.openPopup(anchor, "end_before", -5, 0);
+                    callout.setAttribute("show_ts", Date.now());
+                    callout.setAttribute("msg_type", "same_result");
+
+                    request.cancel("CLIQZ_INTERRUPT");
+                    CliqzExtOnboarding._log("interrupted");
+                    CliqzExtOnboarding._telemetry("same_result", "show", {
+                        count: prefs["same_result"]["show_count"],
+                        result_index: resultIndex
+                    });
                 }
-                destUrl = destinationUrl;
-
-                win.CLIQZ.Core.popup._openAutocompletePopup(
-                    win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
-                CliqzExtOnboarding._setCalloutContent("same_result");
-                callout.openPopup(anchor, "end_before", -5, 0);
-                callout.setAttribute("show_ts", Date.now());
-                callout.setAttribute("msg_type", "same_result");
-
-                request.cancel("CLIQZ_INTERRUPT");
-                CliqzExtOnboarding._log("interrupted");
-                CliqzExtOnboarding._telemetry("same_result", "show", {
-                    count: prefs["same_result"]["show_count"],
-                    result_index: resultIndex
-                });
+                else {
+                    CliqzExtOnboarding._log("onSameResult: result was below the fold");
+                }
+            } else {
+                CliqzExtOnboarding._log("onSameResult: result was not shown to user");
             }
-            else {
-                CliqzExtOnboarding._log("onSameResult: result was below the fold");
-            }
-        } else {
-            CliqzExtOnboarding._log("onSameResult: result was not shown to user");
-        }
+        }        
     },
 
     progressListener: {
@@ -223,7 +207,7 @@ var CliqzExtOnboarding = {
                                     CliqzExtOnboarding._log("url found " + url);
                                     var button = CliqzExtOnboarding._getDomElementForUrl(url);
                                     if (button) {
-                                        if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz", 100, 0)) {
+                                        if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
                                             var win = CliqzUtils.getWindow(),
                                                 callout = CliqzExtOnboarding._getCallout(win);
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
@@ -277,16 +261,16 @@ var CliqzExtOnboarding = {
             results[0].data;
     },
 
-    _shouldShowMessage: function (type, maxInterrupts, requiredResultsCount) {
+    _shouldShowMessage: function (type) {
         var _prefs = CliqzExtOnboarding._getPrefs(type);
 
         if (_prefs["state"] == "discarded") {
             CliqzExtOnboarding._log(type + ": user discarded before; not interrupting");
             return false;
-        } else if (_prefs["show_count"] >= maxInterrupts) {
+        } else if (_prefs["show_count"] >= CliqzExtOnboarding.MAX_INTERRUPTS[type]) {
             CliqzExtOnboarding._log(type + ": max. show reached; not interrupting");
             return false;
-        } else if (_prefs["result_count"] < requiredResultsCount) {
+        } else if (_prefs["result_count"] < CliqzExtOnboarding.REQUIRED_RESULTS_COUNT[type]) {
             _prefs["result_count"]++;
             CliqzExtOnboarding._savePrefs(type, _prefs);
             CliqzExtOnboarding._log(type + ": not enough results; not interrupting");
