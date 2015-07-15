@@ -20,7 +20,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
 
 var prefs = { },
     // cache destination URL
-    destUrl = undefined;
+    destUrl = undefined,
+    smartCliqzCache = undefined,
+    smartCliqzStepCounter = 0;
 
 
 // cache autocomplete state
@@ -175,20 +177,26 @@ var CliqzExtOnboarding = {
         onLocationChange: function(aProgress, aRequest, aURI) {
             CliqzExtOnboarding._log("onLocationChange");
 
-            if (CliqzAutocomplete.lastResult) {                
-                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
-                    var lastResults = CliqzAutocomplete.lastResult["_results"];
+            if (CliqzAutocomplete.lastResult) {
+                var lastResults = CliqzAutocomplete.lastResult["_results"];
+                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {                    
                     if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
                         CliqzExtOnboarding._log("onLocationChange: SmartCliqz result found");
+                        CliqzAutocomplete.lastResult.CliqzExtOnboarding_isSmartCliqz = true;
+                        smartCliqzCache = lastResults[0];
+                        smartCliqzStepCounter = 0;
                     }
                     CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
                 } else {
                     CliqzExtOnboarding._log("onLocationChange: result already handled");
+                    if (CliqzAutocomplete.lastResult.CliqzExtOnboarding_isSmartCliqz) {
+                        smartCliqzStepCounter++;
+                        CliqzExtOnboarding._log("onLocationChange: smartCliqzStepCounter " + smartCliqzStepCounter);
+                    }
                 }          
             }
            
-            // is last result a SmartCliqz?
-            // has last result already been chached?
+            
             // extract URLs from SmartCliqz
             // record times and reset navigation steps
             // does SmartCliqz URL match?
