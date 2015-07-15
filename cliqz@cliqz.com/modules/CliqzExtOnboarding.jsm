@@ -57,6 +57,8 @@ var CliqzExtOnboarding = {
             CliqzExtOnboarding._addUrlbarKeydownListener(win);
         }
 
+        win.gBrowser.addProgressListener(CliqzExtOnboarding.progressListener);
+
         CliqzExtOnboarding._loadPrefs();
         CliqzExtOnboarding._log("init: done");
     },
@@ -74,6 +76,7 @@ var CliqzExtOnboarding = {
         }
 
         CliqzExtOnboarding._removeUrlbarKeydownListener(win);
+        win.gBrowser.removeProgressListener(CliqzExtOnboarding.progressListener);
 
         CliqzExtOnboarding._log("unload: done");
     },
@@ -164,6 +167,15 @@ var CliqzExtOnboarding = {
             }
         } else {
             CliqzExtOnboarding._log("onSameResult: result was not shown to user");
+        }
+    },
+
+    progressListener: {
+        QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+        onLocationChange: function(aProgress, aRequest, aURI) {
+            CliqzExtOnboarding._log("### onLocationChange");
+        },
+        onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
     },
 
