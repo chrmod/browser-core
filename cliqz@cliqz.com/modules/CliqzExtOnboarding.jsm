@@ -37,11 +37,11 @@ var currentAutocompleteUrlbar = "",
 
 var CliqzExtOnboarding = {
     // maximum number of times we interrupt the user
-    SAME_RESULT_MAX_INTERRUPTS: 3, // 3
-    TYPED_URL_MAX_INTERRUPTS: 3, // 3
+    SAME_RESULT_MAX_INTERRUPTS: 30, // 3
+    TYPED_URL_MAX_INTERRUPTS: 30, // 3
     // number of results required before we interrupt
-    SAME_RESULT_REQUIRED_RESULTS_COUNT: 5, // 5
-    TYPED_URL_REQUIRED_RESULTS_COUNT: 3, // 3
+    SAME_RESULT_REQUIRED_RESULTS_COUNT: 0, // 5
+    TYPED_URL_REQUIRED_RESULTS_COUNT: 0, // 3
     TYPED_URL_MIN_CHARS_TYPED: 4,
     SMART_CLIQZ_MAX_STEPS: 3,
     SMART_CLIQZ_MAX_TIME: 30000,
@@ -102,50 +102,40 @@ var CliqzExtOnboarding = {
         if (!CliqzExtOnboarding._isFirefoxVersionSupported) {
             CliqzExtOnboarding._log("onSameResult: Firefox version not supported");
             return;
-        }      
-
-        if (prefs["same_result"]) {
-            // for those users who were already in the AB test when
-            // "sub_group" was introduced
-            if (!prefs["same_result"].hasOwnProperty("sub_group")) {
-                prefs["same_result"]["sub_group"] = "na";                
-            }
-        } else {
-            prefs["same_result"] = {                
-                "state": "seen",
-                "result_count": 0,
-                "show_count": 0,
-                "max_show_duration": 0,
-                "sub_group": "tbd" // set only when we would show the message for the first time
-            };
-            CliqzExtOnboarding._log("creating same results prefs");
         }
-        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+
+        var _prefs = CliqzExtOnboarding._getPrefs("same_result");
+        // for those users who were already in the AB test when
+        // "sub_group" was introduced
+        if (!_prefs.hasOwnProperty("sub_group")) {
+            _prefs["sub_group"] = "na";                
+        }
+        CliqzExtOnboarding._savePrefs("same_result", _prefs);        
 
         // checking for reasons _not_ to interrupt the users...
-        if (prefs["same_result"]["state"] == "discarded") {
+        if (_prefs["state"] == "discarded") {
             CliqzExtOnboarding._log("onSameResult: user had discarded before; not interrupting");
             return;
-        } else if (prefs["same_result"]["show_count"] >= CliqzExtOnboarding.SAME_RESULT_MAX_INTERRUPTS) {
+        } else if (_prefs["show_count"] >= CliqzExtOnboarding.SAME_RESULT_MAX_INTERRUPTS) {
             CliqzExtOnboarding._log("onSameResult: max. show reached; not interrupting");
             return;
-        } else if (prefs["same_result"]["result_count"] < CliqzExtOnboarding.SAME_RESULT_REQUIRED_RESULTS_COUNT) {
-            prefs["same_result"]["result_count"]++;
-            CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+        } else if (_prefs["result_count"] < CliqzExtOnboarding.SAME_RESULT_REQUIRED_RESULTS_COUNT) {
+            _prefs["result_count"]++;
+            CliqzExtOnboarding._savePrefs("same_result", _prefs);
             CliqzExtOnboarding._log("onSameResult: not enough result clicks so far; not interrupting");
             return;
         }
 
         // decide which subgroup we are going to be in
-        if (prefs["same_result"]["sub_group"] == "tbd") {            
-            prefs["same_result"]["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
-            CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+        if (_prefs["sub_group"] == "tbd") {            
+            _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
+            CliqzExtOnboarding._savePrefs("same_result", _prefs);
             CliqzExtOnboarding._log("decided for subgroup " + prefs["same_result"]["sub_group"]);            
         }
 
         // ...seems we should interrupt the user
-        prefs["same_result"]["result_count"] = 0;
-        CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+        _prefs["result_count"] = 0;
+        CliqzExtOnboarding._savePrefs("same_result", _prefs);
 
         var win = CliqzUtils.getWindow(),
             callout = CliqzExtOnboarding._getCallout(win),
@@ -153,7 +143,7 @@ var CliqzExtOnboarding = {
 
         if (anchor) {
             if (anchor.offsetTop < 300) {
-                if (prefs["same_result"]["sub_group"] == "no_show") {
+                if (_prefs["sub_group"] == "no_show") {
                     CliqzExtOnboarding._log("user is in sub_group no show: do nothing");
                     return;
                 }
@@ -195,7 +185,7 @@ var CliqzExtOnboarding = {
                             CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
                         smartCliqzStepCounter = 0;
                         smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
-                        
+
                         var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
                         if (smartCliqzLinks.indexOf(url) >= 0) {
                             isSmartCliqzReady = false;
@@ -246,12 +236,28 @@ var CliqzExtOnboarding = {
                     }
                 }    
             }
-           
-            // find anchor
-
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
+    },
+
+    _getPrefs: function (type) {
+        if (!prefs[type]) {
+            prefs[type] = {
+                "state":             "seen",
+                "result_count":      0,
+                "show_count":        0,
+                "max_show_duration": 0,
+                "sub_group":         "tbd"
+            };
+        }
+        return prefs[type];
+    },
+
+    _savePrefs: function (type, data) {
+        prefs[type] = data;
+        CliqzUtils.setPref("extended_onboarding", 
+            JSON.stringify(prefs));
     },
 
     _containsSmartCliqzResult: function (results) {
