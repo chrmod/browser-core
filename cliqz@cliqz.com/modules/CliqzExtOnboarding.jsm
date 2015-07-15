@@ -486,62 +486,36 @@ var CliqzExtOnboarding = {
             var win = CliqzUtils.getWindow(),
                 callout = CliqzExtOnboarding._getCallout(win),
                 action = target.getAttribute("cliqz-action"),
-                duration = Date.now() - callout.getAttribute("show_ts");
+                type = callout.getAttribute("msg_type");
 
-            CliqzExtOnboarding._log("_calloutClickListener: message type is " +
-                callout.getAttribute("msg_type"));
-            switch (callout.getAttribute("msg_type")) {
-                case "same_result":
-                    switch (action) {
-                        case "onboarding-start":
-                            CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
-                            CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
-
-                            win.CLIQZ.Core.popup.hidePopup();
-                            win.CLIQZ.Core.openLink(destUrl, false);
-
-                            break;
-
-                        case "onboarding-cancel":
-                            CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
-                            CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
-                            
-                            win.CLIQZ.Core.popup.hidePopup();
-                            win.CLIQZ.Core.openLink(destUrl, false);
-
-                            break;
-                    }
+            switch (action) {
+                case "onboarding-start":
+                    CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
+                    CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
                     break;
-                case "typed_url":
-                    switch (action) {
-                        case "onboarding-start":
-                            CliqzExtOnboarding._log("clicked on ok; remind user again in a bit");
-                            CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "ok");
-                            break;
-                        case "onboarding-cancel":
-                            CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
-                            CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
-                            break;
+                case "onboarding-cancel":
+                    CliqzExtOnboarding._log("clicked on cancel; don't remind user again");
+                    CliqzExtOnboarding._handleCalloutClosed(callout, "discarded", "discard");
                     break;
-                }
+            }
+
+            win.CLIQZ.Core.popup.hidePopup();
+            if (type == "same_result") {
+                win.CLIQZ.Core.openLink(destUrl, false);
             }
             callout.hidePopup();
         }
     },
 
     _calloutCloseListener: function () {
-        var callout = CliqzExtOnboarding._getCallout();
+        var callout = CliqzExtOnboarding._getCallout(),
+            type = callout.getAttribute("msg_type");
 
-        switch (callout.getAttribute("msg_type")) {
-            case "same_result":
-                if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
-                    CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
-                }
-                break;
-            case "typed_url":
-                CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")
-                break;
-        }
+        if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
+            if (type == "same_result") {
+                CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
+            }
+        }      
     },
 
     _dropdownCloseListener: function () {
@@ -609,38 +583,23 @@ var CliqzExtOnboarding = {
         // flag as "handled"
         callout.setAttribute("show_ts", -1);
 
-        switch (callout.getAttribute("msg_type")) {
-            case "same_result":
-                prefs["same_result"]["state"] = newState;
-                prefs["same_result"]["show_count"]++;
-                prefs["same_result"]["max_show_duration"] =
-                    Math.max(prefs["same_result"]["max_show_duration"], duration);
+        var type = callout.getAttribute("msg_type"),
+            _prefs = CliqzExtOnboarding._getPrefs(type);
 
-                CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
+        _prefs["state"] = newState;
+        _prefs["show_count"]++;
+        _prefs["max_show_duration"] =
+            Math.max(_prefs["max_show_duration"], duration);
 
-                CliqzExtOnboarding._telemetry("same_result", "close", {
-                    duration: duration,
-                    reason: reason
-                });
+        CliqzExtOnboarding._savePrefs(type, _prefs);
 
-                isSmartCliqzReady = false;
-                return true;
-            case "typed_url":
-                prefs["typed_url"]["state"] = newState;
-                prefs["typed_url"]["show_count"]++;
-                prefs["typed_url"]["max_show_duration"] =
-                    Math.max(prefs["typed_url"]["max_show_duration"], duration);
+        CliqzExtOnboarding._telemetry(type, "close", {
+            duration: duration,
+            reason: reason
+        });
 
-                CliqzUtils.setPref("extended_onboarding", JSON.stringify(prefs));
-
-                CliqzExtOnboarding._telemetry("typed_url", "close", {
-                    duration: duration,
-                    reason: reason
-                });
-
-                isSmartCliqzReady = false;
-                return true;
-        }
+        isSmartCliqzReady = false;
+        return true;
     },
 
 	_log: function (msg) {
