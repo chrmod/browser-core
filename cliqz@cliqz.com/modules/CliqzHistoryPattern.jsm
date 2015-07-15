@@ -40,6 +40,7 @@ var CliqzHistoryPattern = {
   historyCallback: null,
   latencies: [],
   historyService: null,
+  ioService: null,
   // This method uses the cliqz history to detect patterns
   dbConn: null,
   initDbConn: function() {
@@ -473,15 +474,22 @@ var CliqzHistoryPattern = {
     }
     return CliqzHistoryPattern.historyService;
   },
-  makeURI: function (url) {
-    try {    
-      var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-        .getService(Components.interfaces.nsIIOService);
-      if (ioService) {
-        return ioService.newURI(url, null, null);
+  getIoService: function () {
+    if (!CliqzHistoryPattern.ioService) {
+      try {
+        CliqzHistoryPattern.ioService = 
+          Components.classes["@mozilla.org/network/io-service;1"]
+          .getService(Components.interfaces.nsIIOService);
+      } catch (e) {
+        CliqzUtils.log("unable to get IO service: " + e);
       }
-    } catch (e) {
-      CliqzUtils.log("unable to make URI: " + e);
+    }
+    return CliqzHistoryPattern.ioService;
+  },
+  makeURI: function (url) {
+    var ios = CliqzHistoryPattern.getIoService();
+    if (ios) {
+      return ios.newURI(url, null, null);
     }
     return false;
   },
