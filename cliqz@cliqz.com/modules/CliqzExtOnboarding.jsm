@@ -43,15 +43,26 @@ var CliqzExtOnboarding = {
     CALLOUT_DOM_ID: "cliqzExtOnboardingCallout",
 
     REQUIRED_RESULTS_COUNT: {
-        "same_result":  0, // 4
-        "typed_url":    0, // 3
-        "smart_cliqz":  0  // 4
+        "same_result":  4, // 4
+        "typed_url":    3, // 3
+        "smart_cliqz":  4  // 4
     },
     MAX_INTERRUPTS: {
-        "same_result": 100, // 3
-        "typed_url":   100, // 3
-        "smart_cliqz": 100  // 3
+        "same_result": 3, // 3
+        "typed_url":   3, // 3
+        "smart_cliqz": 3  // 3
     },
+
+    // REQUIRED_RESULTS_COUNT: {
+    //     "same_result":  0, // 4
+    //     "typed_url":    0, // 3
+    //     "smart_cliqz":  0  // 4
+    // },
+    // MAX_INTERRUPTS: {
+    //     "same_result": 100, // 3
+    //     "typed_url":   100, // 3
+    //     "smart_cliqz": 100  // 3
+    // },
 
     // will be checked on module load
     _isFirefoxVersionSupported: false,
