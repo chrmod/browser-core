@@ -173,10 +173,35 @@ var CliqzExtOnboarding = {
     progressListener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
         onLocationChange: function(aProgress, aRequest, aURI) {
-            CliqzExtOnboarding._log("### onLocationChange");
+            CliqzExtOnboarding._log("onLocationChange");
+
+            if (CliqzAutocomplete.lastResult) {                
+                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
+                    var lastResults = CliqzAutocomplete.lastResult["_results"];
+                    if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
+                        CliqzExtOnboarding._log("onLocationChange: SmartCliqz result found");
+                    }
+                    CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
+                } else {
+                    CliqzExtOnboarding._log("onLocationChange: result already handled");
+                }          
+            }
+           
+            // is last result a SmartCliqz?
+            // has last result already been chached?
+            // extract URLs from SmartCliqz
+            // record times and reset navigation steps
+            // does SmartCliqz URL match?
+
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
         }
+    },
+
+    _containsSmartCliqzResult: function (results) {
+        return results.length > 0 &&
+            results[0].style && results[0].style == "cliqz-extra" &&
+            results[0].data;
     },
 
     _loadPrefs: function () {
@@ -514,7 +539,7 @@ var CliqzExtOnboarding = {
     },
 
 	_log: function (msg) {
-		CliqzUtils.log(msg, 'CliqzExtOnboarding');
+		CliqzUtils.log(msg, '################################### CliqzExtOnboarding');
 	},
 
 	_telemetry: function (component, action, data) {
