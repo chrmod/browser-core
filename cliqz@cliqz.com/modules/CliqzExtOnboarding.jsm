@@ -195,7 +195,14 @@ var CliqzExtOnboarding = {
                             CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
                         smartCliqzStepCounter = 0;
                         smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
-                        isSmartCliqzReady = true;                        
+                        
+                        var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                        if (smartCliqzLinks.indexOf(url) >= 0) {
+                            isSmartCliqzReady = false;
+                            CliqzExtOnboarding._log("first landing was SmartCliqz link, aborting");
+                        } else {
+                            isSmartCliqzReady = true;
+                        }
                     } else {
                         CliqzExtOnboarding._log("regular result");
                         isSmartCliqzReady = false;
