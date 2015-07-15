@@ -17,12 +17,16 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
 
 var prefs = { },
     // cache destination URL
     destUrl = undefined,
     smartCliqzCache = undefined,
-    smartCliqzStepCounter = 0;
+    smartCliqzLinks = [],
+    smartCliqzStepCounter = 0,
+    SMART_CLIQZ_LINK_FIELDS = ["actions", "categories", "links", "news"];
 
 
 // cache autocomplete state
@@ -184,6 +188,8 @@ var CliqzExtOnboarding = {
                         CliqzExtOnboarding._log("onLocationChange: SmartCliqz result found");
                         CliqzAutocomplete.lastResult.CliqzExtOnboarding_isSmartCliqz = true;
                         smartCliqzCache = lastResults[0];
+                        smartCliqzLinks = CliqzExtOnboarding._getSmartCliqzLinks(smartCliqzCache);
+                        CliqzExtOnboarding._log("onLocationChange: extracted " + smartCliqzLinks.length + " links");
                         smartCliqzStepCounter = 0;
                     }
                     CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
@@ -198,8 +204,8 @@ var CliqzExtOnboarding = {
            
             
             // extract URLs from SmartCliqz
-            // record times and reset navigation steps
             // does SmartCliqz URL match?
+            // find anchor
 
         },
         onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
@@ -210,6 +216,19 @@ var CliqzExtOnboarding = {
         return results.length > 0 &&
             results[0].style && results[0].style == "cliqz-extra" &&
             results[0].data;
+    },
+
+    _getSmartCliqzLinks: function (smartCliqz) {
+        var links = [];
+        var data = smartCliqz.data;
+        for (var i in SMART_CLIQZ_LINK_FIELDS) {
+            var field = SMART_CLIQZ_LINK_FIELDS[i];
+            for (var j in data[field]) {
+                var url = data[field][j].url;
+                links.push(CliqzHistoryPattern.generalizeUrl(url));
+            }
+        }
+        return links;
     },
 
     _loadPrefs: function () {
