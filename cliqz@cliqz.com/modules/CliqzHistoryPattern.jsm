@@ -39,12 +39,13 @@ var CliqzHistoryPattern = {
   colors: null,
   historyCallback: null,
   latencies: [],
+  historyService: null,
   // This method uses the cliqz history to detect patterns
   dbConn: null,
   initDbConn: function() {
     var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     if(!CliqzHistoryPattern.dbConn)
-      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);
+      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);    
   },
   detectPattern: function(query, callback) {
     if (query.length <= 2) {
@@ -460,6 +461,30 @@ var CliqzHistoryPattern = {
     }
     return [newPatterns, baseUrl, favicon, https];
   },
+  getHistoryService: function () {
+    if (!CliqzHistoryPattern.historyService) {
+      try {
+        CliqzHistoryPattern.historyService = Components
+          .classes["@mozilla.org/browser/nav-history-service;1"]
+          .getService(Components.interfaces.nsINavHistoryService);
+      } catch (e) {
+        CliqzUtils.log("unable to get history service: " + e);
+      }
+    }
+    return CliqzHistoryPattern.historyService;
+  },
+  makeURI: function (url) {
+    try {    
+      var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+        .getService(Components.interfaces.nsIIOService);
+      if (ioService) {
+        return ioService.newURI(url, null, null);
+      }
+    } catch (e) {
+      CliqzUtils.log("unable to make URI: " + e);
+    }
+    return false;
+  },
   // Add base domain of given result to top of patterns
   addBaseDomain: function(patterns, baseUrl, favicon, https) {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
@@ -477,9 +502,21 @@ var CliqzHistoryPattern = {
       CliqzUtils.log("Added base domain to history cluster: " + baseUrl, "CliqzHistoryPattern");
     }
 
+    
     // Add https if required
-    if(https)
-      baseUrl = "https://" + baseUrl;
+    if(https) {
+      // ...but only if there is a history entry with title
+      var hs = CliqzHistoryPattern.getHistoryService();
+      var uri = CliqzHistoryPattern.makeURI("https://" + baseUrl)
+      if (hs && uri) {        
+        if (hs.getPageTitle(uri)) {
+          CliqzUtils.log("found https base URL with title");
+          baseUrl = "https://" + baseUrl;
+        } else {
+          CliqzUtils.log("no https base URL with title, keeping original base URL");
+        }
+      }
+    }
 
     // Add trailing slash if not there
     var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
