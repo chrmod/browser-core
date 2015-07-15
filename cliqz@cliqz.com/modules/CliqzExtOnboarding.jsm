@@ -26,6 +26,7 @@ var prefs = { },
     smartCliqzCache = undefined,
     smartCliqzLinks = [],
     smartCliqzStepCounter = 0,
+    isSmartCliqzReady = false,
     SMART_CLIQZ_LINK_FIELDS = ["actions", "categories", "links", "news"];
 
 
@@ -179,35 +180,42 @@ var CliqzExtOnboarding = {
     progressListener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
         onLocationChange: function(aProgress, aRequest, aURI) {
-            CliqzExtOnboarding._log("onLocationChange");
-
             if (CliqzAutocomplete.lastResult) {
                 var lastResults = CliqzAutocomplete.lastResult["_results"];
-                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {                    
+                if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
+                    CliqzExtOnboarding._log("new result");
                     if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
-                        CliqzExtOnboarding._log("onLocationChange: SmartCliqz result found");
-                        CliqzAutocomplete.lastResult.CliqzExtOnboarding_isSmartCliqz = true;
-                        smartCliqzCache = lastResults[0];
-                        smartCliqzLinks = CliqzExtOnboarding._getSmartCliqzLinks(smartCliqzCache);
-                        CliqzExtOnboarding._log("onLocationChange: extracted " + smartCliqzLinks.length + " links");
+                        CliqzExtOnboarding._log("SmartCliqz");
+                        smartCliqzLinks = 
+                            CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
                         smartCliqzStepCounter = 0;
+                        isSmartCliqzReady = true;                        
                     } else {
-                        smartCliqzStepCounter = undefined;
+                        CliqzExtOnboarding._log("regular result");
+                        isSmartCliqzReady = false;
                     }
                     CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
                 } else {
-                    CliqzExtOnboarding._log("onLocationChange: result already handled");
-                    if (smartCliqzCache) {
+                    CliqzExtOnboarding._log("previous result");
+                    if (isSmartCliqzReady) {                        
                         smartCliqzStepCounter++;
-                        CliqzExtOnboarding._log("onLocationChange: smartCliqzStepCounter " + smartCliqzStepCounter);
+                        CliqzExtOnboarding._log("SmartCliqz ready, step count: " + 
+                            smartCliqzStepCounter);
+                    } else {
+                        CliqzExtOnboarding._log("no SmartCliqz or already handled");
                     }
                 }
 
-                if (smartCliqzCache && smartCliqzStepCounter >= 0) {
-                    var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
-                    CliqzExtOnboarding._log("onLocationChange: checking links");
-                    if (smartCliqzLinks.indexOf(url) >= 0) {
-                        CliqzExtOnboarding._log("onLocationChange: url found " + url);
+                if (isSmartCliqzReady) {
+                    if (smartCliqzStepCounter > 2) {
+                        CliqzExtOnboarding._log("too many steps, aborting");
+                        isSmartCliqzReady = false;
+                    } else {
+                        var url = CliqzHistoryPattern.generalizeUrl(aURI.spec);
+                        if (smartCliqzLinks.indexOf(url) >= 0) {
+                            CliqzExtOnboarding._log("url found " + url);
+                            isSmartCliqzReady = false;
+                        }
                     }
                 }       
             }
