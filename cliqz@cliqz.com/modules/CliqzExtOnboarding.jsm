@@ -128,7 +128,7 @@ var CliqzExtOnboarding = {
         }
 
         // decide which subgroup we are going to be in
-        if (prefs["sub_group"] == "tbd") {            
+        if (prefs["sub_group"] == "tbd") {
             prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
             CliqzExtOnboarding._log("decided for subgroup " + prefs["sub_group"]);
             CliqzUtils.setPref("extended_onboarding", JSON.stringify(
@@ -245,12 +245,13 @@ var CliqzExtOnboarding = {
     },
 
     _addDropdownListeners: function (win) {
-        win.addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+        win.CLIQZ.Core.popup
+            .addEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _removeDropdownListeners: function (win) {
-        win.CLIQZ.Core.popup.
-            removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
+        win.CLIQZ.Core.popup
+            .removeEventListener("popuphidden", CliqzExtOnboarding._dropdownCloseListener);
     },
 
     _calloutClickListener: function (e) {
