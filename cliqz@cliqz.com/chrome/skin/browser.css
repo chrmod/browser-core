@@ -410,6 +410,7 @@
 #cliqz-results .ez-weather .cqz-ez-title { background-image: none; margin-bottom: 16px; }
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
+#cliqz-results .EZ-weather-info-sec { height: 128px; }
 #cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }

@@ -14,7 +14,7 @@ IT IS USED AS A PARTIAL template
         <div class="cqz-rhh3-snipet-txt">
             <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{richData.name}}</a></div>
             <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
-            <div>
+            <div class="cqz-rd-snippet_hspacing">
                 {{#if richData.url_ratingimg}}
                     <img src="{{richData.url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
                 {{else}}
