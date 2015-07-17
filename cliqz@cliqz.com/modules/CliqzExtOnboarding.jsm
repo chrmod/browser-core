@@ -220,6 +220,7 @@ var CliqzExtOnboarding = {
                                                 _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");
                                             CliqzExtOnboarding._savePrefs("smart_cliqz", _prefs);
 
+                                            button.classList.add("onboarding-highlight");
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
                                                 win.CLIQZ.Core.urlbar, win.CLIQZ.Core.urlbar);
                                             CliqzExtOnboarding._setCalloutContent("smart_cliqz");

@@ -196,7 +196,7 @@
   background-size: 20px;
   background-repeat: no-repeat;
   height: 32px;
-  width: 32px;  
+  width: 32px;
 }
 
 .pulsate {
@@ -205,6 +205,26 @@
   animation-delay: 0.5s;
   animation-duration: 0.5s;
   animation-name: changescale;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes fadecolor {
+  from {
+    border-color: rgba(240, 86, 81, 0.0);
+  }
+
+  to {
+    border-color: rgba(240, 86, 81, 1.0);
+  }
+}
+
+.onboarding-highlight {
+  border-width: 2px !important;
+  border-spacing: 2px !important;
+  border-style: dashed !important;
+  animation-duration: 0.75s;
+  animation-name: fadecolor;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
