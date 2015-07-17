@@ -206,7 +206,8 @@ var CliqzExtOnboarding = {
                                     CliqzExtOnboarding._log("url found " + url);
                                     var button = CliqzExtOnboarding._getDomElementForUrl(url);
                                     if (button) {
-                                        if (button.offsetTop > 200) {
+                                        // check if button is in second row, allowing for some margin tolerance
+                                        if (button.offsetTop - button.parentElement.offsetTop > 20) {
                                              CliqzExtOnboarding._log("button not visible, ignoring");
                                         } else if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
                                             var win = CliqzUtils.getWindow(),
