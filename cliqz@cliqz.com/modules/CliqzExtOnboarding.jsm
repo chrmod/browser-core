@@ -36,7 +36,7 @@ var currentAutocompleteUrlbar = "",
     currentAutocompleteMinSelectionStart = 0;
 
 var CliqzExtOnboarding = {   
-    TYPED_URL_MIN_CHARS_TYPED: 4,
+    TYPED_URL_MIN_CHARS_TYPED: 5,
     SMART_CLIQZ_MAX_STEPS: 3,
     SMART_CLIQZ_MAX_TIME: 30000,
     KEYCODE_ENTER: 13,
@@ -572,7 +572,8 @@ var CliqzExtOnboarding = {
                     if (CliqzExtOnboarding._shouldShowMessage("typed_url")) {
                         CliqzExtOnboarding._log("typed url: showing message");
                         CliqzExtOnboarding._telemetry("typed_url", "show", {
-                            count: _prefs["show_count"]
+                            count: _prefs["show_count"],
+                            chars_typed: charsTyped
                         });
 
                         var callout = CliqzExtOnboarding._getCallout();
