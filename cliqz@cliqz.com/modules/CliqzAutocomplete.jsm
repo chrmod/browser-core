@@ -376,6 +376,90 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var json = JSON.parse(req.response);
                     results = json.result || [];
+
+                    if (results) {
+                        results[0] = {
+            "q": "ryanair",
+            "url": "http://www.ryanair.com/",
+            "score": 0,
+            "source": "bm",
+            "snippet": {
+                "alternatives": [
+                    "http://www.ryanair.com/de/"
+                ],
+                "desc": "Buchen Sie Billigflüge auf der offiziellen Ryanair-Website. Tiefpreise für pünktliche Flüge zu beliebten Reisezielen in Europa",
+                "language": {
+                    "de": 1
+                },
+                "og": {
+                    "description": "Buchen Sie Billigflüge auf der offiziellen Ryanair-Website. Tiefpreise für pünktliche Flüge zu beliebten Reisezielen in Europa",
+                    "image": "/static/images/seo/seo-logo-200.png",
+                    "title": "Offizielle Ryanair-Website | Billigflüge | Billigflüge nach Europa",
+                    "type": "article"
+                },
+                "title": "Offizielle Ryanair-Website | Billigflüge | Billigflüge nach Europa"
+            },
+            "extra": {
+                            "data": {
+                                "actions": [
+                                    {
+                                        "color": "",
+                                        "title": "Buchen",
+                                        "url": "http://www.ryanair.com/de/"
+                                    },
+                                    {
+                                        "color": "",
+                                        "title": "Flugstatus",
+                                        "url": "http://www.ryanair.com/de/fluginformationen/"
+                                    },
+                                    {
+                                        "color": "",
+                                        "title": "Online check-in",
+                                        "url": "https://www.bookryanair.com/SkySales/Booking.aspx?culture=de-de\u0026amp;lc=de-de#Security"
+                                    },
+                                    {
+                                        "color": "",
+                                        "title": "Kontakt",
+                                        "url": "http://www.ryanair.com/en/questions/contacting-customer-service/"
+                                    }
+                                ],
+                                "zeroInf": {
+                                    "Phone": "07031771000",
+                                    "Sperrnummer": "116116",
+                                    "BIC": "BBKRDE6BXXX",
+                                    "BLZ": "60350130"
+                                },
+                                "description": "Buchen Sie Billigflüge auf der offiziellen Ryanair-Website. Tiefpreise für pünktliche Flüge zu beliebten Reisezielen in Europa",
+                                "friendly_url": "ryanair.com",
+                                "icon": "http://cdn.cliqz.com/extension/EZ/airlines/airlines.svg",
+                                "links": [
+                                    {
+                                        "icon": "http://cdn.cliqz.com/extension/EZ/airlines/baggage.svg",
+                                        "title": "Gepäck",
+                                        "url": "http://www.ryanair.com/de/geschaeftsbedingungen/regulations-checkedbaggage/"
+                                    },
+                                    {
+                                        "icon": "http://cdn.cliqz.com/extension/EZ/airlines/where-we-fly.svg",
+                                        "title": "Flugziele",
+                                        "url": "http://www.ryanair.com/de/preiswerte-flugziele/"
+                                    }
+                                ],
+                                "name": "Ryanair",
+                                "template": "entity-generic"
+                            },
+                            "q": "",
+                            "query": "",
+                            "subType": "{\"ez\": \"-1580292012472522011\"}",
+                            "trigger_urls": [
+                                "ryanair.com"
+                            ],
+                            "ts": 1.435835607e+09,
+                            "url": "http://www.ryanair.com/"
+                        }
+                    }
+            }
+
+
                     country = json.country;
                     this.cliqzResultsExtra = []
 

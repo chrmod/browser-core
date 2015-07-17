@@ -1400,6 +1400,12 @@ function resultScroll(ev) {
     CliqzAutocomplete.hasUserScrolledCurrentResults = true;
 }
 
+function copyResult(val) {
+    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                               .getService(Components.interfaces.nsIClipboardHelper);
+    gClipboardHelper.copyString(val);
+}
+
 function resultClick(ev){
     var el = ev.target,
         newTab = ev.metaKey || ev.button == 1 ||
@@ -1427,12 +1433,17 @@ function resultClick(ev){
             break;
         }else if (el.getAttribute('cliqz-action')) {
             switch(el.getAttribute('cliqz-action')) {
+                case 'copy_val':
+//                    var val = "", target_els = el.childNodes.filter(function(c_el){return c_el.getAttribute("extra") === "zeroclz"});
+//                    if (target_els)
+//                        val = target_els[0]
+                    copyResult(el.textContent.trim());
+                    break;
+
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':
-                    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                               .getService(Components.interfaces.nsIClipboardHelper);
-                    gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                    copyResult(document.getElementById('calc-answer').innerHTML);
                     document.getElementById('calc-copied-msg').style.display = "";
                     document.getElementById('calc-copy-msg').style.display = "none";
                     break;

@@ -14,10 +14,18 @@
 #cliqz-results .cqz-result-content { 
   max-width: 550px;
   margin: 12px 105px 17px 0px;
+    height: 95px;
 }
 
+#cliqz-results .clz_zero_info_sec {margin-top: 4px; height: 30px;}
+#cliqz-results .cqz-zero-img {height: 16px; padding-right: 10px; transform: translateY(4px);}
+#cliqz-results .clz_zero_info {
+    float: left;
+    margin-right: 20px;
+    height: 100%;
+}
 #cliqz-results .cqz-result-h1 .cqz-result-content {
-  height: 185px;  
+  height: 185px;
 }
 
 /*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
@@ -69,17 +77,9 @@
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
 #cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 4.8em; line-height: 1.2em; }
 #cliqz-results .cqz-rd-max-lines4:before {
-    white-space: normal;
-    content:"";
-    float: left;
-    width: 5px; height: 4.8em;
-}
+    white-space: normal; content:""; float: left; width: 5px; height: 4.8em;}
 #cliqz-results .cqz-rd-max-lines4 > *:first-child {
-    white-space: normal;
-    float: right;
-    width: 100%;
-    margin-left: -5px; }
-
+    white-space: normal; float: right; width: 100%; margin-left: -5px; }
 #cliqz-results .cqz-rd-max-lines4:after {
     white-space: normal;
     content: "\02026";

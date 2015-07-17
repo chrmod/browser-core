@@ -31,7 +31,14 @@ var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
         [29030400     , 'agoXMonths'   , 2419200],
         [58060800     , 'ago1year'   , 1],
         [2903040000   , 'agoXYears'     , 29030400],
-    ];
+    ],
+    ZERO_CLICK_INFO_PRIO = [["Phone", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/phone.svg"],
+                            ["BIC", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/BIC.svg"],
+//                            ["BLZ"],
+//                            ["Sperrnummer"],
+                            ["E-Mail", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/emaill.svg"]
+                           ];
+
 
 
 CliqzHandlebars.tplCache = {};
@@ -328,5 +335,22 @@ function registerHelpers(){
         } catch(e){
           return defaultSetting;
         }
+    });
+
+    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw){
+        var n, name, item, zeroInfo=[];
+        for (n = 0; n<ZERO_CLICK_INFO_PRIO.length; n++) {
+            item = ZERO_CLICK_INFO_PRIO[n]; name = item[0];
+            if (zeroInfo_raw[name]) {
+                zeroInfo.push({
+                    'name': name,
+                    'val': zeroInfo_raw[name],
+                    'img': item[1]
+                });
+            }
+        }
+        CliqzUtils.log(zeroInfo, 'THUY------');
+        zeroInfo_raw = zeroInfo;
+        return zeroInfo_raw;
     });
 }
