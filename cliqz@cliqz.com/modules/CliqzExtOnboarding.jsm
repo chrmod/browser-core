@@ -127,7 +127,7 @@ var CliqzExtOnboarding = {
             CliqzExtOnboarding._savePrefs("same_result", _prefs);
 
             if (anchor) {
-                if (anchor.offsetTop < 300) {
+                if (anchor.offsetTop < win.CLIQZ.UI.DROPDOWN_HEIGHT) {
                     destUrl = destinationUrl;
 
                     win.CLIQZ.Core.popup._openAutocompletePopup(
