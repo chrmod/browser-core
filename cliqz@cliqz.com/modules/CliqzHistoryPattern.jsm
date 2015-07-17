@@ -39,12 +39,15 @@ var CliqzHistoryPattern = {
   colors: null,
   historyCallback: null,
   latencies: [],
+  historyService: null,
+  ioService: null,
+  baseUrlCache: {}, 
   // This method uses the cliqz history to detect patterns
   dbConn: null,
   initDbConn: function() {
     var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     if(!CliqzHistoryPattern.dbConn)
-      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);
+      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);    
   },
   detectPattern: function(query, callback) {
     if (query.length <= 2) {
@@ -460,6 +463,37 @@ var CliqzHistoryPattern = {
     }
     return [newPatterns, baseUrl, favicon, https];
   },
+  getHistoryService: function () {
+    if (!CliqzHistoryPattern.historyService) {
+      try {
+        CliqzHistoryPattern.historyService = Components
+          .classes["@mozilla.org/browser/nav-history-service;1"]
+          .getService(Components.interfaces.nsINavHistoryService);
+      } catch (e) {
+        CliqzUtils.log("unable to get history service: " + e);
+      }
+    }
+    return CliqzHistoryPattern.historyService;
+  },
+  getIoService: function () {
+    if (!CliqzHistoryPattern.ioService) {
+      try {
+        CliqzHistoryPattern.ioService = 
+          Components.classes["@mozilla.org/network/io-service;1"]
+          .getService(Components.interfaces.nsIIOService);
+      } catch (e) {
+        CliqzUtils.log("unable to get IO service: " + e);
+      }
+    }
+    return CliqzHistoryPattern.ioService;
+  },
+  makeURI: function (url) {
+    var ios = CliqzHistoryPattern.getIoService();
+    if (ios) {
+      return ios.newURI(url, null, null);
+    }
+    return false;
+  },
   // Add base domain of given result to top of patterns
   addBaseDomain: function(patterns, baseUrl, favicon, https) {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
@@ -477,9 +511,34 @@ var CliqzHistoryPattern = {
       CliqzUtils.log("Added base domain to history cluster: " + baseUrl, "CliqzHistoryPattern");
     }
 
-    // Add https if required
-    if(https)
-      baseUrl = "https://" + baseUrl;
+    
+    // Add https if required, but only if there is a history entry for it
+    if (https) {
+      // not yet cached?
+      if (!CliqzHistoryPattern.baseUrlCache.hasOwnProperty(baseUrl)) {
+        // CliqzUtils.log("caching base URL " + baseUrl);
+        var hs = CliqzHistoryPattern.getHistoryService(),
+            uri = CliqzHistoryPattern.makeURI("https://" + baseUrl)
+        if (hs && uri) {
+            var options = hs.getNewQueryOptions(),
+                query = hs.getNewQuery();
+            query.uri = uri;
+            query.uriIsPrefix = false;
+
+            var result = hs.executeQuery(query, options);
+            result.root.containerOpen = true;
+            CliqzHistoryPattern.baseUrlCache[baseUrl] = 
+              result.root.childCount > 0;
+        }
+      }
+
+      if (CliqzHistoryPattern.baseUrlCache[baseUrl]) {
+        baseUrl = "https://" + baseUrl;
+        // CliqzUtils.log("https entry found for base URL " + baseUrl);
+      } else {
+        // CliqzUtils.log("no https entry found for base URL " + baseUrl);
+      }
+    }
 
     // Add trailing slash if not there
     var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
