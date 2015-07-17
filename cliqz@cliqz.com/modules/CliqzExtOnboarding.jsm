@@ -35,7 +35,7 @@ var prefs = { },
 var currentAutocompleteUrlbar = "",
     currentAutocompleteMinSelectionStart = 0;
 
-var CliqzExtOnboarding = {   
+var CliqzExtOnboarding = {
     TYPED_URL_MIN_CHARS_TYPED: 5,
     SMART_CLIQZ_MAX_STEPS: 3,
     SMART_CLIQZ_MAX_TIME: 30000,
@@ -111,11 +111,16 @@ var CliqzExtOnboarding = {
             return;
         }
 
+        if (!request) {
+            CliqzExtOnboarding._log("onSameResult: invalid request; aborting");
+            return;
+        }
+
         var _prefs = CliqzExtOnboarding._getPrefs("same_result");
         // for those users who were already in the AB test when
         // "sub_group" was introduced
         if (!_prefs.hasOwnProperty("sub_group")) {
-            _prefs["sub_group"] = "na";                
+            _prefs["sub_group"] = "na";
         }
         CliqzExtOnboarding._savePrefs("same_result", _prefs);
 
@@ -150,13 +155,13 @@ var CliqzExtOnboarding = {
             } else {
                 CliqzExtOnboarding._log("onSameResult: result was not shown to user");
             }
-        }        
+        }
     },
 
     progressListener: {
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
         onLocationChange: function(aProgress, aRequest, aURI) {
-            if (CliqzExtOnboarding._isFirefoxVersionSupported && 
+            if (CliqzExtOnboarding._isFirefoxVersionSupported &&
                 CliqzExtOnboarding._isTypeActive("smart_cliqz")) {
 
                 if (CliqzAutocomplete.lastResult) {
@@ -166,7 +171,7 @@ var CliqzExtOnboarding = {
                         if (CliqzExtOnboarding._containsSmartCliqzResult(lastResults)) {
                             CliqzExtOnboarding._log("SmartCliqz");
                             smartCliqzTs = Date.now();
-                            smartCliqzLinks = 
+                            smartCliqzLinks =
                                 CliqzExtOnboarding._getSmartCliqzLinks(lastResults[0]);
                             smartCliqzStepCounter = 0;
                             smartCliqzTab = CliqzUtils.getWindow().gBrowser.selectedTab;
@@ -185,9 +190,9 @@ var CliqzExtOnboarding = {
                         CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled = true;
                     } else {
                         CliqzExtOnboarding._log("previous result");
-                        if (isSmartCliqzReady) {                        
+                        if (isSmartCliqzReady) {
                             smartCliqzStepCounter++;
-                            CliqzExtOnboarding._log("SmartCliqz ready, step count: " + 
+                            CliqzExtOnboarding._log("SmartCliqz ready, step count: " +
                                 smartCliqzStepCounter);
 
                             if (smartCliqzTab != CliqzUtils.getWindow().gBrowser.selectedTab) {
@@ -212,7 +217,7 @@ var CliqzExtOnboarding = {
                                         } else if (CliqzExtOnboarding._shouldShowMessage("smart_cliqz")) {
                                             var win = CliqzUtils.getWindow(),
                                                 callout = CliqzExtOnboarding._getCallout(win),
-                                                _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");                                                
+                                                _prefs = CliqzExtOnboarding._getPrefs("smart_cliqz");
                                             CliqzExtOnboarding._savePrefs("smart_cliqz", _prefs);
 
                                             win.CLIQZ.Core.popup._openAutocompletePopup(
@@ -233,7 +238,7 @@ var CliqzExtOnboarding = {
                         } else {
                             CliqzExtOnboarding._log("no SmartCliqz or already handled");
                         }
-                    }    
+                    }
                 }
             }
         },
@@ -257,7 +262,7 @@ var CliqzExtOnboarding = {
 
     _savePrefs: function (type, data) {
         prefs[type] = data;
-        CliqzUtils.setPref("extended_onboarding", 
+        CliqzUtils.setPref("extended_onboarding",
             JSON.stringify(prefs));
     },
 
@@ -293,12 +298,12 @@ var CliqzExtOnboarding = {
         }
 
         // decide which subgroup we are going to be in
-        if (_prefs["sub_group"] == "tbd") {            
+        if (_prefs["sub_group"] == "tbd") {
             _prefs["sub_group"] = (Math.random(1) < .5) ? "show" : "no_show";
             CliqzExtOnboarding._savePrefs(type, _prefs);
-            CliqzExtOnboarding._log(type + ": decided for subgroup " + _prefs["sub_group"]);                        
+            CliqzExtOnboarding._log(type + ": decided for subgroup " + _prefs["sub_group"]);
         }
-        
+
         if (_prefs["sub_group"] == "no_show") {
             CliqzExtOnboarding._log(type + ": user is in sub_group no show; not interrupting");
             return false;
@@ -326,7 +331,7 @@ var CliqzExtOnboarding = {
       var matchingElements = [];
       var allElements = root.getElementsByTagName("*");
       for (var i = 0; i < allElements.length; i++){
-        if (allElements[i].getAttribute(attribute) !== null) {        
+        if (allElements[i].getAttribute(attribute) !== null) {
           matchingElements.push(allElements[i]);
         }
       }
@@ -351,7 +356,7 @@ var CliqzExtOnboarding = {
 
     _loadPrefs: function () {
         try {
-            prefs = 
+            prefs =
                 JSON.parse(CliqzUtils.getPref("extended_onboarding"));
         } catch (e) { }
     },
@@ -365,7 +370,7 @@ var CliqzExtOnboarding = {
 
             // running under Firefox 36.0 or later
             if(versionChecker.compare(appInfo.version, "36.0") < 0) {
-                CliqzExtOnboarding._log("_checkFirefoxVersionRequirements: requires Firefox 36.0 or higher");                
+                CliqzExtOnboarding._log("_checkFirefoxVersionRequirements: requires Firefox 36.0 or higher");
             } else {
                 CliqzExtOnboarding._isFirefoxVersionSupported = true;
             }
@@ -374,7 +379,7 @@ var CliqzExtOnboarding = {
             return;
         }
     },
-        
+
     // create callout element and attach to DOM
     _createCallout: function (win) {
         win = win || CliqzUtils.getWindow();
@@ -460,7 +465,7 @@ var CliqzExtOnboarding = {
 
     _setCalloutContent: function (messageType) {
         var callout = CliqzExtOnboarding._getCallout();
-        callout.firstChild.innerHTML = 
+        callout.firstChild.innerHTML =
             CliqzExtOnboarding._calloutParsedContent[messageType];
     },
 
@@ -534,7 +539,7 @@ var CliqzExtOnboarding = {
             if (type == "same_result") {
                 CliqzUtils.getWindow().CLIQZ.Core.openLink(destUrl, false);
             }
-        }      
+        }
     },
 
     _dropdownCloseListener: function () {
@@ -552,17 +557,17 @@ var CliqzExtOnboarding = {
         if (CliqzAutocomplete.selectAutocomplete) {
             if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
                 // CliqzExtOnboarding._log("new autcompleted url, update");
-                currentAutocompleteUrlbar = 
+                currentAutocompleteUrlbar =
                     CliqzAutocomplete.lastAutocompleteUrlbar;
-                currentAutocompleteMinSelectionStart = 
+                currentAutocompleteMinSelectionStart =
                     CliqzAutocomplete.lastAutocompleteSelectionStart;
             } else {
                 // CliqzExtOnboarding._log("same autocompleted url, no update");
             }
         } else {
-            var charsTyped = 
-                    currentAutocompleteUrlbar.length - 
-                    currentAutocompleteMinSelectionStart;               
+            var charsTyped =
+                    currentAutocompleteUrlbar.length -
+                    currentAutocompleteMinSelectionStart;
             currentAutocompleteUrlbar = "";
             currentAutocompleteMinSelectionStart = 0;
             if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
@@ -572,8 +577,8 @@ var CliqzExtOnboarding = {
                     return;
                 }
 
-                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) { 
-                    var _prefs = CliqzExtOnboarding._getPrefs("typed_url");  
+                if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) {
+                    var _prefs = CliqzExtOnboarding._getPrefs("typed_url");
                     CliqzExtOnboarding._savePrefs("typed_url", _prefs);
 
                     if (CliqzExtOnboarding._shouldShowMessage("typed_url")) {
@@ -587,7 +592,7 @@ var CliqzExtOnboarding = {
                         CliqzExtOnboarding._setCalloutContent("typed_url");
                         callout.openPopup(CliqzUtils.getWindow().CLIQZ.Core.urlbar, "after_start", 20, -5);
                         callout.setAttribute("show_ts", Date.now());
-                        callout.setAttribute("msg_type", "typed_url");       
+                        callout.setAttribute("msg_type", "typed_url");
                     }
                 } else {
                     CliqzExtOnboarding._log("_urlbarKeydownListener: not enough characters typed (" + charsTyped + ")");
