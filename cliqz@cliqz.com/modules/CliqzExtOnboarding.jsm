@@ -53,16 +53,8 @@ var CliqzExtOnboarding = {
         "smart_cliqz": 3  // 3
     },
 
-    // REQUIRED_RESULTS_COUNT: {
-    //     "same_result":  0, // 4
-    //     "typed_url":    0, // 3
-    //     "smart_cliqz":  0  // 4
-    // },
-    // MAX_INTERRUPTS: {
-    //     "same_result": 100, // 3
-    //     "typed_url":   100, // 3
-    //     "smart_cliqz": 100  // 3
-    // },
+    // show messages regardless of user settings
+    DEBUG: false,
 
     // will be checked on module load
     _isFirefoxVersionSupported: false,
@@ -269,7 +261,7 @@ var CliqzExtOnboarding = {
     },
 
     _isTypeActive: function(type) {
-        return CliqzUtils.getPref(
+        return CliqzExtOnboarding.DEBUG || CliqzUtils.getPref(
             "extended_onboarding_" + type, false);
     },
 
@@ -280,6 +272,10 @@ var CliqzExtOnboarding = {
     },
 
     _shouldShowMessage: function (type) {
+        if (CliqzExtOnboarding.DEBUG) {
+            return true;
+        }
+
         var _prefs = CliqzExtOnboarding._getPrefs(type);
 
         if (_prefs["state"] == "discarded") {
