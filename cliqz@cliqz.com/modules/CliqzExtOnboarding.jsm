@@ -551,21 +551,27 @@ var CliqzExtOnboarding = {
     _urlbarKeydownListener: function (e) {
         if (CliqzAutocomplete.selectAutocomplete) {
             if (currentAutocompleteUrlbar != CliqzAutocomplete.lastAutocompleteUrlbar) {
-                // CliqzExtOnboarding._log("_urlbarKeydownListener: new autcompleted url, update");
+                // CliqzExtOnboarding._log("new autcompleted url, update");
                 currentAutocompleteUrlbar = 
                     CliqzAutocomplete.lastAutocompleteUrlbar;
                 currentAutocompleteMinSelectionStart = 
                     CliqzAutocomplete.lastAutocompleteSelectionStart;
             } else {
-                // CliqzExtOnboarding._log("_urlbarKeydownListener: same autocompleted url, no update");
+                // CliqzExtOnboarding._log("same autocompleted url, no update");
             }
         } else {
             var charsTyped = 
-                currentAutocompleteUrlbar.length - 
-                currentAutocompleteMinSelectionStart;
+                    currentAutocompleteUrlbar.length - 
+                    currentAutocompleteMinSelectionStart;               
             currentAutocompleteUrlbar = "";
             currentAutocompleteMinSelectionStart = 0;
-            if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {                
+            if (e.keyCode == CliqzExtOnboarding.KEYCODE_ENTER) {
+                if (CliqzHistoryPattern.generalizeUrl(CliqzUtils.getWindow().CLIQZ.Core.urlbar.value) !=
+                    CliqzHistoryPattern.generalizeUrl(CliqzAutocomplete.lastAutocompleteUrlbar)) {
+                    CliqzExtOnboarding._log("urlbar value has changed, no autocomplete");
+                    return;
+                }
+
                 if (charsTyped > CliqzExtOnboarding.TYPED_URL_MIN_CHARS_TYPED) { 
                     var _prefs = CliqzExtOnboarding._getPrefs("typed_url");  
                     CliqzExtOnboarding._savePrefs("typed_url", _prefs);
@@ -623,7 +629,7 @@ var CliqzExtOnboarding = {
     },
 
 	_log: function (msg) {
-		CliqzUtils.log(msg, '################################### CliqzExtOnboarding');
+		CliqzUtils.log(msg, "CliqzExtOnboarding");
 	},
 
 	_telemetry: function (component, action, data) {
