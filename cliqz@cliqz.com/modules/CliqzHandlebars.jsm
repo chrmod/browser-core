@@ -349,7 +349,6 @@ function registerHelpers(){
                 });
             }
         }
-        CliqzUtils.log(zeroInfo, 'THUY------');
         zeroInfo_raw = zeroInfo;
         return zeroInfo_raw;
     });

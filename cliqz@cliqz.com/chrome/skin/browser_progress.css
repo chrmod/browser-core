@@ -10,6 +10,10 @@
   margin-bottom: 20px;
 }
 
+#cliqz-results .clz_copy {
+    cursor: copy;
+}
+
 /*--------------- New Skin Generic EZ ----------- */
 #cliqz-results .cqz-result-content { 
   max-width: 550px;
@@ -18,7 +22,7 @@
 }
 
 #cliqz-results .clz_zero_info_sec {margin-top: 4px; height: 30px;}
-#cliqz-results .cqz-zero-img {height: 16px; padding-right: 10px; transform: translateY(4px);}
+#cliqz-results .cqz-zero-img {height: 16px; padding-right: 10px; transform: translateY(3px);}
 #cliqz-results .clz_zero_info {
     float: left;
     margin-right: 20px;

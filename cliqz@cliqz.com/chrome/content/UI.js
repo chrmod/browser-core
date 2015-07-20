@@ -1434,12 +1434,8 @@ function resultClick(ev){
         }else if (el.getAttribute('cliqz-action')) {
             switch(el.getAttribute('cliqz-action')) {
                 case 'copy_val':
-//                    var val = "", target_els = el.childNodes.filter(function(c_el){return c_el.getAttribute("extra") === "zeroclz"});
-//                    if (target_els)
-//                        val = target_els[0]
                     copyResult(el.textContent.trim());
-                    break;
-
+                    return;
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':
