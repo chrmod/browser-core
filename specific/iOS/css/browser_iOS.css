@@ -68,6 +68,7 @@
 }
 
 #cliqz-results {
+    height: 100%;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -170,7 +171,7 @@
     display: inline-block;
 }
 
-#cliqz-results .cqz-vert-center { position: absolute; top: 50%;	-moz-transform: translateY(-49%); transform: translateY(-49%); }
+#cliqz-results .cqz-vert-center { position: absolute; top: 10%;	-moz-transform: translateY(-49%); transform: translateY(-49%); }
 #cliqz-results .cqz-image {
     width: 114px; /* 16 */
     height: 64px; /* 9 */
