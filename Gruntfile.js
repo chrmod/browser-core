@@ -63,6 +63,12 @@ module.exports = function(grunt) {
                 { expand: true, cwd: "specific/iOS/", src: "index.html", dest: build("tool_iOS") }
               ]
             },
+            androidkit: {
+                files: [
+                    { expand: true, cwd: "generic/", src: "**", dest: build("tool_androidkit/generic/") },
+                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("tool_androidkit") }
+                ]
+            },
         },
         concat: {
             global: {
@@ -117,34 +123,7 @@ module.exports = function(grunt) {
                                + "// end module " + modulename + "\n\n"
                     }
                 },
-                dest: build("android/modules/global.js")
-            },
-            global: {
-                src: [
-                    "generic/modules/global/CliqzUtils.jsm",
-                    "generic/modules/global/*.jsm"
-                ],
-                options: {
-                    banner: "'use strict';\n\nvar CLIQZ = {};\n\n",
-                    sourceMap: true,
-                    process: function(src,filepath) {
-                        var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
-                        /* Lucian
-                        return "// start module " + modulename + "\n"
-                               + ";CLIQZ." + modulename + " = (function(Q,E){\n"
-                               + src
-                               + "})(CLIQZ,CLIQZEnvironment);\n"
-                               + "// end module " + modulename + "\n\n"
-                        */
-                        return "// start module " + modulename + "\n"
-                               + "(function(ctx,Q,E){\n"
-                               + src
-                               + "ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
-                               + "})(this, CLIQZ,CLIQZEnvironment);\n"
-                               + "// end module " + modulename + "\n\n"
-                    }
-                },
-                dest: build("tool_iOS/js/global.js")
+                dest: build("tool_androidkit/js/global.js")
             },
             global: {
                 src: [
@@ -184,7 +163,7 @@ module.exports = function(grunt) {
                 },
                 dest: build("tool/js/local.js")
             },
-            local: {
+            local2: {
                 src: [
                     "generic/modules/local/core.js",
                     "generic/modules/local/ui.js"
@@ -199,7 +178,7 @@ module.exports = function(grunt) {
                 src: ["generic/modules/libs/*"],
                 dest: build("tool/js/libs.js")
             },
-            local: {
+            local3: {
                 src: [
                     "generic/modules/local/core.js",
                     "generic/modules/local/ui.js"
@@ -208,13 +187,17 @@ module.exports = function(grunt) {
                     banner: "'use strict';\n\n",
                     sourceMap: true
                 },
-                dest: build("android/modules/local.js")
+                dest: build("tool_androidkit/js/local.js")
             },
-            libs: {
+            libs2: {
+                src: ["generic/modules/libs/*"],
+                dest: build("tool_androidkit/js/libs.js")
+              },
+            libs3: {
                 src: ["generic/modules/libs/*"],
                 dest: build("android/modules/libs.js")
               },
-            libs: {
+            libs4: {
                 src: ["generic/modules/libs/*"],
                 dest: build("tool_iOS/js/libs.js")
             }
