@@ -352,4 +352,22 @@ function registerHelpers(){
         zeroInfo_raw = zeroInfo;
         return zeroInfo_raw;
     });
+
+    Handlebars.registerHelper('local_template', function(data){
+        var height_ = ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data)) ? 2 : 1;
+
+        var rating_img = null;
+        if (data["rating"] !== null)
+            rating_img = "http://cdn.cliqz.com/extension/EZ/richresult/stars"+ Math.max(0, Math.min(Math.round(data["rating"]), 5)) + ".svg";
+
+        if (height_ === 1){
+            data["richData"] = {
+                "image": data["image"], // || "http://www.daskochrezept.de/sites/default/files/styles/recipe_image/public/rezept/2011/6/4dfb829428762.jpg?itok=iH47gJ3J",
+                "url_ratingimg": rating_img,
+                "des": data["desc"],
+                "name": data["t"]
+            }
+        }
+        return height_ === 2;
+    });
 }
