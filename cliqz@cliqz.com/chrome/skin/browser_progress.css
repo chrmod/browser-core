@@ -14,8 +14,13 @@
     cursor: copy;
 }
 
+/*--------------- Local EZ ----------- */
+#cliqz-results .cqz-local-top-blk {height: 80px; margin-bottom: 5px;}
+#cliqz-results .cqz-local-top-blk .cqz-rd-h3img-div {height: 100%; margin-bottom: 5px;}
+/*--------------- END LOCAL EZ ----------- */
+
 /*--------------- New Skin Generic EZ ----------- */
-#cliqz-results .cqz-result-content { 
+#cliqz-results .cqz-result-content {
   max-width: 550px;
   margin: 12px 105px 17px 0px;
     height: 95px;
