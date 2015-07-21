@@ -776,6 +776,8 @@ var CliqzUtils = {
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
+    msg.seq = (CliqzUtils.getPref('telemetrySeq', 0) + 1) % 2147483647;
+    CliqzUtils.setPref('telemetrySeq', msg.seq);
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
