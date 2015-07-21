@@ -61,20 +61,20 @@ TESTS.UrlBarTest = function (CliqzUtils) {
     });
 
     context("history results", function () {
-      it('should trigger firefox history search', function (done) {
+      beforeEach(function (done) {
         respondWith({
           result: []
         });
         fillIn("mozilla");
+        waitForResult(".cqz-ez-title", done);
+      });
 
-        waitForResult(".cqz-ez-title", function () {
-           var $pattern = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element"),
-               $title   = $cliqzResults().find(".cqz-result-box .cqz-ez-title");
+      it('should trigger firefox history search', function () {
+        var $pattern = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element"),
+            $title   = $cliqzResults().find(".cqz-result-box .cqz-ez-title");
 
-          chai.expect($title[0].textContent.trim()).to.equal("Mozilla");
-          chai.expect($pattern).to.have.length.above(1);
-          done();
-        });
+        chai.expect($title[0].textContent.trim()).to.equal("Mozilla");
+        chai.expect($pattern).to.have.length.above(1);
       });
 
     });
