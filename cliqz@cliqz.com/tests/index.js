@@ -5,9 +5,12 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import("resource://gre/modules/NetUtil.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 
+
+//TODO use osfile for versions > 25
+
 function writeToFile(testData) {
       var version = getBrowserVersion(),
-          filename = "mocha-report-fileUtils-" + version + ".xml",
+          filename = "mocha-report-" + version + ".xml",
           file = FileUtils.getFile("ProfD", [filename]);
 
       var ostream = FileUtils.openSafeFileOutputStream(file);
@@ -73,7 +76,9 @@ function getBrowserVersion() {
  }
 }*/
 
-Object.keys(TESTS).forEach(function (testName) {
+injectTestHelpers(loadModule("CliqzUtils"));
+
+Object.keys(window.TESTS).forEach(function (testName) {
   var testFunction = TESTS[testName];
   var moduleNames = getFunctionArguments(testFunction);
   var modules = moduleNames.map(loadModule);
@@ -88,18 +93,28 @@ function getParameterByName(name) {
 }
 
 /* Turn off telemetry during tests */
-var telemetry, CliqzUtils;
+var telemetry, 
+    CliqzUtils,
+    getCliqzResults;
+
 
 beforeEach(function () {
   CliqzUtils = loadModule("CliqzUtils");
+  getCliqzResults = CliqzUtils.getCliqzResults;
+
+  var chrome = CliqzUtils.getWindow();
+  chrome.gBrowser.removeAllTabsBut(chrome.gBrowser.selectedTab);
+
   telemetry = CliqzUtils.telemetry;
   CliqzUtils.telemetry = function () {};
 });
 
 afterEach(function () {
   CliqzUtils.telemetry = telemetry;
+  CliqzUtils.getCliqzResults = getCliqzResults;
   CliqzUtils.getWindow().CLIQZ.Core.urlbar.mInputField.setUserInput("");
   CliqzUtils.extensionRestart()
+  clearIntervals();
 });
 
 window.focus();

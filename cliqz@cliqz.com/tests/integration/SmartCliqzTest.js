@@ -1,0 +1,29 @@
+TESTS.SmartCliqzTest = function (CliqzUtils) {
+
+	function mockSmartCliqz(ez) {
+    return new Promise(function (resolve, reject) {
+      CliqzUtils.loadResource('chrome://cliqztests/content/scripts/EZ/' + ez + '.json', function (req) {
+        var json = JSON.parse(req.response);
+        respondWith(json);
+        resolve();
+      });
+    });
+  }
+
+  describe('SmartCliqz', function(){
+
+  	it('should display spiegel smart cliqz', function (done) {
+      mockSmartCliqz('spiegel').then(function () {
+        fillIn("spiegel");
+
+        waitForResult(".cqz-result-title", function () {
+      		var title = $cliqzResults().find(".cqz-result-box .cqz-ez-title")[0].textContent.trim();
+-         chai.expect(title).to.equal("SPIEGEL ONLINE");
+					done();
+        });
+      });
+
+    });
+  });
+
+};
