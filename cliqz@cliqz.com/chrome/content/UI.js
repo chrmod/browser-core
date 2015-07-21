@@ -75,6 +75,7 @@ var UI = {
     lastSelectedUrl: null,
     mouseOver: false,
     urlbar_box: null,
+    DROPDOWN_HEIGHT: 349,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -1626,8 +1627,6 @@ function selectPrevResult(pos, allArrowable) {
 }
 
 function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
-    var DROPDOWN_HEIGHT = 349;
-
     if(el && el.getAttribute("url")){
         //focus on the title - or on the arrow element inside the element
         var target = $('.cqz-ez-title', el) || $('[arrow-override]', el) || el;
@@ -1659,7 +1658,7 @@ function setResultSelection(el, scroll, scrollTop, changeUrl, mouseOver){
           if(context = $('.cqz-result-pattern', gCliqzBox))
             offset += context.parentElement.offsetTop;
         }
-        var scroll = parseInt(offset/DROPDOWN_HEIGHT) * DROPDOWN_HEIGHT;
+        var scroll = parseInt(offset/UI.DROPDOWN_HEIGHT) * UI.DROPDOWN_HEIGHT;
         if(!mouseOver) smooth_scroll_to(gCliqzBox.resultsBox, scroll, 800);
 
         target.setAttribute('arrow', 'true');
