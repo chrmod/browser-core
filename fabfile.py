@@ -91,6 +91,7 @@ def package(beta='True', version=None):
     if not (beta == 'True'):
         local("rm -fr %s/tests" % (PATH_TO_EXTENSION_TEMP))
         local("rm -fr %s/bower_components" % (PATH_TO_EXTENSION_TEMP))
+        local("rm -fr %s/bower.json" % (PATH_TO_EXTENSION_TEMP))
 
         #removes testing entries from the manifest
         local("sed -i '' '4,99d' %s/chrome.manifest" % (PATH_TO_EXTENSION_TEMP))
