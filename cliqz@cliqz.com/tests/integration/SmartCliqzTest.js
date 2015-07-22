@@ -18,7 +18,7 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
         return waitForPopup();
       }).then(function () {
     		var title = $cliqzResults().find(".cqz-result-box .cqz-ez-title")[0].textContent.trim();
-        chai.expect(title).to.equal("SPIEGEL ONLINE");
+        chai.expect(title).to.equal("SPIEGEL ONLINE - Nachrichten");
       });
     });
   });
