@@ -60,4 +60,11 @@ function injectTestHelpers(CliqzUtils) {
       return $cliqzResults().find(".cqz-result-box " + selector).length === 1;
     }, cb);
   };
+
+  window.waitForPopup = function waitForPopupOpen(cb) {
+    waitFor(function () {
+      var popup = chrome.document.getElementById("PopupAutoCompleteRichResultCliqz");
+      return popup.mPopupOpen === true;
+    }, cb);
+  };
 }

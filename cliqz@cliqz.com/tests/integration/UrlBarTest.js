@@ -43,7 +43,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       });
 
       it('should return results from bigmachine', function (done) {
-        waitForResult(".cqz-result-title", function () {
+        waitForPopup(function () {
           var $title = $cliqzResults().find(".cqz-result-box .cqz-result-title")[0].textContent.trim();
           chai.expect($title).to.equal("Facebook");
           done();
@@ -51,7 +51,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       });
 
       it('should open new tab when clicking on a result', function (done) {
-        waitForResult(".cqz-result-title", function () {
+        waitForPopup(function () {
           click($cliqzResults().find(".cqz-result-box .cqz-result-title")[0]);
           chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
           done();
@@ -66,7 +66,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
           result: []
         });
         fillIn("mozilla");
-        waitForResult(".cqz-ez-title", done);
+        waitForPopup(done);
       });
 
       it('should trigger firefox history search', function () {
