@@ -12,17 +12,14 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
 
   describe('SmartCliqz', function(){
 
-  	it('should display spiegel smart cliqz', function (done) {
-      mockSmartCliqz('spiegel').then(function () {
+  	it('should display spiegel smart cliqz', function () {
+      return mockSmartCliqz('spiegel').then(function () {
         fillIn("spiegel");
-
-        waitForResult(".cqz-result-title", function () {
-      		var title = $cliqzResults().find(".cqz-result-box .cqz-ez-title")[0].textContent.trim();
--         chai.expect(title).to.equal("SPIEGEL ONLINE");
-					done();
-        });
+        return waitForPopup();
+      }).then(function () {
+    		var title = $cliqzResults().find(".cqz-result-box .cqz-ez-title")[0].textContent.trim();
+        chai.expect(title).to.equal("SPIEGEL ONLINE");
       });
-
     });
   });
 

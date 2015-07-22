@@ -8,19 +8,27 @@ function injectTestHelpers(CliqzUtils) {
     urlBar.mInputField.setUserInput(text);
   };
 
-  window.waitFor = function waitFor(fn, callback) {
-  	chai.expect(fn()).to.equal(false);
+  window.waitFor = function waitFor(fn) {
+  	var resolver, rejecter, promise = new Promise(function (res, rej) {
+      resolver = res;
+      rejecter = rej;
+    });
+
+    chai.expect(fn()).to.equal(false);
+
     function check() {
       CliqzUtils.log("!!", fn());
       if(fn()) {
         clearInterval(interval);
-        callback(); 
+        resolver();
       }
     }
+    
     var interval = setInterval(check, 250);
     check();
     registerInterval(interval);
-    return interval;	
+
+    return promise;	
   };
 
   window.registerInterval = function registerInterval(interval) {
@@ -55,16 +63,10 @@ function injectTestHelpers(CliqzUtils) {
     return $(chrome.document.getElementById("cliqz-results"));
   }
 
-  window.waitForResult = function waitForResult(selector, cb) {
-    waitFor(function () {
-      return $cliqzResults().find(".cqz-result-box " + selector).length === 1;
-    }, cb);
-  };
-
-  window.waitForPopup = function waitForPopupOpen(cb) {
-    waitFor(function () {
+  window.waitForPopup = function () {
+    return waitFor(function () {
       var popup = chrome.document.getElementById("PopupAutoCompleteRichResultCliqz");
       return popup.mPopupOpen === true;
-    }, cb);
+    });
   };
 }

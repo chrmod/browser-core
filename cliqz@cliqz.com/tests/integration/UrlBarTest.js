@@ -35,38 +35,33 @@ TESTS.UrlBarTest = function (CliqzUtils) {
         fillIn(query);
       });
       
-      it('popup opens', function(done) {
-        waitFor(function () {
-          var popup = CliqzUtils.getWindow().document.getElementById("PopupAutoCompleteRichResultCliqz");
-          return popup.mPopupOpen === true;
-        }, done);
+      it('popup opens', function() {
+        return waitForPopup();
       });
 
-      it('should return results from bigmachine', function (done) {
-        waitForPopup(function () {
+      it('should return results from bigmachine', function () {
+        return waitForPopup().then(function () {
           var $title = $cliqzResults().find(".cqz-result-box .cqz-result-title")[0].textContent.trim();
           chai.expect($title).to.equal("Facebook");
-          done();
         });
       });
 
-      it('should open new tab when clicking on a result', function (done) {
-        waitForPopup(function () {
+      it('should open new tab when clicking on a result', function () {
+        return waitForPopup().then(function () {
           click($cliqzResults().find(".cqz-result-box .cqz-result-title")[0]);
           chai.expect(CliqzUtils.getWindow().gBrowser.tabs).to.have.length(2);
-          done();
         });
       });
 
     });
 
     context("history results", function () {
-      beforeEach(function (done) {
+      beforeEach(function () {
         respondWith({
           result: []
         });
         fillIn("mozilla");
-        waitForPopup(done);
+        return waitForPopup();
       });
 
       it('should trigger firefox history search', function () {
