@@ -25,6 +25,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
+  'chrome://cliqzmodules/content/CliqzDemo.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
@@ -133,6 +136,11 @@ window.CLIQZ.Core = {
             CliqzCategories.init();
         }
 
+        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
+            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
+            CliqzCategories.assessNewsTopsites();
+        }
+
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
@@ -149,6 +157,7 @@ window.CLIQZ.Core = {
         document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
+
         CLIQZ.Core.popup = popup;
 
         CLIQZ.UI.init();
@@ -199,6 +208,7 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
+            CliqzDemo.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -366,6 +376,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzHistory.tabSelect, false);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
+            CliqzDemo.unload(window);
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -437,6 +448,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
+            delete window.CliqzDemo;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
@@ -734,6 +746,8 @@ window.CLIQZ.Core = {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
+        CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
+        CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);

@@ -18,7 +18,7 @@ var CliqzHandlebars = this.Handlebars;
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -39,10 +39,10 @@ CliqzHandlebars.tplCache = {};
 compileTemplates();
 registerHelpers();
 
-function compileTemplates(){    
+function compileTemplates(){
     Object.keys(TEMPLATES).forEach(fetchTemplate);
     MESSAGE_TEMPLATES.forEach(fetchTemplate);
-    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });   
+    PARTIALS.forEach(function(tName){ fetchTemplate(tName, true); });
 }
 
 function fetchTemplate(tName, isPartial) {
@@ -140,9 +140,32 @@ function registerHelpers(){
         return 'cqz-result-h3';
     });
 
-    Handlebars.registerHelper('bm_rd_template', function(data_richData) {
-        // 22May2015, thuy@cliqz.com, used for rich-snippet (rich-data) from BM. Originally used for: movie, games, recipe
-        return (CliqzAutocomplete.lastResult._results.length === 1); // is the only result in the show list
+    Handlebars.registerHelper('recipe_rd_template', function(data_richData) {
+        var minimalData = data_richData
+                          && typeof(data_richData["cook_time"]) !== "undefined"
+                          && typeof(data_richData["numportion"]) !== "undefined"
+                          && typeof(data_richData["total_review"]) !== "undefined";
+
+        // is the only result in the show list
+        return (CliqzAutocomplete.lastResult._results.length === 1 && minimalData);
+    });
+
+    Handlebars.registerHelper('cpgame_movie_rd_template', function(data_richData) {
+        var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
+        var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
+        // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
+        var big_template = (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
+        if (big_template && data_richData["categories"])
+            data_richData["categories"].forEach(function(item){
+                if(item["title"]  && !item["title_key"])
+                    item["title_key"] = item["title"];
+            });
+
+        return big_template
+    });
+
+    Handlebars.registerHelper('localize_numbers', function(num) {
+        return (num !== null || typeof(num)!=="undefined" )? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "_"
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
@@ -250,7 +273,12 @@ function registerHelpers(){
             case "^":           return lvalue ^ rvalue;
             case "is":          return lvalue == rvalue;
             case "starts_with": return lvalue.indexOf(rvalue) == 0;
+            case "===":         return lvalue === rvalue;
         }
+    });
+
+    Handlebars.registerHelper('is_not_dummy', function(s){
+        return s && s!=="_";
     });
 
     Handlebars.registerHelper('nameify', function(str) {
@@ -268,8 +296,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('links_or_sources', function(richData) {
-        return (richData.internal_links && richData.internal_links.length > 0) ?
-                  richData.internal_links : richData.additional_sources
+        return richData ? ((richData.internal_links && richData.internal_links.length > 0) ? richData.internal_links : (richData.additional_sources ? richData.additional_sources : [])) : 0;
     });
 
     Handlebars.registerHelper('pref', function(key) {

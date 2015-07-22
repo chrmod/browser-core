@@ -1,5 +1,5 @@
 <div class='cqz-result-images cqz-result-images-{{ data.lines }}'>
-     <div class='cqz-ez-title cqz-ez-images-title'>
+     <div class='cqz-ez-title cqz-ez-images-title' extra="title">
         Images
     </div>
 

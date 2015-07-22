@@ -59,6 +59,7 @@ var CliqzCalculator = {
                 {'val': 1e-9, 'names': ['nm', 'nanometre', 'nanometre', 'nanometer', 'nanometers']},
                 {'val': 10000, 'names': ['mil']},  // this is Sweden and Norway unit
                 {'val': 1609.344, 'names': ['mile', 'miles']},
+                {'val': 201.168, 'names': ['furlong', 'furlongs']},
                 {'val': 0.9144 , 'names': ['yd', 'yard', 'yards']},
                 {'val': 2.54*1e-5, 'names': ['thou']},
                 {'val': 1.8288, 'names': ['fm', 'fathom', 'fathoms']},
@@ -243,4 +244,3 @@ var CliqzCalculator = {
         return this.isConverterSearch(q);
     }
 };
-
