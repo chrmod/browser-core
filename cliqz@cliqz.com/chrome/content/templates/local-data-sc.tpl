@@ -18,8 +18,42 @@
             </div>
         </div>
     </div>
-    <div class="cqz-result-desc">
-        {{desc}}
+    <div class="cqz-local-des-blk">
+        <div >{{desc}}</div>
+        <div class="cqz-local-hr"> </div>
+        {{#unless no_location}}
+        <div class="cqz-local-info">
+            {{#if phone_address}}
+            <div class="cqz-local-info-left" >
+                {{#if address}}
+                <div class="cqz-local-address" extra="address" url="{{mu}}">
+                    <img src="http://cdn.cliqz.com/extension/EZ/local/map-pin.svg" class="cqz-local-icon clz_link" onerror="this.style.display='none';"/>
+                    <div class="clz_link multi-ellipsis2"><p>{{address}}</p></div>
+                </div>
+                {{/if}}
+                {{#if phonenumber}}
+                <div extra="phone_num" cliqz-action="copy_val">
+                    <img src="http://cdn.cliqz.com/extension/EZ/local/phone-1.svg" class="cqz-local-icon clz_copy" onerror="this.style.display='none';"/>
+                    <div class="clz_copy">{{phonenumber}}</div>
+                </div>
+                {{/if}}
+            </div>
+            {{/if}}
+            {{#if opening_hours}}
+            <div class="cqz-local-info-right" extra="open-hour">
+                    <img src="http://cdn.cliqz.com/extension/EZ/local/clock.svg" class="cqz-local-icon" onerror="this.style.display='none';"/>
+                    <div class="cqz-local-time">
+                        <div style="color: {{opening_status.color}}"> {{opening_status.stt_text}} </div>
+                        <div> {{opening_status.time_info_til}}</div>
+                        <div>
+                            {{opening_status.time_info_str}}
+                        </div>
+                    </div>
+            </div>
+            {{/if}}
+
+        </div>
+        {{/unless}}
     </div>
     {{/with}}
   {{> logo}}

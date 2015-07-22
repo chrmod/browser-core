@@ -357,8 +357,42 @@ function registerHelpers(){
         var height_ = ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data)) ? 2 : 1;
         var rating_img = null;
 
-        data["rating"] = 2;
-        data["image"] = "http://www.daskochrezept.de/sites/default/files/rezept/2009/7/4a59e03b6fbfb.jpg";
+        var t = new Date(),
+            current_t = t.getHours() + '.' + t.getMinutes(),
+            is_open = false, close_soon = null, open_soon = null, open_stt,
+            tmp, h_diff, m_diff,
+            time_info_str = "";
+
+        data["phone_address"] = data["phonenumber"] || data["address"];
+
+        if ( data["opening_hours"]) {
+            data["opening_hours"].every(function (el) {
+                time_info_str = time_info_str ? time_info_str + ', ' : "";
+                time_info_str += el["open"]['time'] + ' - ' + el["close"]['time'];
+                if (is_open === false) {
+                    if (current_t >= el["open"]['time'] && current_t <= el["close"]["time"]) {
+                        is_open = true;
+                        tmp = el["close"]["time"].split('.');
+                        h_diff = t.getHours() - tmp[0];
+                        m_diff = t.getMinutes() - tmp[1];
+                        close_soon = (h_diff === 0 || (h_diff === -1 && m_diff >= 0));
+                    } else {
+                        tmp = el["open"]["time"].split('.');
+                        h_diff = t.getHours() - tmp[0];
+                        m_diff = t.getMinutes() - tmp[1];
+                        open_soon = (h_diff === 0 || (h_diff === -1 && m_diff >= 0));
+                    }
+                };
+                return true;
+            });
+            open_stt = is_open ? (close_soon ? "close_soon" : "open") : (open_soon ? "open_soon" : "closed");
+            data["opening_status"] = {
+                "color": open_stt === 'open' ? "#74d463" : (open_stt === 'closed' ? "#E92207" : "#FFC802"),
+                "stt_text": CliqzUtils.getLocalizedString.apply(null, [open_stt]),
+                "time_info_til": CliqzUtils.getLocalizedString.apply(null, ['open_hour']),
+                "time_info_str": time_info_str
+            };
+        }
 
         if (data["rating"] !== null)
             rating_img = "http://cdn.cliqz.com/extension/EZ/richresult/stars"+ Math.max(0, Math.min(Math.round(data["rating"]), 5)) + ".svg";
