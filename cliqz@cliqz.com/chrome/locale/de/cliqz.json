@@ -203,13 +203,31 @@
     "agoXYears":{
         "message":"vor {} Jahren"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Alles klar!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
+    "onCalloutSmartCliqz":{
+        "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Entschuldige die Unterbrechung, aber Du musst die Adresse nicht immer komplett eintippen. Drücke einfach auf ENTER, sobald die Adresse erscheint!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Nicht mehr zeigen."
     },
     "onCalloutIntro":{
