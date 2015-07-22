@@ -87,9 +87,9 @@ var CliqzLanguage = {
                             CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
                             CliqzAutocomplete.afterQueryCount = 0;
                             found = true;
-                            
+
                             CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
-                            break;                            
+                            break;
                         }
                     }
                     if (!found) {
