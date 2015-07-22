@@ -547,7 +547,7 @@ var CliqzExtOnboarding = {
         var callout = CliqzExtOnboarding._getCallout();
 
         // close callout whenever dropdown closes
-        if (callout.state == "open") {
+        if (callout && callout.state == "open") {
             if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "result")) {
                 callout.hidePopup();
             }
