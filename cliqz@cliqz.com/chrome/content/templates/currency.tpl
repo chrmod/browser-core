@@ -5,7 +5,10 @@
         </div>
         <div class="EZ-currency EZ-currency-rate">
             <span>
-                {{data.multiplyer}} {{data.fromCurrency}}  =  {{convRateDigitSplit data.mConversionRate}} {{data.toCurrency}}
+                {{data.multiplyer}} {{data.fromCurrency}}  =
+                <span class='cqz-conv-rate'>
+                    {{ data.toAmount.main }}<span class='cqz-rate-last-digits'>{{ data.toAmount.extra }}</span>
+                </span> {{data.toCurrency}}
             </span>
             <span class="cqz-disclaimer EZ-currency-disclaimer">{{local 'no_legal_disclaimer'}}</span>
         </div>
