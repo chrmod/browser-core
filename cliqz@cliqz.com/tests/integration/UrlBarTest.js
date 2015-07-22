@@ -1,7 +1,7 @@
 TESTS.UrlBarTest = function (CliqzUtils) {
-  
+
   describe('UrlBar integration', function(){
-    
+
     afterEach(function () {
       fillIn("");
     });
@@ -29,12 +29,12 @@ TESTS.UrlBarTest = function (CliqzUtils) {
           }
         ]
       }, query = result.result[0].q;
-        
-      beforeEach(function() {        
+
+      beforeEach(function() {
         respondWith(result);
         fillIn(query);
       });
-      
+
       it('popup opens', function() {
         return waitForPopup();
       });
@@ -42,7 +42,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       it('should return results from bigmachine', function () {
         return waitForPopup().then(function () {
           var $title = $cliqzResults().find(".cqz-result-box .cqz-result-title")[0].textContent.trim();
-          chai.expect($title).to.equal("Facebook");
+          chai.expect($title).to.contain("Facebook");
         });
       });
 
@@ -68,7 +68,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
         var $pattern = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element"),
             $title   = $cliqzResults().find(".cqz-result-box .cqz-ez-title");
 
-        chai.expect($title[0].textContent.trim()).to.equal("Mozilla");
+        chai.expect($title[0].textContent.trim()).to.contain("Mozilla");
         chai.expect($pattern).to.have.length.above(1);
       });
 
