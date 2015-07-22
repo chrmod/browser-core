@@ -86,6 +86,13 @@ def package(beta='True', version=None):
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
     local("cp -R %s %s" % (PATH_TO_EXTENSION, PATH_TO_EXTENSION_TEMP))
+
+    #remove tests and bower components
+    local("rm -fr %s/tests" % (PATH_TO_EXTENSION_TEMP))
+    local("rm -fr %s/bower_components" % (PATH_TO_EXTENSION_TEMP))
+
+    #removes testing entries from the manifest
+    local("sed -i '' '4,99d' %s/chrome.manifest" % (PATH_TO_EXTENSION_TEMP))
     with lcd(PATH_TO_EXTENSION_TEMP):  # We need to be inside the folder when using zip
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
