@@ -388,14 +388,27 @@
 #cliqz-results .cliqz-stock-price-td { padding-left: 28px; }
 
 /* ez currency */
-#cliqz-results .EZ-currency-result { font-size: 25px; margin-top: -6px; }
+#cliqz-results .EZ-currency-result { font-size: 48px; margin-top: -6px; }
 #cliqz-results .EZ-currency-rate { color: #999999; margin: 11px 0px 3px; }
-#cliqz-results .EZ-currency-disclaimer { color: #cccccc; }
+#cliqz-results .EZ-currency-disclaimer { color: #cccccc; margin-left: 15px; font-size: 14px; }
+#cliqz-results .EZ-currency-result .cqz-currency-symbol {
+    margin-right: 4px;
+}
+#cliqz-results .EZ-currency-result .cqz-currency-code {
+    margin-left: 10px;
+}
+#cliqz-results .EZ-currency-rate {
+    color: #999999;
+    margin: 11px 0 3px;
+}
+#cliqz-results .EZ-currency-rate .cqz-conv-rate .cqz-rate-last-digits {
+    color: #ccc;
+}
 
 /* ez calculator (time etc) */
 #cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
 #cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
