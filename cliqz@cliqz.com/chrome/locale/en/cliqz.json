@@ -733,6 +733,12 @@
     },
     "show_local_movies": {
       "message": "No. Show me where I can watch it!"
+    },
+    "location_just_once": {
+      "message": "Just this once"
+    },
+    "location_not_now": {
+      "message": "Not now"
     }
 
 }

@@ -58,8 +58,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://rich-header.fbt.co/mixer?q=',
-  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               'http://rh-staging.clyqz.com/mixer?bmresult=kino.de/kinofilm/jurassic-world/110724&loc=51.432,11.223,G&q=', //'http://rich-header.fbt.co/mixer?q=',
+  RICH_HEADER:                    'http://staging-mixer.clyqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -78,6 +78,8 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
+  USER_LAT:                       null,
+  USER_LON:                       null,
   TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -669,11 +671,11 @@ var CliqzUtils = {
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeLocation: function(allowOnce) {
-    if (!(allowOnce || CliqzUtils.getPref("location_always_allow"))) return ""
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) return ""
 
     var lat = CliqzUtils.getPref('userLat');
     var lon = CliqzUtils.getPref('userLon');
-    return lat && lon ? '&loc=' + lat + ',' + lon: '';
+    return lat && lon ? '&loc=' + lat + ',' + lon + ',U': '';
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -1388,10 +1390,24 @@ var CliqzUtils = {
           )
     },
     updateGeoLocation: function() {
-      Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports).getCurrentPosition(function(p){
-        CliqzUtils.setPref('userLat', JSON.stringify(p.coords.latitude));
-        CliqzUtils.setPref('userLon', JSON.stringify(p.coords.longitude));
-      }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); })
+      if (CliqzUtils.getPref('share_location') == 'yes') {
+        // Get current position
+        var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+        geoService.getCurrentPosition(function(p){
+          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+          CliqzUtils.USER_LON =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+
+        // Upate position if it changes
+        geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CliqzUtils.getPref('share_location') == 'yes') {
+            CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+            CliqzUtils.USER_LON =  JSON.stringify(p.coords.longitude);
+          }
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+      }
+
     }
     /*
     toggleMenuSettings: function(new_state) {

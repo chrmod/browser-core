@@ -137,7 +137,7 @@
   background-size: 20px;
   background-repeat: no-repeat;
   height: 32px;
-  width: 32px;  
+  width: 32px;
 }
 
 .pulsate {
@@ -562,7 +562,7 @@
   margin-bottom: 5px;
 }
 
-#cliqz-results .cinema-showtimes-container {
+#cliqz-results .local-sc-data-container {
   width:80%;
   max-width:650px;
 }
@@ -614,6 +614,7 @@
 
 #cliz-results .cqz_location_once {
   color:white;
+
 }
 
 #cliqz-results .cqz_location_never {
@@ -632,7 +633,7 @@
   background: transparent none repeat scroll 0% 0%;
 }
 
-#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes {
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes, #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
   border: none;
   height: 18px;
   background-color: rgb(47, 196, 252);

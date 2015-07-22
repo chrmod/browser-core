@@ -17,7 +17,7 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended','cinema_showtimes_partial','location_confirm_no'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended','location_confirm_no'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -304,36 +304,49 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('for', function(from, to, incr, block) {
+      // repeat block in for loop
       var accum = '';
       for(var i = from; i < to; i += incr)
           accum += block.fn(i);
       return accum;
     });
 
-    Handlebars.registerHelper('ifeq', function(v1, v2, options) {
+    /* Math comparisons */
+    Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
       return v1 == v2 ? options.fn(this) : options.inverse(this);
     });
 
-    Handlebars.registerHelper('ifleq', function(v1, v2, options) {
+    Handlebars.registerHelper('ifleq', function(v1, v2, options) { // if less than or equal
       return v1 <= v2 ? options.fn(this) : options.inverse(this);
     });
 
-    Handlebars.registerHelper('iflt', function(v1, v2, options) {
+    Handlebars.registerHelper('iflt', function(v1, v2, options) {  // if less than
       return v1 < v2 ? options.fn(this) : options.inverse(this);
     });
 
-    Handlebars.registerHelper('ifgeq', function(v1, v2, options) {
+    Handlebars.registerHelper('ifgeq', function(v1, v2, options) { // if greater than or equal
       return v1 >= v2 ? options.fn(this) : options.inverse(this);
     });
 
-    Handlebars.registerHelper('ifgt', function(v1, v2, options) {
+    Handlebars.registerHelper('ifgt', function(v1, v2, options) { // if geater than
       return v1 > v2 ? options.fn(this) : options.inverse(this);
     });
 
-    Handlebars.registerHelper('ifpref', function(name, options) {
-      return CliqzUtils.getPref(name) ? options.fn(this) : options.inverse(this) ;
+    /* End Math comparisons */
+
+    /* If conditions on preferences */
+    Handlebars.registerHelper('ifpref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.fn(this) : options.inverse(this) ;
+      else
+        return CliqzUtils.getPref(name) == val ? options.fn(this) : options.inverse(this) ;
     });
-    Handlebars.registerHelper('unlesspref', function(name, options) {
-      return CliqzUtils.getPref(name) ? options.inverse(this) : options.fn(this) ;
+
+    Handlebars.registerHelper('unlesspref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.inverse(this) : options.fn(this);
+      else
+        return CliqzUtils.getPref(name) == val ? options.inverse(this) : options.fn(this);
     });
+    /* End If conditions on preferences */
 }

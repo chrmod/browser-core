@@ -1,4 +1,4 @@
-<div class="{{#ifpref 'location_never_ask'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-movie-result">
+<div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-movie-result">
   {{#with data}}
     <div class='movie_container'>
       <div class='movie_poster'>
@@ -23,13 +23,17 @@
         </div>
       </div>
     </div>
-    <div class="cinema-showtimes-container" id="cinema-showtimes-container">
+    <div class="cinema-showtimes-container local-sc-data-container" id="cinema-showtimes-container">
       {{#if no_location }}
-        {{#unlesspref 'location_never_ask'}}
+        {{#unlesspref 'share_location' 'no'}}
           {{>missing_location}}
         {{/unlesspref}}
       {{else}}
-        {{>cinema_showtimes_partial}}
+        {{#if cinemas}}
+          {{>cinema_showtimes_partial}}
+        {{else}}
+          {{local 'no_cinemas_to_show'}}
+        {{/if}}
       {{/if}}
     </div>
     {{#if movie.trailer_url}}

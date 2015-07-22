@@ -722,5 +722,11 @@
     },
     "show_local_movies": {
       "message": "Nein, zeig mir wo ich den Film schauen kann."
+    },
+    "location_just_once": {
+      "message": "Dieses eine mal"
+    },
+    "location_not_now": {
+      "message": "Jetzt nicht"
     }
 }

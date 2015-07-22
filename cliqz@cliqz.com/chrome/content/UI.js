@@ -59,7 +59,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     smartCliqzWaitTime = 100
     ;
 
-function lg(msg){
+function lg(msg){z
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
@@ -1451,25 +1451,33 @@ function resultClick(ev){
                 default:
                     break;
             }
-        } else if (el.getAttribute('id') == 'cqz_location_yes') {
+        } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
           ev.preventDefault();
-          CliqzUtils.setPref("location_always_allow", true);
+          if (el.id == 'cqz_location_yes')
+            CliqzUtils.setPref("share_location", 'yes');
           CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
               "&q=" + CLIQZ.Core.urlbar.value +
-              CliqzUtils.encodeLocation() + ",U" + // Indicate that location is provided by the user
+              CliqzUtils.encodeLocation(true) +
               "&bmresult=" + el.getAttribute('bm_url'),
-              handleNewCinemaResults);
+              handleNewLocalResults(el));
           break;
-        } else if (el.getAttribute('id') == 'cqz_location_no') {
-          var container = $(".cinema-showtimes-container",gCliqzBox);
+        } else if (el.id == 'cqz_location_no') {
+          var container = $(".local-sc-data-container",gCliqzBox);
           container.innerHTML = CliqzHandlebars.tplCache.location_confirm_no({
             'friendly_url': el.getAttribute('bm_url')
           });
-        } else if (el.getAttribute('id') == 'cqz_location_never') {
-          CliqzUtils.setPref('location_never_ask',true);
-          var container = $(".cinema-showtimes-container",gCliqzBox);
+        } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
+          if (el.id == 'cqz_location_never')
+            CliqzUtils.setPref("share_location", "no");
+          var container = $(".local-sc-data-container",gCliqzBox);
           container.innerHTML = "";
-          var result = $('.local-movie-result', gCliqzBox);
+          //var result = el;
+          CliqzUtils.log(JSON.stringify(el), "EL CLIQZ");
+          //CliqzUtils.log(JSON.stringify(result), "RESULT CLIQZ");
+          while (!CliqzUtils.hasClass(result, 'cqz-result-h1') ) {
+            result = result.parentElement;
+            if (result.id == "cliqz-results") return;
+          }
           result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
           break;
         }
@@ -1479,26 +1487,24 @@ function resultClick(ev){
 }
 
 
-function handleNewCinemaResults(req) {
-      //CliqzUtils.log(req, "RESPONSE FROM RH");
-      var resp = JSON.parse(req.response);
-      var container = $(".cinema-showtimes-container",gCliqzBox);
-      //CliqzUtils.log(container,'cinema-container');
-      if (resp.results && resp.results.length > 0) {
-        var data = resp.results[0].data;
-        if (data && data.cinemas.length > 0)
-          container.innerHTML = CliqzHandlebars.tplCache.cinema_showtimes_partial(data);
-        else {
-          container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
-          var result = $('.local-movie-result', gCliqzBox);
-          result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
-        }
-      }
-      else {
-        container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
-        var result = $('.local-movie-result', gCliqzBox);
-        result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
-      }
+function handleNewLocalResults(el) {
+  return function(req) {
+    //CliqzUtils.log(req, "RESPONSE FROM RH");
+    var resp = JSON.parse(req.response);
+    var container = el;
+    while (!CliqzUtils.hasClass(container, "cqz-result-box")) {
+      container = container.parentElement;
+      if (container.id == "cliqz-results") return;
+    }
+    //CliqzUtils.log(container,'cinema-container');
+    if (resp.results && resp.results.length > 0) {
+      var data = resp.results[0];
+      data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
+      CliqzUtils.log(data,"SECOND TIME DATA");
+      var tpl = data.data.template;
+      container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+    }
+  }
 }
 
 

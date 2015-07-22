@@ -8,7 +8,7 @@
         <a class="cinema-name cqz-url" {{#if cinema.website}} url="{{cinema.website}}" {{/if}} href="{{cinema.website}}">{{cinema.name}}</a>
       </td>
       {{#each showtimes}}
-        <td class="cinema-showtime-td" {{#if booking_url }} url="{{booking_url}}" {{/if}}>
+        <td class="cinema-showtime-td" {{#if booking_link }} url="{{booking_link}}" {{/if}}>
           <span class="cinema-showtime">{{time}}</span>
         </td>
       {{/each}}

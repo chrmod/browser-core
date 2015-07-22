@@ -6,7 +6,7 @@
     <span class="cqz-btn-error" id="cqz_location_never">
       {{local 'yes'}}
     </span>
-    <span class="cqz-btn-default" id="cqz_location_yes" bm_url='{{friendly_url}}'>
+    <span class="cqz-btn-default cqz_location_once" id="cqz_location_once" bm_url='{{friendly_url}}'>
       {{local 'show_local_movies'}}
     </span>
   </div>
