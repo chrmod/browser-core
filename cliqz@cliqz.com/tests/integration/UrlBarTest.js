@@ -10,7 +10,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
       var result = {
         "result": [
           {
-            "q": "fb",
+            "q": "xx-face",
             "url": "https://www.facebook.com/",
             "score": 0,
             "confidence": null,
