@@ -33,6 +33,8 @@ var CliqzLanguage = {
     useragentPrefs: Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
+    regexGoogleRef: /\.google\..*?\/(?:url|aclk)\?/,
+
     sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
         var action = {
             type: 'performance',
@@ -133,8 +135,13 @@ var CliqzLanguage = {
 
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
-        onStateChange: function(aWebProgress, aRequest, aFlag, aStatus) {
-        }
+        onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
+            if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
+                if (CliqzLanguage.regexGoogleRef.test(aRequest.name)) {
+                    CliqzUtils.log("### REF");
+                }
+            }
+        },
     },
 
     // load from the about:config settings
