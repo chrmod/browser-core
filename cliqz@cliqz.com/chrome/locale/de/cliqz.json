@@ -698,5 +698,8 @@
     },
     "dismiss": {
         "message": "Nachricht schließen"
+    },
+    "extended_forecast": {
+        "message": "Detailiertere Vorhersage"
     }
 }
