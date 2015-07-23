@@ -109,7 +109,6 @@ var CliqzLanguage = {
                             if (googleUrl == cliqzUrl) {
                                 var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
                                 CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
-                                CliqzUtils.log("### result_compare tt");
                                 CliqzAutocomplete.afterQueryCount = 0;
                                 found = true;
 
@@ -121,7 +120,6 @@ var CliqzLanguage = {
                         // we don't have the same result
                         if (!found) {
                             CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
-                            CliqzUtils.log("### result_compare tf");
                         }
                     }
                 }
