@@ -156,9 +156,10 @@ runner.on('end', function () {
   writeToFile(XMLReport);
 
   if(getParameterByName('closeOnFinish') === "1") {
-    Components
+      Components
       .classes['@mozilla.org/toolkit/app-startup;1']
       .getService(Components.interfaces.nsIAppStartup)
-      .quit(Components.interfaces.nsIAppStartup.eForceQuit);
-  }
-});
+      .quit(Components.interfaces.nsIAppStartup.eForceQuit); 
+    }
+    
+  });
