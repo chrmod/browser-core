@@ -11,13 +11,14 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
   'chrome://cliqzmodules/content/CUcrawl.jsm');
 
-Cu.import("chrome://cliqzres/content/freshtab/page/js/FreshTab.jsm");
+
 
 
 function startup(aData, aReason) {
     Extension.load(aReason == ADDON_UPGRADE, aData.oldVersion, aData.version);
 
     try{
+        Cu.import("chrome://cliqzres/content/freshtab/page/js/FreshTab.jsm");
         FreshTab.startup('chrome://cliqzres/content/freshtab/page/freshtab.html')
     } catch(e){}
 }
