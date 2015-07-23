@@ -5,11 +5,15 @@
             <img src='{{this}}' class='cqz-celeb-image' url="{{ get_array_element ../images_meta @index 'ref_url'}}" />
          {{/each}}
     </div>
-    <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false" arrow-override=''>
+    <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false" arrow-override='' extra="title">
     	<a href="{{../url}}">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span>
     </div>
+    <span class="cqz-ez-subtitle">
+      {{ emphasis ../urlDetails.friendly_url text 2 true }}
+    </span>
+
     <div class='cqz-celeb-desc'>
-        {{ emphasis description_wiki ../text 2 true }}
+        <span extra="des">{{ emphasis description_wiki ../text 2 true }}</span>
     </div>
 	<div class='cqz-celeb-social-box'>
          {{#each social}}

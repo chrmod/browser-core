@@ -1,4 +1,37 @@
 {
+    "from_lcase":{
+        "message": "from"
+    },
+    "Cast":{
+        "message": "Cast"
+    },
+    "Movie_Length":{
+        "message": "{} minutes"
+    },
+    "Creator":{
+        "message": "Creator"
+    },
+    "Director":{
+        "message": "Director"
+    },
+    "Review":{
+        "message": "Review"
+    },
+    "Reviews":{
+        "message": "Reviews"
+    },
+    "Tips":{
+        "message": "Tips"
+    },
+    "Photos":{
+        "message": "Photos"
+    },
+    "locale_lang_code":{
+        "message": "en-US"
+    },
+    "GameCategory":{
+        "message": "Game Category"
+    },
     "Turkish Calendar":{
         "message": "Turkish Calendar"
     },
@@ -17,8 +50,8 @@
     "Ingredients":{
         "message": "Ingredients"
     },
-    "Reviews":{
-        "message": "Reviews"
+    "Votes":{
+        "message": "reviews"
     },
     "Serves":{
         "message": "Serves"
@@ -155,13 +188,31 @@
     "agoXYears":{
         "message":"{} years ago"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Got it!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutSmartCliqz":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Sorry about interrupting. You don't have to type the full address. Just press ENTER as soon as the address appears!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Don't show again."
     },
     "onCalloutIntro":{

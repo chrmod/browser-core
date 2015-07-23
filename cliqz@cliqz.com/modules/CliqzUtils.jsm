@@ -42,7 +42,9 @@ var VERTICAL_ENCODINGS = {
     'dictionary':'l',
     'qaa':'q',
     'bm': 'm',
-    'reciperd': 'r'
+    'reciperd': 'r',
+    'game': 'g',
+    'movie': 'o'
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
@@ -90,7 +92,8 @@ var CliqzUtils = {
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
-      'ramadan': 3
+      'ramadan': 3, 'ez-generic-2': 3,
+      'cpgame_movie': 3
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -146,8 +149,7 @@ var CliqzUtils = {
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   getLocalStorage: function(url) {
-    return false;/*
-    var uri = Services.io.newURI(url,null,null),
+    var uri = Services.io.newURI(url,"",null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
 
     if (typeof principalFunction != "function") return false
@@ -156,8 +158,7 @@ var CliqzUtils = {
         dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
               .getService(Components.interfaces.nsIDOMStorageManager)
 
-    return dsm.createStorage(null,principal,"");
-    */
+    return dsm.getLocalStorageForPrincipal(principal, '')
   },
   setSupportInfo: function(status){
     var info = JSON.stringify({
@@ -472,6 +473,16 @@ var CliqzUtils = {
       name = isLocalhost ? "localhost" : "IP";
     }
 
+    // remove www from beginning, we need cleanHost in the friendly url
+    var cleanHost = host;
+    if(host.toLowerCase().indexOf('www.') == 0) {
+      cleanHost = host.slice(4);
+    }
+
+    var friendly_url = cleanHost + extra;
+    //remove trailing slash from the end
+    friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
+
     var urlDetails = {
               scheme: scheme,
               name: name,
@@ -484,10 +495,17 @@ var CliqzUtils = {
               extra: extra,
               host: host,
               ssl: ssl,
-              port: port
+              port: port,
+              friendly_url: friendly_url
         };
 
     return urlDetails;
+  },
+  stripTrailingSlash: function(str) {
+    if(str.substr(-1) === '/') {
+        return str.substr(0, str.length - 1);
+    }
+    return str;
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
@@ -569,6 +587,21 @@ var CliqzUtils = {
   },
   getCliqzResults: function(q, callback){
     CliqzUtils._querySeq++;
+
+    if(q.length < CliqzUtils._queryLastLength){
+      CliqzUtils._queriesDel++;
+      CliqzUtils._queriesTSDel = CliqzUtils._queriesTSDel.map(function(v){ return v+1; });
+    } else {
+      [100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000].forEach(function(v, i){
+        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + v)){
+          CliqzUtils._queriesTS[i]++;
+          CliqzUtils._queriesTSDel[i]++;
+        }
+      });
+    }
+    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+    CliqzUtils._queryLastLength = q.length;
+
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
               CliqzUtils.encodeQuerySession() +
@@ -674,15 +707,30 @@ var CliqzUtils = {
   },
   _querySession: '',
   _querySeq: 0,
+  _queryLastLength: null,
+  _queryLastDraw: null,
+  _queriesTS: null,
+  _queriesTSDel: null,
+  _queriesDel: null,
   setQuerySession: function(querySession){
     CliqzUtils._querySession = querySession;
     CliqzUtils._querySeq = 0;
+    CliqzUtils._queriesTS = [0,0,0,0,0,0,0,0,0,0];
+    CliqzUtils._queriesTSDel = [0,0,0,0,0,0,0,0,0,0];
+    CliqzUtils._queriesDel = 0;
+    CliqzUtils._queryLastLength = 0;
+    CliqzUtils._queryLastDraw = 0;
   },
   encodeQuerySession: function(){
     return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
   },
   encodeQuerySeq: function(){
-    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
+    if(CliqzUtils._querySession.length){
+      return '&n=' + CliqzUtils._querySeq +
+             '&nd=' + CliqzUtils._queriesDel +
+             '&nts=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTS)) +
+             '&ntsd=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTSDel));
+    } else return '';
   },
   encodeLocation: function(allowOnce) {
     return new Promise(function(resolve, reject) {
@@ -715,8 +763,11 @@ var CliqzUtils = {
       });
   },
   combineSources: function(internal, cliqz){
-    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+    // do not add extra sources to end of EZs
+    if(internal == "cliqz-extra")
+      return internal;
 
+    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
   },
   shouldLoad: function(window){
@@ -765,6 +816,8 @@ var CliqzUtils = {
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
+    msg.seq = (CliqzUtils.getPref('telemetrySeq', 0) + 1) % 2147483647;
+    CliqzUtils.setPref('telemetrySeq', msg.seq);
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
@@ -1251,7 +1304,7 @@ var CliqzUtils = {
         //feedback and FAQ
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
         menupopup.appendChild(CliqzUtils.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
-          CliqzUtils.openTabInWindow(win, 'https://cliqz.com/' + lang + '/home/cliqz-triqz');
+          CliqzUtils.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
         }));
         menupopup.appendChild(doc.createElement('menuseparator'));
 

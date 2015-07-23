@@ -1,8 +1,8 @@
   <div class="cqz-result-h1 cqz-result-padding cqz-ramadan" >
 
     {{#with data}}
-        <div class="cqz-result-title overflow"><a href="{{../url}}">Ramadan</a></div>
-        <div class="cqz-result-url overflow">{{../urlDetails.host}}</div>
+        <div class="cqz-result-title overflow"><a href="{{../url}}" extra="title">Ramadan</a></div>
+        <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
         <div class="cqz-result-desc overflow cqz-ramadan-desc">{{local 'RamadanDes'}}</div>
 
         <div class="ramadanEZ-daylef">
@@ -38,15 +38,12 @@
            {{#each data.categories}}
                 <div
                   class="cqz-ez-btn {{ ../logo.buttonsClass }}"
-                  style="max-width: 100px"
                   url="{{ url }}"
                   extra="cat-{{ @index }}" arrow="false" arrow-if-visible='true'>
                     {{ emphasis (local title_key) ../../text 2 true}}
                 </div>
             {{/each}}
        </div>
-
-      <div style="clear: both"></div>
    </div>
 
 

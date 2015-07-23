@@ -18,6 +18,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
   'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryManager',
+  'chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryAnalysis',
@@ -105,7 +107,7 @@ var CliqzHistory = {
     }
   },
   removeListeners: function(aBrowser, panel) {
-    if(aBrowser) {
+    if(aBrowser && aBrowser.contentDocument) {
       aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
       aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
       aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));
@@ -334,6 +336,23 @@ var CliqzHistory = {
         acQuery: autocompleteQuery
       });
   },
+  // Update descriptions and titles in the local databases
+  // Takes a dictionary with URLs as keys
+  updateTitlesDescriptions: function(data) {
+    for(var url in data) {
+      if(data[url].desc)
+        CliqzHistory.updateDescription(url, data[url].desc);
+
+      if(data[url].title) {
+        // Override current title in FF history DB, so instant result from history
+        // will have the same title as backend results. Important to avoid flickering
+        // when the backend result comes in.
+        CliqzHistoryManager.updatePageTitle(url, data[url].title);
+        // Also in the CLIQZ DB
+        CliqzHistory.updateTitle(url, data[url].title);
+      }
+    }
+  },
   updateTitle: function(url, title, linkTitle) {
     if (title && !linkTitle) {
       CliqzHistory.SQL("INSERT OR REPLACE INTO urltitles (url, title, linkTitle)\
@@ -355,6 +374,71 @@ var CliqzHistory = {
         linkTitle: linkTitle.trim()
       });
     }
+  },
+  updateDescription: function(url, description) {
+    if (description) {
+      CliqzHistory.SQL("INSERT OR REPLACE INTO urldescriptions (url, description)\
+                        VALUES (:url, :description)", null, null, {
+        url: CliqzHistoryPattern.generalizeUrl(url),
+        description: description
+      });
+    }
+  },
+  getTitle: function(url) {
+    if (typeof(Promise) === 'undefined')
+      return;
+
+    return new Promise( function(resolve, reject) {
+      // first try urldescriptions table
+      CliqzHistory.SQL("SELECT title FROM urltitles WHERE url=:url",
+        function(r) { // onRow for urltitles
+          resolve(r[0]);
+        },
+        function(n) { // onCompletion for urldescription
+          if(!n) {
+            resolve(undefined);
+          }
+        }, {
+          url: url
+        });
+    });
+  },
+  getDescription: function(url) {
+    if (typeof(Promise) === 'undefined')
+      return;
+
+    return new Promise( function(resolve, reject) {
+      url = CliqzHistoryPattern.generalizeUrl(url);
+      // first try urldescriptions table
+      CliqzHistory.SQL("SELECT description FROM urldescriptions WHERE url=:url",
+        function(r) { // onRow for urldescriptions
+          resolve(r[0]);
+        },
+        function(n) { // onCompletion for urldescription
+          if(!n) {
+            // next try to get description from opengraph data
+            CliqzHistory.SQL("SELECT data FROM opengraph WHERE url=:url",
+              function(r) {  // onRow for opengrah
+                var data = JSON.parse(r[0]);
+                if(data.description) {
+                  resolve(r[0]);
+                } else {
+                  resolve("");
+                }
+              },
+              function(n) { // onCompletion for opengraph
+                if(!n) {
+                  // found nothing, just return empty string
+                  resolve("");
+                }
+              }, {
+                url: url
+              });
+          }
+        }, {
+          url: url
+        });
+    });
   },
   lastMouseMove: 0,
   mouseMove: function(gBrowser) {
@@ -595,6 +679,11 @@ var CliqzHistory = {
             linktitle VARCHAR(255)\
         )";
 
+    var descriptions = "create table urldescriptions(\
+            url VARCHAR(255) PRIMARY KEY NOT NULL,\
+            description VARCHAR(1024)\
+        )";
+
     var opengraph = "create table opengraph(\
             url VARCHAR(255) PRIMARY KEY NOT NULL,\
             data VARCHAR(2048)\
@@ -606,27 +695,47 @@ var CliqzHistory = {
             date DATE\
         )";
 
+    var newDB = true;
     if (FileUtils.getFile("ProfD", ["cliqz.db"]).exists()) {
-      CliqzHistory.addColumn("urltitles", "linktitle", "VARCHAR(255)");
-      CliqzHistory.addColumn("visits", "prev_visit", "DATE");
-      CliqzHistory.addColumn("visits", "time_spent", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "click_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
-      CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
-      CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
-        if (n == 0) CliqzHistory.SQL(opengraph);
-      });
-      CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
-        if (n == 0) CliqzHistory.SQL(thumbnails);
-      });
-    } else {
+      // make sure current database contains all the required columns
+      newDB = false;
+      try {
+        CliqzHistory.addColumn("urltitles", "linktitle", "VARCHAR(255)");
+        CliqzHistory.addColumn("visits", "prev_visit", "DATE");
+        CliqzHistory.addColumn("visits", "time_spent", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "click_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "scroll_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "keyboard_interaction", "INTEGER DEFAULT 0");
+        CliqzHistory.addColumn("visits", "external", "BOOLEAN DEFAULT 0");
+        CliqzHistory.addColumn("visits", "autocomplete_query", "VARCHAR(255)");
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='urldescriptions'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(descriptions);
+        });
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='opengraph'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(opengraph);
+        });
+        CliqzHistory.SQL("SELECT name FROM sqlite_master WHERE type='table' AND name='thumbnails'", null, function(n) {
+          if (n == 0) CliqzHistory.SQL(thumbnails);
+        });
+
+      } catch (e) {
+        CliqzUtils.log('Error setting up CLIQZ DB' + e, "CliqzHistory");
+
+        // erase it and start fresh
+        FileUtils.getFile("ProfD", ["cliqz.db"]).remove(false);
+        newDB = true;
+      }
+    }
+
+    // build new DB
+    if(newDB) {
       CliqzHistory.SQL(visits);
       CliqzHistory.SQL(titles);
+      CliqzHistory.SQL(descriptions);
       CliqzHistory.SQL(opengraph);
       CliqzHistory.SQL(thumbnails);
     }
+
     // Make sure thumbnail directory exists
     FileUtils.getDir("ProfD", ["cliqz_thumbnails"], true);
 
@@ -653,6 +762,9 @@ var CliqzHistory = {
       url: url
     });
     CliqzHistory.SQL("delete from urltitles where url = :url", null, null, {
+      url: url
+    });
+    CliqzHistory.SQL("delete from urldescriptions where url = :url", null, null, {
       url: url
     });
     CliqzHistory.SQL("delete from thumbnails where url = :url", null, null, {
@@ -682,6 +794,7 @@ var CliqzHistory = {
   clearHistory: function() {
     CliqzHistory.SQL("delete from visits");
     CliqzHistory.SQL("delete from urltitles");
+    CliqzHistory.SQL("delete from urldescriptions");
     CliqzHistory.SQL("delete from thumbnails");
     CliqzHistory.SQL("delete from opengraph");
     // Delete thumbnails and recreate directory

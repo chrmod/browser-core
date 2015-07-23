@@ -6,8 +6,8 @@
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl
                     {{/if}}
-        '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
+        ' extra="url">
+            {{ emphasis urlDetails.friendly_url text 2 true }}
         </div>
       <div class='cliqz-pattern cqz-5-history-results'>
         {{#each data.urls}}

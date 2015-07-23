@@ -157,6 +157,7 @@ window.CLIQZ.Core = {
         document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
+
         CLIQZ.Core.popup = popup;
 
         CLIQZ.UI.init();
@@ -745,6 +746,8 @@ window.CLIQZ.Core = {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
+        CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
+        CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);

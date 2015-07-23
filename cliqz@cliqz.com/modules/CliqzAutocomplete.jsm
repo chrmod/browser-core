@@ -39,6 +39,13 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
                     .getBranch('browser.urlbar.');
 
+function isQinvalid(q){
+    //TODO: add more
+    if(q.indexOf('view-source:') === 0) return true;
+
+    return false;
+}
+
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
@@ -271,72 +278,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzHistoryPattern.addFirefoxHistory(result);
                 }
             },
-            // Pick one history result or a cluster as the instant result to be shown to the user first
-            // TODO: no longer used, see if some of this logic can be moved to HistoryPattern
-            instantResult: function(search, result) {
-                var _res = CliqzClusterHistory.cluster(this.historyResults);
-                history_left = _res[0];
-                cluster_data = _res[1];
-
-                // If we could cluster the history, put that as the instant result
-                if(cluster_data) {
-                    var instant_cluster = Result.generic('cliqz-pattern', cluster_data.url || '', null, '', '', '', cluster_data);
-                    instant_cluster.comment += " (instant history cluster)!";
-
-                    this.instant = [instant_cluster];
-                    this.pushResults(result.searchString);
-                } else {
-                    // Pick the url that is the shortest subset of the first entry
-                    // candidate for instant history
-                    var candidate_idx = -1;
-                    var candidate_url = '';
-
-                    var searchString = this.searchString.replace('http://','').replace('https://','');
-
-                    for(var i = 0; this.historyResults && i < this.historyResults.matchCount; i++) {
-
-                        var url = this.historyResults.getLabelAt(i);
-                        var url_noprotocol = url.replace('http://','').replace('https://','');
-
-                        var urlparts = CliqzUtils.getDetailsFromUrl(url);
-
-                        // check if it should not be filtered, and matches the url
-                        if(Result.isValid(url, urlparts) &&
-                           url_noprotocol.toLowerCase().indexOf(searchString) != -1) {
-
-                            if(candidate_idx == -1) {
-                                // first entry
-                                CliqzUtils.log("first instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
-                                candidate_idx = i;
-                                candidate_url = url;
-                            } else if(candidate_url.indexOf(url_noprotocol) != -1 &&
-                                      candidate_url != url) {
-                                // this url is a substring of the previously candidate
-                                CliqzUtils.log("found shorter instant candidate: " + url, CliqzAutocomplete.LOG_KEY)
-                                candidate_idx = i;
-                                candidate_url = url;
-                            }
-                        }
-                    }
-
-                    if(candidate_idx != -1) {
-                        var style = this.historyResults.getStyleAt(candidate_idx),
-                            value = this.historyResults.getValueAt(candidate_idx),
-                            image = this.historyResults.getImageAt(candidate_idx),
-                            comment = this.historyResults.getCommentAt(candidate_idx),
-                            label = this.historyResults.getLabelAt(candidate_idx);
-
-                        var instant = Result.generic(style, value, image, comment, label, this.searchString);
-                        instant.comment += " (instant history)!";
-
-                        this.historyResults.removeValueAt(candidate_idx, false);
-                        this.instant = [instant];
-                    } else {
-                        this.instant = [];
-                    }
-                    this.pushResults(result.searchString);
-                }
-            },
             isHistoryReady: function() {
                 if(this.historyResults &&
                    this.historyResults.searchResult != this.historyResults.RESULT_NOMATCH_ONGOING &&
@@ -352,21 +293,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 if (res.query == this.searchString && CliqzHistoryPattern.PATTERN_DETECTION_ENABLED) {
                     CliqzAutocomplete.lastPattern = res;
 
-                    // Create instant result
-                    var instant = CliqzHistoryPattern.createInstantResult(res, this.searchString);
-                    if(instant)
-                        this.instant = [instant];
-                    else
-                        this.instant = [];
-
                     var latency = 0;
                     if (CliqzHistoryPattern.latencies[res.query]) {
                         latency = (new Date()).getTime() - CliqzHistoryPattern.latencies[res.query];
                     }
                     this.latency.patterns = latency;
 
-                    this.pushResults(this.searchString);
+                    // Create instant result
+                    CliqzHistoryPattern.createInstantResult(res, this.searchString, this.createInstantResultCallback);
                 }
+            },
+            createInstantResultCallback:function(instant) {
+                this.instant = instant;
+
+                this.pushResults(this.searchString);
             },
             pushTimeoutCallback: function(params) {
                 CliqzUtils.log("pushResults timeout", CliqzAutocomplete.LOG_KEY);
@@ -519,12 +459,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
-                var action = {
-                    type: 'activity',
-                    action: 'key_stroke',
-                    current_length: searchString.length
-                };
+                var invalidQ = isQinvalid(searchString.trim()),
+                    action = {
+                        type: 'activity',
+                        action: 'key_stroke',
+                        current_length: searchString.length,
+                        invalid: invalidQ
+                    };
                 CliqzUtils.telemetry(action);
+
+                if(invalidQ) {
+                    listener.onSearchResult(this, null)
+                    return;
+                }
 
                 if(CliqzAutocomplete.lastSearch.length > searchString.length) {
                   CliqzAutocomplete.spellCorr.override = true;
@@ -589,6 +536,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 this.historyTimeoutCallback = this.historyTimeoutCallback.bind(this);
                 this.pushTimeoutCallback = this.pushTimeoutCallback.bind(this);
                 this.historyPatternCallback = this.historyPatternCallback.bind(this);
+                this.createInstantResultCallback = this.createInstantResultCallback.bind(this);
 
                 CliqzHistoryPattern.historyCallback = this.historyPatternCallback;
 

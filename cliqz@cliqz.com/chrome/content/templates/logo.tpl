@@ -1,6 +1,7 @@
 {{#with logo}}
 	<div
 		newtab='true'
+        extra="logo"
 		class='cliqz-brand-logo
 		       cqz-result-logo
 		       cqz-vert-center
