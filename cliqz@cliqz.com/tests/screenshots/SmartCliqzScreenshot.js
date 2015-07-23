@@ -16,6 +16,25 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
     });
   }
 
+  function padNumber(i, n) {
+    var t = i;
+    while (t >= 10) {
+      n--;
+      t /= 10;
+    }
+    var out = "";
+    while (n > 0) {
+      n--;
+      out += "0";
+    }
+    return out + i;
+  }
+
+  function escapeQuery(query) {
+    return query.replace(/ /g, "_").
+                 replace(/:/g, "_");
+  }
+
   describe('SmartCliqz', function(){
     this.timeout(5000);
 
@@ -43,18 +62,20 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
     });
 
     //TODO get queries from queries.json
-    ['spiegel', 'miley cyrus'].forEach(function (ezName) {
+    var i = 0;
+    ['spiegel', 'miley cyrus', '500 EUR in USD'].forEach(function (query) {
 
-      it('should take screenshot of smart cliqz:'+ ezName, function() {
-        fillIn(ezName);
+      it('should take screenshot of query: '+ query, function() {
+        fillIn(query);
 
         return waitForResult().then(function() {
           return new Promise(function (resolve) {
-            setTimeout(resolve, 300);
+            // increased timeout to avoid seeing scrollbars on Mac
+            setTimeout(resolve, 750);
           });
         }).then(function () {
-          return Screenshot.exec({ 
-            filename: ezName
+          return Screenshot.exec({
+            filename: "screenshot-" + padNumber(i++, 2) + "-" + escapeQuery(query)
           });
         });
       });
