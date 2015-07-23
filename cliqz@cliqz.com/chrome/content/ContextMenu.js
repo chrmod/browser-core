@@ -35,7 +35,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   }
 
   function openNewWindow(e) {
-    window.open(e.target.getAttribute('data-url'), '_blank');
+    CLIQZ.Core.openLink(e.target.getAttribute('data-url'), false, true);
     
     var signal = {
       type: 'activity',
@@ -46,11 +46,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   }
   
   function openInPrivateWindow(e) {
-    var doc = e.target.ownerDocument;
-      openLinkIn(e.target.getAttribute('data-url'), "window",
-              { charset: doc.characterSet,
-                referrerURI: doc.documentURIObject,
-                private: true });
+    CLIQZ.Core.openLink(e.target.getAttribute('data-url'), false, false, true);
     
     var signal = {
       type: 'activity',

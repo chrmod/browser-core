@@ -648,9 +648,12 @@ window.CLIQZ.Core = {
         if(newTab) { 
             gBrowser.addTab(url);
         } else if(newWindow) {
-            window.open(e.target.getAttribute('data-url'), '_blank');
+            window.open(url, '_blank');
         } else if(newPrivateWindow) {
-            
+            openLinkIn(url, "window",
+              { 
+                private: true 
+              });
         }
         else {
             //clean selected text to have a valid last Query

@@ -334,6 +334,7 @@ var Extension = {
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             delete win.CLIQZ.UI;
+            delete win.CLIQZ.ContextMenu;
             try{ delete win.CLIQZ; } catch(e){} //fails at updating from version < 0.6.11
         }catch(e){ Cu.reportError(e); }
     },
