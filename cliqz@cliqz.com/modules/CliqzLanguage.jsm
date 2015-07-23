@@ -34,6 +34,7 @@ var CliqzLanguage = {
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     regexGoogleRef: /\.google\..*?\/(?:url|aclk)\?/,
+    regexGoogleRefUrl: /url=(.+?)&/,
 
     sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
         var action = {
@@ -62,55 +63,9 @@ var CliqzLanguage = {
 
             // here we check if user ignored our results and went to google and landed on the same url
             var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
-            var reref = /\.google\..*?\/(?:url|aclk)\?/; // regex for google refurl
-            var rerefurl = /url=(.+?)&/; // regex for the url in google refurl
-
-            var LR =  CliqzAutocomplete.lastResult['_results'];
 
             if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
                 CliqzAutocomplete.afterQueryCount += 1;
-            }
-
-            if (reref.test(this.currentURL)) { // this is a google ref
-                // action.redirect = true;
-                var m = this.currentURL.match(rerefurl);
-                if (m) {
-                    var dest_url = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(m[1])), // CliqzUtils.cleanUrlProtocol(decodeURIComponent(m[1]), true),
-                        found = false;
-
-
-                    for (var i=0; i < LR.length; i++) {
-                        var comp_url = CliqzHistoryPattern.generalizeUrl(LR[i]['val']); // CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
-                        if (dest_url == comp_url) {
-                            // now we have the same result
-                            var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
-                            CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
-                            CliqzAutocomplete.afterQueryCount = 0;
-                            found = true;
-
-                            CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        // we don't have the same result
-                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
-                    }
-                }
-            } else if (CliqzAutocomplete.afterQueryCount == 1) {
-                // some times the redict was not captured so if only one query was make, we still compare to cliqz result
-                // but we don't send anything if we can't find a match
-                for (var i=0; i < LR.length; i++) {
-                    var dest_url = CliqzUtils.cleanUrlProtocol(this.currentURL, true);
-                    var comp_url = CliqzUtils.cleanUrlProtocol(LR[i]['val'], true);
-                    if (dest_url == comp_url) {
-                        var resType = CliqzUtils.encodeResultType(LR[i].style || LR[i].type);
-                        CliqzLanguage.sendCompSignal('result_compare', false, true, resType, i);
-
-                        CliqzExtOnboarding.onSameResult(aRequest, i, dest_url);
-                        break; 
-                    }
-                }
             }
 
             // now the language detection
@@ -136,9 +91,39 @@ var CliqzLanguage = {
             }, CliqzLanguage.READING_THRESHOLD, this.currentURL);
         },
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
+            // if completed request without error (status)
             if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
+                // if request is a Google ref
                 if (CliqzLanguage.regexGoogleRef.test(aRequest.name)) {
-                    CliqzUtils.log("### REF");
+                    // extract referred URL
+                    var match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
+                    if (match) {
+                        var googleUrl = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(match[1])),
+                            results = CliqzAutocomplete.lastResult['_results'],
+                            found = false;
+
+                        for (var i = 0; i < results.length; i++) {
+                            var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i]['val']);
+
+                            // same result as in dropdown
+                            if (googleUrl == cliqzUrl) {
+                                var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
+                                CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
+                                CliqzUtils.log("### result_compare tt");
+                                CliqzAutocomplete.afterQueryCount = 0;
+                                found = true;
+
+                                CliqzExtOnboarding.onSameResult(aRequest, i, cliqzUrl);
+                                break;
+                            }
+                        }
+
+                        // we don't have the same result
+                        if (!found) {
+                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
+                            CliqzUtils.log("### result_compare tf");
+                        }
+                    }
                 }
             }
         },
