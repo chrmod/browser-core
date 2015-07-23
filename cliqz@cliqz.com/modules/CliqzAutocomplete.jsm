@@ -39,6 +39,13 @@ var prefs = Components.classes['@mozilla.org/preferences-service;1']
                     .getService(Components.interfaces.nsIPrefService)
                     .getBranch('browser.urlbar.');
 
+function isQinvalid(q){
+    //TODO: add more
+    if(q.indexOf('view-source:') === 0) return true;
+
+    return false;
+}
+
 var CliqzAutocomplete = CliqzAutocomplete || {
     LOG_KEY: 'CliqzAutocomplete',
     TIMEOUT: 1000,
@@ -453,12 +460,19 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 CliqzUtils.log('search: ' + searchString, CliqzAutocomplete.LOG_KEY);
 
-                var action = {
-                    type: 'activity',
-                    action: 'key_stroke',
-                    current_length: searchString.length
-                };
+                var invalidQ = isQinvalid(searchString.trim()),
+                    action = {
+                        type: 'activity',
+                        action: 'key_stroke',
+                        current_length: searchString.length,
+                        invalid: invalidQ
+                    };
                 CliqzUtils.telemetry(action);
+
+                if(invalidQ) {
+                    listener.onSearchResult(this, null)
+                    return;
+                }
 
                 if(CliqzAutocomplete.lastSearch.length > searchString.length) {
                   CliqzAutocomplete.spellCorr.override = true;
