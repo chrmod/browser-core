@@ -5,7 +5,7 @@
 		{{/if}}
 		'
 	>
-		{{ emphasis urlDetails.host text 2 false ~}}
+		{{ emphasis urlDetails.friendly_url text 2 false ~}}
 	</span><span class='cliqz-result-url-path'>
 		{{~ emphasis urlDetails.extra text 2 false }}
 	</span>

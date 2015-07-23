@@ -3,7 +3,7 @@
 		<div class='cliqz-result-type' ></div>
 	</div>
 	<div class='cliqz-result-mid-box' style="width:{{ width }}px">
-		<div class='cliqz-result-title-box overflow'>
+		<div class='cliqz-result-title-box overflow' extra="title">
 			{{ title }}
 		</div>
 		{{> url this}}

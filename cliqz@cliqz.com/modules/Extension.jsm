@@ -167,6 +167,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -186,6 +187,9 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHandlebars.jsm');
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
 
         // Remove this observer here to correct bug in 0.5.57
