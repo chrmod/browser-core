@@ -1404,7 +1404,7 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-    var el = ev.target,
+    var el = ev.target, href,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
@@ -1416,6 +1416,9 @@ function resultClick(ev){
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
+        if(href = el.getAttribute("href")) {
+          el.setAttribute('url', href) 
+        }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
               action: "result_click",
