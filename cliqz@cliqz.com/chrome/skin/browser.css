@@ -90,7 +90,7 @@
 
 #cliqz-results .transition { -moz-transition: all 0.2s ease; transition: all 0.2s ease; }
 #cliqz-results .nopadding { padding: 0 }
-#cliqz-results .cqz-result-padding { padding: 16px 22px; box-sizing: border-box; -moz-box-sizing: border-box; }
+#cliqz-results .cqz-result-padding { padding: 16px 20px; box-sizing: border-box; -moz-box-sizing: border-box; }
 #cliqz-results .cqz-result-h1 { height: 348px; }
 #cliqz-results .cqz-result-h2 { height: 232px; }
 #cliqz-results .cqz-result-h3 { height: 116px; }
@@ -168,7 +168,7 @@
     cursor: pointer;
     color: white;
     padding: 0 9px 2px;
-    line-height: 28px;
+    line-height: 26px;
     margin: 0 7px 4px 0;
     max-width: 150px;
     display: inline-block;

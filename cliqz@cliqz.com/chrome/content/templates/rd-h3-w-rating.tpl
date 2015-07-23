@@ -3,10 +3,10 @@ used initially for food, movie, game (in 1 height results)
 IT IS USED AS A PARTIAL template
 -->
 
-<div class="cqz-result-h3 cqz-rd-h3 cqz-result-padding">
+<div class="cqz-result-h3 cqz-rd-h3 cqz-result-padding2">
   {{#with data}}
         {{#if richData.image}}
-            <div class="cqz-image-round cqz-rd-h3img-div" >
+            <div class="cqz-image-round cqz-rd-h3img-div" style="max-width: {{image_rd_specification richData}}" >
                 <img src="{{richData.image}}" class="cqz-rd-img" onerror="this.style.display='none';"/>
             </div>
         {{/if}}

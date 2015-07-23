@@ -171,6 +171,22 @@ function registerHelpers(){
         return big_template
     });
 
+    Handlebars.registerHelper('image_rd_specification', function(richData){
+        var mw = "76px";
+        switch (richData["type"]){
+            case "movie":
+                mw = "50px";
+                break;
+            case "reciperd":
+                mw = "76px";
+                break;
+            case "game":
+                mw = "76px";
+                break;
+        }
+        return mw; // default
+    });
+
     Handlebars.registerHelper('localize_numbers', function(num) {
         return (num !== null || typeof(num)!=="undefined" )? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "_"
     });
