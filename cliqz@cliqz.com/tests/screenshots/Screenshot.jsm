@@ -75,16 +75,11 @@ function createScreenshotData(document, args) {
     height: height,
 		width: width,
 		filename: getFilename(args.filename),
-});
+	});
 }
 
-const SKIP = Promise.resolve();
-
 function saveScreenshot(reply) {
-	const fileNeeded = true;
-	return Promise.all([
-		fileNeeded ? saveToFile(reply) : SKIP
-		]).then(() => reply);
+	return saveToFile(reply).then(function () { return Promise.resolve(reply) });
 }
 
 function saveToFile(reply) {
@@ -92,8 +87,8 @@ function saveToFile(reply) {
 	return Task.spawn(function*() {
 		try {
 			//let document = window.document;
-			let window = CliqzUtils.getWindow();
-			let document = CliqzUtils.getWindow().document;
+			let w = CliqzUtils.getWindow();
+			let d = CliqzUtils.getWindow().document;
 			let filename = reply.filename;
 
 			//Check if there is a .png extension to filename
@@ -101,9 +96,9 @@ function saveToFile(reply) {
 				filename += ".png";
 			}
 
-			window.saveURL(reply.data, filename, null,
+			w.saveURL(reply.data, filename, null,
 						   true /*aShouldBypassCache */, true /* aSkipPrompt */,
-						   document.documentURIObject, document);			
+						   d.documentURIObject, d);			
 		}
 		catch (ex) {
 			CliqzUtils.log(ex);
