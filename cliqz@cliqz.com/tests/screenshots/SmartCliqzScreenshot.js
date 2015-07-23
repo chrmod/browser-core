@@ -1,14 +1,17 @@
 Components.utils.import('chrome://cliqztests/content/screenshots/Screenshot.jsm');
+var QUERIES = [];
 
 TESTS.SmartCliqzTest = function (CliqzUtils) {
 
-  function mockSmartCliqz(ez) {
+  function readQueries() {
     return new Promise(function (resolve, reject) {
-      CliqzUtils.loadResource('chrome://cliqztests/content/EZ/' + ez + '.json', function (req) {
-        var json = JSON.parse(req.response);
-        CliqzUtils.log(json);
-        respondWith(json);
-        resolve();
+      CliqzUtils.loadResource('chrome://cliqztests/content/screenshots/queries.json', function (req) {
+        var json = JSON.parse(req.response),
+            queries = [];
+        for(var i = 0; i < json.queries.length; i++) {
+          queries.push(json.queries[i].q);
+        }
+        resolve(queries);
       });
     });
   }
@@ -26,18 +29,19 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
 
     });
 
-    ['gmx.de', 'spiegel'].forEach(function (ezName) {
+    //TODO get queries from queries.json
+    ['spiegel', 'miley cyrus'].forEach(function (ezName) {
 
-      it('should take screenshot of smart cliqz:'+ezName, function() {
-        return mockSmartCliqz(ezName).then(function () {
-          fillIn(ezName);
-          return waitForPopup();
-        }).then(function() {
-          Screenshot.exec();
-        }); 
+      it('should take screenshot of smart cliqz:'+ ezName, function() {
+
+        fillIn(ezName);
+        return waitForPopup().then(function() {
+          var args = { 
+            filename: ezName
+          }
+          Screenshot.exec(args);
+        });
       });
-
     });
   });
-
 };

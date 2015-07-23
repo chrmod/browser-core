@@ -21,7 +21,7 @@ const BRAND_SHORT_NAME = Cc["@mozilla.org/intl/stringbundle;1"]
  // format: "Screen Shot yyyy-mm-dd at HH.MM.SS.png"
  const FILENAME_DEFAULT_VALUE = " ";
 
-
+//http://mxr.mozilla.org/mozilla-central/source/toolkit/devtools/gcli/commands/screenshot.js
 var Screenshot = {
 	exec: function(args) {
 		return createScreenshotData(CliqzUtils.getWindow(),args).then(saveScreenshot);
@@ -56,8 +56,6 @@ function createScreenshotData(document, args) {
 	width -= scrollbarWidth.value;
 	height -= scrollbarHeight.value;
 
-	CliqzUtils.log("!width" + width + ' height' + height);
-
 	const canvas = window.document.createElementNS("http://www.w3.org/1999/xhtml", "canvas");
 	const ctx = canvas.getContext("2d");
 	const ratio = window.devicePixelRatio;
@@ -74,9 +72,9 @@ function createScreenshotData(document, args) {
   return Promise.resolve({
 		destinations: [],
 		data: data,
-    	height: height,
+    height: height,
 		width: width,
-		filename: getFilename("test1234"),
+		filename: getFilename(args.filename),
 });
 }
 
@@ -100,15 +98,12 @@ function saveToFile(reply) {
 
 			//Check if there is a .png extension to filename
 			if (!filename.match(/.png$/i)) {
-				CliqzUtils.log("!!!!", filename);
 				filename += ".png";
 			}
 
 			window.saveURL(reply.data, filename, null,
 						   true /*aShouldBypassCache */, true /* aSkipPrompt */,
-						   document.documentURIObject, document);
-			CliqzUtils.log("!!Saved to file");
-			
+						   document.documentURIObject, document);			
 		}
 		catch (ex) {
 			CliqzUtils.log(ex);
