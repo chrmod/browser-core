@@ -60,7 +60,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     smartCliqzWaitTime = 100
     ;
 
-function lg(msg){z
+function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
 
