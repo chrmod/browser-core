@@ -329,4 +329,13 @@ function registerHelpers(){
           return defaultSetting;
         }
     });
+
+    Handlebars.registerHelper('convRateDigitSplit', function (rate) {
+        var result = "<span class='cqz-conv-rate'>" +
+            rate.substr(0, rate.length - 2) +
+            "<span class='cqz-rate-last-digits'>" + rate.substr(-2) + "</span>" +
+            "</span>";
+
+        return new Handlebars.SafeString(result);
+    });
 }
