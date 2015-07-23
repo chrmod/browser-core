@@ -650,7 +650,7 @@ window.CLIQZ.Core = {
            CliqzAutosuggestion.active = false;
         } */
     },
-    openLink: function(url, newTab){
+    openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
         if(url.indexOf("://") == -1)
@@ -669,7 +669,16 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CLIQZ.Core.triggerLastQ = true;
-        if(newTab) gBrowser.addTab(url);
+        if(newTab) { 
+            gBrowser.addTab(url);
+        } else if(newWindow) {
+            window.open(url, '_blank');
+        } else if(newPrivateWindow) {
+            openLinkIn(url, "window",
+              { 
+                private: true 
+              });
+        }
         else {
             //clean selected text to have a valid last Query
             //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
@@ -746,6 +755,8 @@ window.CLIQZ.Core = {
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
+        CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
+        CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
         if (autocomplete.autocomplete) {
             urlBar.mInputField.value = autocomplete.urlbar;
             urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);

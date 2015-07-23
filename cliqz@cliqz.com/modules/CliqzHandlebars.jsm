@@ -353,10 +353,11 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw){
-        var n, name, item, zeroInfo=[];
-        for (n = 0; n<ZERO_CLICK_INFO_PRIO.length; n++) {
-            item = ZERO_CLICK_INFO_PRIO[n]; name = item[0];
+    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw) {
+        var n, name, item, zeroInfo = [];
+        for (n = 0; n < ZERO_CLICK_INFO_PRIO.length; n++) {
+            item = ZERO_CLICK_INFO_PRIO[n];
+            name = item[0];
             if (zeroInfo_raw[name]) {
                 zeroInfo.push({
                     'name': name,
@@ -367,5 +368,14 @@ function registerHelpers(){
         }
         zeroInfo_raw = zeroInfo;
         return zeroInfo_raw;
+    });
+
+    Handlebars.registerHelper('convRateDigitSplit', function (rate) {
+        var result = "<span class='cqz-conv-rate'>" +
+            rate.substr(0, rate.length - 2) +
+            "<span class='cqz-rate-last-digits'>" + rate.substr(-2) + "</span>" +
+            "</span>";
+
+        return new Handlebars.SafeString(result);
     });
 }

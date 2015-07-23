@@ -234,7 +234,7 @@
   background-size: 20px;
   background-repeat: no-repeat;
   height: 32px;
-  width: 32px;  
+  width: 32px;
 }
 
 .pulsate {
@@ -243,6 +243,26 @@
   animation-delay: 0.5s;
   animation-duration: 0.5s;
   animation-name: changescale;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes fadecolor {
+  from {
+    border-color: rgba(240, 86, 81, 0.0);
+  }
+
+  to {
+    border-color: rgba(240, 86, 81, 1.0);
+  }
+}
+
+.onboarding-highlight {
+  border-width: 2px !important;
+  border-spacing: 2px !important;
+  border-style: dashed !important;
+  animation-duration: 0.75s;
+  animation-name: fadecolor;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
@@ -264,19 +284,34 @@
   font-weight: 500;
 }
 
-#cliqzExtOnboardingCallout .onboarding-callout { font-weight: 300; }
-
-#cliqzExtOnboardingCallout .panel-arrowcontent {padding-top: 0px;}
-
+#cliqzExtOnboardingCallout .onboarding-callout { font-weight: 300; padding: 0px; }
+#cliqzExtOnboardingCallout .panel-arrowcontent { padding-top: 0px; }
 #cliqzExtOnboardingCallout .panel-arrowcontent { background: #FD544F; color: white; }
 
-/*#cliqzExtOnboardingCallout .panel-arrow { list-style-image: url(chrome://cliqzres/content/skin/panelarrow-vertical-red.png); }*/
+#cliqzExtOnboardingCallout .panel-arrow[side="top"],
+#cliqzExtOnboardingCallout .panel-arrow[side="bottom"] {
+    list-style-image: url(chrome://cliqzres/content/skin/panelarrow-red-horizontal.svg);
+}
+
+#cliqzExtOnboardingCallout .panel-arrow[side="left"],
+#cliqzExtOnboardingCallout .panel-arrow[side="right"] {
+  list-style-image: url(chrome://cliqzres/content/skin/panelarrow-red-vertical.svg);
+}
 
 .onboarding-callout .msg-container { position: relative; display: block; white-space: pre-line; max-width: 300px; line-height: 1.4; }
+#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .msg-container { max-width: 200px; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .msg-container { max-width: 600px; }
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .msg-container { max-width: 400px; }
 
 .onboarding-callout .btn-container,
 .onboarding-callout .btn-container-extended { position: relative; display: block; right: 0px; text-align: right; margin-top: 10px; }
-.onboarding-callout .btn-container-extended { text-align: center; width: 100%; }
+.onboarding-callout .btn-container-extended {margin-top: 20px; }
+
+.onboarding-callout .logo-container { position: relative; display: block; right: 0px; text-align: center; margin-top: 10px; }
+
+#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended { text-align: center; width: 100%; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended { text-align: right; width: 100%; }
 
 .onboarding-callout .btn-container .cqz-btn,
 .onboarding-callout .btn-container-extended .cqz-btn {
@@ -293,7 +328,9 @@
     font-weight: 500;
 }
 
-.onboarding-callout .btn-container-extended .cqz-btn { display: block; max-width: 160px; }
+#cliqzExtOnboardingCallout[msg_type="same_result"] .onboarding-callout .btn-container-extended .cqz-btn { display: block; max-width: 160px; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .onboarding-callout .btn-container-extended .cqz-btn,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .onboarding-callout .btn-container-extended .cqz-btn { display: inline; max-width: 160px; }
 
 .onboarding-callout .btn-container .cqz-btn-ok { background-color: #8CE12F; }
 .onboarding-callout .btn-container .cqz-btn-cancel { background-color: #c3043e; color: white; }
@@ -301,15 +338,16 @@
 .onboarding-callout .btn-container-extended .cqz-btn-ok { background-color: #63A4F6; color: white; margin-top: 30px; }
 .onboarding-callout .btn-container-extended .cqz-btn-cancel { background-color: transparent; color: #EEE; text-decoration: underline; font-size: 12px; font-weight: 300; margin-top: 5px;}
 
-.onboarding-callout .cliqz-logo { width: 100px; margin-top: 30px; }
-
-
 #cliqzExtOnboardingCallout .cliqz-logo {
   background-image: url(chrome://cliqzres/content/skin/img/cliqz.svg);
   background-repeat: no-repeat;
   height: 20px;  
-  margin-left: 20px;
+  width: 100px;
 }
+
+#cliqzExtOnboardingCallout[msg_type="same_result"] .cliqz-logo { margin-left: 20px;  margin-top: 30px; }
+#cliqzExtOnboardingCallout[msg_type="typed_url"] .cliqz-logo,
+#cliqzExtOnboardingCallout[msg_type="smart_cliqz"] .cliqz-logo { margin: 0px; float: left;}
 
 /* ------- END onboarding */
 

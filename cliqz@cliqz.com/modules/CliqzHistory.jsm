@@ -107,7 +107,7 @@ var CliqzHistory = {
     }
   },
   removeListeners: function(aBrowser, panel) {
-    if(aBrowser) {
+    if(aBrowser && aBrowser.contentDocument) {
       aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "click"));
       aBrowser.contentDocument.removeEventListener("click", CliqzHistory.getTabData(panel, "linkClick"));
       aBrowser.contentDocument.removeEventListener("keydown", CliqzHistory.getTabData(panel, "key"));

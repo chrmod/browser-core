@@ -188,13 +188,31 @@
     "agoXYears":{
         "message":"{} years ago"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Got it!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutSmartCliqz":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Sorry about interrupting. You don't have to type the full address. Just press ENTER as soon as the address appears!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Don't show again."
     },
     "onCalloutIntro":{
@@ -678,7 +696,19 @@
         "message": "to"
     },
     "today": {
-        "message": "Today"
+        "message": "Today"    
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Open Link in New Tab"  
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Open Link in New Window"  
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Open Link in New Private Window"   
+    },
+    "cMenuFeedback": {
+      "message": "Feedback for CLIQZ"
     },
     "myQuery": {
         "message": "query"
