@@ -63,7 +63,11 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
 
     //TODO get queries from queries.json
     var i = 0;
-    ['spiegel', 'miley cyrus', '500 EUR in USD'].forEach(function (query) {
+    ['flug LH76', '500 EUR in USD', '5m in inch',
+     'aktuelle uhrzeit los angeles', 'aktie apple',
+     'wetter in muenchen',
+     'spiegel.de', 'amazon.de', 'dkb.de'
+    ].forEach(function (query) {
 
       it('should take screenshot of query: '+ query, function() {
         fillIn(query);
@@ -72,10 +76,11 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
           return new Promise(function (resolve) {
             // increased timeout to avoid seeing scrollbars on Mac
             setTimeout(resolve, 750);
+            i++;
           });
         }).then(function () {
           return Screenshot.exec({
-            filename: "screenshot-" + padNumber(i++, 2) + "-" + escapeQuery(query)
+            filename: "dropdown-" + padNumber(i, 2) + "-" + escapeQuery(query)
           });
         });
       });
