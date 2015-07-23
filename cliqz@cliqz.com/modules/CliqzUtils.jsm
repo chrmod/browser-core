@@ -58,8 +58,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'http://rh-staging.clyqz.com/mixer?bmresult=kino.de/kinofilm/jurassic-world/110724&loc=51.432,11.223,G&q=', //'http://rich-header.fbt.co/mixer?q=',
-  RICH_HEADER:                    'http://staging-mixer.clyqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               'http://10.0.74.117/mixer?bmresult=kino.de/kinofilm/jurassic-world/110724&loc=51.432,11.223,G&q=', //'http://rich-header.fbt.co/mixer?q=',
+  RICH_HEADER:                    'http://10.0.74.117/map?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -576,14 +576,28 @@ var CliqzUtils = {
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeFilter() +
-              CliqzUtils.encodeLocation(); // @TODO encodeLocation only if user accepts to share it.
+              CliqzUtils.encodeFilter();
 
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
-      function(res){
-        callback && callback(res, q);
-      }
-    );
+    CliqzUtils.encodeLocation().then(
+      function onSuccess(loc) {
+        url += loc;
+        CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+          function(res){
+            callback && callback(res, q);
+          }
+        );
+      },
+      function onFailure(err) {
+        CliqzUtils.log(err, "Location not allowed");
+        CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+          function(res){
+            callback && callback(res, q);
+          }
+        );
+      });
+
+
+
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -671,11 +685,25 @@ var CliqzUtils = {
     return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
   },
   encodeLocation: function(allowOnce) {
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) return ""
+    return new Promise(function(resolve, reject) {
+      if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) reject("Not allowed to access geolocation");
 
-    var lat = CliqzUtils.getPref('userLat');
-    var lon = CliqzUtils.getPref('userLon');
-    return lat && lon ? '&loc=' + lat + ',' + lon + ',U': '';
+      if (CliqzUtils.USER_LAT && CliqzUtils.USER_LON) {
+        resolve('&loc=' + CliqzUtils.USER_LAT + ',' + CliqzUtils.USER_LON + ',U');
+      }
+      else {
+        var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+        geoService.getCurrentPosition(function(p) {
+          var lat = p.coords.latitude;
+          var lon =  p.coords.longitude;
+          resolve('&loc=' + lat + ',' + lon + ',U');
+        }, function(e) { reject("Error Updating Geolocation"); });
+      }
+
+    });
+
+
+
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -1120,6 +1148,28 @@ var CliqzUtils = {
 
     return data;
   },
+
+  getLocationPermState: function(){
+    var data = {
+      'yes': {
+              name: CliqzUtils.getLocalizedString('yes'),
+              selected: false
+      },
+      'ask': {
+              name: CliqzUtils.getLocalizedString('always_ask'),
+              selected: false
+      },
+      'no': {
+          name: CliqzUtils.getLocalizedString('no'),
+          selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
+
+    return data;
+  },
+
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
     return urlbar.value.length == 0;
@@ -1209,6 +1259,7 @@ var CliqzUtils = {
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+        menupopup.appendChild(CliqzUtils.createLocationPermOptions(doc));
       }
       else {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
@@ -1280,6 +1331,38 @@ var CliqzUtils = {
         menu.appendChild(menupopup);
         return menu;
     },
+
+    createLocationPermOptions(doc) {
+      var menu = doc.createElement('menu'),
+          menupopup = doc.createElement('menupopup');
+
+      menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
+
+      var filter_levels = CliqzUtils.getLocationPermState();
+
+      for(var level in filter_levels) {
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', filter_levels[level].name);
+        item.setAttribute('class', 'menuitem-iconic');
+
+
+        if(filter_levels[level].selected){
+          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+
+        }
+
+        item.filter_level = new String(level);
+        item.addEventListener('command', function(event) {
+          CliqzUtils.setLocationPermission(this.filter_level.toString());
+          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+        }, false);
+
+        menupopup.appendChild(item);
+      };
+      menu.appendChild(menupopup);
+      return menu;
+  },
+
     createSimpleBtn: function(doc, txt, func){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
@@ -1402,12 +1485,20 @@ var CliqzUtils = {
         geoService.watchPosition(function(p) {
           // Make another check, to make sure that the user hasn't changed permissions meanwhile
           if (CliqzUtils.getPref('share_location') == 'yes') {
-            CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
-            CliqzUtils.USER_LON =  JSON.stringify(p.coords.longitude);
+            CliqzUtils.USER_LAT = p.coords.latitude;
+            CliqzUtils.USER_LON =  p.coords.longitude;
           }
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+      } else {
+        CliqzUtils.USER_LAT = null;
+        CliqzUtils.USER_LON = null;
       }
-
+    },
+    setLocationPermission(newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.updateGeoLocation();
+      }
     }
     /*
     toggleMenuSettings: function(new_state) {
@@ -1439,4 +1530,5 @@ var CliqzUtils = {
       }
     }
     */
+
 };

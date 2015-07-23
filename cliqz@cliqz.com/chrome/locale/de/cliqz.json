@@ -717,7 +717,7 @@
     "no_cinemas_to_show": {
       "message": "Leider spielt der Film in keinem Kino in Deiner Nähe"
     },
-    "location_confirm_no": {
+    "movies_confirm_no": {
       "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
     },
     "show_local_movies": {
@@ -728,5 +728,17 @@
     },
     "location_not_now": {
       "message": "Jetzt nicht"
+    },
+    "always_ask": {
+      "message": "Immer fragen"
+    },
+    "share_location": {
+      "message":"Standort teilen"
+    },
+    "location_confirm_no": {
+      "message": "Sicher, dass Du keine Informationen über interessante Orte in deiner Umgebung sehen möchtest?"
+    },
+    "show_local_results": {
+      "message": "Nein, zeige mir lokale Informationen."
     }
 }

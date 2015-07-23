@@ -1454,31 +1454,40 @@ function resultClick(ev){
         } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
           ev.preventDefault();
           if (el.id == 'cqz_location_yes')
-            CliqzUtils.setPref("share_location", 'yes');
-          CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-              "&q=" + CLIQZ.Core.urlbar.value +
-              CliqzUtils.encodeLocation(true) +
-              "&bmresult=" + el.getAttribute('bm_url'),
-              handleNewLocalResults(el));
+            CliqzUtils.setLocationPermission('yes');
+          CliqzUtils.encodeLocation(true).then(function(loc) {
+            CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
+                "&q=" + CLIQZ.Core.urlbar.value + loc +
+                "&bmresult=" + el.getAttribute('bm_url'),
+                handleNewLocalResults(el));
+          });
           break;
         } else if (el.id == 'cqz_location_no') {
           var container = $(".local-sc-data-container",gCliqzBox);
-          container.innerHTML = CliqzHandlebars.tplCache.location_confirm_no({
-            'friendly_url': el.getAttribute('bm_url')
-          });
+          /* Show a message to confirm user's decision*/
+          var location_confirm_no_msg = el.getAttribute('location_confirm_no_msg');
+          if (location_confirm_no_msg) {
+            container.innerHTML = CliqzHandlebars.tplCache[location_confirm_no_msg]({
+              'friendly_url': el.getAttribute('bm_url')
+            });
+          } else {
+            container.innerHTML = CliqzHandlebars.tplCache.location_confirm_no({
+              'friendly_url': el.getAttribute('bm_url')
+            });
+          }
         } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
           if (el.id == 'cqz_location_never')
-            CliqzUtils.setPref("share_location", "no");
+            CliqzUtils.setLocationPermission("no");
+
+          /* Hide the prompt that asks for permision to get user's location */
           var container = $(".local-sc-data-container",gCliqzBox);
           container.innerHTML = "";
-          //var result = el;
-          CliqzUtils.log(JSON.stringify(el), "EL CLIQZ");
-          //CliqzUtils.log(JSON.stringify(result), "RESULT CLIQZ");
-          while (!CliqzUtils.hasClass(result, 'cqz-result-h1') ) {
-            result = result.parentElement;
-            if (result.id == "cliqz-results") return;
+          /* Reduce the size of the result now that the prompt is hidden */
+          while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+            container = container.parentElement;
+            if (container.id == "cliqz-results") return;
           }
-          result.className = result.className.replace('cqz-result-h1','cqz-result-h2');
+          container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
           break;
         }
         if(el.className == IC) break; //do not go higher than a result
@@ -1500,7 +1509,6 @@ function handleNewLocalResults(el) {
     if (resp.results && resp.results.length > 0) {
       var data = resp.results[0];
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
-      CliqzUtils.log(data,"SECOND TIME DATA");
       var tpl = data.data.template;
       container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
     }

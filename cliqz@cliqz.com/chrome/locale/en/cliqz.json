@@ -728,7 +728,7 @@
     "no_cinemas_to_show": {
       "message": "It seems like this movie is not currently playing in your area."
     },
-    "location_confirm_no": {
+    "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
     },
     "show_local_movies": {
@@ -739,6 +739,18 @@
     },
     "location_not_now": {
       "message": "Not now"
+    },
+    "always_ask": {
+      "message": "Always Ask"
+    },
+    "share_location": {
+      "message": "Share Location"
+    },
+    "location_confirm_no": {
+      "message": "Are you sure you don't want to see relevant information about places around you?"
+    },
+    "show_local_results": {
+      "message": "No, show me local info"
     }
 
 }
