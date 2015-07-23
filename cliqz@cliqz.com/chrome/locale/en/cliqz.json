@@ -696,7 +696,19 @@
         "message": "to"
     },
     "today": {
-        "message": "Today"
+        "message": "Today"    
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Open Link in New Tab"  
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Open Link in New Window"  
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Open Link in New Private Window"   
+    },
+    "cMenuFeedback": {
+      "message": "Feedback for CLIQZ"
     },
     "myQuery": {
         "message": "query"

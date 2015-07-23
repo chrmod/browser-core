@@ -122,6 +122,10 @@ var UI = {
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
+
+        //enable right click context menu
+        CLIQZ.ContextMenu.enableContextMenu(box);
+
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -226,6 +230,7 @@ var UI = {
 
 
     loadAsyncResult: function(res, query) {
+
 
       if (res && res.length > 0) {
         for (var i in res) {
@@ -645,7 +650,8 @@ var UI = {
       };
     },
     closeResults: closeResults,
-    sessionEnd: sessionEnd
+    sessionEnd: sessionEnd,
+    getResultOrChildAttr: getResultOrChildAttr
 };
 
 
