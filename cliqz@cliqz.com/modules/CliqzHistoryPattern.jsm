@@ -41,13 +41,13 @@ var CliqzHistoryPattern = {
   latencies: [],
   historyService: null,
   ioService: null,
-  baseUrlCache: {}, 
+  baseUrlCache: {},
   // This method uses the cliqz history to detect patterns
   dbConn: null,
   initDbConn: function() {
     var file = FileUtils.getFile("ProfD", ["cliqz.db"]);
     if(!CliqzHistoryPattern.dbConn)
-      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);    
+      CliqzHistoryPattern.dbConn = Services.storage.openDatabase(file);
   },
   detectPattern: function(query, callback) {
     if (query.length <= 2) {
@@ -233,7 +233,7 @@ var CliqzHistoryPattern = {
     patterns = CliqzHistoryPattern.filterPatterns(patterns, query.toLowerCase());
     var share = CliqzHistoryPattern.maxDomainShare(patterns);
 
-    // Remove patterns with same title
+    // Remove patterns with same url or title
     patterns = CliqzHistoryPattern.removeDuplicates(patterns);
 
     // Move base domain to top
@@ -368,27 +368,165 @@ var CliqzHistoryPattern = {
     }
     return newPatterns;
   },
+  // Deduplicate URLs and titles
   removeDuplicates: function(patterns) {
-    var newPatterns = [];
-    var titles = [];
-    var urls = [];
-    for (var key in patterns) {
-      var pattern = patterns[key], title = pattern.title;
-
-      if (titles[title] !== true && urls[pattern._genUrl] !== true) {
-        newPatterns.push(pattern);
-        titles[title] = true;
-        urls[pattern._genUrl] = true;
-      }
-    }
+    var newPatterns;
+    newPatterns = CliqzHistoryPattern.removeDuplicatesByKey(patterns, '_genUrl');
+    newPatterns = CliqzHistoryPattern.removeDuplicatesByKey(newPatterns, 'title');
     return newPatterns;
   },
+  // Deduplicate entries by value of key, with a preference for https
+  removeDuplicatesByKey: function(patterns, key) {
+    var reorg = {};
+    var order = [];
+
+    var value;
+
+    // Pass 1: group similar entries by key
+    for (var i=0; i<patterns.length; i++) {
+      value = patterns[i][key];
+      if(!reorg.hasOwnProperty(value)) {
+        order.push(value);
+        reorg[value] = [];
+      }
+      reorg[value].push(patterns[i]);
+    }
+
+    // Pass 2: take the best entry from each group
+    // and add to newPatterns in original order.
+    var newPatterns = [];
+    for(i=0; i<order.length; i++) {
+      value = order[i];
+
+      // Look for https link
+      var found = false;
+      for(var j=0; j<reorg[value].length; j++) {
+        if(reorg[value][j].url.indexOf('https://') === 0) {
+          newPatterns.push(reorg[value][j]);
+          found = true;
+        }
+      }
+
+      //if none, take the first entry
+      if(!found)
+        newPatterns.push(reorg[value][0]);
+    }
+
+    return newPatterns;
+  },
+  // TEMPORARY: move to testing framework when it is ready
+  removeDuplicates_test: function() {
+    var source = [
+      { title: 'title 1',
+        url: 'http://www.abs.com/'
+      },
+      { title: 'title 2',
+        url: 'http://www.abs.com/'
+      },
+      { title: 'title 3',
+        url: 'http://www.abs.com/'
+      }
+    ];
+
+    var expected = [
+      { title: 'title 1',
+        url: 'http://www.abs.com/'
+      }
+    ];
+
+    CliqzUtils.log('removeDuplicates_test #1', 'TEST');
+    CliqzHistoryPattern.removeDuplicates_test_one(source, expected);
+
+
+    source = [
+      { title: 'title 1',
+        url: 'http://www.abs.com/'
+      },
+      { title: 'title 2',
+        url: 'https://www.abs.com/'
+      }
+    ];
+
+    expected = [
+      { title: 'title 2',
+        url: 'https://www.abs.com/'
+      }
+    ];
+
+    CliqzUtils.log('removeDuplicates_test #2', 'TEST');
+    CliqzHistoryPattern.removeDuplicates_test_one(source, expected);
+
+
+    source = [
+      { title: 'title 1',
+        url: 'https://www.abs.com/'
+      },
+      { title: 'title 2',
+        url: 'http://www.abs.com/'
+      }
+    ];
+
+    expected = [
+      { title: 'title 1',
+        url: 'https://www.abs.com/'
+      }
+    ];
+
+    CliqzUtils.log('removeDuplicates_test #3', 'TEST');
+    CliqzHistoryPattern.removeDuplicates_test_one(source, expected);
+
+    source = [
+      { title: 'title',
+        url: 'https://www.abs.com/asdfdfsda'
+      },
+      { title: 'title',
+        url: 'http://www.abs.com/fdcxjxjxlj'
+      }
+    ];
+
+    expected = [
+      { title: 'title',
+        url: 'https://www.abs.com/asdfdfsda'
+      }
+    ];
+
+    CliqzUtils.log('removeDuplicates_test #4', 'TEST');
+    CliqzHistoryPattern.removeDuplicates_test_one(source, expected);
+
+  },
+  removeDuplicates_test_one: function(source, expected) {
+    for(var i = 0; i < source.length; i++ ) {
+      source[i]._genUrl = CliqzHistoryPattern.generalizeUrl(source[i].url);
+    }
+
+    var result = CliqzHistoryPattern.removeDuplicates(source);
+
+    var failed = false;
+    if(expected.length != result.length) {
+      failed = true;
+    } else {
+      for(i = 0; i < expected.length; i++ ) {
+        if(expected[i].url != result[i].url) {
+          failed = true;
+          break;
+        }
+      }
+    }
+
+    if(failed) {
+      CliqzUtils.log('removeDuplicates_test failed.', 'TEST');
+      CliqzUtils.log('expected: ' + JSON.stringify(expected), 'TEST');
+      CliqzUtils.log('result: ' + JSON.stringify(result), 'TEST');
+    }
+
+  },
+
   // Search all patterns for matching substring (should be domain)
   findCommonDomain: function(patterns) {
     if (patterns.length < 2) {
       return null;
     }
-    var scores = {}
+    var scores = {};
 
     for (var key in patterns) {
       var url1 = patterns[key]._genUrl;
@@ -417,9 +555,11 @@ var CliqzHistoryPattern = {
     var basePattern = null, baseUrl = null, favicon = null,
         commonDomain = CliqzHistoryPattern.findCommonDomain(patterns);
 
+    // Check for url matching query
     query = CliqzHistoryPattern.generalizeUrl(query, true);
-    for (var key in patterns) {
-      var url = patterns[key]._genUrl;
+    var key;
+    for (key in patterns) {
+      var url = patterns[key].url;
       if (url.indexOf(query) === 0) {
         baseUrl = url;
         favicon = patterns[key].favicon;
@@ -427,6 +567,7 @@ var CliqzHistoryPattern = {
       }
     }
 
+    // if none found, use the first entry
     if (!baseUrl) {
       baseUrl = patterns[0]._genUrl;
       favicon = patterns[0].favicon;
@@ -434,31 +575,57 @@ var CliqzHistoryPattern = {
 
     baseUrl = commonDomain || baseUrl.split('/')[0];
 
+    // find if there is an entry matching the base URL.
+    var pUrl;
     for (var i = 0; i < patterns.length; i++) {
-      var pUrl = patterns[i]._genUrl;
-      if (baseUrl == pUrl ||
-        baseUrl.indexOf(pUrl) != -1) {
+      pUrl = patterns[i]._genUrl;
+      if (baseUrl == pUrl) {
         basePattern = patterns[i];
-        if (i !== 0) break;
+        break;
       }
     }
-    var newPatterns = [];
 
+    var newPatterns = [];
     if (basePattern) {
+      // found a history entry representing the base pattern,
+      // use at the first entry in newPatterns
       basePattern.base = true;
       patterns[0].debug = 'Replaced by base domain';
       newPatterns.push(basePattern);
+
+    } else {
+      CliqzUtils.log('Using a base url that did not exist in history list.');
+
+      var https = false;
+      for (key in patterns) {
+        // if any pattern uses an https domain, try to use that for
+        // base domain too.
+        pUrl = patterns[key].url;
+        if (pUrl.indexOf('https://') === 0) {
+          https = true;
+          break;
+        }
+
+        // Add https if required
+        if(https) {
+          // ...but only if there is a history entry with title
+          var hs = CliqzHistoryPattern.getHistoryService();
+          var uri = CliqzHistoryPattern.makeURI('https://' + baseUrl);
+          if (hs && uri) {
+            if (hs.getPageTitle(uri)) {
+              CliqzUtils.log('found https base URL with title');
+              // keep https as true
+            } else {
+              CliqzUtils.log('no https base URL with title, do not change original base URL');
+              https = false;
+            }
+          }
+        }
+      }
     }
 
-    var https = false;
-    for (var key in patterns) {
-      // if any pattern uses an https domain, use that for
-      // base domain too.
-      var pUrl = patterns[key].url;
-      if (pUrl.indexOf("https://") == 0)
-        https = true;
-
-      // keep everything else except for base
+    for (key in patterns) {
+      // keep everything else except for base, it is already there
       if (patterns[key] != basePattern) newPatterns.push(patterns[key]);
     }
     return [newPatterns, baseUrl, favicon, https];
@@ -467,10 +634,10 @@ var CliqzHistoryPattern = {
     if (!CliqzHistoryPattern.historyService) {
       try {
         CliqzHistoryPattern.historyService = Components
-          .classes["@mozilla.org/browser/nav-history-service;1"]
+          .classes['@mozilla.org/browser/nav-history-service;1']
           .getService(Components.interfaces.nsINavHistoryService);
       } catch (e) {
-        CliqzUtils.log("unable to get history service: " + e);
+        CliqzUtils.log('unable to get history service: ' + e);
       }
     }
     return CliqzHistoryPattern.historyService;
@@ -478,11 +645,11 @@ var CliqzHistoryPattern = {
   getIoService: function () {
     if (!CliqzHistoryPattern.ioService) {
       try {
-        CliqzHistoryPattern.ioService = 
-          Components.classes["@mozilla.org/network/io-service;1"]
+        CliqzHistoryPattern.ioService =
+          Components.classes['@mozilla.org/network/io-service;1']
           .getService(Components.interfaces.nsIIOService);
       } catch (e) {
-        CliqzUtils.log("unable to get IO service: " + e);
+        CliqzUtils.log('unable to get IO service: ' + e);
       }
     }
     return CliqzHistoryPattern.ioService;
@@ -494,60 +661,29 @@ var CliqzHistoryPattern = {
     }
     return false;
   },
-  // Add base domain of given result to top of patterns
+  // Add base domain of given result to top of patterns, if necessary
   addBaseDomain: function(patterns, baseUrl, favicon, https) {
+    CliqzUtils.log(JSON.stringify(patterns), 'CliqzHistoryPattern');
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
-    //if (baseUrl.indexOf('/') != -1) baseUrl = baseUrl.split('/')[0];
-    // Add base domain if not in list
+    // Add base domain entry if there is not one already
     if (patterns && patterns.length > 0 && !patterns[0].base) {
+      CliqzUtils.log('Adding base domain to history cluster: ' + baseUrl, 'CliqzHistoryPattern');
+
       var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
       if (!title) return;
+
+      // Add trailing slash if not there
+      var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
+      if(urldetails.path === '')
+      baseUrl = baseUrl + '/';
+
       patterns.unshift({
-        title: title.charAt(0).toUpperCase() + title.split(".")[0].slice(1),
+        title: title.charAt(0).toUpperCase() + title.split('.')[0].slice(1) + ' (auto)',
         url: baseUrl,
         favicon: favicon
       });
       patterns[0].autoAdd = true;
-      CliqzUtils.log("Added base domain to history cluster: " + baseUrl, "CliqzHistoryPattern");
     }
-
-    
-    // Add https if required, but only if there is a history entry for it
-    if (https) {
-      // not yet cached?
-      if (!CliqzHistoryPattern.baseUrlCache.hasOwnProperty(baseUrl)) {
-        // CliqzUtils.log("caching base URL " + baseUrl);
-        var hs = CliqzHistoryPattern.getHistoryService(),
-            uri = CliqzHistoryPattern.makeURI("https://" + baseUrl)
-        if (hs && uri) {
-            var options = hs.getNewQueryOptions(),
-                query = hs.getNewQuery();
-            query.uri = uri;
-            query.uriIsPrefix = false;
-
-            var result = hs.executeQuery(query, options);
-            result.root.containerOpen = true;
-            CliqzHistoryPattern.baseUrlCache[baseUrl] = 
-              result.root.childCount > 0;
-        }
-      }
-
-      if (CliqzHistoryPattern.baseUrlCache[baseUrl]) {
-        baseUrl = "https://" + baseUrl;
-        // CliqzUtils.log("https entry found for base URL " + baseUrl);
-      } else {
-        // CliqzUtils.log("no https entry found for base URL " + baseUrl);
-      }
-    }
-
-    // Add trailing slash if not there
-    var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
-    if(urldetails.path == "")
-      baseUrl = baseUrl + '/';
-
-    patterns[0].url = baseUrl;
-
-    return baseUrl;
   },
   // Extract all possible paths in sessions and count their frequencies
   mutateSession: function(session) {
