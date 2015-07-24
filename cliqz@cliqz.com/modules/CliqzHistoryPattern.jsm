@@ -404,6 +404,7 @@ var CliqzHistoryPattern = {
         if(reorg[value][j].url.indexOf('https://') === 0) {
           newPatterns.push(reorg[value][j]);
           found = true;
+          break;
         }
       }
 
