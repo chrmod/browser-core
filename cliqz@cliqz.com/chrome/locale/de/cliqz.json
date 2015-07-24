@@ -688,7 +688,19 @@
         "message": "nach"
     },
     "today": {
-        "message": "Heute"
+        "message": "Heute"    
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Link in neuem Tab öffnen"  
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Link in neuem Fenster öffnen"  
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Link in neuem privaten Fenster öffnen"   
+    },
+    "cMenuFeedback": {
+      "message": "Feedback an CLIQZ"  
     },
     "myQuery": {
         "message": "Suchbegriff"
@@ -698,5 +710,8 @@
     },
     "dismiss": {
         "message": "Nachricht schließen"
+    },
+    "extended_forecast": {
+        "message": "Detailiertere Vorhersage"
     }
 }
