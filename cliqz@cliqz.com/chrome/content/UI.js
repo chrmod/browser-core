@@ -31,9 +31,9 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         'p': 'people'  ,
         'v': 'video'   ,
         'h': 'hq'      ,
-        'r': 'recipe',
-        //'g': 'cpgame_movie',
-        //'o': 'cpgame_movie'
+        'r': 'recipe' ,
+        'g': 'cpgame_movie',
+        'o': 'cpgame_movie'
         //'q': 'qaa'     ,
         //'k': 'science' ,
         //'l': 'dictionary'
@@ -63,7 +63,6 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
 function lg(msg){
     CliqzUtils.log(msg, 'CLIQZ.UI');
 }
-
 
 
 var UI = {
@@ -1409,6 +1408,12 @@ function resultScroll(ev) {
     CliqzAutocomplete.hasUserScrolledCurrentResults = true;
 }
 
+function copyResult(val) {
+    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+                                               .getService(Components.interfaces.nsIClipboardHelper);
+    gClipboardHelper.copyString(val);
+}
+
 function resultClick(ev){
     var el = ev.target, href,
         newTab = ev.metaKey || ev.button == 1 ||
@@ -1439,12 +1444,13 @@ function resultClick(ev){
             break;
         }else if (el.getAttribute('cliqz-action')) {
             switch(el.getAttribute('cliqz-action')) {
+                case 'copy_val':
+                    copyResult(el.textContent.trim());
+                    return;
                 case 'stop-click-event-propagation':
                     return;
                 case 'copy-calc-answer':
-                    var gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-                                               .getService(Components.interfaces.nsIClipboardHelper);
-                    gClipboardHelper.copyString(document.getElementById('calc-answer').innerHTML);
+                    copyResult(document.getElementById('calc-answer').innerHTML);
                     document.getElementById('calc-copied-msg').style.display = "";
                     document.getElementById('calc-copy-msg').style.display = "none";
                     break;
