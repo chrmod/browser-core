@@ -52,7 +52,21 @@ var CliqzLanguage = {
         };
         CliqzUtils.telemetry(action)
     },
-
+    _locale: null,
+    getLocale: function(){
+        if(!CliqzLanguage._locale){
+            var locale = null;
+            try {
+                // linux systems
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=438031
+                locale = CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data
+            } catch(e){
+                locale = CliqzLanguage.useragentPrefs.getCharPref('locale')
+            }
+            CliqzLanguage._locale = CliqzLanguage.normalizeLocale(locale);
+        }
+        return CliqzLanguage._locale;
+    },
     listener: {
         currURL: undefined,
         QueryInterface: XPCOMUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
@@ -140,7 +154,7 @@ var CliqzLanguage = {
             CliqzLanguage.currentState = JSON.parse(CliqzLanguage.cliqzLangPrefs.getCharPref('data'));
 
             // for the case that the user changes his userAgent.locale
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
+            var ll = CliqzLanguage.getLocale();
             if (ll) {
                 if (CliqzLanguage.currentState[ll]!='locale') {
                     CliqzLanguage.currentState[ll] = 'locale';
@@ -151,7 +165,7 @@ var CliqzLanguage = {
         else {
             // it has nothing, new or removed,
 
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
+            var ll = CliqzLanguage.getLocale();
             if (ll) {
                 CliqzLanguage.currentState = {};
                 CliqzLanguage.currentState[ll] = 'locale';
@@ -244,7 +258,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
+            var ll = CliqzLanguage.getLocale();
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();
