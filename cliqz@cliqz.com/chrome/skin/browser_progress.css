@@ -78,11 +78,11 @@
 /* ------- RICH DATA Result----------*/
 #cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
 #cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
-#cliqz-results .cqz-rd-body {height: calc(100% - 50px); width: calc(100% - 90px); max-width: 700px;}
+#cliqz-results .cqz-rd-body {height: calc(100% - 52px); width: calc(100% - 90px); max-width: 700px;}
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
-#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 4.8em; line-height: 1.2em; }
+#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.6em; line-height: 1.4em; }
 #cliqz-results .cqz-rd-max-lines4:before {
-    white-space: normal; content:""; float: left; width: 5px; height: 4.8em;}
+    white-space: normal; content:""; float: left; width: 5px; height: 5.6em;}
 #cliqz-results .cqz-rd-max-lines4 > *:first-child {
     white-space: normal; float: right; width: 100%; margin-left: -5px; }
 #cliqz-results .cqz-rd-max-lines4:after {
@@ -94,7 +94,7 @@
     -moz-box-sizing: content-box;
 
     float: right; position: relative;
-    top: -1.2em; left: 100%;
+    top: -1.4em; left: 100%;
     width: 2.5em; margin-left: -2.5em;
     padding-right: 5px;
 
@@ -104,7 +104,10 @@
     background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
-#cliqz-results .cqz-rd-info{color: #999999; padding-top: 7px;}
+#cliqz-results .cqz-rd-max-lines4 p{line-height: 1.4em;}
+
+#cliqz-results .cqz-rd-info{color: #999999; padding-bottom: 7px;}
+#cliqz-results .cqz-rd-info-2{color: #999999;}
 #cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 6px;}
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
