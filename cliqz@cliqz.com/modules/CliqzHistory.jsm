@@ -349,10 +349,7 @@ var CliqzHistory = {
         // when the backend result comes in.
         CliqzHistoryManager.updatePageTitle(url, data[url].title);
         // Also in the CLIQZ DB
-        var http_url = "http://" + CliqzUtils.cleanUrlProtocol(url);
-        CliqzHistory.updateTitle(http_url, data[url].title);
-        var https_url = "https://" + CliqzUtils.cleanUrlProtocol(url);
-        CliqzHistory.updateTitle(https_url, data[url].title);
+        CliqzHistory.updateTitle(url, data[url].title);
       }
     }
   },
