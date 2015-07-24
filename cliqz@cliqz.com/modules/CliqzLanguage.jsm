@@ -34,9 +34,10 @@ var CliqzLanguage = {
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     regexGoogleRef: /\.google\..*?\/(?:url|aclk)\?/,
+    regexGoogleAdRef: /\.google\..*?\/aclk\?/,
     regexGoogleRefUrl: /url=(.+?)&/,
 
-    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position) {
+    sendCompSignal: function(actionName, redirect, same_result, result_type, result_position, is_ad) {
         var action = {
             type: 'performance',
             redirect: redirect,
@@ -46,6 +47,7 @@ var CliqzLanguage = {
             same_result: same_result,
             result_type: result_type,
             result_position: result_position,
+            is_ad: is_ad,
             v: 1
         };
         CliqzUtils.telemetry(action)
@@ -99,16 +101,16 @@ var CliqzLanguage = {
                     var match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
                     if (match) {
                         var googleUrl = CliqzHistoryPattern.generalizeUrl(decodeURIComponent(match[1])),
-                            results = CliqzAutocomplete.lastResult['_results'],
+                            results = CliqzAutocomplete.lastResult._results,
                             found = false;
 
                         for (var i = 0; i < results.length; i++) {
-                            var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i]['val']);
+                            var cliqzUrl = CliqzHistoryPattern.generalizeUrl(results[i].val);
 
                             // same result as in dropdown
                             if (googleUrl == cliqzUrl) {
                                 var resType = CliqzUtils.encodeResultType(results[i].style || results[i].type);
-                                CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i);
+                                CliqzLanguage.sendCompSignal('result_compare', true, true, resType, i, false);
                                 CliqzAutocomplete.afterQueryCount = 0;
                                 found = true;
 
@@ -119,8 +121,10 @@ var CliqzLanguage = {
 
                         // we don't have the same result
                         if (!found) {
-                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null);
+                            CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, false);
                         }
+                    } else if(CliqzLanguage.regexGoogleAdRef.test(aRequest.name)) {
+                        CliqzLanguage.sendCompSignal('result_compare', true, false, null, null, true);
                     }
                 }
             }
