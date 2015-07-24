@@ -321,6 +321,7 @@ var Mixer = {
 
         // Modify EZ template - for test
         if(CliqzUtils.getPref("alternative_ez", "") == "description") {
+
             for(var i=0; i<results.length; i++) {
                 if(results[i].data && results[i].data.template == "entity-generic")
                     results[i].data.template = "ez-generic-2"

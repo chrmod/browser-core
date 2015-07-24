@@ -19,7 +19,9 @@
                           {{/if}}
                </div>
         </div>
-        <div class="cqz-rd-max-lines3">{{richData.des}}</div>
+        <div class="multi-ellipsis">
+            <p>{{richData.des}}</p>
+        </div>
     </div>
   {{/with}}
   {{>EZ-category}}

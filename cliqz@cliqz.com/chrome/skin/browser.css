@@ -90,7 +90,7 @@
 
 #cliqz-results .transition { -moz-transition: all 0.2s ease; transition: all 0.2s ease; }
 #cliqz-results .nopadding { padding: 0 }
-#cliqz-results .cqz-result-padding { padding: 16px 22px; box-sizing: border-box; -moz-box-sizing: border-box; }
+#cliqz-results .cqz-result-padding { padding: 16px 20px; box-sizing: border-box; -moz-box-sizing: border-box; }
 #cliqz-results .cqz-result-h1 { height: 348px; }
 #cliqz-results .cqz-result-h2 { height: 232px; }
 #cliqz-results .cqz-result-h3 { height: 116px; }
@@ -160,18 +160,21 @@
 /* common */
 #cliqz-results .cqz-ez-btns { 
     margin: 13px 0px 0px; 
-    height: 30px; 
+    height: 26px;
     padding-right: 60px;
 }
+
+#cliqz-results a.cqz-ez-btn,
 #cliqz-results .cqz-ez-btn {
-    border-radius: 3px;
+    display: inline-block;
+    max-width: 150px;
+    line-height: 24px;
+    margin: 0 7px 4px 0;
+    padding: 0 9px 2px;
     cursor: pointer;
     color: white;
-    padding: 0 9px 2px;
-    line-height: 28px;
-    margin: 0 7px 4px 0;
-    max-width: 150px;
-    display: inline-block;
+    text-decoration: none;
+    border-radius: 3px;
 }
 
 #cliqz-results .cqz-vert-center { position: absolute; top: 50%;	-moz-transform: translateY(-49%); transform: translateY(-49%); }
@@ -384,10 +387,10 @@
 #cliqz-results .cqz-ez-img-trend { width: 20px; height: 27px; display: inline-block; margin: 0 10px 0 18px; }
 #cliqz-results .green { color: #74d463; }
 #cliqz-results .red { color: #c3043e; }
-#cliqz-results .cliqz-stock-price-table { margin: 10px 0 2px; border-spacing: 1; color: #999999; border-collapse: collapse; }
+#cliqz-results .cliqz-stock-price-table { margin: 10px 0 10px; border-spacing: 1; color: #999999; border-collapse: collapse; }
 #cliqz-results .cliqz-stock-price-table td { padding-bottom: 4px; }
 #cliqz-results .cliqz-stock-price-td { padding-left: 28px; }
-#cliqz-results .cliqz-stock-price-td:last-child { padding-left: 10px; }
+#cliqz-results .cliqz-stock-price-td:nth-child(4):last-child { padding-left: 10px; }
 
 /* ez currency */
 #cliqz-results .EZ-currency-result { font-size: 48px; margin-top: -6px; }
@@ -425,10 +428,18 @@
 #cliqz-results .ez-weather .cqz-ez-title { background-image: none; margin-bottom: 16px; }
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
+#cliqz-results .EZ-weather-info-sec { height: 128px; }
 #cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
-#cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 16px 0 }
+#cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
+#cliqz-results .cqz-weather-holder {
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+#cliqz-results .ez-weather .cqz-ez-btn {
+    background: #ABC8E2;
+}
 
 /* history */
 #cliqz-results .cqz-result-pattern { }
