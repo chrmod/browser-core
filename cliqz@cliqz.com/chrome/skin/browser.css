@@ -163,15 +163,18 @@
     height: 30px; 
     padding-right: 60px;
 }
+
+#cliqz-results a.cqz-ez-btn,
 #cliqz-results .cqz-ez-btn {
-    border-radius: 3px;
-    cursor: pointer;
-    color: white;
-    padding: 0 9px 2px;
+    display: inline-block;
+    max-width: 150px;
     line-height: 28px;
     margin: 0 7px 4px 0;
-    max-width: 150px;
-    display: inline-block;
+    padding: 0 9px 2px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
 }
 
 #cliqz-results .cqz-vert-center { position: absolute; top: 50%;	-moz-transform: translateY(-49%); transform: translateY(-49%); }
@@ -428,7 +431,14 @@
 #cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
-#cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 16px 0 }
+#cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
+#cliqz-results .cqz-weather-holder {
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+#cliqz-results .ez-weather .cqz-ez-btn {
+    background: #ABC8E2;
+}
 
 /* history */
 #cliqz-results .cqz-result-pattern { }

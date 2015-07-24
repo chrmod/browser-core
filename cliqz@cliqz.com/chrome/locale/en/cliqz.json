@@ -718,5 +718,8 @@
     },
     "dismiss": {
         "message": "Dismiss"
+    },
+    "extended_forecast": {
+        "message": "Extended Forecast"
     }
 }
