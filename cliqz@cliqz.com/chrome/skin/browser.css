@@ -387,10 +387,10 @@
 #cliqz-results .cqz-ez-img-trend { width: 20px; height: 27px; display: inline-block; margin: 0 10px 0 18px; }
 #cliqz-results .green { color: #74d463; }
 #cliqz-results .red { color: #c3043e; }
-#cliqz-results .cliqz-stock-price-table { margin: 10px 0 2px; border-spacing: 1; color: #999999; border-collapse: collapse; }
+#cliqz-results .cliqz-stock-price-table { margin: 10px 0 10px; border-spacing: 1; color: #999999; border-collapse: collapse; }
 #cliqz-results .cliqz-stock-price-table td { padding-bottom: 4px; }
 #cliqz-results .cliqz-stock-price-td { padding-left: 28px; }
-#cliqz-results .cliqz-stock-price-td:last-child { padding-left: 10px; }
+#cliqz-results .cliqz-stock-price-td:nth-child(4):last-child { padding-left: 10px; }
 
 /* ez currency */
 #cliqz-results .EZ-currency-result { font-size: 48px; margin-top: -6px; }
