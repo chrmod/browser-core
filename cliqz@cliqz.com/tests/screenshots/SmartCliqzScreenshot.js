@@ -16,6 +16,25 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
     });
   }
 
+  function padNumber(i, n) {
+    var t = i;
+    while (t >= 10) {
+      n--;
+      t /= 10;
+    }
+    var out = "";
+    while (n > 0) {
+      n--;
+      out += "0";
+    }
+    return out + i;
+  }
+
+  function escapeQuery(query) {
+    return query.replace(/ /g, "_").
+                 replace(/:/g, "_");
+  }
+
   describe('SmartCliqz', function(){
     this.timeout(5000);
 
@@ -43,18 +62,25 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
     });
 
     //TODO get queries from queries.json
-    ['spiegel', 'miley cyrus'].forEach(function (ezName) {
+    var i = 0;
+    ['flug LH76', '500 EUR in USD', '5m in inch',
+     'aktuelle uhrzeit los angeles', 'aktie apple',
+     'wetter in muenchen',
+     'spiegel.de', 'amazon.de', 'dkb.de'
+    ].forEach(function (query) {
 
-      it('should take screenshot of smart cliqz:'+ ezName, function() {
-        fillIn(ezName);
+      it('should take screenshot of query: '+ query, function() {
+        fillIn(query);
 
         return waitForResult().then(function() {
           return new Promise(function (resolve) {
-            setTimeout(resolve, 300);
+            // increased timeout to avoid seeing scrollbars on Mac
+            setTimeout(resolve, 750);
+            i++;
           });
         }).then(function () {
-          return Screenshot.exec({ 
-            filename: ezName
+          return Screenshot.exec({
+            filename: "dropdown-" + padNumber(i, 2) + "-" + escapeQuery(query)
           });
         });
       });
