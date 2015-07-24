@@ -164,6 +164,54 @@ TESTS.CliqzHistoryPatternTest = function (CliqzHistoryPattern) {
         chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
       });
 
+      it('should take one with best title without www', function(){
+        var source = [
+          {"url":"https://www.twitter.com/",
+           "title":"twitter.com"
+          },
+          {"url":"https://twitter.com/",
+           "title":"Welcome to Twitter - Login or Sign up"
+          },
+          {"url":"http://www.twitter.com/",
+           "title":"twitter.com"
+          }
+        ].map(function (entry) {
+          return {
+            title: entry.title,
+            url: entry.url,
+            _genUrl: CliqzHistoryPattern.generalizeUrl(entry.url)
+          };
+        });
+
+        var expected = [ source[1] ];
+
+        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+      });
+
+      it('should take one with best title with www', function(){
+        var source = [
+          {"url":"https://www.twitter.com/",
+           "title":"www.twitter.com"
+          },
+          {"url":"https://twitter.com/",
+           "title":"Welcome to Twitter - Login or Sign up"
+          },
+          {"url":"http://www.twitter.com/",
+           "title":"www.twitter.com"
+          }
+        ].map(function (entry) {
+          return {
+            title: entry.title,
+            url: entry.url,
+            _genUrl: CliqzHistoryPattern.generalizeUrl(entry.url)
+          };
+        });
+
+        var expected = [ source[1] ];
+
+        chai.expect(CliqzHistoryPattern.removeDuplicates(source)).to.deep.equal(expected);
+      });
+
     });
 
   });

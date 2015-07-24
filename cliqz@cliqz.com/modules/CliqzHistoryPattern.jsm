@@ -375,7 +375,7 @@ var CliqzHistoryPattern = {
     newPatterns = CliqzHistoryPattern.removeDuplicatesByKey(newPatterns, 'title');
     return newPatterns;
   },
-  // Deduplicate entries by value of key, with a preference for https
+  // Deduplicate entries by value of key, with a preference for https and proper titles
   removeDuplicatesByKey: function(patterns, key) {
     var reorg = {};
     var order = [];
@@ -398,19 +398,44 @@ var CliqzHistoryPattern = {
     for(i=0; i<order.length; i++) {
       value = order[i];
 
-      // Look for https link
-      var found = false;
+      if(reorg[value].length == 1) {
+        newPatterns.push(reorg[value][0]);
+        continue;
+      }
+
+      // Separate http and https links
+      var https = [],
+          http = [];
       for(var j=0; j<reorg[value].length; j++) {
         if(reorg[value][j].url.indexOf('https://') === 0) {
-          newPatterns.push(reorg[value][j]);
+          https.push(reorg[value][j]);
+        } else {
+          http.push(reorg[value][j]);
+        }
+      }
+
+      // if any https links, proceed with them only
+      var candidates;
+      if(https.length > 0)
+        candidates = https;
+      else
+        candidates = http;
+
+      // Pick the one with a "real" title.
+      // Some history entries will have a title the same as the URL,
+      // don't use these if possible.
+      var found = false;
+      for(var x=0; x<candidates.length; x++) {
+        if(!(candidates[x].title == candidates[x]._genUrl ||
+             candidates[x].title == 'www.' + candidates[x]._genUrl ||
+             candidates[x].title == candidates[x].url)) {
+          newPatterns.push(candidates[x]);
           found = true;
           break;
         }
       }
-
-      //if none, take the first entry
       if(!found)
-        newPatterns.push(reorg[value][0]);
+        newPatterns.push(candidates[0]);
     }
 
     return newPatterns;
@@ -488,7 +513,7 @@ var CliqzHistoryPattern = {
       newPatterns.push(basePattern);
 
     } else {
-      CliqzUtils.log('Using a base url that did not exist in history list.');
+      CliqzUtils.log('Using a base url that did not exist in history list.', 'CliqzHistoryPattern');
 
       var https = false;
       for (key in patterns) {
@@ -507,10 +532,10 @@ var CliqzHistoryPattern = {
           var uri = CliqzHistoryPattern.makeURI('https://' + baseUrl);
           if (hs && uri) {
             if (hs.getPageTitle(uri)) {
-              CliqzUtils.log('found https base URL with title');
+              CliqzUtils.log('found https base URL with title', 'CliqzHistoryPattern');
               // keep https as true
             } else {
-              CliqzUtils.log('no https base URL with title, do not change original base URL');
+              CliqzUtils.log('no https base URL with title, do not change original base URL', 'CliqzHistoryPattern');
               https = false;
             }
           }
@@ -557,7 +582,6 @@ var CliqzHistoryPattern = {
   },
   // Add base domain of given result to top of patterns, if necessary
   addBaseDomain: function(patterns, baseUrl, favicon, https) {
-    CliqzUtils.log(JSON.stringify(patterns), 'CliqzHistoryPattern');
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
     // Add base domain entry if there is not one already
     if (patterns && patterns.length > 0 && !patterns[0].base) {
