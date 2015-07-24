@@ -596,7 +596,7 @@ var CliqzHistoryPattern = {
       baseUrl = baseUrl + '/';
 
       patterns.unshift({
-        title: title.charAt(0).toUpperCase() + title.split('.')[0].slice(1) + ' (auto)',
+        title: title.charAt(0).toUpperCase() + title.split('.')[0].slice(1),
         url: baseUrl,
         favicon: favicon
       });
