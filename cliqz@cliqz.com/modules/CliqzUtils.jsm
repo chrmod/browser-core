@@ -74,6 +74,7 @@ var CliqzUtils = {
   INSTAL_URL:                     'https://cliqz.com/code-verified',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
+  FEEDBACK:                       'https://cliqz.com/support',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,

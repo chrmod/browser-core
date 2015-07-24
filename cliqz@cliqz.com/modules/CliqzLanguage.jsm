@@ -136,7 +136,7 @@ var CliqzLanguage = {
             CliqzLanguage.currentState = JSON.parse(CliqzLanguage.cliqzLangPrefs.getCharPref('data'));
 
             // for the case that the user changes his userAgent.locale
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
             if (ll) {
                 if (CliqzLanguage.currentState[ll]!='locale') {
                     CliqzLanguage.currentState[ll] = 'locale';
@@ -147,7 +147,7 @@ var CliqzLanguage = {
         else {
             // it has nothing, new or removed,
 
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
             if (ll) {
                 CliqzLanguage.currentState = {};
                 CliqzLanguage.currentState[ll] = 'locale';
@@ -240,7 +240,7 @@ var CliqzLanguage = {
             }
 
             CliqzLanguage.currentState = cleanState;
-            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getCharPref('locale'));
+            var ll = CliqzLanguage.normalizeLocale(CliqzLanguage.useragentPrefs.getComplexValue('locale',Components.interfaces.nsIPrefLocalizedString).data);
             if (ll && CliqzLanguage.currentState[ll]!='locale') CliqzLanguage.currentState[ll] = 'locale';
 
             CliqzLanguage.saveCurrentState();
