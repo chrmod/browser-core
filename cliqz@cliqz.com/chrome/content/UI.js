@@ -122,6 +122,10 @@ var UI = {
         resultsBox.addEventListener('mouseout', function(){
             XULBrowserWindow.updateStatusField();
         });
+
+        //enable right click context menu
+        CLIQZ.ContextMenu.enableContextMenu(box);
+
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
@@ -226,6 +230,7 @@ var UI = {
 
 
     loadAsyncResult: function(res, query) {
+
 
       if (res && res.length > 0) {
         for (var i in res) {
@@ -645,7 +650,8 @@ var UI = {
       };
     },
     closeResults: closeResults,
-    sessionEnd: sessionEnd
+    sessionEnd: sessionEnd,
+    getResultOrChildAttr: getResultOrChildAttr
 };
 
 
@@ -1404,7 +1410,7 @@ function resultScroll(ev) {
 }
 
 function resultClick(ev){
-    var el = ev.target,
+    var el = ev.target, href,
         newTab = ev.metaKey || ev.button == 1 ||
                  ev.ctrlKey ||
                  (ev.target.getAttribute('newtab') || false);
@@ -1416,6 +1422,9 @@ function resultClick(ev){
 
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
+        if(href = el.getAttribute("href")) {
+          el.setAttribute('url', href) 
+        }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
               action: "result_click",
