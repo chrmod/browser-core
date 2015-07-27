@@ -1,7 +1,7 @@
 
 <div class="cqz-result-h1 ez-liga cqz-result-padding">
  {{#with data}}
-  <div class="cqz-ez-title" selectable='' extra="title"><a href="{{../url}}">{{leagueName}}</a></div>
+  <div class="cqz-ez-title" selectable='' extra="title"><a href="{{../url}}" extra="title">{{leagueName}}</a></div>
   <div class="ez-liga-spieltag-ucg" selectable=''>{{spieltag}}</div>
 
   {{#each games}}

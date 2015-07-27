@@ -20,8 +20,7 @@ var CliqzABTests = CliqzABTests || {
     // Accessors to list of tests this user is current in
     getCurrent: function() {
         if(CliqzUtils.cliqzPrefs.prefHasUserValue(CliqzABTests.PREF))
-            var ABtests = JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
-            return ABtests;
+            return JSON.parse(CliqzUtils.getPref(CliqzABTests.PREF));
         return undefined;
     },
     setCurrent: function(tests) {

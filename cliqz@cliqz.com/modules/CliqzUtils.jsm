@@ -60,7 +60,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://staging-mixer.clyqz.com/api/v1/results?q=', //'http://rich-header.fbt.co/mixer?q=', //'http://rh-staging.fbt.co/mixer?q=',//
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', // 'http://10.0.77.189/mixer?bmresult=http://www.hypovereinsbank.de/&loc=49.0123,12.120321,U&q=hypo', //
+
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',

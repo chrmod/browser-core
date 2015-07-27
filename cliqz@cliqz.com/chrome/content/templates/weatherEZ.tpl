@@ -1,7 +1,7 @@
 <div class="cqz-result-h2 ez-weather cqz-ez-black-title">
 
     {{#with data}}
-        <div class='cqz-ez-title' arrow-override='' extra="title"><a href="{{../url}}">{{ returned_location }}</a></div>
+        <div class='cqz-ez-title' arrow-override='' extra="title"><a href="{{../url}}" extra="title">{{ returned_location }}</a></div>
 
         <div class="cqz-weather-holder">
             <div class='EZ-weather-container'>

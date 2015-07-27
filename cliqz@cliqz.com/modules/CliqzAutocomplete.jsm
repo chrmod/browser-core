@@ -383,6 +383,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                     var json = JSON.parse(req.response);
                     results = json.result || [];
+
                     country = json.country;
                     this.cliqzResultsExtra = []
 

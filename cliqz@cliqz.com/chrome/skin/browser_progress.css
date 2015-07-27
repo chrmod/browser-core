@@ -10,21 +10,33 @@
   margin-bottom: 20px;
 }
 
+#cliqz-results .clz_copy {
+    cursor: copy;
+}
+
 /*--------------- New Skin Generic EZ ----------- */
 #cliqz-results .cqz-result-content { 
   max-width: 550px;
   margin: 12px 105px 17px 0px;
+    height: 95px;
 }
 
+#cliqz-results .clz_zero_info_sec {margin-top: 4px; height: 30px;}
+#cliqz-results .cqz-zero-img {height: 16px; padding-right: 10px; transform: translateY(3px);}
+#cliqz-results .clz_zero_info {
+    float: left;
+    margin-right: 20px;
+    height: 100%;
+}
 #cliqz-results .cqz-result-h1 .cqz-result-content {
-  height: 185px;  
+  height: 205px;
 }
 
 /*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
-#cliqz-results .multi-ellipsis { 
-  white-space: normal; 
-  overflow: hidden; 
-  height: 3.9em; 
+#cliqz-results .multi-ellipsis {
+  white-space: normal;
+  overflow: hidden;
+  height: 3.9em;
   line-height: 1.3em;
 }
 
@@ -41,47 +53,76 @@
   width: 100%;
   margin-left: -5px;
   white-space: normal;
-} 
+}
 
 #cliqz-results .multi-ellipsis:after {
   content: "\02026";
   box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
-  float: right; 
+  float: right;
   position: relative;
-  top: -22px; 
-  left: 100%; 
-  width: 3em; 
+  top: -22px;
+  left: 100%;
+  width: 3em;
   margin-left: -3em;
   padding-right: 5px;
   text-align: right;
   white-space: normal;
+
+  background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
 
 /* ------- RICH DATA Result----------*/
-#cliqz-results .cqz-rd-body {height: calc(100% - 48px); width: calc(100% - 80px); max-width: 550px;}
-#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
-#cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
-#cliqz-results .cqz-rd-max-lines3 {white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em}
-#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.2em; line-height: 1.3em}
-#cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
-#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
+#cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
+#cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
+#cliqz-results .cqz-rd-body {height: calc(100% - 52px); width: calc(100% - 90px); max-width: 700px;}
+#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
+#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.6em; line-height: 1.4em; }
+#cliqz-results .cqz-rd-max-lines4:before {
+    white-space: normal; content:""; float: left; width: 5px; height: 5.6em;}
+#cliqz-results .cqz-rd-max-lines4 > *:first-child {
+    white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .cqz-rd-max-lines4:after {
+    white-space: normal;
+    content: "\02026";
+
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+
+    float: right; position: relative;
+    top: -1.4em; left: 100%;
+    width: 2.5em; margin-left: -2.5em;
+    padding-right: 5px;
+
+    text-align: right;
+
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
+
+#cliqz-results .cqz-rd-max-lines4 p{line-height: 1.4em;}
+
+#cliqz-results .cqz-rd-info{color: #999999; padding-bottom: 7px;}
+#cliqz-results .cqz-rd-info-2{color: #999999;}
+#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 6px;}
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
-#cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
-#cliqz-results .cqz-rd-h3img-div {height: 82px; float:left; margin-right: 20px; max-width: 130px}
+#cliqz-results .cqz-rd-h3 {width: calc(100% - 90px)}
+#cliqz-results .cqz-rd-h3img-div {height: 76px; float:left; margin-right: 20px; max-width: 50px}
 #cliqz-results .cqz-rhh3-snipet-txt {max-width: 700px;}
-#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; max-width: 500px;}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; margin-bottom: 0px; max-width: 500px;}
 
 #cliqz-results .cqz-rd-img {height:  100%; display:block;}
-#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 20px;}
-#cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 200px}
+#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 18px;}
+#cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 130px}
 #cliqz-results .cqz-rd-h3-snippet {height: 110px; margin: 22px 0px 22px 0px;}
 
-#cliqz-results .cqz-rd-h2-snippet {height: 200px; margin: 22px 0px 12px 0px;}
+#cliqz-results .cqz-rd-h2-snippet {height: 200px; margin: 20px 0px 14px 0px;}
 
 /* ------- END RICH DATA Result----------*/
 
