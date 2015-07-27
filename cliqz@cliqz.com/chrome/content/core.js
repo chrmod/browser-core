@@ -146,6 +146,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
+        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme.css');
 
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
