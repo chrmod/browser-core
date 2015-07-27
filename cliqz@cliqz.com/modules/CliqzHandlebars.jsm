@@ -31,7 +31,14 @@ var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
         [29030400     , 'agoXMonths'   , 2419200],
         [58060800     , 'ago1year'   , 1],
         [2903040000   , 'agoXYears'     , 29030400],
-    ];
+    ],
+    ZERO_CLICK_INFO_PRIO = [["Phone", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/phone.svg"],
+                            ["BIC", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/BIC.svg"],
+//                            ["BLZ"],
+//                            ["Sperrnummer"],
+                            ["E-Mail", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/emaill.svg"]
+                           ];
+
 
 
 CliqzHandlebars.tplCache = {};
@@ -162,6 +169,22 @@ function registerHelpers(){
             });
 
         return big_template
+    });
+
+    Handlebars.registerHelper('image_rd_specification', function(richData){
+        var mw = "76px";
+        switch (richData["type"]){
+            case "movie":
+                mw = "50px";
+                break;
+            case "reciperd":
+                mw = "76px";
+                break;
+            case "game":
+                mw = "76px";
+                break;
+        }
+        return mw; // default
     });
 
     Handlebars.registerHelper('localize_numbers', function(num) {
@@ -376,6 +399,23 @@ function registerHelpers(){
         return CliqzUtils.getPref(name) == val ? options.inverse(this) : options.fn(this);
     });
     /* End If conditions on preferences */
+
+    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw) {
+        var n, name, item, zeroInfo = [];
+        for (n = 0; n < ZERO_CLICK_INFO_PRIO.length; n++) {
+            item = ZERO_CLICK_INFO_PRIO[n];
+            name = item[0];
+            if (zeroInfo_raw[name]) {
+                zeroInfo.push({
+                    'name': name,
+                    'val': zeroInfo_raw[name],
+                    'img': item[1]
+                });
+            }
+        }
+        zeroInfo_raw = zeroInfo;
+        return zeroInfo_raw;
+    });
 
     Handlebars.registerHelper('convRateDigitSplit', function (rate) {
         var result = "<span class='cqz-conv-rate'>" +

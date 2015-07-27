@@ -6,7 +6,7 @@
          {{/each}}
     </div>
     <div class='cqz-result-title cqz-ez-title cqz-celeb-who' arrow="false" arrow-override='' extra="title">
-    	<a href="{{../url}}">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span>
+    	<a href="{{../url}}" extra="title">{{ emphasis name ../text 2 true }} ({{ocupation}})</a><span> - Wikipedia</span>
     </div>
     <span class="cqz-ez-subtitle">
       {{ emphasis ../urlDetails.friendly_url text 2 true }}

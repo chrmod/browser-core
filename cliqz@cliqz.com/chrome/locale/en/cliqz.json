@@ -698,6 +698,18 @@
     "today": {
         "message": "Today"
     },
+    "cMenuOpenInNewTab": {
+      "message": "Open Link in New Tab"
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Open Link in New Window"
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Open Link in New Private Window"
+    },
+    "cMenuFeedback": {
+      "message": "Feedback for CLIQZ"
+    },
     "myQuery": {
         "message": "query"
     },
@@ -802,6 +814,9 @@
     },
     "show_local_results": {
       "message": "No, show me local info"
+    },
+    "extended_forecast": {
+        "message": "Extended Forecast"
     }
 
 }
