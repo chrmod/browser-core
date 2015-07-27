@@ -8,8 +8,13 @@
         <a class="cinema-name cqz-url" {{#if cinema.website}} url="{{cinema.website}}" {{/if}} href="{{cinema.website}}">{{cinema.name}}</a>
       </td>
       {{#each showtimes}}
-        <td class="cinema-showtime-td" {{#if booking_link }} url="{{booking_link}}" {{/if}}>
-          <span class="cinema-showtime">{{time}}</span>
+        <td class="cinema-showtime-td">
+          {{#if booking_link }}
+            <span class="cinema-showtime" url="{{booking_link}}"><a class="cqz-url" href="{{booking_link}}">{{time}}</a></span>
+          {{else}}
+            <span class="cinema-showtime" >{{time}}</span>
+          {{/if}}
+
         </td>
       {{/each}}
       {{#for showtimes.length ../table_size 1}}
