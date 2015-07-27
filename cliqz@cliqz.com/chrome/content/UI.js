@@ -1490,26 +1490,26 @@ function resultClick(ev){
           ev.preventDefault();
           if (el.id == 'cqz_location_yes')
             CliqzUtils.setLocationPermission('yes');
-          CliqzUtils.encodeLocation(true).then(function(loc) {
+
+          CliqzUtils.getGeo(true, function(loc) {
             CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
-                "&q=" + CLIQZ.Core.urlbar.value + loc +
+                "&q=" + CLIQZ.Core.urlbar.value +
+                CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
                 "&bmresult=" + el.getAttribute('bm_url'),
                 handleNewLocalResults(el));
-          });
+          }, function() { CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo") } );
           break;
         } else if (el.id == 'cqz_location_no') {
           var container = $(".local-sc-data-container",gCliqzBox);
           /* Show a message to confirm user's decision*/
-          var location_confirm_no_msg = el.getAttribute('location_confirm_no_msg');
-          if (location_confirm_no_msg) {
-            container.innerHTML = CliqzHandlebars.tplCache[location_confirm_no_msg]({
-              'friendly_url': el.getAttribute('bm_url')
-            });
-          } else {
-            container.innerHTML = CliqzHandlebars.tplCache.location_confirm_no({
-              'friendly_url': el.getAttribute('bm_url')
-            });
-          }
+          var confirm_no_id = el.getAttribute('location_confirm_no_msg');
+          if (!confirm_no_id)
+            confirm_no_id = '00'; // Default to the generic message
+
+          container.innerHTML = CliqzHandlebars.tplCache['confirm_no_' + confirm_no_id]({
+            'friendly_url': el.getAttribute('bm_url')
+          });
+
         } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
           if (el.id == 'cqz_location_never')
             CliqzUtils.setLocationPermission("no");
