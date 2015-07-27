@@ -94,9 +94,9 @@ def main(argv):
                       default=16)
     parser.add_option("--mosaic-tile-width", metavar="MOSAIC_TILE_WIDTH",
                       action="store", dest="mosaic_tile_width",
-                      help="width of a mosaic tile "
+                      help="width of a mosaic tile; -1 for no resize "
                            "[default: '%default']", type=int,
-                      default=512)
+                      default=-1)
 
     (options, args) = parser.parse_args()
 
@@ -120,11 +120,14 @@ def main(argv):
         os.path.join(options.input_folder, options.input_file_pattern)
     sys.stderr.write("looking for screenshots in '%s'\n" % input_file_pattern)
 
-    mosaic_tile_height =\
-        int(options.mosaic_tile_width *
-            (options.dropdown_height / float(options.dropdown_width)))
-    sys.stderr.write("mosaic tile size is %d x %d\n" %
-                     (options.mosaic_tile_width, mosaic_tile_height))
+    if options.mosaic_tile_width > 0:
+        mosaic_tile_height =\
+            int(options.mosaic_tile_width *
+                (options.dropdown_height / float(options.dropdown_width)))
+        sys.stderr.write("resizing mosaic tiles to %d x %d\n" %
+                         (options.mosaic_tile_width, mosaic_tile_height))
+    else:
+        sys.stderr.write("not resizing mosaic tiles\n")
 
     mosaic_images = []
     for in_filename in glob.glob(input_file_pattern):
@@ -141,10 +144,11 @@ def main(argv):
         sys.stderr.write("saving to '%s'\n" % out_filename)
         dropdown_image.save(out_filename)
 
-        mosaic_images.append(
-            dropdown_image.resize(
+        if options.mosaic_tile_width > 0:
+            dropdown_image = dropdown_image.resize(
                 (options.mosaic_tile_width, mosaic_tile_height),
-                Image.ANTIALIAS))
+                Image.ANTIALIAS)
+        mosaic_images.append(dropdown_image)
 
     n = 0
     for i in range(0, len(mosaic_images), options.mosaic_tiles):
