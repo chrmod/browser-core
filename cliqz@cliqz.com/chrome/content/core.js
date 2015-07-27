@@ -653,7 +653,7 @@ window.CLIQZ.Core = {
     openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1)
+        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
             url = "http://" + url;
 
         // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
@@ -669,15 +669,12 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CLIQZ.Core.triggerLastQ = true;
-        if(newTab) { 
+        if(newTab) {
             gBrowser.addTab(url);
         } else if(newWindow) {
             window.open(url, '_blank');
         } else if(newPrivateWindow) {
-            openLinkIn(url, "window",
-              { 
-                private: true 
-              });
+            openLinkIn(url, "window", { private: true });
         }
         else {
             //clean selected text to have a valid last Query
