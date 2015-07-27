@@ -69,4 +69,10 @@ function injectTestHelpers(CliqzUtils) {
       return popup.mPopupOpen === true;
     });
   };
+
+  window.waitForResult = function () {
+      return waitFor(function () {
+        return $cliqzResults().find(".cqz-result-box").length > 0;
+      });
+  }
 }

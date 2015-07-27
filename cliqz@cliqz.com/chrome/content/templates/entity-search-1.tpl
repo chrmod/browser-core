@@ -7,7 +7,7 @@
   {{/if}}
 >
   <div class="cqz-ez-title cqz-ez-search-title" extra="title">
-    <a href="{{url}}">{{data.search_provider}}</a>
+    <a href="{{url}}" extra="title">{{data.search_provider}}</a>
   </div>
   {{#unless data.no-search-box}}
     <div>

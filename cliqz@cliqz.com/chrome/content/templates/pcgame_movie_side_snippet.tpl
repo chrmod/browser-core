@@ -16,7 +16,7 @@
     {{/if}}
 
     {{#if (is_not_dummy length)}}
-    <div class="cqz-rd-info">{{local 'Movie_Length' length}}</div>
+    <div class="cqz-rd-info-2">{{local 'Movie_Length' length}}</div>
     {{/if}}
 
     {{#if rating}}

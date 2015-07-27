@@ -17,8 +17,8 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -169,6 +169,22 @@ function registerHelpers(){
             });
 
         return big_template
+    });
+
+    Handlebars.registerHelper('image_rd_specification', function(richData){
+        var mw = "76px";
+        switch (richData["type"]){
+            case "movie":
+                mw = "50px";
+                break;
+            case "reciperd":
+                mw = "76px";
+                break;
+            case "game":
+                mw = "76px";
+                break;
+        }
+        return mw; // default
     });
 
     Handlebars.registerHelper('localize_numbers', function(num) {
@@ -337,10 +353,58 @@ function registerHelpers(){
         }
     });
 
-    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw){
-        var n, name, item, zeroInfo=[];
-        for (n = 0; n<ZERO_CLICK_INFO_PRIO.length; n++) {
-            item = ZERO_CLICK_INFO_PRIO[n]; name = item[0];
+    Handlebars.registerHelper('for', function(from, to, incr, block) {
+      // repeat block in for loop
+      var accum = '';
+      for(var i = from; i < to; i += incr)
+          accum += block.fn(i);
+      return accum;
+    });
+
+    /* Math comparisons */
+    Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
+      return v1 == v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifleq', function(v1, v2, options) { // if less than or equal
+      return v1 <= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('iflt', function(v1, v2, options) {  // if less than
+      return v1 < v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgeq', function(v1, v2, options) { // if greater than or equal
+      return v1 >= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgt', function(v1, v2, options) { // if geater than
+      return v1 > v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    /* End Math comparisons */
+
+    /* If conditions on preferences */
+    Handlebars.registerHelper('ifpref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.fn(this) : options.inverse(this) ;
+      else
+        return CliqzUtils.getPref(name) == val ? options.fn(this) : options.inverse(this) ;
+    });
+
+    Handlebars.registerHelper('unlesspref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.inverse(this) : options.fn(this);
+      else
+        return CliqzUtils.getPref(name) == val ? options.inverse(this) : options.fn(this);
+    });
+    /* End If conditions on preferences */
+
+    Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw) {
+        var n, name, item, zeroInfo = [];
+        for (n = 0; n < ZERO_CLICK_INFO_PRIO.length; n++) {
+            item = ZERO_CLICK_INFO_PRIO[n];
+            name = item[0];
             if (zeroInfo_raw[name]) {
                 zeroInfo.push({
                     'name': name,
@@ -409,5 +473,14 @@ function registerHelpers(){
         }
 
         return height_ === 2;
+    });
+
+    Handlebars.registerHelper('convRateDigitSplit', function (rate) {
+        var result = "<span class='cqz-conv-rate'>" +
+            rate.substr(0, rate.length - 2) +
+            "<span class='cqz-rate-last-digits'>" + rate.substr(-2) + "</span>" +
+            "</span>";
+
+        return new Handlebars.SafeString(result);
     });
 }

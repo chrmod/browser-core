@@ -60,8 +60,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'http://rh-staging.clyqz.com//mixer?bmresult=http://www.hypovereinsbank.de/&loc=49.0123,12.120321,U&q=hypo', //https://newbeta.cliqz.com/api/v1/results?q=',
-
+  RESULTS_PROVIDER:               'http://newbeta.cliqz.com/api/v1/results?q=',
+  RICH_HEADER:                    'http://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -75,11 +75,15 @@ var CliqzUtils = {
   INSTAL_URL:                     'https://cliqz.com/code-verified',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
+  FEEDBACK:                       'https://cliqz.com/support',
   PREF_STRING:                    32,
   PREF_INT:                       64,
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
+  USER_LAT:                       null,
+  USER_LNG:                       null,
+  GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -88,11 +92,11 @@ var CliqzUtils = {
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
+      'local-data-sc':2,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
-      'cpgame_movie': 3,
-      'local-data-sc': 2
+      'cpgame_movie': 3
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -109,6 +113,7 @@ var CliqzUtils = {
         CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
         CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
     }
+    CliqzUtils.updateGeoLocation(); // Returns immediately
 
     if(!brand_loaded){
       brand_loaded = true;
@@ -600,6 +605,12 @@ var CliqzUtils = {
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
 
+    var cb = function () {
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(url, function (res) {
+        callback && callback(res, q);
+      });
+    };
+
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
               CliqzUtils.encodeQuerySession() +
@@ -609,11 +620,31 @@ var CliqzUtils = {
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter();
 
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
-      function(res){
-        callback && callback(res, q);
-      }
-    );
+    CliqzUtils.getGeo(false, function(loc) {
+      url += CliqzUtils.encodeLocation(false, loc.lat, loc.lng);
+      cb();
+    }, cb);
+
+    // CliqzUtils.encodeLocation(false,false,
+    //   function onSuccess(loc) {
+    //     url += loc;
+    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+    //       function(res){
+    //         callback && callback(res, q);
+    //       }
+    //     );
+    //   },
+    //   function onFailure(err) {
+    //     CliqzUtils.log(err, "Location not allowed");
+    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+    //       function(res){
+    //         callback && callback(res, q);
+    //       }
+    //     );
+    //   });
+
+
+
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -714,6 +745,35 @@ var CliqzUtils = {
              '&nts=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTS)) +
              '&ntsd=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTSDel));
     } else return '';
+  },
+
+  getGeo: function(allowOnce, callback, failCB) {
+    /*
+    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
+                                This is used when the user clicks on Share Location "Just once".
+    */
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) failCB("No permission to get user's location");
+
+    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
+      callback({
+        lat: CliqzUtils.USER_LAT,
+        lng: CliqzUtils.USER_LNG
+      });
+    } else {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      geoService.getCurrentPosition(function (p) {
+        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
+      }, failCB);
+    }
+  },
+  encodeLocation: function(specifySource, lat, lng) {
+   return [
+     '&loc=',
+     lat,
+     ",",
+     lng,
+     (specifySource ? ",U" : "")
+   ].join("");
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -1163,6 +1223,28 @@ var CliqzUtils = {
 
     return data;
   },
+
+  getLocationPermState: function(){
+    var data = {
+      'yes': {
+              name: CliqzUtils.getLocalizedString('yes'),
+              selected: false
+      },
+      'ask': {
+              name: CliqzUtils.getLocalizedString('always_ask'),
+              selected: false
+      },
+      'no': {
+          name: CliqzUtils.getLocalizedString('no'),
+          selected: false
+      }
+    };
+
+    data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
+
+    return data;
+  },
+
   isUrlBarEmpty: function() {
     var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
     return urlbar.value.length == 0;
@@ -1252,6 +1334,7 @@ var CliqzUtils = {
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
         menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+        menupopup.appendChild(CliqzUtils.createLocationPermOptions(doc));
       }
       else {
         menupopup.appendChild(CliqzUtils.createActivateButton(doc));
@@ -1323,6 +1406,38 @@ var CliqzUtils = {
         menu.appendChild(menupopup);
         return menu;
     },
+
+    createLocationPermOptions(doc) {
+      var menu = doc.createElement('menu'),
+          menupopup = doc.createElement('menupopup');
+
+      menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
+
+      var filter_levels = CliqzUtils.getLocationPermState();
+
+      for(var level in filter_levels) {
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', filter_levels[level].name);
+        item.setAttribute('class', 'menuitem-iconic');
+
+
+        if(filter_levels[level].selected){
+          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+
+        }
+
+        item.filter_level = new String(level);
+        item.addEventListener('command', function(event) {
+          CliqzUtils.setLocationPermission(this.filter_level.toString());
+          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+        }, false);
+
+        menupopup.appendChild(item);
+      };
+      menu.appendChild(menupopup);
+      return menu;
+  },
+
     createSimpleBtn: function(doc, txt, func){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
@@ -1431,6 +1546,36 @@ var CliqzUtils = {
                   subType: JSON.stringify({empty:true})
               }
           )
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+
+      if (CliqzUtils.getPref('share_location') == 'yes') {
+        // Get current position
+        geoService.getCurrentPosition(function(p) {
+          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+
+        // Upate position if it changes
+        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CliqzUtils.getPref('share_location') == 'yes') {
+            CliqzUtils.USER_LAT = p.coords.latitude;
+            CliqzUtils.USER_LNG =  p.coords.longitude;
+          }
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+      } else {
+        CliqzUtils.USER_LAT = null;
+        CliqzUtils.USER_LNG = null;
+      }
+    },
+    setLocationPermission(newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.updateGeoLocation();
+      }
     }
     /*
     toggleMenuSettings: function(new_state) {
@@ -1462,4 +1607,5 @@ var CliqzUtils = {
       }
     }
     */
+
 };
