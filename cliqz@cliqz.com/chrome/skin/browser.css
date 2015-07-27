@@ -3,6 +3,10 @@
     min-height: 348px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
+#PopupAutoCompleteRichResultCliqz.cqz-popup-medium {
+    min-height: 232px;
+}
+
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
 
@@ -73,6 +77,10 @@
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
+}
+
+.cqz-popup-medium #cliqz-results {
+    height: 233px;
 }
 
 /* common classes */
@@ -218,8 +226,8 @@
 }
 
 /* EZ generic */
-#cliqz-results .cqz-ez-title { cursor: pointer; font-size: 18px; display: block; margin-bottom: 5px; }
-#cliqz-results .cqz-ez-title a { font-size: 18px; }
+#cliqz-results .cqz-ez-title { font-size: 18px; display: block; margin-bottom: 5px; }
+#cliqz-results .cqz-ez-title a { font-size: 18px; cursor: pointer; }
 #cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-ez-title .after {
     display: inline-block;
     background-size: auto 18px;
@@ -481,10 +489,9 @@
 #cliqz-results .ez-no-result .items { display: inline-block; }
 #cliqz-results .ez-no-result .cliqz-brand-logo {
     font-size: 28px;
-    margin: 0 8px;
+    margin: 0 8px 6px;
     display: inline-block;
     cursor: pointer;
-    margin-bottom: 6px;
 }
 #cliqz-results .ez-no-result .items .item-name {
     font-size: 16px;
@@ -506,6 +513,49 @@
     display: inline-block;
     background-color: #0480c3;
 }
+#cliqz-results .ez-no-result .cqz-suggestion-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+#cliqz-results .ez-no-result .cqz-suggestion-list .cqz-item {
+    display: inline-block;
+    padding: 15px 0 17px;
+    width: 110px;
+    text-align: center;
+    cursor: pointer;
+}
+
+#cliqz-results .ez-no-result .cqz-suggestion-list .cliqz-brand-logo {
+    display: block;
+    margin: 0 auto 7px;
+    width: 80px;
+    height: 80px;
+    transition: all .3s ease-in-out;
+}
+
+#cliqz-results .ez-no-result .cqz-suggestion-list .cqz-item:hover .cliqz-brand-logo { transform: scale(1.1); }
+.cqz-noresult-box .cqz-ez-title { text-align: center; }
+.cqz-noresult-box .cqz-ez-title:hover { text-decoration: none; }
+
+#cliqz-results .cqz-noresult-box .cqz-ez-title {
+    font-size: 14px;
+    color: #ccc;
+}
+#cliqz-results .cqz-noresult-box .cqz-ez-title:after {
+    contet: '';
+    display: block;
+    width: 230px;
+    height: 1px;
+    background: #ccc;
+    margin: 17px auto 0;
+}
+#cliqz-results .cqz-noresult-box .cliqz-logo {
+    width: auto;
+    height:17px;
+    margin-top: 0;
+}
+
 #cliqz-popup .cqz-btn-default { background-color: #506bb8; margin-right: 0 }
 #cliqz-popup .cqz-btn-success { background-color: #28ae2b; margin-right: 0 }
 #cliqz-popup .cqz-btn-error { background-color: #c3043e; }
