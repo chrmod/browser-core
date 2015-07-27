@@ -22,17 +22,17 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
       n--;
       t /= 10;
     }
-    var out = "";
+    var out = '';
     while (n > 0) {
       n--;
-      out += "0";
+      out += '0';
     }
     return out + i;
   }
 
   function escapeQuery(query) {
-    return query.replace(/ /g, "_").
-                 replace(/:/g, "_");
+    return query.replace(/ /g, '_').
+                 replace(/:/g, '_');
   }
 
   describe('SmartCliqz', function(){
@@ -53,37 +53,49 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
     });
 
     beforeEach(function() {
-      CliqzUtils.getWindow().document.getElementById("mainPopupSet").style.position = "relative";
-      CliqzUtils.getWindow().CLIQZ.Core.popup.style.display = "block";
-      CliqzUtils.getWindow().CLIQZ.Core.popup.style.position = "absolute";
-      CliqzUtils.getWindow().CLIQZ.Core.popup.style.marginTop = "72px";
-      CliqzUtils.getWindow().CLIQZ.Core.popup.style.marginLeft = "32px";
-      CliqzUtils.getWindow().CLIQZ.Core.popup.style.boxShadow = "1px 1px 10px #ccc";
+      CliqzUtils.getWindow().document.getElementById('mainPopupSet').style.position = 'relative';
+      CliqzUtils.getWindow().CLIQZ.Core.popup.style.display = 'block';
+      CliqzUtils.getWindow().CLIQZ.Core.popup.style.position = 'absolute';
+      CliqzUtils.getWindow().CLIQZ.Core.popup.style.marginTop = '72px';
+      CliqzUtils.getWindow().CLIQZ.Core.popup.style.marginLeft = '32px';
+      CliqzUtils.getWindow().CLIQZ.Core.popup.style.boxShadow = '1px 1px 10px #ccc';
     });
 
     //TODO get queries from queries.json
+    var queries = {
+      'top':
+          ['google.de', 'g', 'f', 'y', 'goo', 'fa', 'www.google.de', 'face',
+           'go', 'web.de', 'you', 'gmx.de', 'ebay.de', 'google', 'bild.de', 'fac',
+           'ama', 'amazon.de', 'ebay', 'we'],
+      'smartcliqz':
+          ['flug LH76', '500 EUR in USD', '5m in inch',
+           'aktuelle uhrzeit los angeles', 'aktie apple',
+           'wetter in muenchen',
+           'spiegel.de', 'amazon.de', 'dkb.de'],
+      'thuy':
+          ['wetter m', 'wetter ber', 'bier',
+           'http://www.imdb.com/title/tt0499549', 'imdb ava']
+    }
+
     var i = 0;
-    ['flug LH76', '500 EUR in USD', '5m in inch',
-     'aktuelle uhrzeit los angeles', 'aktie apple',
-     'wetter in muenchen',
-     'spiegel.de', 'amazon.de', 'dkb.de'
-    ].forEach(function (query) {
+    for (k in queries) {
+      queries[k].forEach(function (query) {
+        it('should take screenshot of query: '+ query, function() {
+          fillIn(query);
 
-      it('should take screenshot of query: '+ query, function() {
-        fillIn(query);
-
-        return waitForResult().then(function() {
-          return new Promise(function (resolve) {
-            // increased timeout to avoid seeing scrollbars on Mac
-            setTimeout(resolve, 750);
-            i++;
-          });
-        }).then(function () {
-          return Screenshot.exec({
-            filename: "dropdown-" + padNumber(i, 2) + "-" + escapeQuery(query)
+          return waitForResult().then(function() {
+            return new Promise(function (resolve) {
+              // increased timeout to avoid seeing scrollbars on Mac
+              setTimeout(resolve, 750);
+              i++;
+            });
+          }).then(function () {
+            return Screenshot.exec({
+              filename: 'dropdown-' + padNumber(i, 2) + '-' + escapeQuery(query)
+            });
           });
         });
       });
-    });
+    }
   });
 };
