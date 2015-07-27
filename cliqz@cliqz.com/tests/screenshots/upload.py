@@ -220,6 +220,7 @@ def upload(filename, bucket, key, is_dryrun=False):
         key = bucket.new_key(key)
         key.set_contents_from_filename(filename)
 
+
 if __name__ == '__main__':
     main(sys.argv)
 
