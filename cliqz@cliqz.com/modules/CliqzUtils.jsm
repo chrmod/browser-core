@@ -93,6 +93,7 @@ var CliqzUtils = {
       'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
+      'local-data-sc':2,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
       'cpgame_movie': 3
