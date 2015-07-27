@@ -195,10 +195,11 @@ def make_mosaic(images, cols, padding=0):
 
 
 def upload_folder(input_folder, bucket, key_prefix, is_dryrun=False):
+    key_prefix = key_prefix.replace("\\", "/")
     for root, dirs, files in os.walk(input_folder, topdown=False):
         for name in files:
             filename = os.path.join(root, name)
-            key = os.path.join(key_prefix, root[len(input_folder) + 1:], name)
+            key = "/".join([key_prefix, root[len(input_folder) + 1:], name])
             upload(filename, bucket, key, is_dryrun)
 
 
