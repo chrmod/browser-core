@@ -422,9 +422,9 @@
 }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
-#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
+#cliqz-results .ez-calculator .answer { font-size: 48px; margin-top: -9px; }
+#cliqz-results .ez-calculator .expression { margin: 14px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 17px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {

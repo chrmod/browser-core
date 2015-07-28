@@ -2,14 +2,19 @@
     <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
     {{#with data}}
         <div>
+           {{! Result from calc }}
            <div class="answer">{{prefix_answer}} <span id='calc-answer'>{{answer}}</span></div>
-           <div class="expression"> {{expression}}</div>
-           {{#if support_copy_ans}}
-               <div class="message" id="calc-copy-msg">{{local 'Click anywhere to copy'}}</div>
-               <div class="message" id="calc-copied-msg" style="display: none">{{local 'Copied'}}</div>
-            {{else}}
-               <div class="message" id="calc-copy-msg"> {{line3}}</div>
-            {{/if}}
+           <div class="expression">
+               {{expression}}
+
+               {{! Copy Message }}
+               {{#if support_copy_ans}}
+                   <span class="message" id="calc-copy-msg">{{local 'Click anywhere to copy'}}</span>
+                   <span class="message" id="calc-copied-msg" style="display: none">{{local 'Copied'}}</span>
+                {{else}}
+                   <span class="message" id="calc-copy-msg"> {{line3}}</span>
+                {{/if}}
+           </div>
         </div>
     {{/with}}
     {{> logo}}
