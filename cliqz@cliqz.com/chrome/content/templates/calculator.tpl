@@ -1,3 +1,10 @@
+{{!
+    EZ calling that template:
+        1. Time: time Berlin
+        2. Calculator: 1+2
+        3. Unit Converter: 10m to cm
+}}
+
 {{#if data.is_calculus}}
     <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
     {{#with data}}
