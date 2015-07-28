@@ -17,8 +17,8 @@ var CliqzHandlebars = this.Handlebars;
 
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet'],
+    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
@@ -352,6 +352,53 @@ function registerHelpers(){
           return defaultSetting;
         }
     });
+
+    Handlebars.registerHelper('for', function(from, to, incr, block) {
+      // repeat block in for loop
+      var accum = '';
+      for(var i = from; i < to; i += incr)
+          accum += block.fn(i);
+      return accum;
+    });
+
+    /* Math comparisons */
+    Handlebars.registerHelper('ifeq', function(v1, v2, options) { // if equal
+      return v1 == v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifleq', function(v1, v2, options) { // if less than or equal
+      return v1 <= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('iflt', function(v1, v2, options) {  // if less than
+      return v1 < v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgeq', function(v1, v2, options) { // if greater than or equal
+      return v1 >= v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    Handlebars.registerHelper('ifgt', function(v1, v2, options) { // if geater than
+      return v1 > v2 ? options.fn(this) : options.inverse(this);
+    });
+
+    /* End Math comparisons */
+
+    /* If conditions on preferences */
+    Handlebars.registerHelper('ifpref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.fn(this) : options.inverse(this) ;
+      else
+        return CliqzUtils.getPref(name) == val ? options.fn(this) : options.inverse(this) ;
+    });
+
+    Handlebars.registerHelper('unlesspref', function(name, val, options) {
+      if (val == undefined)
+        return CliqzUtils.getPref(name) ? options.inverse(this) : options.fn(this);
+      else
+        return CliqzUtils.getPref(name) == val ? options.inverse(this) : options.fn(this);
+    });
+    /* End If conditions on preferences */
 
     Handlebars.registerHelper('zeroclick_prep', function(zeroInfo_raw) {
         var n, name, item, zeroInfo = [];
