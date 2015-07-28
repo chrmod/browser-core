@@ -609,10 +609,16 @@ window.CLIQZ.Core = {
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-          //link to historydropmarker
-          CliqzAutocomplete.sessionStart = true;
-          CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
-          CLIQZ.Core.historyDropMarker.showPopup();
+            var wasUrlBarFocused = CLIQZ.Core.urlbar.focused;
+            //link to historydropmarker
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
+            CLIQZ.Core.historyDropMarker.showPopup();
+            CLIQZ.Core.urlbar.focus();
+            if (!wasUrlBarFocused) {
+                CLIQZ.Core.urlbar.mInputField.selectionStart = 0;
+                CLIQZ.Core.urlbar.mInputField.selectionEnd = CLIQZ.Core.urlbar.value.length;
+            }
         }
     },
     urlbarkeydown: function(ev){
