@@ -18,15 +18,16 @@
             </div>
         </div>
     </div>
-    <div class="cqz-local-des-blk">
+    <div class="cqz-local-des-blk local-sc-data-container">
+        {{#unless no_location}}
         <div >{{desc}}</div>
         <div class="cqz-local-hr"> </div>
-        {{#unless no_location}}
+
         <div class="cqz-local-info">
             {{#if phone_address}}
             <div class="cqz-local-info-left" >
                 {{#if address}}
-                <div class="cqz-local-address" extra="address" url="{{mu}}">
+                <div class="cqz-local-address" extra="address" show-status='true' url="{{mu}}">
                     <img src="http://cdn.cliqz.com/extension/EZ/local/map-pin.svg" class="cqz-local-icon clz_link" onerror="this.style.display='none';"/>
                     <div class="clz_link multi-ellipsis2"><p>{{address}}</p></div>
                 </div>
@@ -53,6 +54,10 @@
             {{/if}}
 
         </div>
+        {{else}}
+          {{#unlesspref 'share_location' 'no'}}
+            {{>missing_location}}
+          {{/unlesspref}}
         {{/unless}}
     </div>
     {{/with}}

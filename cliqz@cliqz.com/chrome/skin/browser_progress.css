@@ -832,3 +832,7 @@
     height: 0;
     visibility: hidden;
 }
+
+#cliqz-results .clz_link p {
+  cursor:pointer;
+}
