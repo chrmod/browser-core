@@ -184,8 +184,10 @@ var Mixer = {
         // Take the first entry (if history) and see if we can trigger an EZ with it,
         // this will override an EZ sent by backend.
         if(results.length > 0 && results[0].data && results[0].data.template &&
-           results[0].data.template.indexOf("pattern") == 0 && !(results[0].data.template == "pattern-h1")) {
-
+           results[0].data.template.indexOf("pattern") == 0 && // history cluster
+           !(results[0].data.template == "pattern-h1") && // but not full sized cluster (special case)
+           !results[0].data.autoAdd // also, not when the base domain has been auto added (guessed)
+           ) {
             var url = results[0].val;
             // if there is no url associated with the first result, try to find it inside
             if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
