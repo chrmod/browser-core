@@ -600,6 +600,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     type: 'activity',
                     action: 'results',
                     query_length: CliqzAutocomplete.lastSearch.length,
+                    urlbar_value_length: CliqzUtils.getWindow().CLIQZ.Core.urlbar.value.length,
                     result_order: results.map(function(r){ return r.data.kind; }),
                     instant: instant,
                     popup: CliqzAutocomplete.isPopupOpen ? true : false,
