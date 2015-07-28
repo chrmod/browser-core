@@ -424,8 +424,12 @@ function registerHelpers(){
         var height_ = (data["phonenumber"] || data["address"] || data["opening_hours"] || data["no_location"]) ? 2 : 1;
         var rating_img = null;
 
+        var two_digit = function(num){
+            return num < 10 ? '0'+num : ''+num;
+        };
+
         var t = new Date(),
-            current_t = t.getHours() + '.' + t.getMinutes(),
+            current_t = two_digit(t.getHours()) + '.' + two_digit(t.getMinutes()),
             is_open = false, close_soon = null, open_soon = null, open_stt,
             tmp, h_diff, m_diff,
             time_info_str = "";
@@ -434,13 +438,14 @@ function registerHelpers(){
 
         if ( data["opening_hours"]) {
             data["opening_hours"].every(function (el) {
+                if (!el["open"] || !el["close"]) return true;
                 time_info_str = time_info_str ? time_info_str + ', ' : "";
                 time_info_str += el["open"]['time'] + ' - ' + el["close"]['time'];
                 if (is_open === false) {
-                    if (current_t >= el["open"]['time'] && current_t <= el["close"]["time"]) {
+                    if ((current_t >= el["open"]['time']) && ((current_t <= el["close"]["time"]) || (el["close"]['day'] !== el["open"]['day']) )) {
                         is_open = true;
                         tmp = el["close"]["time"].split('.');
-                        h_diff = t.getHours() - tmp[0];
+                        h_diff = el["close"]['day'] !== el["open"]['day'] ? t.getHours() - tmp[0] - 24 : t.getHours() - tmp[0];
                         m_diff = t.getMinutes() - tmp[1];
                         close_soon = (h_diff === 0 || (h_diff === -1 && m_diff >= 0));
                     } else {
@@ -460,8 +465,8 @@ function registerHelpers(){
                 "time_info_str": time_info_str
             };
         }
-
-        if (data["rating"] !== null)
+        
+        if (data["rating"] !== undefined && data["rating"] !== null)
             rating_img = "http://cdn.cliqz.com/extension/EZ/richresult/stars"+ Math.max(0, Math.min(Math.round(data["rating"]), 5)) + ".svg";
 
         if (height_ === 1){
