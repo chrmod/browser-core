@@ -609,13 +609,10 @@ window.CLIQZ.Core = {
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-          var urlBar = CLIQZ.Core.urlbar;
-          if(urlBar.value.trim().length == 0){
-              //link to historydropmarker
-              CliqzAutocomplete.sessionStart = true;
-              CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
-              CLIQZ.Core.historyDropMarker.showPopup();
-          }
+          //link to historydropmarker
+          CliqzAutocomplete.sessionStart = true;
+          CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
+          CLIQZ.Core.historyDropMarker.showPopup();
         }
     },
     urlbarkeydown: function(ev){
