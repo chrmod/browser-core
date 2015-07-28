@@ -418,7 +418,10 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('local_template', function(data){
-        var height_ = ( (this.type === 'cliqz-extra') || (this.data === CliqzAutocomplete.lastResult._results[0].data)) ? 2 : 1;
+        // var height_ = ( (this.type === 'cliqz-extra') ||
+        //                 ((data["phonenumber"] || data["address"] || data["opening_hours"]) && !data["no_location"]) ||
+        //                 this.data === CliqzAutocomplete.lastResult._results[0].data ) ? 2 : 1;
+        var height_ = (data["phonenumber"] || data["address"] || data["opening_hours"] || data["no_location"]) ? 2 : 1;
         var rating_img = null;
 
         var t = new Date(),
