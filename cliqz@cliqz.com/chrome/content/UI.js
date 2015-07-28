@@ -204,7 +204,7 @@ var UI = {
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         var curResAll = currentResults.results;
         if (curResAll && curResAll.length > 0 && curResAll[0].data && curResAll[0].data.template === 'topsites') {
-          if (CliqzUtils.getPref("topSites")) {
+          if (CliqzUtils.getPref("topSitesV2")) {
             CLIQZ.Core.popup.className = "cqz-popup-medium";
           }
         } else {
