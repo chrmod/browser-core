@@ -164,6 +164,14 @@ var UI = {
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
+        if (curResAll && curResAll[0].data && curResAll[0].data.template === 'topsites') {
+            if (CliqzUtils.getPref("topSites")) {
+                CLIQZ.Core.popup.className = "cqz-popup-medium";
+            }
+        } else {
+            CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
+        }
+
       if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
 
