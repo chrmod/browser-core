@@ -13,6 +13,7 @@
                         <div class="cliqz-brand-logo transition"
                              style="{{style}}"
                              show-status=""
+                             url="{{url}}"
                         >
                             {{ text }}
                         </div>
