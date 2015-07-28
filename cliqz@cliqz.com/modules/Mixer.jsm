@@ -50,6 +50,7 @@ function kindEnricher(data, newKindParams) {
     }
 }
 
+
 var Mixer = {
     ezURLs: {},
     EZ_COMBINE: ['entity-generic', 'ez-generic-2', 'entity-search-1', 'entity-portal', 'entity-banking-2'],
@@ -58,7 +59,52 @@ var Mixer = {
     init: function() {
         // TODO: get folder name from variable in CliqzSmartCliqzCache
         CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
+        CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 10000);
 
+    },
+    cleanTriggerUrls: function () {
+        if (!CliqzSmartCliqzCache || !Mixer) {
+            return;
+        }
+
+        var deleteIfWithoutTriggerUrl = function (id, cachedUrl) {
+            if (!CliqzSmartCliqzCache || !Mixer) {
+                return;
+            }
+            try {
+                CliqzSmartCliqzCache._fetchSmartCliqz(id).then(function (smartCliqz) {
+                    if (smartCliqz.data && smartCliqz.data.trigger_urls) {
+                        var found = false;
+                        for (var i = 0; i < smartCliqz.data.trigger_urls.length; i++) {
+                            if (cachedUrl == smartCliqz.data.trigger_urls[i]) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            CliqzUtils.log('SmartCliqz trigger URL cache: deleting ' + cachedUrl);
+                            CliqzSmartCliqzCache.triggerUrls.delete(cachedUrl);
+                            CliqzSmartCliqzCache.triggerUrls.save(Mixer.TRIGGER_URLS_CACHE_FILE);
+                        }
+                    }
+                }).catch(function (e) {
+                    CliqzUtils.log('error fetching SmartCliqz: ' + e);
+                });
+            } catch (e) {
+                CliqzUtils.log('error during cleaning trigger URLs: ' + e);
+            }
+        };
+
+        CliqzUtils.log('cleaning SmartCliqz trigger URLs...');
+        var delay = 1;
+        for (var cachedUrl in CliqzSmartCliqzCache.triggerUrls._cache) {
+            var id = CliqzSmartCliqzCache.triggerUrls.retrieve(cachedUrl);
+            if (id) {
+                CliqzUtils.setTimeout(deleteIfWithoutTriggerUrl, (delay++) * 1000, id, cachedUrl);
+            }
+        }
+
+        CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 86400000); // next cleaning in 1 day
     },
 	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
 		var results = [];
