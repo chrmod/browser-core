@@ -97,10 +97,17 @@ def main(argv):
                       help="width of a mosaic tile; -1 for no resize "
                            "[default: '%default']", type=int,
                       default=-1)
+    parser.add_option("--timestamp", metavar="MOSAIC_TILE_WIDTH",
+                      action="store", dest="timestamp",
+                      help="timestamp used for naming folder; "
+                           "using current time if not set"
+                           "[default: '%default']",
+                      default="")
 
     (options, args) = parser.parse_args()
 
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")\
+        if len(options.timestamp) == 0 else options.timestamp
     output_folder_base = \
         os.path.join(timestamp,
                      "width-" + str(options.dropdown_width))
