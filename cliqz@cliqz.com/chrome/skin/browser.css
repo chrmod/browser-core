@@ -621,3 +621,38 @@
     background-position: 5px center;
     background-repeat: no-repeat;
 }
+
+
+/*======= Time Clock =======*/
+#cliqz-popup .ez-type-time > div {
+    padding-left: 70px;
+}
+#cliqz-popup .cqz-analog-clock {
+    float: left;
+    margin-left: -70px;
+}
+#cliqz-popup .cqz-analog-clock .clock {
+    height: 50px;
+    width: 50px;
+    background: #fafafa;
+    border: 1px solid #333333;
+    position: relative;
+    border-radius: 50% 50%;
+    box-sizing: border-box;
+}
+#cliqz-popup .cqz-analog-clock .clock .hand-hour,
+#cliqz-popup .cqz-analog-clock .clock .hand-minute,
+#cliqz-popup .cqz-analog-clock .clock .hand-second,
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 15px;
+    height: 2px;
+    background: #333333;
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    transform-origin: left;
+}
+#cliqz-popup .cqz-analog-clock .clock .hand-minute { width: 20px; }
+#cliqz-popup .cqz-analog-clock .clock .hand-second { width: 20px; height: 1px; top: 25px; background: #d7011d; }
+#cliqz-popup .cqz-analog-clock .notch { top: 23px; width: 24px; height: 1px; background: none }
+#cliqz-popup .cqz-analog-clock .notch div { width: 2px; height: 100%; float: right; background: #333333; }

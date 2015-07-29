@@ -6,9 +6,23 @@
 }}
 
 {{#if data.is_calculus}}
-    <div class='cqz-result-h3 ez-calculator' cliqz-action='copy-calc-answer'>
+    <div class='cqz-result-h3 ez-calculator ez-type-time' cliqz-action='copy-calc-answer'>
     {{#with data}}
         <div>
+
+            <div class="cqz-analog-clock prototype" data-time="{{answer}}">
+                <div class="clock side-image" >
+                    <div class="notch prototype">
+                        <div></div>
+                    </div>
+                    <div class="hand-hour"></div>
+                    <div class="hand-minute"></div>
+                    <div class="hand-second"></div>
+                </div>
+                <div class="title"></div>
+                <div class="subtitle"></div>
+            </div>
+
            {{! Result from calc }}
            <div class="answer">{{prefix_answer}} <span id='calc-answer'>{{answer}}</span></div>
            <div class="expression">

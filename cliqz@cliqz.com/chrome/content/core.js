@@ -160,6 +160,14 @@ window.CLIQZ.Core = {
 
         CLIQZ.Core.popup = popup;
 
+        //Add Responsive classes
+        setTimeout(function(){
+            CLIQZ.Core.responsiveClasses(CLIQZ.Core.popup);
+            window.addEventListener('resize', function(){
+                CLIQZ.Core.responsiveClasses(CLIQZ.Core.popup);
+            });
+        }, 0);
+
         CLIQZ.UI.init();
 
         CLIQZ.Core.urlbarPrefs = Components.classes['@mozilla.org/preferences-service;1']
@@ -669,14 +677,14 @@ window.CLIQZ.Core = {
         } catch(e) { }
 
         CLIQZ.Core.triggerLastQ = true;
-        if(newTab) { 
+        if(newTab) {
             gBrowser.addTab(url);
         } else if(newWindow) {
             window.open(url, '_blank');
         } else if(newPrivateWindow) {
             openLinkIn(url, "window",
-              { 
-                private: true 
+              {
+                private: true
               });
         }
         else {
@@ -845,5 +853,98 @@ window.CLIQZ.Core = {
                 current_length: ev.target.value.length
             });
         }, 0);
+    },
+    //ResponsiveClasses generate responsive classes
+    responsiveClasses: function (elm) {
+        if(!elm)
+            return
+
+        var generateResponsiveClasses = function(curIndex, sizeClasses) {
+            curIndex = parseInt(curIndex);
+            // Everythinh on the right site of the curIndex is Bigger so it gets class cqz-size-smaller-than-XXXXX
+            // Everythinh on the left site of the curIndex is Small so it gets class cqz-size-smaller-bigger-XXXXX
+            var result = [];
+
+            //Smaller than
+            for(var ii = curIndex+1; ii < sizeClasses.length; ii++) {
+                result.push(" cqz-size-smaller-than-" + sizeClasses[ii].name)
+            }
+            //Smaller than
+            for(var ii = 0; ii < curIndex; ii++) {
+                result.push(" cqz-size-bigger-than-" + sizeClasses[ii].name)
+            }
+
+            return result;
+        }
+
+        //Responsive classes array, with the range
+        var elm_width = CLIQZ.Core.urlbar.clientWidth,
+            sizeClasses = [
+                {
+                    name: 'xxs',
+                    range1: '<= 200',
+                },
+                {
+                    name: 'xs',
+                    range1: '> 200',
+                    range2: '<= 400',
+                },
+                {
+                    name: 's',
+                    range1: '> 400',
+                    range2: '<= 600',
+                },
+                {
+                    name: 'm',
+                    range1: '> 600',
+                    range2: '<= 800',
+                },
+                {
+                    name: 'l',
+                    range1: '> 800',
+                    range2: '<= 1000',
+                },
+                {
+                    name: 'xl',
+                    range1: '> 1200',
+                    range2: '<= 1400',
+                },
+                {
+                    name: 'xxl',
+                    range1: '> 1400',
+                },
+            ];
+
+
+            for (var kk in sizeClasses) {
+                if(sizeClasses[kk].range1 && sizeClasses[kk].range2) {
+
+
+                    if(eval(elm_width + sizeClasses[kk].range1) && eval(elm_width + sizeClasses[kk].range2)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-' + sizeClasses[kk].name;
+                    }
+
+                }else if (sizeClasses[kk].range1) {
+
+                    if(eval(elm_width + sizeClasses[kk].range1)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-' + sizeClasses[kk].name;
+                    }
+
+                }
+            }
+    },
+    //Remove classes from element by prefix
+    removeClassesByPrefix: function (elm, prefix) {
+        var result = elm.className.split(" ").filter(function (c) {
+            return c.lastIndexOf(prefix, 0) !== 0;
+        });
+
+        elm.className = result.join(" ").trim();
+
     }
 };
