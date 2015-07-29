@@ -341,6 +341,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
         }
 
         // Step 5 - collapse urls with the same url together
+        var new_entry;
         for(i = 0; i < category_order.length; i++) {
             if(category_order[i] == 'uncategorized')
                 // don't try to collapse uncategorized entries
@@ -351,7 +352,7 @@ var CliqzClusterHistory = CliqzClusterHistory || {
             // remove entries that have the same url as a previous entry
             var keep = [];
             for(var h = 0; h < entries.length; h++) {
-                var new_entry;
+                new_entry = undefined;
                 for(var k = 0; k < keep.length; k++) {
                     if(keep[k].url == entries[h].url) {
                         new_entry = keep[k];

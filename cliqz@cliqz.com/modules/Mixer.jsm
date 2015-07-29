@@ -106,7 +106,7 @@ var Mixer = {
 
         CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 86400000); // next cleaning in 1 day
     },
-	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant, instant_autocomplete){
 		var results = [];
 
         if(!instant)
@@ -119,7 +119,7 @@ var Mixer = {
         // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
         // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
         // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+        CliqzUtils.log("only_instant:" + only_instant + " autocomplete:" + instant_autocomplete + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
         // set trigger method for EZs returned from RH
         for(var i=0; i < (cliqzExtra || []).length; i++) {
@@ -227,17 +227,13 @@ var Mixer = {
             }
         }
 
-        // Take the first entry (if history) and see if we can trigger an EZ with it,
+        // Take the first entry (if history cluster) and see if we can trigger an EZ with it,
         // this will override an EZ sent by backend.
-        if(results.length > 0 && results[0].data && results[0].data.template &&
-           results[0].data.template.indexOf("pattern") == 0 && // history cluster
-           !(results[0].data.template == "pattern-h1") && // but not full sized cluster (special case)
-           !results[0].data.autoAdd // also, not when the base domain has been auto added (guessed)
+        if(results.length > 0 && results[0].data &&
+           results[0].data.cluster && // if history cluster
+           !results[0].data.autoAdd // but not when the base domain has been auto added (guessed)
            ) {
             var url = results[0].val;
-            // if there is no url associated with the first result, try to find it inside
-            if(url == "" && results[0].data && results[0].data.urls && results[0].data.urls.length > 0)
-                url = results[0].data.urls[0].href;
 
             url = CliqzHistoryPattern.generalizeUrl(url, true);
             if (CliqzSmartCliqzCache.triggerUrls.isCached(url)) {
@@ -276,14 +272,20 @@ var Mixer = {
         if(CliqzUtils.getPref("alternative_ez", "") != "none" && cliqzExtra && cliqzExtra.length > 0) {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
-            if(results.length > 0 && results[0].data.template && results[0].data.template == "pattern-h2" &&
+            if(results.length > 0 && results[0].data && results[0].data.cluster &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
-                // do not show the EZ
-                CliqzUtils.log("History cluster " + results[0].val + " does not match EZ " + cliqzExtra[0].val, "Mixer");
+                // do not show the EZ because the local bet is different than EZ
+                CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because different than cluster " + results[0].val , "Mixer");
+
+            } else if(results.length > 0 && !only_instant && instant_autocomplete &&
+               CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
+                // do not show the EZ because the autocomplete will change
+                CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because autocomplete would change", "Mixer");
+
             } else {
                 CliqzUtils.log("EZ (" + cliqzExtra[0].data.kind + ") for " + cliqzExtra[0].val, "Mixer");
 
-                // Remove entity links form history
+                // Remove entity links from history cluster
                 if(results.length > 0 && results[0].data.template && results[0].data.template.indexOf("pattern") == 0) {
                     var mainUrl = cliqzExtra[0].val;
                     var history = results[0].data.urls;
@@ -304,7 +306,7 @@ var Mixer = {
                     else if(history.length == 2) results[0].data.template = "pattern-h3";
                 }
 
-                // remove any BM results covered by EZ
+                // remove any BM or simple history results covered by EZ
                 var results_new = [];
                 for(let i=0; i < results.length; i++) {
                     if(results[i].style.indexOf("cliqz-pattern") == 0)
@@ -336,8 +338,7 @@ var Mixer = {
 
                 // if the first result is a history cluster and
                 // there is an EZ of a supported types then make a combined entry
-                if(results.length > 0 && results[0].data &&
-                   (results[0].data.template == "pattern-h2" || results[0].data.template == "pattern-h3") &&
+                if(results.length > 0 && results[0].data && results[0].data.cluster &&
                    Mixer.EZ_COMBINE.indexOf(cliqzExtra[0].data.template) != -1 &&
                    CliqzHistoryPattern.generalizeUrl(results[0].val, true) == CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true) ) {
 
