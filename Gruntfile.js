@@ -65,9 +65,9 @@ module.exports = function(grunt) {
             },
             androidkit: {
                 files: [
-                    { expand: true, cwd: "generic/static", src: "**", dest: build("tool_androidkit/generic/static") },
-                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("tool_androidkit") },
-                    { expand: true, cwd: "generic/modules/local/", src: "CliqzAntiPhishing.js", dest: build("tool_androidkit/js") }
+                    { expand: true, cwd: "generic/static", src: "**", dest: build("androidkit/navigation") },
+                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("androidkit/navigation") },
+                    { expand: true, cwd: "generic/modules/local/", src: "CliqzAntiPhishing.js", dest: build("androidkit/navigation/js") }
                 ]
             },
         },
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
                 },
                 dest: build("tool/js/global.js"),
             },
-            global1: {
+            androidkit: {
                 src: [
                     "generic/modules/global/CliqzUtils.jsm",
                     "generic/modules/global/*.jsm"
@@ -109,13 +109,6 @@ module.exports = function(grunt) {
                     sourceMap: true,
                     process: function(src,filepath) {
                         var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
-                        /* Lucian
-                        return "// start module " + modulename + "\n"
-                               + ";CLIQZ." + modulename + " = (function(Q,E){\n"
-                               + src
-                               + "})(CLIQZ,CLIQZEnvironment);\n"
-                               + "// end module " + modulename + "\n\n"
-                        */
                         return "// start module " + modulename + "\n"
                                + "(function(ctx,Q,E){\n"
                                + src
@@ -124,7 +117,7 @@ module.exports = function(grunt) {
                                + "// end module " + modulename + "\n\n"
                     }
                 },
-                dest: build("tool_androidkit/js/global.js")
+                dest: build("androidkit/navigation/js/global.js")
             },
             global: {
                 src: [
@@ -136,13 +129,6 @@ module.exports = function(grunt) {
                     sourceMap: true,
                     process: function(src,filepath) {
                         var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
-                        /* Lucian
-                        return "// start module " + modulename + "\n"
-                               + ";CLIQZ." + modulename + " = (function(Q,E){\n"
-                               + src
-                               + "})(CLIQZ,CLIQZEnvironment);\n"
-                               + "// end module " + modulename + "\n\n"
-                        */
                         return "// start module " + modulename + "\n"
                                + "(function(ctx,Q,E){\n"
                                + src
@@ -179,7 +165,7 @@ module.exports = function(grunt) {
                 src: ["generic/modules/libs/*"],
                 dest: build("tool/js/libs.js")
             },
-            local3: {
+            androidkit_local: {
                 src: [
                     "generic/modules/local/core.js",
                     "generic/modules/local/ui.js"
@@ -188,11 +174,11 @@ module.exports = function(grunt) {
                     banner: "'use strict';\n\n",
                     sourceMap: true
                 },
-                dest: build("tool_androidkit/js/local.js")
+                dest: build("androidkit/navigation/js/local.js")
             },
-            libs2: {
+            androidkit_libs: {
                 src: ["generic/modules/libs/*"],
-                dest: build("tool_androidkit/js/libs.js")
+                dest: build("androidkit/navigation/js/libs.js")
               },
             libs3: {
                 src: ["generic/modules/libs/*"],
@@ -213,4 +199,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-concurrent")
 
     grunt.registerTask("default",["copy","concat","concurrent"])
+    grunt.registerTask("build",["copy","concat"])
 }

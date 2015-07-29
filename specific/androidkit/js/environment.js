@@ -72,8 +72,8 @@ var ENGINES = [
 ];
 
 CLIQZEnvironment = {
-	TEMPLATES_PATH: 'generic/static/templates/',
-    LOCALE_PATH: 'generic/static/locale/',
+	TEMPLATES_PATH: 'templates/',
+    LOCALE_PATH: 'locale/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
     setPref: function(k,v){db[k] = v},
