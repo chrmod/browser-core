@@ -1,3 +1,25 @@
+/*
+ * HOW IT WORKS
+ *  - this Lambda function has as event source "S3 Object Created" and is hooked up
+ *    to bucket "tests-dropdown-appearance" (in the Lambda function configuration page)
+ *  - it checks all new objects for keys that contain "mosaic", creates an email with
+ *    the image as attachement (using the MailComposer Node.JS module), and sends the
+ *    email via AWS SES
+ *  - a user who is allowed to send emails is required for SES (it does not work to grant
+ *    sending rights to a role); this user is called "tests-dropdown-appearance-ses" and its
+ *    credentials are passed to the SES constructur in this script
+ *
+ * DEPLOYING
+ *  - zip containing folder (make sure that in the zipped file index.js is _not_
+ *    in a sub-folder; otherwise, Lambda won't find it)
+ *  - upload archive to Lambda
+ *    (https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions/VisualTestingScreenshotsAdded)
+ *
+ * NOTES
+ *  - simply hooking up the object-created event to SNS allows for pushing email notifcations,
+ *    but does not allow for attaching images to the email
+ */
+
 console.log('Loading function');
 
 var aws = require('aws-sdk');
