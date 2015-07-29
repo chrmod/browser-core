@@ -618,6 +618,11 @@ window.CLIQZ.Core = {
             CliqzAutocomplete.sessionStart = true;
             CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
             CLIQZ.Core.showTopsites();
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'topsites',
+                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
+            });
         }
     },
     urlbarkeydown: function(ev){
