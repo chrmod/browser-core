@@ -606,7 +606,8 @@ window.CLIQZ.Core = {
     },
     showTopsites: function () {
         CLIQZ.Core.popup.className = 'cqz-popup-medium';
-        CLIQZ.UI.redrawDropdown(CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), "");
+        CLIQZ.UI.redrawDropdown(
+            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), "");
         CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
     },
     urlbarmousedown: function(ev){
