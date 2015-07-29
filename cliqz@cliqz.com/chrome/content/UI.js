@@ -174,7 +174,6 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-
         if (!gCliqzBox)
             return;
 
@@ -204,7 +203,7 @@ var UI = {
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
         var curResAll = currentResults.results;
         if (curResAll && curResAll.length > 0 && curResAll[0].data && curResAll[0].data.template === 'topsites') {
-          if (CliqzUtils.getPref("topSitesV2")) {
+          if (CliqzUtils.getPref("topSitesV2"), false) {
             CLIQZ.Core.popup.className = "cqz-popup-medium";
           }
         } else {
