@@ -33,11 +33,12 @@ exports.handler = function(event, context) {
 
                 mailcomposer.setMessageOption({
                     from: 'dominik.s@cliqz.com',
-                    to: 'dominik.s@cliqz.com,panagiota@cliqz.com,sean@cliqz.com,thuy@cliqz.com',
-                    subject: '[testing] new dropdown screenshots',
+                    to: 'dominik.s@cliqz.com,panagiota@cliqz.com,sean@cliqz.com,elyse@cliqz.com,thuy@cliqz.com',
+                    subject: '[testing] new dropdown screenshots (width: ' + key.split('width-')[1].split('/')[0] + ')',
                     body: 's3://' + bucket + '/' + key,
-                    html: '<img src="cid:' + key + '" />' +
-                          '<br/><br/>s3://' + bucket + '/' + key
+                    html: 's3://' + bucket + '/' + key +
+                          '<br/><br/><img src="cid:' + key + '" />'
+
                 });
                 var attachment = {
                     contents: data.Body,
@@ -45,19 +46,23 @@ exports.handler = function(event, context) {
                     cid: key
                 };
                 mailcomposer.addAttachment(attachment);
-                mailcomposer.buildMessage(function(err, messageSource){
-                    console.log('error: ' + err);
-                    console.log('messageSource: ' + messageSource);
-                    ses.sendRawEmail({RawMessage: {Data: messageSource}}, function(err, data) {
-                        if(err) {
-                            console.error('error sending email via SES');
-                            console.error(err);
-                            context.fail();
-                        } else {
-                            console.info('email sent via SES');
-                            context.done(null, data);
-                        }
-                    });
+                console.log('buidling mosaic mail...')
+                mailcomposer.buildMessage(function(err, messageSource) {
+                    if (err) {
+                        console.log('mailcomposer error: ' + err);
+                        context.fail();
+                    } else {
+                        console.log('sending mosaic mail...')
+                        ses.sendRawEmail({RawMessage: {Data: messageSource}}, function(err, data) {
+                            if(err) {
+                                console.error('error sending mosaic mail via SES ' + err);
+                                context.fail();
+                            } else {
+                                console.info('mosaic mail sent via SES');
+                                context.done(null, data);
+                            }
+                        });
+                    }
                 });
             }
         }
