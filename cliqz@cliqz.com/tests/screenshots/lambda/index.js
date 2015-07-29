@@ -35,11 +35,13 @@ exports.handler = function(event, context) {
                     to: 'dominik.s@cliqz.com',
                     subject: '[testing] new dropdown screenshots',
                     body: 's3://' + bucket + '/' + key,
-                    html: 's3://' + bucket + '/' + key
+                    html: '<img src="cid:' + key + '" />' +
+                          '<br/><br/>s3://' + bucket + '/' + key
                 });
                 var attachment = {
                     contents: data.Body,
-                    contentType: 'image/png'
+                    contentType: 'image/png',
+                    cid: key
                 };
                 mailcomposer.addAttachment(attachment);
                 mailcomposer.buildMessage(function(err, messageSource){
