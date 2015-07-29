@@ -10,6 +10,9 @@
  *    credentials are passed to the SES constructur in this script
  *
  * DEPLOYING
+ *  - install Node.JS modules AWS SDK and Mailcomposer
+ *          sudo npm install mailcomposer
+ *          sudo npm install aws-sdk
  *  - zip containing folder (make sure that in the zipped file index.js is _not_
  *    in a sub-folder; otherwise, Lambda won't find it)
  *  - upload archive to Lambda
