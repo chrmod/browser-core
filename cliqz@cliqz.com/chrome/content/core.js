@@ -747,14 +747,15 @@ window.CLIQZ.Core = {
           CLIQZ.UI.autocompleteEl = 0;
         }
 
-        // If new style autocomplete and it is not enabled, ignore the autocomplete
-        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+        // No autocomplete
+        if(!autocomplete.autocomplete ||
+           (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
+           (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
+            CLIQZ.UI.clearAutocomplete();
+            CliqzAutocomplete.lastAutocomplete = null;
+            CliqzAutocomplete.lastAutocompleteType = null;
+            CliqzAutocomplete.selectAutocomplete = false;
             return;
-        }
-
-        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
-          CLIQZ.UI.clearAutocomplete();
-          return;
         }
 
         // Apply autocomplete
@@ -762,12 +763,11 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
         CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
         CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
-        if (autocomplete.autocomplete) {
-            urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
-            CLIQZ.UI.cursor = autocomplete.selectionStart;
-        }
+        urlBar.mInputField.value = autocomplete.urlbar;
+        urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
+        CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
+        CLIQZ.UI.cursor = autocomplete.selectionStart;
+
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
             CliqzAutocomplete.selectAutocomplete = true;

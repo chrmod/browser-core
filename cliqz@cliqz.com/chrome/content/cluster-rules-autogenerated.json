@@ -182,7 +182,7 @@
                     }, 
                     "title": {
                         "var": "title", 
-                        "pattern": "\u25b6 *(.+) - YouTube\\s*"
+                        "pattern": "\\u25B6* *(.+) - YouTube\\s*"
                     }
                 }
             ], 

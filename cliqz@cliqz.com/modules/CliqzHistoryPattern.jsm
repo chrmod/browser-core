@@ -976,6 +976,7 @@ var CliqzHistoryPattern = {
       promises.push(CliqzHistoryPattern.getTitle(instant));
 
       instant.data.template = "pattern-h2";
+      instant.data.cluster = true; // a history cluster based on a destination bet
       instant_results.push(instant);
 
     } else if (searchString.length == 0) {
@@ -1007,6 +1008,7 @@ var CliqzHistoryPattern = {
       instant.comment += " (history domain cluster)!";
       instant.data.template = "pattern-h2";
       instant.data.autoAdd = results[0].autoAdd;
+      instant.data.cluster = true; // a history cluster based on a destination bet
 
       // first entry is used as the main URL of this cluster, remove from remaining result list
       results.shift();
