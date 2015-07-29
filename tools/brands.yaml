@@ -133,7 +133,7 @@ brands:
             category: Videos
             title:
                 var: title
-                pattern: '▶ *(.+) - YouTube\s*'
+                pattern: '\u25B6* *(.+) - YouTube\s*'
             match:
                 path: /watch
                 query: v=[^&]+

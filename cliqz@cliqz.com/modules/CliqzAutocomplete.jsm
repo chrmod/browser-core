@@ -341,7 +341,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         if(this.cliqzResults)
                             var country = this.cliqzCountry;
 
-                        this.sendResultsSignal(this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
+                        // delay sending signal to make sure rendering is complete
+                        // otherwise we don't get up to date autocomplete stats
+                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
                         this.startTime = null;
                         this.resultsTimer = null;
@@ -365,7 +367,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                         this.latency.all = Date.now() - this.startTime;
                         //instant result, no country info yet
-                        this.sendResultsSignal(this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
+                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
                     } else {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
                     }
@@ -431,7 +433,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                             this.cliqzResultsExtra,
                             this.instant,
                             this.customResults,
-                            only_instant
+                            only_instant,
+                            CliqzAutocomplete.lastAutocompleteType ? true : false
                     );
                 CliqzAutocomplete.lastResultIsInstant = only_instant;
                 CliqzAutocomplete.afterQueryCount = 0;
@@ -595,7 +598,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.clearTimeout(this.historyTimer);
             },
 
-            sendResultsSignal: function(results, instant, popup, country) {
+            sendResultsSignal: function(obj, results, instant, popup, country) {
                 var action = {
                     type: 'activity',
                     action: 'results',
@@ -603,18 +606,18 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     result_order: results.map(function(r){ return r.data.kind; }),
                     instant: instant,
                     popup: CliqzAutocomplete.isPopupOpen ? true : false,
-                    latency_cliqz: this.latency.cliqz,
-                    latency_history: this.latency.history,
-                    latency_patterns: this.latency.patterns,
-                    latency_backend: this.latency.backend,
-                    latency_mixed: this.latency.mixed,
-                    latency_all: this.startTime? Date.now() - this.startTime : null,
-                    discarded: this.discardedResults,
+                    latency_cliqz: obj.latency.cliqz,
+                    latency_history: obj.latency.history,
+                    latency_patterns: obj.latency.patterns,
+                    latency_backend: obj.latency.backend,
+                    latency_mixed: obj.latency.mixed,
+                    latency_all: obj.startTime? Date.now() - obj.startTime : null,
+                    discarded: obj.discardedResults,
                     v: 1
                 };
 
                 // reset count of discarded backend results
-                this.discardedResults = 0;
+                obj.discardedResults = 0;
 
                 if (CliqzAutocomplete.lastAutocompleteType) {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
