@@ -27,12 +27,13 @@ exports.handler = function(event, context) {
             console.log(message);
             context.fail(message);
         } else {
+            console.log('checking key ' + key + ' with content type ' + data.ContentType);
             if (key.indexOf('mosaic') > -1 && data.ContentType == 'image/png') {
                 console.log('new mosaic image found')
 
                 mailcomposer.setMessageOption({
                     from: 'dominik.s@cliqz.com',
-                    to: 'dominik.s@cliqz.com',
+                    to: 'dominik.s@cliqz.com,panagiota@cliqz.com,sean@cliqz.com,thuy@cliqz.com',
                     subject: '[testing] new dropdown screenshots',
                     body: 's3://' + bucket + '/' + key,
                     html: '<img src="cid:' + key + '" />' +
