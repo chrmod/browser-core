@@ -60,7 +60,7 @@ var Mixer = {
         CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
 
     },
-	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant){
+	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant, instant_autocomplete){
 		var results = [];
 
         if(!instant)
@@ -73,7 +73,7 @@ var Mixer = {
         // CliqzUtils.log("cliqz: " + JSON.stringify(cliqz), "Mixer");
         // CliqzUtils.log("instant: " + JSON.stringify(instant), "Mixer");
         // CliqzUtils.log("extra:   " + JSON.stringify(cliqzExtra), "Mixer");
-        CliqzUtils.log("only_instant:" + only_instant + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
+        CliqzUtils.log("only_instant:" + only_instant + " autocomplete:" + instant_autocomplete + " instant:" + instant.length + " cliqz:" + cliqz.length + " extra:" + cliqzExtra.length, "Mixer");
 
         // set trigger method for EZs returned from RH
         for(var i=0; i < (cliqzExtra || []).length; i++) {
@@ -226,10 +226,16 @@ var Mixer = {
         if(CliqzUtils.getPref("alternative_ez", "") != "none" && cliqzExtra && cliqzExtra.length > 0) {
 
             // Did we already make a 'bet' on a url from history that does not match this EZ?
-            if(results.length > 0 && results[0].data.template && results[0].data.cluster &&
+            if(results.length > 0 && results[0].data && results[0].data.cluster &&
                CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
-                // do not show the EZ
-                CliqzUtils.log("History cluster " + results[0].val + " does not match EZ " + cliqzExtra[0].val, "Mixer");
+                // do not show the EZ because the local bet is different than EZ
+                CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because different than cluster " + results[0].val , "Mixer");
+
+            } else if(results.length > 0 && !only_instant && instant_autocomplete &&
+               CliqzHistoryPattern.generalizeUrl(results[0].val, true) != CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].val, true)) {
+                // do not show the EZ because the autocomplete will change
+                CliqzUtils.log("Not showing EZ " + cliqzExtra[0].val + " because autocomplete would change", "Mixer");
+
             } else {
                 CliqzUtils.log("EZ (" + cliqzExtra[0].data.kind + ") for " + cliqzExtra[0].val, "Mixer");
 
