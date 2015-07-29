@@ -65,8 +65,9 @@ module.exports = function(grunt) {
             },
             androidkit: {
                 files: [
-                    { expand: true, cwd: "generic/", src: "**", dest: build("tool_androidkit/generic/") },
-                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("tool_androidkit") }
+                    { expand: true, cwd: "generic/static", src: "**", dest: build("tool_androidkit/generic/static") },
+                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("tool_androidkit") },
+                    { expand: true, cwd: "generic/modules/local/", src: "CliqzAntiPhishing.js", dest: build("tool_androidkit/js") }
                 ]
             },
         },

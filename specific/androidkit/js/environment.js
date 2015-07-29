@@ -87,9 +87,16 @@ CLIQZEnvironment = {
     OS: 'android',
     isPrivate: function(){ return false; },
     getWindow: function(){ return window; },
-    httpHandler: function(method, url, callback, onerror, timeout, data){
+    getDomNodeContent: function(el) {
+        return el.outerHTML;
+    },
+    httpHandler: function(method, url, callback, onerror, timeout, data, asynchronous) {
         var req = new XMLHttpRequest();
-        req.open(method, url, true);
+        if (asynchronous === undefined) {
+            req.open(method, url, true);
+        } else {
+            req.open(method, url, asynchronous);
+        }
         req.overrideMimeType('application/json');
         req.onload = function(){
             if(!parseInt) return; //parseInt is not a function after extension disable/uninstall
@@ -295,7 +302,19 @@ CliqzLanguage = {
 	stateToQueryString: function(){ return ''; }
 }
 
-CliqzHumanWeb = {}
+CliqzHumanWeb = {
+    addURLtoDB: function () {
+        console.log("CHW addURLtoDB", arguments);
+    },
+    state: {},
+    notification: function (notification) {
+        console.log("CHW notification", arguments);
+    },
+    getCDByURL: function () {
+        console.log("CHW notification", arguments);
+    }
+
+}
 CliqzHistory = {
     updateQuery: function(){},
     setTabData: function(){}
