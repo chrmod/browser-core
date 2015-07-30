@@ -177,6 +177,16 @@ var UI = {
         if (!gCliqzBox)
             return;
 
+        if(CliqzUtils.getPref('topSitesV2', false)) {
+          // makes sure that topsites show after changing tabs,
+          // rather than showing the previous results;
+          // (set to '' in CliqzSearchHistory.tabChanged)
+          if (CliqzAutocomplete.lastSearch === '') {
+            currentResults = {};
+            return;
+          }
+        }
+
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
             var cliqzBox = CLIQZ.Core.popup.cliqzBox;
@@ -185,6 +195,13 @@ var UI = {
             }
         }
         currentResults = enhanceResults(res);
+        var curResAll = currentResults.results;
+        if (curResAll) {
+          CliqzUtils.log("##### curResAll.length " + curResAll.length);
+          if (curResAll.length > 0 && curResAll[0].data) {
+            CliqzUtils.log("##### curResAll.curResAll[0].data " + curResAll[0].data);
+          }
+        }
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
