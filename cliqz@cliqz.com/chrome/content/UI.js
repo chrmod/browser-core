@@ -201,12 +201,10 @@ var UI = {
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
-        var curResAll = currentResults.results;
-        if (curResAll && curResAll.length > 0 && curResAll[0].data && curResAll[0].data.template === 'topsites') {
-          if (CliqzUtils.getPref("topSitesV2"), false) {
-            CLIQZ.Core.popup.className = "cqz-popup-medium";
-          }
-        } else {
+
+        if (CliqzUtils.getPref("topSitesV2", false)) {
+          // being here means we have results, i.e., no topsites
+          // thus remove topsites style
           CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
         }
 
