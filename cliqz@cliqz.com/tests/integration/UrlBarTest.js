@@ -66,7 +66,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
       it('should trigger firefox history search', function () {
         var $pattern = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element"),
-            $title   = $cliqzResults().find(".cqz-result-box .cqz-ez-title");
+            $title   = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element-title");
 
         chai.expect($title[0].textContent.trim()).to.contain("Mozilla");
         chai.expect($pattern).to.have.length.above(1);
