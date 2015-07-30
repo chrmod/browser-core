@@ -1963,19 +1963,32 @@ function handleMouseDown(e) {
             }
 
         var curDate = elm.dataset.time;
-        console.log(curDate);
 
 
         for (var i = 0; i < 12; i++) {
             var item = $(".notch", element);
-            var itemClone = element.appendChild(item.cloneNode(true));
+            var itemClone = $('.clock', element).appendChild(item.cloneNode(true));
 
             itemClone.style.cssText = "transform: rotateZ(" + gethand(i, 12) + "rad)";
         }
 
+        var curTime = elm.dataset.time.split(':');
         var tick = function () {
-            var d = new Date(),
-                hour = gethand(d.getHours() + d.getMinutes() / 60, 12),
+            var actualTime = new Date(),
+                d = new Date();
+
+            actualTime.setHours(curTime[0]);
+            actualTime.setMinutes(curTime[1]);
+
+
+            var hourDiff = d.getHours() - actualTime.getHours(),
+                minDiff = d.getMinutes() - actualTime.getMinutes();
+
+
+            d.setHours(d.getHours() - hourDiff);
+            d.setMinutes(d.getMinutes() - minDiff);
+
+            var hour = gethand(d.getHours() + d.getMinutes() / 60, 12),
                 minute = gethand(d.getMinutes() + d.getSeconds() / 60, 60),
                 second = gethand(d.getSeconds(), 60)
 
