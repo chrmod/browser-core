@@ -760,6 +760,7 @@ window.CLIQZ.Core = {
 
         // No autocomplete
         if(!autocomplete.autocomplete ||
+           !CliqzUtils.genericPrefs.getBoolPref("browser.urlbar.autoFill") || // user has disabled autocomplete
            (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
            (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
             CLIQZ.UI.clearAutocomplete();
