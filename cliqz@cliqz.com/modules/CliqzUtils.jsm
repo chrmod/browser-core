@@ -60,8 +60,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'http://newbeta.cliqz.com/api/v1/results?q=',
-  RICH_HEADER:                    'http://newbeta.cliqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -1407,7 +1407,7 @@ var CliqzUtils = {
         return menu;
     },
 
-    createLocationPermOptions(doc) {
+    createLocationPermOptions: function(doc) {
       var menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
@@ -1571,7 +1571,7 @@ var CliqzUtils = {
         CliqzUtils.USER_LNG = null;
       }
     },
-    setLocationPermission(newPerm) {
+    setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
         CliqzUtils.updateGeoLocation();
