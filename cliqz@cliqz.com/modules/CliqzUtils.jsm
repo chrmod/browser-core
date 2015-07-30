@@ -1406,7 +1406,7 @@ var CliqzUtils = {
         return menu;
     },
 
-    createLocationPermOptions(doc) {
+    createLocationPermOptions: function(doc) {
       var menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
@@ -1570,7 +1570,7 @@ var CliqzUtils = {
         CliqzUtils.USER_LNG = null;
       }
     },
-    setLocationPermission(newPerm) {
+    setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
         CliqzUtils.updateGeoLocation();
