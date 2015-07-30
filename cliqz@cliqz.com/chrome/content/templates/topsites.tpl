@@ -1,4 +1,4 @@
-<div class='cqz-result-h2 cqz-result-padding cqz-noresult-box'>
+<div class='cqz-result-h2 cqz-result-padding cqz-noresult-box cqz-topsites'>
     {{#with data}}
         <div class="cqz-ez-title custom-after cqz-ez-generic-title" extra="title">
             {{ title }}
