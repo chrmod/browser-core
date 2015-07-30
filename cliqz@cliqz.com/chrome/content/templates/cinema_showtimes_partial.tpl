@@ -5,12 +5,16 @@
   {{#each cinemas}}
     <tr class="cinema-row">
       <td  class="cinema-name-td">
-        <a class="cinema-name cqz-url" {{#if cinema.website}} url="{{cinema.website}}" {{/if}} href="{{cinema.website}}">{{cinema.name}}</a>
+        <a class="cinema-name cqz-url"
+            {{#if cinema.website}} url="{{cinema.website}}" show-status='true' {{/if}}
+            href="{{cinema.website}}">{{cinema.name}}</a>
       </td>
       {{#each showtimes}}
         <td class="cinema-showtime-td">
           {{#if booking_link }}
-            <span class="cinema-showtime" url="{{booking_link}}"><a class="cqz-url" href="{{booking_link}}">{{time}}</a></span>
+            <span class="cinema-showtime" show-status='true' url="{{booking_link}}">
+              <a class="cqz-url" href="{{booking_link}}" show-status='true'>{{time}}</a>
+            </span>
           {{else}}
             <span class="cinema-showtime" >{{time}}</span>
           {{/if}}

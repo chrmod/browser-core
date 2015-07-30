@@ -85,8 +85,7 @@ TESTS.SmartCliqzTest = function (CliqzUtils) {
 
           return waitForResult().then(function() {
             return new Promise(function (resolve) {
-              // increased timeout to avoid seeing scrollbars on Mac
-              setTimeout(resolve, 750);
+              setTimeout(resolve, 2000);
               i++;
             });
           }).then(function () {
