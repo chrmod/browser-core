@@ -58,7 +58,7 @@ exports.handler = function(event, context) {
 
                 mailcomposer.setMessageOption({
                     from: 'dominik.s@cliqz.com',
-                    to: 'dominik.s@cliqz.com,panagiota@cliqz.com,sean@cliqz.com,elyse@cliqz.com,thuy@cliqz.com',
+                    to: 'dominik.s@cliqz.com,panagiota@cliqz.com,sean@cliqz.com,elyse@cliqz.com,thuy@cliqz.com,stefanie@cliqz.com',
                     subject: '[testing] new dropdown screenshots (width: ' + key.split('width-')[1].split('/')[0] + ')',
                     body: 's3://' + bucket + '/' + key,
                     html: 's3://' + bucket + '/' + key +
