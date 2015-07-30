@@ -195,13 +195,6 @@ var UI = {
             }
         }
         currentResults = enhanceResults(res);
-        var curResAll = currentResults.results;
-        if (curResAll) {
-          CliqzUtils.log("##### curResAll.length " + curResAll.length);
-          if (curResAll.length > 0 && curResAll[0].data) {
-            CliqzUtils.log("##### curResAll.curResAll[0].data " + curResAll[0].data);
-          }
-        }
         //CliqzUtils.log(CliqzUtils.getNoResults(), "NORES");
 
         // Results that are not ready (extra results, for which we received a callback_url)
