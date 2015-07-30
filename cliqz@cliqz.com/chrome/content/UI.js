@@ -161,7 +161,6 @@ var UI = {
       });
 
       var curResAll = currentResults.results;
-      var curResAll = currentResults && currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
 
