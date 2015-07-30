@@ -867,11 +867,13 @@ window.CLIQZ.Core = {
 
             //Smaller than
             for(var ii = curIndex+1; ii < sizeClasses.length; ii++) {
-                result.push(" cqz-size-smaller-than-" + sizeClasses[ii].name)
+                if(sizeClasses[ii].rangeName2){
+                    result.push(" cqz-size-smaller-than-" + sizeClasses[ii].rangeName2);
+                }
             }
             //Smaller than
             for(var ii = 0; ii < curIndex; ii++) {
-                result.push(" cqz-size-bigger-than-" + sizeClasses[ii].name)
+                result.push(" cqz-size-bigger-than-" + sizeClasses[ii].rangeName1);
             }
 
             return result;
@@ -881,36 +883,35 @@ window.CLIQZ.Core = {
         var elm_width = CLIQZ.Core.urlbar.clientWidth,
             sizeClasses = [
                 {
-                    name: 'xxs',
-                    range1: '<= 200',
+                    rangeName1: '500',
+                    range1: '<= 500',
                 },
                 {
-                    name: 'xs',
-                    range1: '> 200',
-                    range2: '<= 400',
-                },
-                {
-                    name: 's',
-                    range1: '> 400',
-                    range2: '<= 600',
-                },
-                {
-                    name: 'm',
-                    range1: '> 600',
+                    rangeName1: '500',
+                    rangeName2: '800',
+                    range1: '> 500',
                     range2: '<= 800',
                 },
                 {
-                    name: 'l',
+                    rangeName1: '800',
+                    rangeName2: '1000',
                     range1: '> 800',
                     range2: '<= 1000',
                 },
                 {
-                    name: 'xl',
+                    rangeName1: '1000',
+                    rangeName2: '1200',
+                    range1: '> 1000',
+                    range2: '<= 1200',
+                },
+                {
+                    rangeName1: '1200',
+                    rangeName2: '1400',
                     range1: '> 1200',
                     range2: '<= 1400',
                 },
                 {
-                    name: 'xxl',
+                    rangeName1: 'over-1400',
                     range1: '> 1400',
                 },
             ];
@@ -924,7 +925,7 @@ window.CLIQZ.Core = {
                         CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
 
                         elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
-                        elm.className += ' cqz-size-' + sizeClasses[kk].name;
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1 + '-' + sizeClasses[kk].rangeName2;
                     }
 
                 }else if (sizeClasses[kk].range1) {
@@ -932,7 +933,7 @@ window.CLIQZ.Core = {
                     if(eval(elm_width + sizeClasses[kk].range1)) {
                         CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
                         elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
-                        elm.className += ' cqz-size-' + sizeClasses[kk].name;
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1;
                     }
 
                 }
