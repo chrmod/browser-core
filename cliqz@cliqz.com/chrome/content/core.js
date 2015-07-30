@@ -605,10 +605,21 @@ window.CLIQZ.Core = {
         }
     },
     showTopsites: function () {
-        CLIQZ.Core.popup.className = 'cqz-popup-medium';
+        var popup = CLIQZ.Core.popup,
+            urlbar = CLIQZ.Core.urlbar;
+
+        popup.className = 'cqz-popup-medium';
         CLIQZ.UI.redrawDropdown(
-            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), "");
-        CLIQZ.Core.popup._openAutocompletePopup(CLIQZ.Core.urlbar, CLIQZ.Core.urlbar);
+            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
+
+        if (popup.cliqzBox) {
+            var width = Math.max(urlbar.clientWidth, 500);
+            popup.cliqzBox.style.width = width + 1 + "px";
+            popup.cliqzBox.resultsBox.style.width =
+                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
+        }
+
+        popup._openAutocompletePopup(urlbar, urlbar);
     },
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSitesV2', false)) return;
