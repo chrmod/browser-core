@@ -149,11 +149,20 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 var urlDetails = CliqzUtils.getDetailsFromUrl(r.url),
                     logoDetails = CliqzUtils.getLogoDetails(urlDetails);
 
+                // show all subdomains (except for "www"), name, and tld (e.g., "mail.google.com")
+                var nameComponents = [];
+                for (var i = 0; i < urlDetails.subdomains.length; i++) {
+                    if (urlDetails.subdomains[i] != 'www') {
+                        nameComponents.push(urlDetails.subdomains[i]);
+                    }
+                }
+                nameComponents.push(urlDetails.name, urlDetails.tld);
+
                 return {
                   url: r.url,
                   href: r.url.replace(urlDetails.path, ''),
                   link: r.url.replace(urlDetails.path, ''),
-                  name: urlDetails.name,
+                  name: nameComponents.join('.'),
                   text: logoDetails.text,
                   style: logoDetails.style,
                   extra: "top-sites-" + i

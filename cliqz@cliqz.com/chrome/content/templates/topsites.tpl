@@ -18,7 +18,7 @@
                         >
                             {{ text }}
                         </div>
-                        <span class="item-name">{{nameify name}}</span>
+                        <span class="item-name">{{name}}</span>
                     </li>
                 {{/each}}
             </ul>
