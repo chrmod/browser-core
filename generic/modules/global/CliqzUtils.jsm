@@ -27,6 +27,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
 XPCOMUtils.defineLazyModuleGetter(this, 'Result',
   'chrome://cliqzmodules/content/Result.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRequestMonitor',
+  'chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
+
 var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
@@ -91,6 +94,7 @@ var CliqzUtils = {
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
   init: function(win){
+
     if (win && win.navigator) {
         // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
         var nav = win.navigator;
@@ -122,6 +126,7 @@ var CliqzUtils = {
       })();
     }
 
+    CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
   //returns the type only if it is known
@@ -499,9 +504,11 @@ var CliqzUtils = {
               CliqzUtils.encodeFilter() +
               CliqzUtils.encodeLocation();
 
-    CliqzUtils.httpGet(url, function (res) {
+    var req = CliqzUtils.httpGet(url, function (res) {
       callback && callback(res, q);
     });
+
+    CliqzUtils.requestMonitor.addRequest(req);
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){

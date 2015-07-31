@@ -1194,9 +1194,24 @@ function enhanceResults(res){
         });
     } else if (CLIQZ.UI.messageCenterMessage) {
       updateMessageState("show", CLIQZ.UI.messageCenterMessage);
+    } else if (!CliqzUtils.requestMonitor.inHealth()) {
+      var rand = getRandomForCurrentTime(4);
+      updateMessageState("show", {
+        slow_connection: {
+          header: CliqzUtils.getLocalizedString("slow_connection_header_"+rand),
+          text:   CliqzUtils.getLocalizedString("slow_connection_text_"+rand)
+        }
+      });
     }
 
     return res;
+}
+
+// returns a number from 1 to `range` for specific part of hour.
+// So range = 6, cuts hour into six parts and returns:
+// 1: for minutes 0-9, 2: for minutes 10-19, etc.
+function getRandomForCurrentTime(range) {
+  return 1 + Math.floor( (new Date()).getMinutes() * range / 60 );
 }
 
 function notSupported(r){
@@ -1260,18 +1275,11 @@ function getNotSupported(){
   */
 
 function updateMessageState(state, messages) {
-  switch (state) {
-    case "show":
-      gCliqzBox.messageContainer.innerHTML = "";
-      Object.keys(messages).forEach(function(tpl_name){
-          gCliqzBox.messageContainer.innerHTML += CliqzHandlebars.tplCache[tpl_name](messages[tpl_name]);
-      });
-      break;
-    case "hide":
-    default:
-      gCliqzBox.messageContainer.innerHTML = "";
-      break;
-  }
+  if (state != "show" || !messages) { messages = {}; }
+
+  gCliqzBox.messageContainer.innerHTML = Object.keys(messages).map(function (tplName) {
+    return CliqzHandlebars.tplCache[tplName](messages[tplName]);
+  }).join("");
 }
 
 function getResultPosition(el){
