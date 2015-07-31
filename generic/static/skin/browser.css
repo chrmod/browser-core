@@ -733,3 +733,17 @@
     margin-top: 7px; color: #999;
     white-space: normal;
 }
+
+/* START - Slow connection */
+#cliqz-popup .cqz-msg-slow-connection {
+    padding: 10px 20px;
+    color: #fff;
+    background: #ff4940;
+}
+#cliqz-popup .cqz-msg-slow-connection .title {
+    margin-bottom: 3px;
+    font-size: 18px;
+    line-height: 1.3em;
+    font-weight: normal;
+}
+/* END - Slow connection */

@@ -18,10 +18,17 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
+    MESSAGE_TEMPLATES = [
+      'footer-message',
+      'onboarding-callout',
+      'onboarding-callout-extended',
+      'confirm_no_00',
+      'confirm_no_01',
+      'slow_connection'
+    ],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
-        [0            , '',                , 1],
+        [0            , '',1],
         [120          , 'ago1Minute' , 1],
         [3600         , 'agoXMinutes'   , 60],
         [7200         , 'ago1Hour' , 1],
@@ -31,7 +38,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         [4838400      , 'ago1Month'  , 1],
         [29030400     , 'agoXMonths'   , 2419200],
         [58060800     , 'ago1year'   , 1],
-        [2903040000   , 'agoXYears'     , 29030400],
+        [2903040000   , 'agoXYears'     , 29030400]
     ],
     ZERO_CLICK_INFO_PRIO = [["Phone", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/phone.svg"],
                             ["BIC", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/BIC.svg"],
@@ -106,15 +113,6 @@ function registerHelpers(){
             return null;
         }
     });
-
-    Handlebars.registerHelper('floatify', function(f) {
-        try {
-            return parseFloat(f);
-        } catch(e) {
-            return f;
-        }
-    });
-
 
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
@@ -195,8 +193,28 @@ function registerHelpers(){
         return mw; // default
     });
 
-    Handlebars.registerHelper('localize_numbers', function(num) {
-        return (num !== null || typeof(num)!=="undefined" )? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "_"
+    Handlebars.registerHelper('localizeNumbers', function(num) {
+        /*
+        * USE only when you really understand your data (see below)!
+        * this function supports localization for:
+        *   + normal number strings (e.g. 1.2, 3...),
+        *   + standardized abrv. strings: 12e-4, and
+        *   + extended forms, e.g. 1.2B, 1M etc.
+        * In general, any string in the form of xxxyyy where xxx is a standardized number string (recognized by isFinite())
+        * and yyy is an arbitrary string (called postfix) that does not start with a number will be localized
+        * WARNING: numbers in the form such as: 12e3M, which might be seen as 12000 Million, will be parsed incorrectly
+        */
+        try {
+            var parsedNum = parseFloat(num), postfix, dummy = "-";
+            if (!isNaN(parsedNum) && isFinite(parsedNum)) {
+                postfix = isFinite(num) ? "" : (num + "").substring((parsedNum + "").length);
+                return isFinite(parsedNum) ? parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix : dummy
+            }
+            return dummy;
+        }
+        catch(e) {
+            return num
+        }
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){

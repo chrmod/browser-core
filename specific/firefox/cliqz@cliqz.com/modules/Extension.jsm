@@ -205,7 +205,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
-
+        Cu.unload('chrome://cliqzmodules/content/CliqzRequestMonitor.jsm');
         // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
 
         // Remove this observer here to correct bug in 0.5.57

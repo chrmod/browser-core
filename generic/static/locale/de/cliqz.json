@@ -527,6 +527,9 @@
     "options": {
         "message": "Suchergebnisfilter"
     },
+    "views": {
+        "message": "Aufrufe"
+    },
     "cliqz_slogan_H1": {
         "message": "SURFEN STATT SUCHEN"
     },
@@ -551,12 +554,6 @@
     "cliqz_blog": {
         "message": "Blog"
     },
-    "no_legal_disclaimer": {
-      "message": "Ohne Gewähr"
-    },
-    "views": {
-        "message": "Aufrufe"
-    },
     "cliqz_stock_open": {
         "message": "Eröffnung"
     },
@@ -571,6 +568,18 @@
     },
     "cliqz_stock_pe_ratio": {
         "message": "KGV (ttm)"
+    },
+    "OutOfCoverageWarning": {
+       "message": "CLIQZ’s Ergebnisse sind noch nicht so gut in Deinem Land.  Wir werden außerhalb von Deutschland bald besser sein."
+    },
+    "keep-cliqz": {
+      "message": "OK"
+    },
+    "disable-cliqz": {
+      "message": "Cliqz deaktivieren"
+    },
+    "btnActivateCliqz": {
+      "message": "Cliqz aktivieren"
     },
     "publish_date": {
         "message": "Veröffentlichungsdatum"
@@ -656,7 +665,6 @@
     "ez_video-courageous": {
       "message": "Mutige"
     },
-
     "ez_video-recommended": {
       "message": "Empfohlen"
     },
@@ -805,6 +813,33 @@
       "message": "Nein, zeige mir lokale Informationen."
     },
     "extended_forecast": {
-        "message": "Detailiertere Vorhersage"
+      "message": "Detailiertere Vorhersage"
+    },
+    "no_legal_disclaimer": {
+      "message": "Ohne Gewähr"
+    },
+    "slow_connection_header_1": {
+      "message": "Wenn’s mal wieder länger dauert…"
+    },
+    "slow_connection_text_1": {
+      "message": "Du bist nicht Du wenn Du ohne Internet bist. Bitte die Verbindung überprüfen."
+    },
+    "slow_connection_header_2": {
+      "message": "Verbleibende Ladezeit: 45266436 Stunden"
+    },
+    "slow_connection_text_2": {
+      "message": "Bitte die Internet-Verbindung überprüfen."
+    },
+    "slow_connection_header_3": {
+      "message": "Hmpf."
+    },
+    "slow_connection_text_3": {
+      "message": "Bitte die Internet-Verbindung überprüfen."
+    },
+    "slow_connection_header_4": {
+      "message": "Nicht unsere Schuld!"
+    },
+    "slow_connection_text_4": {
+      "message": "Bitte die Internet-Verbindung überprüfen"
     }
 }
