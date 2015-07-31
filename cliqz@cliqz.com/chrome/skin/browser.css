@@ -511,11 +511,19 @@
 #cliqz-popup .cqz-btn-default { background-color: #506bb8; margin-right: 0 }
 #cliqz-popup .cqz-btn-success { background-color: #28ae2b; margin-right: 0 }
 #cliqz-popup .cqz-btn-error { background-color: #c3043e; }
-#cliqz-popup .cqz-btn-warning { background-color: #ffcc66; }
+#cliqz-popup .cqz-btn-warning { background-color: #ffd08a; }
 #cliqz-popup .cqz-btn-gray { background-color: #eaeaea; color: #333333; }
 
 /* adult content */
-#cliqz-popup .cqz-message-bar { padding: 4px 10px; text-align: justify; white-space: normal; line-height: 0 }
+#cliqz-popup .cqz-message-bar {
+    line-height: 0;
+    padding: 4px 10px;
+    text-align: justify;
+    white-space: normal;
+    color: #c3043e;
+    border-top: 1px solid #d7d5a8;
+    background: #fffee6;
+}
 #cliqz-popup .cqz-message-bar > * { margin-top: 8px; vertical-align: top; display: inline-block }
 #cliqz-popup .cqz-message-bar img { height: 16px; }
 #cliqz-popup .cqz-message { padding: 2px 20px 2px; margin-top: 8px; display: inline-block; }
