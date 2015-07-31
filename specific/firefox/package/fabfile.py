@@ -220,11 +220,14 @@ def comment_cleaner(path=None):
         return
 
     target = ['js', 'jsm', 'html']
+    exclude_dirs = ['node_modules', 'bower_components']
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
-    for root, dirs, files in os.walk(ext_root):
+    for root, dirs, files in os.walk(ext_root, topdown=True):
+        # ignore exclude_dirs - http://stackoverflow.com/a/19859907
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for f in files:
             if f.split('.')[-1] in target and f not in ignore:
                 print 'X',
@@ -233,6 +236,7 @@ def comment_cleaner(path=None):
                     handler.seek(0)
                     handler.truncate()
                     handler.write(js_comment_removal(content))
+
             else:
                 print '.',
     print

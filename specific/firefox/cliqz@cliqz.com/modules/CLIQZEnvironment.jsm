@@ -105,6 +105,7 @@ var CLIQZEnvironment = {
     },
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = Cc['@mozilla.org/xmlextras/xmlhttprequest;1'].createInstance();
+        req.timestamp = + new Date();
         req.open(method, url, true);
         req.overrideMimeType('application/json');
         req.onload = function(){
