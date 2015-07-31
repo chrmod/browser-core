@@ -162,7 +162,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                   url: r.url,
                   href: r.url.replace(urlDetails.path, ''),
                   link: r.url.replace(urlDetails.path, ''),
-                  name: nameComponents.join('.'),
+                  name: r.title ? r.title: nameComponents.join('.'),
                   text: logoDetails.text,
                   style: logoDetails.style,
                   extra: "top-sites-" + i
