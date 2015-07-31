@@ -160,6 +160,14 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
+      // cache heights (1-3) for result order
+      CliqzAutocomplete.lastResultHeights =
+        Array.prototype.slice.call(
+          gCliqzBox.getElementsByClassName("cqz-result-box")).map(
+            function (r) {
+              return Math.round(r.offsetHeight / 100);
+            });
+
       var curResAll = currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
@@ -1373,7 +1381,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = extraData['extra'] || el.getAttribute('extra'), //extra data about the link. Note: resultCliqz passes extra in extraData, but not other events, e.g. enter (8Jul2015)
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
+          result_order = CliqzAutocomplete.prepareResultOrder(currentResults.results),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),

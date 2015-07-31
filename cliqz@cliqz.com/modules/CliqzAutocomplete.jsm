@@ -55,6 +55,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
     lastSearch: '',
     lastResult: null,
     lastSuggestions: null,
+    lastResultHeights: [],
     hasUserScrolledCurrentResults: false, // set to true whenever user scrolls, set to false when new results are shown
     lastResultsUpdateTime: null, // to measure how long a result has been shown for
     resultsOverflowHeight: 0, // to determine if scrolling is possible (i.e., overflow > 0px)
@@ -210,6 +211,33 @@ var CliqzAutocomplete = CliqzAutocomplete || {
             };
             CliqzUtils.telemetry(action);
         }
+    },
+    // returns array of result kinds, adding each result's
+    // height in terms of occupied dropdown slots (1-3) as
+    // parameter (e.g., ["C|{\"h\":1}"],["m|{\"h\":1}"])
+    prepareResultOrder: function (results) {
+        // heights is updated in UI's handleResults
+        var heights = CliqzAutocomplete.lastResultHeights,
+            resultOrder = [];
+
+        if (results) {
+            for(var i = 0; i < results.length; i++) {
+                var kind   = results[i].data && results[i].data.kind &&
+                             results[i].data.kind.slice(0),
+                    tokens = kind && kind.length > 0 ?
+                             kind[0].split('|') : [],
+                    params = tokens.length > 1 ?
+                             JSON.parse(tokens[1]) : {};
+
+                params.h = i < heights.length ?
+                           heights[i] : 0;
+                kind[0] =
+                    tokens[0] + '|' + JSON.stringify(params);
+                resultOrder.push(kind);
+            }
+        }
+
+        return resultOrder;
     },
     initResults: function(){
         CliqzAutocomplete.CliqzResults.prototype = {
@@ -603,7 +631,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     type: 'activity',
                     action: 'results',
                     query_length: CliqzAutocomplete.lastSearch.length,
-                    result_order: results.map(function(r){ return r.data.kind; }),
+                    result_order: CliqzAutocomplete.prepareResultOrder(results),
                     instant: instant,
                     popup: CliqzAutocomplete.isPopupOpen ? true : false,
                     latency_cliqz: obj.latency.cliqz,
