@@ -1381,7 +1381,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = extraData['extra'] || el.getAttribute('extra'), //extra data about the link. Note: resultCliqz passes extra in extraData, but not other events, e.g. enter (8Jul2015)
-          result_order = CliqzAutocomplete.prepareResultOrder(currentResults.results),
+          result_order = currentResults && CliqzAutocomplete.prepareResultOrder(currentResults.results),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
