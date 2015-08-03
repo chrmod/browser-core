@@ -150,6 +150,10 @@ var CliqzUtils = {
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
+  //returns the type only if it is known
+  getKnownType: function(type){
+    return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
+  },
   getLocalStorage: function(url) {
     var uri = Services.io.newURI(url,"",null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal

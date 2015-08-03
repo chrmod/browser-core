@@ -168,6 +168,10 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     var r = results[i];
                     if(r.style == 'cliqz-extra'){
                         if(r.data){
+                            // override the template if the superTemplate is known
+                            if(r.data.superTemplate && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.superTemplate))
+                                r.data.template = r.data.superTemplate;
+
                             if(r.data.template && CliqzUtils.TEMPLATES.hasOwnProperty(r.data.template)===false){
                                 // unexpected/unknown template
                                 continue;
