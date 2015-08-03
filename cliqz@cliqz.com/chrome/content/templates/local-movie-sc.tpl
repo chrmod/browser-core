@@ -8,17 +8,22 @@
         <div class="movie_title cqz-ez-title"><a href="{{url}}">{{ emphasis movie.name text 2 true }}</a></div>
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
         <div class="movie_description">
-          <span>
-            {{#for 0 movie.rating 1}}
-              <span class='cqz-rating-star-on'>★</span>
-            {{/for}}
-            {{#for movie.rating 5 1}}
-              <span class='cqz-rating-star-off'>★</span>
-            {{/for}}
-          </span>
-          <span class="movie_desc">
-            {{movie.description}}
-          </span>
+
+          <div class="cqz-rd-max-lines4">
+            <p>
+              <span>
+                {{#for 0 movie.rating 1}}
+                  <span class='cqz-rating-star-on'>★</span>
+                {{/for}}
+                {{#for movie.rating 5 1}}
+                  <span class='cqz-rating-star-off'>★</span>
+                {{/for}}
+              </span>
+              <span class="movie_desc">
+                {{movie.description}}
+              </span>
+            </p>
+          </div>
 
         </div>
       </div>

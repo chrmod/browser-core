@@ -675,14 +675,17 @@
 }
 
 #cliqz-results .iconLabel {
-   margin-left: 10px
+   margin-left: 10px;
 }
 
 
 /***** LOCAL MOVIE EZ ******/
+
 #cliqz-results .movie_container {
   height:160px;
   max-height:160px;
+  width: calc(100% - 35px);
+  max-width: 800px;
 }
 
 #cliqz-results .movie_poster, #cliqz-results .movie_poster_img {
@@ -727,7 +730,7 @@
   max-height:150px;
   padding-left:10px;
   overflow:ellipsis;
-  white-space: normal
+  white-space: normal;
 }
 
 #cliqz-results .cinema-showtimes-table {
@@ -771,7 +774,7 @@
 
 #cliqz-results .movie-trailer-btn {
   position: relative;
-  bottom: -12px;
+  bottom: -10px;
 }
 
 #cliqz-results .location_permission_prompt {
