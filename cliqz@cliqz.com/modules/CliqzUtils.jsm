@@ -1428,7 +1428,6 @@ var CliqzUtils = {
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
           CliqzUtils.setLocationPermission(this.filter_level.toString());
-          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         }, false);
 
         menupopup.appendChild(item);
@@ -1573,6 +1572,7 @@ var CliqzUtils = {
     setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         CliqzUtils.updateGeoLocation();
       }
     }
