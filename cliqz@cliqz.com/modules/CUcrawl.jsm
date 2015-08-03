@@ -29,6 +29,17 @@ CliqzUtils.setPref('safe_browsing_events', CliqzUtils.getPref('safe_browsing_eve
 CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
 CliqzUtils.setPref('dnt', CliqzUtils.getPref('dnt', false));
 
+var execHandler = {
+                        handleError: function(aError) {
+                            CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
+                        },
+                        handleCompletion: function(aReason) {
+                            if(CUcrawl.debug){
+                                CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
+                            }
+                        }
+                };
+
 function md5cycle(x, k) {
     var a = x[0], b = x[1], c = x[2], d = x[3];
 
@@ -2559,16 +2570,7 @@ var CUcrawl = {
                         }
 
                         // while (st.executeStep()) {};
-                        st.executeAsync({
-                            handleError: function(aError) {
-                                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-                            },
-                            handleCompletion: function(aReason) {
-                                if(CUcrawl.debug){
-                                    CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                                }
-                            }
-                        });
+                        st.executeAsync(execHandler);
                         if(setPrivate){
                             CUcrawl.setAsPrivate(url);
                         }
@@ -2591,16 +2593,7 @@ var CUcrawl = {
                             st.params.last_visit = tt;
                             st.params.payload = JSON.stringify(paylobj || {});
                             // while (st.executeStep()) {};
-                            st.executeAsync({
-                                handleError: function(aError) {
-                                    CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-                                },
-                                handleCompletion: function(aReason) {
-                                    if(CUcrawl.debug){
-                                        CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                                    }
-                                }
-                            });
+                            st.executeAsync(execHandler);
                         }
                         else{
                             if (res[0] && res[0]['checked']==1 && res[0]['private'] == 0) {
@@ -2610,16 +2603,7 @@ var CUcrawl = {
                                 st.params.payload = JSON.stringify(paylobj || {});
                                 st.params.checked = 0;
                                 // while (st.executeStep()) {};
-                                st.executeAsync({
-                                    handleError: function(aError) {
-                                        CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-                                    },
-                                    handleCompletion: function(aReason) {
-                                        if(CUcrawl.debug){
-                                            CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                                        }
-                                    }
-                                });
+                                st.executeAsync(execHandler);
                             }
                         }
                     }
@@ -2630,16 +2614,7 @@ var CUcrawl = {
     setAsPrivate: function(url) {
         var st = CUcrawl.dbConn.createStatement("DELETE from usafe WHERE url = :url");
         st.params.url = url;
-        st.executeAsync({
-            handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-            },
-            handleCompletion: function(aReason) {
-                if(CUcrawl.debug){
-                    CliqzUtils.log("Delete success", CUcrawl.LOG_KEY);
-                 }
-            }
-        });
+        st.executeAsync(execHandler);
         if(CUcrawl.state['v'][url]){
             delete CUcrawl.state['v'][url];
         }
@@ -2649,16 +2624,7 @@ var CUcrawl = {
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 1;
         // while (hash_st.executeStep()) {};
-        hash_st.executeAsync({
-            handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-            },
-            handleCompletion: function(aReason) {
-                if(CUcrawl.debug){
-                    CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                }
-            }
-        });
+        hash_st.executeAsync(execHandler);
         if (CUcrawl.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url) + " ::: "  + (md5(url)).substring(0,16), CUcrawl.LOG_KEY);
         }
@@ -2667,16 +2633,7 @@ var CUcrawl = {
         var st = CUcrawl.dbConn.createStatement("DELETE from usafe WHERE url = :url")
         st.params.url = url;
         // while (st.executeStep()) {};
-        st.executeAsync({
-            handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-            },
-            handleCompletion: function(aReason) {
-                if(CUcrawl.debug){
-                    CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                }
-            }
-        });
+        st.executeAsync(execHandler);
         if(CUcrawl.state['v'][url]){
             delete CUcrawl.state['v'][url];
         }
@@ -2686,16 +2643,7 @@ var CUcrawl = {
         hash_st.params.hash = (md5(url)).substring(0,16);
         hash_st.params.private = 0;
         // while (hash_st.executeStep()) {};
-        hash_st.executeAsync({
-            handleError: function(aError) {
-                CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-            },
-            handleCompletion: function(aReason) {
-                if(CUcrawl.debug){
-                    CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                }
-            }
-        });
+        hash_st.executeAsync(execHandler);
         if (CUcrawl.debug) {
             CliqzUtils.log('MD5: ' + url + md5(url), CUcrawl.LOG_KEY);
         }
@@ -2755,16 +2703,7 @@ var CUcrawl = {
                     st.params.ft = 0;
                     st.params.reason = 'priv. st.';
                     // while (st.executeStep()) {};
-                    st.executeAsync({
-                        handleError: function(aError) {
-                            CliqzUtils.log("SQL error: " + aError.message, CUcrawl.LOG_KEY);
-                        },
-                        handleCompletion: function(aReason) {
-                            if(CUcrawl.debug){
-                                CliqzUtils.log("Insertion success", CUcrawl.LOG_KEY);
-                            }
-                        }
-                    });
+                    st.executeAsync(execHandler);
                     CUcrawl.setAsPrivate(url);
                 }
                 else {
