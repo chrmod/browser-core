@@ -1436,7 +1436,7 @@ function resultClick(ev){
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(href = el.getAttribute("href")) {
-          el.setAttribute('url', href)
+          el.setAttribute('url', href);
         }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
