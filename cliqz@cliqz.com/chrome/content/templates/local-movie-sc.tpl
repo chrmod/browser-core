@@ -5,7 +5,7 @@
         <img src='{{movie.poster_img}}' class='movie_poster_img'/>
       </div>
       <div class='movie_data'>
-        <div class="movie_title cqz-ez-title"><a href="{{url}}">{{ emphasis movie.name text 2 true }}</a></div>
+        <div class="movie_title cqz-ez-title"><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
         <div class="movie_description">
 
@@ -20,7 +20,7 @@
                 {{/for}}
               </span>
               <span class="movie_desc">
-                {{movie.description}}
+                {{desc}}
               </span>
             </p>
           </div>
