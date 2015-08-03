@@ -127,26 +127,36 @@ CLIQZEnvironment = {
         return req;
     },
     openLink: function(url, newTab){
-        window.open(url,newTab?'_blank':'_self');
+        jsBridge.openLink(url);
+        return false;
     },
     historySearch: function(q, callback, searchParam, sessionStart){
-        var res = [];
-        for (var i = 0; i<30; i++) {
-            res.push({
-                style:   'favicon',
-                value:   'http://coolurl.com/' + i ,
-                image:   '',
-                comment: q + ' Title ' +i,
-                label:   ''
-            });
+        try {
+			var message = q  //{"getHistory": q}
+			window.webkit.messageHandlers.interOp.postMessage(message)
+            var out = jsBridge.searchHistory(q);
+            var items = JSON.parse(out);
+            var res = [];
+            for (var i in items) {
+                var item = items[i];
+                res.push({
+                    style:   'favicon',
+                    value:   item.url,
+                    image:   '',
+                    comment: item.title,
+                    label:   ''
+                });
+            }
+            setTimeout(function(q,res){
+                callback({
+                    query: q,
+                    results: res,
+                    ready:  true
+                });
+            }, 1, q, res);
+        } catch (e) {
+            CLIQZEnvironment.log( "historySearch", "Error: " + e);
         }
-        setTimeout(function(q,res){
-            callback({
-                query: q,
-                results: q.length % 2 == 0?res:[],
-                ready:  true
-            });
-        }, 10, q, res);
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){
