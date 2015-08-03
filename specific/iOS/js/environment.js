@@ -71,6 +71,9 @@ var ENGINES = [
     }
 ];
 
+var historyCallbacks = {};
+var lastHistoryCallbackId = 1;
+
 CLIQZEnvironment = {
 	TEMPLATES_PATH: 'generic/static/templates/',
     LOCALE_PATH: 'generic/static/locale/',
@@ -130,12 +133,24 @@ CLIQZEnvironment = {
         jsBridge.openLink(url);
         return false;
     },
-    historySearch: function(q, callback, searchParam, sessionStart){
+    addHistoryCallback: function (callback) {
+        historyCallbacks[lastHistoryCallbackId] = callback;
+        return lastHistoryCallbackId++;
+    },
+    runHistoryCallback: function (id, query, results) {
+        var callback = historyCallbacks[id];
+        historyCallbacks[id] = null;
+        setTimeout(function(){
+            callback({
+                query: query,
+                results: results,
+                ready:  true
+            });
+        }, 1);
+    },
+    historySearchDone: function (id, query, resultsAsJson) {
         try {
-			var message = q  //{"getHistory": q}
-			window.webkit.messageHandlers.interOp.postMessage(message)
-            var out = jsBridge.searchHistory(q);
-            var items = JSON.parse(out);
+            var items = JSON.parse(resultsAsJson);
             var res = [];
             for (var i in items) {
                 var item = items[i];
@@ -147,13 +162,17 @@ CLIQZEnvironment = {
                     label:   ''
                 });
             }
-            setTimeout(function(q,res){
-                callback({
-                    query: q,
-                    results: res,
-                    ready:  true
-                });
-            }, 1, q, res);
+            runHistoryCallback(id, query, res);
+        } catch (e) {
+            CLIQZEnvironment.log( "historySearch", "Error: " + e);
+        }
+    },
+    historySearch: function(q, callback, searchParam, sessionStart){
+        var callbackId = addHistoryCallback(callback);
+        try {
+            var message = {"query": q, "callbackId": callbackId};
+
+			window.webkit.messageHandlers.interOp.postMessage(message)
         } catch (e) {
             CLIQZEnvironment.log( "historySearch", "Error: " + e);
         }
