@@ -976,6 +976,8 @@ function enhanceResults(res){
           } else if(r.data.actions) {
             r.data.btns = r.data.actions;
             r.data.btnExtra = 'action';
+          } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
+              r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
           }
         }
 

@@ -60,7 +60,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:               'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //'https://newbeta.cliqz.com/api/v1/results?q=',//
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',

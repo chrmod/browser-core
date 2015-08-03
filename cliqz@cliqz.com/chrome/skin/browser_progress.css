@@ -74,6 +74,42 @@
   background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
+#cliqz-results .multi-ellipsis2 {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em; }
+#cliqz-results .multi-ellipsis2:before {white-space: normal; content:""; float: left; width: 5px; height: 2.4em;}
+#cliqz-results .multi-ellipsis2 > *:first-child {white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .multi-ellipsis2:after {
+    white-space: normal;
+    content: "\02026";
+
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+
+    float: right; position: relative;
+    top: -1.2em; left: 100%;
+    width: 2em; margin-left: -2em;
+    padding-right: 5px;
+
+    text-align: right;
+
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
+
+#cliqz-results .multi-ellipsis2_14 {white-space: normal; overflow: hidden; height: 2.6em; line-height: 1.4em; }
+#cliqz-results .multi-ellipsis2_14:before {white-space: normal; content:""; float: left; width: 5px; height: 2.6em;}
+#cliqz-results .multi-ellipsis2_14 > *:first-child {white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .multi-ellipsis2_14:after {
+    white-space: normal; content: "\02026";
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box; -moz-box-sizing: content-box;
+    float: right; position: relative;
+    top: -1.4em; left: 100%;
+    width: 2em; margin-left: -2em; padding-right: 5px;
+    text-align: right;
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
 
 /* ------- RICH DATA Result----------*/
 #cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
@@ -127,18 +163,42 @@
 /* ------- END RICH DATA Result----------*/
 
 /* ------- Bundesliga EZ ----------*/
+#cliqz-results .ez-liga-genSM {width: -moz-calc(100% - 35px); width: calc(100% - 35px);  max-width: 1000px;}
+#cliqz-results .ez-liga-genSM-1line {line-height: 18px}
+#cliqz-results .ez-liga-genSM-Loc {color: #999999}
+#cliqz-results .ez-liga-genSM  .ez-liga-teamName{color: #506bb8;}
+#cliqz-results .ez-liga-genSM-game-box {border:1px solid #CCCCCC; margin: 25px 0px 0px 20px; padding: 20px 20px 20px 20px; height: 98px; position: relative; width: 100%; max-width:600px;}
+#cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6}
+#cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 78px; width: -moz-calc(100% - 1-px); width: calc(100% - 10px);}
+#cliqz-results .ez-liga-genSM-vs{font-size: 18px;}
+#cliqz-results .ez-liga-genSM .ez-liga-teamName{max-width: -moz-calc(40% - 20px); max-width: calc(40% - 20px); }
+#cliqz-results .cqz-ez-btns{margin-top: 20px;}
+
+#cliqz-results .rotate90 {
+  -moz-transform: rotate(-90deg); transform: rotate(-90deg);
+  -moz-transform-origin: left bottom; transform-origin: left bottom;
+}
+
+/*MAGIC numbers */
+#cliqz-results .ez-liga-genSM-gamestt {background-color: #CCCCCC; line-height: 20px; color: #ffffff; text-align: center; width: 140px;
+    position: absolute; top: 257px; left: 42px;
+}
+
+#cliqz-results .ez-liga-genSM-gamestt_live {background-color: #56EAC6}
+
+
 #cliqz-results .ez-liga .cqz-ez-title::after {background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;}
-#cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -8px 0px 5px; }
-#cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 0px; }
-#cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 0px 0px 0px}
+#cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -2px 0px 10px; }
+#cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 4px; }
+#cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 00px 0px 5px}
 #cliqz-results .ez-liga-oneGameScore  {margin:18px 0px;}
 #cliqz-results .ez-liga-teamName  {float:left;text-align:left;color: #333333;font-size: 18px;max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 #cliqz-results .ez-liga-score {color: #74d463; font-size: 18px; }
 #cliqz-results .ez-liga-vs {color: #999999;font-size: 18px;}
 #cliqz-results .ez-liga-live {text-align:center;color: #999999; font-size: 12px; margin-top:3px}
 #cliqz-results .ez-liga-connector {text-align:center;float:left; width:20%;}
-#cliqz-results .ez-liga-timezone {position: absolute; bottom: 14px; left: 22px; color: #cccccc; font-size: 12px}
-#cliqz-results .ez-liga-sponsor {position: absolute; bottom: 14px; right: 22px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-timezone {position: absolute; bottom: 20px; left: 22px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-sponsor {position: absolute; bottom: 20px; right: 22px; color: #cccccc; font-size: 12px}
 
 #cliqz-results .ez-liga-spieltag-ucg  { color: #cccccc; margin: -3px 0px 5px; }
 #cliqz-results .ez-liga-upcominggames {display:table; width: -moz-calc(100% - 35px); max-width:600px;padding-top:5px;border-style:none}

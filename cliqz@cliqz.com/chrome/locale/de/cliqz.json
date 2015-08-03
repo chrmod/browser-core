@@ -60,10 +60,16 @@
         "message": "Gesamtzeit: {} Minuten"
     },
     "KickerSponsor":{
-        "message": "powered by kicker online"
+        "message": "powered by Kicker"
     },
     "vs":{
         "message": "gegen"
+    },
+    "NEXT GAME" : {
+        "message": "NÄCHSTES SPIEL"
+    },
+    "LAST GAME" : {
+        "message": "LETZTES SPIEL"
     },
     "AllGames":{
         "message": "Ganzer Spieltag"
