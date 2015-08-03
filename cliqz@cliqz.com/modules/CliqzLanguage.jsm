@@ -34,6 +34,7 @@ var CliqzLanguage = {
         .getService(Components.interfaces.nsIPrefService).getBranch('general.useragent.'),
 
     regexGoogleRef: /\.google\..*?\/(?:url|aclk)\?/,
+    regexGoogleQuery: /\.google\..*?[#?&;]q=[^$&]+/,
     regexGoogleAdRef: /\.google\..*?\/aclk\?/,
     regexGoogleRefUrl: /url=(.+?)&/,
 
@@ -78,9 +79,8 @@ var CliqzLanguage = {
             this.currentURL = aURI.spec;
 
             // here we check if user ignored our results and went to google and landed on the same url
-            var requery = /\.google\..*?[#?&;]q=[^$&]+/; // regex for google query
-
-            if (requery.test(this.currentURL) && !reref.test(this.currentURL)) {
+            if (CliqzLanguage.regexGoogleQuery.test(this.currentURL) &&
+                !CliqzLanguage.regexGoogleRef.test(this.currentURL)) {
                 CliqzAutocomplete.afterQueryCount += 1;
             }
 
