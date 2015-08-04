@@ -1574,28 +1574,28 @@ function handleNewLocalResults(el) {
     //CliqzUtils.log(req, "RESPONSE FROM RH");
     var resp = JSON.parse(req.response);
     var container = el;
-    while (!CliqzUtils.hasClass(container, "cqz-result-box")) {
+    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
       container = container.parentElement;
-      if (container.id == "cliqz-results") return;
+      if (!container || container.id == "cliqz-results") return;
     }
     //CliqzUtils.log(container,'cinema-container');
     if (resp.results && resp.results.length > 0) {
       var data = resp.results[0];
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
       var tpl = data.data.superTemplate;
-      container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+      if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
     } else {
       var container = el;
-      while (!CliqzUtils.hasClass(container, "local-sc-data-container")) {
+      while (container && !CliqzUtils.hasClass(container, "local-sc-data-container")) {
         container = container.parentElement;
-        if (container.id == "cliqz-results") return;
+        if (!container || container.id == "cliqz-results") return;
       }
-      container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
-      while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+      while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
         container = container.parentElement;
-        if (container.id == "cliqz-results") return;
+        if (!container || container.id == "cliqz-results") return;
       }
-      container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
+      if (container) container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
     }
   }
 }
