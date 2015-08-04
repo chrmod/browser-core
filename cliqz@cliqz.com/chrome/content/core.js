@@ -604,18 +604,37 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
+    showTopsites: function () {
+        var popup = CLIQZ.Core.popup,
+            urlbar = CLIQZ.Core.urlbar;
+
+        popup.className = 'cqz-popup-medium';
+        CLIQZ.UI.redrawDropdown(
+            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
+
+        if (popup.cliqzBox) {
+            var width = Math.max(urlbar.clientWidth, 500);
+            popup.cliqzBox.style.width = width + 1 + "px";
+            popup.cliqzBox.resultsBox.style.width =
+                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
+        }
+
+        popup._openAutocompletePopup(urlbar, urlbar);
+    },
     urlbarmousedown: function(ev){
-        if(!CliqzUtils.getPref('topSites', false)) return;
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
-          ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-          var urlBar = CLIQZ.Core.urlbar;
-          if(urlBar.value.trim().length == 0){
-              //link to historydropmarker
-              CliqzAutocomplete.sessionStart = true;
-              CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
-              CLIQZ.Core.historyDropMarker.showPopup();
-          }
+           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.showTopsites();
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'topsites',
+                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
+            });
         }
     },
     urlbarkeydown: function(ev){
