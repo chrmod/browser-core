@@ -1584,6 +1584,18 @@ function handleNewLocalResults(el) {
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
       var tpl = data.data.superTemplate;
       container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+    } else {
+      var container = el;
+      while (!CliqzUtils.hasClass(container, "local-sc-data-container")) {
+        container = container.parentElement;
+        if (container.id == "cliqz-results") return;
+      }
+      container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+      while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+        container = container.parentElement;
+        if (container.id == "cliqz-results") return;
+      }
+      container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
     }
   }
 }
