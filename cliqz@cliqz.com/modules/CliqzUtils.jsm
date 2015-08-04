@@ -93,7 +93,7 @@ var CliqzUtils = {
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
       'cpgame_movie': 3,
-      'entity-shipping-1': 2
+      "delivery-tracking": 2
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
