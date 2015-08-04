@@ -84,7 +84,7 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mouseenter', 'mouseleave'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
@@ -474,12 +474,17 @@ window.CLIQZ.Core = {
         CLIQZ.Core.popupEvent(true);
         CLIQZ.UI.popupClosed = false;
     },
-    popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;
-        CliqzAutocomplete.markResultsDone(null);
-        CLIQZ.Core.popupEvent(false);
-        CLIQZ.UI.popupClosed = true;
-        CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+    popupClose: function(e){
+        if (CliqzUtils.getPref('topSitesV2', false) &&
+            CLIQZ.Core.urlbar.getAttribute("isMouseInside") === "true") {
+            e.preventDefault();
+        } else {
+            CliqzAutocomplete.isPopupOpen = false;
+            CliqzAutocomplete.markResultsDone(null);
+            CLIQZ.Core.popupEvent(false);
+            CLIQZ.UI.popupClosed = true;
+            CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+        }
     },
     popupEvent: function(open) {
         var action = {
@@ -668,6 +673,12 @@ window.CLIQZ.Core = {
         } /* else {
            CliqzAutosuggestion.active = false;
         } */
+    },
+    urlbarmouseenter: function(ev) {
+        this.setAttribute("isMouseInside", "true");
+    },
+    urlbarmouseleave: function(ev) {
+        this.setAttribute("isMouseInside", "false");
     },
     openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
