@@ -160,17 +160,17 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
+      // cache heights (1-3) for result order
+      CliqzAutocomplete.lastResultHeights =
+        Array.prototype.slice.call(
+          gCliqzBox.getElementsByClassName("cqz-result-box")).map(
+            function (r) {
+              return Math.round(r.offsetHeight / 100);
+            });
+
       var curResAll = currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
-
-        if (curResAll && curResAll[0].data && curResAll[0].data.template === 'topsites') {
-            if (CliqzUtils.getPref("topSites")) {
-                CLIQZ.Core.popup.className = "cqz-popup-medium";
-            }
-        } else {
-            CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
@@ -182,9 +182,17 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-
         if (!gCliqzBox)
             return;
+
+        if(CliqzUtils.getPref('topSitesV2', false)) {
+          // makes sure that topsites show after changing tabs,
+          // rather than showing the previous results;
+          // (set to '' in CliqzSearchHistory.tabChanged)
+          if (CliqzAutocomplete.lastSearch === '') {
+            return {};
+          }
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -210,6 +218,13 @@ var UI = {
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
+
+        if (CliqzUtils.getPref("topSitesV2", false)) {
+          // being here means we have results, i.e., no topsites
+          // thus remove topsites style
+          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
+        }
+
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
@@ -276,7 +291,7 @@ var UI = {
                       }, smartCliqzWaitTime);
                     }
                     else if (currentResults.results.length == 0) {
-                      UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                      UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                     }
                 }
                 else {
@@ -307,7 +322,7 @@ var UI = {
               else {
                 res.splice(i,1);
                 if (currentResults.results.length == 0)
-                  UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                  UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
               }
 
           };
@@ -1376,7 +1391,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = extraData['extra'] || el.getAttribute('extra'), //extra data about the link. Note: resultCliqz passes extra in extraData, but not other events, e.g. enter (8Jul2015)
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
+          result_order = currentResults && CliqzAutocomplete.prepareResultOrder(currentResults.results),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1439,7 +1454,7 @@ function resultClick(ev){
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(href = el.getAttribute("href")) {
-          el.setAttribute('url', href) 
+          el.setAttribute('url', href);
         }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
@@ -1512,11 +1527,82 @@ function resultClick(ev){
                 default:
                     break;
             }
+        } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
+          ev.preventDefault();
+          if (el.id == 'cqz_location_yes')
+            CliqzUtils.setLocationPermission('yes');
+
+          CliqzUtils.getGeo(true, function(loc) {
+            CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
+                "&q=" + CLIQZ.Core.urlbar.value +
+                CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
+                "&bmresult=" + el.getAttribute('bm_url'),
+                handleNewLocalResults(el));
+          }, function() { CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo") } );
+          break;
+        } else if (el.id == 'cqz_location_no') {
+          var container = $(".local-sc-data-container",gCliqzBox);
+          /* Show a message to confirm user's decision*/
+          var confirm_no_id = el.getAttribute('location_confirm_no_msg');
+          if (!confirm_no_id)
+            confirm_no_id = '00'; // Default to the generic message
+
+          container.innerHTML = CliqzHandlebars.tplCache['confirm_no_' + confirm_no_id]({
+            'friendly_url': el.getAttribute('bm_url')
+          });
+
+        } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
+          if (el.id == 'cqz_location_never')
+            CliqzUtils.setLocationPermission("no");
+
+          /* Hide the prompt that asks for permision to get user's location */
+          var container = $(".local-sc-data-container",gCliqzBox);
+          container.innerHTML = "";
+          /* Reduce the size of the result now that the prompt is hidden */
+          while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+            container = container.parentElement;
+            if (container.id == "cliqz-results") return;
+          }
+          container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
+          break;
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
 }
+
+
+function handleNewLocalResults(el) {
+  return function(req) {
+    //CliqzUtils.log(req, "RESPONSE FROM RH");
+    var resp = JSON.parse(req.response);
+    var container = el;
+    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
+      container = container.parentElement;
+      if (!container || container.id == "cliqz-results") return;
+    }
+    //CliqzUtils.log(container,'cinema-container');
+    if (resp.results && resp.results.length > 0) {
+      var data = resp.results[0];
+      data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
+      var tpl = data.data.superTemplate;
+      if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+    } else {
+      var container = el;
+      while (container && !CliqzUtils.hasClass(container, "local-sc-data-container")) {
+        container = container.parentElement;
+        if (!container || container.id == "cliqz-results") return;
+      }
+      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+      while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+        container = container.parentElement;
+        if (!container || container.id == "cliqz-results") return;
+      }
+      if (container) container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
+    }
+  }
+}
+
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),

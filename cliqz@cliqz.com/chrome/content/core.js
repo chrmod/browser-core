@@ -612,18 +612,37 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
+    showTopsites: function () {
+        var popup = CLIQZ.Core.popup,
+            urlbar = CLIQZ.Core.urlbar;
+
+        popup.className = 'cqz-popup-medium';
+        CLIQZ.UI.redrawDropdown(
+            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
+
+        if (popup.cliqzBox) {
+            var width = Math.max(urlbar.clientWidth, 500);
+            popup.cliqzBox.style.width = width + 1 + "px";
+            popup.cliqzBox.resultsBox.style.width =
+                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
+        }
+
+        popup._openAutocompletePopup(urlbar, urlbar);
+    },
     urlbarmousedown: function(ev){
-        if(!CliqzUtils.getPref('topSites', false)) return;
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
-          ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-          var urlBar = CLIQZ.Core.urlbar;
-          if(urlBar.value.trim().length == 0){
-              //link to historydropmarker
-              CliqzAutocomplete.sessionStart = true;
-              CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
-              CLIQZ.Core.historyDropMarker.showPopup();
-          }
+           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.showTopsites();
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'topsites',
+                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
+            });
         }
     },
     urlbarkeydown: function(ev){
@@ -661,7 +680,7 @@ window.CLIQZ.Core = {
     openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1)
+        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
             url = "http://" + url;
 
         // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
@@ -682,10 +701,7 @@ window.CLIQZ.Core = {
         } else if(newWindow) {
             window.open(url, '_blank');
         } else if(newPrivateWindow) {
-            openLinkIn(url, "window",
-              {
-                private: true
-              });
+            openLinkIn(url, "window", { private: true });
         }
         else {
             //clean selected text to have a valid last Query
@@ -750,14 +766,16 @@ window.CLIQZ.Core = {
           CLIQZ.UI.autocompleteEl = 0;
         }
 
-        // If new style autocomplete and it is not enabled, ignore the autocomplete
-        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+        // No autocomplete
+        if(!autocomplete.autocomplete ||
+           !CliqzUtils.genericPrefs.getBoolPref("browser.urlbar.autoFill") || // user has disabled autocomplete
+           (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
+           (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
+            CLIQZ.UI.clearAutocomplete();
+            CliqzAutocomplete.lastAutocomplete = null;
+            CliqzAutocomplete.lastAutocompleteType = null;
+            CliqzAutocomplete.selectAutocomplete = false;
             return;
-        }
-
-        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
-          CLIQZ.UI.clearAutocomplete();
-          return;
         }
 
         // Apply autocomplete
@@ -765,12 +783,11 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
         CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
         CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
-        if (autocomplete.autocomplete) {
-            urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
-            CLIQZ.UI.cursor = autocomplete.selectionStart;
-        }
+        urlBar.mInputField.value = autocomplete.urlbar;
+        urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
+        CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
+        CLIQZ.UI.cursor = autocomplete.selectionStart;
+
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
             CliqzAutocomplete.selectAutocomplete = true;

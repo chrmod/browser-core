@@ -8,7 +8,7 @@
  * web page.
  *
  * Example usage on web page (needs to be under cliqz.com domain):
- * 		<a id="cliqzDemoProxy" href="#" 
+ * 		<a id="cliqzDemoProxy" href="#"
  *		 onclick="cliqzDemoProxy.demoQuery('wetter in frankfurt');"
  *		 style="visibility: collapse;">DEMO</a>
  *
@@ -68,7 +68,7 @@ function _createFakeCursor (win) {
 	callout.className = "onboarding-container";
 	content.className = "onboarding-cursor";
 
-	callout.setAttribute("id", FAKE_CURSOR_ID);	
+	callout.setAttribute("id", FAKE_CURSOR_ID);
 	callout.setAttribute("level", "top");
 	callout.setAttribute("noautofocus", "true");
 	callout.setAttribute("noautohide", "false");
@@ -85,28 +85,29 @@ function _getFakeCursor(win) {
 
 function _destroyFakeCursor(win) {
 	var cursor = _getFakeCursor(win);
-	cursor.parentNode.removeChild(cursor);
+	if(cursor)
+		cursor.parentNode.removeChild(cursor);
 }
 
 function _dropdownHiddenListener() {
-	var win = CliqzUtils.getWindow(),		
-		cursor = _getFakeCursor(win);		
+	var win = CliqzUtils.getWindow(),
+		cursor = _getFakeCursor(win);
 
 	if (cursor.state == "open") {
-		cursor.hidePopup();		
+		cursor.hidePopup();
 	}
 }
 
 
 var CliqzDemo = {
 	init: function (win) {
-		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);		
+		win.gBrowser.addEventListener("DOMContentLoaded", _onPageLoad, false);
 		win.CLIQZ.Core.popup.
 			addEventListener("popuphidden", _dropdownHiddenListener, false);
 		_createFakeCursor(win);
 	},
 	unload: function (win) {
-		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);		
+		win.gBrowser.removeEventListener("DOMContentLoaded", _onPageLoad, false);
 		win.CLIQZ.Core.popup.
 			removeEventListener("popuphidden", _dropdownHiddenListener, false);
 		_destroyFakeCursor(win);
@@ -140,20 +141,20 @@ var CliqzDemo = {
 		cursor.classList.remove("pulsate");
 		cursor.openPopup(
 			win.CLIQZ.Core.popup.cliqzBox.resultsBox, "overlap", 160, 55);
-		cursor.classList.add("pulsate");		
+		cursor.classList.add("pulsate");
 	},
 	clearDropdown: function () {
-		var results = 
+		var results =
 			CliqzUtils.getWindow().CLIQZ.Core.popup.cliqzBox.resultsBox;
 
 		while (results.firstChild) {
 			results.removeChild(results.firstChild);
-		}		
+		}
 	},
 	openDropdown: function () {
 		var core = CliqzUtils.getWindow().CLIQZ.Core;
 		core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
-	},	
+	},
 	typeInUrlbar: function (text, pos, core) {
 		if (!pos) {
 			pos = 0;
@@ -166,9 +167,9 @@ var CliqzDemo = {
 
 		if (pos < text.length) {
 			CliqzUtils.setTimeout(function() {
-				core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));				
+				core.urlbar.mInputField.setUserInput(text.substr(0, ++pos));
 				CliqzDemo.typeInUrlbar(text, pos, core);
-			}, TYPING_INTERVAL); 
+			}, TYPING_INTERVAL);
 		}
 	}
 }
