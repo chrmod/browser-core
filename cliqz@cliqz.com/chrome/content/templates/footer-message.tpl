@@ -1,7 +1,7 @@
-<div class="cqz-message-bar cqz-general-msg">
+<div class="cqz-message-bar">
   <div class="cqz-message {{type}}">
       {{ simple_message }}
-      <strong>
+      <b>
         {{message}}
 
         {{#each messages}}
@@ -11,13 +11,11 @@
            {{this.correct}}
          {{/if}}
         {{/each}}
-      </strong>
+      </b>
   </div>
-  <span class="cqz-btn-holder" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
+  <div style="float:right" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
   	{{#each options}}
-    	<span class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}" {{#if pref }} pref="{{../pref}}" {{/if}}  {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >
-            {{ text }}
-        </span>
+    	<span class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}" {{#if pref }} pref="{{../pref}}" {{/if}}  {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >{{ text }}</span>
     {{/each}}
-  </span>
+  </div>
 </div>
