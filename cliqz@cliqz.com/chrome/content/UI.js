@@ -506,6 +506,11 @@ var UI = {
                 UI.lastSelectedUrl = "";
                 clearResultSelection();
                 return false;
+            case ESC:
+                if (CLIQZ.Core.urlbar.mInputField.value.length == 0) {
+                  CLIQZ.Core.popup.hidePopup();
+                }
+                return false;
             default:
                 UI.lastInput = "";
                 UI.preventAutocompleteHighlight = false;
