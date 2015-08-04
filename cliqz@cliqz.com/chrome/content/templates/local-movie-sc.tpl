@@ -19,7 +19,7 @@
                 {{/for}}
               </span>
               <span class="movie_desc">
-                {{desc}}
+                {{description}}
               </span>
             </p>
           </div>
