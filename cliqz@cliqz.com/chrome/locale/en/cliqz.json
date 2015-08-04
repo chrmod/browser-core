@@ -803,7 +803,7 @@
     "location_never": {
       "message": "Never. I hate awesome stuff."
     },
-    "no_cinemas_to_show": {
+    "no_local_data_msg": {
       "message": "It seems like this movie is not currently playing in your area."
     },
     "movies_confirm_no": {

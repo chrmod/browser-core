@@ -151,6 +151,10 @@ var CliqzUtils = {
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
+  //returns the type only if it is known
+  getKnownType: function(type){
+    return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
+  },
   getLocalStorage: function(url) {
     var uri = Services.io.newURI(url,"",null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
@@ -1429,7 +1433,6 @@ var CliqzUtils = {
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
           CliqzUtils.setLocationPermission(this.filter_level.toString());
-          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         }, false);
 
         menupopup.appendChild(item);
@@ -1574,6 +1577,7 @@ var CliqzUtils = {
     setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         CliqzUtils.updateGeoLocation();
       }
     }

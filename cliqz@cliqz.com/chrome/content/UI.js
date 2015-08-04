@@ -160,17 +160,17 @@ var UI = {
         isInstant: lastRes && lastRes.isInstant
       });
 
+      // cache heights (1-3) for result order
+      CliqzAutocomplete.lastResultHeights =
+        Array.prototype.slice.call(
+          gCliqzBox.getElementsByClassName("cqz-result-box")).map(
+            function (r) {
+              return Math.round(r.offsetHeight / 100);
+            });
+
       var curResAll = currentResults.results;
       if(curResAll && curResAll.length > 0 && !curResAll[0].url && curResAll[0].data && curResAll[0].type == "cliqz-pattern")
         curResAll[0].url = curResAll[0].data.urls[0].href;
-
-        if (curResAll && curResAll[0].data && curResAll[0].data.template === 'topsites') {
-            if (CliqzUtils.getPref("topSites")) {
-                CLIQZ.Core.popup.className = "cqz-popup-medium";
-            }
-        } else {
-            CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
-        }
 
       if(curResAll && curResAll.length > 0 && curResAll[0].url){
         CLIQZ.Core.autocompleteQuery(CliqzUtils.cleanMozillaActions(curResAll[0].url), curResAll[0].title, curResAll[0].data);
@@ -182,9 +182,17 @@ var UI = {
       CliqzUtils._queryLastDraw = Date.now();
     },
     results: function(res){
-
         if (!gCliqzBox)
             return;
+
+        if(CliqzUtils.getPref('topSitesV2', false)) {
+          // makes sure that topsites show after changing tabs,
+          // rather than showing the previous results;
+          // (set to '' in CliqzSearchHistory.tabChanged)
+          if (CliqzAutocomplete.lastSearch === '') {
+            return {};
+          }
+        }
 
         //try to recreate main container if it doesnt exist
         if(!gCliqzBox.resultsBox){
@@ -210,6 +218,13 @@ var UI = {
         //                                  CLIQZ.Core.urlbar.clientWidth  - (CliqzUtils.isWindows(window)?20:15));
 
         //CliqzUtils.log(enhanceResults({'results': [CliqzUtils.getNoResults()] }), 'ENHANCED NO RESULTS');
+
+        if (CliqzUtils.getPref("topSitesV2", false)) {
+          // being here means we have results, i.e., no topsites
+          // thus remove topsites style
+          CLIQZ.Core.popup.classList.remove("cqz-popup-medium");
+        }
+
         if(gCliqzBox.resultsBox) {
           UI.redrawDropdown(CliqzHandlebars.tplCache.results(currentResults), query);
           UI.loadAsyncResult(asyncResults, query);
@@ -1373,7 +1388,7 @@ function logUIEvent(el, historyLogType, extraData, query) {
       var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url')),
           lr = CliqzAutocomplete.lastResult,
           extra = extraData['extra'] || el.getAttribute('extra'), //extra data about the link. Note: resultCliqz passes extra in extraData, but not other events, e.g. enter (8Jul2015)
-          result_order = currentResults && currentResults.results.map(function(r){ return r.data && r.data.kind; }),
+          result_order = currentResults && CliqzAutocomplete.prepareResultOrder(currentResults.results),
           action = {
               type: 'activity',
               current_position: getResultPosition(el),
@@ -1436,7 +1451,11 @@ function resultClick(ev){
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(href = el.getAttribute("href")) {
+<<<<<<< HEAD
           el.setAttribute('url', href)
+=======
+          el.setAttribute('url', href);
+>>>>>>> master
         }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
@@ -1559,28 +1578,28 @@ function handleNewLocalResults(el) {
     //CliqzUtils.log(req, "RESPONSE FROM RH");
     var resp = JSON.parse(req.response);
     var container = el;
-    while (!CliqzUtils.hasClass(container, "cqz-result-box")) {
+    while (container && !CliqzUtils.hasClass(container, "cqz-result-box")) {
       container = container.parentElement;
-      if (container.id == "cliqz-results") return;
+      if (!container || container.id == "cliqz-results") return;
     }
     //CliqzUtils.log(container,'cinema-container');
     if (resp.results && resp.results.length > 0) {
       var data = resp.results[0];
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
       var tpl = data.data.superTemplate;
-      container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+      if (container) container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
     } else {
       var container = el;
-      while (!CliqzUtils.hasClass(container, "local-sc-data-container")) {
+      while (container && !CliqzUtils.hasClass(container, "local-sc-data-container")) {
         container = container.parentElement;
-        if (container.id == "cliqz-results") return;
+        if (!container || container.id == "cliqz-results") return;
       }
-      container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
-      while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_local_data_msg');
+      while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
         container = container.parentElement;
-        if (container.id == "cliqz-results") return;
+        if (!container || container.id == "cliqz-results") return;
       }
-      container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
+      if (container) container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
     }
   }
 }

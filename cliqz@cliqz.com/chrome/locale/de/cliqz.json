@@ -792,7 +792,7 @@
     "location_never": {
       "message": "Nein, ich mag coole Sachen nicht."
     },
-    "no_cinemas_to_show": {
+    "no_local_data_msg": {
       "message": "Leider spielt der Film in keinem Kino in Deiner Nähe"
     },
     "movies_confirm_no": {
