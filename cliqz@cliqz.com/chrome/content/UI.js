@@ -191,7 +191,7 @@ var UI = {
           // makes sure that topsites show after changing tabs,
           // rather than showing the previous results;
           // (set to '' in CliqzSearchHistory.tabChanged)
-          if (CliqzAutocomplete.lastSearch === '') {
+          if (CliqzAutocomplete.lastSearch === 'IGNORE_TOPSITES') {
             return {};
           }
         }

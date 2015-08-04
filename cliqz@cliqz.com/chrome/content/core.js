@@ -479,6 +479,7 @@ window.CLIQZ.Core = {
         if (CliqzUtils.getPref('topSitesV2', false) &&
             CLIQZ.Core._shouldDropdownStayOpen) {
             e.preventDefault();
+            // removing this line breaks search
             CliqzAutocomplete.isPopupOpen = false;
         } else {
             CliqzAutocomplete.isPopupOpen = false;
@@ -632,18 +633,27 @@ window.CLIQZ.Core = {
         if(!CliqzUtils.getPref('topSitesV2', false)) return;
         CLIQZ.Core._shouldDropdownStayOpen = true;
 
-        //only consider the URLbar not the other icons in the urlbar
+        // only consider the URLbar not the other icons in the urlbar
         if(CLIQZ.UI.popupClosed &&
            (ev.originalTarget.className == 'anonymous-div' ||
             ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
-            CliqzAutocomplete.sessionStart = true;
-            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
             CLIQZ.Core.showTopsites();
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'topsites',
                 urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
             });
+            // indicate this is a topsites result, indicates that no
+            // results should be returned in UI.results, which would
+            // override topsites
+            CliqzAutocomplete.lastSearch = "IGNORE_TOPSITES";
+        }
+        // open Firefox topsites when clicking on dropdown marker
+        else if (ev.originalTarget.className.indexOf('autocomplete-history-dropmarker') != -1 ||
+                   ev.originalTarget.className.indexOf('urlbar-history-dropmarke') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.historyDropMarker.showPopup();
         }
     },
     urlbarkeydown: function(ev){
