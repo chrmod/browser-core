@@ -288,7 +288,7 @@ var UI = {
                       }, smartCliqzWaitTime);
                     }
                     else if (currentResults.results.length == 0) {
-                      UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                      UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
                     }
                 }
                 else {
@@ -319,7 +319,7 @@ var UI = {
               else {
                 res.splice(i,1);
                 if (currentResults.results.length == 0)
-                  UI.setDropdownContents(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()) );
+                  UI.redrawDropdown(CliqzHandlebars.tplCache.noResult(CliqzUtils.getNoResults()), query);
               }
 
           };
@@ -1451,7 +1451,7 @@ function resultClick(ev){
     while (el && (ev.button == 0 || ev.button == 1)) {
         extra = extra || el.getAttribute("extra");
         if(href = el.getAttribute("href")) {
-          el.setAttribute('url', href) 
+          el.setAttribute('url', href);
         }
         if(el.getAttribute('url')){
             logUIEvent(el, "result", {
@@ -1582,7 +1582,7 @@ function handleNewLocalResults(el) {
     if (resp.results && resp.results.length > 0) {
       var data = resp.results[0];
       data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
-      var tpl = data.data.template;
+      var tpl = data.data.superTemplate;
       container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
     }
   }
