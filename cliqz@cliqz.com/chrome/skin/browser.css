@@ -517,15 +517,15 @@
 #cliqz-results .ez-no-result ul.cqz-suggestion-list {
     overflow: hidden;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 2px;
     list-style: none;
     max-width: 550px;
 }
 #cliqz-results .ez-no-result .cqz-suggestion-list li.cqz-item {
     float: left;
-    width: 20%;
-    max-width: 110px;
-    padding: 15px 0 22px;
+    width: 18%;
+    max-width: 106px;
+    padding: 15px 2px 22px;
     text-align: center;
     cursor: pointer;
 }
