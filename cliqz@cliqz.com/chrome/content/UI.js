@@ -51,6 +51,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
+    ESC = 27,
     currentResults,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
@@ -430,7 +431,7 @@ var UI = {
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-        if(UI.popupClosed) {
+        if(ev.keyCode != ESC && UI.popupClosed) {
           gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
