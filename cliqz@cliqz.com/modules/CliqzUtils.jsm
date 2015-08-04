@@ -1410,7 +1410,7 @@ var CliqzUtils = {
         return menu;
     },
 
-    createLocationPermOptions(doc) {
+    createLocationPermOptions: function(doc) {
       var menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
@@ -1432,7 +1432,6 @@ var CliqzUtils = {
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
           CliqzUtils.setLocationPermission(this.filter_level.toString());
-          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         }, false);
 
         menupopup.appendChild(item);
@@ -1574,9 +1573,10 @@ var CliqzUtils = {
         CliqzUtils.USER_LNG = null;
       }
     },
-    setLocationPermission(newPerm) {
+    setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         CliqzUtils.updateGeoLocation();
       }
     }

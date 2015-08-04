@@ -59,7 +59,16 @@ var Mixer = {
     init: function() {
         // TODO: get folder name from variable in CliqzSmartCliqzCache
         CliqzSmartCliqzCache.triggerUrls.load(this.TRIGGER_URLS_CACHE_FILE);
-        CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 10000);
+
+        // run every 24h at most
+        var ts = CliqzUtils.getPref('smart-cliqz-last-clean-ts'),
+            delay = 0;
+        if (ts) {
+            var lastRun = new Date(Number(ts));
+            delay = Math.max(0, 86400000 - (Date.now() - lastRun));
+        }
+        CliqzUtils.log('scheduled SmartCliqz trigger URL cleaning in ' + (delay / 1000 / 60) + ' min');
+        CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, delay + 5000);
 
     },
     cleanTriggerUrls: function () {
@@ -103,8 +112,11 @@ var Mixer = {
                 CliqzUtils.setTimeout(deleteIfWithoutTriggerUrl, (delay++) * 1000, id, cachedUrl);
             }
         }
-
-        CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 86400000); // next cleaning in 1 day
+        CliqzUtils.setTimeout(function () {
+            CliqzUtils.log('done cleaning SmartCliqz trigger URLs');
+            CliqzUtils.setPref('smart-cliqz-last-clean-ts', Date.now().toString());
+            CliqzUtils.setTimeout(Mixer.cleanTriggerUrls, 86400000); // next cleaning in 24h
+        }, delay * 1000);
     },
 	mix: function(q, cliqz, cliqzExtra, instant, customResults, only_instant, instant_autocomplete){
 		var results = [];
@@ -124,6 +136,12 @@ var Mixer = {
         // set trigger method for EZs returned from RH
         for(var i=0; i < (cliqzExtra || []).length; i++) {
             kindEnricher(cliqzExtra[i].data, { 'trigger_method': 'rh_query' });
+        }
+
+        // annotate with original backend result index
+        for (var i = 0; i < cliqz.length; i++) {
+            var subType = (cliqz[i].subType && JSON.parse(cliqz[i].subType)) || { };
+            cliqz[i].subType = JSON.stringify((subType.i = i, subType));
         }
 
         // extract the entity zone accompanying the first cliqz result, if any
