@@ -109,8 +109,8 @@ var CliqzLanguage = {
         onStateChange: function(aWebProgress, aRequest, aStateFlag, aStatus) {
             // if completed request without error (status)
             if (aRequest && (aStateFlag && Ci.nsIWebProgressListener.STATE_STOP) && !aStatus) {
-                // if request is a Google ref
-                if (CliqzLanguage.regexGoogleRef.test(aRequest.name)) {
+                if (CliqzAutocomplete.lastPopupOpen && // if last result set was shown to the user
+                    CliqzLanguage.regexGoogleRef.test(aRequest.name)) { // if request is a Google ref
                     // extract referred URL
                     var match = aRequest.name.match(CliqzLanguage.regexGoogleRefUrl);
                     if (match) {
