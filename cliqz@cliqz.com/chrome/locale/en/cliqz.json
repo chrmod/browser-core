@@ -696,16 +696,16 @@
         "message": "to"
     },
     "today": {
-        "message": "Today"    
+        "message": "Today"
     },
     "cMenuOpenInNewTab": {
-      "message": "Open Link in New Tab"  
+      "message": "Open Link in New Tab"
     },
     "cMenuOpenInNewWindow": {
-      "message": "Open Link in New Window"  
+      "message": "Open Link in New Window"
     },
     "cMenuOpenInPrivateWindow": {
-      "message": "Open Link in New Private Window"   
+      "message": "Open Link in New Private Window"
     },
     "cMenuFeedback": {
       "message": "Feedback for CLIQZ"
@@ -719,7 +719,104 @@
     "dismiss": {
         "message": "Dismiss"
     },
+    "cqz_watch_trailer": {
+      "message": "Watch Trailer"
+    },
+    "Monday": {
+      "message": "Monday"
+    },
+    "Tuesday": {
+      "message": "Tuesday"
+    },
+    "Wednesday": {
+      "message": "Wednesday"
+    },
+    "Thursday": {
+      "message": "Thursday"
+    },
+    "Friday": {
+      "message": "Friday"
+    },
+    "Saturday": {
+      "message": "Saturday"
+    },
+    "Sunday": {
+      "message": "Sunday"
+    },
+    "January": {
+      "message": "January"
+    },
+    "February": {
+      "message": "February"
+    },
+    "March": {
+      "message": "March"
+    },
+    "April": {
+      "message": "April"
+    },
+    "May": {
+      "message": "May"
+    },
+    "June": {
+      "message": "June"
+    },
+    "July": {
+      "message": "July"
+    },
+    "August": {
+      "message": "August"
+    },
+    "September": {
+      "message": "September"
+    },
+    "October": {
+      "message": "October"
+    },
+    "November": {
+      "message": "November"
+    },
+    "December": {
+      "message": "December"
+    },
+    "location_permission_prompt": {
+      "message": "We'd love to enhance this result with some local info. Share your location with us?"
+    },
+    "location_just_once": {
+      "message": "Just this once..."
+    },
+    "location_never": {
+      "message": "Never. I hate awesome stuff."
+    },
+    "no_cinemas_to_show": {
+      "message": "It seems like this movie is not currently playing in your area."
+    },
+    "movies_confirm_no": {
+      "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
+    },
+    "show_local_movies": {
+      "message": "No. Show me where I can watch it!"
+    },
+    "location_just_once": {
+      "message": "Just this once"
+    },
+    "location_not_now": {
+      "message": "Not now"
+    },
+    "always_ask": {
+      "message": "Always Ask"
+    },
+    "share_location": {
+      "message": "Share Location"
+    },
+    "location_confirm_no": {
+      "message": "Are you sure you don't want to see relevant information about places around you?"
+    },
+    "show_local_results": {
+      "message": "No, show me local info"
+    },
     "extended_forecast": {
         "message": "Extended Forecast"
     }
+
 }
