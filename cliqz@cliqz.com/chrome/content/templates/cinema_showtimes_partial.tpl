@@ -6,8 +6,8 @@
     <tr class="cinema-row">
       <td  class="cinema-name-td">
         <a class="cinema-name cqz-url"
-            {{#if cinema.website}} url="{{cinema.website}}" show-status='true' {{/if}}
-            href="{{cinema.website}}">{{cinema.name}}</a>
+            {{#if cinema.website}} url="{{cinema.website}}" show-status='true'
+            href="{{cinema.website}}" {{/if}}>{{cinema.name}}</a>
       </td>
       {{#each showtimes}}
         <td class="cinema-showtime-td">
