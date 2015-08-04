@@ -44,7 +44,7 @@
 #cliqz-results .cqz-result-title:visited,
 #cliqz-results .cliqz-pattern-element-title
 {
- color: #8c275f !important; 
+ color: #8c275f !important;
 }
 
 #cliqz-popup a:hover,
@@ -158,8 +158,8 @@
 #cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
-#cliqz-results .cqz-ez-btns { 
-    margin: 13px 0px 0px; 
+#cliqz-results .cqz-ez-btns {
+    margin: 13px 0px 0px;
     height: 26px;
     padding-right: 60px;
 }
@@ -201,7 +201,7 @@
     color: white;
 }
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
-#cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
+#cliqz-results .ez-feedback { position: absolute; bottom: 5px; right: 10px; color: #cccccc; cursor: pointer; }
 #cliqz-results .ez-feedback:hover { text-decoration: underline; }
 #cliqz-results .cqz-link { color: #506BB8; margin-right: 10px; cursor: pointer; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
@@ -570,4 +570,38 @@
     background-image: url(chrome://cliqzres/content/skin/checkmark.png);
     background-position: 5px center;
     background-repeat: no-repeat;
+}
+
+
+/*======== EZ Delivery ==========*/
+
+/*==== Delivery Image Boxes*/
+#cliqz-popup .cqz-ez-delivery .cqz-result-title { text-transform: uppercase; }
+#cliqz-popup .cqz-delivery-status-boxes-holder { overflow: hidden; margin: 20px 0 17px; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box {
+    float: left;
+    display: block;
+    width: 59px;
+    height: 59px;
+    overflow: hidden;
+    text-indent: -7777px;
+    margin: 0 10px 0 0;
+    border-radius: 3px;
+    background-size: 65%;
+    background-color: #eee;
+    background-position: 50% 50%;
+}
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-received { background-color: #a5c8e2; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-transported { background-color: #4ba4f6; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivery { background-color: #00c5fa; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivered { background-color: #32ebc7; }
+
+/* ==== Delivery Short Info */
+#cliqz-popup .cqz-delivery-info-status { color: #333; margin-right: 10px; }
+#cliqz-popup .cqz-delivery-info-date { color: #ccc; }
+#cliqz-popup .cqz-delivery-info-msg {
+    max-width: 600px;
+    max-height: 34px;
+    margin-top: 7px; color: #999;
+    white-space: normal;
 }
