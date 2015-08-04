@@ -126,6 +126,12 @@ var Mixer = {
             kindEnricher(cliqzExtra[i].data, { 'trigger_method': 'rh_query' });
         }
 
+        // annotate with original backend result index
+        for (var i = 0; i < cliqz.length; i++) {
+            var subType = (cliqz[i].subType && JSON.parse(cliqz[i].subType)) || { };
+            cliqz[i].subType = JSON.stringify((subType.i = i, subType));
+        }
+
         // extract the entity zone accompanying the first cliqz result, if any
         if(cliqz && cliqz.length > 0) {
             if(cliqz[0].extra) {
