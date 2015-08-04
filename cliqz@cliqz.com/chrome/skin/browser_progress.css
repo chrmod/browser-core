@@ -637,7 +637,7 @@
 }
 
 #cliqz-results .iconLabel {
-   margin-left: 10px
+   margin-left: 10px;
 }
 
 
@@ -645,6 +645,7 @@
 #cliqz-results .movie_container {
   height:160px;
   max-height:160px;
+  max-width: 800px;
 }
 
 #cliqz-results .movie_poster, #cliqz-results .movie_poster_img {
