@@ -672,7 +672,10 @@ var CliqzHistoryPattern = {
     } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
       var q = url.substring(url.indexOf("q=")).split("&")[0];
       if (q != "q=") {
-        return url.substr(0, url.indexOf("search?")) + "search?" + q;
+        if(url.indexOf("search?") != -1)
+          return url.substr(0, url.indexOf("search?")) + "search?" + q;
+        else
+          return url.substr(0, url.indexOf("/?")) + "/?" + q;
       } else {
         return url;
       }
