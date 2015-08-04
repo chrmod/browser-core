@@ -174,51 +174,53 @@ var CliqzHistoryPattern = {
     //var history_left = clustered_result[0]
     var cluster_data = clustered_result[1];
 
-    // Extract results
-    var patterns = [];
-    for (var i = 0; i < history.matchCount; i++) {
-      var url = CliqzUtils.cleanMozillaActions(history.getValueAt(i)),
-          title = history.getCommentAt(i);
-
-      if (!title) {
-        title = CliqzHistoryPattern.generalizeUrl(url);
-      }
-
-      if (title.length > 0 && url.length > 0 &&
-          Result.isValid(url, CliqzUtils.getDetailsFromUrl(url))) {
-
-        patterns.push({
-          url: url,
-          title: title,
-          favicon: history.getImageAt(i),
-          _genUrl: CliqzHistoryPattern.generalizeUrl(url, true)
-        });
-      }
-    }
-    // Process patterns
-    var res = CliqzHistoryPattern.preparePatterns(patterns, query);
-    CliqzHistoryPattern.firefoxHistory = [];
-    CliqzHistoryPattern.firefoxHistory.res = res;
-    CliqzHistoryPattern.firefoxHistory.query = query;
-    if(cluster_data && res.filteredResults()) {
+    var res;
+    if(cluster_data) { // cluster from rule-based clustering
+      CliqzUtils.log('Using rule-based cluster for ' + cluster_data.url + " autoAdd: " + cluster_data.autoAdd, "CliqzHistoryPattern");
+      res = cluster_data;
       CliqzHistoryPattern.firefoxHistory = [];
-      CliqzHistoryPattern.firefoxHistory.res = cluster_data;
+      CliqzHistoryPattern.firefoxHistory.res = res;
       CliqzHistoryPattern.firefoxHistory.query = query;
 
-      var res = cluster_data;
       res.query = query;
 
       // Disable domain filtering
       res.filteredResults = function() {
         return this.results;
       };
+    } else {
+      // Extract results
+      var patterns = [];
+      for (var i = 0; i < history.matchCount; i++) {
+        var url = CliqzUtils.cleanMozillaActions(history.getValueAt(i)),
+            title = history.getCommentAt(i);
 
+        if (!title) {
+          title = CliqzHistoryPattern.generalizeUrl(url);
+        }
+
+        if (title.length > 0 && url.length > 0 &&
+            Result.isValid(url, CliqzUtils.getDetailsFromUrl(url))) {
+
+          patterns.push({
+            url: url,
+            title: title,
+            favicon: history.getImageAt(i),
+            _genUrl: CliqzHistoryPattern.generalizeUrl(url, true)
+          });
+        }
+      }
+      // Process patterns
+      res = CliqzHistoryPattern.preparePatterns(patterns, query);
+      CliqzHistoryPattern.firefoxHistory = [];
+      CliqzHistoryPattern.firefoxHistory.res = res;
+      CliqzHistoryPattern.firefoxHistory.query = query;
     }
 
     // Callback when firefox is enabled or cliqz history found no results
-    if (query.length == 0 ||
-      DATA_SOURCE == "firefox_cluster" || DATA_SOURCE == "firefox_no_cluster" ||
-      (DATA_SOURCE == "cliqz" && CliqzHistoryPattern.noResultQuery == query)) {
+    if (query.length === 0 ||
+      DATA_SOURCE == 'firefox_cluster' || DATA_SOURCE == 'firefox_no_cluster' ||
+      (DATA_SOURCE == 'cliqz' && CliqzHistoryPattern.noResultQuery == query)) {
 
       CliqzHistoryPattern.historyCallback(res);
     }
@@ -585,10 +587,10 @@ var CliqzHistoryPattern = {
     baseUrl = CliqzHistoryPattern.generalizeUrl(baseUrl, true);
     // Add base domain entry if there is not one already
     if (patterns && patterns.length > 0 && !patterns[0].base) {
-      CliqzUtils.log('Adding base domain to history cluster: ' + baseUrl, 'CliqzHistoryPattern');
-
       var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
       if (!title) return;
+
+      CliqzUtils.log('Adding base domain to history cluster: ' + baseUrl, 'CliqzHistoryPattern');
 
       // Add trailing slash if not there
       var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
@@ -974,6 +976,7 @@ var CliqzHistoryPattern = {
       promises.push(CliqzHistoryPattern.getTitle(instant));
 
       instant.data.template = "pattern-h2";
+      instant.data.cluster = true; // a history cluster based on a destination bet
       instant_results.push(instant);
 
     } else if (searchString.length == 0) {
@@ -1004,6 +1007,8 @@ var CliqzHistoryPattern = {
       instant.data.url = results[0].url;
       instant.comment += " (history domain cluster)!";
       instant.data.template = "pattern-h2";
+      instant.data.autoAdd = results[0].autoAdd;
+      instant.data.cluster = true; // a history cluster based on a destination bet
 
       // first entry is used as the main URL of this cluster, remove from remaining result list
       results.shift();

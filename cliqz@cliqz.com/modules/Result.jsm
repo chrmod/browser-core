@@ -23,7 +23,9 @@ function log(msg){
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
     if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
-        return result.snippet.rich_data.type
+        return CliqzUtils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
+               CliqzUtils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
+               'bm'                                                           // backwards compatibility (most generic type, requires only url)
     }
     return null;
 }
