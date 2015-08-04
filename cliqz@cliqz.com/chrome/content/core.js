@@ -84,10 +84,11 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mouseenter', 'mouseleave'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    _shouldDropdownStayOpen: false,
 
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
@@ -476,7 +477,7 @@ window.CLIQZ.Core = {
     },
     popupClose: function(e){
         if (CliqzUtils.getPref('topSitesV2', false) &&
-            CLIQZ.Core.urlbar.getAttribute("isMouseInside") === "true") {
+            CLIQZ.Core._shouldDropdownStayOpen) {
             e.preventDefault();
         } else {
             CliqzAutocomplete.isPopupOpen = false;
@@ -628,6 +629,7 @@ window.CLIQZ.Core = {
     },
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
 
         //only consider the URLbar not the other icons in the urlbar
         if(ev.originalTarget.className == 'anonymous-div' ||
@@ -647,6 +649,9 @@ window.CLIQZ.Core = {
         CliqzAutocomplete._lastKey = ev.keyCode;
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
+
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
@@ -674,11 +679,13 @@ window.CLIQZ.Core = {
            CliqzAutosuggestion.active = false;
         } */
     },
-    urlbarmouseenter: function(ev) {
-        this.setAttribute("isMouseInside", "true");
+    urlbarmousemove: function(ev) {
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
     },
     urlbarmouseleave: function(ev) {
-        this.setAttribute("isMouseInside", "false");
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
