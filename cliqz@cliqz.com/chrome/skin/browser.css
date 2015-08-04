@@ -629,7 +629,7 @@
 
 
 /*======= Time Clock =======*/
-#cliqz-popup .ez-type-time > div {
+#cliqz-popup .ez-type-time > .cqz-result-holder {
     padding-left: 70px;
 }
 #cliqz-popup .cqz-analog-clock {
