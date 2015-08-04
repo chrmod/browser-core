@@ -30,14 +30,16 @@
                 </div>
             </div>
 
-            <a
-                href="{{../url}}#forecast"
-                class="cqz-ez-btn"
-                arrow="false"
-                arrow-if-visible='true'
-            >
-                {{ local 'extended_forecast' }}
-            </a>
+            {{# if forecast_url}}
+                <a
+                    href="{{ forecast_url }}"
+                    class="cqz-ez-btn"
+                    arrow="false"
+                    arrow-if-visible='true'
+                >
+                    {{ local 'extended_forecast' }}
+                </a>
+            {{/if}}
         </div>
     {{/with}}
     {{>logo}}
