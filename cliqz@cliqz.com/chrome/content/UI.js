@@ -75,6 +75,7 @@ var UI = {
     mouseOver: false,
     urlbar_box: null,
     DROPDOWN_HEIGHT: 349,
+    popupClosed: true,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){

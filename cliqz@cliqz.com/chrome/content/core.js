@@ -479,6 +479,7 @@ window.CLIQZ.Core = {
         if (CliqzUtils.getPref('topSitesV2', false) &&
             CLIQZ.Core._shouldDropdownStayOpen) {
             e.preventDefault();
+            CliqzAutocomplete.isPopupOpen = false;
         } else {
             CliqzAutocomplete.isPopupOpen = false;
             CliqzAutocomplete.markResultsDone(null);
@@ -632,8 +633,9 @@ window.CLIQZ.Core = {
         CLIQZ.Core._shouldDropdownStayOpen = true;
 
         //only consider the URLbar not the other icons in the urlbar
-        if(ev.originalTarget.className == 'anonymous-div' ||
-           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+        if(CLIQZ.UI.popupClosed &&
+           (ev.originalTarget.className == 'anonymous-div' ||
+            ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
             CliqzAutocomplete.sessionStart = true;
             CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
             CLIQZ.Core.showTopsites();
