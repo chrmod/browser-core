@@ -991,6 +991,13 @@ function enhanceResults(res){
           } else if(r.data.actions) {
             r.data.btns = r.data.actions;
             r.data.btnExtra = 'action';
+          } else if (r.data && (r.data.template === 'weatherEZ' || r.data.template === 'weatherAlert') && r.data["forecast_url"]) {
+              r.data.btns = [
+                  {
+                      'title_key': 'extended_forecast',
+                      'url': r.data["forecast_url"]
+                  }
+              ]
           }
         }
 

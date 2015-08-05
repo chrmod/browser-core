@@ -29,18 +29,11 @@
                     {{/each}}
                 </div>
             </div>
+        {{/with}}
 
-            {{# if forecast_url}}
-                <a
-                    href="{{ forecast_url }}"
-                    class="cqz-ez-btn"
-                    arrow="false"
-                    arrow-if-visible='true'
-                >
-                    {{ local 'extended_forecast' }}
-                </a>
-            {{/if}}
+        {{# if data.forecast_url}}
+           {{>EZ-category}}
+        {{/if}}
         </div>
-    {{/with}}
     {{>logo}}
 </div>
