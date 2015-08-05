@@ -95,7 +95,8 @@ var CliqzUtils = {
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
-      'cpgame_movie': 3
+      'cpgame_movie': 3,
+      "delivery-tracking": 2
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
