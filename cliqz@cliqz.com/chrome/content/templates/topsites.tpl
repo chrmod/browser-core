@@ -16,6 +16,7 @@
                                  extra="{{extra}}"
                                  show-status="true"
                                  url="{{url}}"
+                                 title="{{url}}"
                             >
                                 {{ text }}
                             </div>
