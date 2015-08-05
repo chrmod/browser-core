@@ -388,7 +388,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // otherwise we don't get up to date autocomplete stats
                         CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
 
-                        this.startTime = null;
                         this.resultsTimer = null;
                         this.historyTimer = null;
                         this.cliqzResults = null;
@@ -651,6 +650,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     discarded: obj.discardedResults,
                     v: 1
                 };
+
+                obj.startTime = null;
 
                 // reset count of discarded backend results
                 obj.discardedResults = 0;
