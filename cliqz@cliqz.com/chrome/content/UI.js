@@ -1590,7 +1590,7 @@ function handleNewLocalResults(el) {
         container = container.parentElement;
         if (!container || container.id == "cliqz-results") return;
       }
-      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_local_data_msg');
       while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
         container = container.parentElement;
         if (!container || container.id == "cliqz-results") return;
