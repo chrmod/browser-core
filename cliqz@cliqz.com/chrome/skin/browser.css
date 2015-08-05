@@ -636,8 +636,8 @@
 #cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box {
     float: left;
     display: block;
-    width: 59px;
-    height: 59px;
+    width: 56px;
+    height: 56px;
     overflow: hidden;
     text-indent: -7777px;
     margin: 0 10px 0 0;
@@ -656,7 +656,8 @@
 #cliqz-popup .cqz-delivery-info-date { color: #ccc; }
 #cliqz-popup .cqz-delivery-info-msg {
     max-width: 600px;
-    max-height: 34px;
+    max-height: 38px;
+    line-height: 1.4;
     margin-top: 7px; color: #999;
     white-space: normal;
 }
