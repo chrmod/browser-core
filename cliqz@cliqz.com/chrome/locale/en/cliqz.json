@@ -804,7 +804,7 @@
       "message": "Never. I hate awesome stuff."
     },
     "no_local_data_msg": {
-      "message": "It seems like this movie is not currently playing in your area."
+      "message": "Sorry. It seems like we have no local details for this result around your area."
     },
     "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
