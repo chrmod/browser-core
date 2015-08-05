@@ -441,13 +441,13 @@
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
 #cliqz-results .EZ-weather-info-sec { height: 128px; }
-#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
+#cliqz-results .EZ-weather-container { float: left; width: 75px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
 #cliqz-results .cqz-weather-holder {
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     max-height: 106px;
 }
 #cliqz-results .cqz-weather-holder .EZ-weather-container{
