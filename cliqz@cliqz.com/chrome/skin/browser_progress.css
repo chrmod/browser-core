@@ -691,7 +691,7 @@
   max-height:150px;
   padding-left:10px;
   overflow:ellipsis;
-  white-space: normal
+  white-space: normal;
 }
 
 #cliqz-results .cinema-showtimes-table {
