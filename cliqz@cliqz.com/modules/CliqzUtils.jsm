@@ -1549,9 +1549,13 @@ var CliqzUtils = {
               }
           )
     },
-    updateGeoLocation: function() {
+    removeGeoLocationWatch: function() {
       var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
       CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.removeGeoLocationWatch();
 
       if (CliqzUtils.getPref('share_location') == 'yes') {
         // Get current position
@@ -1560,14 +1564,14 @@ var CliqzUtils = {
           CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
-        // Upate position if it changes
+        //Upate position if it changes
         CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
           // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CliqzUtils.getPref('share_location') == 'yes') {
+          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
             CliqzUtils.USER_LAT = p.coords.latitude;
             CliqzUtils.USER_LNG =  p.coords.longitude;
           }
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CliqzUtils.USER_LAT = null;
         CliqzUtils.USER_LNG = null;

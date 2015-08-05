@@ -70,6 +70,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
+var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+
 if(window.CLIQZ === undefined)
     Object.defineProperty( window, 'CLIQZ', {configurable:true, value:{}});
 else {
@@ -333,6 +335,8 @@ window.CLIQZ.Core = {
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
+        CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
+        
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
             item && item.parentNode && item.parentNode.removeChild(item);
