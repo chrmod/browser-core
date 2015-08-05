@@ -629,35 +629,57 @@
 
 
 /*======= Time Clock =======*/
-#cliqz-popup .ez-type-time > .cqz-result-holder {
-    padding-left: 70px;
+#cliqz-popup .ez-type-time > .cqz-result-holder .answer {
+    padding-left: 50px;
 }
+
 #cliqz-popup .cqz-analog-clock {
     float: left;
-    margin-left: -70px;
+    margin: 9px 0 0 -50px;
 }
+
 #cliqz-popup .cqz-analog-clock .clock {
-    height: 50px;
-    width: 50px;
+    height: 40px;
+    width: 40px;
     background: #fafafa;
     border: 1px solid #333333;
     position: relative;
     border-radius: 50% 50%;
     box-sizing: border-box;
 }
+
 #cliqz-popup .cqz-analog-clock .clock .hand-hour,
 #cliqz-popup .cqz-analog-clock .clock .hand-minute,
 #cliqz-popup .cqz-analog-clock .clock .hand-second,
 #cliqz-popup .cqz-analog-clock .notch {
-    width: 15px;
+    width: 12px;
     height: 2px;
     background: #333333;
     position: absolute;
-    top: 24px;
-    left: 24px;
+    top: 18px;
+    left: 19px;
     transform-origin: left;
 }
-#cliqz-popup .cqz-analog-clock .clock .hand-minute { width: 20px; }
-#cliqz-popup .cqz-analog-clock .clock .hand-second { width: 20px; height: 1px; top: 25px; background: #d7011d; }
-#cliqz-popup .cqz-analog-clock .notch { top: 23px; width: 24px; height: 1px; background: none }
-#cliqz-popup .cqz-analog-clock .notch div { width: 2px; height: 100%; float: right; background: #333333; }
+
+#cliqz-popup .cqz-analog-clock .clock .hand-minute {
+    width: 17px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-second {
+    width: 17px;
+    height: 1px;
+    background: #d7011d;
+}
+
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 19px;
+    height: 1px;
+    background: none
+}
+
+#cliqz-popup .cqz-analog-clock .notch div {
+    width: 2px;
+    height: 100%;
+    float: right;
+    background: #333333;
+}
