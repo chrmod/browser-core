@@ -141,7 +141,7 @@ var CLIQZEnvironment = {
     openLink: function(url, newTab){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1)
+        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
             url = "http://" + url;
 
         // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
@@ -151,13 +151,19 @@ var CLIQZEnvironment = {
             var historyService =
                 Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             var ioService =
-                Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+                Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
             var urlObject = ioService.newURI(url, null, null);
                 historyService.markPageAsTyped(urlObject);
         } catch(e) { }
 
         CLIQZ.Core.triggerLastQ = true;
-        if(newTab) gBrowser.addTab(url);
+        if(newTab) {
+            gBrowser.addTab(url);
+        } else if(newWindow) {
+            window.open(url, '_blank');
+        } else if(newPrivateWindow) {
+            openLinkIn(url, "window", { private: true });
+        }
         else {
             //clean selected text to have a valid last Query
             //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
@@ -297,7 +303,13 @@ var CLIQZEnvironment = {
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", 0, 0, false, true);
+                // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
+                this.openPopup(aElement, "after_start", 0, 0 , false, true);
+
+                if(!this.contextMenuInitialized){
+                    this.contextMenuInitialized = true;
+                    win.CLIQZ.ContextMenu.enableContextMenu(this.cliqzBox);
+                }
               }
             }).apply(popup, arguments)
         }

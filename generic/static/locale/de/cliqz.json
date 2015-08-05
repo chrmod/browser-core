@@ -1,18 +1,63 @@
 {
+    "from_lcase":{
+        "message": "von"
+    },
+    "Cast":{
+        "message": "Besetzung"
+    },
+    "Movie_Length":{
+        "message": "{} Minuten"
+    },
+    "Creator":{
+        "message": "Regie"
+    },
+    "Director":{
+        "message": "Regisseur[in]"
+    },
+    "Review":{
+        "message": "Tests"
+    },
+    "Reviews":{
+        "message": "Kritik"
+    },
+    "Tips":{
+        "message": "Tipps"
+    },
+    "Photos":{
+        "message": "Bilder"
+    },
+    "locale_lang_code":{
+        "message": "de-DE"
+    },
+    "GameCategory":{
+        "message": "Spiele-Genre"
+    },
+    "Turkish Calendar":{
+        "message": "Türkischer Kalender"
+    },
+    "MWL":{
+        "message": "Islamishe Weltliga"
+    },
+    "TillEndRamadan":{
+        "message": "Noch {} Tage bis zum Küçük Bayram"
+    },
+    "RamadanDes":{
+        "message": "Der Ramadan ist der Fastenmonat der Muslime und der neunte Monat des islamischen Mondkalenders."
+    },
     "CookingIntruct":{
         "message": "Zubereitungsschritte"
     },
     "Ingredients":{
         "message": "Zutaten"
     },
-    "Reviews":{
+    "Votes":{
         "message": "Bewertungen"
     },
     "Serves":{
         "message": "Portionen"
     },
     "CookTime":{
-        "message": "Gesamtzeit: {} Minute"
+        "message": "Gesamtzeit: {} Minuten"
     },
     "KickerSponsor":{
         "message": "powered by kicker online"
@@ -143,13 +188,31 @@
     "agoXYears":{
         "message":"vor {} Jahren"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Alles klar!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
+    "onCalloutSmartCliqz":{
+        "message":"Entschuldige die Unterbrechung, aber das Ergebnis hättest du hier schneller haben können. Spar Dir Zeit nächstes Mal!"
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Nicht mehr zeigen."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Entschuldige die Unterbrechung, aber Du musst die Adresse nicht immer komplett eintippen. Drücke einfach auf ENTER, sobald die Adresse erscheint!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Alles klar!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Nicht mehr zeigen."
     },
     "onCalloutIntro":{
@@ -619,13 +682,25 @@
         "message": "Von"
     },
     "from_price": {
-      "message": "ab"  
+      "message": "ab"
     },
     "to": {
         "message": "nach"
     },
     "today": {
         "message": "Heute"
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Link in neuem Tab öffnen"
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Link in neuem Fenster öffnen"
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Link in neuem privaten Fenster öffnen"
+    },
+    "cMenuFeedback": {
+      "message": "Feedback an CLIQZ"
     },
     "myQuery": {
         "message": "Suchbegriff"
@@ -635,5 +710,101 @@
     },
     "dismiss": {
         "message": "Nachricht schließen"
+    },
+    "cqz_watch_trailer": {
+      "message": "Trailer Abspielen"
+    },
+    "Monday": {
+      "message": "Montag"
+    },
+    "Tuesday": {
+      "message": "Dienstag"
+    },
+    "Wednesday": {
+      "message": "Mittwoch"
+    },
+    "Thursday": {
+      "message": "Donnerstag"
+    },
+    "Friday": {
+      "message": "Freitag"
+    },
+    "Saturday": {
+      "message": "Samstag"
+    },
+    "Sunday": {
+      "message": "Sonntag"
+    },
+    "January": {
+      "message": "Januar"
+    },
+    "February": {
+      "message": "Februar"
+    },
+    "March": {
+      "message": "März"
+    },
+    "April": {
+      "message": "April"
+    },
+    "May": {
+      "message": "Mai"
+    },
+    "June": {
+      "message": "Juni"
+    },
+    "July": {
+      "message": "Juli"
+    },
+    "August": {
+      "message": "August"
+    },
+    "September": {
+      "message": "September"
+    },
+    "October": {
+      "message": "Oktober"
+    },
+    "November": {
+      "message": "November"
+    },
+    "December": {
+      "message": "Dezember"
+    },
+    "location_permission_prompt": {
+      "message": "Wir würden Dir gerne zeigen in welchen Kinos der Film gerade läuft. Möchtest Du Deinen Standort mit uns teilen?"
+    },
+    "location_never": {
+      "message": "Nein, ich mag coole Sachen nicht."
+    },
+    "no_cinemas_to_show": {
+      "message": "Leider spielt der Film in keinem Kino in Deiner Nähe"
+    },
+    "movies_confirm_no": {
+      "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
+    },
+    "show_local_movies": {
+      "message": "Nein, zeig mir wo ich den Film schauen kann."
+    },
+    "location_just_once": {
+      "message": "Dieses eine mal"
+    },
+    "location_not_now": {
+      "message": "Jetzt nicht"
+    },
+    "always_ask": {
+      "message": "Immer fragen"
+    },
+    "share_location": {
+      "message":"Standort teilen"
+    },
+    "location_confirm_no": {
+      "message": "Sicher, dass Du keine Informationen über interessante Orte in deiner Umgebung sehen möchtest?"
+    },
+    "show_local_results": {
+      "message": "Nein, zeige mir lokale Informationen."
+    },
+    "extended_forecast": {
+        "message": "Detailiertere Vorhersage"
     }
 }

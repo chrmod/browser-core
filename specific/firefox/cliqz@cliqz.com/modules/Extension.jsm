@@ -178,6 +178,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -198,6 +199,9 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -250,6 +254,7 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
+            Extension.addScript('ContextMenu', win);
 
             Extension.addButtons(win);
 
@@ -345,6 +350,7 @@ var Extension = {
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             delete win.CLIQZ.UI;
+            delete win.CLIQZ.ContextMenu;
             try{ delete win.CLIQZ; } catch(e){} //fails at updating from version < 0.6.11
         }catch(e){ Cu.reportError(e); }
     },

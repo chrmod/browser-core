@@ -81,6 +81,31 @@ var CliqzHistoryManager = {
             // not exist in moz_places yet and above SQL statement would not insert anything
             5000);
     },
+    // Update the title of a page in the FF history database
+    updatePageTitle: function(url, title) {
+        if(url.indexOf("://") == -1)
+            url = "http://" + url;
+
+        var sql =
+            "UPDATE moz_places " +
+            "SET title = :title " +
+            "WHERE url = :page_url ";
+
+        CliqzHistoryManager.PlacesInterestsStorage
+            ._execute(
+                sql,
+                // no results for UPDATE
+                [],
+                function(results) { },
+                {
+                    title: title,
+                    page_url: url
+                }
+            )
+            .then(function() {
+
+            });
+    },
 	PlacesInterestsStorage: {
         _execute: function PIS__execute(sql, columns, onRow, parameters) {
             var conn = PlacesUtils.history.QueryInterface(Ci.nsPIPlacesDatabase).DBConnection,

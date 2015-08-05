@@ -1,15 +1,19 @@
 *.xpi
-.DS_Store
 *.pyc
-mozilla-release
-.vagrant
 *~
 *#
 
 # ignore invisible files
 .Trashes
 .Spotlight-V100
+.DS_Store
+.vagrant
 
-# ignore builds
+# build folders
 build/
 build/*
+.idea/
+
+# external components
+cliqz@cliqz.com/tests/screenshots/lambda/node_modules
+bower_components

@@ -25,6 +25,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzLanguage',
   'chrome://cliqzmodules/content/CliqzLanguage.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzDemo',
+  'chrome://cliqzmodules/content/CliqzDemo.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHandlebars',
   'chrome://cliqzmodules/content/CliqzHandlebars.jsm');
 
@@ -81,6 +84,7 @@ window.CLIQZ.Core = {
     urlbarEvents: ['focus', 'blur', 'keypress', 'mousedown'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
+    genericPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
 
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
@@ -148,6 +152,7 @@ window.CLIQZ.Core = {
         document.getElementById('PopupAutoCompleteRichResult').parentElement.appendChild(popup);
 
         CLIQZ.Core.urlbar = document.getElementById('urlbar');
+
         CLIQZ.Core.popup = popup;
 
         CLIQZ.UI.init(CLIQZ.Core.urlbar);
@@ -196,6 +201,7 @@ window.CLIQZ.Core = {
         // detecting the languages that the person speak
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
+            CliqzDemo.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -231,7 +237,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
         CliqzExtOnboarding.init(window);
-
+        CLIQZ.Core.updateGeoLocation();
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
 
@@ -375,6 +381,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabSelect", CliqzHistory.tabSelect, false);
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
+            CliqzDemo.unload(window);
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -446,6 +453,7 @@ window.CLIQZ.Core = {
             delete window.CliqzHistoryManager;
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
+            delete window.CliqzDemo;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
@@ -596,18 +604,37 @@ window.CLIQZ.Core = {
             gBrowser.selectedTab = gBrowser.addTab(CliqzUtils.UNINSTALL);
         }
     },
+    showTopsites: function () {
+        var popup = CLIQZ.Core.popup,
+            urlbar = CLIQZ.Core.urlbar;
+
+        popup.className = 'cqz-popup-medium';
+        CLIQZ.UI.redrawDropdown(
+            CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
+
+        if (popup.cliqzBox) {
+            var width = Math.max(urlbar.clientWidth, 500);
+            popup.cliqzBox.style.width = width + 1 + "px";
+            popup.cliqzBox.resultsBox.style.width =
+                width + (CliqzUtils.isWindows() ? -1 : 1) + "px";
+        }
+
+        popup._openAutocompletePopup(urlbar, urlbar);
+    },
     urlbarmousedown: function(ev){
-        if(!CliqzUtils.getPref('topSites', false)) return;
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+
         //only consider the URLbar not the other icons in the urlbar
-        if((ev.originalTarget || ev.srcElement).className == 'anonymous-div' ||
-          (ev.originalTarget || ev.srcElement).className.indexOf('urlbar-input-box') != -1) {
-          var urlBar = CLIQZ.Core.urlbar;
-          if(urlBar.value.trim().length == 0){
-              //link to historydropmarker
-              CliqzAutocomplete.sessionStart = true;
-              CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start','true');
-              CLIQZ.Core.historyDropMarker.showPopup();
-          }
+        if(ev.originalTarget.className == 'anonymous-div' ||
+           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.showTopsites();
+            CliqzUtils.telemetry({
+                type: 'activity',
+                action: 'topsites',
+                urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
+            });
         }
     },
     urlbarkeypress: function(ev) {
@@ -689,25 +716,28 @@ window.CLIQZ.Core = {
           CLIQZ.UI.autocompleteEl = 0;
         }
 
-        // If new style autocomplete and it is not enabled, ignore the autocomplete
-        if(autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)){
+        // No autocomplete
+        if(!autocomplete.autocomplete ||
+           !CLIQZ.Core.genericPrefs.getBoolPref("browser.urlbar.autoFill") || // user has disabled autocomplete
+           (autocomplete.type != "url" && !CliqzUtils.getPref('newAutocomplete', false)) || // types other than 'url' are experimental
+           (CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1)){
+            CLIQZ.UI.clearAutocomplete();
+            CliqzAutocomplete.lastAutocomplete = null;
+            CliqzAutocomplete.lastAutocompleteType = null;
+            CliqzAutocomplete.selectAutocomplete = false;
             return;
-        }
-
-        if(CLIQZ.UI.autocompleteEl == 1 && autocomplete.autocomplete && JSON.stringify(data).indexOf(autocomplete.full_url) == -1) {
-          CLIQZ.UI.clearAutocomplete();
-          return;
         }
 
         // Apply autocomplete
         CliqzAutocomplete.lastAutocompleteType = autocomplete.type;
         CliqzAutocomplete.lastAutocompleteLength = autocomplete.full_url.length;
-        if (autocomplete.autocomplete) {
-            urlBar.mInputField.value = autocomplete.urlbar;
-            urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
-            CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
-            CLIQZ.UI.cursor = autocomplete.selectionStart;
-        }
+        CliqzAutocomplete.lastAutocompleteUrlbar = autocomplete.urlbar;
+        CliqzAutocomplete.lastAutocompleteSelectionStart = autocomplete.selectionStart;
+        urlBar.mInputField.value = autocomplete.urlbar;
+        urlBar.setSelectionRange(autocomplete.selectionStart, urlBar.mInputField.value.length);
+        CliqzAutocomplete.lastAutocomplete = autocomplete.full_url;
+        CLIQZ.UI.cursor = autocomplete.selectionStart;
+
         // Highlight first entry in dropdown
         if (autocomplete.highlight) {
             CliqzAutocomplete.selectAutocomplete = true;
@@ -823,6 +853,7 @@ window.CLIQZ.Core = {
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
         menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
         menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
       }
       else {
         menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
@@ -893,6 +924,86 @@ window.CLIQZ.Core = {
         };
         menu.appendChild(menupopup);
         return menu;
+    },
+    getLocationPermState: function(){
+        var data = {
+          'yes': {
+                  name: CliqzUtils.getLocalizedString('yes'),
+                  selected: false
+          },
+          'ask': {
+                  name: CliqzUtils.getLocalizedString('always_ask'),
+                  selected: false
+          },
+          'no': {
+              name: CliqzUtils.getLocalizedString('no'),
+              selected: false
+          }
+        };
+
+        data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
+
+        return data;
+    },
+    createLocationPermOptions: function(doc) {
+      var menu = doc.createElement('menu'),
+          menupopup = doc.createElement('menupopup');
+
+      menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
+
+      var filter_levels = CLIQZ.Core.getLocationPermState();
+
+      for(var level in filter_levels) {
+        var item = doc.createElement('menuitem');
+        item.setAttribute('label', filter_levels[level].name);
+        item.setAttribute('class', 'menuitem-iconic');
+
+
+        if(filter_levels[level].selected){
+          item.style.listStyleImage = 'url(chrome://cliqzres/content/skin/checkmark.png)';
+
+        }
+
+        item.filter_level = new String(level);
+        item.addEventListener('command', function(event) {
+          CLIQZ.Core.setLocationPermission(this.filter_level.toString());
+        }, false);
+
+        menupopup.appendChild(item);
+      };
+      menu.appendChild(menupopup);
+      return menu;
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+
+      if (CliqzUtils.getPref('share_location') == 'yes') {
+        // Get current position
+        geoService.getCurrentPosition(function(p) {
+          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+
+        // Upate position if it changes
+        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CliqzUtils.getPref('share_location') == 'yes') {
+            CliqzUtils.USER_LAT = p.coords.latitude;
+            CliqzUtils.USER_LNG =  p.coords.longitude;
+          }
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+      } else {
+        CliqzUtils.USER_LAT = null;
+        CliqzUtils.USER_LNG = null;
+      }
+    },
+    setLocationPermission: function(newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+        CLIQZ.Core.updateGeoLocation();
+      }
     },
     createSimpleBtn: function(doc, txt, func){
         var item = doc.createElement('menuitem');
