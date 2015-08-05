@@ -1832,7 +1832,7 @@ function resultMove(ev){
         lastMoveTime = Date.now();
 
         if(!el) return;
-        XULBrowserWindow.setOverLink(getStatus(ev, el));
+        XULBrowserWindow.setOverLink(getStatus(ev, el) || '');
     }
 }
 
