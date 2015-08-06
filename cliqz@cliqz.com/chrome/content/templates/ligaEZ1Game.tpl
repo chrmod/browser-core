@@ -1,9 +1,9 @@
 {{#if data.static}}
     <div class="cqz-result-h1 ez-liga-genSM">
      {{#with data}}
-        <div class="cqz-result-title overflow" extra="title"><a href="{{../url}}">{{club}}</a></div>
+        <div class="cqz-result-title overflow" extra="title"><a href="{{../url}}">{{club}} Website</a></div>
         <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
-        <div class="multi-ellipsis2_14"><p>{{static.description}}</p></div>
+        <div class="cqz-liga-genSM-des multi-ellipsis2_14"><p>{{static.description}}</p></div>
 
         <div class="ez-liga-genSM-gamestt rotate90 {{#if score}} ez-liga-genSM-gamestt_live {{/if}}">
             {{#if score}}LIVE{{else}}{{#if scored}}{{local 'LAST GAME'}}{{else}}{{local 'NEXT GAME'}}{{/if}}

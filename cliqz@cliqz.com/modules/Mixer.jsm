@@ -343,7 +343,7 @@ var Mixer = {
                         // Look for sublinks that match
                         for(k in cliqzExtra[0].data) {
                             for(l in cliqzExtra[0].data[k]) {
-                                if(CliqzHistoryPattern.generalizeUrl(results[i].val) ==
+                                if(cliqzExtra[0].data[k][l] && CliqzHistoryPattern.generalizeUrl(results[i].val) ==
                                    CliqzHistoryPattern.generalizeUrl(cliqzExtra[0].data[k][l].url))
                                     matchedEZ = true;
                             }

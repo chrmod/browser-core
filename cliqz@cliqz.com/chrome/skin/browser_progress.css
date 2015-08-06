@@ -96,9 +96,9 @@
     background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
-#cliqz-results .multi-ellipsis2_14 {white-space: normal; overflow: hidden; height: 2.6em; line-height: 1.4em; }
-#cliqz-results .multi-ellipsis2_14:before {white-space: normal; content:""; float: left; width: 5px; height: 2.6em;}
-#cliqz-results .multi-ellipsis2_14 > *:first-child {white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .multi-ellipsis2_14 {white-space: normal; overflow: hidden; height: 2.8em; line-height: 1.4em; }
+#cliqz-results .multi-ellipsis2_14:before {white-space: normal; content:""; float: left; width: 5px; height: 2.8em;}
+#cliqz-results .multi-ellipsis2_14 > *:first-child {line-height: 1.4em; white-space: normal; float: right; width: 100%; margin-left: -5px; }
 #cliqz-results .multi-ellipsis2_14:after {
     white-space: normal; content: "\02026";
     box-sizing: content-box;
@@ -163,16 +163,19 @@
 /* ------- END RICH DATA Result----------*/
 
 /* ------- Bundesliga EZ ----------*/
-#cliqz-results .ez-liga-genSM {width: -moz-calc(100% - 35px); width: calc(100% - 35px);  max-width: 1000px;}
-#cliqz-results .ez-liga-genSM-1line {line-height: 18px}
+#cliqz-results .ez-liga-genSM {width: -moz-calc(100% - 45px); width: calc(100% - 45px);  max-width: 1000px;}
+#cliqz-results .ez-liga-genSM-1line {line-height: 20px}
 #cliqz-results .ez-liga-genSM-Loc {color: #999999}
 #cliqz-results .ez-liga-genSM  .ez-liga-teamName{color: #506bb8;}
-#cliqz-results .ez-liga-genSM-game-box {border:1px solid #CCCCCC; margin: 25px 0px 0px 20px; padding: 20px 20px 20px 20px; height: 98px; position: relative; width: 100%; max-width:600px;}
+#cliqz-results .ez-liga-genSM-game-box {border:1px solid #CCCCCC; margin: 20px 0px 0px 20px;
+    padding: 20px 20px 20px 20px; height: 105px; position: relative; width: 100%; max-width:500px;}
 #cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6}
-#cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 78px; width: -moz-calc(100% - 1-px); width: calc(100% - 10px);}
+#cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 85px; width: -moz-calc(100% - 10px); width: calc(100% - 10px);}
 #cliqz-results .ez-liga-genSM-vs{font-size: 18px;}
 #cliqz-results .ez-liga-genSM .ez-liga-teamName{max-width: -moz-calc(40% - 20px); max-width: calc(40% - 20px); }
 #cliqz-results .cqz-ez-btns{margin-top: 20px;}
+
+#cliqz-results .cqz-liga-genSM-des{max-width: 600px;}
 
 #cliqz-results .rotate90 {
   -moz-transform: rotate(-90deg); transform: rotate(-90deg);
@@ -180,8 +183,8 @@
 }
 
 /*MAGIC numbers */
-#cliqz-results .ez-liga-genSM-gamestt {background-color: #CCCCCC; line-height: 20px; color: #ffffff; text-align: center; width: 140px;
-    position: absolute; top: 257px; left: 42px;
+#cliqz-results .ez-liga-genSM-gamestt {background-color: #CCCCCC; line-height: 20px; color: #ffffff; text-align: center; width: 147px;
+    position: absolute; top: 262px; left: 42px;
 }
 
 #cliqz-results .ez-liga-genSM-gamestt_live {background-color: #56EAC6}
