@@ -9,7 +9,7 @@
         {{/if}}
 
         <div class="cqz-rhh3-snipet-txt">
-            <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{t}}</a></div>
+            <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{title}}</a></div>
             <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
             <div class="cqz-rd-snippet_hspacing">
                 {{#if url_ratingimg}}
@@ -19,8 +19,8 @@
         </div>
     </div>
     <div class="cqz-local-des-blk local-sc-data-container">
+        <div >{{description}}</div>
         {{#unless no_location}}
-        <div >{{desc}}</div>
         <div class="cqz-local-hr"> </div>
 
         <div class="cqz-local-info">
