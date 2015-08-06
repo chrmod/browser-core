@@ -169,7 +169,7 @@
 #cliqz-results .ez-liga-genSM  .ez-liga-teamName{color: #506bb8;}
 #cliqz-results .ez-liga-genSM-game-box {border:1px solid #CCCCCC; margin: 20px 0px 0px 20px;
     padding: 20px 20px 20px 20px; height: 105px; position: relative; width: 100%; max-width:500px;}
-#cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6}
+#cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6; }
 #cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 85px; width: -moz-calc(100% - 10px); width: calc(100% - 10px);}
 #cliqz-results .ez-liga-genSM-vs{font-size: 18px;}
 #cliqz-results .ez-liga-genSM .ez-liga-teamName{max-width: -moz-calc(40% - 20px); max-width: calc(40% - 20px); }
