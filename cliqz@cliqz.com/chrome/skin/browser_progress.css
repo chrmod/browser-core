@@ -74,28 +74,6 @@
   background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
-#cliqz-results .multi-ellipsis2 {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em; }
-#cliqz-results .multi-ellipsis2:before {white-space: normal; content:""; float: left; width: 5px; height: 2.4em;}
-#cliqz-results .multi-ellipsis2 > *:first-child {white-space: normal; float: right; width: 100%; margin-left: -5px; }
-#cliqz-results .multi-ellipsis2:after {
-    white-space: normal;
-    content: "\02026";
-
-    box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-
-    float: right; position: relative;
-    top: -1.2em; left: 100%;
-    width: 2em; margin-left: -2em;
-    padding-right: 5px;
-
-    text-align: right;
-
-    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
-}
-
 #cliqz-results .multi-ellipsis2_14 {white-space: normal; overflow: hidden; height: 2.8em; line-height: 1.4em; }
 #cliqz-results .multi-ellipsis2_14:before {white-space: normal; content:""; float: left; width: 5px; height: 2.8em;}
 #cliqz-results .multi-ellipsis2_14 > *:first-child {line-height: 1.4em; white-space: normal; float: right; width: 100%; margin-left: -5px; }
