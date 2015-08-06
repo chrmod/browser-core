@@ -84,10 +84,11 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
     _messageOFF: true, // no message shown
     _lastKey:0,
     _updateAvailable: false,
+    _shouldDropdownStayOpen: false,
 
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
@@ -341,6 +342,8 @@ window.CLIQZ.Core = {
         clearTimeout(CLIQZ.Core._tutorialTimeout);
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
+        CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
+
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
             item && item.parentNode && item.parentNode.removeChild(item);
@@ -482,12 +485,19 @@ window.CLIQZ.Core = {
         CLIQZ.Core.popupEvent(true);
         CLIQZ.UI.popupClosed = false;
     },
-    popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;
-        CliqzAutocomplete.markResultsDone(null);
-        CLIQZ.Core.popupEvent(false);
-        CLIQZ.UI.popupClosed = true;
-        CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+    popupClose: function(e){
+        if (CliqzUtils.getPref('topSitesV2', false) &&
+            CLIQZ.Core._shouldDropdownStayOpen) {
+            e.preventDefault();
+            // removing this line breaks search
+            CliqzAutocomplete.isPopupOpen = false;
+        } else {
+            CliqzAutocomplete.isPopupOpen = false;
+            CliqzAutocomplete.markResultsDone(null);
+            CLIQZ.Core.popupEvent(false);
+            CLIQZ.UI.popupClosed = true;
+            CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+        }
     },
     popupEvent: function(open) {
         var action = {
@@ -631,18 +641,29 @@ window.CLIQZ.Core = {
     },
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
 
-        //only consider the URLbar not the other icons in the urlbar
-        if(ev.originalTarget.className == 'anonymous-div' ||
-           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-            CliqzAutocomplete.sessionStart = true;
-            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+        // only consider the URLbar not the other icons in the urlbar
+        if(CLIQZ.UI.popupClosed &&
+           (ev.originalTarget.className == 'anonymous-div' ||
+            ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
             CLIQZ.Core.showTopsites();
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'topsites',
                 urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
             });
+            // indicate this is a topsites result, indicates that no
+            // results should be returned in UI.results, which would
+            // override topsites
+            CliqzAutocomplete.lastSearch = "IGNORE_TOPSITES";
+        }
+        // open Firefox topsites when clicking on dropdown marker
+        else if (ev.originalTarget.className.indexOf('autocomplete-history-dropmarker') != -1 ||
+                   ev.originalTarget.className.indexOf('urlbar-history-dropmarke') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.historyDropMarker.showPopup();
         }
     },
     urlbarkeydown: function(ev){
@@ -650,6 +671,9 @@ window.CLIQZ.Core = {
         CliqzAutocomplete._lastKey = ev.keyCode;
         var cancel = CLIQZ.UI.keyDown(ev);
         cancel && ev.preventDefault();
+
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
@@ -676,6 +700,14 @@ window.CLIQZ.Core = {
         } /* else {
            CliqzAutosuggestion.active = false;
         } */
+    },
+    urlbarmousemove: function(ev) {
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
+    },
+    urlbarmouseleave: function(ev) {
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required

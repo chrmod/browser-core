@@ -255,11 +255,11 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("extended_onboarding_smart_cliqz", true);
                 break;
             case "1043_A":
-                CliqzUtils.setPref("topSitesV2", false);
-                break;
+               CliqzUtils.setPref("topSitesV2", false);
+               break;
             case "1043_B":
-                CliqzUtils.setPref("topSitesV2", true);
-                break;
+               CliqzUtils.setPref("topSitesV2", true);
+               break;
             default:
                 rule_executed = false;
         }
@@ -457,8 +457,8 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1043_A":
             case "1043_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("topSitesV2");
-                break;
+               CliqzUtils.cliqzPrefs.clearUserPref("topSitesV2");
+               break;
             default:
                 rule_executed = false;
         }

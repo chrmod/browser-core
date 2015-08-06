@@ -381,21 +381,11 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.listener.onSearchResult(this, this.mixedResults);
 
                         this.latency.all = Date.now() - this.startTime;
-                        if(this.cliqzResults)
-                            var country = this.cliqzCountry;
 
-                        // delay sending signal to make sure rendering is complete
+                        // delay wrapping to make sure rendering is complete
                         // otherwise we don't get up to date autocomplete stats
-                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
+                        CliqzUtils.setTimeout(this.fullWrapup, 0, this);
 
-                        this.startTime = null;
-                        this.resultsTimer = null;
-                        this.historyTimer = null;
-                        this.cliqzResults = null;
-                        this.cliqzResultsExtra = null;
-                        this.cliqzCache = null;
-                        this.historyResults = null;
-                        this.instant = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -409,8 +399,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         this.mixedResults.matchCount && this.listener.onSearchResult(this, this.mixedResults);
 
                         this.latency.all = Date.now() - this.startTime;
-                        //instant result, no country info yet
-                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
+
+                        // Do partial wrapup, final wrapup will happen after all results are received
+                        CliqzUtils.setTimeout(this.instantWrapup, 0, this);
                     } else {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
                     }
@@ -634,7 +625,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 CliqzUtils.clearTimeout(this.historyTimer);
             },
 
-            sendResultsSignal: function(obj, results, instant, popup, country) {
+            sendResultsSignal: function(obj, instant) {
+                var results = obj.mixedResults._results;
                 var action = {
                     type: 'activity',
                     action: 'results',
@@ -659,8 +651,8 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
                   action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
-                if(country)
-                    action.country = country;
+                if(this.cliqzResults)
+                    action.country = obj.cliqzCountry
 
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
@@ -677,6 +669,26 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
                 CliqzUtils.telemetry(action);
+            },
+
+            // Wrap up after a completed search
+            fullWrapup: function(obj) {
+
+                obj.sendResultsSignal(obj, true);
+
+                obj.startTime = null;
+                obj.resultsTimer = null;
+                obj.historyTimer = null;
+                obj.cliqzResults = null;
+                obj.cliqzResultsExtra = null;
+                obj.cliqzCache = null;
+                obj.historyResults = null;
+                obj.instant = [];
+            },
+
+            // Wrapup after instant results are shown
+            instantWrapup: function(obj) {
+                obj.sendResultsSignal(obj, false);
             }
         }
     }
