@@ -157,8 +157,7 @@ var Result = {
         // Bing Filters
         // Filter all like:
         //    www.bing.com/search?
-        if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
+        if(urlparts.name.toLowerCase() == "bing" && urlparts.extra.indexOf("q=") != -1) {
             log("Discarding result page from history: " + url)
             return false;
         }

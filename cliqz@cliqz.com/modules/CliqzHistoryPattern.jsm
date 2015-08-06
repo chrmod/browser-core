@@ -266,8 +266,10 @@ var CliqzHistoryPattern = {
 
     // Remove automatically added patterns if they don't match query
     if(patterns && patterns.length > 0 &&
-      patterns[0].autoAdd && CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) != 0)
+      patterns[0].autoAdd && CliqzHistoryPattern.generalizeUrl(patterns[0].url).indexOf(genQ) != 0) {
         patterns.shift();
+        res.cluster = false;
+      }
 
     res.results = CliqzHistoryPattern.removeDuplicates(res.results);
     return res;
@@ -588,14 +590,17 @@ var CliqzHistoryPattern = {
     // Add base domain entry if there is not one already
     if (patterns && patterns.length > 0 && !patterns[0].base) {
       var title = CliqzHistoryPattern.domainFromUrl(baseUrl, false);
-      if (!title) return;
+      if (!title) {
+        CliqzUtils.log('Failed to add base domain because there is no title: ' + baseUrl, 'CliqzHistoryPattern');
+        return;
+      }
 
       CliqzUtils.log('Adding base domain to history cluster: ' + baseUrl, 'CliqzHistoryPattern');
 
       // Add trailing slash if not there
       var urldetails = CliqzUtils.getDetailsFromUrl(baseUrl);
       if(urldetails.path === '')
-      baseUrl = baseUrl + '/';
+        baseUrl = baseUrl + '/';
 
       patterns.unshift({
         title: title.charAt(0).toUpperCase() + title.split('.')[0].slice(1),
@@ -672,7 +677,10 @@ var CliqzHistoryPattern = {
     } else if (url.search(/http(s?):\/\/www\.bing\..*\/.*q=.*/i) === 0) {
       var q = url.substring(url.indexOf("q=")).split("&")[0];
       if (q != "q=") {
-        return url.substr(0, url.indexOf("search?")) + "search?" + q;
+        if(url.indexOf("search?") != -1)
+          return url.substr(0, url.indexOf("search?")) + "search?" + q;
+        else
+          return url.substr(0, url.indexOf("/?")) + "/?" + q;
       } else {
         return url;
       }

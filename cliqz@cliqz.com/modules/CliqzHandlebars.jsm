@@ -158,6 +158,8 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('cpgame_movie_rd_template', function(data_richData) {
+        if(!CliqzAutocomplete.lastResult) return false;
+
         var minimalData_pcgame = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (typeof(data_richData["game_cat"]) !== "undefined" && typeof(data_richData["rating"]) !== "undefined" && typeof(data_richData["categories"]) !== "undefined" ));
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
         // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
