@@ -1,4 +1,19 @@
 {
+    "open": {
+        "message": "Geöffnet"
+    },
+    "close_soon": {
+        "message": "Schließt bald"
+    },
+    "open_soon": {
+        "message": "Öffnet bald"
+    },
+    "closed": {
+        "message": "Geschlossen"
+    },
+    "open_hour": {
+        "message": "Öffnungszeiten"
+    },
     "from_lcase":{
         "message": "von"
     },

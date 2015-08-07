@@ -10,9 +10,23 @@
   margin-bottom: 20px;
 }
 
-#cliqz-results .clz_copy {
-    cursor: copy;
-}
+#cliqz-results .clz_copy { cursor: copy;}
+#cliqz-results .clz_link { cursor: pointer;}
+
+
+/*--------------- Local EZ ----------- */
+#cliqz-results .cqz-local-top-blk {height: 80px; margin-bottom: 10px;}
+#cliqz-results .cqz-local-top-blk .cqz-rd-h3img-div {height: 100%; margin-bottom: 5px;}
+#cliqz-results .cqz-local-hr {width: 100%; height: 1px; background-color: #cccccc; margin-top: 10px;}
+#cliqz-results .cqz-local-des-blk {width: calc(100% - 90px); max-width: 550px;}
+#cliqz-results .cqz-local-info-left {width: calc(50% - 20px); float: left; margin-right: 39px;}
+#cliqz-results .cqz-local-info-right {width: calc(50% - 19px); float: left}
+#cliqz-results .cqz-local-info {margin-top: 18px;}
+#cliqz-results .cqz-local-icon {height: 14px; padding-right: 10px; transform: translateY(1px); float:left;}
+#cliqz-results .cqz-local-address{margin-bottom: 10px; color: #506bb8}
+#cliqz-results .cqz-local-time{color: #506bb8}
+
+/*--------------- END LOCAL EZ ----------- */
 
 /*--------------- New Skin Generic EZ ----------- */
 #cliqz-results .cqz-result-content {
@@ -72,6 +86,30 @@
 
   background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
   background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
+
+#cliqz-results .multi-ellipsis2 {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em; }
+#cliqz-results .multi-ellipsis2:before {
+    white-space: normal; content:""; float: left; width: 5px; height: 2.4em;}
+#cliqz-results .multi-ellipsis2 > *:first-child {
+    white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .multi-ellipsis2:after {
+    white-space: normal;
+    content: "\02026";
+
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+
+    float: right; position: relative;
+    top: -1.2em; left: 100%;
+    width: 2em; margin-left: -2em;
+    padding-right: 5px;
+
+    text-align: right;
+
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
 
@@ -642,6 +680,7 @@
 
 
 /***** LOCAL MOVIE EZ ******/
+
 #cliqz-results .movie_container {
   height:160px;
   max-height:160px;
@@ -714,6 +753,7 @@
   padding-bottom:5px;
   max-width:100px;
 }
+
 #cliqz-results .cinema-name {
   font-size: 16px;
 }
@@ -795,4 +835,8 @@
     font-size: 0;
     height: 0;
     visibility: hidden;
+}
+
+#cliqz-results .clz_link p {
+  cursor:pointer;
 }
