@@ -1,5 +1,5 @@
 {{#if (local_template data)}}
-<div class="cqz-result-h2 cqz-local cqz-result-padding">
+<div class="{{#if data.no_location}}{{#ifpref 'share_location' 'no'}}cqz-result-h3{{else}}cqz-result-h2{{/ifpref}}{{else}}cqz-result-h2{{/if}} cqz-local cqz-result-padding">
     {{#with data}}
     <div class="cqz-local-top-blk">
         {{#if image}}
@@ -10,17 +10,20 @@
 
         <div class="cqz-rhh3-snipet-txt">
             <div class="cqz-result-title overflow" arrow-override=''><a href="{{../url}}" extra="title">{{title}}</a></div>
-            <div class="cqz-result-url overflow" extra="url">{{../urlDetails.friendly_url}}</div>
+            <div class="cqz-result-url overflow" extra="url">{{friendly_url}}</div>
+            {{#if url_ratingimg}}
             <div class="cqz-rd-snippet_hspacing">
-                {{#if url_ratingimg}}
-                    <img src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
-                {{/if}}
+                <img src="{{url_ratingimg}}" class="cqz-rd-rateimg " onerror="this.style.display='none';" extra="des-rate"/>
             </div>
+            {{/if}}
+            {{#if no_location}}
+              <div class="cqz-rd-snippet_hspacing">{{description}}</div>
+            {{/if}}
         </div>
     </div>
     <div class="cqz-local-des-blk local-sc-data-container">
-        <div >{{description}}</div>
         {{#unless no_location}}
+        <div >{{description}}</div>
         <div class="cqz-local-hr"> </div>
 
         <div class="cqz-local-info">
