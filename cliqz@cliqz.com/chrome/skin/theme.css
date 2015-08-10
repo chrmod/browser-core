@@ -62,6 +62,7 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 /*======= Gabriel Changes */
 
 #urlbar {
+  max-width: 800px;
   box-sizing: border-box;
   border-radius: 3px !important;
   background: #fefefe;
@@ -96,6 +97,11 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
   background: #fff !important;
 }
 
+#PersonalToolbar {
+  padding-top: 7px;
+  border-top: 1px solid #eaeaea;
+}
+
 #nav-bar {
   margin-top: 0 !important;
   border-top-color: #fff !important;
@@ -110,14 +116,4 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #TabsToolbar > #new-tab-button,
 #TabsToolbar > toolbarpaletteitem > #new-tab-button {
   list-style-image: url("chrome://cliqzres/content/skin/images/browser/newtab.png");
-  -moz-image-region: rect(0px, 19px, 20px, 1px);
-}
-.tabs-newtab-button:hover,
-#TabsToolbar > #new-tab-button:hover {
-  -moz-image-region: rect(0px, 37px, 20px, 20px);
-}
-
-.tabs-newtab-button:hover:active,
-#TabsToolbar > #new-tab-button:hover:active {
-  -moz-image-region: rect(0px, 56px, 20px, 39px);
 }
