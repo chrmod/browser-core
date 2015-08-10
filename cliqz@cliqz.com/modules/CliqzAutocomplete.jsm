@@ -112,9 +112,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }catch(e){}
     },
     getResultsOrder: function(results){
-        return results.map(function(r){
-            return r.data.kind;
-        });
+        return CliqzAutocomplete.prepareResultOrder(results);
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
     ProviderAutoCompleteResultCliqz: function(searchString, searchResult,
