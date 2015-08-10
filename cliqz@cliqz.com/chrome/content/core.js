@@ -618,7 +618,7 @@ window.CLIQZ.Core = {
         var popup = CLIQZ.Core.popup,
             urlbar = CLIQZ.Core.urlbar;
 
-        popup.className = 'cqz-popup-medium';
+        popup.classList.add("cqz-popup-medium");
         CLIQZ.UI.redrawDropdown(
             CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
 
@@ -894,5 +894,109 @@ window.CLIQZ.Core = {
                 current_length: ev.target.value.length
             });
         }, 0);
+    },
+    //ResponsiveClasses generate responsive classes
+    responsiveClasses: function (elm) {
+        if(!elm)
+            return
+
+        var generateResponsiveClasses = function(curIndex, sizeClasses) {
+            curIndex = parseInt(curIndex);
+            // Everythinh on the right site of the curIndex is Bigger so it gets class cqz-size-smaller-than-XXXXX
+            // Everythinh on the left site of the curIndex is Small so it gets class cqz-size-smaller-bigger-XXXXX
+            var result = [];
+
+            //Smaller than /// It is going Right of the array
+            for(var ii = curIndex+1; ii < sizeClasses.length; ii++) {
+                if(sizeClasses[ii].rangeName1){
+                    result.push(" cqz-size-smaller-than-" + sizeClasses[ii].rangeName1);
+                }
+            }
+            //Bigger than /// It is going Left of the array
+            for(var ii = 0; ii < curIndex; ii++) {
+                if(sizeClasses[ii].rangeName2)
+                    result.push(" cqz-size-bigger-than-" + sizeClasses[ii].rangeName2);
+            }
+
+            return result;
+        }
+
+        //Responsive classes array, with the range
+        // Tange 1 is always > ||||| Range 2 is always <=
+        var elm_width = CLIQZ.Core.urlbar.clientWidth,
+            sizeClasses = [
+                {
+                    rangeName2: '500',
+                    range2: 500, //<=
+                },
+                {
+                    rangeName1: '500',
+                    rangeName2: '800',
+                    range1: 500, // >
+                    range2: 800, //<=
+                },
+                {
+                    rangeName1: '800',
+                    rangeName2: '1000',
+                    range1: 800, // >
+                    range2: 1000, //<=
+                },
+                {
+                    rangeName1: '1000',
+                    rangeName2: '1200',
+                    range1: 1000, // >
+                    range2: 1200, //<=
+                },
+                {
+                    rangeName1: '1200',
+                    rangeName2: '1400',
+                    range1: 1200, // >
+                    range2: 1400, //<=
+                },
+                {
+                    rangeName1: '1400',
+                    range1: 1400, // >
+                },
+            ];
+
+
+            for (var kk in sizeClasses) {
+                if(sizeClasses[kk].range1 && sizeClasses[kk].range2) {
+
+
+                    if(elm_width > sizeClasses[kk].range1 && eval(elm_width <= sizeClasses[kk].range2)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1 + '-' + sizeClasses[kk].rangeName2;
+                    }
+
+                }else if (sizeClasses[kk].range1) {
+
+                    if(eval(elm_width > sizeClasses[kk].range1)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1;
+                    }
+
+                }else if (sizeClasses[kk].range2) {
+
+                    if(eval(elm_width <= sizeClasses[kk].range2)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName2;
+                    }
+
+                }
+            }
+    },
+    //Remove classes from element by prefix
+    removeClassesByPrefix: function (elm, prefix) {
+        var result = elm.className.split(" ").filter(function (c) {
+            return c.lastIndexOf(prefix, 0) !== 0;
+        });
+
+        elm.className = result.join(" ").trim();
+
     }
 };

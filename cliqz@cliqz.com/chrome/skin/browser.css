@@ -1,6 +1,6 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    min-height: 348px; /* fixes bug with popup auto-sizing */
+    min-height: 350px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
 #PopupAutoCompleteRichResultCliqz.cqz-popup-medium {
@@ -74,7 +74,7 @@
 }
 
 #cliqz-results {
-    height: 349px;
+    height: 350px;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -91,19 +91,20 @@
 #cliqz-results b { font-weight: bold; }
 #cliqz-results i { font-style: italic; }
 
-#cliqz-results .cqz-result-h1, #cliqz-results .cqz-result-h2, #cliqz-results .cqz-result-h3 {
+#cliqz-results .cqz-result-box > [class^="cqz-result"] {
     padding: 17px 125px 17px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    border-bottom: 1px solid #CCC;
 }
 
 #cliqz-results .transition { -moz-transition: all 0.2s ease; transition: all 0.2s ease; }
 #cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-padding { padding: 16px 20px; box-sizing: border-box; -moz-box-sizing: border-box; }
-#cliqz-results .cqz-result-h1 { height: 348px; }
-#cliqz-results .cqz-result-h2 { height: 232px; }
-#cliqz-results .cqz-result-h3 { height: 116px; }
-#cliqz-results .cqz-result-box { position: relative; border-bottom: 1px solid #CCC; }
+#cliqz-results .cqz-result-h1 { height: 351px; }
+#cliqz-results .cqz-result-h2 { height: 234px; }
+#cliqz-results .cqz-result-h3 { height: 117px; }
+#cliqz-results .cqz-result-box { position: relative; }
 #cliqz-results .cqz-result-selected {
     position: absolute;
     top: 10px;
@@ -423,9 +424,9 @@
 }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
-#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
+#cliqz-results .ez-calculator .answer { font-size: 48px; margin-top: -9px; }
+#cliqz-results .ez-calculator .expression { margin: 14px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 17px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
@@ -441,13 +442,13 @@
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
 #cliqz-results .EZ-weather-info-sec { height: 128px; }
-#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
+#cliqz-results .EZ-weather-container { float: left; width: 75px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
 #cliqz-results .cqz-weather-holder {
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     max-height: 106px;
 }
 #cliqz-results .cqz-weather-holder .EZ-weather-container{
@@ -568,7 +569,14 @@
 #cliqz-popup .cqz-btn-gray { background-color: #eaeaea; color: #333333; }
 
 /* adult content */
-#cliqz-popup .cqz-message-bar { padding: 4px 10px; text-align: justify; white-space: normal; line-height: 0 }
+#cliqz-popup .cqz-message-bar {
+    padding: 4px 10px;
+    text-align: justify;
+    white-space: normal;
+    line-height: 0;
+    border-top: 1px solid #ccc;
+    background: #fcfcfc;
+}
 #cliqz-popup .cqz-message-bar > * { margin-top: 8px; vertical-align: top; display: inline-block }
 #cliqz-popup .cqz-message-bar img { height: 16px; }
 #cliqz-popup .cqz-message { padding: 2px 20px 2px; margin-top: 8px; display: inline-block; }
@@ -627,6 +635,63 @@
     background-repeat: no-repeat;
 }
 
+
+/*======= Time Clock =======*/
+#cliqz-popup .ez-type-time > .cqz-result-holder .answer {
+    padding-left: 50px;
+}
+
+#cliqz-popup .cqz-analog-clock {
+    float: left;
+    margin: 9px 0 0 -50px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock {
+    height: 40px;
+    width: 40px;
+    background: #fafafa;
+    border: 1px solid #333333;
+    position: relative;
+    border-radius: 50% 50%;
+    box-sizing: border-box;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-hour,
+#cliqz-popup .cqz-analog-clock .clock .hand-minute,
+#cliqz-popup .cqz-analog-clock .clock .hand-second,
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 12px;
+    height: 2px;
+    background: #333333;
+    position: absolute;
+    top: 18px;
+    left: 19px;
+    transform-origin: left;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-minute {
+    width: 17px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-second {
+    display: none;
+    width: 17px;
+    height: 1px;
+    background: #d7011d;
+}
+
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 19px;
+    height: 1px;
+    background: none
+}
+
+#cliqz-popup .cqz-analog-clock .notch div {
+    width: 2px;
+    height: 100%;
+    float: right;
+    background: #333333;
+}
 
 /*======== EZ Delivery ==========*/
 
