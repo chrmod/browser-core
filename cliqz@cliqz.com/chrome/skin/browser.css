@@ -91,7 +91,7 @@
 #cliqz-results b { font-weight: bold; }
 #cliqz-results i { font-style: italic; }
 
-#cliqz-results .cqz-result-box > [class^="cqz-result"] {
+#cliqz-results .cqz-result-h1, #cliqz-results .cqz-result-h2, #cliqz-results .cqz-result-h3 {
     padding: 17px 125px 17px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
