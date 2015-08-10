@@ -674,6 +674,7 @@
 }
 
 #cliqz-popup .cqz-analog-clock .clock .hand-second {
+    display: none;
     width: 17px;
     height: 1px;
     background: #d7011d;

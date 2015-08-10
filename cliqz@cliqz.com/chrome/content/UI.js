@@ -2039,13 +2039,12 @@ function handleMouseDown(e) {
 }
 
     function smCqzAnalogClock(elm) {
+
         if (!elm)
             return
 
-        var days = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
-            months = ["Januar", "Februar", "März", "April", "Mai", "Juni",
-                "Juli", "August", "September", "Oktober", "November", "Dezember"],
-            element = elm,
+
+        var element = elm,
             gethand = function (value, fullcircle) {
                 return value * 2 * Math.PI / fullcircle - Math.PI / 2
             },
@@ -2067,6 +2066,12 @@ function handleMouseDown(e) {
 
         var curTime = elm.dataset.time.split(':');
         var tick = function () {
+            if (elm && elm.offsetParent) {
+                //setTimeout(tick, 1000);
+            } else {
+                return
+            }
+
             var actualTime = new Date(),
                 d = new Date();
 
@@ -2090,11 +2095,7 @@ function handleMouseDown(e) {
             $(".hand-second", element).style.cssText = "transform: rotateZ(" + second + "rad);";
         }
 
-        tick()
-
-        setInterval(function () {
-            tick()
-        }, 1000)
+       setTimeout(tick, 100);
     }
 
 ctx.CLIQZ.UI = UI;
