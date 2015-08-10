@@ -65,6 +65,12 @@
     "vs":{
         "message": "gegen"
     },
+    "NEXT GAME" : {
+        "message": "NÄCHSTES SPIEL"
+    },
+    "LAST GAME" : {
+        "message": "LETZTES SPIEL"
+    },
     "AllGames":{
         "message": "Ganzer Spieltag"
     },

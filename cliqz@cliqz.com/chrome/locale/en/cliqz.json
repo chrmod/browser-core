@@ -65,6 +65,12 @@
     "vs":{
         "message": "vs."
     },
+    "NEXT GAME" : {
+        "message": "NEXT GAME"
+    },
+    "LAST GAME" : {
+        "message": "LAST GAME"
+    },
     "AllGames":{
         "message": "All Games"
     },
