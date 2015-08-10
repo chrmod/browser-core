@@ -424,9 +424,9 @@
 }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 48px; margin-top: -9px; }
-#cliqz-results .ez-calculator .expression { margin: 14px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 17px; }
+#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
+#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
@@ -442,13 +442,13 @@
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
 #cliqz-results .EZ-weather-info-sec { height: 128px; }
-#cliqz-results .EZ-weather-container { float: left; width: 75px; margin-right: 36px; }
+#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
 #cliqz-results .cqz-weather-holder {
     overflow: hidden;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     max-height: 106px;
 }
 #cliqz-results .cqz-weather-holder .EZ-weather-container{
@@ -635,63 +635,6 @@
     background-repeat: no-repeat;
 }
 
-
-/*======= Time Clock =======*/
-#cliqz-popup .ez-type-time > .cqz-result-holder .answer {
-    padding-left: 50px;
-}
-
-#cliqz-popup .cqz-analog-clock {
-    float: left;
-    margin: 9px 0 0 -50px;
-}
-
-#cliqz-popup .cqz-analog-clock .clock {
-    height: 40px;
-    width: 40px;
-    background: #fafafa;
-    border: 1px solid #333333;
-    position: relative;
-    border-radius: 50% 50%;
-    box-sizing: border-box;
-}
-
-#cliqz-popup .cqz-analog-clock .clock .hand-hour,
-#cliqz-popup .cqz-analog-clock .clock .hand-minute,
-#cliqz-popup .cqz-analog-clock .clock .hand-second,
-#cliqz-popup .cqz-analog-clock .notch {
-    width: 12px;
-    height: 2px;
-    background: #333333;
-    position: absolute;
-    top: 18px;
-    left: 19px;
-    transform-origin: left;
-}
-
-#cliqz-popup .cqz-analog-clock .clock .hand-minute {
-    width: 17px;
-}
-
-#cliqz-popup .cqz-analog-clock .clock .hand-second {
-    display: none;
-    width: 17px;
-    height: 1px;
-    background: #d7011d;
-}
-
-#cliqz-popup .cqz-analog-clock .notch {
-    width: 19px;
-    height: 1px;
-    background: none
-}
-
-#cliqz-popup .cqz-analog-clock .notch div {
-    width: 2px;
-    height: 100%;
-    float: right;
-    background: #333333;
-}
 
 /*======== EZ Delivery ==========*/
 
