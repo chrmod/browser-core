@@ -243,7 +243,10 @@ var UI = {
         gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+        setTimeout(function(){
+            hideMisalignedElements(gCliqzBox.resultsBox);
+            smCqzAnalogClock($('.cqz-analog-clock', gCliqzBox.resultsBox));
+        }, 0);
 
         // find out if scrolling is possible
         CliqzAutocomplete.resultsOverflowHeight =
@@ -2034,6 +2037,66 @@ function handleMouseDown(e) {
   }
   walk_the_DOM(e.originalTarget);
 }
+
+    function smCqzAnalogClock(elm) {
+
+        if (!elm)
+            return
+
+
+        var element = elm,
+            gethand = function (value, fullcircle) {
+                return value * 2 * Math.PI / fullcircle - Math.PI / 2
+            },
+            lpad = function (n) {
+                var ns = n.toString()
+
+                return ns.length == 1 ? "0" + ns.toString() : ns
+            }
+
+        var curDate = elm.dataset.time;
+
+
+        for (var i = 0; i < 12; i++) {
+            var item = $(".notch", element);
+            var itemClone = $('.clock', element).appendChild(item.cloneNode(true));
+
+            itemClone.style.cssText = "transform: rotateZ(" + gethand(i, 12) + "rad)";
+        }
+
+        var curTime = elm.dataset.time.split(':');
+        var tick = function () {
+            if (elm && elm.offsetParent) {
+                //setTimeout(tick, 1000);
+            } else {
+                return
+            }
+
+            var actualTime = new Date(),
+                d = new Date();
+
+            actualTime.setHours(curTime[0]);
+            actualTime.setMinutes(curTime[1]);
+
+
+            var hourDiff = d.getHours() - actualTime.getHours(),
+                minDiff = d.getMinutes() - actualTime.getMinutes();
+
+
+            d.setHours(d.getHours() - hourDiff);
+            d.setMinutes(d.getMinutes() - minDiff);
+
+            var hour = gethand(d.getHours() + d.getMinutes() / 60, 12),
+                minute = gethand(d.getMinutes() + d.getSeconds() / 60, 60),
+                second = gethand(d.getSeconds(), 60)
+
+            $(".hand-hour", element).style.cssText = "transform: rotateZ(" + hour + "rad);";
+            $(".hand-minute", element).style.cssText = "transform: rotateZ(" + minute + "rad);";
+            $(".hand-second", element).style.cssText = "transform: rotateZ(" + second + "rad);";
+        }
+
+       setTimeout(tick, 100);
+    }
 
 ctx.CLIQZ.UI = UI;
 
