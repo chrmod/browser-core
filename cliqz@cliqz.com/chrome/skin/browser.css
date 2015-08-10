@@ -437,11 +437,11 @@
     color: white;
 }
 #cliqz-results .ez-weather .alert .header { font-size: 18px; text-decoration: underline; margin: 23px 0 9px; }
-#cliqz-results .ez-weather .cqz-ez-title { background-image: none; margin-bottom: 16px; }
+#cliqz-results .ez-weather .cqz-ez-title { background-image: none; margin-bottom: 16px; text-decoration: none  !important; }
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
 #cliqz-results .EZ-weather-info-sec { height: 128px; }
-#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 40px; }
+#cliqz-results .EZ-weather-container { float: left; min-width: 60px; margin-right: 40px; }
 #cliqz-results .EZ-weather-temp { margin-top: 4px; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
@@ -450,9 +450,12 @@
     margin-bottom: 20px;
     max-height: 110px;
 }
-#cliqz-results .cqz-weather-holder .EZ-weather-container{
+#cliqz-results .cqz-weather-holder .EZ-weather-container {
     margin-bottom: 15px;
     text-align: center;
+}
+#cliqz-results .cqz-weather-holder .EZ-weather-container .EZ-weather-date {
+    text-overflow: unset;
 }
 
 #cliqz-results .ez-weather .cqz-ez-btn {
