@@ -663,8 +663,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
             // Wrap up after a completed search
             fullWrapup: function(obj) {
-
-                obj.sendResultsSignal(obj, true);
+                obj.sendResultsSignal(obj, false);
 
                 obj.startTime = null;
                 obj.resultsTimer = null;
@@ -676,9 +675,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 obj.instant = [];
             },
 
-            // Wrapup after instant results are shown
+            // Wrap up after instant results are shown
             instantWrapup: function(obj) {
-                obj.sendResultsSignal(obj, false);
+                obj.sendResultsSignal(obj, true);
             }
         }
     }
