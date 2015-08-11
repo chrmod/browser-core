@@ -1,3 +1,6 @@
+#main-window:not([chromehidden~="toolbar"]) { min-width: 800px; ≠}
+#urlbar-container { min-width: 700px; }
+
 .tab-background-start, .tab-background-end {
   display: none;
 }
