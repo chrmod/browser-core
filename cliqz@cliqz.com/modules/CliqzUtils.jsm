@@ -32,15 +32,9 @@ var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
-    'census':'c',
     'news':'n',
     'video':'v',
     'hq':'h',
-//    'shopping':'s',
-//    'science':'k',
-//    'gaming':'g',
-    'dictionary':'l',
-    'qaa':'q',
     'bm': 'm',
     'reciperd': 'r',
     'game': 'g',
