@@ -958,7 +958,8 @@ var CliqzHistoryPattern = {
         extra: "history-" + i,
         favicon: favicon,
         // logo is only necessary for 3-up mini-history view, this can be removed if that is retired
-        logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(urls[i].url))
+        logo: CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(urls[i].url)),
+        kind: ["H"]
       });
       if ((result.data.urls.length > 9 && result.data.template == "pattern-h1") ||
           (result.data.urls.length > 5 && result.data.template == "pattern-h2") ||
