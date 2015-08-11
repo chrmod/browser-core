@@ -25,7 +25,7 @@ function getSuperType(result){
     if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
         return CliqzUtils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
                CliqzUtils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
-               'bm'                                                           // backwards compatibility (most generic type, requires only url)
+               'bm';                                                           // backwards compatibility (most generic type, requires only url)
     }
     return null;
 }
