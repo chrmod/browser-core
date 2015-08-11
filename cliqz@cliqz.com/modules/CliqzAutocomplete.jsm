@@ -413,11 +413,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
-                    var country = "";
                     var json = JSON.parse(req.response);
                     results = json.result || [];
 
-                    country = json.country;
                     this.cliqzResultsExtra = []
 
                     if(json.images && json.images.results && json.images.results.length >0){
@@ -448,8 +446,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // filter results with no or empty url
                         return r.url != undefined && r.url != '';
                     });
-
-                    this.cliqzCountry = country;
                 }
                 this.pushResults(q);
             },
@@ -549,7 +545,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
-                this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.instant = [];
@@ -605,7 +600,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    this.cliqzCountry = "";
                     this.customResults = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
@@ -649,8 +643,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
                   action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
-                if(this.cliqzResults)
-                    action.country = obj.cliqzCountry
 
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
