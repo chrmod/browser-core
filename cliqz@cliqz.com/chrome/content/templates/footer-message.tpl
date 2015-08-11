@@ -1,21 +1,31 @@
-<div class="cqz-message-bar">
-  <div class="cqz-message {{type}}">
-      {{ simple_message }}
-      <b>
-        {{message}}
+<div class="cqz-message-bar {{type}}">
+    <div class="cqz-message">
+        <span>
+            {{ simple_message }}
+        </span>
+        <strong>
+            {{message}}
 
-        {{#each messages}}
-          {{#if this.correctBack}}
-            <i>{{this.correctBack}}</i>
-         {{else}}
-           {{this.correct}}
-         {{/if}}
+            {{#each messages}}
+                {{#if this.correctBack}}
+                    <i>{{this.correctBack}}</i>
+                {{else}}
+                    {{this.correct}}
+                {{/if}}
+            {{/each}}
+        </strong>
+    </div>
+    <div class="cqz-message-btns"
+        cliqz-action="footer-message-action"
+        cliqz-telemetry="{{telemetry}}"
+    >
+        {{#each options}}
+            <span class="cqz-msg-btn cqz-msg-btn-{{ state }}  border-box"
+                state="{{ action }}"
+                {{#if pref }} pref="{{../pref}}" {{/if}}
+                {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >
+                {{ text }}
+            </span>
         {{/each}}
-      </b>
-  </div>
-  <div style="float:right" cliqz-action="footer-message-action" cliqz-telemetry="{{telemetry}}">
-  	{{#each options}}
-    	<span class="cqz-btn cqz-btn-{{ state }}" state="{{ action }}" {{#if pref }} pref="{{../pref}}" {{/if}}  {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >{{ text }}</span>
-    {{/each}}
-  </div>
+    </div>
 </div>

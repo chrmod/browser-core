@@ -1064,12 +1064,30 @@ function enhanceResults(res){
           res.results[0].vertical = 'noResult';
         }
 
-        if(level == 'moderate' && adultMessage == 0){
+        if (level == 'moderate' && adultMessage == 0) {
             updateMessageState("show", {
-                "adult": {
-                  "adultConfig": CliqzUtils.getAdultFilterState()
+                "footer-message": {
+                    type: 'cqz-message-alert',
+                    simple_message: CliqzUtils.getLocalizedString('adultInfo'),
+                    telemetry: 'changelog',
+                    options: [{
+                            text: CliqzUtils.getLocalizedString('adultConservative'),
+                            action: 'adult-conservative',
+                            state: 'default'
+                        },
+                        {
+                            text: CliqzUtils.getLocalizedString('adultModerate'),
+                            action: 'adult-moderate',
+                            state: 'default'
+                        },
+                        {
+                            text: CliqzUtils.getLocalizedString('adultLiberal'),
+                            action: 'adult-liberal',
+                            state: 'default'
+                        },
+                    ]
                 }
-             });
+            });
         }
     }
     else if (notSupported()) {
