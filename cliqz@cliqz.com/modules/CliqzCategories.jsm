@@ -30,7 +30,7 @@ var CliqzCategories = {
 		//wait 5 minutes to do this operation
 		t0 = CliqzUtils.setTimeout(sendHistoricalData, 5 * 60 *1000)
 
-		tHist = CliqzUtils.setTimeout(analizeNewsHistory, 2 * 60 *1000)
+		tHist = CliqzUtils.setTimeout(analizeNewsHistory, 2 * 60 * 1000)
 
 		log('init');
 	},
@@ -146,9 +146,6 @@ function analizeNewsHistory(){
 	var start = Date.now(), t = [];
 	// send only one signal
 	if(CliqzUtils.getPref('newsAssessment', 0) == 1){
-		// set newsAssessment to done
-		CliqzUtils.setPref('newsAssessment', 2);
-
 		CliqzHistoryManager.PlacesInterestsStorage._execute(
 		  	'SELECT * FROM moz_places WHERE last_visit_date>:date',
 		  	['url', 'visit_count'],
@@ -177,8 +174,15 @@ function analizeNewsHistory(){
 				};
 				CliqzUtils.httpPost(
 					"https://newscat.cliqz.com/",
-					null,
-					JSON.stringify(action)
+					function(){
+						// set newsAssessment to done
+						CliqzUtils.setPref('newsAssessment', 2);
+					},
+					JSON.stringify(action),
+					function(){
+						//retry in 1 hour if failed
+						CliqzUtils.setPref('newsAssessment', 1);
+					}
 				);
 		      }
 		    )
