@@ -520,7 +520,7 @@
 #cliqz-popup .cqz-btn-warning { background-color: #ffcc66; }
 #cliqz-popup .cqz-btn-gray { background-color: #eaeaea; color: #333333; }
 
-/* adult content */
+/* Footer Message */
 #cliqz-popup .cqz-message-bar {
     display: -moz-box;
     display: flex;
@@ -537,8 +537,8 @@
 
 #cliqz-popup .cqz-message-bar > * { vertical-align: top; white-space: normal; }
 
-#cliqz-popup .cqz-message { padding: 5px 0; }
-#cliqz-popup .cqz-message > * { font-size: 18px; }
+#cliqz-popup .cqz-message { padding: 7px 0 5px; }
+#cliqz-popup .cqz-message > * { font-size: 18px; line-height: 1.3em; }
 
 #cliqz-popup .cqz-message-bar .cqz-message-btns {
     overflow: auto;
@@ -550,13 +550,14 @@
 #cliqz-popup .cqz-message-btns .cqz-msg-btn {
     cursor: pointer;
     display: inline-block;
-    padding: 6px 8px 5px;
+    padding: 5px 8px;
     margin-right: 10px;
     text-transform: capitalize;
     border-radius: 3px;
     border: 1px solid #fff;
     font-size: 14px;
     transition: 0.3s all;
+    vertical-align: middle;
 }
 #cliqz-popup .cqz-message-btns .cqz-msg-btn:last-child { margin-right: 0; }
 #cliqz-popup .cqz-message-btns .cqz-msg-btn:hover { color: #3bb5d4; background: #fff; }
