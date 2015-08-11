@@ -200,7 +200,10 @@ var Mixer = {
                     for(var u in instant[j].data.urls) {
                         var instant_url = CliqzHistoryPattern.generalizeUrl(instant[j].data.urls[u].href);
                         if (instant_url == cl_url) {
-                            // TODO: find a way to combine sources for clustered results
+                            // combinding sources for clustered results
+                            var tmpResult = Result.cliqz(cliqz[i]);
+                            instant[j].data.urls[u].kind =
+                                (instant[j].data.urls[u].kind || []).concat(tmpResult.data.kind || []);
                             duplicate = true;
                             break;
                         }

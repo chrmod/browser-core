@@ -167,7 +167,7 @@ var UI = {
         Array.prototype.slice.call(
           gCliqzBox.getElementsByClassName("cqz-result-box")).map(
             function (r) {
-              return Math.round(r.offsetHeight / 100);
+              return Math.floor(r.offsetHeight / 100);
             });
 
       var curResAll = currentResults.results;

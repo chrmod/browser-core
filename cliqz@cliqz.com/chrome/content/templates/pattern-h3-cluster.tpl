@@ -13,7 +13,8 @@
              url='{{href}}' shortUrl='{{link}}'
              domain='{{domain}}'
              extra='{{extra}}'
-             arrow="false">
+             arrow='false'
+             kind='{{ kind_printer kind }}'>
             <div class='cliqz-pattern-element-title'>{{ title }}</div>
             <div class='cliqz-pattern-element-link'>{{ link }}</div>
         </div>
