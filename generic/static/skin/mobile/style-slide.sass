@@ -51,14 +51,11 @@ body, html
 		bottom: $rs
 
 .frame
-	background-color: #fff
 	position: absolute
 	top: 0
 	left: 0
 	bottom: 0
 	width: 100%
-	box-shadow: 0 0 $rs/2 rgba(0,0,0,0.5)
-	border-radius: $rs/4
 
 .phoneui
 	background-color: red
@@ -101,6 +98,15 @@ body, html
 .ez, .rr
 	padding: $rs $rs $rs/2
 	@include clearfix
+	top: $rs
+	left: $rs
+	right: $rs
+	bottom: $rs
+	border: 1px #ccc solid
+	background-color: #fff
+	border-radius: $rs/4
+	position: absolute
+	box-shadow: 0 0 $rs/2 rgba(0,0,0,0.5)
 
 .meta
 	padding: 0 0
@@ -315,6 +321,8 @@ a
 	@include align-content(stretch)
 	border-bottom-left-radius: $rs/4
 	border-bottom-right-radius: $rs/4
+	overflow: hidden
+	height: $rs*3
 	li
 		list-style-type: none
 		@include flex(1 1 auto)

@@ -13,3 +13,5 @@ mozilla-release
 # ignore builds
 build/
 build/*
+
+*.scssc
