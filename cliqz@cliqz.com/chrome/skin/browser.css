@@ -593,7 +593,7 @@
 #cliqz-popup .cqz-message-bar > * { vertical-align: top; white-space: normal; }
 
 #cliqz-popup .cqz-message { padding: 7px 0 5px; }
-#cliqz-popup .cqz-message > * { font-size: 18px; line-height: 1.3em; }
+#cliqz-popup .cqz-message > * { font-size: 18px; line-height: 1.3em; letter-spacing: 0.03em;}
 
 #cliqz-popup .cqz-message-bar .cqz-message-btns {
     overflow: auto;
