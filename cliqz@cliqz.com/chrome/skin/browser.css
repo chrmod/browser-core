@@ -459,7 +459,7 @@
 }
 
 #cliqz-results .ez-weather .cqz-ez-btn {
-    background: #ABC8E2;
+    max-width: 100%;
 }
 
 /* history */
