@@ -9,7 +9,7 @@
             <div class='EZ-weather-container'>
                 <div class='EZ-weather-date'>{{ todayWeekday }}</div>
                 <div class="EZ-weather-img" style="background-image:url({{todayIcon}})"></div>
-                <div class="EZ-weather-temp">{{todayTemp}}<span>{{todayMin}}</span></div>
+                <div class="EZ-weather-temp">{{ todayMax }}<span>{{todayMin}}</span></div>
             </div>
 
             {{#each forecast}}
