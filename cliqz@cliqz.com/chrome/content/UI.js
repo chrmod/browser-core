@@ -1533,6 +1533,10 @@ function resultClick(ev){
                     }, 0);
 
                     return;
+                case 'hide-topsites':
+                  if (CliqzUtils.getPref('topSitesV2', false)) {
+                    CLIQZ.Core.popup.hidePopup();
+                  }
                 default:
                     break;
             }
