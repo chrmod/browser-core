@@ -1,9 +1,10 @@
 var urlbar = document.getElementById('urlbar');
+var resultsBox = document.getElementById('results');
 CliqzUtils.init(window);
 
 CLIQZ.Core = {
 	urlbar: urlbar,
-	popup: document.getElementById('results'),
+	popup: resultsBox,
 	refreshButtons: function(){}
 }
 
@@ -37,3 +38,4 @@ function search_mobile(e) {
 	urlbar.value = e;
 	search(e);
 }
+

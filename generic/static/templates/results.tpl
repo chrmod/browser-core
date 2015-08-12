@@ -1,6 +1,6 @@
 {{#each results}}
 	{{#unless invalid}}
-		<div class="frame">
+		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px" {{/if}}>
 			<div class="ez"
 				type='{{ type }}'
 				kind='{{ kind_printer data.kind }}'
