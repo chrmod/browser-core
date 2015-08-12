@@ -2,6 +2,7 @@ var urlbar = document.getElementById('urlbar');
 CliqzUtils.init(window);
 var resultsBox = document.getElementById('results');
 CLIQZ.UI.init(urlbar);
+var item_container;
 
 CLIQZ.Core = {
 	urlbar: urlbar,
@@ -15,6 +16,7 @@ urlbar.addEventListener('keydown', function(e){
 				r._results = [r._results[0]];
 			} */
 			resultsBox.style.width = (window.innerWidth * r._results.length) + 'px';
+			item_container.style.width = resultsBox.style.width;
 			var currentResults = CLIQZ.UI.results({
 				q: r._searchString,
 				results: r._results.map(function(r){
@@ -32,9 +34,9 @@ urlbar.addEventListener('keydown', function(e){
 
 setTimeout(function () {
 	CLIQZ.UI.main(resultsBox);
-	var item_container = document.getElementById('cliqz-results');
+	item_container = document.getElementById('cliqz-results');
 	var  w = resultsBox.getBoundingClientRect().width;
-	var vp = new ViewPager(resultsBox, {
+	var vp = new ViewPager(item_container, {
 	  pages: item_container.children.length,
 	  vertical: false,
 	  onPageScroll : function (scrollInfo) {
@@ -56,4 +58,4 @@ setTimeout(function () {
 	  w = resultsBox.getBoundingClientRect().width;
 	  invalidateScroll();
 	});
-}, 500);
+}, 300);
