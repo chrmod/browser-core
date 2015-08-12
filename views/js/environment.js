@@ -131,7 +131,7 @@ CLIQZEnvironment = {
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
-        for (var i = 0; i<30; i++) {
+        /* for (var i = 0; i<30; i++) {
             res.push({
                 style:   'favicon',
                 value:   'http://coolurl.com/' + i ,
@@ -146,7 +146,7 @@ CLIQZEnvironment = {
                 results: q.length % 2 == 0?res:[],
                 ready:  true
             });
-        }, 10, q, res);
+        }, 10, q, res); */
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){

@@ -1,15 +1,10 @@
 {{#with logo}}
-	<div
-		newtab='true'
-		class='cliqz-brand-logo
-		       cqz-result-logo
-		       cqz-vert-center
-		       transition'
-	    {{#if add_logo_url}}
-			url="{{logo_url}}"
+<div newtab='true' class="meta__logo {{#if add_logo_url}}image{{/if}}"
+			
+		
+		style="
+		{{#if add_logo_url}}
+			background-image:url("{{logo_url}}");
 		{{/if}}
-		style="{{ style }};"
-	>
-		{{ text }}
-    </div>
+		{{ style }};">{{ text }}</div>
 {{/with}}

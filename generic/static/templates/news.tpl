@@ -1,22 +1,21 @@
-<div class='cqz-result-h3'>
-    {{#if image.src}}
-        <div class="cqz-image cqz-image-news cqz-image-round " style="background-image: url({{ image.src }});"></div>
-    {{/if}}
-    <div class='cqz-result-center'>
-      <div class='cqz-result-title overflow'><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
-        <div class='cqz-result-url overflow
-                    {{#if urlDetails.ssl }}
-                         cqz-result-url-ssl
-                    {{/if}}
-        '>
-            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
-        </div>
-        <div class='cqz-result-desc overflow'>
-        	{{#if data.richData.discovery_timestamp}}
-        	    <span style="color: #d7011d; padding-right:5px; ">{{ agoline data.richData.discovery_timestamp }}</span>
+<div class="ez">
+    
+    <div class="meta">
+        {{> logo}}
+        <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
+            {{#if data.richData.discovery_timestamp}}
+                <span>{{ agoline data.richData.discovery_timestamp }}</span>&nbsp;&nbsp;·&nbsp;&nbsp;
             {{/if}}
-            {{ emphasis data.description text 2 true }}
-        </div>
+            {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}</h3>
     </div>
-    {{> logo}}
+    
+    <div class="main">
+        {{#if image.src}}
+            <div class="main__image" style="background-image: url({{ image.src }});">
+                Image
+            </div>
+        {{/if}}
+        <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
+        <p class="main__content">{{ emphasis data.description text 2 true }}</p>
+    </div>
 </div>
