@@ -164,7 +164,7 @@ var CliqzExtOnboarding = {
             if (CliqzExtOnboarding._isFirefoxVersionSupported &&
                 CliqzExtOnboarding._isTypeActive("smart_cliqz")) {
 
-                if (CliqzAutocomplete.lastResult) {
+                if (CliqzAutocomplete.lastResult && CliqzAutocomplete.lastPopupOpen) {
                     var lastResults = CliqzAutocomplete.lastResult["_results"];
                     if (!CliqzAutocomplete.lastResult.CliqzExtOnboarding_handled) {
                         CliqzExtOnboarding._log("new result");

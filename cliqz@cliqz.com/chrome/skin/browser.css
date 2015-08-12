@@ -1,8 +1,12 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    min-height: 348px; /* fixes bug with popup auto-sizing */
+    min-height: 350px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
+#PopupAutoCompleteRichResultCliqz.cqz-popup-medium {
+    min-height: 232px;
+}
+
 
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
 
@@ -77,10 +81,14 @@
 }
 
 #cliqz-results {
-    height: 349px;
+    height: 350px;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
+}
+
+.cqz-popup-medium #cliqz-results {
+    height: 233px;
 }
 
 /* common classes */
@@ -94,15 +102,16 @@
     padding: 17px 125px 17px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    border-bottom: 1px solid #CCC;
 }
 
 #cliqz-results .transition { -moz-transition: all 0.2s ease; transition: all 0.2s ease; }
 #cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-padding { padding: 16px 20px; box-sizing: border-box; -moz-box-sizing: border-box; }
-#cliqz-results .cqz-result-h1 { height: 348px; }
-#cliqz-results .cqz-result-h2 { height: 232px; }
-#cliqz-results .cqz-result-h3 { height: 116px; }
-#cliqz-results .cqz-result-box { position: relative; border-bottom: 1px solid #CCC; }
+#cliqz-results .cqz-result-h1 { height: 351px; }
+#cliqz-results .cqz-result-h2 { height: 234px; }
+#cliqz-results .cqz-result-h3 { height: 117px; }
+#cliqz-results .cqz-result-box { position: relative; }
 #cliqz-results .cqz-result-selected {
     position: absolute;
     top: 10px;
@@ -166,8 +175,8 @@
 #cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
-#cliqz-results .cqz-ez-btns { 
-    margin: 13px 0px 0px; 
+#cliqz-results .cqz-ez-btns {
+    margin: 13px 0px 0px;
     height: 26px;
     padding-right: 60px;
 }
@@ -209,7 +218,7 @@
     color: white;
 }
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
-#cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
+#cliqz-results .ez-feedback { position: absolute; bottom: 5px; right: 10px; color: #cccccc; cursor: pointer; }
 #cliqz-results .ez-feedback:hover { text-decoration: underline; }
 #cliqz-results .cqz-link { color: #506BB8; margin-right: 10px; cursor: pointer; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
@@ -226,8 +235,8 @@
 }
 
 /* EZ generic */
-#cliqz-results .cqz-ez-title { cursor: pointer; font-size: 18px; display: block; margin-bottom: 5px; }
-#cliqz-results .cqz-ez-title a { font-size: 18px; }
+#cliqz-results .cqz-ez-title { font-size: 18px; display: block; margin-bottom: 5px; }
+#cliqz-results .cqz-ez-title a { font-size: 18px; cursor: pointer; }
 #cliqz-results .cqz-ez-title::after, #cliqz-results .cqz-ez-title .after {
     display: inline-block;
     background-size: auto 18px;
@@ -422,9 +431,9 @@
 }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
-#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
+#cliqz-results .ez-calculator .answer { font-size: 48px; margin-top: -9px; }
+#cliqz-results .ez-calculator .expression { margin: 14px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 17px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
@@ -440,13 +449,13 @@
 #cliqz-results .EZ-weather-icon { height: 26px; width: 26px; margin-left: 15px; margin-top: 13px; }
 #cliqz-results .EZ-weather-city { font-size: 18px; color: #333333; margin-top: 12px; margin-bottom: 18px; float: left; }
 #cliqz-results .EZ-weather-info-sec { height: 128px; }
-#cliqz-results .EZ-weather-container { float: left; width: 60px; margin-right: 36px; }
+#cliqz-results .EZ-weather-container { float: left; width: 75px; margin-right: 36px; }
 #cliqz-results .EZ-weather-date, #cliqz-results .EZ-weather-temp { text-align: center; }
 #cliqz-results .EZ-weather-temp span { color: #999999; margin-left: 10px; display: inline-block; vertical-align: bottom; }
 #cliqz-results .EZ-weather-img { background-position: center center; background-size: contain; height: 62px; margin: 5px 0 }
 #cliqz-results .cqz-weather-holder {
     overflow: hidden;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     max-height: 106px;
 }
 #cliqz-results .cqz-weather-holder .EZ-weather-container{
@@ -489,10 +498,9 @@
 #cliqz-results .ez-no-result .items { display: inline-block; }
 #cliqz-results .ez-no-result .cliqz-brand-logo {
     font-size: 28px;
-    margin: 0 8px;
+    margin: 0 8px 6px;
     display: inline-block;
     cursor: pointer;
-    margin-bottom: 6px;
 }
 #cliqz-results .ez-no-result .items .item-name {
     font-size: 16px;
@@ -514,6 +522,53 @@
     display: inline-block;
     background-color: #0480c3;
 }
+#cliqz-results .ez-no-result ul.cqz-suggestion-list {
+    overflow: hidden;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+    max-width: 550px;
+}
+#cliqz-results .ez-no-result .cqz-suggestion-list li.cqz-item {
+    float: left;
+    width: 20%;
+    max-width: 110px;
+    padding: 15px 0 22px;
+    text-align: center;
+    cursor: pointer;
+}
+
+#cliqz-results .ez-no-result .cqz-suggestion-list .cliqz-brand-logo {
+    display: block;
+    margin: 0 auto 7px;
+    width: 75px;
+    height: 75px;
+    line-height: 1.9em;
+    transition: all .3s ease-in-out;
+}
+
+#cliqz-results .ez-no-result .cqz-suggestion-list .cqz-item:hover .cliqz-brand-logo { transform: scale(1.1); }
+#cliqz-results  .cqz-noresult-box .cqz-ez-title { text-align: center; }
+#cliqz-results .cqz-noresult-box .cqz-ez-title:hover { text-decoration: none; }
+
+#cliqz-results .cqz-noresult-box .cqz-ez-title {
+    font-size: 14px;
+    color: #ccc;
+}
+#cliqz-results .cqz-noresult-box .cqz-ez-title:after {
+    contet: '';
+    display: block;
+    width: 230px;
+    height: 1px;
+    background: #ccc;
+    margin: 17px auto 0;
+}
+#cliqz-results .cqz-noresult-box .cliqz-logo {
+    width: auto;
+    height:17px;
+    margin-top: 0;
+}
+
 #cliqz-popup .cqz-btn-default { background-color: #506bb8; margin-right: 0 }
 #cliqz-popup .cqz-btn-success { background-color: #28ae2b; margin-right: 0 }
 #cliqz-popup .cqz-btn-error { background-color: #c3043e; }
@@ -568,3 +623,94 @@
 
 
 #cliqz-popup .cqz-message-bar.cqz-message-alert { background: #7a2354; }
+
+/*======= Time Clock =======*/
+#cliqz-popup .ez-type-time > .cqz-result-holder .answer {
+    padding-left: 50px;
+}
+
+#cliqz-popup .cqz-analog-clock {
+    float: left;
+    margin: 9px 0 0 -50px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock {
+    height: 40px;
+    width: 40px;
+    background: #fafafa;
+    border: 1px solid #333333;
+    position: relative;
+    border-radius: 50% 50%;
+    box-sizing: border-box;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-hour,
+#cliqz-popup .cqz-analog-clock .clock .hand-minute,
+#cliqz-popup .cqz-analog-clock .clock .hand-second,
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 12px;
+    height: 2px;
+    background: #333333;
+    position: absolute;
+    top: 18px;
+    left: 19px;
+    transform-origin: left;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-minute {
+    width: 17px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-second {
+    display: none;
+    width: 17px;
+    height: 1px;
+    background: #d7011d;
+}
+
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 19px;
+    height: 1px;
+    background: none
+}
+
+#cliqz-popup .cqz-analog-clock .notch div {
+    width: 2px;
+    height: 100%;
+    float: right;
+    background: #333333;
+}
+
+/*======== EZ Delivery ==========*/
+
+/*==== Delivery Image Boxes*/
+#cliqz-popup .cqz-ez-delivery .cqz-result-title { text-transform: uppercase; }
+#cliqz-popup .cqz-delivery-status-boxes-holder { overflow: hidden; margin: 20px 0 17px; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box {
+    float: left;
+    display: block;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    text-indent: -7777px;
+    margin: 0 10px 0 0;
+    border-radius: 3px;
+    background-size: 65%;
+    background-color: #eee;
+    background-position: 50% 50%;
+}
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-received { background-color: #a5c8e2; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-transported { background-color: #4ba4f6; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivery { background-color: #00c5fa; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivered { background-color: #32ebc7; }
+
+/* ==== Delivery Short Info */
+#cliqz-popup .cqz-delivery-info-status { color: #333; margin-right: 10px; }
+#cliqz-popup .cqz-delivery-info-date { color: #ccc; }
+#cliqz-popup .cqz-delivery-info-msg {
+    max-width: 600px;
+    max-height: 38px;
+    line-height: 1.4;
+    margin-top: 7px; color: #999;
+    white-space: normal;
+}

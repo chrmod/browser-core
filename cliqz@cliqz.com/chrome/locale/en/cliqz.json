@@ -65,6 +65,12 @@
     "vs":{
         "message": "vs."
     },
+    "NEXT GAME" : {
+        "message": "NEXT GAME"
+    },
+    "LAST GAME" : {
+        "message": "LAST GAME"
+    },
     "AllGames":{
         "message": "All Games"
     },
@@ -785,8 +791,8 @@
     "location_never": {
       "message": "Never. I hate awesome stuff."
     },
-    "no_cinemas_to_show": {
-      "message": "It seems like this movie is not currently playing in your area."
+    "no_local_data_msg": {
+      "message": "Sorry. It seems like we have no local details for this result around your area."
     },
     "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"

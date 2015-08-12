@@ -65,6 +65,12 @@
     "vs":{
         "message": "gegen"
     },
+    "NEXT GAME" : {
+        "message": "NÄCHSTES SPIEL"
+    },
+    "LAST GAME" : {
+        "message": "LETZTES SPIEL"
+    },
     "AllGames":{
         "message": "Ganzer Spieltag"
     },
@@ -774,8 +780,8 @@
     "location_never": {
       "message": "Nein, ich mag coole Sachen nicht."
     },
-    "no_cinemas_to_show": {
-      "message": "Leider spielt der Film in keinem Kino in Deiner Nähe"
+    "no_local_data_msg": {
+      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe."
     },
     "movies_confirm_no": {
       "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"

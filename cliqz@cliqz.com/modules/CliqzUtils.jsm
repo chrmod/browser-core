@@ -60,8 +60,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'http://newbeta.cliqz.com/api/v1/results?q=',
-  RICH_HEADER:                    'http://newbeta.cliqz.com/api/v1/rich-header?path=/map',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //
+  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -95,7 +95,8 @@ var CliqzUtils = {
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
-      'cpgame_movie': 3
+      'cpgame_movie': 3,
+      "delivery-tracking": 2
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -149,6 +150,10 @@ var CliqzUtils = {
     CliqzUtils.setOurOwnPrefs();
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+  //returns the type only if it is known
+  getKnownType: function(type){
+    return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
   },
   getLocalStorage: function(url) {
     var uri = Services.io.newURI(url,"",null),
@@ -1406,7 +1411,7 @@ var CliqzUtils = {
         return menu;
     },
 
-    createLocationPermOptions(doc) {
+    createLocationPermOptions: function(doc) {
       var menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
@@ -1428,7 +1433,6 @@ var CliqzUtils = {
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
           CliqzUtils.setLocationPermission(this.filter_level.toString());
-          CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         }, false);
 
         menupopup.appendChild(item);
@@ -1546,9 +1550,13 @@ var CliqzUtils = {
               }
           )
     },
-    updateGeoLocation: function() {
+    removeGeoLocationWatch: function() {
       var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
       CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.removeGeoLocationWatch();
 
       if (CliqzUtils.getPref('share_location') == 'yes') {
         // Get current position
@@ -1557,22 +1565,23 @@ var CliqzUtils = {
           CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
-        // Upate position if it changes
+        //Upate position if it changes
         CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
           // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CliqzUtils.getPref('share_location') == 'yes') {
+          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
             CliqzUtils.USER_LAT = p.coords.latitude;
             CliqzUtils.USER_LNG =  p.coords.longitude;
           }
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CliqzUtils.USER_LAT = null;
         CliqzUtils.USER_LNG = null;
       }
     },
-    setLocationPermission(newPerm) {
+    setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
         CliqzUtils.updateGeoLocation();
       }
     }
