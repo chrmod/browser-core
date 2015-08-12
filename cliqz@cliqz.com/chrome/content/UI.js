@@ -458,6 +458,9 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
+                if (CliqzUtils.getPref('topSitesV2', false)) {
+                  CLIQZ.Core._shouldDropdownStayOpen = false;
+                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
