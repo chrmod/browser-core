@@ -39,7 +39,6 @@ urlbar.addEventListener('keydown', function(e){
 			  dragSize: window.innerWidth,
 			  vertical: false,
 			  onPageScroll : function (scrollInfo) {
-			    console.log('onPageScroll', scrollInfo);
 			    offset = -scrollInfo.totalOffset;
 			    invalidateScroll();
 			  },

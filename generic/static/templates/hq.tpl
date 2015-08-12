@@ -30,7 +30,9 @@
     {{#if (links_or_sources data.richData) }}
         <ul class="cta" style="background-color: #999">
         {{#each (links_or_sources data.richData)}}
-            <li><a url='{{url}}' href="{{url}}" extra='sources{{ @index }}'>{{title}}</a></li>
+            {{#if (limit_images_shown @index 3)}}
+                <li><a url='{{url}}' href="{{url}}" extra='sources{{ @index }}'>{{title}}</a></li>
+            {{/if}}
         {{/each}}
         </ul>
     {{/if}}
