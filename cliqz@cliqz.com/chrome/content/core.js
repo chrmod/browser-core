@@ -619,6 +619,9 @@ window.CLIQZ.Core = {
             urlbar = CLIQZ.Core.urlbar;
 
         popup.classList.add("cqz-popup-medium");
+        if (popup.cliqzBox) {
+            popup.cliqzBox.messageContainer.innerHTML = "";
+        }
         CLIQZ.UI.redrawDropdown(
             CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
 
