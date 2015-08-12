@@ -1,4 +1,3 @@
-<div class="ez">
     
     <div class="meta">
         {{> logo}}
@@ -9,7 +8,8 @@
         {{#if data.richData.images.length}}
             <div class="main__image many">
               {{#if data.richData.map}}
-                    <div url="{{data.richData.map.search_url}}" class="main__image__many" style="background-image: url({{data.richData.map.url}})" alt="{{data.richData.map.alt_text}}">
+                <div url="{{data.richData.map.search_url}}" class="main__image__many" 
+                    style="background-image: url({{data.richData.map.url}})" alt="{{data.richData.map.alt_text}}">
                 </div>
               {{/if}}
 
@@ -23,7 +23,6 @@
             </div>
         {{/if}}
         
-        </div>
         <h1 class="main__headline"><a href="{{url}}">{{ emphasis title text 2 true }}</a></h1>
         <p class="main__content">{{ emphasis data.description text 2 true }}</p>
     </div>
@@ -36,5 +35,4 @@
         </ul>
     {{/if}}
     
-</div>
 
