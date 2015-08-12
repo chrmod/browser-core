@@ -1,4 +1,4 @@
-<div class="ez">
+
     
   <div class="meta">
       {{> logo}}
@@ -18,4 +18,3 @@
   {{/each}}
   
   {{>EZ-category}}
-</div>

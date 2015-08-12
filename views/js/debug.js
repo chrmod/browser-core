@@ -36,6 +36,7 @@ urlbar.addEventListener('keydown', function(e){
 			var offset = 0;
 			var vp = new ViewPager(resultsBox, {
 			  pages: r._results.length,
+			  dragSize: window.innerWidth,
 			  vertical: false,
 			  onPageScroll : function (scrollInfo) {
 			    console.log('onPageScroll', scrollInfo);
@@ -49,7 +50,7 @@ urlbar.addEventListener('keydown', function(e){
 			});
 
 			function invalidateScroll() {
-			  resultsBox.style['-webkit-transform'] = 'translate3d(' + (offset * w * r._results.length) + 'px, 0px, 0px)';
+			  resultsBox.style['-webkit-transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
 			}
 
 			window.addEventListener('resize', function () {
