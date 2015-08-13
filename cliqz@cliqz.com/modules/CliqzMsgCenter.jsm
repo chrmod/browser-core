@@ -35,6 +35,13 @@ var TriggerUrlbarFocus = {
 	}
 };
 
+var MessageAlert = {
+	id: 'MESSAGE_ALERT',
+	show: function (content) {
+		CliqzUtils.getWindow().alert(content);
+	}
+}
+
 var CliqzMsgCenter = {
 	_campaigns: {},
 
@@ -44,12 +51,26 @@ var CliqzMsgCenter = {
 	destroy: function () {
 		TriggerUrlbarFocus.destroy();
 	},
-	_addCampaign: function (id) {
+	retrieveCampaigns: function () {
+		// TODO: send request to endpoint
+		// TODO: add or remove campaigns
+	},
+	_addCampaign: function (id, content) {
 		CliqzMsgCenter._campaigns[id] = {
 			id: id,
 			triggerId: TriggerUrlbarFocus.id,
-			state: 'idle'
+			content: content,
+			state: {
+				current: 'idle'
+			},
+			message: MessageAlert
 		};
+		_log('added campaign ' + id);
+	},
+	_removeCampaign: function (id) {
+		// TODO: cancel all active messages
+		delete CliqzMsgCenter._campaigns[id];
+		_log('removed campaign ' + id);
 	},
 	_onTrigger: function (id) {
 		_log(id + ' triggered');
@@ -59,9 +80,13 @@ var CliqzMsgCenter = {
 		for (var cId in campaigns) {
 			if (campaigns.hasOwnProperty(cId)) {
 				if (campaigns[cId].triggerId == id) {
-					_log(cId + ' triggered');
+					CliqzMsgCenter._triggerCampaign(campaigns[cId]);
 				}
 			}
 		}
+	},
+	_triggerCampaign: function (campaign) {
+		_log('campaign ' + campaign.id + ' triggered');
+		campaign.message.show(campaign.content);
 	}
 };
