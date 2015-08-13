@@ -26,7 +26,6 @@ function _getUrlbar() {
 }
 
 function _getLocalizedMessage(message) {
-	_log(message);
 	var locale = CliqzUtils.currLocale;
 	if (locale in message) {
 		return message[locale];
@@ -55,24 +54,30 @@ Campaign.prototype.setState = function (newState) {
 };
 /* ************************************************************************* */
 
-// TODO: need to add/remove listener for each window
+/* ************************************************************************* */
 var TriggerUrlbarFocus = {
-	init: function (callback) {
-		TriggerUrlbarFocus.id = 'TRIGGER_URLBAR_FOCUS';
-		TriggerUrlbarFocus.callback = callback;
-
-		_getUrlbar().addEventListener('focus',
+	id: 'TRIGGER_URLBAR_FOCUS',
+	_listeners: [],
+	init: function (win) {
+		win.CLIQZ.Core.urlbar.addEventListener('focus',
 			TriggerUrlbarFocus._onUrlbarFocus);
 	},
-	destroy: function () {
-		_getUrlbar().removeEventListener('focus',
+	unload: function (win) {
+		win.CLIQZ.Core.urlbar.removeEventListener('focus',
 			TriggerUrlbarFocus._onUrlbarFocus);
+	},
+	addListener: function (callback) {
+		TriggerUrlbarFocus._listeners.push(callback);
 	},
 	_onUrlbarFocus: function () {
-		TriggerUrlbarFocus.callback(TriggerUrlbarFocus.id);
+		for (var i = 0; i < TriggerUrlbarFocus._listeners.length; i++) {
+			TriggerUrlbarFocus._listeners[i](TriggerUrlbarFocus.id);
+		}
 	}
 };
+/* ************************************************************************* */
 
+/* ************************************************************************* */
 var MessageHandlerAlert = {
 	id: 'MESSAGE_HANDLER_ALERT',
 	show: function (callback, campaign) {
@@ -91,9 +96,17 @@ var MessageHandlerAlert = {
 // TODO: make Singleton
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
+	_windows: [],
 	init: function (win) {
+		MessageHandlerDropdownFooter._windows.push(win);
 		win.document.getElementById('cliqz-message-container').
 			addEventListener('click',
+				MessageHandlerDropdownFooter._onClick);
+	},
+	undload: function (win) {
+		MessageHandlerDropdownFooter._windows.pop(win);
+		win.document.getElementById('cliqz-message-container').
+			removeEventListener('click',
 				MessageHandlerDropdownFooter._onClick);
 	},
 	show: function (callback, campaign) {
@@ -110,16 +123,23 @@ var MessageHandlerDropdownFooter = {
 				});
 			}
 		}
-
-		CliqzUtils.getWindow().CLIQZ.UI.messageCenterMessage = {
+		var message = {
 			'footer-message': {
           		simple_message: _getLocalizedMessage(campaign.text),
           		options: options
           	}
 		};
+
+		var windows = MessageHandlerDropdownFooter._windows;
+		for (var i = 0; i < windows.length; i++) {
+			windows[i].CLIQZ.UI.messageCenterMessage = message;
+		}
 	},
 	hide: function () {
-		CliqzUtils.getWindow().CLIQZ.UI.messageCenterMessage = null;
+		var windows = MessageHandlerDropdownFooter._windows;
+		for (var i = 0; i < windows.length; i++) {
+			windows[i].CLIQZ.UI.messageCenterMessage = null;
+		}
 		_getDropdown().hidePopup();
 	},
 	_onClick: function (e) {
@@ -128,28 +148,60 @@ var MessageHandlerDropdownFooter = {
 			MessageHandlerDropdownFooter.campaign, action);
 	}
 };
+/* ************************************************************************* */
 
 var CliqzMsgCenter = {
+	_windows: [],
 	_campaigns: {},
 	_messageHandlers: {},
+	_triggers: {},
 
-	init: function () {
-		TriggerUrlbarFocus.init(CliqzMsgCenter._onTrigger);
+	init: function (win) {
+		CliqzMsgCenter._windows.push(win);
+
+		var id;
+		for (id in CliqzMsgCenter._triggers) {
+			if (CliqzMsgCenter._triggers.hasOwnProperty(id)) {
+				CliqzMsgCenter._triggers[id].init(win);
+			}
+		}
+		for (id in CliqzMsgCenter._messageHandlers) {
+			if (CliqzMsgCenter._messageHandlers.hasOwnProperty(id)) {
+				CliqzMsgCenter._messageHandlers[id].init(win);
+			}
+		}
 		// TODO: make sure currently showing messages are shown
-		// TODO: make this compatible with multiple windows
-		MessageHandlerDropdownFooter.init(CliqzUtils.getWindow());
 		// TODO: retrieve periodically
-
-		CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
-			MessageHandlerDropdownFooter);
 	},
-	destroy: function () {
-		TriggerUrlbarFocus.destroy();
+	unload: function (win) {
+		CliqzMsgCenter._windows.pop(win);
+
+		var id;
+		for (id in CliqzMsgCenter._triggers) {
+			if (CliqzMsgCenter._triggers.hasOwnProperty(id)) {
+				CliqzMsgCenter._triggers[id].unload(win);
+			}
+		}
+		for (id in CliqzMsgCenter._messageHandlers) {
+			if (CliqzMsgCenter._messageHandlers.hasOwnProperty(id)) {
+				CliqzMsgCenter._messageHandlers[id].unload(win);
+			}
+		}
+	},
+	registerTrigger: function (id, trigger) {
+		CliqzMsgCenter._triggers[id] = trigger;
+		for (var i = 0; i < CliqzMsgCenter._windows.length; i++) {
+			trigger.init(CliqzMsgCenter._windows[i]);
+		}
+		trigger.addListener(CliqzMsgCenter._onTrigger);
 	},
 	registerMessageHandler: function (id, handler) {
 		CliqzMsgCenter._messageHandlers[id] = handler;
-		// TODO: add to all windows
+		for (var i = 0; i < CliqzMsgCenter._windows.length; i++) {
+			handler.init(CliqzMsgCenter._windows[i]);
+		}
 	},
+
 	_retrieveCampaigns: function () {
 		var endpoint = CAMPAIGN_ENDPOINT +
 			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
@@ -180,7 +232,7 @@ var CliqzMsgCenter = {
     	});
 	},
 	_addCampaign: function (id, data) {
-		var campaign= new Campaign(id);
+		var campaign = new Campaign(id);
 		for (var key in data) {
 			if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
 				campaign[key] = data[key];
@@ -207,27 +259,6 @@ var CliqzMsgCenter = {
 			}
 		}
 	},
-	_onMessageAction: function (campaign, action) {
-		_log('campaign ' + campaign.id + ': ' + action);
-		// TODO: move this to constant
-		if (ACTIONS.indexOf(action) != -1) {
-			if (campaign.limits[action] != -1 ||
-				++campaign.counts[action] == campaign.limits[action]) {
-				campaign.setState('ended');
-			} else {
-				campaign.setState('idle');
-			}
-			var handler =
-				CliqzMsgCenter._messageHandlers[campaign.handlerId];
-			if (handler) {
-				handler.hide();
-			}
-		}
-
-		if (campaign.counts.show == campaign.limits.show) {
-			campaign.setState('ended');
-		}
-	},
 	_triggerCampaign: function (campaign) {
 		// TODO: retrieve from server
 		_log('campaign ' + campaign.id + ' trigger');
@@ -249,8 +280,34 @@ var CliqzMsgCenter = {
 				}
 			}
 		}
-	}
+	},
+	_onMessageAction: function (campaign, action) {
+		_log('campaign ' + campaign.id + ': ' + action);
+		// TODO: move this to constant
+		if (ACTIONS.indexOf(action) != -1) {
+			if (campaign.limits[action] != -1 ||
+				++campaign.counts[action] == campaign.limits[action]) {
+				campaign.setState('ended');
+			} else {
+				campaign.setState('idle');
+			}
+			var handler =
+				CliqzMsgCenter._messageHandlers[campaign.handlerId];
+			if (handler) {
+				handler.hide();
+			}
+		}
+
+		if (campaign.counts.show == campaign.limits.show) {
+			campaign.setState('ended');
+		}
+	},
 };
+
+CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
+	TriggerUrlbarFocus);
+CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
+	MessageHandlerDropdownFooter);
 
 
 
