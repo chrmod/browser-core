@@ -55,31 +55,38 @@ Campaign.prototype.setState = function (newState) {
 /* ************************************************************************* */
 
 /* ************************************************************************* */
-var TriggerUrlbarFocus = {
-	id: 'TRIGGER_URLBAR_FOCUS',
-	_listeners: [],
-	init: function (win) {
-		win.CLIQZ.Core.urlbar.addEventListener('focus',
-			TriggerUrlbarFocus._onUrlbarFocus);
-	},
-	unload: function (win) {
-		win.CLIQZ.Core.urlbar.removeEventListener('focus',
-			TriggerUrlbarFocus._onUrlbarFocus);
-	},
-	addListener: function (callback) {
-		TriggerUrlbarFocus._listeners.push(callback);
-	},
-	_onUrlbarFocus: function () {
-		for (var i = 0; i < TriggerUrlbarFocus._listeners.length; i++) {
-			TriggerUrlbarFocus._listeners[i](TriggerUrlbarFocus.id);
-		}
+var Trigger = function (id) {
+	this.id = id;
+	this._listeners = [];
+};
+Trigger.prototype.addListener = function(callback) {
+	this._listeners.push(callback);
+};
+Trigger.prototype._notifyListeners = function () {
+	for (var i = 0; i < this._listeners.length; i++) {
+		this._listeners[i](this.id);
 	}
+};
+
+var TriggerUrlbarFocus = new Trigger('TRIGGER_URLBAR_FOCUS');
+TriggerUrlbarFocus.init = function (win) {
+	win.CLIQZ.Core.urlbar.addEventListener('focus',
+		this._onUrlbarFocus.bind(this));
+};
+TriggerUrlbarFocus.unload = function (win) {
+	win.CLIQZ.Core.urlbar.removeEventListener('focus',
+		this._onUrlbarFocus);
+};
+TriggerUrlbarFocus._onUrlbarFocus = function () {
+	this._notifyListeners();
 };
 /* ************************************************************************* */
 
 /* ************************************************************************* */
 var MessageHandlerAlert = {
 	id: 'MESSAGE_HANDLER_ALERT',
+	init: function (win) { },
+	undload: function (win) { },
 	show: function (callback, campaign) {
 		// TODO: allow for multiple compaigns using the same handler
 		//       (callback will be overwritten when calling show)
