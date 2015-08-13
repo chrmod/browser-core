@@ -126,34 +126,39 @@ var CliqzMsgCenter = {
 		var endpoint = CAMPAIGN_ENDPOINT +
 			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
 
-    	_log(endpoint);
 		CliqzUtils.httpGet(endpoint, function success(req) {
     		try {
-    			_log(req.response);
-        		var campaigns = JSON.parse(req.response).campaigns;
-        		for (var i = 0; i < campaigns.length; i++) {
-        			_log(campaigns[i]);
-					// TODO: add or remove campaigns
+        		var clientCampaigns = CliqzMsgCenter._campaigns,
+        		    serverCampaigns = JSON.parse(req.response).campaigns,
+        		    cId;
+
+        		for (cId in serverCampaigns) {
+        			if (serverCampaigns.hasOwnProperty(cId) &&
+        			    !(cId in clientCampaigns)) {
+        				CliqzMsgCenter._addCampaign(cId, serverCampaigns[cId]);
+        			}
+        		}
+        		for (cId in clientCampaigns) {
+        			if (clientCampaigns.hasOwnProperty(cId) &&
+        				!(cId in serverCampaigns)) {
+        				CliqzMsgCenter._removeCampaign(cId);
+        			}
         		}
     		} catch (e) {
     			_log('error parsing campaigns: ' + e);
     		}
-    	}, function onerror(e) {
+    	}, function error(e) {
     		_log('error retrieving campaigns: ' + e);
     	});
 	},
-	_addCampaign: function (id, content) {
-		CliqzMsgCenter._campaigns[id] = new Campaign(id);
-		CliqzMsgCenter._campaigns[id].limits = {
-			trigger: 2,
-			show: 2,
-			confirm: 2,
-			ignore: -1,
-			discard: 1
-		};
-		CliqzMsgCenter._campaigns[id].triggerId = TriggerUrlbarFocus.id;
-		CliqzMsgCenter._campaigns[id].messageHandler = MessageHandlerDropdownFooter;
-		CliqzMsgCenter._campaigns[id].content = content;
+	_addCampaign: function (id, data) {
+		var campaign= new Campaign(id);
+		for (var key in data) {
+			if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
+				campaign[key] = data[key];
+			}
+		}
+		CliqzMsgCenter._campaigns[id] = campaign;
 		_log('added campaign ' + id);
 	},
 	_removeCampaign: function (id) {
