@@ -10,7 +10,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CAMPAIGN_ENDPOINT = 'http://10.10.21.80/message/?session=',
+var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'];
 
 function _log(msg) {
@@ -25,12 +25,28 @@ function _getUrlbar() {
 	return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
 
+function _getLocalizedMessage(message) {
+	_log(message);
+	var locale = CliqzUtils.currLocale;
+	if (locale in message) {
+		return message[locale];
+	}
+	// return value of first key
+	if (message) {
+		for (var key in message) {
+			return message[key];
+		}
+	}
+	return 'no_message';
+}
+
 /* ************************************************************************* */
 var Campaign = function (id) {
 	this.id = id;
 	this.state = 'idle';
 	this.isEnabled = true;
-	this.counts = {trigger: 0, show: 0, confirm: 0, ignore: 0, discard: 0};
+	this.counts = {trigger: 0, show: 0, confirm: 0,
+		           postpone: 0, ignore: 0, discard: 0};
 };
 
 Campaign.prototype.setState = function (newState) {
@@ -84,18 +100,21 @@ var MessageHandlerDropdownFooter = {
 		MessageHandlerDropdownFooter.callback = callback;
 		MessageHandlerDropdownFooter.campaign = campaign;
 
+		var options = [];
+		for (var action in campaign.actions) {
+			if (campaign.actions.hasOwnProperty(action)) {
+				options.push({
+					action: action,
+					text: _getLocalizedMessage(campaign.actions[action].label),
+					state: action.style
+				});
+			}
+		}
+
 		CliqzUtils.getWindow().CLIQZ.UI.messageCenterMessage = {
 			'footer-message': {
-          		simple_message: campaign.content,
-          		options: [{
-	            	text: 'confirm',
-	              	action: 'confirm',
-	              	state: 'default'
-	            }, {
-	            	text: 'discard',
-	              	action: 'discard',
-	              	state: 'gray'
-	            }]
+          		simple_message: _getLocalizedMessage(campaign.text),
+          		options: options
           	}
 		};
 	},
@@ -112,17 +131,26 @@ var MessageHandlerDropdownFooter = {
 
 var CliqzMsgCenter = {
 	_campaigns: {},
+	_messageHandlers: {},
 
 	init: function () {
 		TriggerUrlbarFocus.init(CliqzMsgCenter._onTrigger);
 		// TODO: make sure currently showing messages are shown
 		// TODO: make this compatible with multiple windows
 		MessageHandlerDropdownFooter.init(CliqzUtils.getWindow());
+		// TODO: retrieve periodically
+
+		CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
+			MessageHandlerDropdownFooter);
 	},
 	destroy: function () {
 		TriggerUrlbarFocus.destroy();
 	},
-	retrieveCampaigns: function () {
+	registerMessageHandler: function (id, handler) {
+		CliqzMsgCenter._messageHandlers[id] = handler;
+		// TODO: add to all windows
+	},
+	_retrieveCampaigns: function () {
 		var endpoint = CAMPAIGN_ENDPOINT +
 			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
 
@@ -183,13 +211,17 @@ var CliqzMsgCenter = {
 		_log('campaign ' + campaign.id + ': ' + action);
 		// TODO: move this to constant
 		if (ACTIONS.indexOf(action) != -1) {
-			if (campaign.limits[action] == -1 ||
+			if (campaign.limits[action] != -1 ||
 				++campaign.counts[action] == campaign.limits[action]) {
 				campaign.setState('ended');
 			} else {
 				campaign.setState('idle');
 			}
-			campaign.messageHandler.hide();
+			var handler =
+				CliqzMsgCenter._messageHandlers[campaign.handlerId];
+			if (handler) {
+				handler.hide();
+			}
 		}
 
 		if (campaign.counts.show == campaign.limits.show) {
@@ -197,6 +229,7 @@ var CliqzMsgCenter = {
 		}
 	},
 	_triggerCampaign: function (campaign) {
+		// TODO: retrieve from server
 		_log('campaign ' + campaign.id + ' trigger');
 		if (campaign.isEnabled && campaign.state == 'idle') {
 			if (++campaign.counts.trigger == campaign.limits.trigger) {
@@ -205,8 +238,12 @@ var CliqzMsgCenter = {
 					campaign.setState('showing');
 					campaign.counts.trigger = 0;
 
-					campaign.messageHandler.show(
-						CliqzMsgCenter._onMessageAction, campaign);
+					var handler =
+						CliqzMsgCenter._messageHandlers[campaign.handlerId];
+					if (handler) {
+						handler.show(
+							CliqzMsgCenter._onMessageAction, campaign);
+					}
 				} else {
 					campaign.setState('ended');
 				}
