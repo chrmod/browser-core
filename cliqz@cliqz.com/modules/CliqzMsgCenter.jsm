@@ -71,14 +71,14 @@ Trigger.prototype._notifyListeners = function () {
 var TriggerUrlbarFocus = new Trigger('TRIGGER_URLBAR_FOCUS');
 TriggerUrlbarFocus.init = function (win) {
 	win.CLIQZ.Core.urlbar.addEventListener('focus',
-		this._onUrlbarFocus.bind(this));
+		this._onUrlbarFocus);
 };
 TriggerUrlbarFocus.unload = function (win) {
 	win.CLIQZ.Core.urlbar.removeEventListener('focus',
 		this._onUrlbarFocus);
 };
 TriggerUrlbarFocus._onUrlbarFocus = function () {
-	this._notifyListeners();
+	TriggerUrlbarFocus._notifyListeners();
 };
 /* ************************************************************************* */
 
