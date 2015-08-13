@@ -10,6 +10,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+var CAMPAIGN_ENDPOINT = 'http://10.10.21.80/message/?session=',
+	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'];
+
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzMsgCenter');
 }
@@ -22,6 +25,21 @@ function _getUrlbar() {
 	return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
 
+/* ************************************************************************* */
+var Campaign = function (id) {
+	this.id = id;
+	this.state = 'idle';
+	this.isEnabled = true;
+	this.counts = {trigger: 0, show: 0, confirm: 0, ignore: 0, discard: 0};
+};
+
+Campaign.prototype.setState = function (newState) {
+	_log(this.id + ': ' + this.state + ' -> ' + newState);
+	this.state = newState;
+};
+/* ************************************************************************* */
+
+// TODO: need to add/remove listener for each window
 var TriggerUrlbarFocus = {
 	init: function (callback) {
 		TriggerUrlbarFocus.id = 'TRIGGER_URLBAR_FOCUS';
@@ -49,7 +67,7 @@ var MessageHandlerAlert = {
 		MessageHandlerAlert.campaign = campaign;
 
 		CliqzUtils.getWindow().alert(campaign.content);
-		callback(campaign, 'confirmed');
+		callback(campaign, 'confirm');
 	},
 	hide: function () { }
 };
@@ -71,12 +89,12 @@ var MessageHandlerDropdownFooter = {
           		simple_message: campaign.content,
           		options: [{
 	            	text: 'confirm',
-	              	action: 'confirmed',
+	              	action: 'confirm',
 	              	state: 'default'
 	            }, {
 	            	text: 'discard',
-	              	action: 'discarded',
-	              	state: 'default'
+	              	action: 'discard',
+	              	state: 'gray'
 	            }]
           	}
 		};
@@ -105,36 +123,37 @@ var CliqzMsgCenter = {
 		TriggerUrlbarFocus.destroy();
 	},
 	retrieveCampaigns: function () {
-		// TODO: send request to endpoint
-		// TODO: add or remove campaigns
+		var endpoint = CAMPAIGN_ENDPOINT +
+			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
+
+    	_log(endpoint);
+		CliqzUtils.httpGet(endpoint, function success(req) {
+    		try {
+    			_log(req.response);
+        		var campaigns = JSON.parse(req.response).campaigns;
+        		for (var i = 0; i < campaigns.length; i++) {
+        			_log(campaigns[i]);
+					// TODO: add or remove campaigns
+        		}
+    		} catch (e) {
+    			_log('error parsing campaigns: ' + e);
+    		}
+    	}, function onerror(e) {
+    		_log('error retrieving campaigns: ' + e);
+    	});
 	},
 	_addCampaign: function (id, content) {
-		CliqzMsgCenter._campaigns[id] = {
-			id: id,
-			triggerId: TriggerUrlbarFocus.id,
-			content: content,
-			isEnabled: true,
-			limits: {
-				triggered: 2,
-				shown: 2,
-				confirmed: 2,
-				ignored: -1,
-				discarded: 1
-			},
-			counts: {
-				triggered: 0,
-				shown: 0,
-				confirmed: 0,
-				ignored: 0,
-				discarded: 0
-			},
-			state: 'idle',
-			setState: function (newState) {
-				_log(id + ': ' + this.state + ' -> ' + newState);
-				this.state = newState;
-			},
-			messageHandler: MessageHandlerDropdownFooter
+		CliqzMsgCenter._campaigns[id] = new Campaign(id);
+		CliqzMsgCenter._campaigns[id].limits = {
+			trigger: 2,
+			show: 2,
+			confirm: 2,
+			ignore: -1,
+			discard: 1
 		};
+		CliqzMsgCenter._campaigns[id].triggerId = TriggerUrlbarFocus.id;
+		CliqzMsgCenter._campaigns[id].messageHandler = MessageHandlerDropdownFooter;
+		CliqzMsgCenter._campaigns[id].content = content;
 		_log('added campaign ' + id);
 	},
 	_removeCampaign: function (id) {
@@ -143,7 +162,7 @@ var CliqzMsgCenter = {
 		_log('removed campaign ' + id);
 	},
 	_onTrigger: function (id) {
-		_log(id + ' triggered');
+		_log(id + ' trigger');
 
 		// find all campaigns for this trigger
 		var campaigns = CliqzMsgCenter._campaigns;
@@ -157,7 +176,8 @@ var CliqzMsgCenter = {
 	},
 	_onMessageAction: function (campaign, action) {
 		_log('campaign ' + campaign.id + ': ' + action);
-		if (['confirmed', 'ignored', 'discarded'].indexOf(action) != -1) {
+		// TODO: move this to constant
+		if (ACTIONS.indexOf(action) != -1) {
 			if (campaign.limits[action] == -1 ||
 				++campaign.counts[action] == campaign.limits[action]) {
 				campaign.setState('ended');
@@ -166,16 +186,19 @@ var CliqzMsgCenter = {
 			}
 			campaign.messageHandler.hide();
 		}
-		// TODO: check for shown limit
+
+		if (campaign.counts.show == campaign.limits.show) {
+			campaign.setState('ended');
+		}
 	},
 	_triggerCampaign: function (campaign) {
-		_log('campaign ' + campaign.id + ' triggered');
+		_log('campaign ' + campaign.id + ' trigger');
 		if (campaign.isEnabled && campaign.state == 'idle') {
-			if (++campaign.counts.triggered == campaign.limits.triggered) {
-				if (campaign.limits.shown == -1 ||
-					++campaign.counts.shown <= campaign.limits.shown) {
+			if (++campaign.counts.trigger == campaign.limits.trigger) {
+				if (campaign.limits.show == -1 ||
+					++campaign.counts.show <= campaign.limits.show) {
 					campaign.setState('showing');
-					campaign.counts.triggered = 0;
+					campaign.counts.trigger = 0;
 
 					campaign.messageHandler.show(
 						CliqzMsgCenter._onMessageAction, campaign);
