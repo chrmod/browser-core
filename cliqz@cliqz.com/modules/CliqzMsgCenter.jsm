@@ -14,6 +14,10 @@ function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzMsgCenter');
 }
 
+function _getDropdown() {
+	return CliqzUtils.getWindow().CLIQZ.Core.popup;
+}
+
 function _getUrlbar() {
 	return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
 }
@@ -35,18 +39,67 @@ var TriggerUrlbarFocus = {
 	}
 };
 
-var MessageAlert = {
-	id: 'MESSAGE_ALERT',
-	show: function (content) {
-		CliqzUtils.getWindow().alert(content);
+var MessageHandlerAlert = {
+	id: 'MESSAGE_HANDLER_ALERT',
+	show: function (callback, campaign) {
+		// TODO: allow for multiple compaigns using the same handler
+		//       (callback will be overwritten when calling show)
+		//		or make sure this is a Singleton
+		MessageHandlerAlert.callback = callback;
+		MessageHandlerAlert.campaign = campaign;
+
+		CliqzUtils.getWindow().alert(campaign.content);
+		callback(campaign, 'confirmed');
+	},
+	hide: function () { }
+};
+
+// TODO: make Singleton
+var MessageHandlerDropdownFooter = {
+	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
+	init: function (win) {
+		win.document.getElementById('cliqz-message-container').
+			addEventListener('click',
+				MessageHandlerDropdownFooter._onClick);
+	},
+	show: function (callback, campaign) {
+		MessageHandlerDropdownFooter.callback = callback;
+		MessageHandlerDropdownFooter.campaign = campaign;
+
+		CliqzUtils.getWindow().CLIQZ.UI.messageCenterMessage = {
+			'footer-message': {
+          		simple_message: campaign.content,
+          		options: [{
+	            	text: 'confirm',
+	              	action: 'confirmed',
+	              	state: 'default'
+	            }, {
+	            	text: 'discard',
+	              	action: 'discarded',
+	              	state: 'default'
+	            }]
+          	}
+		};
+	},
+	hide: function () {
+		CliqzUtils.getWindow().CLIQZ.UI.messageCenterMessage = null;
+		_getDropdown().hidePopup();
+	},
+	_onClick: function (e) {
+		var action = e.target ? e.target.getAttribute('state') : null;
+		MessageHandlerDropdownFooter.callback(
+			MessageHandlerDropdownFooter.campaign, action);
 	}
-}
+};
 
 var CliqzMsgCenter = {
 	_campaigns: {},
 
 	init: function () {
 		TriggerUrlbarFocus.init(CliqzMsgCenter._onTrigger);
+		// TODO: make sure currently showing messages are shown
+		// TODO: make this compatible with multiple windows
+		MessageHandlerDropdownFooter.init(CliqzUtils.getWindow());
 	},
 	destroy: function () {
 		TriggerUrlbarFocus.destroy();
@@ -60,10 +113,27 @@ var CliqzMsgCenter = {
 			id: id,
 			triggerId: TriggerUrlbarFocus.id,
 			content: content,
-			state: {
-				current: 'idle'
+			isEnabled: true,
+			limits: {
+				triggered: 2,
+				shown: 2,
+				confirmed: 2,
+				ignored: -1,
+				discarded: 1
 			},
-			message: MessageAlert
+			counts: {
+				triggered: 0,
+				shown: 0,
+				confirmed: 0,
+				ignored: 0,
+				discarded: 0
+			},
+			state: 'idle',
+			setState: function (newState) {
+				_log(id + ': ' + this.state + ' -> ' + newState);
+				this.state = newState;
+			},
+			messageHandler: MessageHandlerDropdownFooter
 		};
 		_log('added campaign ' + id);
 	},
@@ -85,8 +155,44 @@ var CliqzMsgCenter = {
 			}
 		}
 	},
+	_onMessageAction: function (campaign, action) {
+		_log('campaign ' + campaign.id + ': ' + action);
+		if (['confirmed', 'ignored', 'discarded'].indexOf(action) != -1) {
+			if (campaign.limits[action] == -1 ||
+				++campaign.counts[action] == campaign.limits[action]) {
+				campaign.setState('ended');
+			} else {
+				campaign.setState('idle');
+			}
+			campaign.messageHandler.hide();
+		}
+		// TODO: check for shown limit
+	},
 	_triggerCampaign: function (campaign) {
 		_log('campaign ' + campaign.id + ' triggered');
-		campaign.message.show(campaign.content);
+		if (campaign.isEnabled && campaign.state == 'idle') {
+			if (++campaign.counts.triggered == campaign.limits.triggered) {
+				if (campaign.limits.shown == -1 ||
+					++campaign.counts.shown <= campaign.limits.shown) {
+					campaign.setState('showing');
+					campaign.counts.triggered = 0;
+
+					campaign.messageHandler.show(
+						CliqzMsgCenter._onMessageAction, campaign);
+				} else {
+					campaign.setState('ended');
+				}
+			}
+		}
 	}
 };
+
+
+
+
+
+
+
+
+
+
