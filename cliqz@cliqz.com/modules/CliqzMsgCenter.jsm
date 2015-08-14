@@ -154,12 +154,12 @@ MessageHandler.prototype.enqueueMessage = function (message, callback) {
 MessageHandler.prototype.dequeueMessage = function (message) {
 	var i = this._messageQueue.indexOf(message);
 	if (i === 0) {
-		this.nextMessage();
+		this.showNextMessage();
 	} else if (i > -1) {
 		this._messageQueue.splice(i, 1);
 	}
 };
-MessageHandler.prototype.nextMessage = function () {
+MessageHandler.prototype.showNextMessage = function () {
 	var message = this._messageQueue.shift();
 	if (message) {
 		this._removeMessage(message);
@@ -237,7 +237,7 @@ MessageHandlerDropdownFooter._onClick = function (e) {
 	if (message && message.callback) {
 		message.callback(message.id, action);
 	}
-	MessageHandlerDropdownFooter.nextMessage();
+	MessageHandlerDropdownFooter.showNextMessage();
 };
 
 var MessageHandlerAlert =
@@ -249,7 +249,7 @@ MessageHandlerAlert._renderMessage = function (message) {
 		message.callback(message.id, message.options &&
 			message.options.length > 0 && message.options[0].action);
 	}
-	this.nextMessage();
+	this.showNextMessage();
 };
 MessageHandlerAlert._removeMessage = function () { };
 // {
