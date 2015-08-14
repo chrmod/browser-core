@@ -10,11 +10,18 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=',
+// TODO: send locale and get rid of client-side localization
+var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=', // &lang=de
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
 	UPDATE_INTERVAL = 1 * 60 * 1000;
 
+// TODO: parse responds, don't pull otherwise
+// http://10.10.22.75/message/show?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
+// http://10.10.22.75/message/click?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
+// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
+
+/* ************************************************************************* */
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzMsgCenter');
 }
@@ -48,6 +55,7 @@ function _getLocalizedMessage(message) {
 	}
 	return 'no_message';
 }
+/* ************************************************************************* */
 
 /* ************************************************************************* */
 var Campaign = function (id, data) {
@@ -122,7 +130,7 @@ TriggerUrlbarFocus._onUrlbarFocus = function () {
 var MessageHandlerAlert = {
 	id: 'MESSAGE_HANDLER_ALERT',
 	init: function (win) { },
-	undload: function (win) { },
+	unload: function (win) { },
 	show: function (callback, campaign) {
 		// TODO: allow for multiple compaigns using the same handler
 		//       (callback will be overwritten when calling show)
@@ -142,8 +150,7 @@ var MessageHandlerAlert = {
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
 	_windows: [],
-	_currentMessage: null,
-	// TODO: show in all new windows
+	_messageQueue: [],
 	init: function (win) {
 		MessageHandlerDropdownFooter._windows.push(win);
 		// message container does not exist yet, wait for popup
@@ -154,7 +161,7 @@ var MessageHandlerDropdownFooter = {
 				MessageHandlerDropdownFooter._currentMessage;
 		}
 	},
-	undload: function (win) {
+	unload: function (win) {
 		var i = MessageHandlerDropdownFooter._windows.indexOf(win);
 		if (i > -1) {
 			MessageHandlerDropdownFooter._windows =
@@ -167,39 +174,59 @@ var MessageHandlerDropdownFooter = {
 			removeEventListener('click',
 				MessageHandlerDropdownFooter._onClick);
 	},
-	show: function (callback, campaign) {
-		MessageHandlerDropdownFooter.callback = callback;
-		MessageHandlerDropdownFooter.campaign = campaign;
-
-		var options = [];
-		for (var action in campaign.actions) {
-			if (campaign.actions.hasOwnProperty(action)) {
-				options.push({
-					action: action,
-					text: _getLocalizedMessage(campaign.actions[action].label),
-					state: action.style
-				});
+	// addListener: function (callback)
+	// _notifyListeners: function ()
+	// show: function (message, callback)
+	// hide: function (message)
+	// constructMessage(campaign)
+	_showNext: function () {
+		var message = MessageHandlerDropdownFooter._messageQueue[0];
+		if (message) {
+			var windows = MessageHandlerDropdownFooter._windows;
+			for (var i = 0; i < windows.length; i++) {
+				MessageHandlerDropdownFooter._insertMessage(message);
 			}
 		}
-		MessageHandlerDropdownFooter._currentMessage = {
-			'footer-message': {
-          		simple_message: _getLocalizedMessage(campaign.text),
-          		options: options
-          	}
-		};
-
-		var windows = MessageHandlerDropdownFooter._windows;
-		for (var i = 0; i < windows.length; i++) {
-			windows[i].CLIQZ.UI.messageCenterMessage =
-				MessageHandlerDropdownFooter._currentMessage;
-		}
 	},
-	hide: function () {
-		var windows = MessageHandlerDropdownFooter._windows;
-		for (var i = 0; i < windows.length; i++) {
-			windows[i].CLIQZ.UI.messageCenterMessage = null;
+	_hideCurrent: function () {
+		var message = MessageHandlerDropdownFooter._messageQueue.shift();
+		if (message) {
+			MessageHandlerDropdownFooter._insertMessage(null);
 		}
 		_getDropdown().hidePopup();
+	},
+	_insertMessage: function (message) {
+		var windows = MessageHandlerDropdownFooter._windows;
+		for (var i = 0; i < windows.length; i++) {
+			windows[i].CLIQZ.UI.messageCenterMessage = message;
+		}
+	},
+	add: function (message, callback) {
+		MessageHandlerDropdownFooter._messageQueue.push(message);
+
+		if (MessageHandlerDropdownFooter._messageQueue.length == 1) {
+			MessageHandlerDropdownFooter._showNext();
+		}
+
+		// var options = [];
+		// for (var action in campaign.actions) {
+		// 	if (campaign.actions.hasOwnProperty(action)) {
+		// 		options.push({
+		// 			action: action,
+		// 			text: _getLocalizedMessage(campaign.actions[action].label),
+		// 			state: action.style
+		// 		});
+		// 	}
+		// }
+		// MessageHandlerDropdownFooter._currentMessage = {
+		// 	'footer-message': {
+		// 		simple_message: _getLocalizedMessage(campaign.text),
+		// 		options: options
+  //         	}
+		// };
+	},
+	hide: function (message) {
+
 	},
 	// adds click listener to message container when popup shows for first time
 	_addClickListener: function (e) {
@@ -214,8 +241,10 @@ var MessageHandlerDropdownFooter = {
 	},
 	_onClick: function (e) {
 		var action = e.target ? e.target.getAttribute('state') : null;
-		MessageHandlerDropdownFooter.callback(
-			MessageHandlerDropdownFooter.campaign, action);
+		MessageHandlerDropdownFooter._hideCurrent();
+		MessageHandlerDropdownFooter._showNext();
+		// MessageHandlerDropdownFooter.callback(
+		// 	MessageHandlerDropdownFooter.campaign, action);
 	}
 };
 /* ************************************************************************* */
