@@ -161,10 +161,16 @@ MessageHandler.prototype.dequeueMessage = function (message) {
 	}
 };
 MessageHandler.prototype.showMessage = function () {
-	_log('_showMessage not implemented');
+	var message = this._messageQueue[0];
+	if (message) {
+		this._renderMessage(message);
+	}
 };
 MessageHandler.prototype.discardMessage = function () {
-	_log('_showMessage not implemented');
+	var message = this._messageQueue.shift();
+	if (message) {
+		this._removeMessage(message);
+	}
 };
 
 var MessageHandlerDropdownFooter =
@@ -181,7 +187,7 @@ MessageHandlerDropdownFooter.init = function (win) {
 	win.CLIQZ.Core.popup.addEventListener('popupshowing',
 		this._addClickListener);
 	if (this._messageQueue[0]) {
-		this._injectMessage(this._messageQueue[0], win);
+		this._renderMessage(this._messageQueue[0], win);
 	}
 };
 MessageHandlerDropdownFooter.unload = function (win) {
@@ -192,28 +198,19 @@ MessageHandlerDropdownFooter.unload = function (win) {
 	win.document.getElementById('cliqz-message-container').
 		removeEventListener('click', this._onClick);
 };
-MessageHandlerDropdownFooter.showMessage = function () {
-	var message = this._messageQueue[0];
-	if (message) {
-		this._injectMessage(message);
-	}
-};
-MessageHandlerDropdownFooter.discardMessage = function () {
-	var message = this._messageQueue.shift();
-	if (message) {
-		this._injectMessage(null);
-	}
-	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
-};
-MessageHandlerDropdownFooter._injectMessage = function (message, win) {
+MessageHandlerDropdownFooter._renderMessage = function (message, win) {
 	if (win) {
 		win.CLIQZ.UI.messageCenterMessage =
 			message ? this._packageMessage(message) : null;
 	} else {
 		this._windows.map(function (w) {
-			if (w) { this._injectMessage(message, w); }
+			if (w) { this._renderMessage(message, w); }
 		}.bind(this));
 	}
+};
+MessageHandlerDropdownFooter._removeMessage = function (message) {
+	this._renderMessage(null);
+	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
 };
 MessageHandlerDropdownFooter._packageMessage = function (message) {
 	message.simple_message = message.text;
@@ -248,22 +245,33 @@ MessageHandlerDropdownFooter._onClick = function (e) {
 	MessageHandlerDropdownFooter.showMessage();
 };
 
-var MessageHandlerAlert = {
-	id: 'MESSAGE_HANDLER_ALERT',
-	init: function (win) { },
-	unload: function (win) { },
-	show: function (callback, campaign) {
-		// TODO: allow for multiple compaigns using the same handler
-		//       (callback will be overwritten when calling show)
-		//		or make sure this is a Singleton
-		MessageHandlerAlert.callback = callback;
-		MessageHandlerAlert.campaign = campaign;
-
-		CliqzUtils.getWindow().alert(campaign.content);
-		callback(campaign, 'confirm');
-	},
-	hide: function () { }
+var MessageHandlerAlert =
+	new MessageHandler('MESSAGE_HANDLER_ALERT');
+MessageHandlerAlert._renderMessage = function (message) {
+	// TODO: wait for window to open
+	CliqzUtils.getWindow().alert(message.text);
+	if (message.callback) {
+		message.callback(message.id, message.options &&
+			message.options.length > 0 && message.options[0].action);
+	}
+	this.discardMessage();
+	this.showMessage();
 };
+MessageHandlerAlert._removeMessage = function () { };
+// {
+// 	id: 'MESSAGE_HANDLER_ALERT',
+// 	show: function (callback, campaign) {
+// 		// TODO: allow for multiple compaigns using the same handler
+// 		//       (callback will be overwritten when calling show)
+// 		//		or make sure this is a Singleton
+// 		MessageHandlerAlert.callback = callback;
+// 		MessageHandlerAlert.campaign = campaign;
+
+// 		CliqzUtils.getWindow().alert(campaign.content);
+// 		callback(campaign, 'confirm');
+// 	},
+// 	hide: function () { }
+// };
 
 /* ************************************************************************* */
 
@@ -476,6 +484,8 @@ CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
 CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
 	MessageHandlerDropdownFooter);
+CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
+	MessageHandlerAlert);
 
 CliqzMsgCenter._loadCampaigns();
 CliqzMsgCenter._activateCampaignUpdates();
