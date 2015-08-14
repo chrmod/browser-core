@@ -400,13 +400,7 @@ var CliqzMsgCenter = {
 				if (campaign.load()) {
 					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
 					if (campaign.state == 'showing') {
-						var handler =
-							CliqzMsgCenter._messageHandlers[campaign.handlerId];
-						if (handler) {
-							handler.enqueueMessage(
-								campaign.getMessage(),
-								CliqzMsgCenter._onMessageAction);
-						}
+						CliqzMsgCenter._showCampaign(campaign);
 					}
 				} else {
 					campaign.delete();
@@ -447,19 +441,21 @@ var CliqzMsgCenter = {
 					++campaign.counts.show <= campaign.limits.show) {
 					campaign.setState('showing');
 					campaign.counts.trigger = 0;
-
-					var handler =
-						CliqzMsgCenter._messageHandlers[campaign.handlerId];
-					if (handler) {
-						handler.enqueueMessage(
-							campaign.getMessage(),
-							CliqzMsgCenter._onMessageAction);
-					}
+					CliqzMsgCenter._showCampaign(campaign);
 				} else {
 					campaign.setState('ended');
 				}
 			}
 			campaign.save();
+		}
+	},
+	_showCampaign: function (campaign) {
+		var handler =
+			CliqzMsgCenter._messageHandlers[campaign.handlerId];
+		if (handler) {
+			handler.enqueueMessage(
+				campaign.getMessage(),
+				CliqzMsgCenter._onMessageAction);
 		}
 	},
 	// TODO: rename showing->show, ended->end
