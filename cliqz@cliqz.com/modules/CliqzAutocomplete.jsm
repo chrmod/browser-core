@@ -112,9 +112,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
         }catch(e){}
     },
     getResultsOrder: function(results){
-        return results.map(function(r){
-            return r.data.kind;
-        });
+        return CliqzAutocomplete.prepareResultOrder(results);
     },
     // SOURCE: https://developer.mozilla.org/en-US/docs/How_to_implement_custom_autocomplete_search_component
     ProviderAutoCompleteResultCliqz: function(searchString, searchResult,
@@ -415,11 +413,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
-                    var country = "";
                     var json = JSON.parse(req.response);
                     results = json.result || [];
 
-                    country = json.country;
                     this.cliqzResultsExtra = []
 
                     if(json.images && json.images.results && json.images.results.length >0){
@@ -450,8 +446,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                         // filter results with no or empty url
                         return r.url != undefined && r.url != '';
                     });
-
-                    this.cliqzCountry = country;
                 }
                 this.pushResults(q);
             },
@@ -551,7 +545,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
-                this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.instant = [];
@@ -607,7 +600,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    this.cliqzCountry = "";
                     this.customResults = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
@@ -651,8 +643,6 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
                   action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
-                if(this.cliqzResults)
-                    action.country = obj.cliqzCountry
 
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
@@ -673,8 +663,7 @@ var CliqzAutocomplete = CliqzAutocomplete || {
 
             // Wrap up after a completed search
             fullWrapup: function(obj) {
-
-                obj.sendResultsSignal(obj, true);
+                obj.sendResultsSignal(obj, false);
 
                 obj.startTime = null;
                 obj.resultsTimer = null;
@@ -686,9 +675,9 @@ var CliqzAutocomplete = CliqzAutocomplete || {
                 obj.instant = [];
             },
 
-            // Wrapup after instant results are shown
+            // Wrap up after instant results are shown
             instantWrapup: function(obj) {
-                obj.sendResultsSignal(obj, false);
+                obj.sendResultsSignal(obj, true);
             }
         }
     }
