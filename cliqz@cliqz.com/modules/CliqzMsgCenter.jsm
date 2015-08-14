@@ -31,6 +31,10 @@ function _getPref(pref, defaultVal) {
 	return CliqzUtils.getPref(PREF_PREFIX + pref, defaultVal);
 }
 
+function _clearPref(pref) {
+	CliqzUtils.cliqzPrefs.clearUserPref(PREF_PREFIX + pref);
+}
+
 function _getLocalizedMessage(message) {
 	var locale = CliqzUtils.currLocale;
 	if (locale in message) {
@@ -71,8 +75,17 @@ Campaign.prototype.save = function () {
 	_log('saved campaign ' + this.id);
 };
 Campaign.prototype.load = function () {
-	this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
-	_log('loaded campaign ' + this.id);
+	try {
+		this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
+		_log('loaded campaign ' + this.id);
+		return true;
+	} catch (e) {
+		_log('error loading campaign ' + this.id);
+		return false;
+	}
+};
+Campaign.prototype.delete = function () {
+	_clearPref('campaigns.data.' + this.id);
 };
 /* ************************************************************************* */
 
@@ -316,15 +329,24 @@ var CliqzMsgCenter = {
 	},
 	_removeCampaign: function (id) {
 		// TODO: cancel all active messages
+		CliqzMsgCenter._campaigns[id].delete();
 		delete CliqzMsgCenter._campaigns[id];
 		_log('removed campaign ' + id);
 	},
 	_loadCampaigns: function () {
 		_log('loading campaigns');
-		var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
-		for (var i = 0; i < cIds.length; i++) {
-			CliqzMsgCenter._campaigns[cIds[i]] = new Campaign(cIds[i]);
-			CliqzMsgCenter._campaigns[cIds[i]].load();
+		try {
+			var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
+			for (var i = 0; i < cIds.length; i++) {
+				var campaign = new Campaign(cIds[i]);
+				if (campaign.load()) {
+					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
+				} else {
+					campaign.delete();
+				}
+			}
+		} catch (e) {
+			_log('error loading campaigns');
 		}
 	},
 	_saveCampaigns: function () {
