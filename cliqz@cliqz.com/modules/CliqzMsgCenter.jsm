@@ -28,11 +28,7 @@ function _setPref(pref, val) {
 }
 
 function _getPref(pref, defaultVal) {
-	var val = CliqzUtils.getPref(PREF_PREFIX + val, null);
-	if (!val && defaultVal) {
-		_setPref(pref, defaultVal);
-	}
-	return val || defaultVal;
+	return CliqzUtils.getPref(PREF_PREFIX + pref, defaultVal);
 }
 
 function _getLocalizedMessage(message) {
@@ -59,7 +55,6 @@ var Campaign = function (id, data) {
 
 	this.update(data);
 };
-
 Campaign.prototype.update = function (data) {
 	for (var key in data) {
 		if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
@@ -67,10 +62,17 @@ Campaign.prototype.update = function (data) {
 		}
 	}
 };
-
 Campaign.prototype.setState = function (newState) {
 	_log(this.id + ': ' + this.state + ' -> ' + newState);
 	this.state = newState;
+};
+Campaign.prototype.save = function () {
+	_setPref('campaigns.data.' + this.id, JSON.stringify(this));
+	_log('saved campaign ' + this.id);
+};
+Campaign.prototype.load = function () {
+	this.update(JSON.parse(_getPref('campaigns.data.' + this.id, '{}')));
+	_log('loaded campaign ' + this.id);
 };
 /* ************************************************************************* */
 
@@ -300,6 +302,7 @@ var CliqzMsgCenter = {
         				CliqzMsgCenter._removeCampaign(cId);
         			}
         		}
+        		CliqzMsgCenter._saveCampaigns();
     		} catch (e) {
     			_log('error parsing campaigns: ' + e);
     		}
@@ -315,6 +318,24 @@ var CliqzMsgCenter = {
 		// TODO: cancel all active messages
 		delete CliqzMsgCenter._campaigns[id];
 		_log('removed campaign ' + id);
+	},
+	_loadCampaigns: function () {
+		_log('loading campaigns');
+		var cIds = JSON.parse(_getPref('campaigns.ids', '[]'));
+		for (var i = 0; i < cIds.length; i++) {
+			CliqzMsgCenter._campaigns[cIds[i]] = new Campaign(cIds[i]);
+			CliqzMsgCenter._campaigns[cIds[i]].load();
+		}
+	},
+	_saveCampaigns: function () {
+		_log('saving campaigns');
+		_setPref('campaigns.ids',
+			JSON.stringify(Object.keys(CliqzMsgCenter._campaigns)));
+		for (var cId in CliqzMsgCenter._campaigns) {
+			if (CliqzMsgCenter._campaigns.hasOwnProperty(cId)) {
+				CliqzMsgCenter._campaigns[cId].save();
+			}
+		}
 	},
 	_onTrigger: function (id) {
 		_log(id + ' trigger');
@@ -348,11 +369,11 @@ var CliqzMsgCenter = {
 					campaign.setState('ended');
 				}
 			}
+			campaign.save();
 		}
 	},
 	_onMessageAction: function (campaign, action) {
 		_log('campaign ' + campaign.id + ': ' + action);
-		// TODO: move this to constant
 		if (ACTIONS.indexOf(action) != -1) {
 			if (campaign.limits[action] != -1 ||
 				++campaign.counts[action] == campaign.limits[action]) {
@@ -370,9 +391,11 @@ var CliqzMsgCenter = {
 		if (campaign.counts.show == campaign.limits.show) {
 			campaign.setState('ended');
 		}
+		campaign.save();
 	},
 };
 
+CliqzMsgCenter._loadCampaigns();
 CliqzMsgCenter._activateCampaignUpdates();
 CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
