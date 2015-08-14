@@ -164,8 +164,7 @@ var MessageHandlerDropdownFooter = {
 	unload: function (win) {
 		var i = MessageHandlerDropdownFooter._windows.indexOf(win);
 		if (i > -1) {
-			MessageHandlerDropdownFooter._windows =
-				MessageHandlerDropdownFooter._windows.splice(i, 1);
+			MessageHandlerDropdownFooter._windows.splice(i, 1);
 		}
 		// usually removed on popup showing, but not if window closed before
 		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
@@ -225,8 +224,14 @@ var MessageHandlerDropdownFooter = {
   //         	}
 		// };
 	},
-	hide: function (message) {
-
+	remove: function (message) {
+		var i = MessageHandlerDropdownFooter._messageQueue.indexOf(message);
+		if (i === 0) {
+			MessageHandlerDropdownFooter._hideCurrent();
+			MessageHandlerDropdownFooter._showNext();
+		} else if (i > -1) {
+			MessageHandlerDropdownFooter._messageQueue.splice(i, 1);
+		}
 	},
 	// adds click listener to message container when popup shows for first time
 	_addClickListener: function (e) {
@@ -276,8 +281,7 @@ var CliqzMsgCenter = {
 	unload: function (win) {
 		var i = CliqzMsgCenter._windows.indexOf(win);
 		if (i > -1) {
-			CliqzMsgCenter._windows =
-				CliqzMsgCenter._windows.splice(i, 1);
+			CliqzMsgCenter._windows.splice(i, 1);
 		}
 
 		var id;
