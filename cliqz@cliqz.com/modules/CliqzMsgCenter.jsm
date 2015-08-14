@@ -328,7 +328,8 @@ var CliqzMsgCenter = {
 	_updateCampaigns: function () {
 		_log('updating campaigns');
 		var endpoint = CAMPAIGN_ENDPOINT +
-			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
+			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')) +
+			'&lang=' + encodeURIComponent(CliqzUtils.currLocale);
 
 		CliqzUtils.httpGet(endpoint, function success(req) {
     		try {
