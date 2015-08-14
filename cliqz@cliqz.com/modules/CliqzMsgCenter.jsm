@@ -130,7 +130,11 @@ var MessageHandlerDropdownFooter = {
 		}
 	},
 	undload: function (win) {
-		MessageHandlerDropdownFooter._windows.pop(win);
+		var i = MessageHandlerDropdownFooter._windows.indexOf(win);
+		if (i > -1) {
+			MessageHandlerDropdownFooter._windows =
+				MessageHandlerDropdownFooter._windows.splice(i, 1);
+		}
 		// usually removed on popup showing, but not if window closed before
 		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
 			MessageHandlerDropdownFooter._addClickListener);
@@ -216,7 +220,11 @@ var CliqzMsgCenter = {
 		// TODO: retrieve periodically
 	},
 	unload: function (win) {
-		CliqzMsgCenter._windows.pop(win);
+		var i = CliqzMsgCenter._windows.indexOf(win);
+		if (i > -1) {
+			CliqzMsgCenter._windows =
+				CliqzMsgCenter._windows.splice(i, 1);
+		}
 
 		var id;
 		for (id in CliqzMsgCenter._triggers) {
