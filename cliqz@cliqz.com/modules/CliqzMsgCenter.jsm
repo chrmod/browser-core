@@ -148,28 +148,24 @@ MessageHandler.prototype.enqueueMessage = function (message, callback) {
 	message.callback = callback;
 	this._messageQueue.push(message);
 	if (this._messageQueue.length == 1) {
-		this.showMessage();
+		this._renderMessage(message);
 	}
 };
 MessageHandler.prototype.dequeueMessage = function (message) {
 	var i = this._messageQueue.indexOf(message);
 	if (i === 0) {
-		this.discardMessage();
-		this.showMessage();
+		this.nextMessage();
 	} else if (i > -1) {
 		this._messageQueue.splice(i, 1);
 	}
 };
-MessageHandler.prototype.showMessage = function () {
-	var message = this._messageQueue[0];
-	if (message) {
-		this._renderMessage(message);
-	}
-};
-MessageHandler.prototype.discardMessage = function () {
+MessageHandler.prototype.nextMessage = function () {
 	var message = this._messageQueue.shift();
 	if (message) {
 		this._removeMessage(message);
+		if (this._messageQueue.length > 0) {
+			this._renderMessage(this._messageQueue[0]);
+		}
 	}
 };
 
@@ -241,8 +237,7 @@ MessageHandlerDropdownFooter._onClick = function (e) {
 	if (message && message.callback) {
 		message.callback(message.id, action);
 	}
-	MessageHandlerDropdownFooter.discardMessage();
-	MessageHandlerDropdownFooter.showMessage();
+	MessageHandlerDropdownFooter.nextMessage();
 };
 
 var MessageHandlerAlert =
@@ -254,8 +249,7 @@ MessageHandlerAlert._renderMessage = function (message) {
 		message.callback(message.id, message.options &&
 			message.options.length > 0 && message.options[0].action);
 	}
-	this.discardMessage();
-	this.showMessage();
+	this.nextMessage();
 };
 MessageHandlerAlert._removeMessage = function () { };
 // {
