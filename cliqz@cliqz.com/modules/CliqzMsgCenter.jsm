@@ -117,14 +117,18 @@ var MessageHandlerAlert = {
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
 	_windows: [],
+	// TODO: show in all new windows
 	init: function (win) {
 		MessageHandlerDropdownFooter._windows.push(win);
-		win.document.getElementById('cliqz-message-container').
-			addEventListener('click',
-				MessageHandlerDropdownFooter._onClick);
+		// message container does not exist yet, wait for popup
+		win.CLIQZ.Core.popup.addEventListener('popupshowing',
+			MessageHandlerDropdownFooter._addClickListener);
 	},
 	undload: function (win) {
 		MessageHandlerDropdownFooter._windows.pop(win);
+		// usually removed on popup showing, but not if window closed before
+		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
+			MessageHandlerDropdownFooter._addClickListener);
 		win.document.getElementById('cliqz-message-container').
 			removeEventListener('click',
 				MessageHandlerDropdownFooter._onClick);
@@ -161,6 +165,17 @@ var MessageHandlerDropdownFooter = {
 			windows[i].CLIQZ.UI.messageCenterMessage = null;
 		}
 		_getDropdown().hidePopup();
+	},
+	// adds click listener to message container when popup shows for first time
+	_addClickListener: function (e) {
+		var popup = e.target,
+			win = popup.parentNode.parentNode.parentNode;
+
+		win.getElementById('cliqz-message-container').
+			addEventListener('click',
+				MessageHandlerDropdownFooter._onClick);
+		popup.removeEventListener('popupshowing',
+			MessageHandlerDropdownFooter._addClickListener);
 	},
 	_onClick: function (e) {
 		var action = e.target ? e.target.getAttribute('state') : null;
