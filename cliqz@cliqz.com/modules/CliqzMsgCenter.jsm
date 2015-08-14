@@ -11,7 +11,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
 var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=',
-	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'];
+	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
+	PREF_PREFIX = 'msgs.',
+	UPDATE_INTERVAL = 1 * 60 * 1000;
 
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzMsgCenter');
@@ -21,8 +23,16 @@ function _getDropdown() {
 	return CliqzUtils.getWindow().CLIQZ.Core.popup;
 }
 
-function _getUrlbar() {
-	return CliqzUtils.getWindow().CLIQZ.Core.urlbar;
+function _setPref(pref, val) {
+	CliqzUtils.setPref(PREF_PREFIX + pref, val);
+}
+
+function _getPref(pref, defaultVal) {
+	var val = CliqzUtils.getPref(PREF_PREFIX + val, null);
+	if (!val && defaultVal) {
+		_setPref(pref, defaultVal);
+	}
+	return val || defaultVal;
 }
 
 function _getLocalizedMessage(message) {
@@ -68,6 +78,7 @@ Trigger.prototype._notifyListeners = function () {
 	}
 };
 
+// Singleton
 var TriggerUrlbarFocus = new Trigger('TRIGGER_URLBAR_FOCUS');
 TriggerUrlbarFocus.init = function (win) {
 	win.CLIQZ.Core.urlbar.addEventListener('focus',
@@ -101,6 +112,8 @@ var MessageHandlerAlert = {
 };
 
 // TODO: make Singleton
+// TODO: allow for queuing messages
+// TODO: allow for sending messages without campaigns
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
 	_windows: [],
@@ -162,6 +175,7 @@ var CliqzMsgCenter = {
 	_campaigns: {},
 	_messageHandlers: {},
 	_triggers: {},
+	_updateTimer: null,
 
 	init: function (win) {
 		CliqzMsgCenter._windows.push(win);
@@ -209,7 +223,21 @@ var CliqzMsgCenter = {
 		}
 	},
 
-	_retrieveCampaigns: function () {
+	_activateCampaignUpdates: function () {
+		if (!CliqzMsgCenter._updateTimer) {
+			CliqzMsgCenter._updateTimer = CliqzUtils.setInterval(function () {
+				if (CliqzMsgCenter) {
+					CliqzMsgCenter._updateCampaigns();
+				}
+			}, UPDATE_INTERVAL);
+		}
+	},
+	_deactivateCampaignUpdates: function () {
+		CliqzUtils.clearTimeout(CliqzMsgCenter._updateTimer);
+		CliqzMsgCenter._updateTimer = null;
+	},
+	_updateCampaigns: function () {
+		_log('updating campaings');
 		var endpoint = CAMPAIGN_ENDPOINT +
 			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
 
@@ -231,11 +259,13 @@ var CliqzMsgCenter = {
         				CliqzMsgCenter._removeCampaign(cId);
         			}
         		}
+
+        		_setPref('lastCampaignUpdate', Date.now().toString());
     		} catch (e) {
     			_log('error parsing campaigns: ' + e);
     		}
     	}, function error(e) {
-    		_log('error retrieving campaigns: ' + e);
+    		_log('error updating campaigns: ' + e);
     	});
 	},
 	_addCampaign: function (id, data) {
@@ -267,7 +297,6 @@ var CliqzMsgCenter = {
 		}
 	},
 	_triggerCampaign: function (campaign) {
-		// TODO: retrieve from server
 		_log('campaign ' + campaign.id + ' trigger');
 		if (campaign.isEnabled && campaign.state == 'idle') {
 			if (++campaign.counts.trigger == campaign.limits.trigger) {
