@@ -44,20 +44,6 @@ function _getPref(pref, defaultVal) {
 function _clearPref(pref) {
 	CliqzUtils.cliqzPrefs.clearUserPref(PREF_PREFIX + pref);
 }
-
-function _getLocalizedMessage(message) {
-	var locale = CliqzUtils.currLocale;
-	if (locale in message) {
-		return message[locale];
-	}
-	// return value of first key
-	if (message) {
-		for (var key in message) {
-			return message[key];
-		}
-	}
-	return 'no_message';
-}
 /* ************************************************************************* */
 
 /* ************************************************************************* */
@@ -178,8 +164,8 @@ var MessageHandlerDropdownFooter = {
 		win.CLIQZ.Core.popup.addEventListener('popupshowing',
 			MessageHandlerDropdownFooter._addClickListener);
 		if (MessageHandlerDropdownFooter._messageQueue[0]) {
-			MessageHandlerDropdownFooter._injectMessage(win,
-				MessageHandlerDropdownFooter._messageQueue[0]);
+			MessageHandlerDropdownFooter._injectMessage(
+				MessageHandlerDropdownFooter._messageQueue[0], win);
 		}
 	},
 	unload: function (win) {
@@ -194,64 +180,64 @@ var MessageHandlerDropdownFooter = {
 			removeEventListener('click',
 				MessageHandlerDropdownFooter._onClick);
 	},
-	// addListener: function (callback)
-	// _notifyListeners: function ()
-	// constructMessage(campaign)
-	_showNext: function () {
-		var message = MessageHandlerDropdownFooter._messageQueue[0];
-		if (message) {
-			var windows = MessageHandlerDropdownFooter._windows;
-			for (var i = 0; i < windows.length; i++) {
-				MessageHandlerDropdownFooter._insertMessage(message);
-			}
-		}
-	},
-	_hideCurrent: function () {
-		var message = MessageHandlerDropdownFooter._messageQueue.shift();
-		if (message) {
-			MessageHandlerDropdownFooter._insertMessage(null);
-		}
-		_getDropdown().hidePopup();
-	},
-	_insertMessage: function (message) {
-		var windows = MessageHandlerDropdownFooter._windows;
-		for (var i = 0; i < windows.length; i++) {
-			windows[i].CLIQZ.UI.messageCenterMessage = !message ? null :
-				MessageHandlerDropdownFooter._packageMessage(message);
-		}
-	},
-	_injectMessage: function (win, message) {
-		win.CLIQZ.UI.messageCenterMessage = !message ? null :
-			MessageHandlerDropdownFooter._packageMessage(message);
-	},
 	enqueueMessage: function (message, callback) {
 		message.callback = callback;
 		MessageHandlerDropdownFooter._messageQueue.push(message);
-
 		if (MessageHandlerDropdownFooter._messageQueue.length == 1) {
-			MessageHandlerDropdownFooter._showNext();
+			MessageHandlerDropdownFooter._showMessage();
 		}
 	},
 	dequeueMessage: function (message) {
 		var i = MessageHandlerDropdownFooter._messageQueue.indexOf(message);
 		if (i === 0) {
-			MessageHandlerDropdownFooter._hideCurrent();
-			MessageHandlerDropdownFooter._showNext();
+			MessageHandlerDropdownFooter._discardMessage();
+			MessageHandlerDropdownFooter._showMessage();
 		} else if (i > -1) {
 			MessageHandlerDropdownFooter._messageQueue.splice(i, 1);
+		}
+	},
+	_showMessage: function () {
+		var message = MessageHandlerDropdownFooter._messageQueue[0];
+		if (message) {
+			var windows = MessageHandlerDropdownFooter._windows;
+			for (var i = 0; i < windows.length; i++) {
+				MessageHandlerDropdownFooter._injectMessage(message);
+			}
+		}
+	},
+	_discardMessage: function () {
+		var message = MessageHandlerDropdownFooter._messageQueue.shift();
+		if (message) {
+			MessageHandlerDropdownFooter._injectMessage(null);
+		}
+		_getDropdown().hidePopup();
+	},
+	_injectMessage: function (message, win) {
+		if (win) {
+			win.CLIQZ.UI.messageCenterMessage = !message ? null :
+				MessageHandlerDropdownFooter._packageMessage(message);
+		} else {
+			var windows = MessageHandlerDropdownFooter._windows;
+			for (var i = 0; i < windows.length; i++) {
+				if (windows[i]) {
+					MessageHandlerDropdownFooter._injectMessage(
+						message, windows[i]);
+				}
+			}
 		}
 	},
 	_packageMessage: function (message) {
 		message.simple_message = message.text;
 		delete message.text;
 
-		for (var i = 0; i < message.options.length; i++) {
-			message.options[i].state = message.options[i].style;
-			delete message.options[i].style;
+		if (message.options) {
+			for (var i = 0; i < message.options.length; i++) {
+				message.options[i].state = message.options[i].style;
+				delete message.options[i].style;
+			}
 		}
 		return {'footer-message': message};
 	},
-	// adds click listener to message container when popup shows for first time
 	_addClickListener: function (e) {
 		var popup = e.target,
 			win = popup.parentNode.parentNode.parentNode;
@@ -272,8 +258,8 @@ var MessageHandlerDropdownFooter = {
 			message.callback(message.id, action);
 		}
 
-		MessageHandlerDropdownFooter._hideCurrent();
-		MessageHandlerDropdownFooter._showNext();
+		MessageHandlerDropdownFooter._discardMessage();
+		MessageHandlerDropdownFooter._showMessage();
 	}
 };
 /* ************************************************************************* */
@@ -453,9 +439,10 @@ var CliqzMsgCenter = {
 		var handler =
 			CliqzMsgCenter._messageHandlers[campaign.handlerId];
 		if (handler) {
-			handler.enqueueMessage(
-				campaign.getMessage(),
+			handler.enqueueMessage(campaign.getMessage(),
 				CliqzMsgCenter._onMessageAction);
+		} else {
+			_log('message handler not found: ' + campaign.handlerId);
 		}
 	},
 	// TODO: rename showing->show, ended->end
