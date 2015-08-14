@@ -80,24 +80,6 @@ Campaign.prototype.load = function () {
 Campaign.prototype.delete = function () {
 	_clearPref('campaigns.data.' + this.id);
 };
-// TODO: remove after server update
-Campaign.prototype.getMessage = function () {
-	var message = {
-		id: this.id,
-		text: this.text,
-		options: []
-	};
-	for (var a in this.actions) {
-		if (this.actions.hasOwnProperty(a)) {
-			message.options.push({
-				action: a,
-				text: this.actions[a].label,
-				style: this.actions[a].style
-			});
-		}
-	}
-	return message;
-};
 /* ************************************************************************* */
 
 /* ************************************************************************* */
@@ -144,6 +126,7 @@ MessageHandler.prototype.unload = function (win) {
 		this._windows.splice(i, 1);
 	}
 };
+// TODO: make sure message has ID (from campaign)
 MessageHandler.prototype.enqueueMessage = function (message, callback) {
 	message.callback = callback;
 	this._messageQueue.push(message);
@@ -208,6 +191,7 @@ MessageHandlerDropdownFooter._removeMessage = function (message) {
 	this._renderMessage(null);
 	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
 };
+// TODO: clone message
 MessageHandlerDropdownFooter._packageMessage = function (message) {
 	message.simple_message = message.text;
 	delete message.text;
@@ -252,21 +236,6 @@ MessageHandlerAlert._renderMessage = function (message) {
 	this.showNextMessage();
 };
 MessageHandlerAlert._removeMessage = function () { };
-// {
-// 	id: 'MESSAGE_HANDLER_ALERT',
-// 	show: function (callback, campaign) {
-// 		// TODO: allow for multiple compaigns using the same handler
-// 		//       (callback will be overwritten when calling show)
-// 		//		or make sure this is a Singleton
-// 		MessageHandlerAlert.callback = callback;
-// 		MessageHandlerAlert.campaign = campaign;
-
-// 		CliqzUtils.getWindow().alert(campaign.content);
-// 		callback(campaign, 'confirm');
-// 	},
-// 	hide: function () { }
-// };
-
 /* ************************************************************************* */
 
 var CliqzMsgCenter = {
@@ -290,8 +259,6 @@ var CliqzMsgCenter = {
 				CliqzMsgCenter._messageHandlers[id].init(win);
 			}
 		}
-		// TODO: make sure currently showing messages are shown
-		// TODO: retrieve periodically
 	},
 	unload: function (win) {
 		var i = CliqzMsgCenter._windows.indexOf(win);
@@ -377,8 +344,12 @@ var CliqzMsgCenter = {
 		_log('added campaign ' + id);
 	},
 	_removeCampaign: function (id) {
-		// TODO: cancel all active messages
-		CliqzMsgCenter._campaigns[id].delete();
+		var campaign = CliqzMsgCenter._campaigns[id],
+			handler = CliqzMsgCenter._messageHandlers[campaign.handlerId];
+		if (handler) {
+			handler.dequeueMessage(campaign.message);
+		}
+		campaign.delete();
 		delete CliqzMsgCenter._campaigns[id];
 		_log('removed campaign ' + id);
 	},
@@ -444,7 +415,7 @@ var CliqzMsgCenter = {
 		var handler =
 			CliqzMsgCenter._messageHandlers[campaign.handlerId];
 		if (handler) {
-			handler.enqueueMessage(campaign.getMessage(),
+			handler.enqueueMessage(campaign.message,
 				CliqzMsgCenter._onMessageAction);
 		} else {
 			_log('message handler not found: ' + campaign.handlerId);
