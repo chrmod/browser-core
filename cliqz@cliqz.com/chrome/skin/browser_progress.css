@@ -126,7 +126,7 @@
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
-#cliqz-results .cqz-rd-h3 {width: calc(100% - 90px)}
+#cliqz-results .cqz-rd-h3 {width: 100%}
 #cliqz-results .cqz-rd-h3img-div {height: 76px; float:left; margin-right: 20px; max-width: 50px}
 #cliqz-results .cqz-rhh3-snipet-txt {max-width: 700px;}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; margin-bottom: 0px; max-width: 500px;}
