@@ -117,12 +117,17 @@ var MessageHandlerAlert = {
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
 	_windows: [],
+	_currentMessage: null,
 	// TODO: show in all new windows
 	init: function (win) {
 		MessageHandlerDropdownFooter._windows.push(win);
 		// message container does not exist yet, wait for popup
 		win.CLIQZ.Core.popup.addEventListener('popupshowing',
 			MessageHandlerDropdownFooter._addClickListener);
+		if (MessageHandlerDropdownFooter._currentMessage) {
+			win.CLIQZ.UI.messageCenterMessage =
+				MessageHandlerDropdownFooter._currentMessage;
+		}
 	},
 	undload: function (win) {
 		MessageHandlerDropdownFooter._windows.pop(win);
@@ -147,7 +152,7 @@ var MessageHandlerDropdownFooter = {
 				});
 			}
 		}
-		var message = {
+		MessageHandlerDropdownFooter._currentMessage = {
 			'footer-message': {
           		simple_message: _getLocalizedMessage(campaign.text),
           		options: options
@@ -156,7 +161,8 @@ var MessageHandlerDropdownFooter = {
 
 		var windows = MessageHandlerDropdownFooter._windows;
 		for (var i = 0; i < windows.length; i++) {
-			windows[i].CLIQZ.UI.messageCenterMessage = message;
+			windows[i].CLIQZ.UI.messageCenterMessage =
+				MessageHandlerDropdownFooter._currentMessage;
 		}
 	},
 	hide: function () {
@@ -240,6 +246,8 @@ var CliqzMsgCenter = {
 
 	_activateCampaignUpdates: function () {
 		if (!CliqzMsgCenter._updateTimer) {
+			// run once now
+			CliqzMsgCenter._updateCampaigns();
 			CliqzMsgCenter._updateTimer = CliqzUtils.setInterval(function () {
 				if (CliqzMsgCenter) {
 					CliqzMsgCenter._updateCampaigns();
@@ -252,7 +260,7 @@ var CliqzMsgCenter = {
 		CliqzMsgCenter._updateTimer = null;
 	},
 	_updateCampaigns: function () {
-		_log('updating campaings');
+		_log('updating campaigns');
 		var endpoint = CAMPAIGN_ENDPOINT +
 			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session'));
 
@@ -274,8 +282,6 @@ var CliqzMsgCenter = {
         				CliqzMsgCenter._removeCampaign(cId);
         			}
         		}
-
-        		_setPref('lastCampaignUpdate', Date.now().toString());
     		} catch (e) {
     			_log('error parsing campaigns: ' + e);
     		}
@@ -355,6 +361,7 @@ var CliqzMsgCenter = {
 	},
 };
 
+CliqzMsgCenter._activateCampaignUpdates();
 CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
 CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
