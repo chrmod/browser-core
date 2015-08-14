@@ -50,12 +50,22 @@ function _getLocalizedMessage(message) {
 }
 
 /* ************************************************************************* */
-var Campaign = function (id) {
+var Campaign = function (id, data) {
 	this.id = id;
 	this.state = 'idle';
 	this.isEnabled = true;
 	this.counts = {trigger: 0, show: 0, confirm: 0,
 		           postpone: 0, ignore: 0, discard: 0};
+
+	this.update(data);
+};
+
+Campaign.prototype.update = function (data) {
+	for (var key in data) {
+		if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
+			this[key] = data[key];
+		}
+	}
 };
 
 Campaign.prototype.setState = function (newState) {
@@ -298,13 +308,7 @@ var CliqzMsgCenter = {
     	});
 	},
 	_addCampaign: function (id, data) {
-		var campaign = new Campaign(id);
-		for (var key in data) {
-			if (data.hasOwnProperty(key) && !key.startsWith('DEBUG')) {
-				campaign[key] = data[key];
-			}
-		}
-		CliqzMsgCenter._campaigns[id] = campaign;
+		CliqzMsgCenter._campaigns[id] = new Campaign(id, data);
 		_log('added campaign ' + id);
 	},
 	_removeCampaign: function (id) {
