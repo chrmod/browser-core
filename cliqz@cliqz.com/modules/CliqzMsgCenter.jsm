@@ -21,6 +21,9 @@ var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=', // &lang=de
 // http://10.10.22.75/message/click?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
 // http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
 
+// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001&lang=en
+// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001&lang=de
+
 /* ************************************************************************* */
 function _log(msg) {
 	CliqzUtils.log(msg, 'CliqzMsgCenter');
@@ -95,6 +98,24 @@ Campaign.prototype.load = function () {
 Campaign.prototype.delete = function () {
 	_clearPref('campaigns.data.' + this.id);
 };
+// TODO: remove after server update
+Campaign.prototype.getMessage = function () {
+	var message = {
+		id: this.id,
+		text: this.text,
+		options: []
+	};
+	for (var a in this.actions) {
+		if (this.actions.hasOwnProperty(a)) {
+			message.options.push({
+				action: a,
+				text: this.actions[a].label,
+				style: this.actions[a].style
+			});
+		}
+	}
+	return message;
+};
 /* ************************************************************************* */
 
 /* ************************************************************************* */
@@ -145,20 +166,20 @@ var MessageHandlerAlert = {
 };
 
 // TODO: make Singleton
-// TODO: allow for queuing messages
 // TODO: allow for sending messages without campaigns
 var MessageHandlerDropdownFooter = {
 	id: 'MESSAGE_HANDLER_DROPDOWN_FOOTER',
 	_windows: [],
 	_messageQueue: [],
+
 	init: function (win) {
 		MessageHandlerDropdownFooter._windows.push(win);
 		// message container does not exist yet, wait for popup
 		win.CLIQZ.Core.popup.addEventListener('popupshowing',
 			MessageHandlerDropdownFooter._addClickListener);
-		if (MessageHandlerDropdownFooter._currentMessage) {
-			win.CLIQZ.UI.messageCenterMessage =
-				MessageHandlerDropdownFooter._currentMessage;
+		if (MessageHandlerDropdownFooter._messageQueue[0]) {
+			MessageHandlerDropdownFooter._injectMessage(win,
+				MessageHandlerDropdownFooter._messageQueue[0]);
 		}
 	},
 	unload: function (win) {
@@ -175,8 +196,6 @@ var MessageHandlerDropdownFooter = {
 	},
 	// addListener: function (callback)
 	// _notifyListeners: function ()
-	// show: function (message, callback)
-	// hide: function (message)
 	// constructMessage(campaign)
 	_showNext: function () {
 		var message = MessageHandlerDropdownFooter._messageQueue[0];
@@ -197,34 +216,23 @@ var MessageHandlerDropdownFooter = {
 	_insertMessage: function (message) {
 		var windows = MessageHandlerDropdownFooter._windows;
 		for (var i = 0; i < windows.length; i++) {
-			windows[i].CLIQZ.UI.messageCenterMessage = message;
+			windows[i].CLIQZ.UI.messageCenterMessage = !message ? null :
+				MessageHandlerDropdownFooter._packageMessage(message);
 		}
 	},
-	add: function (message, callback) {
+	_injectMessage: function (win, message) {
+		win.CLIQZ.UI.messageCenterMessage = !message ? null :
+			MessageHandlerDropdownFooter._packageMessage(message);
+	},
+	enqueueMessage: function (message, callback) {
+		message.callback = callback;
 		MessageHandlerDropdownFooter._messageQueue.push(message);
 
 		if (MessageHandlerDropdownFooter._messageQueue.length == 1) {
 			MessageHandlerDropdownFooter._showNext();
 		}
-
-		// var options = [];
-		// for (var action in campaign.actions) {
-		// 	if (campaign.actions.hasOwnProperty(action)) {
-		// 		options.push({
-		// 			action: action,
-		// 			text: _getLocalizedMessage(campaign.actions[action].label),
-		// 			state: action.style
-		// 		});
-		// 	}
-		// }
-		// MessageHandlerDropdownFooter._currentMessage = {
-		// 	'footer-message': {
-		// 		simple_message: _getLocalizedMessage(campaign.text),
-		// 		options: options
-  //         	}
-		// };
 	},
-	remove: function (message) {
+	dequeueMessage: function (message) {
 		var i = MessageHandlerDropdownFooter._messageQueue.indexOf(message);
 		if (i === 0) {
 			MessageHandlerDropdownFooter._hideCurrent();
@@ -232,6 +240,16 @@ var MessageHandlerDropdownFooter = {
 		} else if (i > -1) {
 			MessageHandlerDropdownFooter._messageQueue.splice(i, 1);
 		}
+	},
+	_packageMessage: function (message) {
+		message.simple_message = message.text;
+		delete message.text;
+
+		for (var i = 0; i < message.options.length; i++) {
+			message.options[i].state = message.options[i].style;
+			delete message.options[i].style;
+		}
+		return {'footer-message': message};
 	},
 	// adds click listener to message container when popup shows for first time
 	_addClickListener: function (e) {
@@ -245,11 +263,17 @@ var MessageHandlerDropdownFooter = {
 			MessageHandlerDropdownFooter._addClickListener);
 	},
 	_onClick: function (e) {
-		var action = e.target ? e.target.getAttribute('state') : null;
+		var action = e.target ? e.target.getAttribute('state') : null,
+		    message = MessageHandlerDropdownFooter._messageQueue[0];
+
+		// not thread-safe: if current message is removed while it is showing,
+		// the next message is used when invoking the callback
+		if (message && message.callback) {
+			message.callback(message.id, action);
+		}
+
 		MessageHandlerDropdownFooter._hideCurrent();
 		MessageHandlerDropdownFooter._showNext();
-		// MessageHandlerDropdownFooter.callback(
-		// 	MessageHandlerDropdownFooter.campaign, action);
 	}
 };
 /* ************************************************************************* */
@@ -375,12 +399,21 @@ var CliqzMsgCenter = {
 				var campaign = new Campaign(cIds[i]);
 				if (campaign.load()) {
 					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
+					if (campaign.state == 'showing') {
+						var handler =
+							CliqzMsgCenter._messageHandlers[campaign.handlerId];
+						if (handler) {
+							handler.enqueueMessage(
+								campaign.getMessage(),
+								CliqzMsgCenter._onMessageAction);
+						}
+					}
 				} else {
 					campaign.delete();
 				}
 			}
 		} catch (e) {
-			_log('error loading campaigns');
+			_log('error loading campaigns: ' + e);
 		}
 	},
 	_saveCampaigns: function () {
@@ -418,8 +451,9 @@ var CliqzMsgCenter = {
 					var handler =
 						CliqzMsgCenter._messageHandlers[campaign.handlerId];
 					if (handler) {
-						handler.show(
-							CliqzMsgCenter._onMessageAction, campaign);
+						handler.enqueueMessage(
+							campaign.getMessage(),
+							CliqzMsgCenter._onMessageAction);
 					}
 				} else {
 					campaign.setState('ended');
@@ -428,36 +462,37 @@ var CliqzMsgCenter = {
 			campaign.save();
 		}
 	},
-	_onMessageAction: function (campaign, action) {
-		_log('campaign ' + campaign.id + ': ' + action);
-		if (ACTIONS.indexOf(action) != -1) {
-			if (campaign.limits[action] != -1 ||
-				++campaign.counts[action] == campaign.limits[action]) {
-				campaign.setState('ended');
-			} else {
-				campaign.setState('idle');
+	// TODO: rename showing->show, ended->end
+	_onMessageAction: function (campaignId, action) {
+		var campaign = CliqzMsgCenter._campaigns[campaignId];
+		if (campaign) {
+			_log('campaign ' + campaignId + ': ' + action);
+			if (ACTIONS.indexOf(action) != -1) {
+				if (campaign.limits[action] != -1 ||
+					++campaign.counts[action] == campaign.limits[action]) {
+					campaign.setState('ended');
+				} else {
+					campaign.setState('idle');
+				}
 			}
-			var handler =
-				CliqzMsgCenter._messageHandlers[campaign.handlerId];
-			if (handler) {
-				handler.hide();
-			}
-		}
 
-		if (campaign.counts.show == campaign.limits.show) {
-			campaign.setState('ended');
+			if (campaign.counts.show == campaign.limits.show) {
+				campaign.setState('ended');
+			}
+			campaign.save();
+		} else {
+			_log('campaign ' + campaignId + ' not found');
 		}
-		campaign.save();
 	},
 };
 
-CliqzMsgCenter._loadCampaigns();
-CliqzMsgCenter._activateCampaignUpdates();
 CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
 CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
 	MessageHandlerDropdownFooter);
 
+CliqzMsgCenter._loadCampaigns();
+CliqzMsgCenter._activateCampaignUpdates();
 
 
 
