@@ -291,6 +291,15 @@ var CliqzMsgCenter = {
 			handler.init(CliqzMsgCenter._windows[i]);
 		}
 	},
+	showMessage: function (message, handlerId, callback) {
+		var handler =
+			CliqzMsgCenter._messageHandlers[handlerId];
+		if (handler) {
+			handler.enqueueMessage(message, callback);
+		} else {
+			_log('message handler not found: ' + handlerId);
+		}
+	},
 
 	_activateCampaignUpdates: function () {
 		if (!CliqzMsgCenter._updateTimer) {
@@ -362,7 +371,9 @@ var CliqzMsgCenter = {
 				if (campaign.load()) {
 					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
 					if (campaign.state == 'showing') {
-						CliqzMsgCenter._showCampaign(campaign);
+						CliqzMsgCenter.showMessage(campaign.message,
+							campaign.handlerId,
+							CliqzMsgCenter._onMessageAction);
 					}
 				} else {
 					campaign.delete();
@@ -403,22 +414,13 @@ var CliqzMsgCenter = {
 					++campaign.counts.show <= campaign.limits.show) {
 					campaign.setState('showing');
 					campaign.counts.trigger = 0;
-					CliqzMsgCenter._showCampaign(campaign);
+					CliqzMsgCenter.showMessage(campaign.message,
+						campaign.handlerId, CliqzMsgCenter._onMessageAction);
 				} else {
 					campaign.setState('ended');
 				}
 			}
 			campaign.save();
-		}
-	},
-	_showCampaign: function (campaign) {
-		var handler =
-			CliqzMsgCenter._messageHandlers[campaign.handlerId];
-		if (handler) {
-			handler.enqueueMessage(campaign.message,
-				CliqzMsgCenter._onMessageAction);
-		} else {
-			_log('message handler not found: ' + campaign.handlerId);
 		}
 	},
 	// TODO: rename showing->show, ended->end
