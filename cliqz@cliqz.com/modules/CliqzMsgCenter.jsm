@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var CAMPAIGN_SERVER = 'http://10.10.22.75/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
-	UPDATE_INTERVAL = 1 * 60 * 1000;
+	UPDATE_INTERVAL = 5 * 60 * 1000;
 
 /* ************************************************************************* */
 function _log(msg) {
@@ -434,6 +434,7 @@ var CliqzMsgCenter = {
 			}
 			campaign.save();
 		}
+		CliqzMsgCenter._updateCampaigns();
 	},
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
@@ -459,6 +460,7 @@ var CliqzMsgCenter = {
 		} else {
 			_log('campaign ' + campaignId + ' not found');
 		}
+		CliqzMsgCenter._updateCampaigns();
 	},
 };
 
