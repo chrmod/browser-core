@@ -10,19 +10,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-// TODO: send locale and get rid of client-side localization
-var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=', // &lang=de
+var CAMPAIGN_SERVER = 'http://10.10.22.75/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
 	UPDATE_INTERVAL = 1 * 60 * 1000;
-
-// TODO: parse responds, don't pull in other cases
-// http://10.10.22.75/message/show?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
-// http://10.10.22.75/message/click?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
-// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
-
-// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001&lang=en
-// http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001&lang=de
 
 /* ************************************************************************* */
 function _log(msg) {
@@ -39,6 +30,13 @@ function _getPref(pref, defaultVal) {
 
 function _clearPref(pref) {
 	CliqzUtils.cliqzPrefs.clearUserPref(PREF_PREFIX + pref);
+}
+
+function _getEndpoint(endpoint, campaign) {
+	return CAMPAIGN_SERVER + endpoint + '/?session=' +
+		encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')) +
+		'&lang=' + encodeURIComponent(CliqzUtils.currLocale) +
+		(campaign ? '&campaign=' + campaign.id : '');
 }
 /* ************************************************************************* */
 
@@ -332,11 +330,7 @@ var CliqzMsgCenter = {
 	},
 	_updateCampaigns: function () {
 		_log('updating campaigns');
-		var endpoint = CAMPAIGN_ENDPOINT +
-			encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')) +
-			'&lang=' + encodeURIComponent(CliqzUtils.currLocale);
-
-		CliqzUtils.httpGet(endpoint, function success(req) {
+		CliqzUtils.httpGet(_getEndpoint('message'), function success(req) {
     		try {
         		var clientCampaigns = CliqzMsgCenter._campaigns,
         		    serverCampaigns = JSON.parse(req.response).campaigns,
@@ -346,6 +340,7 @@ var CliqzMsgCenter = {
         			if (serverCampaigns.hasOwnProperty(cId) &&
         			    !(cId in clientCampaigns)) {
         				CliqzMsgCenter._addCampaign(cId, serverCampaigns[cId]);
+        				CliqzUtils.httpGet(_getEndpoint('accept'));
         			}
         		}
         		for (cId in clientCampaigns) {
@@ -432,6 +427,7 @@ var CliqzMsgCenter = {
 					campaign.message.id = campaign.id;
 					CliqzMsgCenter.showMessage(campaign.message,
 						campaign.handlerId, CliqzMsgCenter._onMessageAction);
+					CliqzUtils.httpGet(_getEndpoint('show'));
 				} else {
 					campaign.setState('ended');
 				}
@@ -448,6 +444,10 @@ var CliqzMsgCenter = {
 				if (campaign.limits[action] != -1 ||
 					++campaign.counts[action] == campaign.limits[action]) {
 					campaign.setState('ended');
+
+					if (action == 'confirm') {
+						CliqzUtils.httpGet(_getEndpoint('click'));
+					}
 				} else {
 					campaign.setState('idle');
 				}
