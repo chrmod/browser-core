@@ -16,7 +16,7 @@ var CAMPAIGN_ENDPOINT = 'http://10.10.22.75/message/?session=', // &lang=de
 	PREF_PREFIX = 'msgs.',
 	UPDATE_INTERVAL = 1 * 60 * 1000;
 
-// TODO: parse responds, don't pull otherwise
+// TODO: parse responds, don't pull in other cases
 // http://10.10.22.75/message/show?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
 // http://10.10.22.75/message/click?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
 // http://10.10.22.75/message/accept?session=O2SJ4ccGCdSUiEBU7W749512%7C16468%7C00&campaign=C001
@@ -45,12 +45,14 @@ function _clearPref(pref) {
 /* ************************************************************************* */
 var Campaign = function (id, data) {
 	this.id = id;
+	this.init();
+	this.update(data);
+};
+Campaign.prototype.init = function () {
 	this.state = 'idle';
 	this.isEnabled = true;
 	this.counts = {trigger: 0, show: 0, confirm: 0,
 		           postpone: 0, ignore: 0, discard: 0};
-
-	this.update(data);
 };
 Campaign.prototype.update = function (data) {
 	for (var key in data) {
@@ -116,6 +118,8 @@ var MessageHandler = function (id) {
 	this.id = id;
 	this._windows = [];
 	this._messageQueue = [];
+	// message object is key
+	this._callbacks = {};
 };
 MessageHandler.prototype.init = function (win) {
 	this._windows.push(win);
@@ -126,10 +130,9 @@ MessageHandler.prototype.unload = function (win) {
 		this._windows.splice(i, 1);
 	}
 };
-// TODO: make sure message has ID (from campaign)
 MessageHandler.prototype.enqueueMessage = function (message, callback) {
-	message.callback = callback;
 	this._messageQueue.push(message);
+	this._callbacks[message] = callback;
 	if (this._messageQueue.length == 1) {
 		this._renderMessage(message);
 	}
@@ -140,12 +143,14 @@ MessageHandler.prototype.dequeueMessage = function (message) {
 		this.showNextMessage();
 	} else if (i > -1) {
 		this._messageQueue.splice(i, 1);
+		delete this._callbacks[message];
 	}
 };
 MessageHandler.prototype.showNextMessage = function () {
 	var message = this._messageQueue.shift();
 	if (message) {
-		this._removeMessage(message);
+		delete this._callbacks[message];
+		this._hideMessage(message);
 		if (this._messageQueue.length > 0) {
 			this._renderMessage(this._messageQueue[0]);
 		}
@@ -154,6 +159,8 @@ MessageHandler.prototype.showNextMessage = function () {
 
 var MessageHandlerDropdownFooter =
 	new MessageHandler('MESSAGE_HANDLER_DROPDOWN_FOOTER');
+// TODO: is this the right way to call original method?
+// TODO: subclass MessageHandler instead of modifying instance?
 MessageHandlerDropdownFooter._super = {
 	init:
 		MessageHandlerDropdownFooter.init.bind(MessageHandlerDropdownFooter),
@@ -178,31 +185,38 @@ MessageHandlerDropdownFooter.unload = function (win) {
 		removeEventListener('click', this._onClick);
 };
 MessageHandlerDropdownFooter._renderMessage = function (message, win) {
+	// show in all open windows if win is not specified
 	if (win) {
 		win.CLIQZ.UI.messageCenterMessage =
-			message ? this._packageMessage(message) : null;
+			message ? this._convertMessage(message) : null;
 	} else {
 		this._windows.map(function (w) {
 			if (w) { this._renderMessage(message, w); }
 		}.bind(this));
 	}
 };
-MessageHandlerDropdownFooter._removeMessage = function (message) {
+MessageHandlerDropdownFooter._hideMessage = function (message) {
 	this._renderMessage(null);
 	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
 };
-// TODO: clone message
-MessageHandlerDropdownFooter._packageMessage = function (message) {
-	message.simple_message = message.text;
-	delete message.text;
+// converts message into format expected by UI
+MessageHandlerDropdownFooter._convertMessage = function (message) {
+	var m = {
+		simple_message: message.text,
+		options: []
+	};
 
 	if (message.options) {
 		for (var i = 0; i < message.options.length; i++) {
-			message.options[i].state = message.options[i].style;
-			delete message.options[i].style;
+			m.options.push ({
+				text: message.options[i].text,
+				state: message.options[i].style,
+				action: message.options[i].action
+			});
 		}
 	}
-	return {'footer-message': message};
+
+	return {'footer-message': m};
 };
 MessageHandlerDropdownFooter._addClickListener = function (e) {
 	var popup = e.target,
@@ -218,8 +232,8 @@ MessageHandlerDropdownFooter._onClick = function (e) {
 	    message = MessageHandlerDropdownFooter._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
 	// the next message is used when invoking the callback
-	if (message && message.callback) {
-		message.callback(message.id, action);
+	if (message && MessageHandlerDropdownFooter._callbacks[message]) {
+		MessageHandlerDropdownFooter._callbacks[message](message.id, action);
 	}
 	MessageHandlerDropdownFooter.showNextMessage();
 };
@@ -229,13 +243,13 @@ var MessageHandlerAlert =
 MessageHandlerAlert._renderMessage = function (message) {
 	// TODO: wait for window to open
 	CliqzUtils.getWindow().alert(message.text);
-	if (message.callback) {
-		message.callback(message.id, message.options &&
+	if (this._callbacks[message]) {
+		this._callbacks[message].callback(message.id, message.options &&
 			message.options.length > 0 && message.options[0].action);
 	}
 	this.showNextMessage();
 };
-MessageHandlerAlert._removeMessage = function () { };
+MessageHandlerAlert._hideMessage = function () { };
 /* ************************************************************************* */
 
 var CliqzMsgCenter = {
@@ -414,6 +428,8 @@ var CliqzMsgCenter = {
 					++campaign.counts.show <= campaign.limits.show) {
 					campaign.setState('showing');
 					campaign.counts.trigger = 0;
+					// need ID in message to associate callback with campaign
+					campaign.message.id = campaign.id;
 					CliqzMsgCenter.showMessage(campaign.message,
 						campaign.handlerId, CliqzMsgCenter._onMessageAction);
 				} else {
