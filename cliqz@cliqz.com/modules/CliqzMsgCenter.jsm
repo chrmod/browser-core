@@ -38,6 +38,14 @@ function _getEndpoint(endpoint, campaign) {
 		'&lang=' + encodeURIComponent(CliqzUtils.currLocale) +
 		(campaign ? '&campaign=' + campaign.id : '');
 }
+
+function _telemetry(campaign, action) {
+	CliqzUtils.telemetry({
+		type: 'campaign',
+		id: campaign.id,
+		action: action
+	});
+}
 /* ************************************************************************* */
 
 /* ************************************************************************* */
@@ -340,7 +348,6 @@ var CliqzMsgCenter = {
         			if (serverCampaigns.hasOwnProperty(cId) &&
         			    !(cId in clientCampaigns)) {
         				CliqzMsgCenter._addCampaign(cId, serverCampaigns[cId]);
-        				CliqzUtils.httpGet(_getEndpoint('accept'));
         			}
         		}
         		for (cId in clientCampaigns) {
@@ -359,6 +366,8 @@ var CliqzMsgCenter = {
 	},
 	_addCampaign: function (id, data) {
 		CliqzMsgCenter._campaigns[id] = new Campaign(id, data);
+		CliqzUtils.httpGet(_getEndpoint('accept'));
+		_telemetry(CliqzMsgCenter._campaigns[id], 'add');
 		_log('added campaign ' + id);
 	},
 	_removeCampaign: function (id) {
@@ -369,6 +378,7 @@ var CliqzMsgCenter = {
 		}
 		campaign.delete();
 		delete CliqzMsgCenter._campaigns[id];
+		_telemetry(campaign, 'remove');
 		_log('removed campaign ' + id);
 	},
 	_loadCampaigns: function () {
@@ -428,6 +438,7 @@ var CliqzMsgCenter = {
 					CliqzMsgCenter.showMessage(campaign.message,
 						campaign.handlerId, CliqzMsgCenter._onMessageAction);
 					CliqzUtils.httpGet(_getEndpoint('show'));
+					_telemetry(campaign, 'show');
 				} else {
 					campaign.setState('end');
 				}
@@ -439,7 +450,8 @@ var CliqzMsgCenter = {
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
 		if (campaign) {
-			_log('campaign ' + campaignId + ': ' + action);
+			_log('campaign ' + campaign.id + ': ' + action);
+			_telemetry(campaign, action);
 			if (ACTIONS.indexOf(action) != -1) {
 				if (campaign.limits[action] != -1 ||
 					++campaign.counts[action] == campaign.limits[action]) {
