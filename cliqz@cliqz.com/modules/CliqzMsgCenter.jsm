@@ -379,7 +379,7 @@ var CliqzMsgCenter = {
 				var campaign = new Campaign(cIds[i]);
 				if (campaign.load()) {
 					CliqzMsgCenter._campaigns[cIds[i]] = campaign;
-					if (campaign.state == 'showing') {
+					if (campaign.state == 'show') {
 						CliqzMsgCenter.showMessage(campaign.message,
 							campaign.handlerId,
 							CliqzMsgCenter._onMessageAction);
@@ -421,7 +421,7 @@ var CliqzMsgCenter = {
 			if (++campaign.counts.trigger == campaign.limits.trigger) {
 				if (campaign.limits.show == -1 ||
 					++campaign.counts.show <= campaign.limits.show) {
-					campaign.setState('showing');
+					campaign.setState('show');
 					campaign.counts.trigger = 0;
 					// need ID in message to associate callback with campaign
 					campaign.message.id = campaign.id;
@@ -429,13 +429,12 @@ var CliqzMsgCenter = {
 						campaign.handlerId, CliqzMsgCenter._onMessageAction);
 					CliqzUtils.httpGet(_getEndpoint('show'));
 				} else {
-					campaign.setState('ended');
+					campaign.setState('end');
 				}
 			}
 			campaign.save();
 		}
 	},
-	// TODO: rename showing->show, ended->end
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
 		if (campaign) {
@@ -443,7 +442,7 @@ var CliqzMsgCenter = {
 			if (ACTIONS.indexOf(action) != -1) {
 				if (campaign.limits[action] != -1 ||
 					++campaign.counts[action] == campaign.limits[action]) {
-					campaign.setState('ended');
+					campaign.setState('end');
 
 					if (action == 'confirm') {
 						CliqzUtils.httpGet(_getEndpoint('click'));
@@ -454,7 +453,7 @@ var CliqzMsgCenter = {
 			}
 
 			if (campaign.counts.show == campaign.limits.show) {
-				campaign.setState('ended');
+				campaign.setState('end');
 			}
 			campaign.save();
 		} else {
