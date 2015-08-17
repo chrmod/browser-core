@@ -756,7 +756,10 @@ var CliqzUtils = {
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
                                 This is used when the user clicks on Share Location "Just once".
     */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) failCB("No permission to get user's location");
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+      failCB("No permission to get user's location");
+      return;
+    }
 
     if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
       callback({
