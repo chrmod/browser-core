@@ -504,10 +504,7 @@
       "message":"Besuchte Seiten"
     },
     "adultInfo": {
-        "message": "Anstößige Inhalte wurden automatisch blockiert."
-    },
-    "adultAction": {
-        "message": "Alle Ergebnisse anzeigen?"
+        "message": "Anstößige Inhalte wurden automatisch blockiert. Alle Ergebnisse anzeigen?"
     },
     "adultConservative": {
       "message":"blockieren"
