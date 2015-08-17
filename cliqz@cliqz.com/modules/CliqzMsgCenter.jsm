@@ -261,7 +261,6 @@ MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	if (message && self._callbacks[message.id]) {
 		self._callbacks[message.id](message.id, action);
 	}
-	self.showNextMessage();
 };
 
 var MessageHandlerAlert = MessageHandlerAlert ||
@@ -483,6 +482,9 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				} else {
 					campaign.setState('idle');
 				}
+
+				CliqzMsgCenter._messageHandlers[campaign.handlerId].
+					dequeueMessage(campaign.message);
 			}
 
 			if (campaign.counts.show == campaign.limits.show) {
