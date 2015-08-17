@@ -246,8 +246,15 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 };
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
-		msgContainer = e.target.parentNode.parentNode.parentNode,
-		self = msgContainer[MessageHandlerDropdownFooter.id],
+		msgContainer = e.target;
+	while (msgContainer && msgContainer.id != 'cliqz-message-container') {
+		msgContainer = msgContainer.parentNode;
+	}
+	if (!msgContainer || msgContainer.id != 'cliqz-message-container') {
+		_log('message container not found');
+		return;
+	}
+	var self = msgContainer[MessageHandlerDropdownFooter.id],
 	    message = self._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
 	// the next message is used when invoking the callback
