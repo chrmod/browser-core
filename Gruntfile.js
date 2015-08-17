@@ -137,7 +137,7 @@ module.exports = function(grunt) {
                                + "// end module " + modulename + "\n\n"
                     }
                 },
-                dest: build("tool_iOS/js/global.js")
+                dest: build("tool/js/global.js")
             },
             local: {
                 src: [
