@@ -10,7 +10,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CAMPAIGN_SERVER = 'http://10.10.22.75/',
+var CAMPAIGN_SERVER = 'http://10.10.22.75/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
 	UPDATE_INTERVAL = 5 * 60 * 1000;
@@ -33,7 +33,7 @@ function _clearPref(pref) {
 }
 
 function _getEndpoint(endpoint, campaign) {
-	return CAMPAIGN_SERVER + endpoint + '/?session=' +
+	return CAMPAIGN_SERVER + (endpoint ? endpoint : '') + '?session=' +
 		encodeURIComponent(CliqzUtils.cliqzPrefs.getCharPref('session')) +
 		'&lang=' + encodeURIComponent(CliqzUtils.currLocale) +
 		(campaign ? '&campaign=' + campaign.id : '');
@@ -222,7 +222,7 @@ MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	if (message.options) {
 		for (var i = 0; i < message.options.length; i++) {
 			m.options.push ({
-				text: message.options[i].text,
+				text: message.options[i].label,
 				state: message.options[i].style,
 				action: message.options[i].action
 			});
@@ -357,7 +357,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	},
 	_updateCampaigns: function () {
 		_log('updating campaigns');
-		CliqzUtils.httpGet(_getEndpoint('message'), function success(req) {
+		CliqzUtils.httpGet(_getEndpoint(), function success(req) {
     		try {
         		var clientCampaigns = CliqzMsgCenter._campaigns,
         		    serverCampaigns = JSON.parse(req.response).campaigns,
@@ -385,7 +385,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	},
 	_addCampaign: function (id, data) {
 		CliqzMsgCenter._campaigns[id] = new Campaign(id, data);
-		CliqzUtils.httpGet(_getEndpoint('accept'));
+		CliqzUtils.httpGet(_getEndpoint('accept', CliqzMsgCenter._campaigns[id]));
 		_telemetry(CliqzMsgCenter._campaigns[id], 'add');
 		_log('added campaign ' + id);
 	},
@@ -456,7 +456,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 					campaign.message.id = campaign.id;
 					CliqzMsgCenter.showMessage(campaign.message,
 						campaign.handlerId, CliqzMsgCenter._onMessageAction);
-					CliqzUtils.httpGet(_getEndpoint('show'));
+					CliqzUtils.httpGet(_getEndpoint('show', campaign));
 					_telemetry(campaign, 'show');
 				} else {
 					campaign.setState('end');
@@ -477,7 +477,7 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 					campaign.setState('end');
 
 					if (action == 'confirm') {
-						CliqzUtils.httpGet(_getEndpoint('click'));
+						CliqzUtils.httpGet(_getEndpoint('click', campaign));
 					}
 				} else {
 					campaign.setState('idle');
