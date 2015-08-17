@@ -65,6 +65,12 @@
     "vs":{
         "message": "gegen"
     },
+    "NEXT GAME" : {
+        "message": "NÄCHSTES SPIEL"
+    },
+    "LAST GAME" : {
+        "message": "LETZTES SPIEL"
+    },
     "AllGames":{
         "message": "Ganzer Spieltag"
     },
@@ -690,6 +696,18 @@
     "today": {
         "message": "Heute"
     },
+    "cMenuOpenInNewTab": {
+      "message": "Link in neuem Tab öffnen"
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Link in neuem Fenster öffnen"
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Link in neuem privaten Fenster öffnen"
+    },
+    "cMenuFeedback": {
+      "message": "Feedback an CLIQZ"
+    },
     "myQuery": {
         "message": "Suchbegriff"
     },
@@ -698,5 +716,101 @@
     },
     "dismiss": {
         "message": "Nachricht schließen"
+    },
+    "cqz_watch_trailer": {
+      "message": "Trailer Abspielen"
+    },
+    "Monday": {
+      "message": "Montag"
+    },
+    "Tuesday": {
+      "message": "Dienstag"
+    },
+    "Wednesday": {
+      "message": "Mittwoch"
+    },
+    "Thursday": {
+      "message": "Donnerstag"
+    },
+    "Friday": {
+      "message": "Freitag"
+    },
+    "Saturday": {
+      "message": "Samstag"
+    },
+    "Sunday": {
+      "message": "Sonntag"
+    },
+    "January": {
+      "message": "Januar"
+    },
+    "February": {
+      "message": "Februar"
+    },
+    "March": {
+      "message": "März"
+    },
+    "April": {
+      "message": "April"
+    },
+    "May": {
+      "message": "Mai"
+    },
+    "June": {
+      "message": "Juni"
+    },
+    "July": {
+      "message": "Juli"
+    },
+    "August": {
+      "message": "August"
+    },
+    "September": {
+      "message": "September"
+    },
+    "October": {
+      "message": "Oktober"
+    },
+    "November": {
+      "message": "November"
+    },
+    "December": {
+      "message": "Dezember"
+    },
+    "location_permission_prompt": {
+      "message": "Wir würden Dir gerne zeigen in welchen Kinos der Film gerade läuft. Möchtest Du Deinen Standort mit uns teilen?"
+    },
+    "location_never": {
+      "message": "Nein, ich mag coole Sachen nicht."
+    },
+    "no_local_data_msg": {
+      "message": "Tut uns leid, aber für dieses Ergebnis haben wir leider keine örtlichen Informationen in Deiner Nähe."
+    },
+    "movies_confirm_no": {
+      "message": "Sicher, dass Du nicht sehen möchtest in welchen Kinos der Film gerade läuft?"
+    },
+    "show_local_movies": {
+      "message": "Nein, zeig mir wo ich den Film schauen kann."
+    },
+    "location_just_once": {
+      "message": "Dieses eine mal"
+    },
+    "location_not_now": {
+      "message": "Jetzt nicht"
+    },
+    "always_ask": {
+      "message": "Immer fragen"
+    },
+    "share_location": {
+      "message":"Standort teilen"
+    },
+    "location_confirm_no": {
+      "message": "Sicher, dass Du keine Informationen über interessante Orte in deiner Umgebung sehen möchtest?"
+    },
+    "show_local_results": {
+      "message": "Nein, zeige mir lokale Informationen."
+    },
+    "extended_forecast": {
+        "message": "Detailiertere Vorhersage"
     }
 }

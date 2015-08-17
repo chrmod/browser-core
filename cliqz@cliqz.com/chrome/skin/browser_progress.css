@@ -10,21 +10,33 @@
   margin-bottom: 20px;
 }
 
-/*--------------- New Skin Generic EZ ----------- */
-#cliqz-results .cqz-result-content { 
-  max-width: 550px;
-  margin: 12px 105px 17px 0px;
+#cliqz-results .clz_copy {
+    cursor: copy;
 }
 
+/*--------------- New Skin Generic EZ ----------- */
+#cliqz-results .cqz-result-content {
+  max-width: 550px;
+  margin: 12px 105px 17px 0px;
+    height: 95px;
+}
+
+#cliqz-results .clz_zero_info_sec {margin-top: 4px; height: 30px;}
+#cliqz-results .cqz-zero-img {height: 16px; padding-right: 10px; transform: translateY(3px);}
+#cliqz-results .clz_zero_info {
+    float: left;
+    margin-right: 20px;
+    height: 100%;
+}
 #cliqz-results .cqz-result-h1 .cqz-result-content {
-  height: 185px;  
+  height: 205px;
 }
 
 /*--------------Multiline ellipsis (http://www.mobify.com/blog/multiline-ellipsis-in-pure-css) ------------ */
-#cliqz-results .multi-ellipsis { 
-  white-space: normal; 
-  overflow: hidden; 
-  height: 3.9em; 
+#cliqz-results .multi-ellipsis {
+  white-space: normal;
+  overflow: hidden;
+  height: 3.9em;
   line-height: 1.3em;
 }
 
@@ -41,63 +53,133 @@
   width: 100%;
   margin-left: -5px;
   white-space: normal;
-} 
+}
 
 #cliqz-results .multi-ellipsis:after {
   content: "\02026";
   box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;
-  float: right; 
+  float: right;
   position: relative;
-  top: -22px; 
-  left: 100%; 
-  width: 3em; 
+  top: -22px;
+  left: 100%;
+  width: 3em;
   margin-left: -3em;
   padding-right: 5px;
   text-align: right;
   white-space: normal;
+
+  background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
 }
 
+#cliqz-results .multi-ellipsis2_14 {white-space: normal; overflow: hidden; height: 2.8em; line-height: 1.4em; }
+#cliqz-results .multi-ellipsis2_14:before {white-space: normal; content:""; float: left; width: 5px; height: 2.8em;}
+#cliqz-results .multi-ellipsis2_14 > *:first-child {line-height: 1.4em; white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .multi-ellipsis2_14:after {
+    white-space: normal; content: "\02026";
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box; -moz-box-sizing: content-box;
+    float: right; position: relative;
+    top: -1.4em; left: 100%;
+    width: 2em; margin-left: -2em; padding-right: 5px;
+    text-align: right;
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
 
 /* ------- RICH DATA Result----------*/
-#cliqz-results .cqz-rd-body {height: calc(100% - 48px); width: calc(100% - 80px); max-width: 550px;}
-#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-2px);}
-#cliqz-results .cqz-rd-max-lines {white-space: normal; overflow: hidden; height: 2.4em; line-height: 1.2em}
-#cliqz-results .cqz-rd-max-lines3 {white-space: normal; overflow: hidden; height: 3.9em; line-height: 1.3em}
-#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.2em; line-height: 1.3em}
-#cliqz-results .cqz-rd-info{color: #999999; padding-top: 6px;}
-#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 2px;}
+#cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
+#cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
+#cliqz-results .cqz-rd-body {height: calc(100% - 52px); width: calc(100% - 90px); max-width: 700px;}
+#cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
+#cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.6em; line-height: 1.4em; }
+#cliqz-results .cqz-rd-max-lines4:before {
+    white-space: normal; content:""; float: left; width: 5px; height: 5.6em;}
+#cliqz-results .cqz-rd-max-lines4 > *:first-child {
+    white-space: normal; float: right; width: 100%; margin-left: -5px; }
+#cliqz-results .cqz-rd-max-lines4:after {
+    white-space: normal;
+    content: "\02026";
+
+    box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+
+    float: right; position: relative;
+    top: -1.4em; left: 100%;
+    width: 2.5em; margin-left: -2.5em;
+    padding-right: 5px;
+
+    text-align: right;
+
+    background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), white 50%, white);
+}
+
+#cliqz-results .cqz-rd-max-lines4 p{line-height: 1.4em;}
+
+#cliqz-results .cqz-rd-info{color: #999999; padding-bottom: 7px;}
+#cliqz-results .cqz-rd-info-2{color: #999999;}
+#cliqz-results .cqz-rd-rate{color: #506bb8; padding-top: 6px;}
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
-#cliqz-results .cqz-rd-h3 {width: calc(100% - 80px)}
-#cliqz-results .cqz-rd-h3img-div {height: 82px; float:left; margin-right: 20px; max-width: 130px}
+#cliqz-results .cqz-rd-h3 {width: calc(100% - 90px)}
+#cliqz-results .cqz-rd-h3img-div {height: 76px; float:left; margin-right: 20px; max-width: 50px}
 #cliqz-results .cqz-rhh3-snipet-txt {max-width: 700px;}
-#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; max-width: 500px;}
+#cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; margin-bottom: 0px; max-width: 500px;}
 
 #cliqz-results .cqz-rd-img {height:  100%; display:block;}
-#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 20px;}
-#cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 200px}
+#cliqz-results .cqz-rd-snippet_hspacing {padding-top: 18px;}
+#cliqz-results .cqz-rd-img_div {float: left; margin-right: 20px; height: 100%; max-width: 130px}
 #cliqz-results .cqz-rd-h3-snippet {height: 110px; margin: 22px 0px 22px 0px;}
 
-#cliqz-results .cqz-rd-h2-snippet {height: 200px; margin: 22px 0px 12px 0px;}
+#cliqz-results .cqz-rd-h2-snippet {height: 200px; margin: 20px 0px 14px 0px;}
 
 /* ------- END RICH DATA Result----------*/
 
 /* ------- Bundesliga EZ ----------*/
+#cliqz-results .ez-liga-genSM {width: -moz-calc(100% - 45px); width: calc(100% - 45px);  max-width: 1000px;}
+#cliqz-results .ez-liga-genSM-1line {line-height: 20px}
+#cliqz-results .ez-liga-genSM-Loc {color: #999999}
+#cliqz-results .ez-liga-genSM  .ez-liga-teamName{color: #506bb8;}
+#cliqz-results .ez-liga-genSM-game-box {border:1px solid #CCCCCC; margin: 20px 0px 0px 20px;
+    padding: 20px 20px 20px 20px; height: 105px; position: relative; width: 100%; max-width:500px;}
+#cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6; }
+#cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 85px; width: -moz-calc(100% - 10px); width: calc(100% - 10px);}
+#cliqz-results .ez-liga-genSM-vs{font-size: 18px;}
+#cliqz-results .ez-liga-genSM .ez-liga-teamName{max-width: -moz-calc(40% - 20px); max-width: calc(40% - 20px); }
+#cliqz-results .cqz-ez-btns{margin-top: 20px;}
+
+#cliqz-results .cqz-liga-genSM-des{max-width: 600px;}
+
+#cliqz-results .rotate90 {
+  -moz-transform: rotate(-90deg); transform: rotate(-90deg);
+  -moz-transform-origin: left bottom; transform-origin: left bottom;
+}
+
+/*MAGIC numbers */
+#cliqz-results .ez-liga-genSM-gamestt {background-color: #CCCCCC; line-height: 20px; color: #ffffff; text-align: center; width: 147px;
+    position: absolute; top: 262px; left: 42px;
+}
+
+#cliqz-results .ez-liga-genSM-gamestt_live {background-color: #56EAC6}
+
+
 #cliqz-results .ez-liga .cqz-ez-title::after {background-image: url(https://cdn.cliqz.com/extension/EZ/generic/EZ-soccer.svg); margin-bottom: 0px;}
-#cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -8px 0px 5px; }
-#cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 0px; }
-#cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 0px 0px 0px}
+#cliqz-results .ez-liga-rank  { color: #999999;font-size: 12px; margin: -2px 0px 10px; }
+#cliqz-results .ez-liga-spieltag  { color: #cccccc; margin: 0px 0px 4px; }
+#cliqz-results .ez-liga-gameTimeLoc  { color: #999999; margin: 00px 0px 5px}
 #cliqz-results .ez-liga-oneGameScore  {margin:18px 0px;}
 #cliqz-results .ez-liga-teamName  {float:left;text-align:left;color: #333333;font-size: 18px;max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 #cliqz-results .ez-liga-score {color: #74d463; font-size: 18px; }
 #cliqz-results .ez-liga-vs {color: #999999;font-size: 18px;}
 #cliqz-results .ez-liga-live {text-align:center;color: #999999; font-size: 12px; margin-top:3px}
 #cliqz-results .ez-liga-connector {text-align:center;float:left; width:20%;}
-#cliqz-results .ez-liga-timezone {position: absolute; bottom: 14px; left: 22px; color: #cccccc; font-size: 12px}
-#cliqz-results .ez-liga-sponsor {position: absolute; bottom: 14px; right: 22px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-timezone {position: absolute; bottom: 20px; left: 22px; color: #cccccc; font-size: 12px}
+#cliqz-results .ez-liga-sponsor {position: absolute; bottom: 20px; right: 22px; color: #cccccc; font-size: 12px}
 
 #cliqz-results .ez-liga-spieltag-ucg  { color: #cccccc; margin: -3px 0px 5px; }
 #cliqz-results .ez-liga-upcominggames {display:table; width: -moz-calc(100% - 35px); max-width:600px;padding-top:5px;border-style:none}
@@ -178,7 +260,7 @@
   position: relative;
   margin: 0px;
   padding: 0px;
-  overflow: visible;  
+  overflow: visible;
 }
 
 @keyframes changescale {
@@ -303,7 +385,7 @@
 #cliqzExtOnboardingCallout .cliqz-logo {
   background-image: url(chrome://cliqzres/content/skin/img/cliqz.svg);
   background-repeat: no-repeat;
-  height: 20px;  
+  height: 20px;
   width: 100px;
 }
 
@@ -536,7 +618,7 @@
 }
 
 #cliqz-results .cqz-ez-aTob-title {
-  margin-bottom: 3px;   
+  margin-bottom: 3px;
 }
 
 #cliqz-results .cqz-ez-aTob table.list th {
@@ -545,16 +627,16 @@
   font-weight: normal;
   padding: 0 0 9px;
 }
-            
-#cliqz-results .cqz-ez-aTob table.list td, 
+
+#cliqz-results .cqz-ez-aTob table.list td,
 #cliqz-results .cqz-ez-aTob table.list th {
   border-bottom: 1px solid #e7f1e5;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list tbody > tr:last-child > td {
   border-bottom: 0px;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list td {
   padding: 6px;
   color: #506bb8;
@@ -564,13 +646,13 @@
   text-align: center;
   width: 60px;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list th.empty {
   width: 130px;
 }
 
 #cliqz-results .cqz-ez-aTob table.list .label{
-  color: #000000;    
+  color: #000000;
 }
 
 #cliqz-results .cqz-ez-aTob .iconImage.bus,
@@ -580,7 +662,7 @@
 
 #cliqz-results .cqz-ez-aTob .iconContainer {
   height: 18px;
-  width: 18px; 
+  width: 18px;
 }
 
 /* Common accessible styles to use icons as images instead of background-image */
@@ -596,8 +678,151 @@
 }
 
 #cliqz-results .iconLabel {
-   margin-left: 10px
+   margin-left: 10px;
 }
+
+
+/***** LOCAL MOVIE EZ ******/
+#cliqz-results .movie_container {
+  height:160px;
+  max-height:160px;
+  width: calc(100% - 35px);
+  max-width: 700px;
+}
+
+#cliqz-results .movie_poster, #cliqz-results .movie_poster_img {
+  max-width: 110px;
+  border-radius: 6px;
+}
+
+#cliqz-results .movie_poster {
+  /* position:absolute; */
+  float:left;
+}
+
+#cliqz-popup #cliqz-results .movie_data {
+  margin-left: 125px;
+  height:160px;
+  padding-right: 60px;
+}
+
+#cliqz-results .movie_url {
+  margin-top: 0px;
+  margin-bottom:10px;
+}
+
+#cliqz-results .cqz-ez-title.movie_title {
+  margin-bottom: 10px;
+  display:block;
+}
+
+#cliqz-results .movie_description {
+  text-align: left;
+}
+
+#cliqz-results .cqz-rating-star-on {
+  color:#FDDD32;
+}
+
+#cliqz-results .cqz-rating-star-off {
+  color:#CDCDCD;
+}
+
+#cliqz-results .movie_desc {
+  max-height:150px;
+  padding-left:10px;
+  overflow:ellipsis;
+  white-space: normal;
+}
+
+#cliqz-results .cinema-showtimes-table {
+  width:100%;
+  max-width:650px;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#cliqz-results .local-sc-data-container {
+  width:80%;
+  max-width:650px;
+}
+
+#cliqz-results .cinema-name-td, #cliqz-results .cinema-showtime-td  {
+  font-size: 16px;
+  border-top: 1px solid #EAEAEA;
+  padding-top:5px;
+  padding-bottom:5px;
+  max-width:100px;
+}
+#cliqz-results .cinema-name {
+  font-size: 16px;
+}
+
+#cliqz-results .cinema-row {
+  height:15px;
+}
+#cliqz-results .cinema-showtime-td  {
+  text-align:center;
+  /* color:#CECECE; */
+}
+
+#cliqz-results .showtimes-date {
+  float:right;
+  margin-bottom: 10px;
+  margin-top:0px;
+  color:#CECECE;
+}
+
+#cliqz-results .movie-trailer-btn {
+  position: relative;
+  bottom: -10px;
+}
+
+#cliqz-results .location_permission_prompt {
+  height: 85px;
+  background-color: rgb(255, 83, 73);
+  color: #FFF;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+#cliqz-results .loc_permission_prompt_message {
+  height: 70%;
+  font-size:16px;
+  white-space: normal;
+}
+
+#cliz-results .cqz_location_once {
+  color:white;
+
+}
+
+#cliqz-results .cqz_location_never {
+  color:white;
+}
+
+#cliqz-results .loc_permission_prompt_buttons>span {
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 10px;
+  position: relative;
+  border: 1px solid white;
+  margin-right: 10px;
+  height: 15px;
+  padding: 5px 10px 7px;
+  background: transparent none repeat scroll 0% 0%;
+}
+
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes, #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
+  border: none;
+  height: 18px;
+  background-color: rgb(47, 196, 252);
+  width: auto;
+  text-align: center;
+}
+
+/*** END LOCAL MOVIE EZ ****/
 #cliqz-results .cqz-ez-subtitle {
   display: block;
   margin-bottom: 18px;

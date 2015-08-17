@@ -5,3 +5,6 @@ mozilla-release
 .vagrant
 *~
 *#
+.idea/
+cliqz@cliqz.com/tests/screenshots/lambda/node_modules
+bower_components

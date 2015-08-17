@@ -20,7 +20,7 @@
 
         <div extra="title" class='cqz-result-title overflow'
           arrow="false" arrow-override=''
-          ><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
+          ><a href="{{url}}" extra="title">{{ emphasis title text 2 true }}</a></div>
         <div class='cqz-result-url overflow
                     {{#if urlDetails.ssl }}
                          cqz-result-url-ssl

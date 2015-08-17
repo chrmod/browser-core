@@ -3,17 +3,14 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 	<Description about="urn:mozilla:install-manifest">
 		<em:id>cliqz@cliqz.com</em:id>
-		<em:name>Cliqz Beta</em:name>
-		<em:version>1.0.23.1b106</em:version>
+		<em:name>Cliqz</em:name>
+		<em:version>1.0.28</em:version>
 
 		<em:type>2</em:type>
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
-		
-		
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/browser/latest.rdf</em:updateURL>
-		
 
 		<em:description>
 		</em:description>
