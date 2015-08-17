@@ -124,7 +124,7 @@ var MessageHandler = function (id) {
 	this.id = id;
 	this._windows = [];
 	this._messageQueue = [];
-	// message object is key
+	// message id is key
 	this._callbacks = {};
 };
 MessageHandler.prototype.init = function (win) {
@@ -138,7 +138,7 @@ MessageHandler.prototype.unload = function (win) {
 };
 MessageHandler.prototype.enqueueMessage = function (message, callback) {
 	this._messageQueue.push(message);
-	this._callbacks[message] = callback;
+	this._callbacks[message.id] = callback;
 	if (this._messageQueue.length == 1) {
 		this._renderMessage(message);
 	}
@@ -149,13 +149,13 @@ MessageHandler.prototype.dequeueMessage = function (message) {
 		this.showNextMessage();
 	} else if (i > -1) {
 		this._messageQueue.splice(i, 1);
-		delete this._callbacks[message];
+		delete this._callbacks[message.id];
 	}
 };
 MessageHandler.prototype.showNextMessage = function () {
 	var message = this._messageQueue.shift();
 	if (message) {
-		delete this._callbacks[message];
+		delete this._callbacks[message.id];
 		this._hideMessage(message);
 		if (this._messageQueue.length > 0) {
 			this._renderMessage(this._messageQueue[0]);
@@ -251,8 +251,8 @@ MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	    message = self._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
 	// the next message is used when invoking the callback
-	if (message && self._callbacks[message]) {
-		self._callbacks[message](message.id, action);
+	if (message && self._callbacks[message.id]) {
+		self._callbacks[message.id](message.id, action);
 	}
 	self.showNextMessage();
 };
@@ -262,8 +262,8 @@ var MessageHandlerAlert = MessageHandlerAlert ||
 MessageHandlerAlert._renderMessage = function (message) {
 	// TODO: wait for window to open
 	CliqzUtils.getWindow().alert(message.text);
-	if (this._callbacks[message]) {
-		this._callbacks[message].callback(message.id, message.options &&
+	if (this._callbacks[message.id]) {
+		this._callbacks[message.id].callback(message.id, message.options &&
 			message.options.length > 0 && message.options[0].action);
 	}
 	this.showNextMessage();
