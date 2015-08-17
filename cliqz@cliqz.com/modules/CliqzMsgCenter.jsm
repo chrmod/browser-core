@@ -104,7 +104,6 @@ Trigger.prototype._notifyListeners = function () {
 	}
 };
 
-// Singleton
 var TriggerUrlbarFocus = TriggerUrlbarFocus ||
 	new Trigger('TRIGGER_URLBAR_FOCUS');
 TriggerUrlbarFocus.init = function (win) {
@@ -165,9 +164,9 @@ MessageHandler.prototype.showNextMessage = function () {
 };
 
 var MessageHandlerDropdownFooter = function () {
-	MessageHandler.call(this, 'MESSAGE_HANDLER_DROPDOWN_FOOTER');
-	this._listeners = {};
+	MessageHandler.call(this, MessageHandlerDropdownFooter.id);
 };
+MessageHandlerDropdownFooter.id = 'MESSAGE_HANDLER_DROPDOWN_FOOTER';
 MessageHandlerDropdownFooter.prototype =
 	Object.create(MessageHandler.prototype);
 MessageHandlerDropdownFooter.prototype.constructor =
@@ -177,11 +176,10 @@ MessageHandlerDropdownFooter.prototype.parent =
 MessageHandlerDropdownFooter.prototype.init = function (win) {
 	this.parent.init.call(this, win);
 
-	var listener = this._addClickListener.bind(this);
-	// message container does not exist yet, wait for popup
-	win.CLIQZ.Core.popup.addEventListener('popupshowing', listener);
-	// keep reference to new function object created by bind
-	this._listeners[win.CLIQZ.Core.popup] = listener;
+	win.CLIQZ.Core.popup.addEventListener('popupshowing',
+		this._addClickListener);
+	// keep reference to this listener
+	win.CLIQZ.Core.popup[this.id] = this;
 	if (this._messageQueue[0]) {
 		this._renderMessage(this._messageQueue[0], win);
 	}
@@ -189,15 +187,15 @@ MessageHandlerDropdownFooter.prototype.init = function (win) {
 MessageHandlerDropdownFooter.prototype.unload = function (win) {
 	this.parent.unload.call(this, win);
 	// usually removed on popup showing, but not if window closed before
-	if (this._listeners[win.CLIQZ.Core.popup]) {
+	if (win.CLIQZ.Core.popup[this.id]) {
 		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
-			this._listeners[win.CLIQZ.Core.popup]);
-		delete this._listeners[win.CLIQZ.Core.popup];
+			this._addClickListener);
+		delete win.CLIQZ.Core.popup[this.id];
 	}
 
 	var msgContainer = win.document.getElementById('cliqz-message-container');
-	msgContainer.removeEventListener('click', this._listeners[msgContainer]);
-	delete this._listeners[msgContainer];
+	msgContainer.removeEventListener('click', this._onClick);
+	delete msgContainer[this.id];
 };
 MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
@@ -234,26 +232,29 @@ MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	return {'footer-message': m};
 };
 MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
+	_log('##### open');
 	var popup = e.target,
-		win = popup.parentNode.parentNode.parentNode;
+		win = popup.parentNode.parentNode.parentNode,
+		self = popup[MessageHandlerDropdownFooter.id];
 
-	popup.removeEventListener('popupshowing', this._listeners[popup]);
-	delete this._listeners[popup];
+	popup.removeEventListener('popupshowing', self._addClickListener);
+	delete popup[self.id];
 
 	var msgContainer = win.getElementById('cliqz-message-container');
-	this._listeners[msgContainer] = this._onClick.bind(this);
-	win.getElementById('cliqz-message-container').addEventListener(
-		'click', this._listeners[msgContainer]);
+	msgContainer.addEventListener('click', self._onClick);
+	msgContainer[self.id] = self;
 };
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
-	    message = this._messageQueue[0];
+		msgContainer = e.target.parentNode.parentNode.parentNode,
+		self = msgContainer[MessageHandlerDropdownFooter.id],
+	    message = self._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
 	// the next message is used when invoking the callback
-	if (message && this._callbacks[message]) {
-		this._callbacks[message](message.id, action);
+	if (message && self._callbacks[message]) {
+		self._callbacks[message](message.id, action);
 	}
-	this.showNextMessage();
+	self.showNextMessage();
 };
 
 var MessageHandlerAlert = MessageHandlerAlert ||
@@ -492,8 +493,8 @@ CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
 var x = new MessageHandlerDropdownFooter();
 CliqzMsgCenter.registerMessageHandler(x.id, x);
-CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
-	MessageHandlerAlert);
+// CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
+// 	MessageHandlerAlert);
 
 CliqzMsgCenter._loadCampaigns();
 CliqzMsgCenter._activateCampaignUpdates();
