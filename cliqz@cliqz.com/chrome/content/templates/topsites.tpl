@@ -1,10 +1,10 @@
 <div class='cqz-result-box'>
     <div class='cqz-result-h2 cqz-result-padding cqz-noresult-box cqz-topsites'>
         {{#with data}}
-            <div class="cqz-ez-title custom-after cqz-ez-generic-title" extra="title" cliqz-action="hide-topsites">
+            <div class="cqz-ez-title custom-after cqz-ez-generic-title" extra="title">
                 {{ title }}
             </div>
-            <div class="ez-no-result" cliqz-action="hide-topsites">
+            <div class="ez-no-result">
                 <ul class="cqz-suggestion-list">
                     {{#each urls}}
                         <li class="cqz-item"

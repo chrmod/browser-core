@@ -1536,14 +1536,6 @@ function resultClick(ev){
                     }, 0);
 
                     return;
-                case 'hide-topsites':
-                  if (CliqzUtils.getPref('topSitesV2', false)) {
-                    CLIQZ.Core.popup.hidePopup();
-                    CliqzUtils.telemetry({
-                      type: 'activity',
-                      action: 'topsites_close'
-                    });
-                  }
                 default:
                     break;
             }
