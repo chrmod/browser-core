@@ -200,6 +200,7 @@ MessageHandlerDropdownFooter.prototype.unload = function (win) {
 MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
 	if (win) {
+		// TODO: show immediately
 		win.CLIQZ.UI.messageCenterMessage =
 			message ? this._convertMessage(message) : null;
 		if (!message) {
