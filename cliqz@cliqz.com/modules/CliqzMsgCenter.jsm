@@ -164,18 +164,17 @@ MessageHandler.prototype.showNextMessage = function () {
 	}
 };
 
-var MessageHandlerDropdownFooter = MessageHandlerDropdownFooter ||
-	new MessageHandler('MESSAGE_HANDLER_DROPDOWN_FOOTER');
-// TODO: is this the right way to call original method?
-// TODO: subclass MessageHandler instead of modifying instance?
-MessageHandlerDropdownFooter._super = {
-	init:
-		MessageHandlerDropdownFooter.init.bind(MessageHandlerDropdownFooter),
-	unload:
-		MessageHandlerDropdownFooter.init.bind(MessageHandlerDropdownFooter)
+var MessageHandlerDropdownFooter = function () {
+	//this.parent.constructor('MESSAGE_HANDLER_DROPDOWN_FOOTER');
 };
-MessageHandlerDropdownFooter.init = function (win) {
-	this._super.init(win);
+MessageHandlerDropdownFooter.prototype =
+	new MessageHandler();
+MessageHandlerDropdownFooter.prototype.constructor =
+	MessageHandlerDropdownFooter;
+MessageHandlerDropdownFooter.prototype.parent =
+	MessageHandler.prototype;
+MessageHandlerDropdownFooter.prototype.init = function (win) {
+	this.parent.init.call(this, win);
 	// message container does not exist yet, wait for popup
 	win.CLIQZ.Core.popup.addEventListener('popupshowing',
 		this._addClickListener);
@@ -183,15 +182,16 @@ MessageHandlerDropdownFooter.init = function (win) {
 		this._renderMessage(this._messageQueue[0], win);
 	}
 };
-MessageHandlerDropdownFooter.unload = function (win) {
-	this._super.unload(win);
+MessageHandlerDropdownFooter.prototype.unload = function (win) {
+	this.parent.unload.call(this, win);
 	// usually removed on popup showing, but not if window closed before
+	this.tmp = this._addClickListener.bind(this);
 	win.CLIQZ.Core.popup.removeEventListener('popupshowing',
-		this._addClickListener);
+		this.tmp);
 	win.document.getElementById('cliqz-message-container').
 		removeEventListener('click', this._onClick);
 };
-MessageHandlerDropdownFooter._renderMessage = function (message, win) {
+MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
 	if (win) {
 		win.CLIQZ.UI.messageCenterMessage =
@@ -202,12 +202,12 @@ MessageHandlerDropdownFooter._renderMessage = function (message, win) {
 		}.bind(this));
 	}
 };
-MessageHandlerDropdownFooter._hideMessage = function (message) {
+MessageHandlerDropdownFooter.prototype._hideMessage = function (message) {
 	this._renderMessage(null);
 	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
 };
 // converts message into format expected by UI
-MessageHandlerDropdownFooter._convertMessage = function (message) {
+MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	var m = {
 		simple_message: message.text,
 		options: []
@@ -225,16 +225,17 @@ MessageHandlerDropdownFooter._convertMessage = function (message) {
 
 	return {'footer-message': m};
 };
-MessageHandlerDropdownFooter._addClickListener = function (e) {
+MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
+	_log('#####');
 	var popup = e.target,
 		win = popup.parentNode.parentNode.parentNode;
 
 	win.getElementById('cliqz-message-container').addEventListener(
-		'click', MessageHandlerDropdownFooter._onClick);
+		'click', this._onClick);
 	popup.removeEventListener('popupshowing',
-		MessageHandlerDropdownFooter._addClickListener);
+		this.tmp);
 };
-MessageHandlerDropdownFooter._onClick = function (e) {
+MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
 	    message = MessageHandlerDropdownFooter._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
@@ -479,8 +480,8 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 
 CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
-CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
-	MessageHandlerDropdownFooter);
+var x = new MessageHandlerDropdownFooter();
+CliqzMsgCenter.registerMessageHandler(x.id, x);
 CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
 	MessageHandlerAlert);
 
