@@ -165,19 +165,21 @@ MessageHandler.prototype.showNextMessage = function () {
 };
 
 var MessageHandlerDropdownFooter = function () {
-	//this.parent.constructor('MESSAGE_HANDLER_DROPDOWN_FOOTER');
+	MessageHandler.call(this, 'MESSAGE_HANDLER_DROPDOWN_FOOTER');
 };
 MessageHandlerDropdownFooter.prototype =
-	new MessageHandler();
+	Object.create(MessageHandler.prototype);
 MessageHandlerDropdownFooter.prototype.constructor =
 	MessageHandlerDropdownFooter;
 MessageHandlerDropdownFooter.prototype.parent =
 	MessageHandler.prototype;
 MessageHandlerDropdownFooter.prototype.init = function (win) {
 	this.parent.init.call(this, win);
+	// 'bind(this)' creates a new object, need to remove later
+	this._callback = this._addClickListener.bind(this);
 	// message container does not exist yet, wait for popup
 	win.CLIQZ.Core.popup.addEventListener('popupshowing',
-		this._addClickListener);
+		this._callback);
 	if (this._messageQueue[0]) {
 		this._renderMessage(this._messageQueue[0], win);
 	}
@@ -185,11 +187,10 @@ MessageHandlerDropdownFooter.prototype.init = function (win) {
 MessageHandlerDropdownFooter.prototype.unload = function (win) {
 	this.parent.unload.call(this, win);
 	// usually removed on popup showing, but not if window closed before
-	this.tmp = this._addClickListener.bind(this);
 	win.CLIQZ.Core.popup.removeEventListener('popupshowing',
-		this.tmp);
+		this._callback);
 	win.document.getElementById('cliqz-message-container').
-		removeEventListener('click', this._onClick);
+		removeEventListener('click', this._callback);
 };
 MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
@@ -226,24 +227,25 @@ MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	return {'footer-message': m};
 };
 MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
-	_log('#####');
 	var popup = e.target,
 		win = popup.parentNode.parentNode.parentNode;
 
+	popup.removeEventListener('popupshowing', this._callback);
+
+	// re-use variable
+	this._callback = this._onClick.bind(this);
 	win.getElementById('cliqz-message-container').addEventListener(
-		'click', this._onClick);
-	popup.removeEventListener('popupshowing',
-		this.tmp);
+		'click', this._callback);
 };
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
-	    message = MessageHandlerDropdownFooter._messageQueue[0];
+	    message = this._messageQueue[0];
 	// not thread-safe: if current message is removed while it is showing,
 	// the next message is used when invoking the callback
-	if (message && MessageHandlerDropdownFooter._callbacks[message]) {
-		MessageHandlerDropdownFooter._callbacks[message](message.id, action);
+	if (message && this._callbacks[message]) {
+		this._callbacks[message](message.id, action);
 	}
-	MessageHandlerDropdownFooter.showNextMessage();
+	this.showNextMessage();
 };
 
 var MessageHandlerAlert = MessageHandlerAlert ||
