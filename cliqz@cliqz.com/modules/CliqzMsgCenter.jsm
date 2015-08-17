@@ -232,7 +232,6 @@ MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	return {'footer-message': m};
 };
 MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
-	_log('##### open');
 	var popup = e.target,
 		win = popup.parentNode.parentNode.parentNode,
 		self = popup[MessageHandlerDropdownFooter.id];
@@ -263,18 +262,26 @@ MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	}
 };
 
-var MessageHandlerAlert = MessageHandlerAlert ||
-	new MessageHandler('MESSAGE_HANDLER_ALERT');
-MessageHandlerAlert._renderMessage = function (message) {
+var MessageHandlerAlert = function () {
+	MessageHandler.call(this, MessageHandlerAlert.id);
+};
+MessageHandlerAlert.id = 'MESSAGE_HANDLER_ALERT';
+MessageHandlerAlert.prototype =
+	Object.create(MessageHandler.prototype);
+MessageHandlerAlert.prototype.constructor =
+	MessageHandlerAlert;
+MessageHandlerDropdownFooter.prototype.parent =
+	MessageHandler.prototype;
+MessageHandlerAlert.prototype._renderMessage = function (message) {
 	// TODO: wait for window to open
 	CliqzUtils.getWindow().alert(message.text);
 	if (this._callbacks[message.id]) {
-		this._callbacks[message.id].callback(message.id, message.options &&
+		this._callbacks[message.id](message.id, message.options &&
 			message.options.length > 0 && message.options[0].action);
 	}
 	this.showNextMessage();
 };
-MessageHandlerAlert._hideMessage = function () { };
+MessageHandlerAlert.prototype._hideMessage = function () { };
 /* ************************************************************************* */
 
 var CliqzMsgCenter = CliqzMsgCenter || {
@@ -510,10 +517,10 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 
 CliqzMsgCenter.registerTrigger(TriggerUrlbarFocus.id,
 	TriggerUrlbarFocus);
-var x = new MessageHandlerDropdownFooter();
-CliqzMsgCenter.registerMessageHandler(x.id, x);
-// CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
-// 	MessageHandlerAlert);
+CliqzMsgCenter.registerMessageHandler(MessageHandlerDropdownFooter.id,
+	new MessageHandlerDropdownFooter());
+CliqzMsgCenter.registerMessageHandler(MessageHandlerAlert.id,
+	new MessageHandlerAlert());
 
 CliqzMsgCenter._loadCampaigns();
 CliqzMsgCenter._activateCampaignUpdates();
