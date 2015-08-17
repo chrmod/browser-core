@@ -166,6 +166,7 @@ MessageHandler.prototype.showNextMessage = function () {
 
 var MessageHandlerDropdownFooter = function () {
 	MessageHandler.call(this, 'MESSAGE_HANDLER_DROPDOWN_FOOTER');
+	this._listeners = {};
 };
 MessageHandlerDropdownFooter.prototype =
 	Object.create(MessageHandler.prototype);
@@ -175,11 +176,12 @@ MessageHandlerDropdownFooter.prototype.parent =
 	MessageHandler.prototype;
 MessageHandlerDropdownFooter.prototype.init = function (win) {
 	this.parent.init.call(this, win);
-	// 'bind(this)' creates a new object, need to remove later
-	this._callback = this._addClickListener.bind(this);
+
+	var listener = this._addClickListener.bind(this);
 	// message container does not exist yet, wait for popup
-	win.CLIQZ.Core.popup.addEventListener('popupshowing',
-		this._callback);
+	win.CLIQZ.Core.popup.addEventListener('popupshowing', listener);
+	// keep reference to new function object created by bind
+	this._listeners[win.CLIQZ.Core.popup] = listener;
 	if (this._messageQueue[0]) {
 		this._renderMessage(this._messageQueue[0], win);
 	}
@@ -187,10 +189,15 @@ MessageHandlerDropdownFooter.prototype.init = function (win) {
 MessageHandlerDropdownFooter.prototype.unload = function (win) {
 	this.parent.unload.call(this, win);
 	// usually removed on popup showing, but not if window closed before
-	win.CLIQZ.Core.popup.removeEventListener('popupshowing',
-		this._callback);
-	win.document.getElementById('cliqz-message-container').
-		removeEventListener('click', this._callback);
+	if (this._listeners[win.CLIQZ.Core.popup]) {
+		win.CLIQZ.Core.popup.removeEventListener('popupshowing',
+			this._listeners[win.CLIQZ.Core.popup]);
+		delete this._listeners[win.CLIQZ.Core.popup];
+	}
+
+	var msgContainer = win.document.getElementById('cliqz-message-container');
+	msgContainer.removeEventListener('click', this._listeners[msgContainer]);
+	delete this._listeners[msgContainer];
 };
 MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
@@ -230,12 +237,13 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 	var popup = e.target,
 		win = popup.parentNode.parentNode.parentNode;
 
-	popup.removeEventListener('popupshowing', this._callback);
+	popup.removeEventListener('popupshowing', this._listeners[popup]);
+	delete this._listeners[popup];
 
-	// re-use variable
-	this._callback = this._onClick.bind(this);
+	var msgContainer = win.getElementById('cliqz-message-container');
+	this._listeners[msgContainer] = this._onClick.bind(this);
 	win.getElementById('cliqz-message-container').addEventListener(
-		'click', this._callback);
+		'click', this._listeners[msgContainer]);
 };
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
