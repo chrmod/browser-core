@@ -202,6 +202,10 @@ MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) 
 	if (win) {
 		win.CLIQZ.UI.messageCenterMessage =
 			message ? this._convertMessage(message) : null;
+		if (!message) {
+			// hide immediately
+			win.CLIQZ.Core.popup.cliqzBox.messageContainer.innerHTML = '';
+		}
 	} else {
 		this._windows.map(function (w) {
 			if (w) { this._renderMessage(message, w); }
@@ -210,7 +214,6 @@ MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) 
 };
 MessageHandlerDropdownFooter.prototype._hideMessage = function (message) {
 	this._renderMessage(null);
-	CliqzUtils.getWindow().CLIQZ.Core.popup.hidePopup();
 };
 // converts message into format expected by UI
 MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
