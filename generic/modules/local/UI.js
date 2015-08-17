@@ -953,6 +953,7 @@ function enhanceResults(res){
                     // double safety - to be removed
                     r.invalid = true;
                     r.dontCountAsResult = true;
+                    continue;
                 }
 
             }
