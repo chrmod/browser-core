@@ -469,15 +469,25 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
 		if (campaign) {
-			_log('campaign ' + campaign.id + ': ' + action);
-			_telemetry(campaign, action);
 			if (ACTIONS.indexOf(action) != -1) {
+				_log('campaign ' + campaign.id + ': ' + action);
+				_telemetry(campaign, action);
+
 				if (campaign.limits[action] != -1 ||
 					++campaign.counts[action] == campaign.limits[action]) {
 					campaign.setState('end');
 
 					if (action == 'confirm') {
 						CliqzUtils.httpGet(_getEndpoint('click', campaign));
+						// TODO: potentially move to method
+						var gBrowser = CliqzUtils.getWindow().gBrowser;
+						for (var i = 0; i < campaign.message.options.length; i++) {
+							if (campaign.message.options[i].action == action &&
+								campaign.message.options[i].url) {
+									gBrowser.selectedTab =
+										gBrowser.addTab(campaign.message.options[i].url);
+							}
+						}
 					}
 				} else {
 					campaign.setState('idle');
