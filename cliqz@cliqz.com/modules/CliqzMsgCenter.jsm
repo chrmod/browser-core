@@ -164,7 +164,7 @@ MessageHandler.prototype.showNextMessage = function () {
 	}
 };
 
-var MessageHandlerDropdownFooter =
+var MessageHandlerDropdownFooter = MessageHandlerDropdownFooter ||
 	new MessageHandler('MESSAGE_HANDLER_DROPDOWN_FOOTER');
 // TODO: is this the right way to call original method?
 // TODO: subclass MessageHandler instead of modifying instance?
