@@ -614,6 +614,7 @@
     transition: 0.3s all;
     vertical-align: middle;
 }
+/*#cliqz-popup .cqz-message-btns .cqz-msg-btn.cqz-msg-btn-default { background: red; }*/
 #cliqz-popup .cqz-message-btns .cqz-msg-btn:last-child { margin-right: 0; }
 #cliqz-popup .cqz-message-btns .cqz-msg-btn:hover { color: #3bb5d4; background: #fff; }
 #cliqz-popup .cqz-message-bar.cqz-message-alert .cqz-msg-btn:hover { color: #7a2354; }
