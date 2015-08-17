@@ -105,7 +105,8 @@ Trigger.prototype._notifyListeners = function () {
 };
 
 // Singleton
-var TriggerUrlbarFocus = new Trigger('TRIGGER_URLBAR_FOCUS');
+var TriggerUrlbarFocus = TriggerUrlbarFocus ||
+	new Trigger('TRIGGER_URLBAR_FOCUS');
 TriggerUrlbarFocus.init = function (win) {
 	win.CLIQZ.Core.urlbar.addEventListener('focus',
 		this._onUrlbarFocus);
@@ -244,7 +245,7 @@ MessageHandlerDropdownFooter._onClick = function (e) {
 	MessageHandlerDropdownFooter.showNextMessage();
 };
 
-var MessageHandlerAlert =
+var MessageHandlerAlert = MessageHandlerAlert ||
 	new MessageHandler('MESSAGE_HANDLER_ALERT');
 MessageHandlerAlert._renderMessage = function (message) {
 	// TODO: wait for window to open
@@ -258,7 +259,7 @@ MessageHandlerAlert._renderMessage = function (message) {
 MessageHandlerAlert._hideMessage = function () { };
 /* ************************************************************************* */
 
-var CliqzMsgCenter = {
+var CliqzMsgCenter = CliqzMsgCenter || {
 	_windows: [],
 	_campaigns: {},
 	_messageHandlers: {},
