@@ -1087,11 +1087,8 @@ function enhanceResults(res){
 
     var spelC = CliqzAutocomplete.spellCorr;
 
-    if (CLIQZ.UI.messageCenterMessage) {
-      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
-    }
     //filter adult results
-    else if(adult) {
+    if(adult) {
         var level = CliqzUtils.getPref('adultContentFilter', 'moderate');
         if(level != 'liberal' && adultMessage != 1)
             res.results = res.results.filter(function(r){ return !(r.data && r.data.adult); });
@@ -1187,6 +1184,8 @@ function enhanceResults(res){
               ]
             }
         });
+    } else if (CLIQZ.UI.messageCenterMessage) {
+      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
     }
 
     return res;
