@@ -506,7 +506,7 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
-        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
+        CliqzUtils.setSearchSession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {

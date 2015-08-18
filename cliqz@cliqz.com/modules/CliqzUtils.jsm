@@ -587,18 +587,11 @@ var CliqzUtils = {
     }
   },
   getCliqzResults: function(q, callback){
-    CliqzUtils._querySeq++;
+    CliqzUtils._sessionSeq++;
 
-    if(q.length < CliqzUtils._queryLastLength){
-      CliqzUtils._queriesDel++;
-      CliqzUtils._queriesTSDel = CliqzUtils._queriesTSDel.map(function(v){ return v+1; });
-    } else {
-      [100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000].forEach(function(v, i){
-        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + v)){
-          CliqzUtils._queriesTS[i]++;
-          CliqzUtils._queriesTSDel[i]++;
-        }
-      });
+    // if the user sees the results more than 500ms we consider that he starts a new query
+    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+      CliqzUtils._queryCount++;
     }
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
@@ -611,8 +604,7 @@ var CliqzUtils = {
 
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
-              CliqzUtils.encodeQuerySession() +
-              CliqzUtils.encodeQuerySeq() +
+              CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
@@ -717,34 +709,28 @@ var CliqzUtils = {
     else
       return [];
   },
-  _querySession: '',
-  _querySeq: 0,
+  // random ID generated at each urlbar focus
+  _searchSession: '',
+  // number of sequences in each session
+  _sessionSeq: 0,
   _queryLastLength: null,
   _queryLastDraw: null,
-  _queriesTS: null,
-  _queriesTSDel: null,
-  _queriesDel: null,
-  setQuerySession: function(querySession){
-    CliqzUtils._querySession = querySession;
-    CliqzUtils._querySeq = 0;
-    CliqzUtils._queriesTS = [0,0,0,0,0,0,0,0,0,0];
-    CliqzUtils._queriesTSDel = [0,0,0,0,0,0,0,0,0,0];
-    CliqzUtils._queriesDel = 0;
+  // number of queries in search session
+  _queryCount: null,
+  setSearchSession: function(rand){
+    CliqzUtils._searchSession = rand;
+    CliqzUtils._sessionSeq = 0;
+    CliqzUtils._queryCount = 0;
     CliqzUtils._queryLastLength = 0;
     CliqzUtils._queryLastDraw = 0;
   },
-  encodeQuerySession: function(){
-    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
-  },
-  encodeQuerySeq: function(){
-    if(CliqzUtils._querySession.length){
-      return '&n=' + CliqzUtils._querySeq +
-             '&nd=' + CliqzUtils._queriesDel +
-             '&nts=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTS)) +
-             '&ntsd=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTSDel));
+  encodeSessionParams: function(){
+    if(CliqzUtils._searchSession.length){
+      return '&s=' + encodeURIComponent(CliqzUtils._searchSession) +
+             '&n=' + CliqzUtils._sessionSeq +
+             '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-
   getGeo: function(allowOnce, callback, failCB) {
     /*
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
@@ -859,8 +845,7 @@ var CliqzUtils = {
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() +
-      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeSessionParams() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
     CliqzUtils.httpGet(

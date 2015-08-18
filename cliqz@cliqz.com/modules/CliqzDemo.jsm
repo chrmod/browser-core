@@ -80,7 +80,7 @@ function _createFakeCursor (win) {
 }
 
 function _getFakeCursor(win) {
-	 return win.document.getElementById(FAKE_CURSOR_ID);
+	 return win && win.document.getElementById(FAKE_CURSOR_ID);
 }
 
 function _destroyFakeCursor(win) {
@@ -93,7 +93,7 @@ function _dropdownHiddenListener() {
 	var win = CliqzUtils.getWindow(),
 		cursor = _getFakeCursor(win);
 
-	if (cursor.state == "open") {
+	if (cursor && cursor.state == "open") {
 		cursor.hidePopup();
 	}
 }
