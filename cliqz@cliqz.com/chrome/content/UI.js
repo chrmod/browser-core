@@ -1104,7 +1104,7 @@ function enhanceResults(res){
                 "footer-message": {
                     type: 'cqz-message-alert',
                     simple_message: CliqzUtils.getLocalizedString('adultInfo'),
-                    telemetry: 'changelog',
+                    telemetry: 'adultFilter',
                     options: [{
                             text: CliqzUtils.getLocalizedString('adultConservative'),
                             action: 'adult-conservative',
@@ -1377,11 +1377,11 @@ function urlIndexInHistory(url, urlList) {
                     case 'adult-moderate':
                     case 'adult-liberal':
                         //Adult state can be conservative, moderate, liberal
-                        var adultState = state.split('-'),
+                        var state = state.split('-')[1],
                             ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
                             user_location = CliqzUtils.getPref("config_location");
 
-                        CliqzUtils.setPref('adultContentFilter', adultState[1]);
+                        CliqzUtils.setPref('adultContentFilter', state);
                         updateMessageState("hide");
                         UI.handleResults();
                         if (user_location != "de" && !ignored_location_warning)
