@@ -46,7 +46,9 @@ env.cliqzdir()
                        .then(function(data){
                            news_domains_cache = data
                            env.writefile(NEWS_DOMAINS_DB,JSON.stringify(data))
-                       })
+                       }).catch(function(err) {
+                          console.log('news loading error ', err.message); // some coding error in handling happened
+                       });
             }
 
             // if news domains are cached then read and send the request
@@ -127,7 +129,7 @@ env.cliqzdir()
 
         // initialize additional cards
         if (firstrun) {
-            gc.add({ widget: "spotify" })
+            //gc.add({ widget: "spotify" })
             gc.add({ widget: "tutorial" })
         }
     })

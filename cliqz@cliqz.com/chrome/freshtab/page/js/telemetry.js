@@ -31,6 +31,8 @@ function Telemetry() {
     }
 
     this.send = function(type,message){
+        return; //TODO - enable
+
         if (type) this.push(type,message)
 
         if (env.get("disable-telemetry") == "true") return

@@ -129,7 +129,7 @@ env.cliqzdir()
 
         // initialize additional cards
         if (firstrun) {
-            gc.add({ widget: "spotify" })
+            //gc.add({ widget: "spotify" })
             gc.add({ widget: "tutorial" })
         }
     })

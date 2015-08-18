@@ -396,7 +396,7 @@ div#add-popup-shortcut {
 }
 
 /* search */
-.search-box { margin-bottom: 10px; position: relative; }
+.search-box { margin-bottom: 10px; position: relative; display: none; }
 #urlbar {
     width: 100%;
     height: 30px;
