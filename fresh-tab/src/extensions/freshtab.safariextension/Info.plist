@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Builder Version</key>
+	<string>10600.5.17</string>
+	<key>CFBundleDisplayName</key>
+	<string>Freshtab</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.cliqz.safari</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Global Page</key>
+		<string>global.html</string>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string>freshtab</string>
+				<key>Identifier</key>
+				<string>cliqzhome</string>
+				<key>Image</key>
+				<string>page/content/skin/cliqz_btn.png</string>
+				<key>Label</key>
+				<string>Cliqz</string>
+				<key>Palette Label</key>
+				<string>C</string>
+				<key>Tool Tip</key>
+				<string>C</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict/>
+	</dict>
+	<key>DeveloperIdentifier</key>
+	<string>FQHDJM9Y37</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
