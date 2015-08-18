@@ -19,4 +19,16 @@
 	{{/unless}}
 {{/each}}
 
+
+{{#if googleThis }}
+	{{#with googleThis }}
+		<div class="frame" {{#if frameWidth }} style="width: {{ frameWidth }}px; left: {{ left }}px" {{/if}}>
+			<div class="ez">
+				<div id="googleThisAnim">
+					Google
+				</div>
+			</div>
+		</div>
+	{{/with}}
+{{/if}}
 <div class='cqz-result-selected transition'></div>

@@ -162,7 +162,7 @@ module.exports = function(grunt) {
                 dest: build("tool_iOS/js/local.js")
             },
             libs: {
-                src: ["generic/modules/libs/*"],
+                src: ["generic/modules/libs/*", "specific/androidkit/js/viewpager.js"],
                 dest: build("tool/js/libs.js")
             },
             androidkit_local: {

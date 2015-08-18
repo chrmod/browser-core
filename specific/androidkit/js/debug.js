@@ -16,39 +16,58 @@ function search(e) {
 	setTimeout(function(){
 		CLIQZ.UI.main(resultsBox);
 		item_container = document.getElementById('cliqz-results');
+		var currentScrollInfo = {
+			page: 0,
+			totalOffset: 0,
+			pageOffset: 0
+		};
 		(new CliqzAutocomplete.CliqzResults()).search(urlbar.value, function(r){
 
 			var w = window.innerWidth;
+			var isLoadingGoogle = false;
+
 			var offset = 0;
-			/* if (r._results.length) {
-				r._results = [r._results[0]];
-			} */
-			resultsBox.style.width = (window.innerWidth * r._results.length) + 'px';
+			var showGooglethis = (r._results.length ? 1 : 0);
+			resultsBox.style.width = (window.innerWidth * (r._results.length + showGooglethis)) + 'px';
 			item_container.style.width = resultsBox.style.width;
+			var validCount = 0;
+
 			var currentResults = CLIQZ.UI.results({
 				q: r._searchString,
 				results: r._results.map(function(r, idx){
 					r.type = r.style;
-					r.left = (window.innerWidth * idx);
+					r.left = (window.innerWidth * validCount);
 					r.frameWidth = window.innerWidth;
 					r.url = r.val || '';
 					r.title = r.comment || '';
+
+					if (!r.invalid) {
+						validCount++;
+					}
 					return r;
 				}),
-				isInstant: false
+				isInstant: false,
+				googleThis: {
+					left: (window.innerWidth * validCount),
+					add: showGooglethis,
+					frameWidth: window.innerWidth
+				}
 			});
+			validCount += showGooglethis;
 
-			resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * currentResults.results.length)) + 'px, 0px, 0px)';
-			
 
+
+			resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * validCount)) + 'px, 0px, 0px)';
+			var googleAnim = document.getElementById("googleThisAnim");
 
 
 			var vp = new ViewPager(resultsBox, {
-			  pages: currentResults.results.length,
+			  pages: validCount,
 			  dragSize: window.innerWidth,
 			  prevent_all_native_scrolling: true,
 			  vertical: false,
 			  onPageScroll : function (scrollInfo) {
+			  	currentScrollInfo = scrollInfo;
 			    offset = -scrollInfo.totalOffset;
 			    invalidateScroll();
 			  },
@@ -61,6 +80,16 @@ function search(e) {
 			function invalidateScroll() {
 				// setTimeout(function() { 
 			  	resultsBox.style['transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
+			  	if (googleAnim) {
+			  		if (currentScrollInfo['page'] >= validCount - 2) {
+			  			googleAnim.style['transform'] = 'rotateZ(' + (currentScrollInfo['pageOffset'] * 360) + 'deg)';
+			  		}
+			  		if (currentScrollInfo['totalOffset'] >= validCount - 0.9 && !isLoadingGoogle) {
+			  			isLoadingGoogle = true;
+			  			history.replaceState({"currentCliqzQuery": urlbar.value}, "", window.location.href + "?q=" + urlbar.value);
+			  			CLIQZEnvironment.openLink("http://www.google.com/#q=" + urlbar.value);
+			  		}
+			  	}
 				// }, 0);
 			}
 
@@ -68,8 +97,8 @@ function search(e) {
 			  var w = window.innerWidth;
 			  invalidateScroll();
 			});
-		});
 	
+		});
 	}, 100);
 }
 
