@@ -230,6 +230,7 @@ var Extension = {
     cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
         prefs.clearUserPref('analysis');
+        prefs.clearUserPref('news-toggle-trending');
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
