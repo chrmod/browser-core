@@ -320,6 +320,14 @@
 #cliqz-results .entity-story-title { padding-top: 4px; max-width: 550px; }
 #cliqz-results .entity-story-title a { font-size: 18px; }
 #cliqz-results .entity-story-comment { color: #c3043e; padding-top: 9px; }
+#cliqz-results .entity-stories .cqz-twitter-count {
+    display: inline-block;
+    margin-left: 20px;
+    padding-left: 19px;
+    color: #49c0f4;
+    vertical-align: top;
+    background: url(https://cdn.cliqz.com/extension/EZ/news/twitter-bird.svg) no-repeat 0 3px;
+}
 
 /* ez video specials */
 #cliqz-results .ez-video .entity-story-comment { color: #333333; padding-top: 4px; }

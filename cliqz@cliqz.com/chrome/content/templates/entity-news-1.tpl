@@ -20,6 +20,11 @@
           <div class="entity-story-title"><a href="{{url}}">{{ title }}</a></div>
           <div class="entity-story-comment">
             {{ time }}
+            {{# if tweet_count }}
+                <span class="cqz-twitter-count">
+                  {{ tweet_count }}
+                </span>
+            {{/if}}
           </div>
         </div>
       </div>
