@@ -32,15 +32,9 @@ var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
-    'census':'c',
     'news':'n',
     'video':'v',
     'hq':'h',
-    'shopping':'s',
-    'science':'k',
-    'gaming':'g',
-    'dictionary':'l',
-    'qaa':'q',
     'bm': 'm',
     'reciperd': 'r',
     'game': 'g',
@@ -60,7 +54,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
@@ -95,7 +89,8 @@ var CliqzUtils = {
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
-      'cpgame_movie': 3
+      'cpgame_movie': 3,
+      "delivery-tracking": 2
   },
   cliqzPrefs: Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefService).getBranch('extensions.cliqz.'),
@@ -755,7 +750,10 @@ var CliqzUtils = {
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
                                 This is used when the user clicks on Share Location "Just once".
     */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) failCB("No permission to get user's location");
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+      failCB("No permission to get user's location");
+      return;
+    }
 
     if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
       callback({
@@ -1549,9 +1547,13 @@ var CliqzUtils = {
               }
           )
     },
-    updateGeoLocation: function() {
+    removeGeoLocationWatch: function() {
       var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
       CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.removeGeoLocationWatch();
 
       if (CliqzUtils.getPref('share_location') == 'yes') {
         // Get current position
@@ -1560,14 +1562,14 @@ var CliqzUtils = {
           CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
         }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
 
-        // Upate position if it changes
+        //Upate position if it changes
         CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
           // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CliqzUtils.getPref('share_location') == 'yes') {
+          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
             CliqzUtils.USER_LAT = p.coords.latitude;
             CliqzUtils.USER_LNG =  p.coords.longitude;
           }
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
       } else {
         CliqzUtils.USER_LAT = null;
         CliqzUtils.USER_LNG = null;

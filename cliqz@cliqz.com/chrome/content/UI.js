@@ -51,6 +51,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     IMAGE_WIDTH = 114,
     DEL = 46,
     BACKSPACE = 8,
+    ESC = 27,
     currentResults,
     adultMessage = 0, //0 - show, 1 - temp allow, 2 - temp dissalow
 
@@ -75,6 +76,7 @@ var UI = {
     mouseOver: false,
     urlbar_box: null,
     DROPDOWN_HEIGHT: 349,
+    popupClosed: true,
     init: function(){
         //patch this method to avoid any caching FF might do for components.xml
         CLIQZ.Core.popup._appendCurrentResult = function(){
@@ -165,7 +167,7 @@ var UI = {
         Array.prototype.slice.call(
           gCliqzBox.getElementsByClassName("cqz-result-box")).map(
             function (r) {
-              return Math.round(r.offsetHeight / 100);
+              return Math.floor(r.offsetHeight / 100);
             });
 
       var curResAll = currentResults.results;
@@ -189,7 +191,7 @@ var UI = {
           // makes sure that topsites show after changing tabs,
           // rather than showing the previous results;
           // (set to '' in CliqzSearchHistory.tabChanged)
-          if (CliqzAutocomplete.lastSearch === '') {
+          if (CliqzAutocomplete.lastSearch === 'IGNORE_TOPSITES') {
             return {};
           }
         }
@@ -241,7 +243,10 @@ var UI = {
         gCliqzBox.resultsBox.style.width = width + (CliqzUtils.isWindows() ? -1 : 1) + "px"
 
         // try to find and hide misaligned elemets - eg - weather
-        setTimeout(function(){ hideMisalignedElements(gCliqzBox.resultsBox); }, 0);
+        setTimeout(function(){
+            hideMisalignedElements(gCliqzBox.resultsBox);
+            smCqzAnalogClock($('.cqz-analog-clock', gCliqzBox.resultsBox));
+        }, 0);
 
         // find out if scrolling is possible
         CliqzAutocomplete.resultsOverflowHeight =
@@ -429,7 +434,7 @@ var UI = {
         var pos = allArrowable.indexOf(sel);
 
         UI.lastInputTime = (new Date()).getTime()
-        if(UI.popupClosed) {
+        if(ev.keyCode != ESC && UI.popupClosed) {
           gCliqzBox.resultsBox.innerHTML = "";
           UI.popupClosed = false;
         }
@@ -453,6 +458,9 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
+                if (CliqzUtils.getPref('topSitesV2', false)) {
+                  CLIQZ.Core._shouldDropdownStayOpen = false;
+                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
@@ -503,6 +511,11 @@ var UI = {
                 UI.preventAutocompleteHighlight = true;
                 UI.lastSelectedUrl = "";
                 clearResultSelection();
+                return false;
+            case ESC:
+                if (CLIQZ.Core.urlbar.mInputField.value.length == 0) {
+                  CLIQZ.Core.popup.hidePopup();
+                }
                 return false;
             default:
                 UI.lastInput = "";
@@ -998,6 +1011,8 @@ function enhanceResults(res){
                       'url': r.data["forecast_url"]
                   }
               ]
+          } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
+              r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
           }
         }
 
@@ -1597,7 +1612,7 @@ function handleNewLocalResults(el) {
         container = container.parentElement;
         if (!container || container.id == "cliqz-results") return;
       }
-      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_cinemas_to_show');
+      if (container) container.innerHTML = CliqzUtils.getLocalizedString('no_local_data_msg');
       while ( container && !CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
         container = container.parentElement;
         if (!container || container.id == "cliqz-results") return;
@@ -1832,7 +1847,7 @@ function resultMove(ev){
         lastMoveTime = Date.now();
 
         if(!el) return;
-        XULBrowserWindow.setOverLink(getStatus(ev, el));
+        XULBrowserWindow.setOverLink(getStatus(ev, el) || '');
     }
 }
 
@@ -2034,6 +2049,66 @@ function handleMouseDown(e) {
   }
   walk_the_DOM(e.originalTarget);
 }
+
+    function smCqzAnalogClock(elm) {
+
+        if (!elm)
+            return
+
+
+        var element = elm,
+            gethand = function (value, fullcircle) {
+                return value * 2 * Math.PI / fullcircle - Math.PI / 2
+            },
+            lpad = function (n) {
+                var ns = n.toString()
+
+                return ns.length == 1 ? "0" + ns.toString() : ns
+            }
+
+        var curDate = elm.dataset.time;
+
+
+        for (var i = 0; i < 12; i++) {
+            var item = $(".notch", element);
+            var itemClone = $('.clock', element).appendChild(item.cloneNode(true));
+
+            itemClone.style.cssText = "transform: rotateZ(" + gethand(i, 12) + "rad)";
+        }
+
+        var curTime = elm.dataset.time.split(':');
+        var tick = function () {
+            if (elm && elm.offsetParent) {
+                //setTimeout(tick, 1000);
+            } else {
+                return
+            }
+
+            var actualTime = new Date(),
+                d = new Date();
+
+            actualTime.setHours(curTime[0]);
+            actualTime.setMinutes(curTime[1]);
+
+
+            var hourDiff = d.getHours() - actualTime.getHours(),
+                minDiff = d.getMinutes() - actualTime.getMinutes();
+
+
+            d.setHours(d.getHours() - hourDiff);
+            d.setMinutes(d.getMinutes() - minDiff);
+
+            var hour = gethand(d.getHours() + d.getMinutes() / 60, 12),
+                minute = gethand(d.getMinutes() + d.getSeconds() / 60, 60),
+                second = gethand(d.getSeconds(), 60)
+
+            $(".hand-hour", element).style.cssText = "transform: rotateZ(" + hour + "rad);";
+            $(".hand-minute", element).style.cssText = "transform: rotateZ(" + minute + "rad);";
+            $(".hand-second", element).style.cssText = "transform: rotateZ(" + second + "rad);";
+        }
+
+       setTimeout(tick, 100);
+    }
 
 ctx.CLIQZ.UI = UI;
 

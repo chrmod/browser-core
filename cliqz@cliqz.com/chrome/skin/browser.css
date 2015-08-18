@@ -1,6 +1,6 @@
 #PopupAutoCompleteRichResultCliqz {
     -moz-binding: url("chrome://cliqz/content/components.xml#autocomplete-rich-result-popup-cliqz");
-    min-height: 348px; /* fixes bug with popup auto-sizing */
+    min-height: 350px; /* fixes bug with popup auto-sizing */
     overflow: hidden;
 }
 #PopupAutoCompleteRichResultCliqz.cqz-popup-medium {
@@ -74,7 +74,7 @@
 }
 
 #cliqz-results {
-    height: 349px;
+    height: 350px;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -95,15 +95,16 @@
     padding: 17px 125px 17px 22px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
+    border-bottom: 1px solid #CCC;
 }
 
 #cliqz-results .transition { -moz-transition: all 0.2s ease; transition: all 0.2s ease; }
 #cliqz-results .nopadding { padding: 0 }
 #cliqz-results .cqz-result-padding { padding: 16px 20px; box-sizing: border-box; -moz-box-sizing: border-box; }
-#cliqz-results .cqz-result-h1 { height: 348px; }
-#cliqz-results .cqz-result-h2 { height: 232px; }
-#cliqz-results .cqz-result-h3 { height: 116px; }
-#cliqz-results .cqz-result-box { position: relative; border-bottom: 1px solid #CCC; }
+#cliqz-results .cqz-result-h1 { height: 351px; }
+#cliqz-results .cqz-result-h2 { height: 234px; }
+#cliqz-results .cqz-result-h3 { height: 117px; }
+#cliqz-results .cqz-result-box { position: relative; }
 #cliqz-results .cqz-result-selected {
     position: absolute;
     top: 10px;
@@ -167,8 +168,8 @@
 #cliqz-results .cqz-result-logo:hover { font-size: 28px; right: 20px }
 
 /* common */
-#cliqz-results .cqz-ez-btns { 
-    margin: 13px 0px 0px; 
+#cliqz-results .cqz-ez-btns {
+    margin: 13px 0px 0px;
     height: 26px;
     padding-right: 60px;
 }
@@ -210,7 +211,7 @@
     color: white;
 }
 #cliqz-results .cqz-result-text { text-align: center; width: 100%; }
-#cliqz-results .ez-feedback { position: absolute; bottom: 16px; right: 18px; color: #cccccc; cursor: pointer; }
+#cliqz-results .ez-feedback { position: absolute; bottom: 5px; right: 10px; color: #cccccc; cursor: pointer; }
 #cliqz-results .ez-feedback:hover { text-decoration: underline; }
 #cliqz-results .cqz-link { color: #506BB8; margin-right: 10px; cursor: pointer; }
 #cliqz-results [arrow="true"]:hover .cqz-result-title { text-decoration: underline; }
@@ -423,9 +424,9 @@
 }
 
 /* ez calculator (time etc) */
-#cliqz-results .ez-calculator .answer { font-size: 25px; margin-top: -3px; }
-#cliqz-results .ez-calculator .expression { margin: 9px 0 2px; color: #999999 }
-#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 15px; }
+#cliqz-results .ez-calculator .answer { font-size: 48px; margin-top: -9px; }
+#cliqz-results .ez-calculator .expression { margin: 14px 0 2px; color: #999999 }
+#cliqz-results .ez-calculator .message { color: #cccccc; font-size: 14px; margin-left: 17px; }
 
 /* ez weather */
 #cliqz-results .ez-weather .alert {
@@ -572,7 +573,14 @@
 #cliqz-popup .cqz-btn-gray { background-color: #eaeaea; color: #333333; }
 
 /* adult content */
-#cliqz-popup .cqz-message-bar { padding: 4px 10px; text-align: justify; white-space: normal; line-height: 0 }
+#cliqz-popup .cqz-message-bar {
+    padding: 4px 10px;
+    text-align: justify;
+    white-space: normal;
+    line-height: 0;
+    border-top: 1px solid #ccc;
+    background: #fcfcfc;
+}
 #cliqz-popup .cqz-message-bar > * { margin-top: 8px; vertical-align: top; display: inline-block }
 #cliqz-popup .cqz-message-bar img { height: 16px; }
 #cliqz-popup .cqz-message { padding: 2px 20px 2px; margin-top: 8px; display: inline-block; }
@@ -629,4 +637,96 @@
     background-image: url(chrome://cliqzres/content/skin/checkmark.png);
     background-position: 5px center;
     background-repeat: no-repeat;
+}
+
+
+/*======= Time Clock =======*/
+#cliqz-popup .ez-type-time > .cqz-result-holder .answer {
+    padding-left: 50px;
+}
+
+#cliqz-popup .cqz-analog-clock {
+    float: left;
+    margin: 9px 0 0 -50px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock {
+    height: 40px;
+    width: 40px;
+    background: #fafafa;
+    border: 1px solid #333333;
+    position: relative;
+    border-radius: 50% 50%;
+    box-sizing: border-box;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-hour,
+#cliqz-popup .cqz-analog-clock .clock .hand-minute,
+#cliqz-popup .cqz-analog-clock .clock .hand-second,
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 12px;
+    height: 2px;
+    background: #333333;
+    position: absolute;
+    top: 18px;
+    left: 19px;
+    transform-origin: left;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-minute {
+    width: 17px;
+}
+
+#cliqz-popup .cqz-analog-clock .clock .hand-second {
+    display: none;
+    width: 17px;
+    height: 1px;
+    background: #d7011d;
+}
+
+#cliqz-popup .cqz-analog-clock .notch {
+    width: 19px;
+    height: 1px;
+    background: none
+}
+
+#cliqz-popup .cqz-analog-clock .notch div {
+    width: 2px;
+    height: 100%;
+    float: right;
+    background: #333333;
+}
+
+/*======== EZ Delivery ==========*/
+
+/*==== Delivery Image Boxes*/
+#cliqz-popup .cqz-ez-delivery .cqz-result-title { text-transform: uppercase; }
+#cliqz-popup .cqz-delivery-status-boxes-holder { overflow: hidden; margin: 20px 0 17px; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box {
+    float: left;
+    display: block;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    text-indent: -7777px;
+    margin: 0 10px 0 0;
+    border-radius: 3px;
+    background-size: 65%;
+    background-color: #eee;
+    background-position: 50% 50%;
+}
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-received { background-color: #a5c8e2; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-transported { background-color: #4ba4f6; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivery { background-color: #00c5fa; }
+#cliqz-popup .cqz-delivery-status-boxes-holder .cqz-status-box-active-true.cqz-status-box-name-delivered { background-color: #32ebc7; }
+
+/* ==== Delivery Short Info */
+#cliqz-popup .cqz-delivery-info-status { color: #333; margin-right: 10px; }
+#cliqz-popup .cqz-delivery-info-date { color: #ccc; }
+#cliqz-popup .cqz-delivery-info-msg {
+    max-width: 600px;
+    max-height: 38px;
+    line-height: 1.4;
+    margin-top: 7px; color: #999;
+    white-space: normal;
 }
