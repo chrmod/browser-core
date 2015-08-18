@@ -78,14 +78,14 @@ function GridController(db,newsdomains,cities){
     }
 
     this.save = function(){
-        env.writefile(CARDS_DB,JSON.stringify(this.db))
+        env.writefile(CARDS_DB, JSON.stringify(this.db));
     }
 
     this.add = function(newcard){
         newcard.source = "add"
         newcard.id = this.makeid()
 
-        this.db.push(newcard)
+        this.db.state.push(newcard)
         this.save()
 
         var card
@@ -101,25 +101,26 @@ function GridController(db,newsdomains,cities){
 
     this.remove = function(card){
         var index = card.element.data("index")
+        this.db.removed[card.element.data("url-hash")] = true;
 
         card.event("remove")
 
         container.grid("remove",index)
-        this.db.splice(index,1)
+        this.db.state.splice(index,1)
 
         this.save()
     }
 
     this.move = function(from,to){
         var array = [],
-            dblen = _this.db.length
+            dblen = _this.db.state.length
 
         container.children(".card").each(function(idx){
             var id = $(this).data("id")
 
             for (var i=0;i<dblen;i++){
-                if (_this.db[i].id == id) {
-                    array[$(this).data("index")] = _this.db[i]
+                if (_this.db.state[i].id == id) {
+                    array[$(this).data("index")] = _this.db.state[i]
                     break
                 }
             }
@@ -132,7 +133,7 @@ function GridController(db,newsdomains,cities){
             }
         })
 
-        this.db = array
+        this.db.state = array
         this.save()
     }
 
@@ -159,19 +160,22 @@ function GridController(db,newsdomains,cities){
 
         var changed = false
 
-        this.db = db.map(function(e){
-            if (!e.id) {
-                e.id = _this.makeid()
-                changed = true
-            }
+        this.db = {
+                  state: db.state.map(function(e){
+                                        if (!e.id) {
+                                            e.id = _this.makeid()
+                                            changed = true
+                                        }
 
-            return e
-        })
+                                        return e
+                                     }),
+                  removed: db.removed
+        };
 
         if (changed) this.save()
 
         container.grid(
-            this.db.map(function(e){ return _this.pushCard(e) }),
+            this.db.state.map(function(e){ return _this.pushCard(e) }),
             function(from,to){ _this.move(from,to) }
         )
 

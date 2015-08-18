@@ -15,28 +15,50 @@ env.cliqzdir()
         // cards database
         env.fileexists(CARDS_DB)
         .then(function(exists){
-            // if database exists use it
-            if (exists) {
-                return env.readfile(CARDS_DB)
-                       .then(function(content){
-                           db = JSON.parse(content)
-                           return true
-                       })
-            }
-            // if database does not exists, create one
-            else {
-                return new Promise(function(resolve,reject){
-                    env.history(function(history){
-                        db = history.slice(0,10)
+            return new Promise(function(resolve,reject){
+                env.history(function(history){
+                    // if the database exist - update only the history entries
+                    if (exists) {
+                        return env.readfile(CARDS_DB)
+                               .then(function(content){
+                                    db = JSON.parse(content);
+
+                                    // filter urls from history which were discarded
+                                    var validHistory = history.slice(0, 20).filter(function(h){
+                                        console.log('state', db.removed.hasOwnProperty(CryptoJS.SHA1(h.url).toString()), h.url)
+                                        return !db.removed.hasOwnProperty(CryptoJS.SHA1(h.url).toString());
+                                    })
+
+                                    db.state = db.state.map(function(card){
+                                        if(card.source == 'history' && validHistory.length){
+                                            return validHistory.shift()
+                                        }
+
+                                        return card;
+                                    })
+
+                                    if(db.state.length < 8){
+                                       db.state = db.state.concat(validHistory.slice(0, 8-db.state.length))
+                                    }
+
+
+                                    env.writefile(CARDS_DB,JSON.stringify(db))
+                                    resolve();
+
+                                    return true;
+                               })
+                    } else {
+                        db = {
+                            state: history.slice(0,10),
+                            removed: {}
+                        }
                         env.writefile(CARDS_DB,JSON.stringify(db))
-
                         firstrun = true
-
                         resolve()
-                    })
+                    }
                 })
+            })
 
-            }
         }),
         // news domains database / cache
         env.fileexists(NEWS_DOMAINS_DB)

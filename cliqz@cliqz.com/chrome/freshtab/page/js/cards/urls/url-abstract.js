@@ -26,6 +26,9 @@ function CardUrlAbstract(data) {
 
         this.element.data("domain-hash",this.domainhash)
 
+        // used for remembering removed cards
+        this.element.data("url-hash", CryptoJS.SHA1(data.url).toString())
+
         gc.cardsStatistics[this.name].push(this.domainhash)
     }
 
