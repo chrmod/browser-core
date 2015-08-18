@@ -92,7 +92,7 @@
 /* ------- RICH DATA Result----------*/
 #cliqz-results .cqz-result-padding2 {padding-top: 20px; padding-bottom: 20px; padding-left: 20px;}
 #cliqz-results .cqz-rd .cqz-ez-btns {margin-top: 19px;}
-#cliqz-results .cqz-rd-body {height: calc(100% - 52px); width: calc(100% - 90px); max-width: 700px;}
+#cliqz-results .cqz-rd-body {height: calc(100% - 52px); max-width: 700px;}
 #cliqz-results .cqz-rd-rateimg { height: 13px; transform: translateX(-1px);}
 #cliqz-results .cqz-rd-max-lines4 {white-space: normal; overflow: hidden; height: 5.6em; line-height: 1.4em; }
 #cliqz-results .cqz-rd-max-lines4:before {
@@ -126,7 +126,7 @@
 
 #cliqz-results .cqz-rd-link{color: #506bb8;}
 
-#cliqz-results .cqz-rd-h3 {width: calc(100% - 90px)}
+#cliqz-results .cqz-rd-h3 {width: 100%}
 #cliqz-results .cqz-rd-h3img-div {height: 76px; float:left; margin-right: 20px; max-width: 50px}
 #cliqz-results .cqz-rhh3-snipet-txt {max-width: 700px;}
 #cliqz-results .cqz-rhh3-snipet-txt .cqz-result-url{margin-top: 3px; margin-bottom: 0px; max-width: 500px;}
