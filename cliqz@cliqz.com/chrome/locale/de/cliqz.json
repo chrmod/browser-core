@@ -515,6 +515,9 @@
     "adultLiberal": {
       "message":"immer anzeigen"
     },
+    "adult_show_once": {
+      "message":"Einmal anzeigen"
+    },
     "yes": {
         "message": "Ja"
     },

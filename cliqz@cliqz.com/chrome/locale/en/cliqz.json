@@ -515,6 +515,9 @@
     "adultLiberal": {
       "message":"always show"
     },
+    "adult_show_once": {
+      "message":"Show Once"
+    },
     "yes": {
         "message": "Yes"
     },

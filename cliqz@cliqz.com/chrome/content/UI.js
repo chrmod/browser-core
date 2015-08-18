@@ -1105,14 +1105,15 @@ function enhanceResults(res){
                     type: 'cqz-message-alert',
                     simple_message: CliqzUtils.getLocalizedString('adultInfo'),
                     telemetry: 'adultFilter',
-                    options: [{
-                            text: CliqzUtils.getLocalizedString('adultConservative'),
-                            action: 'adult-conservative',
+                    options: [
+                        {
+                            text: CliqzUtils.getLocalizedString('adult_show_once'),
+                            action: 'adult-showOnce',
                             state: 'default'
                         },
                         {
-                            text: CliqzUtils.getLocalizedString('adultModerate'),
-                            action: 'adult-moderate',
+                            text: CliqzUtils.getLocalizedString('adultConservative'),
+                            action: 'adult-conservative',
                             state: 'default'
                         },
                         {
@@ -1374,14 +1375,20 @@ function urlIndexInHistory(url, urlList) {
                             CliqzUtils.setPref(pref, prefVal);
                         break;
                     case 'adult-conservative':
-                    case 'adult-moderate':
+                    case 'adult-showOnce':
                     case 'adult-liberal':
                         //Adult state can be conservative, moderate, liberal
                         var state = state.split('-')[1],
                             ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
                             user_location = CliqzUtils.getPref("config_location");
 
-                        CliqzUtils.setPref('adultContentFilter', state);
+                        if (state === 'showOnce') {
+                            // Old Logic telemetry, that is why is hardcoded not to break the results
+                            state = 'yes'
+                            adultMessage = 1;
+                        } else {
+                            CliqzUtils.setPref('adultContentFilter', state);
+                        }
                         updateMessageState("hide");
                         UI.handleResults();
                         if (user_location != "de" && !ignored_location_warning)
