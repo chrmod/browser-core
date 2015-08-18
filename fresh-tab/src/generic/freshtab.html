@@ -52,6 +52,58 @@
         <script src="js/cards/widgets/clock.js"></script>
         <script src="js/cards/widgets/spotify.js"></script>
         <script src="js/cards/widgets/tutorial.js"></script>
+
+        <script>
+
+            $.getJSON("locale/de/cliqz.json", function (json) {
+                console.log(json); // this will show the info it in firebug console
+            });
+            var GaboUtils = {
+                PREFERRED_LANGUAGE: null,
+                LANGS: {'de': 'de', 'en': 'en', 'fr': 'fr'},
+                getLanguageFromLocale: function (locale) {
+                    return locale.match(/([a-z]+)(?:[-_]([A-Z]+))?/)[1];
+                },
+                getLanguage: function (win) {
+                    return GaboUtils.LANGS[GaboUtils.getLanguageFromLocale(win.navigator.language)] || 'en';
+                },
+                locale: {},
+                currLocale: null,
+                loadLocale: function (lang_locale) {
+
+                    //var ww = Components.classes['@mozilla.org/embedcomp/window-watcher;1']
+                    //                 .getService(Components.interfaces.nsIWindowWatcher);
+                    // The default language
+                    if (!GaboUtils.locale.hasOwnProperty('default')) {
+                        if (GaboUtils) {
+                            $.getJSON("locale/de/cliqz.json", function (json) {
+                                GaboUtils.locale['default'] = json;
+                            });
+                        }
+                    }
+                    if (!GaboUtils.locale.hasOwnProperty(lang_locale)) {
+                        var loc = GaboUtils.getLanguageFromLocale(lang_locale);
+
+                        if (GaboUtils) {
+                            GaboUtils.currLocale = loc;
+                            $.getJSON("locale/" + loc + "/cliqz.json", function (json) {
+                                GaboUtils.locale[loc] = json;
+                            });
+                        }
+                    }
+                },
+                init: function (win) {
+                    if (win && win.navigator) {
+                        // See http://gu.illau.me/posts/the-problem-of-user-language-lists-in-javascript/
+                        var nav = win.navigator;
+                        GaboUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en',
+                        GaboUtils.loadLocale(GaboUtils.PREFERRED_LANGUAGE);
+                    }
+                }
+            }
+
+            GaboUtils.init(window);
+        </script>
     </head>
     <body>
         <div id="background"></div>
