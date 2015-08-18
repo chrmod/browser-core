@@ -216,7 +216,7 @@ def clean():
 @task
 def comment_cleaner(path=PATH_TO_EXTENSION):
     target = ['js', 'jsm', 'html']
-    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
+    ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm', 'freshtab.html']
 
     print 'CommentCleaner - Start'
     ext_root = os.path.dirname(os.path.realpath(__file__)) + '/' + path
@@ -224,11 +224,15 @@ def comment_cleaner(path=PATH_TO_EXTENSION):
         for f in files:
             if f.split('.')[-1] in target and f not in ignore:
                 print 'X',
-                with open(root + '/' + f, 'r+') as handler:
-                    content = handler.read()
-                    handler.seek(0)
-                    handler.truncate()
-                    handler.write(js_comment_removal(content))
+                try:
+                    with open(root + '/' + f, 'r+') as handler:
+                        content = handler.read()
+                        handler.seek(0)
+                        handler.truncate()
+                        handler.write(js_comment_removal(content))
+                except:
+                    print 'ERROR', f
+                    raise
             else:
                 print '.',
     print

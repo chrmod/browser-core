@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+   <title>old extension bar page</title>
+    <script>
+        safari.application.addEventListener("command",function(e){
+            if (e.command === "freshtab") {
+                console.log(e.target.browserWindow)
+
+                e.target.browserWindow.activeTab.url = safari.extension.baseURI + "page/freshtab.html"
+                e.target.browserWindow.activeTab.title = "freshtab"
+            }
+        },false);
+    </script>
+</head>
+
+<body>
+
+</body>
+</html>

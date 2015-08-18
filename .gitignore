@@ -8,3 +8,11 @@ mozilla-release
 .idea/
 cliqz@cliqz.com/tests/screenshots/lambda/node_modules
 bower_components
+
+# ignore dist and profile
+dist/
+dist/*
+profile/
+profile/*
+
+node_modules

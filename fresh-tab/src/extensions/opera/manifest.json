@@ -1,0 +1,20 @@
+{
+    "name": "Fresh Tab",
+    "short_name": "Fresh Tab",
+    "description": "Fresh Tab by CLIQZ",
+    "version": "1.0.0",
+    "permissions": ["storage","unlimitedStorage","http://*/*","https://*/*","tabs","webRequest","webRequestBlocking"],
+    "manifest_version": 2,
+    "icons": {
+        "16": "resources/img/Fresh New Tab logo 16.png",
+        "48": "resources/img/Fresh New Tab logo 48.png",
+        "128": "resources/img/Fresh New Tab logo 128.png"
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "background": {
+        "scripts": [
+            "page/js/environment.js",
+            "resources/background.js"
+        ]
+    }
+}

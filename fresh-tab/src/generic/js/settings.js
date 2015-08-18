@@ -1,0 +1,12 @@
+var DEBUG_MODE_ON = false,
+    FLAGS_FOLDER = "https://cliqz.com/assets/images/flags/",
+    WEATHER_SOURCE = "http://newbeta.cliqz.com/api/v1/rich-header",
+    WEATHER_CITIES = "",
+    NEWS_SOURCE = "http://news-test-swimlane.clyqz.com",
+    NEWS_DOMAINS_SOURCE = NEWS_SOURCE + "/news-domains-list",
+    NEWS_ARTICLES_SOURCE = NEWS_SOURCE + "/articles",
+    CARDS_DB = "freshtab.json",
+    NEWS_DOMAINS_DB = "news-domains.json",
+    TELEMETRY_REPORT_INTERVAL = 1 * 60 * 60 * 1e3,
+    TELEMETRY_INTERVAL = 30000,
+    TELEMETRY_SERVER = "https://logging.cliqz.com" //"/telemetry"
