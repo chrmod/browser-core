@@ -25,12 +25,11 @@ env.cliqzdir()
 
                                     // filter urls from history which were discarded
                                     var validHistory = history.slice(0, 20).filter(function(h){
-                                        console.log('state', db.removed.hasOwnProperty(CryptoJS.SHA1(h.url).toString()), h.url)
                                         return !db.removed.hasOwnProperty(CryptoJS.SHA1(h.url).toString());
                                     })
 
                                     db.state = db.state.map(function(card){
-                                        if(card.source == 'history' && validHistory.length){
+                                        if(card.source == 'history' && !card.fixed && validHistory.length){
                                             return validHistory.shift()
                                         }
 

@@ -131,7 +131,9 @@ function GridController(db,newsdomains,cities){
                     message["new-position"] = to
                 })
             }
-        })
+        });
+        // keep a card fixed once the user changes the position
+        array[to].fixed = true;
 
         this.db.state = array
         this.save()
