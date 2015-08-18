@@ -604,8 +604,7 @@ var CliqzUtils = {
 
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
-              CliqzUtils.encodeQuerySession() +
-              CliqzUtils.encodeQuerySeq() +
+              CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
@@ -725,16 +724,13 @@ var CliqzUtils = {
     CliqzUtils._queryLastLength = 0;
     CliqzUtils._queryLastDraw = 0;
   },
-  encodeQuerySession: function(){
-    return CliqzUtils._searchSession.length ? '&s=' + encodeURIComponent(CliqzUtils._searchSession) : '';
-  },
-  encodeQuerySeq: function(){
+  encodeSessionParams: function(){
     if(CliqzUtils._searchSession.length){
-      return '&n=' + CliqzUtils._sessionSeq +
-             '&qc=' + CliqzUtils._queryCount;
+      return '&s=' + encodeURIComponent(CliqzUtils._searchSession) +
+             '&n=' + CliqzUtils._sessionSeq +
+             '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-
   getGeo: function(allowOnce, callback, failCB) {
     /*
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
@@ -849,8 +845,7 @@ var CliqzUtils = {
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() +
-      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeSessionParams() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
     CliqzUtils.httpGet(
