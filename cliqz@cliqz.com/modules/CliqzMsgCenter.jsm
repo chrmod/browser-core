@@ -220,6 +220,7 @@ MessageHandlerDropdownFooter.prototype._hideMessage = function (message) {
 MessageHandlerDropdownFooter.prototype._convertMessage = function (message) {
 	var m = {
 		simple_message: message.text,
+		type: 'cqz-message-survey',
 		options: []
 	};
 
