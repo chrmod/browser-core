@@ -507,13 +507,13 @@
         "message": "Explicit content has been hidden. Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"block"
+      "message":"Block"
     },
     "adultModerate": {
-      "message":"ask"
+      "message":"Ask"
     },
     "adultLiberal": {
-      "message":"always show"
+      "message":"Always show"
     },
     "adult_show_once": {
       "message":"Show Once"
