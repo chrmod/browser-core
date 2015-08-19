@@ -504,10 +504,7 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been hidden."
-    },
-    "adultAction": {
-        "message": "Show unfiltered results?"
+        "message": "Explicit content has been hidden. Show unfiltered results?"
     },
     "adultConservative": {
       "message":"block"
@@ -517,6 +514,9 @@
     },
     "adultLiberal": {
       "message":"always show"
+    },
+    "adult_show_once": {
+      "message":"Show Once"
     },
     "yes": {
         "message": "Yes"
