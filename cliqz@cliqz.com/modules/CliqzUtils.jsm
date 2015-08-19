@@ -139,7 +139,8 @@ var CliqzUtils = {
       })();
     }
 
-    //if(win)this.UNINSTALL = 'https://cliqz.com/deinstall_' + CliqzUtils.getLanguage(win) + '.html';
+    //if(win)this.UNINSTALL = 'https://cliqz.com/deinstall_' + CliqzUtils.
+    // guage(win) + '.html';
 
     //set the custom restul provider
     CliqzUtils.CUSTOM_RESULTS_PROVIDER = CliqzUtils.getPref("customResultsProvider", null);
