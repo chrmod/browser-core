@@ -1,14 +1,44 @@
 {
-    "test":{
-        "message": "test test54263457"
+    "shortcut":{
+        "message": "Shortcut"
     },
-    "test1":{
-        "message": "test test"
+    "weather":{
+        "message": "Weather"
     },
-    "test2":{
-        "message": "test test123"
+    "clock":{
+        "message": "Clock"
     },
-    "test3":{
-        "message": "test test999"
+    "ok":{
+        "message": "OK"
+    },
+    "cancel":{
+        "message": "Cancel"
+    },
+    "login":{
+        "message": "Click here to log in"
+    },
+    "email_no_unread":{
+        "message": "You have no unread emails"
+    },
+    "onboarding-card-tip1":{
+        "message": "Welcome to FreshTab! We've started you off with some of your favorite sites."
+    },
+    "onboarding-card-tip2":{
+        "message": "Missing one of your favorites? Check out the 'plus' button."
+    },
+    "onboarding-card-tip3":{
+        "message": "Add your favorite news site (e.g. spiegel.de) for some special functionality."
+    },
+    "onboarding-card-tip4":{
+        "message": "Did you know you can drag the cards to rearrange them?"
+    },
+    "onboarding-card-tip5":{
+        "message": "See what else the Plus button has to offer... try adding a widget!"
+    },
+    "onboarding-card-tip6":{
+        "message": "Thanks! We hope you enjoy FreshTab. Hover over the top right corner and click to close. "
+    },
+    "not_supported_card":{
+        "message": "This card is no longer supported and can be removed."
     }
 }
