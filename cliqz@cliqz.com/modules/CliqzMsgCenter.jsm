@@ -194,8 +194,12 @@ MessageHandlerDropdownFooter.prototype.unload = function (win) {
 	}
 
 	var msgContainer = win.document.getElementById('cliqz-message-container');
-	msgContainer.removeEventListener('click', this._onClick);
-	delete msgContainer[this.id];
+	if (msgContainer) {
+		msgContainer.removeEventListener('click', this._onClick);
+		delete msgContainer[this.id];
+	} else {
+		_log('message container not found');
+	}
 };
 MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) {
 	// show in all open windows if win is not specified
@@ -205,7 +209,10 @@ MessageHandlerDropdownFooter.prototype._renderMessage = function (message, win) 
 			message ? this._convertMessage(message) : null;
 		if (!message) {
 			// hide immediately
-			win.CLIQZ.Core.popup.cliqzBox.messageContainer.innerHTML = '';
+			if (win.CLIQZ.Core.popup.cliqzBox &&
+				win.CLIQZ.Core.popup.cliqzBox.messageContainer) {
+				win.CLIQZ.Core.popup.cliqzBox.messageContainer.innerHTML = '';
+			}
 		}
 	} else {
 		this._windows.map(function (w) {
@@ -245,8 +252,12 @@ MessageHandlerDropdownFooter.prototype._addClickListener = function (e) {
 	delete popup[self.id];
 
 	var msgContainer = win.getElementById('cliqz-message-container');
-	msgContainer.addEventListener('click', self._onClick);
-	msgContainer[self.id] = self;
+	if (msgContainer) {
+		msgContainer.addEventListener('click', self._onClick);
+		msgContainer[self.id] = self;
+	} else {
+		_log('message container not found');
+	}
 };
 MessageHandlerDropdownFooter.prototype._onClick = function (e) {
 	var action = e.target ? e.target.getAttribute('state') : null,
@@ -484,6 +495,11 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
 		if (campaign) {
+			if (campaign.state == 'end') {
+				_log('campaign ' + campaign.id + ' has ended');
+				return;
+			}
+
 			if (ACTIONS.indexOf(action) != -1) {
 				_log('campaign ' + campaign.id + ': ' + action);
 				_telemetry(campaign, action);
