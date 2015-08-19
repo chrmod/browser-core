@@ -94,13 +94,20 @@ def main(argv):
                       default=16)
     parser.add_option("--mosaic-tile-width", metavar="MOSAIC_TILE_WIDTH",
                       action="store", dest="mosaic_tile_width",
-                      help="width of a mosaic tile "
+                      help="width of a mosaic tile; -1 for no resize "
                            "[default: '%default']", type=int,
-                      default=512)
+                      default=-1)
+    parser.add_option("--timestamp", metavar="MOSAIC_TILE_WIDTH",
+                      action="store", dest="timestamp",
+                      help="timestamp used for naming folder; "
+                           "using current time if not set"
+                           "[default: '%default']",
+                      default="")
 
     (options, args) = parser.parse_args()
 
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")\
+        if len(options.timestamp) == 0 else options.timestamp
     output_folder_base = \
         os.path.join(timestamp,
                      "width-" + str(options.dropdown_width))
@@ -111,24 +118,27 @@ def main(argv):
     output_folder_mosaic = \
         os.path.join(output_folder, options.folder_mosaic)
 
-    print "creating folder '%s'" % output_folder_individual
+    sys.stderr.write("creating folder '%s'\n" % output_folder_individual)
     os.makedirs(output_folder_individual)
-    print "creating folder '%s'" % output_folder_mosaic
+    sys.stderr.write("creating folder '%s'\n" % output_folder_mosaic)
     os.makedirs(output_folder_mosaic)
 
     input_file_pattern = \
         os.path.join(options.input_folder, options.input_file_pattern)
-    print "looking for screenshots in '%s'" % input_file_pattern
+    sys.stderr.write("looking for screenshots in '%s'\n" % input_file_pattern)
 
-    mosaic_tile_height =\
-        int(options.mosaic_tile_width *
-            (options.dropdown_height / float(options.dropdown_width)))
-    print "mosaic tile size is %d x %d" %\
-        (options.mosaic_tile_width, mosaic_tile_height)
+    if options.mosaic_tile_width > 0:
+        mosaic_tile_height =\
+            int(options.mosaic_tile_width *
+                (options.dropdown_height / float(options.dropdown_width)))
+        sys.stderr.write("resizing mosaic tiles to %d x %d\n" %
+                         (options.mosaic_tile_width, mosaic_tile_height))
+    else:
+        sys.stderr.write("not resizing mosaic tiles\n")
 
     mosaic_images = []
     for in_filename in glob.glob(input_file_pattern):
-        print "loading '%s'" % in_filename
+        sys.stderr.write("loading '%s'\n" % in_filename)
         dropdown_image = Image.open(in_filename).crop((
             options.dropdown_left, options.dropdown_top,
             options.dropdown_left + options.dropdown_width,
@@ -138,13 +148,14 @@ def main(argv):
         out_filename = \
             os.path.join(output_folder_individual,
                          os.path.basename(in_filename))
-        print "saving to '%s'" % out_filename
+        sys.stderr.write("saving to '%s'\n" % out_filename)
         dropdown_image.save(out_filename)
 
-        mosaic_images.append(
-            dropdown_image.resize(
+        if options.mosaic_tile_width > 0:
+            dropdown_image = dropdown_image.resize(
                 (options.mosaic_tile_width, mosaic_tile_height),
-                Image.ANTIALIAS))
+                Image.ANTIALIAS)
+        mosaic_images.append(dropdown_image)
 
     n = 0
     for i in range(0, len(mosaic_images), options.mosaic_tiles):
@@ -153,25 +164,28 @@ def main(argv):
                              options.mosaic_cols, options.mosaic_padding)
         mosaic_filename = os.path.join(output_folder_mosaic,
                                        "mosaic-" + ("%03d" % n) + ".png")
-        print "saving mosaic to '%s'" % mosaic_filename
+        sys.stderr.write("saving mosaic to '%s'\n" % mosaic_filename)
         mosaic.save(mosaic_filename)
         n += 1
 
-    print "uploading all files to 's3://%s/%s'" % \
-        (options.output_bucket, output_folder_base)
+    sys.stderr.write("uploading all files to 's3://%s/%s'\n" %
+                     (options.output_bucket, output_folder_base))
     upload_folder(output_folder,
                   options.output_bucket,
                   output_folder_base,
                   options.dry_run)
 
     if not options.keep_files:
-        print "deleting folder '%s'" % output_folder
+        sys.stderr.write("deleting folder '%s'\n" % output_folder)
         shutil.rmtree(output_folder)
         parent_folder = \
             os.path.join(options.output_folder, timestamp)
         if os.listdir(parent_folder) == []:
-            print "deleting empty parent folder '%s'" % parent_folder
+            sys.stderr.write("deleting empty parent folder '%s'\n" %
+                             parent_folder)
             shutil.rmtree(parent_folder)
+
+    sys.stdout.write("%s\n" % timestamp)
 
 
 def make_mosaic(images, cols, padding=0):
@@ -204,13 +218,15 @@ def upload_folder(input_folder, bucket, key_prefix, is_dryrun=False):
 
 
 def upload(filename, bucket, key, is_dryrun=False):
-    print "uploading '%s' to 's3://%s/%s'" % (filename, bucket, key)
+    sys.stderr.write("uploading '%s' to 's3://%s/%s'\n" %
+                     (filename, bucket, key))
     if is_dryrun:
-        print "skipped (dry run)"
+        sys.stderr.write("skipped (dry run)\n")
     else:
         bucket = conn.get_bucket(bucket)
         key = bucket.new_key(key)
         key.set_contents_from_filename(filename)
+
 
 if __name__ == '__main__':
     main(sys.argv)

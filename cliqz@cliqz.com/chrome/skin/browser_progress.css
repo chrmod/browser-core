@@ -15,7 +15,7 @@
 }
 
 /*--------------- New Skin Generic EZ ----------- */
-#cliqz-results .cqz-result-content { 
+#cliqz-results .cqz-result-content {
   max-width: 550px;
   margin: 12px 105px 17px 0px;
     height: 95px;
@@ -219,7 +219,7 @@
   position: relative;
   margin: 0px;
   padding: 0px;
-  overflow: visible;  
+  overflow: visible;
 }
 
 @keyframes changescale {
@@ -344,7 +344,7 @@
 #cliqzExtOnboardingCallout .cliqz-logo {
   background-image: url(chrome://cliqzres/content/skin/img/cliqz.svg);
   background-repeat: no-repeat;
-  height: 20px;  
+  height: 20px;
   width: 100px;
 }
 
@@ -577,7 +577,7 @@
 }
 
 #cliqz-results .cqz-ez-aTob-title {
-  margin-bottom: 3px;   
+  margin-bottom: 3px;
 }
 
 #cliqz-results .cqz-ez-aTob table.list th {
@@ -586,16 +586,16 @@
   font-weight: normal;
   padding: 0 0 9px;
 }
-            
-#cliqz-results .cqz-ez-aTob table.list td, 
+
+#cliqz-results .cqz-ez-aTob table.list td,
 #cliqz-results .cqz-ez-aTob table.list th {
   border-bottom: 1px solid #e7f1e5;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list tbody > tr:last-child > td {
   border-bottom: 0px;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list td {
   padding: 6px;
   color: #506bb8;
@@ -605,13 +605,13 @@
   text-align: center;
   width: 60px;
 }
-            
+
 #cliqz-results .cqz-ez-aTob table.list th.empty {
   width: 130px;
 }
 
 #cliqz-results .cqz-ez-aTob table.list .label{
-  color: #000000;    
+  color: #000000;
 }
 
 #cliqz-results .cqz-ez-aTob .iconImage.bus,
@@ -621,7 +621,7 @@
 
 #cliqz-results .cqz-ez-aTob .iconContainer {
   height: 18px;
-  width: 18px; 
+  width: 18px;
 }
 
 /* Common accessible styles to use icons as images instead of background-image */
@@ -639,6 +639,147 @@
 #cliqz-results .iconLabel {
    margin-left: 10px
 }
+
+
+/***** LOCAL MOVIE EZ ******/
+#cliqz-results .movie_container {
+  height:160px;
+  max-height:160px;
+}
+
+#cliqz-results .movie_poster, #cliqz-results .movie_poster_img {
+  max-width: 110px;
+  border-radius: 6px;
+}
+
+#cliqz-results .movie_poster {
+  /* position:absolute; */
+  float:left;
+}
+
+#cliqz-popup #cliqz-results .movie_data {
+  margin-left: 125px;
+  height:160px;
+  padding-right: 60px;
+}
+
+#cliqz-results .movie_url {
+  margin-top: 0px;
+  margin-bottom:10px;
+}
+
+#cliqz-results .cqz-ez-title.movie_title {
+  margin-bottom: 10px;
+  display:block;
+}
+
+#cliqz-results .movie_description {
+  text-align: left;
+}
+
+#cliqz-results .cqz-rating-star-on {
+  color:#FDDD32;
+}
+
+#cliqz-results .cqz-rating-star-off {
+  color:#CDCDCD;
+}
+
+#cliqz-results .movie_desc {
+  max-height:150px;
+  padding-left:10px;
+  overflow:ellipsis;
+  white-space: normal
+}
+
+#cliqz-results .cinema-showtimes-table {
+  width:100%;
+  max-width:650px;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#cliqz-results .local-sc-data-container {
+  width:80%;
+  max-width:650px;
+}
+
+#cliqz-results .cinema-name-td, #cliqz-results .cinema-showtime-td  {
+  font-size: 16px;
+  border-top: 1px solid #EAEAEA;
+  padding-top:5px;
+  padding-bottom:5px;
+  max-width:100px;
+}
+#cliqz-results .cinema-name {
+  font-size: 16px;
+}
+
+#cliqz-results .cinema-row {
+  height:15px;
+}
+#cliqz-results .cinema-showtime-td  {
+  text-align:center;
+  /* color:#CECECE; */
+}
+
+#cliqz-results .showtimes-date {
+  float:right;
+  margin-bottom: 10px;
+  margin-top:0px;
+  color:#CECECE;
+}
+
+#cliqz-results .movie-trailer-btn {
+  position: relative;
+  bottom: -12px;
+}
+
+#cliqz-results .location_permission_prompt {
+  height: 85px;
+  background-color: rgb(255, 83, 73);
+  color: #FFF;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+#cliqz-results .loc_permission_prompt_message {
+  height: 70%;
+  font-size:16px;
+  white-space: normal;
+}
+
+#cliz-results .cqz_location_once {
+  color:white;
+
+}
+
+#cliqz-results .cqz_location_never {
+  color:white;
+}
+
+#cliqz-results .loc_permission_prompt_buttons>span {
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 10px;
+  position: relative;
+  border: 1px solid white;
+  margin-right: 10px;
+  height: 15px;
+  padding: 5px 10px 7px;
+  background: transparent none repeat scroll 0% 0%;
+}
+
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes, #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
+  border: none;
+  height: 18px;
+  background-color: rgb(47, 196, 252);
+  width: auto;
+  text-align: center;
+}
+
+/*** END LOCAL MOVIE EZ ****/
 #cliqz-results .cqz-ez-subtitle {
   display: block;
   margin-bottom: 18px;

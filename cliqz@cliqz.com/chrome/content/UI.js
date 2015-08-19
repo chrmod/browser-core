@@ -1501,11 +1501,70 @@ function resultClick(ev){
                 default:
                     break;
             }
+        } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
+          ev.preventDefault();
+          if (el.id == 'cqz_location_yes')
+            CliqzUtils.setLocationPermission('yes');
+
+          CliqzUtils.getGeo(true, function(loc) {
+            CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
+                "&q=" + CLIQZ.Core.urlbar.value +
+                CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
+                "&bmresult=" + el.getAttribute('bm_url'),
+                handleNewLocalResults(el));
+          }, function() { CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo") } );
+          break;
+        } else if (el.id == 'cqz_location_no') {
+          var container = $(".local-sc-data-container",gCliqzBox);
+          /* Show a message to confirm user's decision*/
+          var confirm_no_id = el.getAttribute('location_confirm_no_msg');
+          if (!confirm_no_id)
+            confirm_no_id = '00'; // Default to the generic message
+
+          container.innerHTML = CliqzHandlebars.tplCache['confirm_no_' + confirm_no_id]({
+            'friendly_url': el.getAttribute('bm_url')
+          });
+
+        } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
+          if (el.id == 'cqz_location_never')
+            CliqzUtils.setLocationPermission("no");
+
+          /* Hide the prompt that asks for permision to get user's location */
+          var container = $(".local-sc-data-container",gCliqzBox);
+          container.innerHTML = "";
+          /* Reduce the size of the result now that the prompt is hidden */
+          while (!CliqzUtils.hasClass(container, 'cqz-result-h1') && !CliqzUtils.hasClass(container, 'cqz-result-h2') ) {
+            container = container.parentElement;
+            if (container.id == "cliqz-results") return;
+          }
+          container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
+          break;
         }
         if(el.className == IC) break; //do not go higher than a result
         el = el.parentElement;
     }
 }
+
+
+function handleNewLocalResults(el) {
+  return function(req) {
+    //CliqzUtils.log(req, "RESPONSE FROM RH");
+    var resp = JSON.parse(req.response);
+    var container = el;
+    while (!CliqzUtils.hasClass(container, "cqz-result-box")) {
+      container = container.parentElement;
+      if (container.id == "cliqz-results") return;
+    }
+    //CliqzUtils.log(container,'cinema-container');
+    if (resp.results && resp.results.length > 0) {
+      var data = resp.results[0];
+      data.logo = CliqzUtils.getLogoDetails(CliqzUtils.getDetailsFromUrl(data.url));
+      var tpl = data.data.template;
+      container.innerHTML = CliqzHandlebars.tplCache[tpl](data);
+    }
+  }
+}
+
 
 function handleAdultClick(ev){
     var state = ev.originalTarget.getAttribute('state'),
