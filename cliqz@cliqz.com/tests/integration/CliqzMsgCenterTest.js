@@ -64,11 +64,30 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
 			core.urlbar.blur();
 			core.urlbar.focus();
 			chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('show');
-			core.popup._openAutocompletePopup(core.urlbar, core.urlbar);
-			fillIn('some query');
-			core.popup.openPopup();
 			chai.expect(ui.messageCenterMessage).to.exist;
-			chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(campaigns.campaigns.TEST001.message.text);
+			fillIn('some query');
+			return waitForResult().then(function() {
+				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.contain(campaigns.campaigns.TEST001.message.text);
+				return Promise.resolve();
+			});
+		});
+
+		it('should hide message', function() {
+			var core = CliqzUtils.getWindow().CLIQZ.Core,
+				ui = CliqzUtils.getWindow().CLIQZ.UI;
+
+			CliqzMsgCenter._campaigns.TEST001.limits.trigger = 1;
+			core.urlbar.blur();
+			core.urlbar.focus();
+			chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('show');
+			chai.expect(ui.messageCenterMessage).to.exist;
+			fillIn('some query');
+			CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
+			chai.expect(ui.messageCenterMessage).not.to.exist;
+			return waitForResult().then(function() {
+				chai.expect(core.popup.cliqzBox.messageContainer.innerHTML).to.equal('');
+				return Promise.resolve();
+			});
 		});
 	});
 };
