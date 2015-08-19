@@ -41,8 +41,8 @@ var campaigns = {
     }
 };
 
-TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
-	describe('CliqzMsgCenter', function() {
+TESTS.CliqzMsgCenterTestItegration = function (CliqzMsgCenter) {
+	describe('CliqzMsgCenter (integration)', function() {
         beforeEach(function() {
             CliqzMsgCenter._updateCampaigns = function () { };
             CliqzMsgCenter._deactivateCampaignUpdates();

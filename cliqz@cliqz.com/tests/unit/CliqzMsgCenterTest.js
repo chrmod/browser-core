@@ -43,8 +43,8 @@ var campaigns = {
 
 var wasShown = false;
 
-TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
-    describe('CliqzMsgCenter', function() {
+TESTS.CliqzMsgCenterTestUnit = function (CliqzMsgCenter) {
+    describe('CliqzMsgCenter (unit)', function() {
         beforeEach(function() {
             CliqzMsgCenter._updateCampaigns = function () { };
             CliqzMsgCenter._deactivateCampaignUpdates();
@@ -95,10 +95,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 CliqzMsgCenter._updateCampaignsCallback({response: JSON.stringify(campaigns)});
 
                 chai.expect(Object.keys(CliqzMsgCenter._campaigns).length).to.equal(1);
-           });
-        });
-
-        describe('updateCampaigns', function() {
+            });
             it('should remove campaign not on server', function() {
                 CliqzMsgCenter._addCampaign('TEST002', {handlerId: 'xyz'});
                 chai.expect(CliqzMsgCenter._campaigns.TEST002.handlerId).to.
@@ -106,10 +103,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
 
                 CliqzMsgCenter._updateCampaignsCallback({response: JSON.stringify({campaigns: {}})});
                 chai.expect(Object.keys(CliqzMsgCenter._campaigns).length).to.equal(0);
-           });
-        });
-
-        describe('updateCampaigns', function() {
+            });
             it('should not overwrite local campaign', function() {
                 CliqzMsgCenter._addCampaign('TEST001', {handlerId: 'xyz'});
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.handlerId).to.
@@ -119,7 +113,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 chai.expect(Object.keys(CliqzMsgCenter._campaigns).length).to.equal(1);
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.handlerId).to.
                     equal('xyz');
-           });
+            });
         });
 
         describe('saveCampaigns', function() {
@@ -173,10 +167,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 chai.expect(wasShown).to.be.true;
 
                 CliqzMsgCenter.showMessage = oldShowMessage;
-           });
-        });
-
-        describe('triggerCampaign', function() {
+            });
             it('should show and end campaign', function() {
                 CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
                 CliqzMsgCenter._campaigns.TEST001.limits.trigger = 2;
@@ -188,7 +179,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 CliqzMsgCenter._triggerCampaign(CliqzMsgCenter._campaigns.TEST001);
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('end');
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.counts.show).to.equal(2);
-           });
+            });
         });
 
         describe('onMessageAction', function() {
@@ -205,10 +196,7 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.counts.postpone).to.equal(1);
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('idle');
-           });
-        });
-
-        describe('onMessageAction', function() {
+            });
             it('should not increment action counts', function() {
                 CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
                 CliqzMsgCenter._campaigns.TEST001.state = 'end';
@@ -222,20 +210,15 @@ TESTS.CliqzMsgCenterTest = function (CliqzMsgCenter) {
                 CliqzMsgCenter._onMessageAction('TEST001', 'postpone');
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.counts.postpone).to.equal(0);
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('end');
-           });
-        });
-
-        describe('onMessageAction', function() {
+            });
             it('should end campaign', function() {
                 CliqzMsgCenter._addCampaign('TEST001', campaigns.campaigns.TEST001);
                 CliqzMsgCenter._campaigns.TEST001.limits.confirm = 1;
 
                 CliqzMsgCenter._onMessageAction('TEST001', 'confirm');
                 chai.expect(CliqzMsgCenter._campaigns.TEST001.state).to.equal('end');
-           });
+            });
         });
-
-        // go to URL
    });
 };
 
