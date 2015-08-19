@@ -596,12 +596,6 @@
     "updateDismiss":{
         "message": "Dismiss"
     },
-    "newsToggleLatest":{
-        "message": "Latest"
-    },
-    "newsToggleTrends":{
-        "message": "Trending"
-    },
     "topSitesMessage":{
         "message": "Choose a shortcut to one of your favorite sites, or"
     },

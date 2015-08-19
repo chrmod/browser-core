@@ -458,6 +458,9 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
+                if (CliqzUtils.getPref('topSitesV2', false)) {
+                  CLIQZ.Core._shouldDropdownStayOpen = false;
+                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
@@ -1001,6 +1004,13 @@ function enhanceResults(res){
           } else if(r.data.actions) {
             r.data.btns = r.data.actions;
             r.data.btnExtra = 'action';
+          } else if (r.data && (r.data.template === 'weatherEZ' || r.data.template === 'weatherAlert') && r.data["forecast_url"]) {
+              r.data.btns = [
+                  {
+                      'title_key': 'extended_forecast',
+                      'url': r.data["forecast_url"]
+                  }
+              ]
           } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
               r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
           }
@@ -1541,27 +1551,6 @@ function resultClick(ev){
                 case 'alternative-search-engine':
                     enginesClick(ev);
                     break;
-                case 'news-toggle':
-                    setTimeout(function(){
-                      var newTrending = !document.getElementById('actual', el.parentElement).checked,
-                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
-                          ezID = JSON.parse(el.getAttribute('data-subType')).ez,
-                          oldTrending = trending[ezID];
-
-                      trending[ezID] = newTrending;
-
-                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
-
-                      CliqzUtils.telemetry({
-                        type: 'activity',
-                        action: 'news-toggle',
-                        ezID: ezID,
-                        old_setting: oldTrending ? 'trends': 'latest',
-                        new_setting: newTrending ? 'trends': 'latest'
-                      });
-                    }, 0);
-
-                    return;
                 default:
                     break;
             }

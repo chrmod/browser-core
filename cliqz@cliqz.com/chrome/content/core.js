@@ -140,11 +140,6 @@ window.CLIQZ.Core = {
             CliqzCategories.init();
         }
 
-        if (CliqzUtils.getPref('newsTopsitesAssessment', false) &&
-            !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
-            CliqzCategories.assessNewsTopsites();
-        }
-
         CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
@@ -517,7 +512,7 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
-        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
+        CliqzUtils.setSearchSession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
@@ -625,6 +620,9 @@ window.CLIQZ.Core = {
             urlbar = CLIQZ.Core.urlbar;
 
         popup.classList.add("cqz-popup-medium");
+        if (popup.cliqzBox) {
+            popup.cliqzBox.messageContainer.innerHTML = "";
+        }
         CLIQZ.UI.redrawDropdown(
             CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
 

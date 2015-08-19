@@ -587,12 +587,6 @@
     "updateDismiss":{
         "message": "Nachricht schließen"
     },
-    "newsToggleLatest":{
-        "message": "Aktuell"
-    },
-    "newsToggleTrends":{
-        "message": "Trends"
-    },
     "topSitesMessage":{
         "message": "Wähle eine Deiner meist-besuchten Webseiten,"
     },

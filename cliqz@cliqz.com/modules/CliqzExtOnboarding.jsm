@@ -407,9 +407,9 @@ var CliqzExtOnboarding = {
     },
 
     _getCallout: function (win) {
-        win = win || CliqzUtils.getWindow();
+        win = win || CliqzUtils && CliqzUtils.getWindow();
 
-        return win.document.getElementById(CliqzExtOnboarding.CALLOUT_DOM_ID)
+        return win && win.document.getElementById(CliqzExtOnboarding.CALLOUT_DOM_ID)
     },
 
     _initCalloutContent: function (contentElement) {
