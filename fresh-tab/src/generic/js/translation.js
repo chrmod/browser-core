@@ -27,7 +27,7 @@ var CliqzTranslation = {
     },
 
     runLocalization: function (doc) {
-        var locale = doc.querySelectorAll('[data-cliqz-localize]');
+        var locale = doc.querySelectorAll('[data-cliqz-localize-key]');
         for (var i = 0; i < locale.length; i++) {
             var el = locale[i];
             el.textContent = CliqzTranslation.getLocalizedString(el.getAttribute('data-cliqz-localize-key'));
@@ -39,7 +39,6 @@ var CliqzTranslation = {
         // Check if we have Current lang, if we have Dictionaryfor that lang and if the Translation is in the dictionaty
         if (CliqzTranslation.currLocale != null && CliqzTranslation.locale[CliqzTranslation.currLocale] && CliqzTranslation.locale[CliqzTranslation.currLocale][key]) {
             ret = CliqzTranslation.locale[CliqzTranslation.currLocale][key].message;
-            console.log('translation: ', ret);
         }
         // If no we take from Default
         else if (CliqzTranslation.locale['default'] && CliqzTranslation.locale['default'][key]) {
