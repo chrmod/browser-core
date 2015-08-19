@@ -825,8 +825,8 @@ var CliqzUtils = {
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CliqzUtils.cliqzPrefs.getCharPref('session');
     msg.ts = Date.now();
-    msg.seq = (CliqzUtils.getPref('telemetrySeq', 0) + 1) % 2147483647;
-    CliqzUtils.setPref('telemetrySeq', msg.seq);
+    CliqzUtils.telemetrySeq = (CliqzUtils.telemetrySeq + 1) % 2147483647;
+    msg.seq = CliqzUtils.telemetrySeq
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
@@ -867,6 +867,7 @@ var CliqzUtils = {
   _telemetry_start: undefined,
   TELEMETRY_MAX_SIZE: 500,
   pushTelemetry: function() {
+    CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
     if(CliqzUtils._telemetry_req) return;
 
     // put current data aside in case of failure
@@ -1598,3 +1599,5 @@ var CliqzUtils = {
     */
 
 };
+
+CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');
