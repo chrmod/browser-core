@@ -369,31 +369,34 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 	},
 	_updateCampaigns: function () {
 		_log('updating campaigns');
-		CliqzUtils.httpGet(_getEndpoint(), function success(req) {
-    		try {
-        		var clientCampaigns = CliqzMsgCenter._campaigns,
-        		    serverCampaigns = JSON.parse(req.response).campaigns,
-        		    cId;
+		CliqzUtils.httpGet(_getEndpoint(),
+			CliqzMsgCenter._updateCampaignsCallback,
+			function error(e) {
+    			_log('error updating campaigns: ' + e);
+    		});
+	},
+	_updateCampaignsCallback: function (req) {
+		try {
+    		var clientCampaigns = CliqzMsgCenter._campaigns,
+    		    serverCampaigns = JSON.parse(req.response).campaigns,
+    		    cId;
 
-        		for (cId in serverCampaigns) {
-        			if (serverCampaigns.hasOwnProperty(cId) &&
-        			    !(cId in clientCampaigns)) {
-        				CliqzMsgCenter._addCampaign(cId, serverCampaigns[cId]);
-        			}
-        		}
-        		for (cId in clientCampaigns) {
-        			if (clientCampaigns.hasOwnProperty(cId) &&
-        				!(cId in serverCampaigns)) {
-        				CliqzMsgCenter._removeCampaign(cId);
-        			}
-        		}
-        		CliqzMsgCenter._saveCampaigns();
-    		} catch (e) {
-    			_log('error parsing campaigns: ' + e);
+    		for (cId in serverCampaigns) {
+    			if (serverCampaigns.hasOwnProperty(cId) &&
+    			    !(cId in clientCampaigns)) {
+    				CliqzMsgCenter._addCampaign(cId, serverCampaigns[cId]);
+    			}
     		}
-    	}, function error(e) {
-    		_log('error updating campaigns: ' + e);
-    	});
+    		for (cId in clientCampaigns) {
+    			if (clientCampaigns.hasOwnProperty(cId) &&
+    				!(cId in serverCampaigns)) {
+    				CliqzMsgCenter._removeCampaign(cId);
+    			}
+    		}
+    		CliqzMsgCenter._saveCampaigns();
+		} catch (e) {
+			_log('error parsing campaigns: ' + e);
+		}
 	},
 	_addCampaign: function (id, data) {
 		CliqzMsgCenter._campaigns[id] = new Campaign(id, data);
