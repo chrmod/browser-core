@@ -107,9 +107,7 @@ var CliqzAutocomplete = {
         }catch(e){}
     },
     getResultsOrder: function(results){
-        return results.map(function(r){
-            return r.data.kind;
-        });
+        return CliqzAutocomplete.prepareResultOrder(results);
     },
     isUrlBarEmpty: function() {
         var urlbar = CliqzUtils.getWindow().CLIQZ.Core.urlbar;
@@ -373,21 +371,11 @@ var CliqzAutocomplete = {
                         this.callback(this.mixedResults, this);
 
                         this.latency.all = Date.now() - this.startTime;
-                        if(this.cliqzResults)
-                            var country = this.cliqzCountry;
 
-                        // delay sending signal to make sure rendering is complete
+                        // delay wrapping to make sure rendering is complete
                         // otherwise we don't get up to date autocomplete stats
-                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, false, CliqzAutocomplete.isPopupOpen, country);
+                        CliqzUtils.setTimeout(this.fullWrapup, 0, this);
 
-                        this.startTime = null;
-                        this.resultsTimer = null;
-                        this.historyTimer = null;
-                        this.cliqzResults = null;
-                        this.cliqzResultsExtra = null;
-                        this.cliqzCache = null;
-                        this.historyResults = null;
-                        this.instant = [];
                         return;
                     } else if(this.isHistoryReady()) {
                         /// Push instant result
@@ -401,8 +389,9 @@ var CliqzAutocomplete = {
                         this.mixedResults.matchCount && this.callback(this.mixedResults, this);
 
                         this.latency.all = Date.now() - this.startTime;
-                        //instant result, no country info yet
-                        CliqzUtils.setTimeout(this.sendResultsSignal, 0, this, this.mixedResults._results, true, CliqzAutocomplete.isPopupOpen);
+
+                        // Do partial wrapup, final wrapup will happen after all results are received
+                        CliqzUtils.setTimeout(this.instantWrapup, 0, this);
                     } else {
                         /// Nothing to push yet, probably only cliqz results are received, keep waiting
                     }
@@ -416,11 +405,9 @@ var CliqzAutocomplete = {
                 } else {
                     this.latency.backend = Date.now() - this.startTime;
                     var results = [];
-                    var country = "";
                     var json = JSON.parse(req.response);
                     results = json.result || [];
 
-                    country = json.country;
                     this.cliqzResultsExtra = []
 
                     if(json.images && json.images.results && json.images.results.length >0){
@@ -451,8 +438,6 @@ var CliqzAutocomplete = {
                         // filter results with no or empty url
                         return r.url != undefined && r.url != '';
                     });
-
-                    this.cliqzCountry = country;
                 }
                 this.pushResults(q);
             },
@@ -559,7 +544,6 @@ var CliqzAutocomplete = {
 
                 this.cliqzResults = null;
                 this.cliqzResultsExtra = null;
-                this.cliqzCountry = null;
                 this.cliqzCache = null;
                 this.historyResults = null;
                 this.instant = [];
@@ -615,7 +599,6 @@ var CliqzAutocomplete = {
                 } else {
                     this.cliqzResults = [];
                     this.cliqzResultsExtra = [];
-                    this.cliqzCountry = "";
                     this.customResults = [];
                     CliqzAutocomplete.resetSpellCorr();
                 }
@@ -638,7 +621,8 @@ var CliqzAutocomplete = {
                 CliqzUtils.clearTimeout(this.historyTimer);
             },
 
-            sendResultsSignal: function(obj, results, instant, popup, country) {
+            sendResultsSignal: function(obj, instant) {
+                var results = obj.mixedResults._results;
                 var action = {
                     type: 'activity',
                     action: 'results',
@@ -665,8 +649,6 @@ var CliqzAutocomplete = {
                   action.autocompleted = CliqzAutocomplete.lastAutocompleteType;
                   action.autocompleted_length = CliqzAutocomplete.lastAutocompleteLength;
                 }
-                if(country)
-                    action.country = country;
 
                 if (action.result_order.indexOf('C') > -1 && CliqzUtils.getPref('logCluster', false)) {
                     action.Ctype = CliqzUtils.getClusteringDomain(results[0].val);
@@ -683,6 +665,25 @@ var CliqzAutocomplete = {
                     CliqzAutocomplete.lastDisplayTime = Date.now();
                 }
                 CliqzUtils.telemetry(action);
+            },
+
+            // Wrap up after a completed search
+            fullWrapup: function(obj) {
+                obj.sendResultsSignal(obj, false);
+
+                obj.startTime = null;
+                obj.resultsTimer = null;
+                obj.historyTimer = null;
+                obj.cliqzResults = null;
+                obj.cliqzResultsExtra = null;
+                obj.cliqzCache = null;
+                obj.historyResults = null;
+                obj.instant = [];
+            },
+
+            // Wrap up after instant results are shown
+            instantWrapup: function(obj) {
+                obj.sendResultsSignal(obj, true);
             }
         }
     }

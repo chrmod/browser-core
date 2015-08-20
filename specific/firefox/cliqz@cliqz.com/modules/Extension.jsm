@@ -200,6 +200,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
@@ -241,6 +242,7 @@ var Extension = {
     cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
         prefs.clearUserPref('analysis');
+        prefs.clearUserPref('news-toggle-trending');
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);

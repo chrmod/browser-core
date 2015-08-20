@@ -138,7 +138,7 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab){
+    openLink: function(url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
         if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
@@ -291,13 +291,15 @@ var CLIQZEnvironment = {
         popup._appendCurrentResult = function(){
             if(popup._matchCount > 0 && popup.mInput){
               //try to break the call stack which cause 'too much recursion' exception on linux systems
-              win.setTimeout(function(){ win.CLIQZ.UI.handleResults.apply(win); }, 0);
+              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
             }
-        }
+        };
+
+        UI.urlbar_box = CLIQZ.Core.urlbar.getBoundingClientRect();
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
-              if (!win.CliqzAutocomplete.isPopupOpen){
+              if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
 
@@ -305,14 +307,10 @@ var CLIQZEnvironment = {
                 this.setAttribute("width", width > 500 ? width : 500);
                 // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
                 this.openPopup(aElement, "after_start", 0, 0 , false, true);
-
-                if(!this.contextMenuInitialized){
-                    this.contextMenuInitialized = true;
-                    win.CLIQZ.ContextMenu.enableContextMenu(this.cliqzBox);
-                }
+                UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(popup, arguments)
-        }
+        };
     },
     // lazy init
     // callback called multiple times

@@ -64,6 +64,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
 XPCOMUtils.defineLazyModuleGetter(this, 'CLIQZEnvironment',
   'chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
+  'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
+
 var gBrowser = gBrowser || CliqzUtils.getWindow().gBrowser;
 var Services = Services || CliqzUtils.getWindow().Services;
 
@@ -81,10 +84,10 @@ window.CLIQZ.Core = {
     POPUP_HEIGHT: 100,
     INFO_INTERVAL: 60 * 60 * 1e3, // 1 hour
     elem: [], // elements to be removed at uninstall
-    urlbarEvents: ['focus', 'blur', 'keypress', 'mousedown'],
+    urlbarEvents: ['focus', 'blur', 'keydown', 'keypress', 'mousedown', 'mousemove', 'mouseleave'],
     _messageOFF: true, // no message shown
     _updateAvailable: false,
-    genericPrefs: Cc['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch),
+    _shouldDropdownStayOpen: false,
 
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
@@ -137,6 +140,7 @@ window.CLIQZ.Core = {
             !CliqzUtils.getPref('newsTopsitesAssessmentDone', false)) {
             CliqzCategories.assessNewsTopsites();
         }
+        CliqzSpellCheck.initSpellCorrection();
 
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
@@ -202,6 +206,7 @@ window.CLIQZ.Core = {
         if ('gBrowser' in window) {
             CliqzLanguage.init(window);
             CliqzDemo.init(window);
+            CliqzMsgCenter.init(window);
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 CliqzHumanWeb.init(window);
                 window.gBrowser.addProgressListener(CliqzHumanWeb.listener);
@@ -338,6 +343,7 @@ window.CLIQZ.Core = {
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
         CLIQZ.UI.unload();
+        CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
 
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
@@ -382,6 +388,7 @@ window.CLIQZ.Core = {
             window.gBrowser.tabContainer.removeEventListener("TabOpen", CliqzHistory.tabOpen);
             CliqzHistory.removeAllListeners();
             CliqzDemo.unload(window);
+            CliqzMsgCenter.unload(window);
 
             if(CliqzUtils.getPref("humanWeb", false) && !CliqzUtils.isPrivate(window)){
                 window.gBrowser.removeProgressListener(CliqzHumanWeb.listener);
@@ -454,6 +461,7 @@ window.CLIQZ.Core = {
             delete window.CliqzAutocomplete;
             delete window.CliqzLanguage;
             delete window.CliqzDemo;
+            delete window.CliqzMsgCenter;
             delete window.CliqzExtOnboarding;
             delete window.CliqzResultProviders;
             delete window.CliqzCategories;
@@ -477,12 +485,19 @@ window.CLIQZ.Core = {
         CLIQZ.Core.popupEvent(true);
         CLIQZ.UI.popupClosed = false;
     },
-    popupClose: function(){
-        CliqzAutocomplete.isPopupOpen = false;
-        CliqzAutocomplete.markResultsDone(null);
-        CLIQZ.Core.popupEvent(false);
-        CLIQZ.UI.popupClosed = true;
-        CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+    popupClose: function(e){
+        if (CliqzUtils.getPref('topSitesV2', false) &&
+            CLIQZ.Core._shouldDropdownStayOpen) {
+            e.preventDefault();
+            // removing this line breaks search
+            CliqzAutocomplete.isPopupOpen = false;
+        } else {
+            CliqzAutocomplete.isPopupOpen = false;
+            CliqzAutocomplete.markResultsDone(null);
+            CLIQZ.Core.popupEvent(false);
+            CLIQZ.UI.popupClosed = true;
+            CLIQZ.Core.historyDropMarker.removeAttribute('cliqz-start');
+        }
     },
     popupEvent: function(open) {
         var action = {
@@ -504,7 +519,7 @@ window.CLIQZ.Core = {
         CliqzAutocomplete.lastFocusTime = Date.now();
         CliqzSearchHistory.hideLastQuery();
         CLIQZ.Core.triggerLastQ = false;
-        CliqzUtils.setQuerySession(CliqzUtils.rand(32));
+        CliqzUtils.setSearchSession(CliqzUtils.rand(32));
         CLIQZ.Core.urlbarEvent('focus');
 
         if(CliqzUtils.getPref('newUrlFocus') == true && CLIQZ.Core.urlbar.value.trim().length > 0) {
@@ -608,7 +623,10 @@ window.CLIQZ.Core = {
         var popup = CLIQZ.Core.popup,
             urlbar = CLIQZ.Core.urlbar;
 
-        popup.className = 'cqz-popup-medium';
+        popup.classList.add("cqz-popup-medium");
+        if (popup.cliqzBox) {
+            popup.cliqzBox.messageContainer.innerHTML = "";
+        }
         CLIQZ.UI.redrawDropdown(
             CliqzHandlebars.tplCache.topsites(CliqzAutocomplete.fetchTopSites()), '');
 
@@ -623,19 +641,39 @@ window.CLIQZ.Core = {
     },
     urlbarmousedown: function(ev){
         if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
 
-        //only consider the URLbar not the other icons in the urlbar
-        if(ev.originalTarget.className == 'anonymous-div' ||
-           ev.originalTarget.className.indexOf('urlbar-input-box') != -1) {
-            CliqzAutocomplete.sessionStart = true;
-            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+        // only consider the URLbar not the other icons in the urlbar
+        if(CLIQZ.UI.popupClosed &&
+           (ev.originalTarget.className == 'anonymous-div' ||
+            ev.originalTarget.className.indexOf('urlbar-input-box') != -1)) {
             CLIQZ.Core.showTopsites();
             CliqzUtils.telemetry({
                 type: 'activity',
                 action: 'topsites',
                 urlbar_length: CLIQZ.Core.urlbar.mInputField.value.length
             });
+            // indicate this is a topsites result, indicates that no
+            // results should be returned in UI.results, which would
+            // override topsites
+            CliqzAutocomplete.lastSearch = "IGNORE_TOPSITES";
         }
+        // open Firefox topsites when clicking on dropdown marker
+        else if (ev.originalTarget.className.indexOf('autocomplete-history-dropmarker') != -1 ||
+                   ev.originalTarget.className.indexOf('urlbar-history-dropmarke') != -1) {
+            CliqzAutocomplete.sessionStart = true;
+            CLIQZ.Core.historyDropMarker.setAttribute('cliqz-start', 'true');
+            CLIQZ.Core.historyDropMarker.showPopup();
+        }
+    },
+    urlbarkeydown: function(ev){
+        CLIQZ.Core._lastKey = ev.keyCode;
+        CliqzAutocomplete._lastKey = ev.keyCode;
+        var cancel = CLIQZ.UI.keyDown(ev);
+        cancel && ev.preventDefault();
+
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     urlbarkeypress: function(ev) {
         if (!ev.ctrlKey && !ev.altKey && !ev.metaKey) {
@@ -662,6 +700,14 @@ window.CLIQZ.Core = {
         } /* else {
            CliqzAutosuggestion.active = false;
         } */
+    },
+    urlbarmousemove: function(ev) {
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = true;
+    },
+    urlbarmouseleave: function(ev) {
+        if(!CliqzUtils.getPref('topSitesV2', false)) return;
+        CLIQZ.Core._shouldDropdownStayOpen = false;
     },
     // autocomplete query inline
     autocompleteQuery: function(firstResult, firstTitle, data){
@@ -810,7 +856,6 @@ window.CLIQZ.Core = {
             });
         }, 0);
     },
-    //Q button
     refreshButtons: function(){
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
@@ -818,7 +863,7 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
+                CliqzUtils.createQbutton(win, btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
@@ -836,10 +881,10 @@ window.CLIQZ.Core = {
                 CliqzUtils.httpGet('chrome://cliqz/content/source.json',
                     function success(req){
                         var source = JSON.parse(req.response).shortName;
-                        CliqzSpecific.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
+                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion + '-' + source);
                     },
                     function error(){
-                        CliqzSpecific.openTabInWindow(win, 'http://cliqz.com/' + lang + '/feedback/' + beVersion);
+                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/' + lang + '/feedback/' + beVersion);
                     }
                 );
             });
@@ -847,25 +892,27 @@ window.CLIQZ.Core = {
 
         //feedback and FAQ
         menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'Feedback & FAQ', feedback_FAQ));
+        menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, 'CLIQZ Triqz', function(){
+          CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/home/cliqz-triqz');
+        }));
         menupopup.appendChild(doc.createElement('menuseparator'));
 
         //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
-        menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
-        menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
-        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
+        menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+        menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+        menupopup.appendChild(CliqzUtils.createLocationPermOptions(doc));
       }
       else {
-        menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
+        menupopup.appendChild(CliqzUtils.createActivateButton(doc));
       }
-      menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
+      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
       /*
       menupopup.appendChild(doc.createElement('menuseparator'));
       menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, "CLIQZ Tour", function () {
         CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
       }));
       */
-      //menupopup.appendChild(CLIQZ.Core.createCheckBoxItem(doc, 'news-toggle'));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -887,7 +934,7 @@ window.CLIQZ.Core = {
             }
             item.addEventListener('command', function(event) {
                 CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -917,7 +964,7 @@ window.CLIQZ.Core = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
+            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -925,33 +972,14 @@ window.CLIQZ.Core = {
         menu.appendChild(menupopup);
         return menu;
     },
-    getLocationPermState: function(){
-        var data = {
-          'yes': {
-                  name: CliqzUtils.getLocalizedString('yes'),
-                  selected: false
-          },
-          'ask': {
-                  name: CliqzUtils.getLocalizedString('always_ask'),
-                  selected: false
-          },
-          'no': {
-              name: CliqzUtils.getLocalizedString('no'),
-              selected: false
-          }
-        };
 
-        data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
-
-        return data;
-    },
     createLocationPermOptions: function(doc) {
       var menu = doc.createElement('menu'),
           menupopup = doc.createElement('menupopup');
 
       menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
 
-      var filter_levels = CLIQZ.Core.getLocationPermState();
+      var filter_levels = CliqzUtils.getLocationPermState();
 
       for(var level in filter_levels) {
         var item = doc.createElement('menuitem');
@@ -966,45 +994,15 @@ window.CLIQZ.Core = {
 
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
-          CLIQZ.Core.setLocationPermission(this.filter_level.toString());
+          CliqzUtils.setLocationPermission(this.filter_level.toString());
         }, false);
 
         menupopup.appendChild(item);
       };
       menu.appendChild(menupopup);
       return menu;
-    },
-    updateGeoLocation: function() {
-      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+  },
 
-      if (CliqzUtils.getPref('share_location') == 'yes') {
-        // Get current position
-        geoService.getCurrentPosition(function(p) {
-          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
-          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
-
-        // Upate position if it changes
-        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
-          // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CliqzUtils.getPref('share_location') == 'yes') {
-            CliqzUtils.USER_LAT = p.coords.latitude;
-            CliqzUtils.USER_LNG =  p.coords.longitude;
-          }
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
-      } else {
-        CliqzUtils.USER_LAT = null;
-        CliqzUtils.USER_LNG = null;
-      }
-    },
-    setLocationPermission: function(newPerm) {
-      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
-        CliqzUtils.setPref('share_location',newPerm);
-        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
-        CLIQZ.Core.updateGeoLocation();
-      }
-    },
     createSimpleBtn: function(doc, txt, func){
         var item = doc.createElement('menuitem');
         item.setAttribute('label', txt);
@@ -1040,7 +1038,7 @@ window.CLIQZ.Core = {
 
         menu.setAttribute('label', 'Human Web');
 
-        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
+        var safeSearchBtn = CliqzUtils.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
         menuPopup.appendChild(safeSearchBtn);
 
         menuPopup.appendChild(
@@ -1048,7 +1046,7 @@ window.CLIQZ.Core = {
                 doc,
                 CliqzUtils.getLocalizedString('btnSafeSearchDesc'),
                 function(){
-                        CliqzSpecific.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
+                        CLIQZEnvironment.openTabInWindow(win, 'https://cliqz.com/privacy#humanweb');
                     }
             )
         );
@@ -1066,7 +1064,7 @@ window.CLIQZ.Core = {
             win.CLIQZ.Core.init();
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
-        CLIQZ.Core.refreshButtons();
+        CliqzUtils.refreshButtons();
 
         CliqzUtils.telemetry({
           type: 'setting',
@@ -1076,4 +1074,129 @@ window.CLIQZ.Core = {
       });
       return button;
     },
+    getLocationPermState: function(){
+        var data = {
+          'yes': {
+                  name: CliqzUtils.getLocalizedString('yes'),
+                  selected: false
+          },
+          'ask': {
+                  name: CliqzUtils.getLocalizedString('always_ask'),
+                  selected: false
+          },
+          'no': {
+              name: CliqzUtils.getLocalizedString('no'),
+              selected: false
+          }
+        };
+
+        data[CliqzUtils.getPref('share_location', 'ask')].selected = true;
+
+        return data;
+    },
+    //ResponsiveClasses generate responsive classes
+    responsiveClasses: function (elm) {
+        if(!elm)
+            return
+
+        var generateResponsiveClasses = function(curIndex, sizeClasses) {
+            curIndex = parseInt(curIndex);
+            // Everythinh on the right site of the curIndex is Bigger so it gets class cqz-size-smaller-than-XXXXX
+            // Everythinh on the left site of the curIndex is Small so it gets class cqz-size-smaller-bigger-XXXXX
+            var result = [];
+
+            //Smaller than /// It is going Right of the array
+            for(var ii = curIndex+1; ii < sizeClasses.length; ii++) {
+                if(sizeClasses[ii].rangeName1){
+                    result.push(" cqz-size-smaller-than-" + sizeClasses[ii].rangeName1);
+                }
+            }
+            //Bigger than /// It is going Left of the array
+            for(var ii = 0; ii < curIndex; ii++) {
+                if(sizeClasses[ii].rangeName2)
+                    result.push(" cqz-size-bigger-than-" + sizeClasses[ii].rangeName2);
+            }
+
+            return result;
+        }
+
+        //Responsive classes array, with the range
+        // Tange 1 is always > ||||| Range 2 is always <=
+        var elm_width = CLIQZ.Core.urlbar.clientWidth,
+            sizeClasses = [
+                {
+                    rangeName2: '500',
+                    range2: 500, //<=
+                },
+                {
+                    rangeName1: '500',
+                    rangeName2: '800',
+                    range1: 500, // >
+                    range2: 800, //<=
+                },
+                {
+                    rangeName1: '800',
+                    rangeName2: '1000',
+                    range1: 800, // >
+                    range2: 1000, //<=
+                },
+                {
+                    rangeName1: '1000',
+                    rangeName2: '1200',
+                    range1: 1000, // >
+                    range2: 1200, //<=
+                },
+                {
+                    rangeName1: '1200',
+                    rangeName2: '1400',
+                    range1: 1200, // >
+                    range2: 1400, //<=
+                },
+                {
+                    rangeName1: '1400',
+                    range1: 1400, // >
+                },
+            ];
+
+
+            for (var kk in sizeClasses) {
+                if(sizeClasses[kk].range1 && sizeClasses[kk].range2) {
+
+
+                    if(elm_width > sizeClasses[kk].range1 && eval(elm_width <= sizeClasses[kk].range2)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1 + '-' + sizeClasses[kk].rangeName2;
+                    }
+
+                }else if (sizeClasses[kk].range1) {
+
+                    if(eval(elm_width > sizeClasses[kk].range1)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName1;
+                    }
+
+                }else if (sizeClasses[kk].range2) {
+
+                    if(eval(elm_width <= sizeClasses[kk].range2)) {
+                        CLIQZ.Core.removeClassesByPrefix(elm, 'cqz-size-');
+                        elm.className += generateResponsiveClasses(kk, sizeClasses).join(' ');
+                        elm.className += ' cqz-size-range-' + sizeClasses[kk].rangeName2;
+                    }
+
+                }
+            }
+    },
+    //Remove classes from element by prefix
+    removeClassesByPrefix: function (elm, prefix) {
+        var result = elm.className.split(" ").filter(function (c) {
+            return c.lastIndexOf(prefix, 0) !== 0;
+        });
+
+        elm.className = result.join(" ").trim();
+
+    }
+>>>>>>> master:cliqz@cliqz.com/chrome/content/core.js
 };

@@ -31,15 +31,9 @@ var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
-    'census':'c',
     'news':'n',
     'video':'v',
     'hq':'h',
-    'shopping':'s',
-    'science':'k',
-    'gaming':'g',
-    'dictionary':'l',
-    'qaa':'q',
     'bm': 'm',
     'reciperd': 'r',
     'game': 'g',
@@ -59,7 +53,7 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
@@ -93,7 +87,8 @@ var CliqzUtils = {
       'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
       'recipe': 3, 'rd-h3-w-rating': 1,
       'ramadan': 3, 'ez-generic-2': 3,
-      'cpgame_movie': 3
+      'cpgame_movie': 3,
+      "delivery-tracking": 2
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
@@ -489,17 +484,11 @@ var CliqzUtils = {
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
   getCliqzResults: function(q, callback){
-    CliqzUtils._querySeq++;
-    if(q.length < CliqzUtils._queryLastLength){
-      CliqzUtils._queriesDel++;
-      CliqzUtils._queriesTSDel = CliqzUtils._queriesTSDel.map(function(v){ return v+1; });
-    } else {
-      [100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000].forEach(function(v, i){
-        if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + v)){
-          CliqzUtils._queriesTS[i]++;
-          CliqzUtils._queriesTSDel[i]++;
-        }
-      });
+    CliqzUtils._sessionSeq++;
+
+    // if the user sees the results more than 500ms we consider that he starts a new query
+    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+      CliqzUtils._queryCount++;
     }
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
@@ -512,8 +501,7 @@ var CliqzUtils = {
 
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
-              CliqzUtils.encodeQuerySession() +
-              CliqzUtils.encodeQuerySeq() +
+              CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
@@ -612,40 +600,37 @@ var CliqzUtils = {
     else
       return [];
   },
-  _querySession: '',
-  _querySeq: 0,
+  // random ID generated at each urlbar focus
+  _searchSession: '',
+  // number of sequences in each session
+  _sessionSeq: 0,
   _queryLastLength: null,
   _queryLastDraw: null,
-  _queriesTS: null,
-  _queriesTSDel: null,
-  _queriesDel: null,
-  setQuerySession: function(querySession){
-    CliqzUtils._querySession = querySession;
-    CliqzUtils._querySeq = 0;
-    CliqzUtils._queriesTS = [0,0,0,0,0,0,0,0,0,0];
-    CliqzUtils._queriesTSDel = [0,0,0,0,0,0,0,0,0,0];
-    CliqzUtils._queriesDel = 0;
+  // number of queries in search session
+  _queryCount: null,
+  setSearchSession: function(rand){
+    CliqzUtils._searchSession = rand;
+    CliqzUtils._sessionSeq = 0;
+    CliqzUtils._queryCount = 0;
     CliqzUtils._queryLastLength = 0;
     CliqzUtils._queryLastDraw = 0;
   },
-  encodeQuerySession: function(){
-    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
-  },
-  encodeQuerySeq: function(){
-    if(CliqzUtils._querySession.length){
-      return '&n=' + CliqzUtils._querySeq +
-             '&nd=' + CliqzUtils._queriesDel +
-             '&nts=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTS)) +
-             '&ntsd=' + encodeURIComponent(JSON.stringify(CliqzUtils._queriesTSDel));
+  encodeSessionParams: function(){
+    if(CliqzUtils._searchSession.length){
+      return '&s=' + encodeURIComponent(CliqzUtils._searchSession) +
+             '&n=' + CliqzUtils._sessionSeq +
+             '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-
   getGeo: function(allowOnce, callback, failCB) {
     /*
     @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
                                 This is used when the user clicks on Share Location "Just once".
     */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) failCB("No permission to get user's location");
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+      failCB("No permission to get user's location");
+      return;
+    }
 
     if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
       callback({
@@ -701,8 +686,8 @@ var CliqzUtils = {
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CLIQZEnvironment.getPref('session');
     msg.ts = Date.now();
-    msg.seq = (CliqzUtils.getPref('telemetrySeq', 0) + 1) % 2147483647;
-    CliqzUtils.setPref('telemetrySeq', msg.seq);
+    CliqzUtils.telemetrySeq = (CliqzUtils.telemetrySeq + 1) % 2147483647;
+    msg.seq = CliqzUtils.telemetrySeq
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
@@ -721,8 +706,7 @@ var CliqzUtils = {
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() +
-      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeSessionParams() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
     CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
@@ -743,6 +727,7 @@ var CliqzUtils = {
   _telemetry_start: undefined,
   TELEMETRY_MAX_SIZE: 500,
   pushTelemetry: function() {
+    CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
     if(CliqzUtils._telemetry_req) return;
 
     // put current data aside in case of failure
@@ -958,4 +943,71 @@ var CliqzUtils = {
               }
           )
     },
+    removeGeoLocationWatch: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.removeGeoLocationWatch();
+
+      if (CliqzUtils.getPref('share_location') == 'yes') {
+        // Get current position
+        geoService.getCurrentPosition(function(p) {
+          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+
+        //Upate position if it changes
+        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
+            CliqzUtils.USER_LAT = p.coords.latitude;
+            CliqzUtils.USER_LNG =  p.coords.longitude;
+          }
+        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
+      } else {
+        CliqzUtils.USER_LAT = null;
+        CliqzUtils.USER_LNG = null;
+      }
+    },
+    setLocationPermission: function(newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CliqzUtils.setPref('share_location',newPerm);
+        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+        CliqzUtils.updateGeoLocation();
+      }
+    }
+    /*
+    toggleMenuSettings: function(new_state) {
+      var enumerator = Services.wm.getEnumerator('navigator:browser');
+      while (enumerator.hasMoreElements()) {
+          var win = enumerator.getNext(),
+              doc = win.document;
+
+          try{
+            var btn = doc.getElementById('cliqz-button');
+            if(btn && btn.children && btn.children.cliqz_menupopup){
+              if (new_state == "enabled") {
+                var activateButton = btn.children.cliqz_menupopup.lastChild;
+                activateButton.parentNode.removeChild(activateButton);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
+              }
+              else if (new_state == "disabled") {
+                var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
+                adultFilterOptions.parentNode.removeChild(adultFilterOptions);
+                var searchOptions = btn.children.cliqz_menupopup.lastChild;
+                searchOptions.parentNode.removeChild(searchOptions);
+
+                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+              }
+            }
+          } catch (e){}
+      }
+    }
+    */
 };
+
+CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');

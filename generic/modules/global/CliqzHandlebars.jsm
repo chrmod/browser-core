@@ -18,7 +18,7 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['adult', 'footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
+    MESSAGE_TEMPLATES = ['footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
@@ -165,18 +165,14 @@ function registerHelpers(){
         var minimalData_movie = data_richData && ((typeof(data_richData["image"]) !== "undefined" ) || (data_richData["director"] && data_richData["director"]["title"]) || (data_richData["length"] &&  data_richData["length"] !== "_") || (data_richData["categories"]));
         // 5Jul2015, thuy@cliqz.com, used for computer game rich-snippet (rich-data) from BM.
         var big_template = (CliqzAutocomplete.lastResult._results.length == 1 && (minimalData_pcgame || minimalData_movie)); // is the only result in the show list
-        if (big_template && data_richData["categories"])
-            data_richData["categories"].forEach(function(item){
-                if(item["title"]  && !item["title_key"])
-                    item["title_key"] = item["title"];
-            });
+        data_richData['type_final'] = data_richData['superType'] || data_richData['type'];
 
         return big_template
     });
 
     Handlebars.registerHelper('image_rd_specification', function(richData){
         var mw = "76px";
-        switch (richData["type"]){
+        switch (richData["type_final"] || richData['superType'] || richData["type"]){
             case "movie":
                 mw = "50px";
                 break;

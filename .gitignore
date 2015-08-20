@@ -17,3 +17,5 @@ build/*
 # external components
 cliqz@cliqz.com/tests/screenshots/lambda/node_modules
 bower_components
+cliqz@cliqz.com/modules/*_bck.jsm
+cliqz@cliqz.com/node_modules

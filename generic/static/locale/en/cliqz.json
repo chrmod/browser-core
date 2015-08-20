@@ -65,6 +65,12 @@
     "vs":{
         "message": "vs."
     },
+    "NEXT GAME" : {
+        "message": "NEXT GAME"
+    },
+    "LAST GAME" : {
+        "message": "LAST GAME"
+    },
     "AllGames":{
         "message": "All Games"
     },
@@ -498,19 +504,19 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been hidden."
-    },
-    "adultAction": {
-        "message": "Show unfiltered results?"
+        "message": "Explicit content has been hidden. Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"block"
+      "message":"Block"
     },
     "adultModerate": {
-      "message":"ask"
+      "message":"Ask"
     },
     "adultLiberal": {
-      "message":"always show"
+      "message":"Always show"
+    },
+    "adult_show_once": {
+      "message":"Show Once"
     },
     "yes": {
         "message": "Yes"
@@ -592,12 +598,6 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
-    },
-    "newsToggleLatest":{
-        "message": "Latest"
-    },
-    "newsToggleTrends":{
-        "message": "Trending"
     },
     "topSitesMessage":{
         "message": "Choose a shortcut to one of your favorite sites, or"
@@ -788,8 +788,8 @@
     "location_never": {
       "message": "Never. I hate awesome stuff."
     },
-    "no_cinemas_to_show": {
-      "message": "It seems like this movie is not currently playing in your area."
+    "no_local_data_msg": {
+      "message": "Sorry. It seems like we have no local details for this result around your area."
     },
     "movies_confirm_no": {
       "message": "Are you sure you don't want to see in which cinemas this movie is playing?"

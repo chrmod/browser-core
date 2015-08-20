@@ -24,7 +24,7 @@ function getSuperType(result){
     if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
         return CliqzUtils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
                CliqzUtils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
-               'bm'                                                           // backwards compatibility (most generic type, requires only url)
+               'bm';                                                           // backwards compatibility (most generic type, requires only url)
     }
     return null;
 }
@@ -156,8 +156,7 @@ var Result = {
         // Bing Filters
         // Filter all like:
         //    www.bing.com/search?
-        if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
+        if(urlparts.name.toLowerCase() == "bing" && urlparts.extra.indexOf("q=") != -1) {
             log("Discarding result page from history: " + url)
             return false;
         }
