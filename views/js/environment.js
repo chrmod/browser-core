@@ -126,8 +126,12 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab){
-        // window.open(url,newTab?'_blank':'_self');
+    openLink: function(url, newTab) {
+        // Don't open links for mobile because the swipe causes random click events
+        // on non-touch devices
+        if (!_cliqzIsMobile) {
+            window.open(url,newTab?'_blank':'_self');
+        }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
