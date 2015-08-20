@@ -291,11 +291,9 @@ var CLIQZEnvironment = {
         popup._appendCurrentResult = function(){
             if(popup._matchCount > 0 && popup.mInput){
               //try to break the call stack which cause 'too much recursion' exception on linux systems
-              setTimeout(function(){ CLIQZ.UI.handleResults.apply(ctx); }, 0, this);
+              CLIQZEnvironment.setTimeout(function(win){ win.CLIQZ.UI.handleResults.apply(win); }, 0, win);
             }
         };
-
-        UI.urlbar_box = CLIQZ.Core.urlbar.getBoundingClientRect();
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
@@ -307,7 +305,6 @@ var CLIQZEnvironment = {
                 this.setAttribute("width", width > 500 ? width : 500);
                 // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
                 this.openPopup(aElement, "after_start", 0, 0 , false, true);
-                UI.urlbar_box = UI.urlbar_box || CLIQZ.Core.urlbar.getBoundingClientRect();
               }
             }).apply(popup, arguments)
         };

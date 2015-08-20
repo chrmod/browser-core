@@ -299,15 +299,12 @@ var CliqzAutocomplete = {
 
                 var now = Date.now();
 
-                if(result)this.historyResults = result;
-                if(resultExtra) {
-                    //Lucian: not very elegant
-                    this.cliqzResultsExtra = [resultExtra];
-                    this.historyTimeout = true;
-                    this.pushResults(this.searchString);
-                    return;
-                }
+
+                this.historyResults = result;
                 this.latency.history = now - this.startTime;
+
+                //CliqzUtils.log("history results: " + (result ? result.matchCount : "null") + "; done: " + this.isHistoryReady() +
+                //               "; time: " + (now - this.startTime), CliqzAutocomplete.LOG_KEY)
 
                 // Choose an instant result if we have all history results (timeout)
                 // and we haven't already chosen one
@@ -639,8 +636,6 @@ var CliqzAutocomplete = {
                     discarded: obj.discardedResults,
                     v: 1
                 };
-
-                obj.startTime = null;
 
                 // reset count of discarded backend results
                 obj.discardedResults = 0;

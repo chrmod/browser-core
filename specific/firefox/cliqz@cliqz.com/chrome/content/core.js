@@ -49,6 +49,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzRedirect',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzSpellCheck',
+  'chrome://cliqzmodules/content/CliqzSpellCheck.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzCategories',
   'chrome://cliqzmodules/content/CliqzCategories.jsm');
 
@@ -88,6 +91,8 @@ window.CLIQZ.Core = {
     _messageOFF: true, // no message shown
     _updateAvailable: false,
     _shouldDropdownStayOpen: false,
+    genericPrefs: Components.classes['@mozilla.org/preferences-service;1']
+                .getService(Components.interfaces.nsIPrefBranch),
 
     init: function(){
         // TEMP fix 20.01.2015 - try to remove all CliqzHistory listners
@@ -242,7 +247,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
         CliqzExtOnboarding.init(window);
-        CLIQZ.Core.updateGeoLocation();
+        CliqzUtils.updateGeoLocation();
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
 
@@ -1198,5 +1203,4 @@ window.CLIQZ.Core = {
         elm.className = result.join(" ").trim();
 
     }
->>>>>>> master:cliqz@cliqz.com/chrome/content/core.js
 };

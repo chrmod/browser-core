@@ -169,7 +169,6 @@ var CliqzHistoryPattern = {
     //var history_left = clustered_result[0]
     var cluster_data = clustered_result[1];
 
-
     var res;
     if(cluster_data) { // cluster from rule-based clustering
       CliqzUtils.log('Using rule-based cluster for ' + cluster_data.url + " autoAdd: " + cluster_data.autoAdd, "CliqzHistoryPattern");
@@ -187,9 +186,9 @@ var CliqzHistoryPattern = {
     } else {
       // Extract results
       var patterns = [];
-      for (var i = 0; i < history.matchCount; i++) {
-        var url = CliqzUtils.cleanMozillaActions(history.getValueAt(i)),
-            title = history.getCommentAt(i);
+      for (var i = 0; i < history.results.length; i++) {
+        var url = CliqzUtils.cleanMozillaActions(history.results[i].value),
+            title = history.results[i].comment;
 
         if (!title) {
           title = CliqzHistoryPattern.generalizeUrl(url);
@@ -201,7 +200,7 @@ var CliqzHistoryPattern = {
           patterns.push({
             url: url,
             title: title,
-            favicon: history.getImageAt(i),
+            favicon: history.results[i].image,
             _genUrl: CliqzHistoryPattern.generalizeUrl(url, true)
           });
         }
