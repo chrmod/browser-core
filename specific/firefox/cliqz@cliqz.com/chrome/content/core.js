@@ -868,7 +868,7 @@ window.CLIQZ.Core = {
 
             try{
                 var btn = win.document.getElementById('cliqz-button')
-                CliqzUtils.createQbutton(win, btn.children.cliqz_menupopup);
+                CLIQZ.Core.createQbutton(win, btn.children.cliqz_menupopup);
             } catch(e){}
         }
     },
@@ -904,20 +904,14 @@ window.CLIQZ.Core = {
 
         //menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, CliqzUtils.getLocalizedString('settings')));
       if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
-        menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-        menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-        menupopup.appendChild(CliqzUtils.createLocationPermOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createSearchOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createAdultFilterOptions(doc));
+        menupopup.appendChild(CLIQZ.Core.createLocationPermOptions(doc));
       }
       else {
-        menupopup.appendChild(CliqzUtils.createActivateButton(doc));
+        menupopup.appendChild(CLIQZ.Core.createActivateButton(doc));
       }
-      menupopup.appendChild(CliqzUtils.createHumanMenu(win));
-      /*
-      menupopup.appendChild(doc.createElement('menuseparator'));
-      menupopup.appendChild(CLIQZ.Core.createSimpleBtn(doc, "CLIQZ Tour", function () {
-        CliqzUtils.openOrReuseAnyTab(CliqzUtils.NEW_TUTORIAL_URL, "", false);
-      }));
-      */
+      menupopup.appendChild(CLIQZ.Core.createHumanMenu(win));
     },
     createSearchOptions: function(doc){
         var menu = doc.createElement('menu'),
@@ -939,7 +933,7 @@ window.CLIQZ.Core = {
             }
             item.addEventListener('command', function(event) {
                 CliqzResultProviders.setCurrentSearchEngine(event.currentTarget.engineName);
-                CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+                CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
             }, false);
 
             menupopup.appendChild(item);
@@ -969,7 +963,7 @@ window.CLIQZ.Core = {
           item.filter_level = new String(level);
           item.addEventListener('command', function(event) {
             CliqzUtils.setPref('adultContentFilter', this.filter_level.toString());
-            CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+            CliqzUtils.setTimeout(CLIQZ.Core.refreshButtons, 0);
           }, false);
 
           menupopup.appendChild(item);
@@ -984,7 +978,7 @@ window.CLIQZ.Core = {
 
       menu.setAttribute('label', CliqzUtils.getLocalizedString('share_location'));
 
-      var filter_levels = CliqzUtils.getLocationPermState();
+      var filter_levels = CLIQZ.Core.getLocationPermState();
 
       for(var level in filter_levels) {
         var item = doc.createElement('menuitem');
@@ -999,7 +993,7 @@ window.CLIQZ.Core = {
 
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
-          CliqzUtils.setLocationPermission(this.filter_level.toString());
+            CLIQZ.Core.setLocationPermission(this.filter_level.toString());
         }, false);
 
         menupopup.appendChild(item);
@@ -1043,7 +1037,7 @@ window.CLIQZ.Core = {
 
         menu.setAttribute('label', 'Human Web');
 
-        var safeSearchBtn = CliqzUtils.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
+        var safeSearchBtn = CLIQZ.Core.createCheckBoxItem(doc, 'dnt', CliqzUtils.getLocalizedString('btnSafeSearch'), false);
         menuPopup.appendChild(safeSearchBtn);
 
         menuPopup.appendChild(
@@ -1069,7 +1063,7 @@ window.CLIQZ.Core = {
             win.CLIQZ.Core.init();
         }
         CliqzUtils.setPref("cliqz_core_disabled", false);
-        CliqzUtils.refreshButtons();
+        CLIQZ.Core.refreshButtons();
 
         CliqzUtils.telemetry({
           type: 'setting',

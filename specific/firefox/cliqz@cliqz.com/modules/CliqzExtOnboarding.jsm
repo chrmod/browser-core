@@ -526,7 +526,7 @@ var CliqzExtOnboarding = {
 
             win.CLIQZ.Core.popup.hidePopup();
             if (type == "same_result") {
-                win.CLIQZEnvironment.openLink(destUrl, false);
+                win.CLIQZEnvironment.openLink(win, destUrl, false);
             }
             callout.hidePopup();
         }
@@ -538,7 +538,8 @@ var CliqzExtOnboarding = {
 
         if (CliqzExtOnboarding._handleCalloutClosed(callout, "seen", "blur")) {
             if (type == "same_result") {
-                CliqzUtils.getWindow().CLIQZEnvironment.openLink(destUrl, false);
+                var win = CliqzUtils.getWindow();
+                win.CLIQZEnvironment.openLink(win, destUrl, false);
             }
         }
     },

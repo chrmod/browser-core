@@ -14,7 +14,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
       action = "context_menu";
 
   function openFeedback(e) {
-    CLIQZEnvironment.openLink(CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
+    CLIQZEnvironment.openLink(window, CliqzUtils.FEEDBACK + "?kind=" + e.target.getAttribute('data-kind'), true);
 
     var signal = {
       type: 'activity',
@@ -25,7 +25,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   }
 
   function openNewTab(e) {
-    CLIQZEnvironment.openLink(e.target.getAttribute('data-url'), true);
+    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), true);
     var signal = {
       type: 'activity',
       action: action,
@@ -35,7 +35,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   }
 
   function openNewWindow(e) {
-    CLIQZEnvironment.openLink(e.target.getAttribute('data-url'), false, true);
+    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, true);
 
     var signal = {
       type: 'activity',
@@ -46,7 +46,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   }
 
   function openInPrivateWindow(e) {
-    CLIQZEnvironment.openLink(e.target.getAttribute('data-url'), false, false, true);
+    CLIQZEnvironment.openLink(window, e.target.getAttribute('data-url'), false, false, true);
 
     var signal = {
       type: 'activity',

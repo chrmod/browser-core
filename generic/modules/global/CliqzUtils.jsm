@@ -974,40 +974,10 @@ var CliqzUtils = {
     setLocationPermission: function(newPerm) {
       if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
         CliqzUtils.setPref('share_location',newPerm);
-        CliqzUtils.setTimeout(CliqzUtils.refreshButtons, 0);
+        CLIQZ.Core.setTimeout(CliqzUtils.refreshButtons, 0);
         CliqzUtils.updateGeoLocation();
       }
     }
-    /*
-    toggleMenuSettings: function(new_state) {
-      var enumerator = Services.wm.getEnumerator('navigator:browser');
-      while (enumerator.hasMoreElements()) {
-          var win = enumerator.getNext(),
-              doc = win.document;
-
-          try{
-            var btn = doc.getElementById('cliqz-button');
-            if(btn && btn.children && btn.children.cliqz_menupopup){
-              if (new_state == "enabled") {
-                var activateButton = btn.children.cliqz_menupopup.lastChild;
-                activateButton.parentNode.removeChild(activateButton);
-
-                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createSearchOptions(doc));
-                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createAdultFilterOptions(doc));
-              }
-              else if (new_state == "disabled") {
-                var adultFilterOptions = btn.children.cliqz_menupopup.lastChild;
-                adultFilterOptions.parentNode.removeChild(adultFilterOptions);
-                var searchOptions = btn.children.cliqz_menupopup.lastChild;
-                searchOptions.parentNode.removeChild(searchOptions);
-
-                btn.children.cliqz_menupopup.appendChild(CliqzUtils.createActivateButton(doc));
-              }
-            }
-          } catch (e){}
-      }
-    }
-    */
 };
 
 CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');

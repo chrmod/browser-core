@@ -138,7 +138,7 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab, newWindow, newPrivateWindow){
+    openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
         if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
@@ -156,13 +156,13 @@ var CLIQZEnvironment = {
                 historyService.markPageAsTyped(urlObject);
         } catch(e) { }
 
-        CLIQZ.Core.triggerLastQ = true;
+        win.CLIQZ.Core.triggerLastQ = true;
         if(newTab) {
-            gBrowser.addTab(url);
+            win.gBrowser.addTab(url);
         } else if(newWindow) {
-            window.open(url, '_blank');
+            win.open(url, '_blank');
         } else if(newPrivateWindow) {
-            openLinkIn(url, "window", { private: true });
+            win.openLinkIn(url, "window", { private: true });
         }
         else {
             //clean selected text to have a valid last Query
@@ -170,8 +170,8 @@ var CLIQZEnvironment = {
             //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
 
             // Set urlbar value to url immediately
-            CLIQZ.Core.urlbar.value = url;
-            openUILink(url);
+            win.CLIQZ.Core.urlbar.value = url;
+            win.openUILink(url);
         }
     },
     tldExtractor: function(host){

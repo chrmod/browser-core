@@ -1329,7 +1329,7 @@ function urlIndexInHistory(url, urlList) {
                             var win = enumerator.getNext();
                             win.CLIQZ.Core.unload(true);
                         }
-                        CliqzUtils.refreshButtons();
+                        CLQIZ.Core.refreshButtons();
                         break;
                     case 'keep-cliqz':
                         updateMessageState("hide");
@@ -1363,7 +1363,7 @@ function urlIndexInHistory(url, urlList) {
 
                     //changelog
                     case 'update-show':
-                        CLIQZEnvironment.openLink(CliqzUtils.CHANGELOG, true);
+                        CLIQZEnvironment.openLink(window, CliqzUtils.CHANGELOG, true);
                     case 'update-dismiss':
                         updateMessageState("hide");
                         CliqzUtils.setPref('changeLogState', 2);
@@ -1411,7 +1411,7 @@ function urlIndexInHistory(url, urlList) {
                     setting: el.getAttribute('cliqz-telemetry'),
                     value: state
                 });
-                setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
+                setTimeout(function(){ CLQIZ.Core.refreshButtons(); }, 0);
             }
             /* Propagate event up the DOM tree */
             el = el.parentElement;
@@ -1516,7 +1516,7 @@ function resultClick(ev){
               mouse: coordinate
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
-            CLIQZEnvironment.openLink(url, newTab);
+            CLIQZEnvironment.openLink(window, url, newTab);
             CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
@@ -1901,7 +1901,7 @@ function onEnter(ev, item){
     }, CliqzAutocomplete.lastSearch);
   }
 
-  CLIQZEnvironment.openLink(input, newTab);
+  CLIQZEnvironment.openLink(window, input, newTab);
   CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, input);
   return true;
 }
@@ -1930,7 +1930,7 @@ function enginesClick(ev){
                 };
 
             if(ev.metaKey || ev.ctrlKey){
-                CLIQZEnvironment.openLink(url, true);
+                CLIQZEnvironment.openLink(window, url, true);
                 action.new_tab = true;
             } else {
                 gBrowser.selectedBrowser.contentDocument.location = url;
