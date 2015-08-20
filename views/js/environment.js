@@ -135,22 +135,24 @@ CLIQZEnvironment = {
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
-        /* for (var i = 0; i<30; i++) {
-            res.push({
-                style:   'favicon',
-                value:   'http://coolurl.com/' + i ,
-                image:   '',
-                comment: q + ' Title ' +i,
-                label:   ''
-            });
+        if (!_cliqzIsMobile) {
+            for (var i = 0; i<30; i++) {
+                res.push({
+                    style:   'favicon',
+                    value:   'http://coolurl.com/' + i ,
+                    image:   '',
+                    comment: q + ' Title ' +i,
+                    label:   ''
+                });
+            }
+            setTimeout(function(q,res){
+                callback({
+                    query: q,
+                    results: q.length % 2 == 0?res:[],
+                    ready:  true
+                });
+            }, 10, q, res);
         }
-        setTimeout(function(q,res){
-            callback({
-                query: q,
-                results: q.length % 2 == 0?res:[],
-                ready:  true
-            });
-        }, 10, q, res); */
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){
