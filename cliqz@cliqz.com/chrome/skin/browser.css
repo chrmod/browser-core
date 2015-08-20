@@ -611,7 +611,6 @@
     display: inline-block;
     padding: 5px 8px;
     margin-right: 10px;
-    text-transform: capitalize;
     border-radius: 3px;
     border: 1px solid #fff;
     font-size: 14px;
@@ -622,11 +621,17 @@
 #cliqz-popup .cqz-message-btns .cqz-msg-btn:hover { color: #3bb5d4; background: #fff; }
 #cliqz-popup .cqz-message-bar.cqz-message-alert .cqz-msg-btn:hover { color: #7a2354; }
 
+#cliqz-popup .cqz-message-bar.cqz-message-survey .cqz-msg-btn.cqz-msg-btn-default { background: #506BB8; border-color: #506BB8;}
+#cliqz-popup .cqz-message-bar.cqz-message-survey .cqz-msg-btn.cqz-msg-btn-default:hover { background: #fff; border-color: #fff; color: #49CC80; }
+#cliqz-popup .cqz-message-bar.cqz-message-survey .cqz-msg-btn.cqz-msg-btn-gray { background: #49CC80; }
+#cliqz-popup .cqz-message-bar.cqz-message-survey .cqz-msg-btn.cqz-msg-btn-gray:hover { background: #fff; color: #49CC80; }
+
 #cliqz-popup .cqz-message-success { color: #28ae2b; }
 #cliqz-popup .cqz-message-warning { color: #ffcc66; }
 
 
 #cliqz-popup .cqz-message-bar.cqz-message-alert { background: #7a2354; }
+#cliqz-popup .cqz-message-bar.cqz-message-survey { background: #49CC80; }
 
 /*======= Time Clock =======*/
 #cliqz-popup .ez-type-time > .cqz-result-holder .answer {

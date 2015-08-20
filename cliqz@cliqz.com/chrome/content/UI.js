@@ -1195,6 +1195,8 @@ function enhanceResults(res){
               ]
             }
         });
+    } else if (CLIQZ.UI.messageCenterMessage) {
+      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
     }
 
     return res;

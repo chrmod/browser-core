@@ -20,7 +20,7 @@
         cliqz-telemetry="{{telemetry}}"
     >
         {{#each options}}
-            <span class="cqz-msg-btn cqz-msg-btn-{{ state }} cqz-msg-btn-action-{{ state }}  border-box"
+            <span class="cqz-msg-btn cqz-msg-btn-{{ state }} cqz-msg-btn-action-{{ action }}  border-box"
                 state="{{ action }}"
                 {{#if pref }} pref="{{../pref}}" {{/if}}
                 {{#if prefVal }} prefVal="{{prefVal}}" {{/if}} >

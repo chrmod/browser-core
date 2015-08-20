@@ -507,13 +507,13 @@
         "message": "Anstößige Inhalte wurden automatisch blockiert. Alle Ergebnisse anzeigen?"
     },
     "adultConservative": {
-      "message":"blockieren"
+      "message":"Blockieren"
     },
     "adultModerate": {
-      "message":"nachfragen"
+      "message":"Nachfragen"
     },
     "adultLiberal": {
-      "message":"immer anzeigen"
+      "message":"Immer anzeigen"
     },
     "adult_show_once": {
       "message":"Einmal anzeigen"
