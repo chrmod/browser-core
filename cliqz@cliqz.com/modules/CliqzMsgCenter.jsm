@@ -13,7 +13,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
 var CAMPAIGN_SERVER = 'http://fec.cliqz.com/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
-	UPDATE_INTERVAL = 5 * 60 * 1000;
+	UPDATE_INTERVAL = 60 * 60 * 1000;
 
 /* ************************************************************************* */
 function _log(msg) {
@@ -487,10 +487,10 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				} else {
 					campaign.setState('end');
 				}
+				CliqzMsgCenter._updateCampaigns();
 			}
 			campaign.save();
 		}
-		CliqzMsgCenter._updateCampaigns();
 	},
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
