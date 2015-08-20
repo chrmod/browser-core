@@ -71,6 +71,9 @@ var ENGINES = [
     }
 ];
 
+var historyCallbacks = {};
+var lastHistoryCallbackId = 1;
+
 CLIQZEnvironment = {
 	TEMPLATES_PATH: 'generic/static/templates/',
     LOCALE_PATH: 'generic/static/locale/',
@@ -127,26 +130,52 @@ CLIQZEnvironment = {
         return req;
     },
     openLink: function(url, newTab){
-        window.open(url,newTab?'_blank':'_self');
+        jsBridge.openLink(url);
+        return false;
     },
-    historySearch: function(q, callback, searchParam, sessionStart){
-        var res = [];
-        for (var i = 0; i<30; i++) {
-            res.push({
-                style:   'favicon',
-                value:   'http://coolurl.com/' + i ,
-                image:   '',
-                comment: q + ' Title ' +i,
-                label:   ''
-            });
-        }
-        setTimeout(function(q,res){
+    addHistoryCallback: function (callback) {
+        historyCallbacks[lastHistoryCallbackId] = callback;
+        return lastHistoryCallbackId++;
+    },
+    runHistoryCallback: function (id, query, results) {
+        var callback = historyCallbacks[id];
+        historyCallbacks[id] = null;
+        setTimeout(function(){
             callback({
-                query: q,
-                results: q.length % 2 == 0?res:[],
+                query: query,
+                results: results,
                 ready:  true
             });
-        }, 10, q, res);
+        }, 1);
+    },
+    historySearchDone: function (id, query, resultsAsJson) {
+        try {
+            var items = JSON.parse(resultsAsJson);
+            var res = [];
+            for (var i in items) {
+                var item = items[i];
+                res.push({
+                    style:   'favicon',
+                    value:   item.url,
+                    image:   '',
+                    comment: item.title,
+                    label:   ''
+                });
+            }
+            runHistoryCallback(id, query, res);
+        } catch (e) {
+            CLIQZEnvironment.log( "historySearch", "Error: " + e);
+        }
+    },
+    historySearch: function(q, callback, searchParam, sessionStart){
+        var callbackId = addHistoryCallback(callback);
+        try {
+            var message = {"query": q, "callbackId": callbackId};
+
+			window.webkit.messageHandlers.interOp.postMessage(message)
+        } catch (e) {
+            CLIQZEnvironment.log( "historySearch", "Error: " + e);
+        }
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){

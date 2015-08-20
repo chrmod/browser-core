@@ -72,7 +72,7 @@ var ENGINES = [
 ];
 
 CLIQZEnvironment = {
-	TEMPLATES_PATH: '/generic/static/templates/',
+	TEMPLATES_PATH: _cliqzIsMobile ? '/mobile/templates/' : '/generic/static/templates/',
     LOCALE_PATH: '/generic/static/locale/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
@@ -126,27 +126,33 @@ CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab){
-        window.open(url,newTab?'_blank':'_self');
+    openLink: function(url, newTab) {
+        // Don't open links for mobile because the swipe causes random click events
+        // on non-touch devices
+        if (!_cliqzIsMobile) {
+            window.open(url,newTab?'_blank':'_self');
+        }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var res = [];
-        for (var i = 0; i<30; i++) {
-            res.push({
-                style:   'favicon',
-                value:   'http://coolurl.com/' + i ,
-                image:   '',
-                comment: q + ' Title ' +i,
-                label:   ''
-            });
+        if (!_cliqzIsMobile) {
+            for (var i = 0; i<30; i++) {
+                res.push({
+                    style:   'favicon',
+                    value:   'http://coolurl.com/' + i ,
+                    image:   '',
+                    comment: q + ' Title ' +i,
+                    label:   ''
+                });
+            }
+            setTimeout(function(q,res){
+                callback({
+                    query: q,
+                    results: q.length % 2 == 0?res:[],
+                    ready:  true
+                });
+            }, 10, q, res);
         }
-        setTimeout(function(q,res){
-            callback({
-                query: q,
-                results: q.length % 2 == 0?res:[],
-                ready:  true
-            });
-        }, 10, q, res);
     },
     getSearchEngines: function(){
         return ENGINES.map(function(e){
