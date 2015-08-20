@@ -53,49 +53,48 @@ urlbar.addEventListener('keydown', function(e){
 			validCount += showGooglethis;
 
 
+			if (_cliqzIsMobile) {
+				resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * validCount)) + 'px, 0px, 0px)';
+				var googleAnim = document.getElementById("googleThisAnim");
+				
 
-			resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * validCount)) + 'px, 0px, 0px)';
-			var googleAnim = document.getElementById("googleThisAnim");
-			
+				var vp = new ViewPager(resultsBox, {
+				  pages: validCount,
+				  dragSize: window.innerWidth,
+				  prevent_all_native_scrolling: true,
+				  vertical: false,
+				  onPageScroll : function (scrollInfo) {
+				  	currentScrollInfo = scrollInfo;
+				    offset = -scrollInfo.totalOffset;
+				    invalidateScroll();
+				  },
 
+				  onPageChange : function (page) {
+				    console.log('page', page);
+				  }
+				});
 
+				function invalidateScroll() {
+					// setTimeout(function() { 
+				  	resultsBox.style['transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
+				  	if (googleAnim) {
+				  		if (currentScrollInfo['page'] >= validCount - 2) {
+				  			googleAnim.style['transform'] = 'rotate(' + (currentScrollInfo['pageOffset'] * 360) + 'deg)';
+				  		}
+				  		if (currentScrollInfo['totalOffset'] >= validCount - 0.9 && !isLoadingGoogle) {
+				  			isLoadingGoogle = true;
+				  			history.replaceState({"currentCliqzQuery": urlbar.value}, "", window.location.href + "?q=" + urlbar.value);
+				  			window.open("http://www.google.com/#q=" + urlbar.value, "_self");
+				  		}
+				  	}
+					// }, 0);
+				}
 
-			var vp = new ViewPager(resultsBox, {
-			  pages: validCount,
-			  dragSize: window.innerWidth,
-			  prevent_all_native_scrolling: true,
-			  vertical: false,
-			  onPageScroll : function (scrollInfo) {
-			  	currentScrollInfo = scrollInfo;
-			    offset = -scrollInfo.totalOffset;
-			    invalidateScroll();
-			  },
-
-			  onPageChange : function (page) {
-			    console.log('page', page);
-			  }
-			});
-
-			function invalidateScroll() {
-				// setTimeout(function() { 
-			  	resultsBox.style['transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
-			  	if (googleAnim) {
-			  		if (currentScrollInfo['page'] >= validCount - 2) {
-			  			googleAnim.style['transform'] = 'rotate(' + (currentScrollInfo['pageOffset'] * 360) + 'deg)';
-			  		}
-			  		if (currentScrollInfo['totalOffset'] >= validCount - 0.9 && !isLoadingGoogle) {
-			  			isLoadingGoogle = true;
-			  			history.replaceState({"currentCliqzQuery": urlbar.value}, "", window.location.href + "?q=" + urlbar.value);
-			  			window.open("http://www.google.com/#q=" + urlbar.value, "_self");
-			  		}
-			  	}
-				// }, 0);
+				window.addEventListener('resize', function () {
+				  var w = window.innerWidth;
+				  invalidateScroll();
+				});
 			}
-
-			window.addEventListener('resize', function () {
-			  var w = window.innerWidth;
-			  invalidateScroll();
-			});
 		});
 	
 	}, 300);
