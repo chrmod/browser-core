@@ -10,7 +10,7 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CAMPAIGN_SERVER = 'http://fec.cliqz.com/message/',
+var CAMPAIGN_SERVER = 'https://fec.cliqz.com/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
 	UPDATE_INTERVAL = 60 * 60 * 1000;
