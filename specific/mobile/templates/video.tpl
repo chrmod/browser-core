@@ -1,6 +1,11 @@
 <div class='cqz-result-h3'>
+    {{#if debug}}
+        <span class='cqz-result-debug'>{{ debug }}</span>
+    {{/if}}
     {{#if image.src}}
-        <div class="cqz-image cqz-image-news cqz-image-round " style="background-image: url({{ image.src }});"></div>
+        <div class="cqz-image" style="background-image: url({{ image.src }});">
+            {{#if image.text }}<p class='cqz-video-arrow'>{{ image.text }}</p>{{/if}}
+        </div>
     {{/if}}
     <div class='cqz-result-center'>
       <div class='cqz-result-title overflow'><a href="{{url}}">{{ emphasis title text 2 true }}</a></div>
@@ -11,12 +16,7 @@
         '>
             {{ emphasis urlDetails.host text 2 true }}{{ emphasis urlDetails.extra text 2 true }}
         </div>
-        <div class='cqz-result-desc overflow'>
-        	{{#if data.richData.discovery_timestamp}}
-        	    <span style="color: #d7011d; padding-right:5px; ">{{ agoline data.richData.discovery_timestamp }}</span>
-            {{/if}}
-            {{ emphasis data.description text 2 true }}
-        </div>
+        <div class='cqz-result-desc overflow'>{{ views_helper data.richData.views }}</div>
     </div>
     {{> logo}}
 </div>

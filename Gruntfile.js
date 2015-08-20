@@ -49,12 +49,6 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/", src: "**", dest: build("chrome/navigation-tool/") }
                 ]
             },
-            android: {
-                files: [
-                    { expand: true, cwd: "generic/static/", src: "**", dest: build("android/chrome") },
-                    { expand: true, cwd: "specific/android/", src: "**", dest: build("android/chrome/content") },
-                ]
-              },
             iOS: {
             files: [
                 { expand: true, cwd: "generic/", src: "**", dest: build("tool_iOS/generic/") },
@@ -65,7 +59,10 @@ module.exports = function(grunt) {
             },
             androidkit: {
                 files: [
-                    { expand: true, cwd: "generic/static", src: "**", dest: build("androidkit/navigation") },
+                    { expand: true, cwd: "generic/static/locale", src: "**", dest: build("androidkit/navigation/locale") },
+                    { expand: true, cwd: "generic/static/skin", src: ["**", '!*css'], dest: build("androidkit/navigation/skin") },
+                    { expand: true, cwd: "specific/mobile/skin", src: ["*", '!*sass'], dest: build("androidkit/navigation/skin/mobile") },
+                    { expand: true, cwd: "specific/mobile/templates", src: '*', dest: build("androidkit/navigation/templates") },
                     { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("androidkit/navigation") },
                     { expand: true, cwd: "generic/modules/local/", src: "CliqzAntiPhishing.js", dest: build("androidkit/navigation/js") }
                 ]
@@ -119,26 +116,6 @@ module.exports = function(grunt) {
                 },
                 dest: build("androidkit/navigation/js/global.js")
             },
-            global: {
-                src: [
-                    "generic/modules/global/CliqzUtils.jsm",
-                    "generic/modules/global/*.jsm"
-                ],
-                options: {
-                    banner: "'use strict';\n\nvar CLIQZ = {};\n\n",
-                    sourceMap: true,
-                    process: function(src,filepath) {
-                        var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
-                        return "// start module " + modulename + "\n"
-                               + "(function(ctx,Q,E){\n"
-                               + src
-                               + "ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
-                               + "})(this, CLIQZ,CLIQZEnvironment);\n"
-                               + "// end module " + modulename + "\n\n"
-                    }
-                },
-                dest: build("tool/js/global.js")
-            },
             local: {
                 src: [
                     "generic/modules/local/core.js",
@@ -179,10 +156,6 @@ module.exports = function(grunt) {
             androidkit_libs: {
                 src: ["generic/modules/libs/*"],
                 dest: build("androidkit/navigation/js/libs.js")
-              },
-            libs3: {
-                src: ["generic/modules/libs/*"],
-                dest: build("android/modules/libs.js")
               },
             libs4: {
                 src: ["generic/modules/libs/*"],
