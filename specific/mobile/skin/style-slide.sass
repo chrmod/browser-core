@@ -122,6 +122,10 @@ body, html
 		line-height: $rs*2
 		white-space: nowrap
 		overflow: hidden
+		&.no-indent
+			margin-left: 0
+			span
+				color: #999
 		i
 			display: block
 			height: $rs*2
@@ -215,6 +219,57 @@ a
 	text-overflow: ellipsis
 	-webkit-line-clamp: 2
 	-webkit-box-orient: vertical
+
+.main.mulitple
+	@include display(flex)
+	@include flex-direction(column)
+	@include align-items(stretch)
+	@include align-content(stretch)
+	height: 80%
+	.item
+		position: relative
+		height: $rs*3
+		@include flex(1 1 auto)
+		border: 1px #eee solid
+		border-radius: $rs/4
+		margin-top: $rs/2
+		.main__headline
+			position: absolute
+			top: $rs/2
+			left: $rs*4.5
+			bottom: $rs/2
+			right: $rs/2
+			font-size: $rs/4*3
+			line-height: $rs
+			margin: 0
+			text-overflow: hidden
+			overflow: hidden
+			@include respond-to(375)
+				font-size: $rs
+				line-height: $rs*1.2
+			@include respond-to(414)
+				font-size: $rs
+				line-height: $rs*1.3
+		.main__image
+			position: absolute
+			top: 0
+			left: 0
+			width: $rs*4
+			bottom: 0
+			margin: 0
+			height: auto
+			border-top-left-radius: $rs/4
+			border-bottom-left-radius: $rs/4
+			border-top-right-radius: 0
+			border-bottom-right-radius: 0
+
+.main.weather
+	@include clearfix
+	.EZ-weather-container
+		width: 50%
+		float: left
+		.EZ-weather-img
+			width: 100%
 
 .main__image
 	@include flex(1 0 auto)
@@ -402,4 +457,97 @@ a
 			width: 50%
 			float: right
 
+.cqz-ez-stock-trend
+	font-size: $rs*1.5
+	line-height: $rs*2
+	padding: $rs/2 0
+	img
+		max-height: $rs*1.5
+		display: inline-block
+		max-width: $rs*2
+		margin-bottom: -2px
+	.red
+		color: red
+	.green
+		color: green
+
+.cliqz-stock-price-table
+	td
+		color: #aaa
+		font-size: $rs/4*3
+		line-height: $rs
+		vertical-align: top
+		padding-right: $rs
+
+.cqz-disclaimer
+	font-size: $rs/4*3
+	color: #ccc
+	line-height: $rs
+	padding-top: $rs
+
+.flightStatusEZ-plane-position
+	position: relative
+	height: $rs*2
+	margin: $rs 0
+	.flightStatusEZ-plane-position-plane-img
+		width: $rs*2
+		position: absolute
+		top: 0
+		left: 0
+	.flightStatusEZ-plane-position-bar
+		background-color: #74d463
+		height: 2px
+		margin-top: 14px
+		position: absolute
+		top: 0
+		left: $rs*2.5
+		right: 0
+		.flightStatusEZ-plane-position-dot
+			background-color: #eee !important
+			position: absolute
+			top: 0
+			left: 0
+			right: 0
+			bottom: 0
+			&:after
+				content: ""
+				border-radius: 50%
+				background-color: #74d463
+				height: $rs/2
+				position: absolute
+				top: -3px
+				left: 0
+				width: $rs/2
+
+.flightStatusEZ-depart-arrival
+	div
+		font-size: $rs
+		line-height: $rs*1.5
+	.flightStatusEZ-depart
+		width: 50%
+		float: left
+		color: #999
+		.flightStatusEZ-depart-arrival-name
+			color: #000
+	.flightStatusEZ-arrival
+		width: 50%
+		float: right
+		color: #999
+		.flightStatusEZ-depart-arrival-name
+			color: #000
 	
+.currency, .ez-calculator 
+	.expression
+		color: #999
+	.message
+		color: #bbb
+	.main__headline
+		font-size: $rs*1.75
+		line-height: $rs*2
+		@include respond-to(375)
+			font-size: $rs*2
+			line-height: $rs*2.25
+		@include respond-to(414)
+			font-size: $rs*2.25
+			line-height: $rs*2.5	
+

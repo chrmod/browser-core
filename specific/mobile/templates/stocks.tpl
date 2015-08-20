@@ -1,15 +1,21 @@
 <div class="cqz-result-h2">
-  <div class="cqz-ez-title cqz-ez-stock-title cqz-ez-black-title">
-    <a href="{{url}}">{{data.message.Name}}</a>
+  
+  <div class="meta">
+      {{> logo}}
+      <h3 class="meta__url no-indent">{{#if data.message.min_ago}}
+  <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' data.message.min_ago }}</span>
+{{else}}
+  <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' 20 }}</span>
+{{/if}}</h3>
   </div>
-
-  <div class="cqz-ez-stock-exchange">
-    {{#if data.message.min_ago}}
-      <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' data.message.min_ago }}</span>
-    {{else}}
-      <span>{{ data.message.StockExchange }} : {{ data.message.Symbol }} - {{ local 'agoXMinutes' 20 }}</span>
-    {{/if}}
+  
+  <div class="main">
+    <div class="main__headline">
+      <a href="{{url}}">{{data.message.Name}}</a>
+    </div>
+    
   </div>
+  
   <div class="cqz-ez-stock-trend">
     <span>{{ data.message.LastTradePriceOnly }}</span><span class="{{ data.message.Colour }}"><img src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg" class="cqz-ez-img-trend"/>{{ data.message.Change }} ({{ data.message.PercentChange }})</span>
   </div>
@@ -32,5 +38,4 @@
   </table>
 
   <div class="cqz-disclaimer cqz-ez-stock-disclaimer">{{ local 'no_legal_disclaimer' }}</div>
-  {{> logo}}
 </div>

@@ -1,3 +1,10 @@
+<div class="meta">
+    {{> logo}}
+    <h3 class="meta__url"><i class="fa fa-mobile mobile"></i>
+        <span>{{ data.news.0.time }}</span>&nbsp;&nbsp;·&nbsp;&nbsp;
+        <a href="{{url}}">{{ emphasis data.name text 2 true }}</a></h3>
+</div>
+
 <div class='cqz-result-h3'>
     {{#if debug}}
         <span class='cqz-result-debug'>{{ debug }}</span>
@@ -18,5 +25,4 @@
         </div>
         <div class='cqz-result-desc overflow'>{{ views_helper data.richData.views }}</div>
     </div>
-    {{> logo}}
 </div>

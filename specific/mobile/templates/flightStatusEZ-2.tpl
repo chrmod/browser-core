@@ -1,9 +1,15 @@
 <div class='cqz-result-h2'>
 
 {{#with data}}
-     <div class="flightStatusEZ-flightNumber">{{flight_name}}</div>
-     <div class="flightStatusEZ-flightStatus" style="color:{{status_color}}">{{status}}</div>
-     <div class="flightStatusEZ-flightStatus">{{status_detail}}</div>
+    <div class="meta">
+        {{> logo}}
+        <h3 class="meta__url">{{status_detail}}</h3>
+    </div>
+    
+    <div class="main">
+        <h1 class="main__headline">{{flight_name}}</h1>
+        <div class="flightStatusEZ-flightStatus" style="color:{{status_color}}">{{status}}</div>
+    </div>
 
    <div class="flightStatusEZ-plane-position">
        <img class="flightStatusEZ-plane-position-plane-img" src="{{plane_icon}}" />
@@ -31,6 +37,5 @@
     </div>
 
 {{/with}}
-    {{> logo}}
 
 </div>

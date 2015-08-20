@@ -1,9 +1,15 @@
-<div class="cqz-result-h2 ez-weather cqz-ez-black-title">
+
+<div class="meta">
+    {{> logo}}
+    <h3 class="meta__url">
+        <span>{{ returned_location }}</span></h3>
+</div>
+
+<div class="cqz-result-h2 ez-weather cqz-ez-black-title main weather">
     {{#with data}}
-  <div class='cqz-ez-title' arrow-override=''><a href="{{../url}}">{{ returned_location }}</a></div>
 
         <div class='EZ-weather-container'>
-            <div class='EZ-weather-date'>{{ todayWeekday }}</div>
+            <div class='main__headline'>{{ todayWeekday }}</div>
             <div class="EZ-weather-img" style="background-image:url({{todayIcon}})"></div>
             <div class="EZ-weather-temp">{{todayTemp}}<span>{{todayMin}}</span></div>
         </div>
@@ -17,6 +23,4 @@
             </div>
         {{/each}}
     {{/with}}
-
-    {{>logo}}
 </div>
