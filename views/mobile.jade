@@ -4,12 +4,10 @@ html
         title developer tool
         link(rel="icon",href="/tool/skin/cliqz.png",type="image/x-icon")
         link(href="/views/css/style.css",rel="stylesheet",type="text/css")
-        link(href="/views/css/style-desktop.css",rel="stylesheet",type="text/css")
-        link(href="/generic/static/skin/brands.css",rel="stylesheet",type="text/css")
-        link(href="/generic/static/skin/browser.css",rel="stylesheet",type="text/css")
-        link(href="/generic/static/skin/browser_progress.css",rel="stylesheet",type="text/css")
+        link(href="/mobile/skin/style-slide.css",rel="stylesheet",type="text/css")
+        meta(name="viewport",content="width=device-width, user-scalable=no, initial-scale=1")
         script(type="text/javascript").
-            _cliqzIsMobile = false;
+            _cliqzIsMobile = true;
         script(src="//localhost:3001/livereload.js")
         script(src="/tool/js/libs.js")
         script(src="/views/js/environment.js")
@@ -17,5 +15,6 @@ html
         script(src="/tool/js/local.js")
     body
         input#urlbar(autofocus="true")
-        #results
+        #results.wrapper
+            .content
         script(src="/views/js/debug.js")

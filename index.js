@@ -3,13 +3,18 @@ var express = require("express"),
     app = express()
 
 app.use(express.static(__dirname + "/build/dev"))
-app.use("/views",express.static(__dirname + "/views"))
-app.use("/generic",express.static(__dirname + "/generic"))
+app.use("/views", express.static(__dirname + "/views"))
+app.use("/generic", express.static(__dirname + "/generic"))
+app.use("/mobile", express.static(__dirname + "/specific/mobile"))
 app.set("views", __dirname + "/views");
-app.set("view engine","jade");
+app.set("view engine", "jade");
 
 app.get("/",function(req,res) {
     res.render("index")
+})
+
+app.get("/m",function(req,res) {
+    res.render("mobile")
 })
 
 app.get("/proxy",function(req,res){
