@@ -72,16 +72,16 @@ var CliqzUtils = {
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  TEMPLATES: {/* 'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, */ 'emphasis': 1, 'empty': 1,
-      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, /* 'text': 1, 'series': 1,
+  TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
+      'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
       'pattern-h1': 3, 'pattern-h2': 2, 'pattern-h3': 1, 'pattern-h3-cluster': 1,
       'entity-portal': 3, 'topsites': 3,
-      'celebrities': 2, 'Cliqz': 2, */ 'entity-generic': 2, 'noResult': 3, /* 'stocks': 2, 'weatherAlert': 3, */ 'entity-news-1': 3, /*'entity-video-1': 3,
-      'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3, */
-      'news' : 1, /* 'people' : 1, 'video' : 1,  */'hq' : 1,
-      /* 'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
-      'recipe': 3, 'rd-h3-w-rating': 1 */
+      'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
+      'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
+      'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
+      'recipe': 3, 'rd-h3-w-rating': 1
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
