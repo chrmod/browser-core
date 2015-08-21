@@ -63,7 +63,7 @@ CLIQZEnvironment = {
         // Don't open links for mobile because the swipe causes random click events
         // on non-touch devices
         if (!_cliqzIsMobile) {
-            win.open(url,newTab??'_blank':'_self');
+            win.open(url,newTab?'_blank':'_self');
         }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
