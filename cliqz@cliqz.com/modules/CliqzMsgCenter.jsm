@@ -10,10 +10,10 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
-var CAMPAIGN_SERVER = 'http://10.10.22.75/message/',
+var CAMPAIGN_SERVER = 'https://fec.cliqz.com/message/',
 	ACTIONS = ['confirm', 'ignore', 'discard', 'postpone'],
 	PREF_PREFIX = 'msgs.',
-	UPDATE_INTERVAL = 5 * 60 * 1000;
+	UPDATE_INTERVAL = 60 * 60 * 1000;
 
 /* ************************************************************************* */
 function _log(msg) {
@@ -487,10 +487,10 @@ var CliqzMsgCenter = CliqzMsgCenter || {
 				} else {
 					campaign.setState('end');
 				}
+				CliqzMsgCenter._updateCampaigns();
 			}
 			campaign.save();
 		}
-		CliqzMsgCenter._updateCampaigns();
 	},
 	_onMessageAction: function (campaignId, action) {
 		var campaign = CliqzMsgCenter._campaigns[campaignId];
