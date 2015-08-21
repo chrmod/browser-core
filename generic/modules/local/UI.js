@@ -118,6 +118,9 @@ var UI = {
             XULBrowserWindow.updateStatusField();
         });
 
+        //enable right click context menu
+        CLIQZ.ContextMenu.enableContextMenu(box);
+
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
         resultsBox.addEventListener('scroll', resultScroll);
