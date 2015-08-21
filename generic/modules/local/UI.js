@@ -1026,6 +1026,7 @@ function enhanceResults(res){
                     // double safety - to be removed
                     r.invalid = true;
                     r.dontCountAsResult = true;
+                    continue;
                 }
 
               // Display the title instead of the name, if available

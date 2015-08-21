@@ -4,13 +4,15 @@
 }
 
 input {
-    height: 30px;
+    display: block;
+    margin: 100px auto 0;
+    height: 0px;
     font-size: 20px;
+	display: none;
 }
 
 #results {
-	width: 800px;
-	height: 350px;
+	height: 300px;
 	margin: 0px auto;
 	border: 1px solid gray;
 }

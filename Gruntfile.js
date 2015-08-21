@@ -49,6 +49,24 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/", src: "**", dest: build("chrome/navigation-tool/") }
                 ]
             },
+            iOS: {
+            files: [
+                { expand: true, cwd: "generic/", src: "**", dest: build("tool_iOS/generic/") },
+                { expand: true, cwd: "specific/iOS/css", src: "**", dest: build("tool_iOS/iOS/css") },
+                { expand: true, cwd: "specific/iOS/js", src: "**", dest: build("tool_iOS/iOS/js") },
+                { expand: true, cwd: "specific/iOS/", src: "index.html", dest: build("tool_iOS") }
+              ]
+            },
+            androidkit: {
+                files: [
+                    { expand: true, cwd: "generic/static/locale", src: "**", dest: build("androidkit/navigation/locale") },
+                    { expand: true, cwd: "generic/static/skin", src: ["**", '!*css'], dest: build("androidkit/navigation/skin") },
+                    { expand: true, cwd: "specific/mobile/skin", src: ["*", '!*sass'], dest: build("androidkit/navigation/skin/mobile") },
+                    { expand: true, cwd: "specific/mobile/templates", src: '*', dest: build("androidkit/navigation/templates") },
+                    { expand: true, cwd: "specific/androidkit/", src: "**", dest: build("androidkit/navigation") },
+                    { expand: true, cwd: "generic/modules/local/", src: "CliqzAntiPhishing.js", dest: build("androidkit/navigation/js") }
+                ]
+            },
         },
         concat: {
             global: {
@@ -76,7 +94,27 @@ module.exports = function(grunt) {
                                + "// end module " + modulename + "\n\n"
                     }
                 },
-                dest: build("tool/js/global.js")
+                dest: build("tool/js/global.js"),
+            },
+            androidkit: {
+                src: [
+                    "generic/modules/global/CliqzUtils.jsm",
+                    "generic/modules/global/*.jsm"
+                ],
+                options: {
+                    banner: "'use strict';\n\nvar CLIQZ = {};\n\n",
+                    sourceMap: true,
+                    process: function(src,filepath) {
+                        var modulename = filepath.match(/[^\/]+$/)[0].split(".")[0]
+                        return "// start module " + modulename + "\n"
+                               + "(function(ctx,Q,E){\n"
+                               + src
+                               + "ctx[EXPORTED_SYMBOLS[0]] = " + modulename + ";\n"
+                               + "})(this, CLIQZ,CLIQZEnvironment);\n"
+                               + "// end module " + modulename + "\n\n"
+                    }
+                },
+                dest: build("androidkit/navigation/js/global.js")
             },
             local: {
                 src: [
@@ -89,10 +127,41 @@ module.exports = function(grunt) {
                 },
                 dest: build("tool/js/local.js")
             },
+            local2: {
+                src: [
+                    "generic/modules/local/core.js",
+                    "generic/modules/local/ui.js"
+                ],
+                options: {
+                    banner: "'use strict';\n\n",
+                    sourceMap: true
+                },
+                dest: build("tool_iOS/js/local.js")
+            },
             libs: {
-                src: ["generic/modules/libs/*"],
+                src: ["generic/modules/libs/*", "specific/androidkit/js/viewpager.js"],
                 dest: build("tool/js/libs.js")
+            },
+            androidkit_local: {
+                src: [
+                    "generic/modules/local/core.js",
+                    "generic/modules/local/ui.js"
+                ],
+                options: {
+                    banner: "'use strict';\n\n",
+                    sourceMap: true
+                },
+                dest: build("androidkit/navigation/js/local.js")
+            },
+            androidkit_libs: {
+                src: ["generic/modules/libs/*"],
+                dest: build("androidkit/navigation/js/libs.js")
+              },
+            libs4: {
+                src: ["generic/modules/libs/*"],
+                dest: build("tool_iOS/js/libs.js")
             }
+
         }
     })
 
@@ -103,4 +172,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-concurrent")
 
     grunt.registerTask("default",["copy","concat","concurrent"])
+    grunt.registerTask("build",["copy","concat"])
 }

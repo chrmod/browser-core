@@ -9,7 +9,10 @@ CLIQZ.Core = {
 	popup: resultsBox,
 	refreshButtons: function(){}
 }
-urlbar.addEventListener('keydown', function(e){
+
+CLIQZ.UI.init(urlbar);
+
+function search(e) {
 	setTimeout(function(){
 		CLIQZ.UI.main(resultsBox);
 		item_container = document.getElementById('cliqz-results');
@@ -19,6 +22,8 @@ urlbar.addEventListener('keydown', function(e){
 			pageOffset: 0
 		};
 		(new CliqzAutocomplete.CliqzResults()).search(urlbar.value, function(r){
+
+			resultsBox.style['transform'] = 'translate3d(0px, 0px, 0px)';
 
 			var w = window.innerWidth;
 			var isLoadingGoogle = false;
@@ -40,6 +45,7 @@ urlbar.addEventListener('keydown', function(e){
 
 					if (!r.invalid) {
 						validCount++;
+						console.log("validCount", validCount);
 					}
 					return r;
 				}),
@@ -51,15 +57,31 @@ urlbar.addEventListener('keydown', function(e){
 				}
 			});
 			validCount += showGooglethis;
+			console.log("validCount", validCount);
 
 
-			if (_cliqzIsMobile) {
-				resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * validCount)) + 'px, 0px, 0px)';
-				var googleAnim = document.getElementById("googleThisAnim");
-				
+
+			resultsBox.style['transform'] = 'translate3d(' + Math.min((offset * w), (window.innerWidth * validCount)) + 'px, 0px, 0px)';
+			var googleAnim = document.getElementById("googleThisAnim");
+
+			(function (numberPages) {
+
+				var invalidateScroll = function () {
+				  	resultsBox.style['transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
+				  	if (googleAnim) {
+				  		if (currentScrollInfo['page'] >= numberPages - 2) {
+				  			googleAnim.style['transform'] = 'rotateZ(' + (currentScrollInfo['pageOffset'] * 360) + 'deg)';
+				  		}
+				  		if (currentScrollInfo['totalOffset'] >= numberPages - 0.9 && !isLoadingGoogle) {
+				  			isLoadingGoogle = true;
+				  			history.replaceState({"currentCliqzQuery": urlbar.value}, "", window.location.href + "?q=" + urlbar.value);
+				  			CLIQZEnvironment.openLink("http://www.google.com/#q=" + urlbar.value);
+				  		}
+				  	}
+				};
 
 				var vp = new ViewPager(resultsBox, {
-				  pages: validCount,
+				  pages: numberPages,
 				  dragSize: window.innerWidth,
 				  prevent_all_native_scrolling: true,
 				  vertical: false,
@@ -73,30 +95,24 @@ urlbar.addEventListener('keydown', function(e){
 				    console.log('page', page);
 				  }
 				});
+			})(validCount);
 
-				function invalidateScroll() {
-					// setTimeout(function() { 
-				  	resultsBox.style['transform'] = 'translate3d(' + (offset * w) + 'px, 0px, 0px)';
-				  	if (googleAnim) {
-				  		if (currentScrollInfo['page'] >= validCount - 2) {
-				  			googleAnim.style['transform'] = 'rotate(' + (currentScrollInfo['pageOffset'] * 360) + 'deg)';
-				  		}
-				  		if (currentScrollInfo['totalOffset'] >= validCount - 0.9 && !isLoadingGoogle) {
-				  			isLoadingGoogle = true;
-				  			history.replaceState({"currentCliqzQuery": urlbar.value}, "", window.location.href + "?q=" + urlbar.value);
-				  			window.open("http://www.google.com/#q=" + urlbar.value, "_self");
-				  		}
-				  	}
-					// }, 0);
-				}
-
-				window.addEventListener('resize', function () {
-				  var w = window.innerWidth;
-				  invalidateScroll();
-				});
-			}
+			window.addEventListener('resize', function () {
+			  var w = window.innerWidth;
+			  invalidateScroll();
+			});
+	
 		});
-	
-	}, 300);
+	}, 100);
+}
+
+urlbar.addEventListener('keydown', function(e){
+		search(urlbar.value);
 });
-	
+
+//TODO: Should be refactored!!!!
+
+function search_mobile(e) {
+	urlbar.value = e;
+	search(e);
+}
