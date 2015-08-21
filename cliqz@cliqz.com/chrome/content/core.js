@@ -584,6 +584,13 @@ window.CLIQZ.Core = {
     },
 
     sendEnvironmentalSignal: function(startup, defaultSearchEngine){
+        var screenWidth = {value: 0}, screenHeight = {value: 0};
+        try {
+            var screenMan = Components.classes["@mozilla.org/gfx/screenmanager;1"]
+                .getService(Components.interfaces.nsIScreenManager);
+            screenMan.primaryScreen.GetRect({}, {}, screenWidth, screenHeight);
+        } catch(e) { }
+
         CliqzHistoryManager.getStats(function(history){
             Application.getExtensions(function(extensions) {
                 var beVersion = extensions.get('cliqz@cliqz.com').version;
@@ -593,6 +600,8 @@ window.CLIQZ.Core = {
                         language: navigator.language,
                         width: window.document.width,
                         height: window.document.height,
+                        screen_width: screenWidth.value,
+                        screen_height: screenHeight.value,
                         version: beVersion,
                         history_days: history.days,
                         history_urls: history.size,
