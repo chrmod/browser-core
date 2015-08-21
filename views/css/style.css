@@ -7,10 +7,3 @@ input {
     height: 30px;
     font-size: 20px;
 }
-
-#results {
-	width: 800px;
-	height: 350px;
-	margin: 0px auto;
-	border: 1px solid gray;
-}
