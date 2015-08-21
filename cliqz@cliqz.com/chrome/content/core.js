@@ -584,10 +584,10 @@ window.CLIQZ.Core = {
     },
 
     sendEnvironmentalSignal: function(startup, defaultSearchEngine){
+        var screenWidth = {value: 0}, screenHeight = {value: 0};
         try {
             var screenMan = Components.classes["@mozilla.org/gfx/screenmanager;1"]
-                .getService(Components.interfaces.nsIScreenManager),
-                screenWidth = {value: 0}, screenHeight = {value: 0};
+                .getService(Components.interfaces.nsIScreenManager);
             screenMan.primaryScreen.GetRect({}, {}, screenWidth, screenHeight);
         } catch(e) { }
 
