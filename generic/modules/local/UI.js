@@ -119,7 +119,7 @@ var UI = {
         });
 
         //enable right click context menu
-        CLIQZ.ContextMenu.enableContextMenu(box);
+        CLIQZ.ContextMenu && CLIQZ.ContextMenu.enableContextMenu(box);
 
         messageContainer.addEventListener('mouseup', messageClick);
         gCliqzBox.messageContainer = messageContainer;
