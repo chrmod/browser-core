@@ -200,4 +200,11 @@ module.exports = function(grunt) {
 
     grunt.registerTask("default",["copy","concat","concurrent"])
     grunt.registerTask("build",["copy","concat"])
+
+    grunt.registerTask('package', '', function () {
+        var exec = require('child_process').execSync;
+        result = exec("cd specific/firefox; python -c 'import fabfile; fabfile.package(\"True\",None,\"../../build/dev/firefox/\")'");
+        result += exec("cd specific/firefox; python -c 'import fabfile; fabfile.package(\"True\",None,\"../../build/dev/firefoxDebug/\")'");
+        grunt.log.writeln(result);
+});
 }

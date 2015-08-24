@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 import jsstrip
 
 NAME = "Cliqz"
-PATH_TO_EXTENSION = "cliqz@cliqz.com"
+PARTIAL_PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
@@ -45,8 +45,15 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True', version=None):
+def package(beta='True', version=None, path=None):
     """Package the extension as a .xpi file."""
+    if path is None:
+        print 'please specify a path for packaging'
+        return
+
+    PATH_TO_EXTENSION = path + PARTIAL_PATH_TO_EXTENSION
+    print 'Pagaging extension at path - ', PATH_TO_EXTENSION
+
     checkout = True # Checkout the tag if we are not doing a beta package
     if not (beta == 'True') and version is not None:
         print 'WARNING: This will not take the %s tag from git. It packages the '\
@@ -86,7 +93,6 @@ def package(beta='True', version=None):
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
     local("cp -R %s %s" % (PATH_TO_EXTENSION, PATH_TO_EXTENSION_TEMP))
-
     #remove tests and bower components
     if not (beta == 'True'):
         local("rm -fr %s/tests" % (PATH_TO_EXTENSION_TEMP))
@@ -100,8 +106,7 @@ def package(beta='True', version=None):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
-            local("zip  %s %s -r *" % (exclude_files, output_file_name))
-            local("mv  %s .." % output_file_name)  # Move back to root folder
+            local("zip  %s ../%s%s -r *" % (exclude_files, path, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
@@ -214,7 +219,11 @@ def clean():
 
 
 @task
-def comment_cleaner(path=PATH_TO_EXTENSION):
+def comment_cleaner(path=None):
+    if path is None:
+        print 'Nothing to clean'
+        return
+
     target = ['js', 'jsm', 'html']
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
