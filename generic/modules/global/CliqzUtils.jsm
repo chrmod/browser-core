@@ -31,17 +31,13 @@ var EXPORTED_SYMBOLS = ['CliqzUtils'];
 
 var VERTICAL_ENCODINGS = {
     'people':'p',
-    'census':'c',
     'news':'n',
     'video':'v',
     'hq':'h',
-    'shopping':'s',
-    'science':'k',
-    'gaming':'g',
-    'dictionary':'l',
-    'qaa':'q',
     'bm': 'm',
-    'reciperd': 'r'
+    'reciperd': 'r',
+    'game': 'g',
+    'movie': 'o'
 };
 
 var COLOURS = ['#ffce6d','#ff6f69','#96e397','#5c7ba1','#bfbfbf','#3b5598','#fbb44c','#00b2e5','#b3b3b3','#99cccc','#ff0027','#999999'],
@@ -57,7 +53,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',//'http://rh-staging-mixer.clyqz.com:3000/api/v1/results?q=', //'http://rh-staging.fbt.co/mixer?q=',//'http://rich-header.fbt.co/mixer?q=', //
+  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //
+  RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
   RESULTS_PROVIDER_PING:          'https://newbeta.cliqz.com/ping',
@@ -70,8 +67,15 @@ var CliqzUtils = {
   NEW_TUTORIAL_URL:               'chrome://cliqz/content/onboarding/onboarding.html',
   CHANGELOG:                      'https://cliqz.com/home/changelog',
   UNINSTALL:                      'https://cliqz.com/home/offboarding',
+  FEEDBACK:                       'https://cliqz.com/support',
+  PREF_STRING:                    32,
+  PREF_INT:                       64,
+  PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
+  USER_LAT:                       null,
+  USER_LNG:                       null,
+  GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
       'spellcheck': 1,
@@ -80,8 +84,11 @@ var CliqzUtils = {
       'celebrities': 2, 'Cliqz': 2, 'entity-generic': 2, 'noResult': 3, 'stocks': 2, 'weatherAlert': 3, 'entity-news-1': 3,'entity-video-1': 3,
       'entity-search-1': 2, 'flightStatusEZ-2': 2,  'weatherEZ': 2, 'commicEZ': 3,
       'news' : 1, 'people' : 1, 'video' : 1, 'hq' : 1,
-      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,
-      'recipe': 3, 'rd-h3-w-rating': 1
+      'ligaEZ1Game': 2, 'ligaEZUpcomingGames': 3, 'ligaEZTable': 3,'local-movie-sc':3,
+      'recipe': 3, 'rd-h3-w-rating': 1,
+      'ramadan': 3, 'ez-generic-2': 3,
+      'cpgame_movie': 3,
+      "delivery-tracking": 2
   },
   TEMPLATES_PATH: CLIQZEnvironment.TEMPLATES_PATH,
   cliqzPrefs: CLIQZEnvironment.cliqzPrefs,
@@ -119,9 +126,12 @@ var CliqzUtils = {
 
     CliqzUtils.log('Initialized', 'CliqzUtils');
   },
+  //returns the type only if it is known
+  getKnownType: function(type){
+    return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
+  },
   getLocalStorage: function(url) {
-    return false;/*
-    var uri = Services.io.newURI(url,null,null),
+    var uri = Services.io.newURI(url,"",null),
         principalFunction = Components.classes['@mozilla.org/scriptsecuritymanager;1'].getService(Components.interfaces.nsIScriptSecurityManager).getNoAppCodebasePrincipal
 
     if (typeof principalFunction != "function") return false
@@ -130,8 +140,7 @@ var CliqzUtils = {
         dsm = Components.classes["@mozilla.org/dom/localStorage-manager;1"]
               .getService(Components.interfaces.nsIDOMStorageManager)
 
-    return dsm.createStorage(null,principal,"");
-    */
+    return dsm.getLocalStorageForPrincipal(principal, '')
   },
   setSupportInfo: function(status){
     var info = JSON.stringify({
@@ -370,6 +379,16 @@ var CliqzUtils = {
       name = isLocalhost ? "localhost" : "IP";
     }
 
+    // remove www from beginning, we need cleanHost in the friendly url
+    var cleanHost = host;
+    if(host.toLowerCase().indexOf('www.') == 0) {
+      cleanHost = host.slice(4);
+    }
+
+    var friendly_url = cleanHost + extra;
+    //remove trailing slash from the end
+    friendly_url = CliqzUtils.stripTrailingSlash(friendly_url);
+
     var urlDetails = {
               scheme: scheme,
               name: name,
@@ -382,10 +401,17 @@ var CliqzUtils = {
               extra: extra,
               host: host,
               ssl: ssl,
-              port: port
+              port: port,
+              friendly_url: friendly_url
         };
 
     return urlDetails;
+  },
+  stripTrailingSlash: function(str) {
+    if(str.substr(-1) === '/') {
+        return str.substr(0, str.length - 1);
+    }
+    return str;
   },
   _isUrlRegExp: /^(([a-z\d]([a-z\d-]*[a-z\d]))\.)+[a-z]{2,}(\:\d+)?$/i,
   isUrl: function(input){
@@ -458,21 +484,54 @@ var CliqzUtils = {
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
   },
   getCliqzResults: function(q, callback){
-    CliqzUtils._querySeq++;
-    var url = CliqzUtils.RESULTS_PROVIDER +
+    CliqzUtils._sessionSeq++;
+
+    // if the user sees the results more than 500ms we consider that he starts a new query
+    if(CliqzUtils._queryLastDraw && (Date.now() > CliqzUtils._queryLastDraw + 500)){
+      CliqzUtils._queryCount++;
+    }
+    CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
+    CliqzUtils._queryLastLength = q.length;
+
+    var cb = function () {
+      CliqzUtils._resultsReq = CliqzUtils.httpGet(url, function (res) {
+        callback && callback(res, q);
+      });
+    };
+
+    var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
-              CliqzUtils.encodeQuerySession() +
-              CliqzUtils.encodeQuerySeq() +
+              CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
               CliqzUtils.encodeFilter();
 
-    CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
-      function(res){
-        callback && callback(res, q);
-      }
-    );
+    CliqzUtils.getGeo(false, function(loc) {
+      url += CliqzUtils.encodeLocation(false, loc.lat, loc.lng);
+      cb();
+    }, cb);
+
+    // CliqzUtils.encodeLocation(false,false,
+    //   function onSuccess(loc) {
+    //     url += loc;
+    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+    //       function(res){
+    //         callback && callback(res, q);
+    //       }
+    //     );
+    //   },
+    //   function onFailure(err) {
+    //     CliqzUtils.log(err, "Location not allowed");
+    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
+    //       function(res){
+    //         callback && callback(res, q);
+    //       }
+    //     );
+    //   });
+
+
+
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -541,17 +600,58 @@ var CliqzUtils = {
     else
       return [];
   },
-  _querySession: '',
-  _querySeq: 0,
-  setQuerySession: function(querySession){
-    CliqzUtils._querySession = querySession;
-    CliqzUtils._querySeq = 0;
+  // random ID generated at each urlbar focus
+  _searchSession: '',
+  // number of sequences in each session
+  _sessionSeq: 0,
+  _queryLastLength: null,
+  _queryLastDraw: null,
+  // number of queries in search session
+  _queryCount: null,
+  setSearchSession: function(rand){
+    CliqzUtils._searchSession = rand;
+    CliqzUtils._sessionSeq = 0;
+    CliqzUtils._queryCount = 0;
+    CliqzUtils._queryLastLength = 0;
+    CliqzUtils._queryLastDraw = 0;
   },
-  encodeQuerySession: function(){
-    return CliqzUtils._querySession.length ? '&s=' + encodeURIComponent(CliqzUtils._querySession) : '';
+  encodeSessionParams: function(){
+    if(CliqzUtils._searchSession.length){
+      return '&s=' + encodeURIComponent(CliqzUtils._searchSession) +
+             '&n=' + CliqzUtils._sessionSeq +
+             '&qc=' + CliqzUtils._queryCount
+    } else return '';
   },
-  encodeQuerySeq: function(){
-    return CliqzUtils._querySession.length ? '&n=' + CliqzUtils._querySeq : '';
+  getGeo: function(allowOnce, callback, failCB) {
+    /*
+    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
+                                This is used when the user clicks on Share Location "Just once".
+    */
+    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+      failCB("No permission to get user's location");
+      return;
+    }
+
+    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
+      callback({
+        lat: CliqzUtils.USER_LAT,
+        lng: CliqzUtils.USER_LNG
+      });
+    } else {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      geoService.getCurrentPosition(function (p) {
+        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
+      }, failCB);
+    }
+  },
+  encodeLocation: function(specifySource, lat, lng) {
+   return [
+     '&loc=',
+     lat,
+     ",",
+     lng,
+     (specifySource ? ",U" : "")
+   ].join("");
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -563,8 +663,11 @@ var CliqzUtils = {
       });
   },
   combineSources: function(internal, cliqz){
-    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
+    // do not add extra sources to end of EZs
+    if(internal == "cliqz-extra")
+      return internal;
 
+    var cliqz_sources = cliqz.substr(cliqz.indexOf('sources-'))
     return internal + " " + cliqz_sources
   },
   shouldLoad: function(window){
@@ -583,6 +686,8 @@ var CliqzUtils = {
     if(!CliqzUtils.getPref('telemetry', true))return;
     msg.session = CLIQZEnvironment.getPref('session');
     msg.ts = Date.now();
+    CliqzUtils.telemetrySeq = (CliqzUtils.telemetrySeq + 1) % 2147483647;
+    msg.seq = CliqzUtils.telemetrySeq
 
     CliqzUtils.trk.push(msg);
     CliqzUtils.clearTimeout(CliqzUtils.trkTimer);
@@ -601,8 +706,7 @@ var CliqzUtils = {
       (queryAutocompleted ? '&a=' + encodeURIComponent(queryAutocompleted) : '') +
       '&i=' + resultIndex +
       (resultUrl ? '&u=' + encodeURIComponent(resultUrl) : '') +
-      CliqzUtils.encodeQuerySession() +
-      CliqzUtils.encodeQuerySeq() +
+      CliqzUtils.encodeSessionParams() +
       CliqzUtils.encodeResultOrder() +
       (extra ? '&e=' + extra : '')
     CliqzUtils.httpGet(CliqzUtils.RESULTS_PROVIDER_LOG + params);
@@ -623,6 +727,7 @@ var CliqzUtils = {
   _telemetry_start: undefined,
   TELEMETRY_MAX_SIZE: 500,
   pushTelemetry: function() {
+    CliqzUtils.setPref('telemetrySeq', CliqzUtils.telemetrySeq);
     if(CliqzUtils._telemetry_req) return;
 
     // put current data aside in case of failure
@@ -837,5 +942,42 @@ var CliqzUtils = {
                   subType: JSON.stringify({empty:true})
               }
           )
+    },
+    removeGeoLocationWatch: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CliqzUtils.removeGeoLocationWatch();
+
+      if (CliqzUtils.getPref('share_location') == 'yes') {
+        // Get current position
+        geoService.getCurrentPosition(function(p) {
+          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
+          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
+
+        //Upate position if it changes
+        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
+            CliqzUtils.USER_LAT = p.coords.latitude;
+            CliqzUtils.USER_LNG =  p.coords.longitude;
+          }
+        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
+      } else {
+        CliqzUtils.USER_LAT = null;
+        CliqzUtils.USER_LNG = null;
+      }
+    },
+    setLocationPermission: function(newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CliqzUtils.setPref('share_location',newPerm);
+        CLIQZ.Core.setTimeout(CliqzUtils.refreshButtons, 0);
+        CliqzUtils.updateGeoLocation();
+      }
     }
 };
+
+CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');

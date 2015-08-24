@@ -32,6 +32,7 @@
               type='{{../../type}}'
               extra='topic{{ @index }}'
               class="cliqz-cluster-topic"
+              kind='{{ kind_printer kind }}'
               >
                 {{ title }}
           </span>

@@ -6,8 +6,8 @@
     class="cqz-result-h2 cqz-result-padding"
   {{/if}}
 >
-  <div class="cqz-ez-title cqz-ez-search-title">
-    <a href="{{url}}">{{data.search_provider}}</a>
+  <div class="cqz-ez-title cqz-ez-search-title" extra="title">
+    <a href="{{url}}" extra="title">{{data.search_provider}}</a>
   </div>
   {{#unless data.no-search-box}}
     <div>

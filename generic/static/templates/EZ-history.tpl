@@ -6,7 +6,8 @@
                  url='{{href}}' shortUrl='{{link}}'
                  extra='{{extra}}'
                  domain='{{domain}}'
-                 arrow="false">
+                 arrow='false'
+                 kind='{{ kind_printer kind }}'>
                 <div class='cliqz-pattern-element-title'>{{ emphasis title ../../text 2 true }}</div>
                 <div class='cliqz-pattern-element-link'>{{ emphasis link ../../text 2 true }}</div>
             </div>

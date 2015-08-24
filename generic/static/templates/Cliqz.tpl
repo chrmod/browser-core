@@ -3,7 +3,7 @@
  <div class="EZ-Cliqz-Header"
         style="background-image: url({{cliqz_logo}})">
         {{#each social_contact}}
-            <img  url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" arrow-override=''/>
+            <img  extra="title" url="{{url}}" class="EZ-Cliqz_Header-Contact-icon" src="{{logo}}" arrow-override=''/>
         {{/each}}
  </div>
 

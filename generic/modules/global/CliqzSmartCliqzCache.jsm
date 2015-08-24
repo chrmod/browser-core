@@ -54,7 +54,7 @@ Cache.prototype.delete = function (key) {
 	if (this.isCached(key)) {
 		delete this._cache[key];
 	}
-}
+};
 
 // returns cached entry or false if no entry exists for key
 Cache.prototype.retrieve = function (key) {
@@ -90,7 +90,7 @@ Cache.prototype.refresh = function (key, time) {
 	if (this.isCached(key)) {
 		this._cache[key].time = time;
 	}
-}
+};
 
 // save cache to file
 Cache.prototype.save = function (filename) {
@@ -111,7 +111,7 @@ Cache.prototype.save = function (filename) {
 	} catch (e) {
 		this._log("save: failed saving: " + e);
 	}
-}
+};
 
 // load cache from file
 Cache.prototype.load = function (filename) {
@@ -129,11 +129,11 @@ Cache.prototype.load = function (filename) {
 	} catch (e) {
 		this._log("load: failed loading: " + e);
 	}
-}
+};
 
 Cache.prototype._log = function (msg) {
 	CliqzUtils.log(msg, 'Cache');
-}
+};
 
 var CliqzSmartCliqzCache = CliqzSmartCliqzCache || {
 	SMART_CLIQZ_ENDPOINT: 'http://newbeta.cliqz.com/api/v1/rich-header?path=/id_to_snippet&q=',

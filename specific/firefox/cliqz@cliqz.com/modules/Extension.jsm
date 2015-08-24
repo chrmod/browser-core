@@ -16,12 +16,12 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzResultProviders',
 
 var BTN_ID = 'cliqz-button',
     SEARCH_BAR_ID = 'search-container',
-    firstRunPref = 'extensions.cliqz.firstStartDone',
-    dontHideSearchBar = 'extensions.cliqz.dontHideSearchBar',
+    firstRunPref = 'firstStartDone',
+    dontHideSearchBar = 'dontHideSearchBar',
     //toolbar
-    searchBarPosition = 'extensions.cliqz.defaultSearchBarPosition',
+    searchBarPosition = 'defaultSearchBarPosition',
     //next element in the toolbar
-    searchBarPositionNext = 'extensions.cliqz.defaultSearchBarPositionNext';
+    searchBarPositionNext = 'defaultSearchBarPositionNext';
 
 
 function newMajorVersion(oldV, newV){
@@ -146,12 +146,12 @@ var Extension = {
     },
     restoreSearchBar: function(win){
         var toolbarId;
-        win.Application.prefs.setValue(dontHideSearchBar, false);
-        if(toolbarId = win.Application.prefs.getValue(searchBarPosition, '')){
+        CliqzUtils.setPref(dontHideSearchBar, false);
+        if(toolbarId = CliqzUtils.getPref(searchBarPosition, '')){
             var toolbar = win.document.getElementById(toolbarId);
             if(toolbar){
                 if(toolbar.currentSet.indexOf(SEARCH_BAR_ID) === -1){
-                    var next = win.Application.prefs.getValue(searchBarPositionNext, '');
+                    var next = CliqzUtils.getPref(searchBarPositionNext, '');
                     if(next){
                         var set = toolbar.currentSet.split(","),
                             idx = set.indexOf(next);
@@ -166,7 +166,7 @@ var Extension = {
                     else toolbar.currentSet += ',' + SEARCH_BAR_ID;
                 } else {
                     //the user made it visible
-                    win.Application.prefs.setValue(dontHideSearchBar, true);
+                    CliqzUtils.setPref(dontHideSearchBar, true);
                 }
             }
         }
@@ -178,6 +178,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzABTests.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryManager.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzHistoryAnalysis.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzLanguage.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSearchHistory.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -198,6 +199,10 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/extern/handlebars-v1.3.0.js');
         Cu.unload('chrome://cliqzmodules/content/CliqzAntiPhishing.jsm');
         Cu.unload('chrome://cliqzmodules/content/CLIQZEnvironment.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzDemo.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
@@ -237,6 +242,7 @@ var Extension = {
     cleanPrefs: function(prefs){
         //0.5.02 - 0.5.04
         prefs.clearUserPref('analysis');
+        prefs.clearUserPref('news-toggle-trending');
     },
     addScript: function(src, win) {
         Services.scriptloader.loadSubScript(Extension.BASE_URI + src + '.js', win);
@@ -250,6 +256,7 @@ var Extension = {
         if(CliqzUtils.shouldLoad(win)){
             Extension.addScript('core', win);
             Extension.addScript('UI', win);
+            Extension.addScript('ContextMenu', win);
 
             Extension.addButtons(win);
 
@@ -278,23 +285,23 @@ var Extension = {
           CliqzUtils.PREFERRED_LANGUAGE = nav.language || nav.userLanguage || nav.browserLanguage || nav.systemLanguage || 'en';
           CliqzUtils.loadLocale(CliqzUtils.PREFERRED_LANGUAGE);
         }
-        if (!win.Application.prefs.getValue(firstRunPref, false)) {
-            win.Application.prefs.setValue(firstRunPref, true);
+        if (!CliqzUtils.getPref(firstRunPref, false)) {
+            CliqzUtils.setPref(firstRunPref, true);
 
             ToolbarButtonManager.setDefaultPosition(BTN_ID, 'nav-bar', 'downloads-button');
         }
 
-        if (!win.Application.prefs.getValue(dontHideSearchBar, false)) {
+        if (!CliqzUtils.getPref(dontHideSearchBar, false)) {
             //try to hide quick search
             try{
                 var [toolbarID, nextEl] = ToolbarButtonManager.hideToolbarElement(doc, SEARCH_BAR_ID);
                 if(toolbarID){
-                    win.Application.prefs.setValue(searchBarPosition, toolbarID);
+                    CliqzUtils.setPref(searchBarPosition, toolbarID);
                 }
                 if(nextEl){
-                    win.Application.prefs.setValue(searchBarPositionNext, nextEl);
+                    CliqzUtils.setPref(searchBarPositionNext, nextEl);
                 }
-                win.Application.prefs.setValue(dontHideSearchBar, true);
+                CliqzUtils.setPref(dontHideSearchBar, true);
             } catch(e){}
         }
 
@@ -345,6 +352,7 @@ var Extension = {
             win.CLIQZ.Core.unload(false);
             delete win.CLIQZ.Core;
             delete win.CLIQZ.UI;
+            delete win.CLIQZ.ContextMenu;
             try{ delete win.CLIQZ; } catch(e){} //fails at updating from version < 0.6.11
         }catch(e){ Cu.reportError(e); }
     },

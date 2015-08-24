@@ -1,12 +1,57 @@
 {
+    "from_lcase":{
+        "message": "from"
+    },
+    "Cast":{
+        "message": "Cast"
+    },
+    "Movie_Length":{
+        "message": "{} minutes"
+    },
+    "Creator":{
+        "message": "Creator"
+    },
+    "Director":{
+        "message": "Director"
+    },
+    "Review":{
+        "message": "Review"
+    },
+    "Reviews":{
+        "message": "Reviews"
+    },
+    "Tips":{
+        "message": "Tips"
+    },
+    "Photos":{
+        "message": "Photos"
+    },
+    "locale_lang_code":{
+        "message": "en-US"
+    },
+    "GameCategory":{
+        "message": "Game Category"
+    },
+    "Turkish Calendar":{
+        "message": "Turkish Calendar"
+    },
+    "MWL":{
+        "message": "Muslim World League"
+    },
+    "TillEndRamadan":{
+        "message": "{} days til Küçük Bayram"
+    },
+    "RamadanDes":{
+        "message": "Ramadan is the ninth month of the Islamic calendar, and is observed by Muslims worldwide as a month of fasting to commemorate the first revelation of the Quran to Muhammad according to Islamic belief"
+    },
     "CookingIntruct":{
         "message": "Direction"
     },
     "Ingredients":{
         "message": "Ingredients"
     },
-    "Reviews":{
-        "message": "Reviews"
+    "Votes":{
+        "message": "reviews"
     },
     "Serves":{
         "message": "Serves"
@@ -19,6 +64,12 @@
     },
     "vs":{
         "message": "vs."
+    },
+    "NEXT GAME" : {
+        "message": "NEXT GAME"
+    },
+    "LAST GAME" : {
+        "message": "LAST GAME"
     },
     "AllGames":{
         "message": "All Games"
@@ -143,13 +194,31 @@
     "agoXYears":{
         "message":"{} years ago"
     },
-    "onCalloutGoogle":{
+    "onCalloutSameResult":{
         "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
     },
-    "onCalloutGoogleBtnOk":{
+    "onCalloutSameResultBtnOk":{
         "message":"Got it!"
     },
-    "onCalloutGoogleBtnCancel":{
+    "onCalloutSameResultBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutSmartCliqz":{
+        "message":"Sorry about interrupting. You can get to the same result here using CLIQZ."
+    },
+    "onCalloutSmartCliqzBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutSmartCliqzBtnCancel":{
+        "message":"Don't show again."
+    },
+    "onCalloutTypedUrl":{
+        "message":"Sorry about interrupting. You don't have to type the full address. Just press ENTER as soon as the address appears!"
+    },
+    "onCalloutTypedUrlBtnOk":{
+        "message":"Got it!"
+    },
+    "onCalloutTypedUrlBtnCancel":{
         "message":"Don't show again."
     },
     "onCalloutIntro":{
@@ -435,19 +504,19 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been hidden."
-    },
-    "adultAction": {
-        "message": "Show unfiltered results?"
+        "message": "Explicit content has been hidden. Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"block"
+      "message":"Block"
     },
     "adultModerate": {
-      "message":"ask"
+      "message":"Ask"
     },
     "adultLiberal": {
-      "message":"always show"
+      "message":"Always show"
+    },
+    "adult_show_once": {
+      "message":"Show Once"
     },
     "yes": {
         "message": "Yes"
@@ -529,12 +598,6 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
-    },
-    "newsToggleLatest":{
-        "message": "Latest"
-    },
-    "newsToggleTrends":{
-        "message": "Trending"
     },
     "topSitesMessage":{
         "message": "Choose a shortcut to one of your favorite sites, or"
@@ -627,13 +690,25 @@
         "message": "From"
     },
     "from_price": {
-      "message": "from"  
+      "message": "from"
     },
     "to": {
         "message": "to"
     },
     "today": {
         "message": "Today"
+    },
+    "cMenuOpenInNewTab": {
+      "message": "Open Link in New Tab"
+    },
+    "cMenuOpenInNewWindow": {
+      "message": "Open Link in New Window"
+    },
+    "cMenuOpenInPrivateWindow": {
+      "message": "Open Link in New Private Window"
+    },
+    "cMenuFeedback": {
+      "message": "Feedback for CLIQZ"
     },
     "myQuery": {
         "message": "query"
@@ -643,5 +718,105 @@
     },
     "dismiss": {
         "message": "Dismiss"
+    },
+    "cqz_watch_trailer": {
+      "message": "Watch Trailer"
+    },
+    "Monday": {
+      "message": "Monday"
+    },
+    "Tuesday": {
+      "message": "Tuesday"
+    },
+    "Wednesday": {
+      "message": "Wednesday"
+    },
+    "Thursday": {
+      "message": "Thursday"
+    },
+    "Friday": {
+      "message": "Friday"
+    },
+    "Saturday": {
+      "message": "Saturday"
+    },
+    "Sunday": {
+      "message": "Sunday"
+    },
+    "January": {
+      "message": "January"
+    },
+    "February": {
+      "message": "February"
+    },
+    "March": {
+      "message": "March"
+    },
+    "April": {
+      "message": "April"
+    },
+    "May": {
+      "message": "May"
+    },
+    "June": {
+      "message": "June"
+    },
+    "July": {
+      "message": "July"
+    },
+    "August": {
+      "message": "August"
+    },
+    "September": {
+      "message": "September"
+    },
+    "October": {
+      "message": "October"
+    },
+    "November": {
+      "message": "November"
+    },
+    "December": {
+      "message": "December"
+    },
+    "location_permission_prompt": {
+      "message": "We'd love to enhance this result with some local info. Share your location with us?"
+    },
+    "location_just_once": {
+      "message": "Just this once..."
+    },
+    "location_never": {
+      "message": "Never. I hate awesome stuff."
+    },
+    "no_local_data_msg": {
+      "message": "Sorry. It seems like we have no local details for this result around your area."
+    },
+    "movies_confirm_no": {
+      "message": "Are you sure you don't want to see in which cinemas this movie is playing?"
+    },
+    "show_local_movies": {
+      "message": "No. Show me where I can watch it!"
+    },
+    "location_just_once": {
+      "message": "Just this once"
+    },
+    "location_not_now": {
+      "message": "Not now"
+    },
+    "always_ask": {
+      "message": "Always Ask"
+    },
+    "share_location": {
+      "message": "Share Location"
+    },
+    "location_confirm_no": {
+      "message": "Are you sure you don't want to see relevant information about places around you?"
+    },
+    "show_local_results": {
+      "message": "No, show me local info"
+    },
+    "extended_forecast": {
+        "message": "Extended Forecast"
     }
+
 }

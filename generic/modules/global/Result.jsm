@@ -11,6 +11,9 @@ Components.utils.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHistoryPattern',
+  'chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
+
 
 function log(msg){
     //CliqzUtils.log(msg, 'Result.jsm');
@@ -19,7 +22,9 @@ function log(msg){
 // returns the super type of a result - type to be consider for UI creation
 function getSuperType(result){
     if((CliqzUtils.RESULT_PROVIDER_ALWAYS_BM || result.source == 'bm') && result.snippet && result.snippet.rich_data){
-        return result.snippet.rich_data.type
+        return CliqzUtils.getKnownType(result.snippet.rich_data.superType) || // superType used for custom templates
+               CliqzUtils.getKnownType(result.snippet.rich_data.type)      || // fallback result type
+               'bm';                                                           // backwards compatibility (most generic type, requires only url)
     }
     return null;
 }
@@ -102,7 +107,7 @@ var Result = {
             return Result.generic(resStyle, result.url, null, null, null, debugInfo, null, result.subType);
         }
     },
-    cliqzExtra: function(result){
+    cliqzExtra: function(result, snippet){
         result.data.subType = result.subType;
         result.data.trigger_urls = result.trigger_urls;
         result.data.ts = result.ts;
@@ -119,12 +124,17 @@ var Result = {
         );
     },
     // Combine two results into a new result
-    combine: function(cliqz, generic) {
-        var tempCliqzResult = Result.cliqz(cliqz);
-        var ret = Result.clone(generic);
-        ret.style = CliqzUtils.combineSources(ret.style, tempCliqzResult.style);
-        ret.data.kind = (ret.data.kind || []).concat(tempCliqzResult.data.kind || []);
-        ret.comment = ret.comment.slice(0,-2) + " and vertical: " + tempCliqzResult.query + ")!";
+    combine: function(first, second) {
+        var ret = Result.clone(first);
+        ret.style = CliqzUtils.combineSources(ret.style, second.style);
+        ret.data.kind = (ret.data.kind || []).concat(second.data.kind || []);
+
+        // copy over description and title, if needed
+        if(second.data.description && !ret.data.description)
+            ret.data.description = second.data.description;
+        if(second.data.title) // title
+            ret.data.title = second.data.title;
+
         return ret;
     },
     clone: function(entry) {
@@ -146,8 +156,7 @@ var Result = {
         // Bing Filters
         // Filter all like:
         //    www.bing.com/search?
-        if(urlparts.name.toLowerCase() == "bing" &&
-           urlparts.subdomains.length > 0 && urlparts.subdomains[0].toLowerCase() == "www" && urlparts.extra.indexOf("/search?") == 0) {
+        if(urlparts.name.toLowerCase() == "bing" && urlparts.extra.indexOf("q=") != -1) {
             log("Discarding result page from history: " + url)
             return false;
         }
@@ -213,6 +222,7 @@ var Result = {
 
         var snip = result.snippet;
         resp.description = snip && (snip.desc || snip.snippet || (snip.og && snip.og.description));
+        resp.title = result.snippet.title;
 
         var ogT = snip && snip.og? snip.og.type: null,
             imgT = snip && snip.image? snip.image.type: null;

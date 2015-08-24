@@ -1,17 +1,22 @@
 *.xpi
-.DS_Store
 *.pyc
-mozilla-release
-.vagrant
 *~
 *#
 
 # ignore invisible files
 .Trashes
 .Spotlight-V100
+.DS_Store
+.vagrant
 
-# ignore builds
+# build folders
 build/
-build/*
+.idea/
+
+# external components
+node_modules
+bower_components
+cliqz@cliqz.com/modules/*_bck.jsm
+
 
 *.scssc

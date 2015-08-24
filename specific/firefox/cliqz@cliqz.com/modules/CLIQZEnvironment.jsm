@@ -138,10 +138,10 @@ var CLIQZEnvironment = {
         req.send(data);
         return req;
     },
-    openLink: function(url, newTab){
+    openLink: function(win, url, newTab, newWindow, newPrivateWindow){
         // make sure there is a protocol (this is required
         // for storing it properly in Firefoxe's history DB)
-        if(url.indexOf("://") == -1)
+        if(url.indexOf("://") == -1 && url.trim().indexOf('about:') != 0)
             url = "http://" + url;
 
         // Firefox history boosts URLs that are typed in the URL bar, autocompleted,
@@ -151,21 +151,27 @@ var CLIQZEnvironment = {
             var historyService =
                 Cc["@mozilla.org/browser/nav-history-service;1"].getService(Ci.nsINavHistoryService);
             var ioService =
-                Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+                Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
             var urlObject = ioService.newURI(url, null, null);
                 historyService.markPageAsTyped(urlObject);
         } catch(e) { }
 
-        CLIQZ.Core.triggerLastQ = true;
-        if(newTab) gBrowser.addTab(url);
+        win.CLIQZ.Core.triggerLastQ = true;
+        if(newTab) {
+            win.gBrowser.addTab(url);
+        } else if(newWindow) {
+            win.open(url, '_blank');
+        } else if(newPrivateWindow) {
+            win.openLinkIn(url, "window", { private: true });
+        }
         else {
             //clean selected text to have a valid last Query
             //if(CliqzAutocomplete.lastSearch != CLIQZ.Core.urlbar.value)
             //    CLIQZ.Core.urlbar.value = CLIQZ.Core.urlbar.value.substr(0, CLIQZ.Core.urlbar.selectionStart);
 
             // Set urlbar value to url immediately
-            CLIQZ.Core.urlbar.value = url;
-            openUILink(url);
+            win.CLIQZ.Core.urlbar.value = url;
+            win.openUILink(url);
         }
     },
     tldExtractor: function(host){
@@ -285,22 +291,23 @@ var CLIQZEnvironment = {
         popup._appendCurrentResult = function(){
             if(popup._matchCount > 0 && popup.mInput){
               //try to break the call stack which cause 'too much recursion' exception on linux systems
-              win.setTimeout(function(){ win.CLIQZ.UI.handleResults.apply(win); }, 0);
+              CLIQZEnvironment.setTimeout(function(win){ win.CLIQZ.UI.handleResults.apply(win); }, 0, win);
             }
-        }
+        };
 
         popup._openAutocompletePopup = function(){
             (function(aInput, aElement){
-              if (!win.CliqzAutocomplete.isPopupOpen){
+              if (!CliqzAutocomplete.isPopupOpen){
                 this.mInput = aInput;
                 this._invalidate();
 
                 var width = aElement.getBoundingClientRect().width;
                 this.setAttribute("width", width > 500 ? width : 500);
-                this.openPopup(aElement, "after_start", 0, 0, false, true);
+                // 0,0 are the distance from the topleft of the popup to aElement (the urlbar). If these values change, please adjust how mouse position is calculated for click event (in telemetry signal)
+                this.openPopup(aElement, "after_start", 0, 0 , false, true);
               }
             }).apply(popup, arguments)
-        }
+        };
     },
     // lazy init
     // callback called multiple times
