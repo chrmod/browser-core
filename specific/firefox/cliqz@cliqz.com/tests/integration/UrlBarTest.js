@@ -55,21 +55,37 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
     });
 
-    context("history results", function () {
+    context("custom results - #team", function () {
       beforeEach(function () {
         respondWith({
           result: []
         });
-        fillIn("mozilla");
+        fillIn("#team");
         return waitForPopup();
       });
 
       it('should trigger firefox history search', function () {
-        var $pattern = $cliqzResults().find(".cqz-result-box .cliqz-pattern-element");
-        chai.expect($pattern.attr("url")).to.contain("mozilla");
+        var $pattern = $cliqzResults().find(".cqz-result-box");
+        chai.expect($pattern.attr("url")).to.equal("https://cliqz.com/team/");
         chai.expect($pattern).to.have.length.above(0);
       });
-
     });
+
+    context("custom results - maps", function () {
+      beforeEach(function () {
+        respondWith({
+          result: []
+        });
+        fillIn("#gm wisen");
+        return waitForPopup();
+      });
+
+      it('should trigger firefox history search', function () {
+        var $pattern = $cliqzResults().find(".cqz-result-box");
+        chai.expect($pattern.attr("url")).to.equal("http://maps.google.de/maps?q=wisen");
+        chai.expect($pattern).to.have.length.above(0);
+      });
+    });
+
   });
 };

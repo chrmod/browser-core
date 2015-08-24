@@ -1333,7 +1333,7 @@ function urlIndexInHistory(url, urlList) {
                             var win = enumerator.getNext();
                             win.CLIQZ.Core.unload(true);
                         }
-                        CLQIZ.Core.refreshButtons();
+                        CLIQZ.Core.refreshButtons();
                         break;
                     case 'keep-cliqz':
                         updateMessageState("hide");
@@ -1415,7 +1415,7 @@ function urlIndexInHistory(url, urlList) {
                     setting: el.getAttribute('cliqz-telemetry'),
                     value: state
                 });
-                setTimeout(function(){ CLQIZ.Core.refreshButtons(); }, 0);
+                setTimeout(function(){ CLIQZ.Core.refreshButtons(); }, 0);
             }
             /* Propagate event up the DOM tree */
             el = el.parentElement;
@@ -1521,7 +1521,8 @@ function resultClick(ev){
             }, CliqzAutocomplete.lastSearch);
             var url = CliqzUtils.cleanMozillaActions(el.getAttribute('url'));
             CLIQZEnvironment.openLink(window, url, newTab);
-            CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
+            //Lucian: decouple!
+            window.CliqzHistoryManager && CliqzHistoryManager.updateInputHistory(CliqzAutocomplete.lastSearch, url);
             if(!newTab) CLIQZ.Core.popup.hidePopup();
             break;
         }else if (el.getAttribute('cliqz-action')) {

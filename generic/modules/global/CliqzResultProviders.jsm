@@ -63,7 +63,7 @@ var CliqzResultProviders = {
         if(customQuery){
             results = [
                 Result.generic(
-                    Result.CLIQZC + ' sources-' + customQuery.engineCode,
+                    Result.CLIQZC + ' sources-' + customQuery.code,
                     customQuery.queryURI,
                     null,
                     null,
@@ -102,7 +102,8 @@ var CliqzResultProviders = {
             return {
                 updatedQ  : q,
                 engineName: 'CLIQZ',
-                queryURI  : CUSTOM[q.trim()].url
+                queryURI  : CUSTOM[q.trim()].url,
+                code      : '#'
             }
         }
         // a prefix has min 4 chars
@@ -121,7 +122,7 @@ var CliqzResultProviders = {
                 updatedQ  : uq,
                 engineName: MAPPING[start],
                 queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
-                engineCode: CliqzResultProviders.getEngineCode(MAPPING[start])
+                code: CliqzResultProviders.getEngineCode(MAPPING[start])
             };
         } else if(MAPPING.hasOwnProperty(end)) {
             var uq = q.substring(0, q.length - end.length - 1);
@@ -129,7 +130,7 @@ var CliqzResultProviders = {
                 updatedQ  : uq,
                 engineName: MAPPING[end],
                 queryURI  : CliqzResultProviders.getSubmissionByEngineName(MAPPING[start], uq),
-                engineCode: CliqzResultProviders.getEngineCode(MAPPING[end])
+                code: CliqzResultProviders.getEngineCode(MAPPING[end])
             };
         }
 
@@ -137,9 +138,9 @@ var CliqzResultProviders = {
     },
     getSubmissionByEngineName: function(name, query){
         var engines = CliqzResultProviders.getSearchEngines();
-        for(var eName in engines){
-            if(eName == name){
-                return engines[eName].getSubmissionForQuery(query);
+        for(var i=0; i < engines.length; i++){
+            if(engines[i].name == name){
+                return engines[i].getSubmissionForQuery(query);
             }
         }
     },
