@@ -43,6 +43,16 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/modules/local", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome/content") },
                 ]
             },
+            firefoxDebug: {
+                files: [
+                    { expand: true, cwd: "specific/firefox/cliqz@cliqz.com", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com")},
+                    { expand: true, cwd: "specific/firefox", src: "CliqzExceptions.jsm", dest: build("firefoxDebug/cliqz@cliqz.com/modules")}, //debug hook
+                    { expand: true, cwd: "generic/modules/libs", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/modules/extern") }, //extern libs
+                    { expand: true, cwd: "generic/static", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/chrome") }, //skin, locale
+                    { expand: true, cwd: "generic/modules/global", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/modules") },
+                    { expand: true, cwd: "generic/modules/local", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/chrome/content") },
+                ]
+            },
             chrome: {
                 files: [
                     { expand: true, cwd: "specific/chrome/", src: "**", dest: build("chrome/") },
@@ -95,6 +105,23 @@ module.exports = function(grunt) {
                     }
                 },
                 dest: build("tool/js/global.js"),
+            },
+            //find a more elegant way to change this file
+            firefoxDebugInjector: {
+                src: [ "specific/firefox/cliqz@cliqz.com/modules/Extension.jsm" ],
+                options: {
+                    process: function(src,filepath) {
+                        return src
+                                .split('\n')
+                                .map(function(line){
+                                    return line.indexOf('CliqzExceptions') != -1 ?
+                                            line.replace('// ', '') :
+                                            line
+                                })
+                                .join('\n')
+                    }
+                },
+                dest: build("firefoxDebug/cliqz@cliqz.com/modules/Extension.jsm"),
             },
             androidkit: {
                 src: [

@@ -43,6 +43,8 @@ var Extension = {
     init: function(){
         Extension.unloadModules();
 
+        // Cu.import('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
+
         Cu.import('chrome://cliqzmodules/content/ToolbarButtonManager.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
@@ -204,6 +206,8 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzTour.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzExtOnboarding.jsm');
 
+        // Cu.unload('chrome://cliqzmodules/content/CliqzExceptions.jsm'); //enabled in debug builds
+
         // Remove this observer here to correct bug in 0.5.57
         // - if you don't do this, the extension will crash on upgrade to a new version
         // - this can be safely removed after all 0.5.56 and 0.5.57 are upgraded
@@ -259,6 +263,8 @@ var Extension = {
             Extension.addScript('ContextMenu', win);
 
             Extension.addButtons(win);
+
+            // CliqzExceptions.attach(win); //enabled in debug builds
 
             try {
                 if (!CliqzUtils.getPref("cliqz_core_disabled", false)) {
