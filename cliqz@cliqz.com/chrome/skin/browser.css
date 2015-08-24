@@ -324,11 +324,11 @@
 #cliqz-results .entity-story-comment { color: #c3043e; padding-top: 9px; }
 #cliqz-results .entity-stories .cqz-twitter-count {
     display: inline-block;
-    margin-left: 20px;
+    margin-left: 16px;
     padding-left: 19px;
     color: #49c0f4;
     vertical-align: top;
-    background: url(https://cdn.cliqz.com/extension/EZ/news/twitter-bird.svg) no-repeat 0 3px;
+    background: url('chrome://cliqzres/content/skin/images/social media/twitter-bird.svg') no-repeat 0 3px;
 }
 
 /* ez video specials */
