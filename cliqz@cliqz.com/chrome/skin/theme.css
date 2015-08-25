@@ -1,5 +1,48 @@
 @font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
 
+:-moz-any(#back-button,
+#forward-button,
+#home-button,
+#print-button,
+#downloads-button,
+#bookmarks-menu-button,
+#new-tab-button,
+#new-window-button,
+#fullscreen-button,
+#sync-button,
+#feed-button,
+#tabview-button,
+#social-share-button,
+#open-file-button,
+#find-button,
+#developer-button,
+#preferences-button,
+#privatebrowsing-button,
+#save-page-button,
+#add-ons-button,
+#history-panelmenu,
+#nav-bar-overflow-button,
+#PanelUI-menu-button,
+#characterencoding-button,
+#email-link-button,
+#sidebar-button,
+#zoom-out-button,
+#zoom-reset-button,
+#zoom-in-button,
+#cut-button,
+#copy-button,
+#paste-button,
+#e10s-button,
+#panic-button,
+#web-apps-button,
+#webide-button,
+#loop-button,
+#pocket-button,
+#restore-button),
+#bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+    list-style-image: url("chrome://cliqzres/content/skin/images/browser/Toolbar.png");
+}
+
 #main-window {
     font-family: "Lato";
 }
@@ -10,6 +53,12 @@
 
 #urlbar-container {
     min-width: 850px;
+}
+
+/* ====== Close, minimize & fullscreen btns*/
+#main-window[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-buttonbox-container,
+#main-window[tabsintitlebar] > #titlebar > #titlebar-content > #titlebar-secondary-buttonbox > #titlebar-fullscreen-button {
+    margin-top: 7px;
 }
 
 .tab-background-start, .tab-background-end {
@@ -93,10 +142,12 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #urlbar[focused="true"],
 .searchbar-textbox[focused="true"] {
     box-shadow: none !important;
-    border-color: #7BEBF5 !important;
-    -moz-border-start: 1px solid #7BEBF5 !important;
+    border-color: #5ea3f9 !important;
+    -moz-border-start: 1px solid #5ea3f9 !important;
 }
-
+#urlbar .urlbar-input::-moz-selection {
+  background: #7bebf5;
+}
 /*==== FF Color */
 
 #titlebar,
@@ -127,6 +178,17 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
 #tabbrowser-tabs:not([overflow]) > .tabbrowser-tab[last-visible-tab]:not([visuallyselected]):not([beforehovered]):not(:hover)::after {
     display: none;
 }
+.tabs-newtab-button {
+    border: none !important;
+}
+
+.tabs-newtab-button,
+#TabsToolbar > #new-tab-button,
+#TabsToolbar > toolbarpaletteitem > #new-tab-button {
+    list-style-image: url("chrome://cliqzres/content/skin/images/browser/newtab.png");
+}
+
+.close-icon { list-style-image: url("chrome://cliqzres/content/skin/images/browser/close.png");  }
 
 /*========== End Tabs =========*/
 
@@ -142,19 +204,14 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
-.tabs-newtab-button {
-    border: none !important;
-}
-
-.tabs-newtab-button,
-#TabsToolbar > #new-tab-button,
-#TabsToolbar > toolbarpaletteitem > #new-tab-button {
-    list-style-image: url("chrome://cliqzres/content/skin/images/browser/newtab.png");
-}
-
 #back-button {
-    -moz-image-region: rect(0px, 54px, 18px, 36px);
+    width: auto !important;;
+    height: auto !important;;
+    padding: 5px 0 !important;
 }
+#forward-button > .toolbarbutton-icon { margin: 0; }
+
+#PersonalToolbar { padding-left: 8px; }
 
 /*===== Bookmarks */
 
@@ -163,15 +220,81 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
     padding: 0 5px 1px;
 }
 
+#nav-bar-customization-target {
+    padding: 4px 4px 4px 6px;
+}
+.tabs-newtab-button > .toolbarbutton-icon {
+    padding-top: 3px;
+}
+
+/*========== Tabs undeer window buttons*/
+
+#titlebar-placeholder-on-TabsToolbar-for-captions-buttons {
+    display: none;
+}
+#TabsToolbar { padding-top: 7px; }
+.tabbrowser-arrowscrollbox > .arrowscrollbox-scrollbox { -moz-padding-start: 2px; }
+
+#main-window[tabsintitlebar] > #titlebar {
+    min-height: 0;
+    margin-bottom: 0 !important;
+}
+
+
+
+/*========== END Tabs undeer window buttons*/
+
 @media (min-resolution: 2dppx) {
     .tabs-newtab-button,
     #TabsToolbar > #new-tab-button,
     #TabsToolbar > toolbarpaletteitem > #new-tab-button {
         list-style-image: url("chrome://cliqzres/content/skin/images/browser/newtab@2x.png");
     }
+
+    .close-icon { list-style-image: url("chrome://cliqzres/content/skin/images/browser/close@2x.png");  }
 }
+
 @media (min-resolution: 1.1dppx) {
-    #back-button {
-        -moz-image-region: rect(0px, 104px, 36px, 72px);
+    :-moz-any(#back-button,
+    #forward-button,
+    #home-button,
+    #print-button,
+    #downloads-button,
+    #bookmarks-menu-button,
+    #new-tab-button,
+    #new-window-button,
+    #fullscreen-button,
+    #sync-button,
+    #feed-button,
+    #tabview-button,
+    #social-share-button,
+    #open-file-button,
+    #find-button,
+    #developer-button,
+    #preferences-button,
+    #privatebrowsing-button,
+    #save-page-button,
+    #add-ons-button,
+    #history-panelmenu,
+    #nav-bar-overflow-button,
+    #PanelUI-menu-button,
+    #characterencoding-button,
+    #email-link-button,
+    #sidebar-button,
+    #zoom-out-button,
+    #zoom-reset-button,
+    #zoom-in-button,
+    #cut-button,
+    #copy-button,
+    #paste-button,
+    #e10s-button,
+    #panic-button,
+    #web-apps-button,
+    #webide-button,
+    #loop-button,
+    #pocket-button,
+    #restore-button),
+    #bookmarks-menu-button > .toolbarbutton-menubutton-dropmarker > .dropmarker-icon {
+        list-style-image: url("chrome://cliqzres/content/skin/images/browser/Toolbar@2x.png");
     }
 }
