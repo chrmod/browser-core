@@ -7,7 +7,7 @@
   <script type="text/javascript" src="chrome://cliqz_bower_components/content/chai/chai.js"></script>
   <script type="text/javascript" src="chrome://cliqz_bower_components/content/jquery/dist/jquery.js"></script>
   <script type="text/javascript" src="chrome://cliqz_bower_components/content/core.js/client/core.js"></script>
-  <script>window.TESTS = {};</script>
+  <script>//window.TESTS = {};</script>
   <script src="chrome://cliqztests/content/test-helpers.js"></script>
   <script src="chrome://cliqztests/content/unit/CliqzUtilsTest.js"></script>
   <script src="chrome://cliqztests/content/unit/CliqzHistoryPatternTest.js"></script>
@@ -17,13 +17,29 @@
   <script src="chrome://cliqztests/content/integration/TelemetryTest.js"></script>
   <script src="chrome://cliqztests/content/integration/SmartCliqzTest.js"></script>
   <script src="chrome://cliqztests/content/integration/CliqzMsgCenterTest.js"></script>
-
-
+  <style>
+    .btn {
+      cursor: pointer;
+      padding: 25px 80px;
+      display: inline-block;
+      margin: 15px 30px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      outline: none;
+      border-radius: 10px;
+      background: rgb(28, 184, 65);
+      color: #fff;
+    }
+  </style>
   </head>
   <body>
-    <div id="mocha"></div>
 
+        <center><button class="btn btn-1 btn-1a" onclick="location.reload(true);">Reload</button></center>
+
+    <div id="mocha"></div>
     <script src="chrome://cliqztests/content/index.js"></script>
+
   </body>
 </html>
 
