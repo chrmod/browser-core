@@ -64,7 +64,7 @@ def package(beta='True', version=None):
         with hide('output'):
             # Because the file install.rdf changes after generating from template
             # we need to untrack it before we can do a stash-pop.
-            local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
+            # local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
             # Get the name of the current branch so we can get back on it
             branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
             # If we have changes stash them before checkout
