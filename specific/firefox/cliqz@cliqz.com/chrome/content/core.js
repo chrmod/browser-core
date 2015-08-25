@@ -1002,7 +1002,7 @@ window.CLIQZ.Core = {
 
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
-            CLIQZ.Core.setLocationPermission(this.filter_level.toString());
+            CliqzUtils.setLocationPermission(this.filter_level.toString());
         }, false);
 
         menupopup.appendChild(item);
