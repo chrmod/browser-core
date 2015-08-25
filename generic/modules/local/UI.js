@@ -1818,7 +1818,6 @@ function resultMove(ev){
 }
 
 function onEnter(ev, item){
-  var urlbar = urlbar;
   var input = urlbar.mInputField.value;
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";
