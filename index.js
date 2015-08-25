@@ -6,6 +6,7 @@ app.use(express.static(__dirname + "/build/dev"))
 app.use("/views", express.static(__dirname + "/views"))
 app.use("/generic", express.static(__dirname + "/generic"))
 app.use("/mobile", express.static(__dirname + "/specific/mobile"))
+app.use("/ios", express.static(__dirname + "/build/dev/tool_iOS"))
 app.set("views", __dirname + "/views");
 app.set("view engine", "jade");
 
@@ -15,6 +16,10 @@ app.get("/",function(req,res) {
 
 app.get("/m",function(req,res) {
     res.render("mobile")
+})
+
+app.get("/ios",function(req,res) {
+    res.render("ios")
 })
 
 app.get("/proxy",function(req,res){
