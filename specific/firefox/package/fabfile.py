@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 import jsstrip
 
 NAME = "Cliqz"
-PARTIAL_PATH_TO_EXTENSION = "cliqz@cliqz.com"
+PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
 PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/beta/"
@@ -45,14 +45,8 @@ def get_version(beta='True'):
 
 
 @task
-def package(beta='True', version=None, path=None):
+def package(beta='True', version=None):
     """Package the extension as a .xpi file."""
-    if path is None:
-        print 'please specify a path for packaging'
-        return
-
-    PATH_TO_EXTENSION = path + PARTIAL_PATH_TO_EXTENSION
-    print 'Pagaging extension at path - ', PATH_TO_EXTENSION
 
     checkout = True # Checkout the tag if we are not doing a beta package
     if not (beta == 'True') and version is not None:
@@ -106,7 +100,7 @@ def package(beta='True', version=None, path=None):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
-            local("zip  %s ../%s%s -r *" % (exclude_files, path, output_file_name))
+            local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
@@ -146,6 +140,7 @@ def publish(beta='True', version=None):
               "Always use git tags (and push them to upstream) so we can keep "\
               "track of all live versions.")
 
+    ''' TODO: move confirmation at grunt level
     if beta == 'True':
         if not console.confirm('You are going to update the extension '\
                                'for BETA users. Do you want to continue?'):
@@ -154,7 +149,7 @@ def publish(beta='True', version=None):
         if not console.confirm('You are going to update the extension '\
                                'for ALL users. Do you want to continue?'):
             return
-
+    '''
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
     icon_name = "icon.png"

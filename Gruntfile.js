@@ -41,6 +41,7 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/static", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome") }, //skin, locale
                     { expand: true, cwd: "generic/modules/global", src: "**", dest: build("firefox/cliqz@cliqz.com/modules") },
                     { expand: true, cwd: "generic/modules/local", src: "**", dest: build("firefox/cliqz@cliqz.com/chrome/content") },
+                    { expand: true, cwd: "specific/firefox/package", src: "**", dest: build("firefox/") }, //package
                 ]
             },
             firefoxDebug: {
@@ -51,6 +52,7 @@ module.exports = function(grunt) {
                     { expand: true, cwd: "generic/static", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/chrome") }, //skin, locale
                     { expand: true, cwd: "generic/modules/global", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/modules") },
                     { expand: true, cwd: "generic/modules/local", src: "**", dest: build("firefoxDebug/cliqz@cliqz.com/chrome/content") },
+                    { expand: true, cwd: "specific/firefox/package", src: "**", dest: build("firefoxDebug/") }, //package
                 ]
             },
             chrome: {
@@ -201,10 +203,36 @@ module.exports = function(grunt) {
     grunt.registerTask("default",["copy","concat","concurrent"])
     grunt.registerTask("build",["copy","concat"])
 
-    grunt.registerTask('package', '', function () {
-        var exec = require('child_process').execSync;
-        result = exec("cd specific/firefox; python -c 'import fabfile; fabfile.package(\"True\",None,\"../../build/dev/firefox/\")'");
-        result += exec("cd specific/firefox; python -c 'import fabfile; fabfile.package(\"True\",None,\"../../build/dev/firefoxDebug/\")'");
+    grunt.registerTask('package', '', function(version){
+        var result, exec = require('child_process').execSync;
+
+        switch(version) {
+            case 'live':
+                result = exec("cd build/dev/firefox; python -c 'import fabfile; fabfile.package(\"False\")'");
+                break;
+            case 'beta': //fallthrough builds all betas
+            default:
+                result = exec("cd build/dev/firefox; python -c 'import fabfile; fabfile.package(\"True\")'");
+                result += exec("cd build/dev/firefoxDebug; python -c 'import fabfile; fabfile.package(\"True\")'");
+        }
+
         grunt.log.writeln(result);
-});
+    });
+
+    grunt.registerTask('publish', '', function (version) {
+        switch(version) {
+            case 'beta':
+                //deploys firefox debug to beta channel
+                grunt.log.writeln('Deploying firefox debug to beta channel');
+                var exec = require('child_process').execSync;
+                var result = exec("cd build/dev/firefoxDebug; python -c 'import fabfile; fabfile.publish()'");
+                grunt.log.writeln(result);
+                break;
+            case 'live':
+                // TODO
+                break
+            default:
+                grunt.log.writeln('please specify the version, eg: publish:beta');
+        }
+    });
 }
