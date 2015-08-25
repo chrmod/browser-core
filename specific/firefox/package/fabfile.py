@@ -47,6 +47,7 @@ def get_version(beta='True'):
 @task
 def package(beta='True', version=None):
     """Package the extension as a .xpi file."""
+
     checkout = True # Checkout the tag if we are not doing a beta package
     if not (beta == 'True') and version is not None:
         print 'WARNING: This will not take the %s tag from git. It packages the '\
@@ -63,7 +64,7 @@ def package(beta='True', version=None):
         with hide('output'):
             # Because the file install.rdf changes after generating from template
             # we need to untrack it before we can do a stash-pop.
-            local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
+            # local("git update-index --assume-unchanged cliqz@cliqz.com/install.rdf")
             # Get the name of the current branch so we can get back on it
             branch = local("git rev-parse --abbrev-ref HEAD", capture=True)
             # If we have changes stash them before checkout
@@ -86,7 +87,6 @@ def package(beta='True', version=None):
     # Zip extension
     output_file_name = "%s.%s.xpi" % (NAME, version)
     local("cp -R %s %s" % (PATH_TO_EXTENSION, PATH_TO_EXTENSION_TEMP))
-
     #remove tests and bower components
     if not (beta == 'True'):
         local("rm -fr %s/tests" % (PATH_TO_EXTENSION_TEMP))
@@ -100,8 +100,7 @@ def package(beta='True', version=None):
         with hide('output'):
             exclude_files = "--exclude=*.DS_Store*"
             comment_cleaner(PATH_TO_EXTENSION_TEMP)
-            local("zip  %s %s -r *" % (exclude_files, output_file_name))
-            local("mv  %s .." % output_file_name)  # Move back to root folder
+            local("zip  %s ../%s -r *" % (exclude_files, output_file_name))
     local("rm -fr %s" % PATH_TO_EXTENSION_TEMP)
 
     # If we checked out a earlier commit we need to go back to master/HEAD
@@ -141,6 +140,7 @@ def publish(beta='True', version=None):
               "Always use git tags (and push them to upstream) so we can keep "\
               "track of all live versions.")
 
+    ''' TODO: move confirmation at grunt level
     if beta == 'True':
         if not console.confirm('You are going to update the extension '\
                                'for BETA users. Do you want to continue?'):
@@ -149,7 +149,7 @@ def publish(beta='True', version=None):
         if not console.confirm('You are going to update the extension '\
                                'for ALL users. Do you want to continue?'):
             return
-
+    '''
     update_manifest_file_name = "latest.rdf"
     latest_html_file_name = "latest.html"
     icon_name = "icon.png"
@@ -214,7 +214,11 @@ def clean():
 
 
 @task
-def comment_cleaner(path=PATH_TO_EXTENSION):
+def comment_cleaner(path=None):
+    if path is None:
+        print 'Nothing to clean'
+        return
+
     target = ['js', 'jsm', 'html']
     ignore = ['handlebars-v1.3.0.js', 'ToolbarButtonManager.jsm', 'math.min.jsm']
 
