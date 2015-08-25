@@ -1,5 +1,6 @@
 var db = {
-    showConsoleLogs: true
+    showConsoleLogs: true,
+    share_location: 'ask'
 };
 
 var ENGINES;

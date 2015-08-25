@@ -247,7 +247,7 @@ window.CLIQZ.Core = {
         CLIQZ.Core.urlbar.addEventListener('paste', CLIQZ.Core.handlePasteEvent);
 
         CliqzExtOnboarding.init(window);
-        CliqzUtils.updateGeoLocation();
+        CLIQZEnvironment.updateGeoLocation();
         //CLIQZ.Core.whoAmI(true); //startup
         //CliqzUtils.log('Initialized', 'CORE');
 
@@ -348,7 +348,6 @@ window.CLIQZ.Core = {
         clearTimeout(CLIQZ.Core._whoAmItimer);
 
         CLIQZ.UI.unload();
-        CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.removeGeoLocationWatch(CliqzUtils.GEOLOC_WATCH_ID);
 
         for(var i in CLIQZ.Core.elem){
             var item = CLIQZ.Core.elem[i];
@@ -1002,14 +1001,14 @@ window.CLIQZ.Core = {
 
         item.filter_level = new String(level);
         item.addEventListener('command', function(event) {
-            CliqzUtils.setLocationPermission(this.filter_level.toString());
+            CLIQZEnvironment.setLocationPermission(window, this.filter_level.toString());
         }, false);
 
         menupopup.appendChild(item);
       };
       menu.appendChild(menupopup);
       return menu;
-  },
+    },
 
     createSimpleBtn: function(doc, txt, func){
         var item = doc.createElement('menuitem');
