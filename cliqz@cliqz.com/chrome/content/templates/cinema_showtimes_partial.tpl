@@ -1,5 +1,5 @@
 <div class="showtimes-date">
-  <b>{{local display_date.day_of_week}}, {{display_date.day_of_month}}. {{local display_date.month}}</b>
+  {{local display_date.day_of_week}}, {{display_date.day_of_month}}. {{local display_date.month}}
 </div>
 <table class="cinema-showtimes-table">
   {{#each cinemas}}
