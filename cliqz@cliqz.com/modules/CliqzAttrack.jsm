@@ -93,12 +93,15 @@ function getQSMD5(qs, ps) {
 }
 
 function parseCalleeStack(callee){
+    var returnData = {};
     callee = callee.stack.trim().split("\n");
     callee.shift(); // This removes CliqzHumanWeb call from the stack.
     var externalCallee = callee[0].replace(/(:[0-9]+){1,2}$/, "");
     externalCallee = externalCallee.split("@")[1];
     var externalCallHost = CliqzHumanWeb.parseURL(externalCallee)['hostname'];
-    return externalCallHost;
+    returnData['externalCallHost'] = externalCallHost;
+    returnData['url'] = externalCallee;
+    return returnData;
 }
 
 function HeaderInfoVisitor(oHttp) {
@@ -785,7 +788,6 @@ var CliqzAttrack = {
                 // log third party request
                 var req_log = null;
                 if(url_parts.hostname != source_url_parts.hostname) {
-                    CliqzUtils.log("Test CV: " + CliqzAttrack.canvasURL[url],"XOXOX");
                     req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
                     if(req_log){
                         req_log.c++;
@@ -1455,30 +1457,29 @@ var CliqzAttrack = {
 
 
             // Block toDataURL
-
+            CliqzUtils.log("XOXOX","XOXOX1234");
             Components.utils.exportFunction(
                 function (){
                     var err = new Error();
-                    var externalCallHost = parseCalleeStack(err);
+                    var externalCallHost = parseCalleeStack(err)['externalCallHost'];
                     var pageHostname = CliqzHumanWeb.parseURL(aURI.spec)['hostname'];
+                    var source_url = aURI.spec;
+                    var source_url_parts = CliqzAttrack.parseURL(source_url)
+                    var ref_url =  parseCalleeStack(err)['url'];
+                    var ref_url_parts = CliqzAttrack.parseURL(ref_url);
+                    var source_tab = CliqzAttrack.tab_listener.getTabsForURL(source_url);
 
-                    CliqzUtils.log("This website attemps Canvas fingerprinting: " + aURI.spec, "CliqzAttrack") ;
+                    var req_log = null;
+                    req_log = CliqzAttrack.tp_events.get(ref_url, ref_url_parts, source_url, source_url_parts, source_tab);
 
-                    var ob = {"src": aURI.spec, "dst" : err.stack.trim().split("\n"), "obj": this, "method":"toDataURL"};
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
                     if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
-                        ob['status'] = "blocked";
-                        ob['ver'] = CliqzAttrack.VERSION;
-                        CliqzAttrack.canvasTraffic['observed'].push(ob);
-                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.canvas', 'payload': ob});
                         // return "data:" + arguments[0] + ";base64," + btoa(randomImage);
+                        if(req_log != null) req_log.cv_to_dataURL_blocked++;
                         return "blocked";
                     }
                     else{
-                        ob['status'] = "allowed"
-                        ob['ver'] = CliqzAttrack.VERSION;
-                        CliqzAttrack.canvasTraffic['observed'].push(ob);
-                        CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.canvas', 'payload': ob});
+                        if(req_log != null) req_log.cv_to_dataURL_allowed++;
                         return this.toDataURL();
                     }
 

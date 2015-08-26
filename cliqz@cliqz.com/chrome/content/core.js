@@ -224,6 +224,7 @@ window.CLIQZ.Core = {
 
             if(CliqzUtils.getPref("antiTrackTest", false)){
                 CliqzAttrack.init(window);
+                window.gBrowser.addProgressListener(CliqzAttrack.listener);
             }
 
             // Update CLIQZ history data
@@ -428,6 +429,7 @@ window.CLIQZ.Core = {
 
 
             if(CliqzUtils.getPref("antiTrackTest", false) && !CliqzUtils.isPrivate(window)){
+                window.gBrowser.addProgressListener(CliqzAttrack.listener);
                 CliqzAttrack.unload();
             }
         }
