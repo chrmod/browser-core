@@ -54,6 +54,7 @@ if (CliqzUtils.getPref('attrackRefererTracking', false)) {
         genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
         genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
         genericPrefs.clearUserPref('network.http.sendRefererHeader');
+        CliqzUtils.cliqzPrefs.clearUserPref('attrackRefererPreferences');
     }
 }
 
