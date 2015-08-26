@@ -107,6 +107,15 @@ function registerHelpers(){
         }
     });
 
+    Handlebars.registerHelper('floatify', function(f) {
+        try {
+            return parseFloat(f);
+        } catch(e) {
+            return f;
+        }
+    });
+
+
     Handlebars.registerHelper('generate_logo', function(url, options) {
         return generateLogoClass(CliqzUtils.getDetailsFromUrl(url));
     });

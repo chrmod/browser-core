@@ -1,8 +1,7 @@
 <div class='cqz-result-h3'>
     <div>
         <div class="EZ-currency EZ-currency-result">
-            <span class="cqz-currency-symbol">{{data.toSymbol}}</span><span
-                class="cqz-amount">{{data.toAmount.main}}</span>
+            <span class="cqz-amount">{{data.toAmount.main}}</span>
             <span class="cqz-currency-code">{{data.toCurrency}}</span>
         </div>
         <div class="EZ-currency EZ-currency-rate">
