@@ -1114,12 +1114,19 @@ var CliqzAttrack = {
             }
             source_url_parts = CliqzAttrack.parseURL(source_url);
 
+            var req_log = null;
+            if(request_type != 'fullpage' && source_url_parts && source_tab != -1) {
+                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
+                if(req_log != null) req_log.cookie_set++;
+            }
+
             if (request_type == 'extension_resource' ||
                     (source_url_parts && source_url_parts['hostname'] == 'browser' && source_url_parts['path'] == "/content/browser.xul")) {
                 // extension_resource type may indicate favicon, check if it looks like a favicon url
                 var baseurl = url.split('#')[0];
                 if(url_parts.path.indexOf('/favicon.') == 0 || baseurl in CliqzAttrack.favicons) {
                     // block favicon cookies
+                    if(req_log != null) req_log.cookie_block_favicon++;
                     CliqzAttrack.blockCookie(aChannel, url, {'dst': 'favicon', 'src': url_parts.hostname, 'data': cookie_data, 'ts': curr_time, 'type': 'favicon'}, "favicon");
                     return;
                 }
@@ -1142,11 +1149,13 @@ var CliqzAttrack = {
 
             if (same_gd) {
                 // not a 3rd party cookie, do nothing
+                if(req_log != null) req_log.cookie_allow_ntp++;
                 return;
             } else {
                 if (source_url.indexOf('about:')==0) {
                     // it's a brand new tab, and the url is loaded externally,
                     // about:home, about:blank
+                    if(req_log != null) req_log.cookie_allow_newtab++;
                     CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': source_url, 'data': cookie_data, 'ts': curr_time}, "about:blank");
                     return;
                 }
@@ -1155,17 +1164,13 @@ var CliqzAttrack = {
             var host = CliqzAttrack.getGeneralDomain(url_parts.hostname);
             var diff = curr_time - (CliqzAttrack.visitCache[host] || 0);
 
-            var req_log = null;
-            if(request_type != 'fullpage' && source_url_parts && source_tab != -1) {
-                req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
-                if(req_log != null) req_log.cookie_set++;
-            }
 
             // check visitcache to see if this domain is temporarily allowed.
             // Additional check required when gd=false and request_type== full_page, else block
             if (diff < CliqzAttrack.timeActive && request_type == 'fullpage') {
                 var src = null;
                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+                if(req_log != null) req_log.cookie_allow_visitcache++;
                 CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "visitcache");
                 return;
             }
@@ -1190,6 +1195,7 @@ var CliqzAttrack = {
                             CliqzAttrack.visitCache[host] = curr_time;
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+                            if(req_log != null) req_log.cookie_allow_userinit++;
                             CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextFromEvent");
                             return;
                         }
@@ -1220,6 +1226,7 @@ var CliqzAttrack = {
 
                                 var src = null;
                                 if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
+                                if(req_log != null) req_log.cookie_allow_oauth++;
                                 CliqzAttrack.allowCookie(aChannel, url, {'dst': url_parts.hostname, 'src': src, 'data': cookie_data, 'ts': curr_time}, "contextOauth");
                                 return;
                             }
@@ -1261,6 +1268,7 @@ var CliqzAttrack = {
                         var src = null;
                         if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                         if (req_log) req_log.cookie_blocked++;
+                        if(req_log != null) req_log.cookie_block_tp1++;
                         CliqzAttrack.blockCookie(aChannel, source_url_parts.hostname, {'src': src, 'dst': url_parts.hostname, 'data': cookie_data, 'ts': curr_time}, 'type1')
                         return;
                     }
@@ -1282,6 +1290,7 @@ var CliqzAttrack = {
                     if (CliqzAttrack.debug) CliqzUtils.log(">>> Booting up: "  + url + " : " + url_parts.hostname, CliqzAttrack.LOG_KEY);
                     var key = url_parts.hostname + url_parts.path;
                     if (key && key!='') CliqzAttrack.bootupWhitelistCache[key] = true;
+                    if(req_log != null) req_log.cookie_allow_bootingup++;
                     if (CliqzAttrack.debug) CliqzUtils.log(">>> Cookie ALLOWED because bootup: " + key, CliqzAttrack.LOG_KEY);
 
                 }
@@ -1295,6 +1304,7 @@ var CliqzAttrack = {
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
                             if (req_log) req_log.cookie_blocked++;
+                            if(req_log != null) req_log.cookie_block_tp2++;
                             CliqzAttrack.blockCookie(aChannel, diff, {'src': src, 'dst': url_parts.hostname, 'data': cookie_data, 'ts': curr_time}, 'type2')
                             return;
                         }
@@ -3387,7 +3397,15 @@ var CliqzAttrack = {
                  'token.has_whitelisted',
                  'token.whitelisted',
                  'cv_to_dataURL_allowed',
-                 'cv_to_dataURL_blocked'
+                 'cv_to_dataURL_blocked',
+                 'cookie_allow_newtab',
+                 'cookie_allow_visitcache',
+                 'cookie_allow_userinit',
+                 'cookie_allow_bootingup',
+                 'cookie_allow_oauth',
+                 'cookie_block_favicon',
+                 'cookie_block_tp1',
+                 'cookie_block_tp2'
                 ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
