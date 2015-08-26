@@ -111,7 +111,7 @@ function registerHelpers(){
         try {
             return parseFloat(f);
         } catch(e) {
-            return null;
+            return f;
         }
     });
 
