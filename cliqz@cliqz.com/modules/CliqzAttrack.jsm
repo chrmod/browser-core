@@ -32,13 +32,30 @@ CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTra
 CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', true));
 
 
-//Setting prefs for mitigating data leaks via referrers:
-// Send only send if hosts match.
-genericPrefs.setIntPref('network.http.referer.XOriginPolicy',2);
-// // Send scheme+host+port+path
-genericPrefs.setIntPref('network.http.referer.trimmingPolicy',1);
-// // Send only when links are clicked
-genericPrefs.setIntPref('network.http.sendRefererHeader',1);
+if (CliqzUtils.getPref('attrackRefererTracking', false)) {
+    // check that the user has not already set values here
+    if (!genericPrefs.prefHasUserValue('network.http.referer.XOriginPolicy') &&
+        !genericPrefs.prefHasUserValue('network.http.referer.trimmingPolicy') &&
+        !genericPrefs.prefHasUserValue('network.http.sendRefererHeader')) {
+        //Setting prefs for mitigating data leaks via referrers:
+        // Send only send if hosts match.
+        genericPrefs.setIntPref('network.http.referer.XOriginPolicy',2);
+        // // Send scheme+host+port+path
+        genericPrefs.setIntPref('network.http.referer.trimmingPolicy',1);
+        // // Send only when links are clicked
+        genericPrefs.setIntPref('network.http.sendRefererHeader',1);
+
+        // remember that we changed these
+        CliqzUtils.setPref('attrackRefererPreferences', true);
+    }
+} else {
+    if (CliqzUtils.getPref('attrackRefererPreferences', false)) {
+        // reset the settings we changed
+        genericPrefs.clearUserPref('network.http.referer.XOriginPolicy');
+        genericPrefs.clearUserPref('network.http.referer.trimmingPolicy');
+        genericPrefs.clearUserPref('network.http.sendRefererHeader');
+    }
+}
 
 
 var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
@@ -1609,6 +1626,9 @@ var CliqzAttrack = {
     },
     isFingerprintingEnabled: function() {
         return CliqzUtils.getPref('attrackCanvasFingerprintTracking', false);
+    },
+    isReferrerEnabled: function() {
+        return CliqzUtils.getPref('attrackRefererTracking', false);
     },
     pacemaker: function() {
         // every CliqzAttrack.tpace (10 sec now)

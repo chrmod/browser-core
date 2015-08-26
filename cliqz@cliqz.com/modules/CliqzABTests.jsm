@@ -278,6 +278,9 @@ var CliqzABTests = CliqzABTests || {
             case "1046_D":
                 CliqzUtils.setPref("attrackCanvasFingerprintTracking", true);
                 break;
+            case "1046_E":
+                CliqzUtils.setPref("attrackRefererTracking", true);
+                break;
             default:
                 rule_executed = false;
         }
@@ -495,6 +498,8 @@ var CliqzABTests = CliqzABTests || {
             case "1046_D":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackCanvasFingerprintTracking");
                 break;
+            case "1046_E":
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
             default:
                 rule_executed = false;
         }
