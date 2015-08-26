@@ -831,9 +831,13 @@ var CliqzAttrack = {
                             req_log['token.'+ key] += stats[key];
                         }
                     });
+                    if(badTokens.length > 0) {
+                        req_log.bad_qs++;
+                        req_log.bad_tokens += badTokens.length;
+                    }
                 }
                 // altering request
-                if (!(url in reflinks) &&CliqzAttrack.isQSEnabled() && badTokens.length > 0) {
+                if (!(url in reflinks) && CliqzAttrack.isQSEnabled() && badTokens.length > 0) {
                     CliqzUtils.log("altering request " + url + " " + refstr, 'tokk');
                     CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
 
@@ -862,11 +866,6 @@ var CliqzAttrack = {
                     }
 
                     CliqzUtils.log("new url " + tmp_url + " " + refstr, 'tokk');
-
-                    if (req_log) {
-                        req_log.bad_qs++;
-                        req_log.bad_tokens += badTokens.length;
-                    }
 
                     try {
                         aChannel.URI.spec = tmp_url;
@@ -914,11 +913,14 @@ var CliqzAttrack = {
 
                             if (newBody != body) {
                                 CliqzUtils.log(newBody, 'at-post-new');
-                                aChannel.QueryInterface(Ci.nsIUploadChannel);
-                                aChannel.uploadStream.QueryInterface(Ci.nsISeekableStream)
-                                    .seek(Ci.nsISeekableStream.NS_SEEK_SET, 0);
-                                aChannel.uploadStream.setData(newBody, newBody.length);
-                                aChannel.requestMethod = 'POST';
+                                if (CliqzAttrack.isPostEnabled()) {
+                                    aChannel.QueryInterface(Ci.nsIUploadChannel);
+                                    aChannel.uploadStream.QueryInterface(Ci.nsISeekableStream)
+                                        .seek(Ci.nsISeekableStream.NS_SEEK_SET, 0);
+                                    aChannel.uploadStream.setData(newBody, newBody.length);
+                                    aChannel.requestMethod = 'POST';
+                                    if (req_log) { req_log.post_altered++; }
+                                }
                                 if (req_log) {
                                     req_log.bad_post++;
                                 }
@@ -1232,7 +1234,7 @@ var CliqzAttrack = {
                     CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['v'][url] = cookie_data;
 
                     // now, let's kill that cookie and see what happens :-)
-                    if (CliqzAttrack.isEnabled()) {
+                    if (CliqzAttrack.isCookieEnabled()) {
                         // blocking cookie
                         var src = null;
                         if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
@@ -1266,7 +1268,7 @@ var CliqzAttrack = {
                     var key = url_parts.hostname + url_parts.path;
                     if (CliqzAttrack.bootupWhitelistCache[key]==null) {
 
-                        if (CliqzAttrack.isEnabled()) {
+                        if (CliqzAttrack.isCookieEnabled()) {
                             // blocking cookie
                             var src = null;
                             if (source_url_parts && source_url_parts.hostname) src = source_url_parts.hostname;
@@ -1591,13 +1593,19 @@ var CliqzAttrack = {
         }
     },
     isAlertEnabled: function() {
-        return CliqzUtils.getPref('attrackAlertEnabled', true);
+        return CliqzUtils.getPref('attrackAlertEnabled', false);
     },
     isEnabled: function() {
         return CliqzUtils.getPref('attrackRemoveTracking', true);
     },
+    isCookieEnabled: function() {
+        return CliqzUtils.getPref('attrackBlockCookieTracking', false);
+    },
     isQSEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', true);
+        return CliqzUtils.getPref('attrackRemoveQueryStringTracking', false);
+    },
+    isPostEnabled: function() {
+        return CliqzUtils.getPref('attrackAlterPostdataTracking', false);
     },
     pacemaker: function() {
         // every CliqzAttrack.tpace (10 sec now)
@@ -3333,9 +3341,10 @@ var CliqzAttrack = {
                  'req_aborted',
                  'cookie_set',
                  'cookie_blocked',
-                 'bad_cookies_sent',
+                 'bad_cookie_sent',
                  'has_post',
                  'bad_post',
+                 'post_altered',
                  'token.has_cookie',
                  'token.cookie',
                  'token.has_private',
