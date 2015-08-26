@@ -1890,7 +1890,7 @@ var CliqzAttrack = {
     sendTokens: function() {
         var payl;
         if (CliqzAttrack.tokens) {
-            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000)};
+            payl = {'data': CliqzAttrack.tokens, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.tokenWhitelistVersion};
 
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tokens', 'payload': payl});
 
@@ -1901,7 +1901,7 @@ var CliqzAttrack = {
 
         // send also safe keys
         if (CliqzAttrack.safeKey) {
-            payl = {'data': CliqzAttrack.safeKey, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000)};
+            payl = {'data': CliqzAttrack.safeKey, 'ver': CliqzAttrack.VERSION, 'ts': CliqzAttrack.tokensLastSent, 'anti-duplicates': Math.floor(Math.random() * 10000000), 'whitelist': CliqzAttrack.safeKeyExtVersion};
             CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.safekey', 'payload': payl});
         }
     },
