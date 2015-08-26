@@ -264,30 +264,29 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
             case "1045_A":
+                break;
+            case "1045_B":
+                CliqzUtils.setPref("antiTrackTest", true);
+                break;
             case "1046_A":
             case "1047_A":
             case "1048_A":
             case "1049_A":
-                CliqzUtils.setPref("antiTrackTest", true);
-                break;
-            case "1045_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzUtils.setPref("attrackBlockCookieTracking", true);
+            case "1050_A":
                 break;
             case "1046_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
+                CliqzUtils.setPref("attrackBlockCookieTracking", true);
                 break;
             case "1047_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzUtils.setPref("attrackAlterPostdataTracking", true);
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
                 break;
             case "1048_B":
-                CliqzUtils.setPref("antiTrackTest", true);
-                CliqzUtils.setPref("attrackCanvasFingerprintTracking", true);
+                CliqzUtils.setPref("attrackAlterPostdataTracking", true);
                 break;
             case "1049_B":
-                CliqzUtils.setPref("antiTrackTest", true);
+                CliqzUtils.setPref("attrackCanvasFingerprintTracking", true);
+                break;
+            case "1050_B":
                 CliqzUtils.setPref("attrackRefererTracking", true);
                 break;
             default:
@@ -493,30 +492,28 @@ var CliqzABTests = CliqzABTests || {
                 CliqzUtils.cliqzPrefs.clearUserPref("newsAssessment");
                 break;
             case "1045_A":
+            case "1045_B":
+                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                break;
             case "1046_A":
             case "1047_A":
             case "1048_A":
             case "1049_A":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                break;
-            case "1045_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
+            case "1050_A":
                 break;
             case "1046_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackBlockCookieTracking");
                 break;
             case "1047_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzUtils.cliqzPrefs.clearUserPref("attrackAlterPostdataTracking");
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackRemoveQueryStringTracking");
                 break;
             case "1048_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzUtils.cliqzPrefs.clearUserPref("attrackCanvasFingerprintTracking");
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackAlterPostdataTracking");
                 break;
             case "1049_B":
-                CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                CliqzUtils.cliqzPrefs.clearUserPref("attrackCanvasFingerprintTracking");
+                break;
+            case "1050_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("attrackRefererTracking");
                 break;
             default:
