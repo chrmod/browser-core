@@ -67,6 +67,9 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAntiPhishing',
 XPCOMUtils.defineLazyModuleGetter(this, 'CUcrawl',
   'chrome://cliqzmodules/content/CUcrawl.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
+  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzMsgCenter',
   'chrome://cliqzmodules/content/CliqzMsgCenter.jsm');
 
@@ -217,6 +220,10 @@ window.CLIQZ.Core = {
             if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
                 CUcrawl.init(window);
                 window.gBrowser.addProgressListener(CUcrawl.listener);
+            }
+
+            if(CliqzUtils.getPref("antiTrackTest", false)){
+                CliqzAttrack.init(window);
             }
 
             // Update CLIQZ history data
@@ -418,6 +425,11 @@ window.CLIQZ.Core = {
             }
             // antiphishing listener
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
+
+
+            if(CliqzUtils.getPref("antiTrackTest", false) && !CliqzUtils.isPrivate(window)){
+                CliqzAttrack.unload();
+            }
         }
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
@@ -467,6 +479,7 @@ window.CLIQZ.Core = {
             delete window.CliqzTour;
             delete window.CUcrawl;
             delete window.CliqzAntiPhishing;
+            delete window.CliqzAttrack;
         }
     },
     restart: function(soft){

@@ -47,6 +47,7 @@ var Extension = {
         Cu.import('chrome://cliqzmodules/content/CliqzUtils.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.import('chrome://cliqzmodules/content/CUcrawl.jsm');
+        Cu.import('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzClusterHistory.jsm');
         Cu.import('chrome://cliqzmodules/content/CliqzCategories.jsm');
@@ -93,6 +94,9 @@ var Extension = {
            CUcrawl.initAtBrowser();
         }
 
+        if(CliqzUtils.getPref("antiTrackTest", false)){
+           CliqzAttrack.initAtBrowser();
+        }
         // open changelog on update
 
         if(upgrade && newMajorVersion(oldVersion, newVersion)){
@@ -120,6 +124,10 @@ var Extension = {
 
         if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
             CUcrawl.destroyAtBrowser();
+        }
+
+        if(CliqzUtils.getPref("antiTrackTest", false)){
+           CliqzAttrack.unloadAtBrowser();
         }
         // Unload from any existing windows
         var enumerator = Services.wm.getEnumerator('navigator:browser');
@@ -181,6 +189,7 @@ var Extension = {
         Cu.unload('chrome://cliqzmodules/content/CliqzHistoryPattern.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
         Cu.unload('chrome://cliqzmodules/content/CUcrawl.jsm');
+        Cu.unload('chrome://cliqzmodules/content/CliqzAttrack.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzRedirect.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzCategories.jsm');
         Cu.unload('chrome://cliqzmodules/content/CliqzSmartCliqzCache.jsm');
