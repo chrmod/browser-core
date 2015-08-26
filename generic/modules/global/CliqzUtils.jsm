@@ -73,8 +73,6 @@ var CliqzUtils = {
   PREF_BOOL:                      128,
   PREFERRED_LANGUAGE:             null,
   BRANDS_DATABASE_VERSION:        1427124611539,
-  USER_LAT:                       null,
-  USER_LNG:                       null,
   GEOLOC_WATCH_ID:                null, // The ID of the geolocation watcher (function that updates cached geolocation on change)
   TEMPLATES: {'aTob' : 2, 'calculator': 1, 'clustering': 1, 'currency': 1, 'custom': 1, 'emphasis': 1, 'empty': 1,
       'generic': 1, /*'images_beta': 1,*/ 'main': 1, 'results': 1, 'text': 1, 'series': 1,
@@ -478,7 +476,6 @@ var CliqzUtils = {
       return true;
     }
   },
-  _resultsReq: null,
   // establishes the connection
   pingCliqzResults: function(){
     CliqzUtils.httpHandler('HEAD', CliqzUtils.RESULTS_PROVIDER_PING);
@@ -493,45 +490,18 @@ var CliqzUtils = {
     CliqzUtils._queryLastDraw = 0; // reset last Draw - wait for the actual draw
     CliqzUtils._queryLastLength = q.length;
 
-    var cb = function () {
-      CliqzUtils._resultsReq = CliqzUtils.httpGet(url, function (res) {
-        callback && callback(res, q);
-      });
-    };
-
     var url = (CliqzUtils.CUSTOM_RESULTS_PROVIDER || CliqzUtils.RESULTS_PROVIDER) +
               encodeURIComponent(q) +
               CliqzUtils.encodeSessionParams() +
               CliqzLanguage.stateToQueryString() +
               CliqzUtils.encodeResultOrder() +
               CliqzUtils.encodeCountry() +
-              CliqzUtils.encodeFilter();
+              CliqzUtils.encodeFilter() +
+              CliqzUtils.encodeLocation();
 
-    CliqzUtils.getGeo(false, function(loc) {
-      url += CliqzUtils.encodeLocation(false, loc.lat, loc.lng);
-      cb();
-    }, cb);
-
-    // CliqzUtils.encodeLocation(false,false,
-    //   function onSuccess(loc) {
-    //     url += loc;
-    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
-    //       function(res){
-    //         callback && callback(res, q);
-    //       }
-    //     );
-    //   },
-    //   function onFailure(err) {
-    //     CliqzUtils.log(err, "Location not allowed");
-    //     CliqzUtils._resultsReq = CliqzUtils.httpGet(url,
-    //       function(res){
-    //         callback && callback(res, q);
-    //       }
-    //     );
-    //   });
-
-
-
+    CliqzUtils.httpGet(url, function (res) {
+      callback && callback(res, q);
+    });
   },
   // IP driven configuration
   fetchAndStoreConfig: function(callback){
@@ -622,36 +592,17 @@ var CliqzUtils = {
              '&qc=' + CliqzUtils._queryCount
     } else return '';
   },
-  getGeo: function(allowOnce, callback, failCB) {
-    /*
-    @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
-                                This is used when the user clicks on Share Location "Just once".
-    */
-    if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
-      failCB("No permission to get user's location");
-      return;
+   encodeLocation: function(specifySource, lat, lng) {
+    if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG || lat && lng){
+      return [
+        '&loc=',
+        lat || CLIQZEnvironment.USER_LAT,
+        ',',
+        lng || CLIQZEnvironment.USER_LNG,
+        (specifySource ? ',U' : '')
+      ].join('');
     }
-
-    if (CliqzUtils.USER_LAT && CliqzUtils.USER_LNG) {
-      callback({
-        lat: CliqzUtils.USER_LAT,
-        lng: CliqzUtils.USER_LNG
-      });
-    } else {
-      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      geoService.getCurrentPosition(function (p) {
-        callback({ lat: p.coords.latitude, lng: p.coords.longitude});
-      }, failCB);
-    }
-  },
-  encodeLocation: function(specifySource, lat, lng) {
-   return [
-     '&loc=',
-     lat,
-     ",",
-     lng,
-     (specifySource ? ",U" : "")
-   ].join("");
+    else return ''
   },
   encodeSources: function(sources){
     return sources.toLowerCase().split(', ').map(
@@ -942,41 +893,6 @@ var CliqzUtils = {
                   subType: JSON.stringify({empty:true})
               }
           )
-    },
-    removeGeoLocationWatch: function() {
-      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      CliqzUtils.GEOLOC_WATCH_ID && geoService.clearWatch(CliqzUtils.GEOLOC_WATCH_ID);
-    },
-    updateGeoLocation: function() {
-      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
-      CliqzUtils.removeGeoLocationWatch();
-
-      if (CliqzUtils.getPref('share_location') == 'yes') {
-        // Get current position
-        geoService.getCurrentPosition(function(p) {
-          CliqzUtils.USER_LAT = JSON.stringify(p.coords.latitude);
-          CliqzUtils.USER_LNG =  JSON.stringify(p.coords.longitude);
-        }, function(e) { CliqzUtils.log(e, "Error updating geolocation"); });
-
-        //Upate position if it changes
-        CliqzUtils.GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
-          // Make another check, to make sure that the user hasn't changed permissions meanwhile
-          if (CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.getPref('share_location') == 'yes') {
-            CliqzUtils.USER_LAT = p.coords.latitude;
-            CliqzUtils.USER_LNG =  p.coords.longitude;
-          }
-        }, function(e) { CliqzUtils && CliqzUtils.GEOLOC_WATCH_ID && CliqzUtils.log(e, "Error updating geolocation"); });
-      } else {
-        CliqzUtils.USER_LAT = null;
-        CliqzUtils.USER_LNG = null;
-      }
-    },
-    setLocationPermission: function(newPerm) {
-      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
-        CliqzUtils.setPref('share_location',newPerm);
-        CLIQZ.Core.setTimeout(CliqzUtils.refreshButtons, 0);
-        CliqzUtils.updateGeoLocation();
-      }
     }
 };
 

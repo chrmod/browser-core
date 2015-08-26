@@ -1566,15 +1566,18 @@ function resultClick(ev){
         } else if (el.id == 'cqz_location_yes' || el.id == 'cqz_location_once') {
           ev.preventDefault();
           if (el.id == 'cqz_location_yes')
-            CliqzUtils.setLocationPermission('yes');
+            CLIQZEnvironment.setLocationPermission(window, 'yes');
 
-          CliqzUtils.getGeo(true, function(loc) {
+          CLIQZEnvironment.getGeo(true, function(loc) {
             CliqzUtils.httpGet(CliqzUtils.RICH_HEADER +
                 "&q=" + CLIQZ.Core.urlbar.value +
                 CliqzUtils.encodeLocation(true, loc.lat, loc.lng) +
                 "&bmresult=" + el.getAttribute('bm_url'),
                 handleNewLocalResults(el));
-          }, function() { CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo") } );
+          }, function() {
+            //TODO: provide user feedback
+            CliqzUtils.log ("Unable to get user's location", "CliqzUtils.getGeo")
+          });
           break;
         } else if (el.id == 'cqz_location_no') {
           var container = $(".local-sc-data-container",gCliqzBox);
@@ -1589,7 +1592,7 @@ function resultClick(ev){
 
         } else if (el.id == 'cqz_location_never' || el.id == 'cqz_location_not_now') {
           if (el.id == 'cqz_location_never')
-            CliqzUtils.setLocationPermission("no");
+            CLIQZEnvironment.setLocationPermission(window, "no");
 
           /* Hide the prompt that asks for permision to get user's location */
           var container = $(".local-sc-data-container",gCliqzBox);
@@ -1818,7 +1821,6 @@ function resultMove(ev){
 }
 
 function onEnter(ev, item){
-  var urlbar = urlbar;
   var input = urlbar.mInputField.value;
   var cleanInput = input;
   var lastAuto = CliqzAutocomplete.lastAutocomplete ? CliqzAutocomplete.lastAutocomplete : "";

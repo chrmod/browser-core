@@ -20,6 +20,8 @@ XPCOMUtils.defineLazyModuleGetter(this, 'Result',
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAutocomplete',
   'chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 
+var GEOLOC_WATCH_ID;
+
 var _log = Cc['@mozilla.org/consoleservice;1'].getService(Ci.nsIConsoleService),
     PREF_STRING = 32,
     PREF_INT    = 64,
@@ -63,6 +65,8 @@ var CLIQZEnvironment = {
     unload: function() {
         CLIQZEnvironment.unloadSearch();
         _timers.forEach(_removeTimerRef);
+
+        CLIQZEnvironment.removeGeoLocationWatch();
     },
     log: function(msg, key){
         _log.logStringMessage(
@@ -308,6 +312,63 @@ var CLIQZEnvironment = {
               }
             }).apply(popup, arguments)
         };
+    },
+    getGeo: function(allowOnce, callback, failCB) {
+        /*
+        @param allowOnce:           If true, the location will be returned this one time without checking if share_location == "yes"
+                                    This is used when the user clicks on Share Location "Just once".
+        */
+        if (!(allowOnce || CliqzUtils.getPref("share_location") == "yes")) {
+          failCB("No permission to get user's location");
+          return;
+        }
+
+        if (CLIQZEnvironment.USER_LAT && CLIQZEnvironment.USER_LNG) {
+          callback({
+            lat: CLIQZEnvironment.USER_LAT,
+            lng: CLIQZEnvironment.USER_LNG
+          });
+        } else {
+          var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+          geoService.getCurrentPosition(function (p) {
+            callback({ lat: p.coords.latitude, lng: p.coords.longitude});
+          }, failCB);
+        }
+    },
+    removeGeoLocationWatch: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      GEOLOC_WATCH_ID && geoService.clearWatch(GEOLOC_WATCH_ID);
+    },
+    updateGeoLocation: function() {
+      var geoService = Components.classes["@mozilla.org/geolocation;1"].getService(Components.interfaces.nsISupports);
+      CLIQZEnvironment.removeGeoLocationWatch();
+
+      if (CLIQZEnvironment.getPref('share_location') == 'yes') {
+        // Get current position
+        geoService.getCurrentPosition(function(p) {
+          CLIQZEnvironment.USER_LAT = JSON.stringify(p.coords.latitude);
+          CLIQZEnvironment.USER_LNG =  JSON.stringify(p.coords.longitude);
+        }, function(e) { CLIQZEnvironment.log(e, "Error updating geolocation"); });
+
+        //Upate position if it changes
+        GEOLOC_WATCH_ID = geoService.watchPosition(function(p) {
+          // Make another check, to make sure that the user hasn't changed permissions meanwhile
+          if (CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.getPref('share_location') == 'yes') {
+            CLIQZEnvironment.USER_LAT = p.coords.latitude;
+            CLIQZEnvironment.USER_LNG =  p.coords.longitude;
+          }
+        }, function(e) { CLIQZEnvironment && GEOLOC_WATCH_ID && CLIQZEnvironment.log(e, "Error updating geolocation"); });
+      } else {
+        CLIQZEnvironment.USER_LAT = null;
+        CLIQZEnvironment.USER_LNG = null;
+      }
+    },
+    setLocationPermission: function(window, newPerm) {
+      if (newPerm == "yes" || newPerm == "no" || newPerm == "ask") {
+        CLIQZEnvironment.setPref('share_location',newPerm);
+        CLIQZEnvironment.setTimeout(window.CLIQZ.Core.refreshButtons, 0);
+        CLIQZEnvironment.updateGeoLocation();
+      }
     },
     // lazy init
     // callback called multiple times
