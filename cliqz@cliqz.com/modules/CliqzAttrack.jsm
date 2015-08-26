@@ -1466,7 +1466,7 @@ var CliqzAttrack = {
 
                     var ob = {"src": aURI.spec, "dst" : err.stack.trim().split("\n"), "obj": this, "method":"toDataURL"};
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
-                    if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
+                    if((pageHostname != externalCallHost) || (blockExternalCallee > -1) && CliqzUtils.isFingerprintingEnabled()){
                         ob['status'] = "blocked";
                         ob['ver'] = CliqzAttrack.VERSION;
                         CliqzAttrack.canvasTraffic['observed'].push(ob);
@@ -1501,7 +1501,7 @@ var CliqzAttrack = {
 
 
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
-                    if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
+                    if((pageHostname != externalCallHost) || (blockExternalCallee > -1) && CliqzUtils.isFingerprintingEnabled()){
                         ob['status'] = "blocked";
                         ob['ver'] = CliqzAttrack.VERSION;
                         CliqzAttrack.canvasTraffic['observed'].push(ob);
@@ -1606,6 +1606,9 @@ var CliqzAttrack = {
     },
     isPostEnabled: function() {
         return CliqzUtils.getPref('attrackAlterPostdataTracking', false);
+    },
+    isFingerprintingEnabled: function() {
+        return CliqzUtils.getPref('attrackCanvasFingerprintTracking', false);
     },
     pacemaker: function() {
         // every CliqzAttrack.tpace (10 sec now)
