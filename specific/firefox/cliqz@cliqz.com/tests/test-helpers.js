@@ -50,6 +50,18 @@ function injectTestHelpers(CliqzUtils) {
     el.dispatchEvent(ev)
   };
 
+  /*
+  window.enter = function enter(el) {
+    if(el) el.focus();
+    //https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/initKeyEvent
+    var ev = document.createEvent('KeyboardEvent');
+    // Send key '13' (= enter)
+    ev.initKeyEvent(
+        'keydown', true, true, window, true , false, false, true , 13, 0);
+    el.dispatchEvent(ev);
+  };
+  */
+
   window.respondWith = function respondWith(res) {
     CliqzUtils.getCliqzResults = function (q, callback) {
       callback({
