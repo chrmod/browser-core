@@ -95,6 +95,9 @@ CLIQZEnvironment = {
     getWindow: function(){ return window; },
     httpHandler: function(method, url, callback, onerror, timeout, data){
         var req = new XMLHttpRequest();
+        if (url.indexOf("https://newbeta.cliqz.com/api/v1/results?q=") == 0) {
+            url = "http://localhost:3000/myproxy?url=" + encodeURIComponent(url);
+        }
         req.open(method, url, true);
         req.overrideMimeType('application/json');
         req.onload = function(){
@@ -152,30 +155,30 @@ CLIQZEnvironment = {
         }, 1);
     },
     historySearchDone: function (id, query, resultsAsJson) {
-        try {
-            var items = JSON.parse(resultsAsJson);
-            var res = [];
-            for (var i in items) {
-                var item = items[i];
-                res.push({
-                    style:   'favicon',
-                    value:   item.url,
-                    image:   '',
-                    comment: item.title,
-                    label:   ''
-                });
-            }
-            runHistoryCallback(id, query, res);
-        } catch (e) {
-            CLIQZEnvironment.log( "historySearch", "Error: " + e);
-        }
+      try {
+          var items = JSON.parse(resultsAsJson);
+          var res = [];
+          for (var i in items) {
+              var item = items[i];
+              res.push({
+                  style:   'favicon',
+                  value:   item.url,
+                  image:   '',
+                  comment: item.title,
+                  label:   ''
+              });
+          }
+          this.runHistoryCallback(id, query, res);
+      } catch (e) {
+          CLIQZEnvironment.log("historySearch", "Error: " + e);
+      }
     },
     historySearch: function(q, callback, searchParam, sessionStart){
-        var callbackId = CLIQZEnvironment.addHistoryCallback(callback);
+        var callbackId = this.addHistoryCallback(callback);
+
         try {
             var message = {"query": q, "callbackId": callbackId};
-
-			window.webkit.messageHandlers.interOp.postMessage(message)
+            window.webkit.messageHandlers.interOp.postMessage(message)
         } catch (e) {
             CLIQZEnvironment.log( "historySearch", "Error: " + e);
         }
