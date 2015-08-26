@@ -263,6 +263,18 @@ var CliqzABTests = CliqzABTests || {
             case "1044_B":
                 CliqzUtils.setPref("newsAssessment", 1);
                 break;
+            case "1045_A":
+                CliqzUtils.setPref("attrackBlockCookieTracking", true);
+                break;
+            case "1045_B":
+                CliqzUtils.setPref("attrackRemoveQueryStringTracking", true);
+                break;
+            case "1045_C":
+                CliqzUtils.setPref("attrackAlterPostdataTracking", true);
+                break;
+            case "1045_D":
+                CliqzUtils.setPref("attrackCanvasFingerprintTracking", true);
+                break;
             default:
                 rule_executed = false;
         }
