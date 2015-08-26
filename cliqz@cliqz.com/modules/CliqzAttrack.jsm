@@ -10,6 +10,7 @@ var EXPORTED_SYMBOLS = ['CliqzAttrack'];
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import("resource://gre/modules/AddonManager.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -18,7 +19,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
 
-var nsIAO = Ci.nsIHttpActivityObserver;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch);
@@ -316,6 +316,11 @@ var CliqzAttrack = {
     QSTraffic: {'blocked': [], 'cblocked': 0, 'aborted': []},
     canvasTraffic : {'observed' : []},
     whitelist: null,
+    similarAddon: false,
+    similarAddonNames: {
+        "Adblock Plus": true,
+        "Ghostery": true
+    },
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
     observerService: Components.classes["@mozilla.org/observer-service;1"]
@@ -1724,15 +1729,13 @@ var CliqzAttrack = {
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
         if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
 
-        // if (CliqzAttrack.cacheHistStats==null) CliqzAttrack.loadHistStats();
-        // if (CliqzAttrack.histLastSent==null) CliqzAttrack.loadHistLastSent();
-
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
         CliqzAttrack.getPrivateValues();
+        CliqzAttrack.checkInstalledAddons();
 
         var win_id = CliqzUtils.getWindowID();
         CliqzUtils.getWindow().gBrowser.addProgressListener(CliqzAttrack.tab_listener);
@@ -1859,6 +1862,19 @@ var CliqzAttrack = {
             }
         }
 
+    },
+    checkInstalledAddons: function() {
+        if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
+            CliqzAttrack.similarAddon = true;
+            return;
+        }
+        AddonManager.getAllAddons(function(aAddons) {
+            aAddons.forEach(function(a) {
+                if (a.name in CliqzAttrack.similarAddonNames){
+                    CliqzAttrack.similarAddon = true;
+                }
+            });
+        });
     },
     sendState: function() {
 
