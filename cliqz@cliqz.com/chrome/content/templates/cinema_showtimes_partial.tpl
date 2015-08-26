@@ -13,10 +13,10 @@
             </td>
             {{#each showtimes}}
                 <td class="cinema-showtime-td">
-                    {{#if booking_link }}
+                    {{#if (logic bookable '!=' 'no') }}
                         <span class="cinema-showtime" show-status='true' url="{{booking_link}}">
-              <a class="cqz-url" href="{{booking_link}}" show-status='true'>{{time}}</a>
-            </span>
+                          <a class="cqz-url" href="{{booking_link}}" show-status='true'>{{time}}</a>
+                        </span>
                     {{else}}
                         <span class="cinema-showtime">{{time}}</span>
                     {{/if}}
