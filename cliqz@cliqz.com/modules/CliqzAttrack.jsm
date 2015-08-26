@@ -315,6 +315,7 @@ var CliqzAttrack = {
     cookieTraffic: {'sent': [], 'blocked': [], 'csent': 0, 'cblocked': 0},
     QSTraffic: {'blocked': [], 'cblocked': 0, 'aborted': []},
     canvasTraffic : {'observed' : []},
+    canvasURL : {},
     whitelist: null,
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -784,6 +785,7 @@ var CliqzAttrack = {
                 // log third party request
                 var req_log = null;
                 if(url_parts.hostname != source_url_parts.hostname) {
+                    CliqzUtils.log("Test CV: " + CliqzAttrack.canvasURL[url],"XOXOX");
                     req_log = CliqzAttrack.tp_events.get(url, url_parts, source_url, source_url_parts, source_tab);
                     if(req_log){
                         req_log.c++;
@@ -1486,7 +1488,7 @@ var CliqzAttrack = {
             );
 
             // Introspect getImageData
-
+            /*
             Components.utils.exportFunction(
                 function (sx, sy, sw, sh){
                     var err = new Error();
@@ -1531,6 +1533,7 @@ var CliqzAttrack = {
                 ,aProgress.DOMWindow.CanvasRenderingContext2D.prototype,
                 {defineAs:"getImageData"}
             );
+            */
 
 
             // Components.utils.exportFunction(function (){CliqzUtils.log("This website attemps Canvas fingerprinting: " + aURI.spec, "XOXOXOXOX getImageData") ;return "Dddddd"},CliqzUtils.getWindow().gBrowser.selectedBrowser.contentWindow.CanvasRenderingContext2D.prototype,{defineAs:"getImageData"});
@@ -3347,7 +3350,9 @@ var CliqzAttrack = {
                  'token.has_safekey',
                  'token.safekey',
                  'token.has_whitelisted',
-                 'token.whitelisted'
+                 'token.whitelisted',
+                 'cv_to_dataURL_allowed',
+                 'cv_to_dataURL_blocked'
                 ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
@@ -3442,7 +3447,7 @@ var CliqzAttrack = {
                 if(payload_data.length > 0) {
                     CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION};
-                    CliqzAttrack.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
                 }
                 this._staged = [];
                 this._old_tab_idx = {};
