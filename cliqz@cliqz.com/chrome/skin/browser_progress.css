@@ -662,13 +662,13 @@
 #cliqz-results .movie_container {
     width: calc(100% - 35px);
     max-width: 700px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 #cliqz-results .movie_poster,
 #cliqz-results .movie_poster_img {
   max-width: 80px;
-  border-radius: 6px;
+  border-radius: 3px;
 }
 
 #cliqz-results .movie_poster {
@@ -695,56 +695,60 @@
 }
 
 #cliqz-results .cqz-rating-star-on {
-  color:#FDDD32;
+  color: #FDDD32;
 }
 
 #cliqz-results .cqz-rating-star-off {
-  color:#CDCDCD;
+  color: #CDCDCD;
 }
 
 #cliqz-results .movie_desc {
-  max-height:150px;
-  padding-left:10px;
-  overflow:ellipsis;
-  white-space: normal;
-}
-
-#cliqz-results .cinema-showtimes-table {
-  width:100%;
-  max-width:650px;
-  border-spacing: 0;
-  border-collapse: collapse;
-  margin-top: 10px;
+  max-height: 150px;
+  padding-left: 10px;
+  overflow: ellipsis;
+  white-space:  normal;
 }
 
 #cliqz-results .local-sc-data-container {
-  width:80%;
-  max-width:650px;
+  width: 80%;
+  max-width: 650px;
+}
+#cliqz-results .cinema-showtimes-container { height: 139px; }
+
+#cliqz-results .cinema-showtimes-table {
+    table-layout: fixed;
+    max-width: 650px;
+    border-spacing: 0;
+    border-collapse: collapse;
 }
 
-#cliqz-results .cinema-name-td, #cliqz-results .cinema-showtime-td  {
+#cliqz-results .cinema-showtimes-table td  {
   max-width: 100px;
-  padding: 7px 0 9px;
+  padding: 8px 10px;
   font-size: 16px;
   border-top: 1px solid #eaeaea;
 }
-#cliqz-results .cinema-name {
-  font-size: 16px;
-}
 
-#cliqz-results .cinema-row {
-  height:15px;
+#cliqz-results  .cinema-showtimes-table .cinema-row {
+  height: 15px;
 }
-#cliqz-results .cinema-showtime-td  {
+#cliqz-results  .cinema-showtimes-table .cinema-showtime-td  {
   text-align:center;
-  /* color:#CECECE; */
+}
+#cliqz-results  .cinema-showtimes-table .cinema-name-td {
+    max-width: 200px;
+    padding-right: 35px;
 }
 
-#cliqz-results .showtimes-date {
-  float: right;
-  margin-bottom: 10px;
-  margin-top: 0;
-  color: #CECECE;
+#cliqz-results  .cinema-showtimes-table .showtimes-date {
+    padding-bottom: 10px;
+    text-align: right;
+    color: #CECECE;
+    font-weight: normal;
+}
+
+#cliqz-results .cinema-name {
+    font-size: 16px;
 }
 
 #cliqz-results .movie-trailer-btn {
@@ -753,30 +757,28 @@
 }
 
 #cliqz-results .location_permission_prompt {
-  height: 85px;
-  background-color: rgb(255, 83, 73);
   color: #FFF;
-  margin-top: 10px;
-  padding: 10px;
+  padding: 16px 20px 10px;
+  background-color: rgb(255, 83, 73);
 }
 
 #cliqz-results .loc_permission_prompt_message {
-  height: 70%;
-  font-size:16px;
-  white-space: normal;
+    height: 70%;
+    font-size: 16px;
+    white-space: normal;
+    margin-bottom: 15px;
 }
 
 #cliz-results .cqz_location_once {
   color:white;
-
 }
 
 #cliqz-results .cqz_location_never {
   color:white;
 }
 
-#cliqz-results .loc_permission_prompt_buttons>span {
-  border-radius: 6px;
+#cliqz-results .loc_permission_prompt_buttons > span {
+  border-radius: 3px;
   display: inline-block;
   margin-bottom: 10px;
   position: relative;
@@ -787,12 +789,13 @@
   background: transparent none repeat scroll 0% 0%;
 }
 
-#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes, #cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
+#cliqz-results .loc_permission_prompt_buttons>span#cqz_location_yes,
+#cliqz-results .loc_permission_prompt_buttons>span.cqz_location_once {
   border: none;
   height: 18px;
-  background-color: rgb(47, 196, 252);
   width: auto;
   text-align: center;
+  background-color: #5498f8;
 }
 
 /*** END LOCAL MOVIE EZ ****/
