@@ -24,3 +24,28 @@ urlbar.addEventListener('keydown', function(e){
 		});
 	}, 0);
 });
+
+
+//localization
+
+//set default office location
+CLIQZEnvironment.USER_LAT = 48.1517322;
+CLIQZEnvironment.USER_LNG = 11.62013;
+
+var loc = document.getElementById("location");
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        loc.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+function showPosition(position) {
+	CLIQZEnvironment.USER_LAT = position.coords.latitude;
+    CLIQZEnvironment.USER_LNG = position.coords.longitude;
+
+    loc.innerHTML = "Latitude: " + position.coords.latitude +
+    "<br>Longitude: " + position.coords.longitude;
+}
