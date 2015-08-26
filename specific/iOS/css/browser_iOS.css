@@ -4,7 +4,7 @@
     overflow: hidden;
 }
 
-@font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }
+/*@font-face { font-family: "Lato"; src: url("fonts/Lato-Regular.ttf"); }*/
 
 #urlbar[focused="true"] { box-shadow: 0 0 1px #3B99FC inset!important; }
 
