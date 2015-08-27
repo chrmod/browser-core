@@ -1771,8 +1771,11 @@ var CliqzAttrack = {
             // Unload from any existing windows
             var enumerator = Services.wm.getEnumerator('navigator:browser');
             while (enumerator.hasMoreElements()) {
-                var win = enumerator.getNext();
-                CliqzAttrack.unload(win);
+                try{
+                    var win = enumerator.getNext();
+                    CliqzAttrack.unload(win);
+                }
+                catch(e){}
             }
             CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpmodObserver, 'http-on-modify-request');
             CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpopenObserver, 'http-on-opening-request');
