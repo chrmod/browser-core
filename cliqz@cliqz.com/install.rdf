@@ -10,10 +10,7 @@
 		<em:creator>feedback@cliqz.com</em:creator>
 		<em:bootstrap>true</em:bootstrap>
 
-		
-		
 		<em:updateURL>https://s3.amazonaws.com/cdncliqz/update/browser/latest.rdf</em:updateURL>
-		
 
 		<em:description>
 		</em:description>

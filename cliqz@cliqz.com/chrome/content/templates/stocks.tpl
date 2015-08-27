@@ -1,6 +1,6 @@
 <div class="cqz-result-h2">
     <div class="cqz-ez-title cqz-ez-stock-title cqz-ez-black-title">
-        <a href="{{url}}">{{data.message.Name}}</a>
+        <span href="{{url}}">{{data.message.Name}}</span>
     </div>
 
     <div class="cqz-ez-stock-exchange">
