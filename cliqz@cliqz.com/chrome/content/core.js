@@ -145,7 +145,11 @@ window.CLIQZ.Core = {
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/browser_progress.css');
         CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/brands.css');
-        CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme.css');
+        if(CliqzUtils.isWindows()) {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-win.css');
+        } else {
+            CLIQZ.Core.addCSS(document,'chrome://cliqzres/content/skin/theme-mac.css');
+        }
 
 
         //create a new panel for cliqz to avoid inconsistencies at FF startup
