@@ -925,7 +925,7 @@ var CliqzAttrack = {
                         };
                         CliqzAttrack.QSTraffic['blocked'].unshift(blockedItem);
                         aChannel.redirectTo(Services.io.newURI(tmp_url, null, null));
-                        req_log.req_aborted++;
+                        if (req_log) req_log.req_aborted++;
                     }
                 }
                 else{
