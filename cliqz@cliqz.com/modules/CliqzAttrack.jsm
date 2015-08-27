@@ -341,7 +341,11 @@ var CliqzAttrack = {
     similarAddon: false,
     similarAddonNames: {
         "Adblock Plus": true,
-        "Ghostery": true
+        "Ghostery": true,
+        "Lightbeam": true,
+        "Disconnect": true,
+        "BetterPrivacy": true,
+        "NoScript": true
     },
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
@@ -822,6 +826,7 @@ var CliqzAttrack = {
 
                 if(url_parts.path.indexOf('/favicon.') == 0 || url.split('#')[0] in CliqzAttrack.favicons) return;
 
+                if (url in reflinks) return;
                 // get cookie data
                 var cookievalue = {},
                     docCookie = '';
@@ -863,8 +868,11 @@ var CliqzAttrack = {
                         req_log.bad_tokens += badTokens.length;
                     }
                 }
+                
+                if (badTokens.length == 0) return;
+
                 // altering request
-                if (!(url in reflinks) && CliqzAttrack.isQSEnabled() && badTokens.length > 0) {
+                if (CliqzAttrack.isQSEnabled()) {
                     CliqzUtils.log("altering request " + url + " " + refstr, 'tokk');
                     CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
 
@@ -3517,7 +3525,7 @@ var CliqzAttrack = {
                     CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()}
                     var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled};
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl, 'addons': CliqzAttrack.similarAddon});
                 }
                 this._staged = [];
                 this._old_tab_idx = {};
