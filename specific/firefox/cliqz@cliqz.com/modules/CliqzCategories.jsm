@@ -36,7 +36,6 @@ var CliqzCategories = {
 		CliqzUtils.clearTimeout(t0);
 		CliqzUtils.clearTimeout(tH);
 		CliqzUtils.clearTimeout(tD);
-		CliqzUtils.clearTimeout(tHist);
 
 		log('unloaded');
 	}
