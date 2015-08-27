@@ -178,6 +178,9 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
+.tab-label:not([visuallyselected="true"]) {
+    opacity: 1 !important;
+}
 
 .tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
 .tabs-newtab-button:hover {
