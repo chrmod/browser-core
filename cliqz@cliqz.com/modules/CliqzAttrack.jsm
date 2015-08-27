@@ -1764,9 +1764,7 @@ var CliqzAttrack = {
         CliqzAttrack.saveRequestKeyValue();
         CliqzAttrack.saveQSStats();
         window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
-        if(CliqzUtils.getPref("antiTrackTest", false) && !CliqzUtils.isPrivate(window)){
-            window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-        }
+        window.gBrowser.removeProgressListener(CliqzAttrack.listener);
     },
     unloadAtBrowser: function(){
         try {
@@ -1792,16 +1790,20 @@ var CliqzAttrack = {
     alertAlreadyShown: {},
     // load from the about:config settings
     init: function(window) {
+        // Load listerners:
+        if(CliqzUtils.getPref("antiTrackTest", false)){
+            window.gBrowser.addProgressListener(CliqzAttrack.listener);
+        }
+        else{
+            return
+        }
 
         // Replace getWindow functions with window object used in init.
 
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
         CliqzAttrack.initDB();
 
-        // Load listerners:
-        if(CliqzUtils.getPref("antiTrackTest", false)){
-            window.gBrowser.addProgressListener(CliqzAttrack.listener);
-        }
+
 
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();

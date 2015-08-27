@@ -270,6 +270,7 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1045_B":
                 CliqzUtils.setPref("antiTrackTest", true);
+                CliqzAttrack.initAtBrowser();
                 break;
             case "1046_A":
             case "1047_A":
