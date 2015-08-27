@@ -734,8 +734,6 @@ function sessionEnd(){
 
 var allowDDtoClose = false;
 function closeResults(event) {
-    var urlbar = urlbar;
-
     if($("[dont-close=true]", gCliqzBox) == null) return;
 
     if (allowDDtoClose) {
