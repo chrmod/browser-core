@@ -12,6 +12,8 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
+CU.importGlobalProperties(["atob"]);
+
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
@@ -3000,7 +3002,7 @@ var CliqzAttrack = {
 
             var b64 = null;
             try {
-                b64 = CliqzUtils.getWindow().atob(tok);
+                b64 = atob(tok);
             } catch(e) {
             }
 
