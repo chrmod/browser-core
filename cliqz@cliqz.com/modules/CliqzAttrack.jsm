@@ -792,6 +792,7 @@ var CliqzAttrack = {
 
 
                 // same general domain && ref is clearly in the tab
+                var valid_ref = CliqzAttrack.isTabURL(source_url);
                 same_gd = CliqzAttrack.sameGeneralDomain(url_parts.hostname, source_url_parts.hostname) || false;
                 if (same_gd && valid_ref) return;
 
@@ -810,7 +811,6 @@ var CliqzAttrack = {
                 if (url in reflinks) {
                     CliqzUtils.log('known url from reflinks: ' + url, 'tokk-kown-url');
                 }
-                var valid_ref = CliqzAttrack.isTabURL(source_url);
 
                 // log third party request
                 var req_log = null;
@@ -873,7 +873,7 @@ var CliqzAttrack = {
 
                 // altering request
                 if (CliqzAttrack.isQSEnabled()) {
-                    CliqzUtils.log("altering request " + url + " " + refstr, 'tokk');
+                    CliqzUtils.log("altering request " + url + " " + source_url + ' ' + same_gd, 'tokk');
                     CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
 
                     // stats
@@ -900,7 +900,7 @@ var CliqzAttrack = {
                         }
                     }
 
-                    CliqzUtils.log("new url " + tmp_url + " " + refstr, 'tokk');
+                    CliqzUtils.log("new url " + tmp_url + " " + source_url, 'tokk');
 
                     try {
                         aChannel.URI.spec = tmp_url;
