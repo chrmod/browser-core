@@ -896,4 +896,4 @@ var CliqzUtils = {
     }
 };
 
-CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');
+CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);
