@@ -311,12 +311,12 @@ var faviconService = Components.classes["@mozilla.org/browser/favicon-service;1"
         .getService(Components.interfaces.mozIAsyncFavicons);
 
 var CliqzAttrack = {
-    VERSION: '0.88',
+    VERSION: '0.89',
     LOG_KEY: 'attrack',
     URL_TOKEN_WHITELIST: 'http://anti-tracking-whitelist.fbt.co/domain_whitelist_tokens_md5.json',
     URL_ALERT_RULES: 'chrome://cliqz/content/anti-tracking-rules.json',
-    URL_ALERT_TEMPLATE: 'chrome://cliqz/content/anti-tracking-index.html',
-    URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
+    // URL_ALERT_TEMPLATE: 'chrome://cliqz/content/anti-tracking-index.html',
+    // URL_ALERT_TEMPLATE_2: 'chrome://cliqz/content/anti-tracking-index-2.html',
     URL_SAFE_KEY: 'http://anti-tracking-whitelist.fbt.co/domain_safe_key.json',
     URL_SAFE_KEY_VERSIONCHECK: 'http://anti-tracking-whitelist.fbt.co/versioncheck.json',
     debug: false,
@@ -1525,7 +1525,7 @@ var CliqzAttrack = {
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
                     if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
                         if(req_log != null) req_log.cv_to_dataURL_blocked++;
-                        if(CliqzUtils.isFingerprintingEnabled()) {
+                        if(CliqzAttrack.isFingerprintingEnabled()) {
                             return "blocked";
                         }
                     }
@@ -1633,10 +1633,12 @@ var CliqzAttrack = {
                     }
                     CliqzAttrack.visitCache[host] = curr_time;
 
+                    /*
                     if (url_parts.hostname!='') {
                         if (CliqzAttrack.debug) CliqzUtils.log(">>> doc: " + aProgress.document, CliqzAttrack.LOG_KEY);
                         CliqzAttrack.assessAlertRules(aURI.spec, aProgress.document);
                     }
+                    */
                 }
             }
 
@@ -1741,7 +1743,7 @@ var CliqzAttrack = {
 
     },
     counter: 0,
-    unload: function() {
+    unload: function(window) {
         //Check is active usage, was sent
 
         // force send tab telemetry data
@@ -1761,14 +1763,24 @@ var CliqzAttrack = {
         CliqzAttrack.saveSafeKey();
         CliqzAttrack.saveRequestKeyValue();
         CliqzAttrack.saveQSStats();
+        window.gBrowser.removeProgressListener(CliqzAttrack.tab_listener);
+        window.gBrowser.removeProgressListener(CliqzAttrack.listener);
     },
     unloadAtBrowser: function(){
         try {
+            // Unload from any existing windows
+            var enumerator = Services.wm.getEnumerator('navigator:browser');
+            while (enumerator.hasMoreElements()) {
+                try{
+                    var win = enumerator.getNext();
+                    CliqzAttrack.unload(win);
+                }
+                catch(e){}
+            }
             CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpmodObserver, 'http-on-modify-request');
             CliqzAttrack.observerService.removeObserver(CliqzAttrack.httpopenObserver, 'http-on-opening-request');
-            CliqzUtils.log('Observer removed', 'attrack');
         } catch(e){
-            CliqzUtils.log('Failed to remove observer ' + e, 'attrack');
+
         }
     },
     pacemakerId: null,
@@ -1781,9 +1793,21 @@ var CliqzAttrack = {
     alertAlreadyShown: {},
     // load from the about:config settings
     init: function(window) {
+        // Load listerners:
+        if(CliqzUtils.getPref("antiTrackTest", false)){
+            window.gBrowser.addProgressListener(CliqzAttrack.listener);
+        }
+        else{
+            return
+        }
+
+        // Replace getWindow functions with window object used in init.
 
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
         CliqzAttrack.initDB();
+
+
+
 
         // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
         if (CliqzAttrack.tokens==null) CliqzAttrack.loadTokens();
@@ -1799,12 +1823,14 @@ var CliqzAttrack = {
         CliqzAttrack.getPrivateValues();
         CliqzAttrack.checkInstalledAddons();
 
-        var win_id = CliqzUtils.getWindowID();
-        CliqzUtils.getWindow().gBrowser.addProgressListener(CliqzAttrack.tab_listener);
+
+        // var win_id = CliqzUtils.getWindowID();
+        window.gBrowser.addProgressListener(CliqzAttrack.tab_listener);
 
         if (CliqzAttrack.visitCache == null) {
             CliqzAttrack.visitCache = {};
         }
+        /*
         else {
             var util = CliqzUtils.getWindow().QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
             var win_id = util.outerWindowID;
@@ -1814,11 +1840,13 @@ var CliqzAttrack = {
                 CliqzAttrack.windowsRef.push(window);
             }
         }
+        */
 
         if (CliqzAttrack.pacemakerId==null) {
             CliqzAttrack.pacemakerId = CliqzUtils.setInterval(CliqzAttrack.pacemaker, CliqzAttrack.tpace, null);
         }
 
+        /*
         CliqzUtils.httpGet(CliqzAttrack.URL_ALERT_RULES,
             function success(req){
                 CliqzAttrack.alertRules = JSON.parse(req.response);
@@ -1834,6 +1862,7 @@ var CliqzAttrack = {
             function error() {
                 CliqzAttrack.alertTemplate = null;
             });
+        */
 
         // FIXME:
         // CliqzAttrack.URL_TOKEN_WHITELIST might become pretty large, now it's 10MB and it fails like a bitch
@@ -1855,6 +1884,7 @@ var CliqzAttrack = {
         // load history
         //
 
+        /*
         if (CliqzAttrack.cacheHist==null) {
 
             CliqzAttrack.cacheHist = {};
@@ -1923,6 +1953,7 @@ var CliqzAttrack = {
                 st.finalize();
             }
         }
+        */
 
     },
     checkInstalledAddons: function() {
@@ -2428,6 +2459,7 @@ var CliqzAttrack = {
         var res = [];
         stmt.executeAsync({
             handleResult: function(aResultSet) {
+                if(!(CliqzAttrack)) return;
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
                     if (row.getResultByName("id")==id) {
                         res.push(row.getResultByName("data"));
@@ -2440,10 +2472,12 @@ var CliqzAttrack = {
                 }
             },
             handleError: function(aError) {
+                if(!(CliqzAttrack)) return;
                 CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
                 callback(null);
             },
             handleCompletion: function(aReason) {
+                if(!(CliqzAttrack)) return;
                 if (res.length == 1) callback(res[0]);
                 else callback(null);
             }

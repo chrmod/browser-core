@@ -21,5 +21,5 @@
   </div>
   {{>EZ-category}}
   {{>logo}}
-  {{>feedback}}
+
 </div>

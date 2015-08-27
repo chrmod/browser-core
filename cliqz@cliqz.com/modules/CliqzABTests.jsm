@@ -12,6 +12,9 @@ Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
 
+XPCOMUtils.defineLazyModuleGetter(this, 'CliqzAttrack',
+  'chrome://cliqzmodules/content/CliqzAttrack.jsm');
+
 var CliqzABTests = CliqzABTests || {
     PREF: 'ABTests',
     PREF_OVERRIDE: 'ABTestsOverride',
@@ -267,7 +270,6 @@ var CliqzABTests = CliqzABTests || {
                 break;
             case "1045_B":
                 CliqzUtils.setPref("antiTrackTest", true);
-                CliqzAttrack.init();
                 CliqzAttrack.initAtBrowser();
                 break;
             case "1046_A":
@@ -496,7 +498,6 @@ var CliqzABTests = CliqzABTests || {
             case "1045_A":
             case "1045_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
-                CliqzAttrack.unload();
                 CliqzAttrack.unloadAtBrowser();
                 break;
             case "1046_A":

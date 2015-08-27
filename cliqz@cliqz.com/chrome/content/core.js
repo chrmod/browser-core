@@ -222,10 +222,6 @@ window.CLIQZ.Core = {
                 window.gBrowser.addProgressListener(CUcrawl.listener);
             }
 
-            if(CliqzUtils.getPref("antiTrackTest", false)){
-                CliqzAttrack.init(window);
-                window.gBrowser.addProgressListener(CliqzAttrack.listener);
-            }
 
             // Update CLIQZ history data
             CliqzHistory.tabOpen({
@@ -246,6 +242,7 @@ window.CLIQZ.Core = {
 
             window.gBrowser.addProgressListener(CliqzLanguage.listener);
         }
+        CliqzAttrack.init(window);
 
         window.addEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);
         CLIQZ.Core.urlbar.addEventListener("drop", CLIQZ.Core.handleUrlbarTextDrop);
@@ -428,11 +425,10 @@ window.CLIQZ.Core = {
             // gBrowser.removeEventListener("load", CliqzAntiPhishing._loadHandler, true);
 
 
-            if(CliqzUtils.getPref("antiTrackTest", false) && !CliqzUtils.isPrivate(window)){
-                window.gBrowser.removeProgressListener(CliqzAttrack.listener);
-                CliqzAttrack.unload();
-            }
         }
+        // window.gBrowser.removeProgressListener(CliqzAttrack.listener);
+        CliqzAttrack.unload(window);
+
         CLIQZ.Core.reloadComponent(CLIQZ.Core.urlbar);
 
         window.removeEventListener("keydown", CLIQZ.Core.handleKeyboardShortcuts);

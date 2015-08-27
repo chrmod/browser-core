@@ -52,5 +52,5 @@
 
 
   {{>logo}}
-  {{>feedback}}
+
 </div>
