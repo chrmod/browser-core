@@ -2208,10 +2208,11 @@ var CliqzAttrack = {
     },
     newUTCDate: function() {
         var dayHour = CliqzAttrack.getTime();
-        var day =  new Date(Date.UTC(dayHour.substring(0, 4),
-                                     dayHour.substring(4, 6),
-                                     dayHour.substring(6, 8),
-                                     dayHour.substring(8, 10)));
+        return new Date(Date.UTC(dayHour.substring(0, 4),
+                                 dayHour.substring(4, 6),
+                                 dayHour.substring(6, 8),
+                                 dayHour.substring(8, 10)));
+        
     },
     saveSafeKey: function() {
         var day = CliqzAttrack.newUTCDate();
