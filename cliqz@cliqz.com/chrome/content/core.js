@@ -223,8 +223,6 @@ window.CLIQZ.Core = {
             }
 
 
-
-
             // Update CLIQZ history data
             CliqzHistory.tabOpen({
               target: window.gBrowser.selectedTab
