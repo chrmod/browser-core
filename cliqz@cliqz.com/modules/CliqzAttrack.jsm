@@ -1525,7 +1525,7 @@ var CliqzAttrack = {
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
                     if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
                         if(req_log != null) req_log.cv_to_dataURL_blocked++;
-                        if(CliqzUtils.isFingerprintingEnabled()) {
+                        if(CliqzAttrack.isFingerprintingEnabled()) {
                             return "blocked";
                         }
                     }
