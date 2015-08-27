@@ -209,3 +209,10 @@ toolbarbutton.bookmark-item:not(.subviewbutton):not(#bookmarks-menu-button),
 
 
 /*========== END Tabs undeer window buttons*/
+
+
+ @media (-moz-os-version: windows-vista), (-moz-os-version: windows-win7) {
+     .tab-background-middle[visuallyselected=true]:not(:-moz-lwtheme) {
+         background: none !important;
+     }
+ }
