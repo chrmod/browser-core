@@ -429,7 +429,7 @@ window.CLIQZ.Core = {
 
 
             if(CliqzUtils.getPref("antiTrackTest", false) && !CliqzUtils.isPrivate(window)){
-                window.gBrowser.addProgressListener(CliqzAttrack.listener);
+                window.gBrowser.removeProgressListener(CliqzAttrack.listener);
                 CliqzAttrack.unload();
             }
         }

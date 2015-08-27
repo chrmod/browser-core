@@ -91,11 +91,11 @@ var Extension = {
         }
 
         if(CliqzUtils.getPref("safeBrowsingMozTest", false)){
-           CUcrawl.initAtBrowser();
+            CUcrawl.initAtBrowser();
         }
 
         if(CliqzUtils.getPref("antiTrackTest", false)){
-           CliqzAttrack.initAtBrowser();
+            CliqzAttrack.initAtBrowser();
         }
         // open changelog on update
 

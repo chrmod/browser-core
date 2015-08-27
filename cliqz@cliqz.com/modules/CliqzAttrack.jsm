@@ -28,8 +28,8 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
 //CliqzUtils.setPref('showConsoleLogs', true);
 
 
-CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
-CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
+// CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
+// CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
 
 if (CliqzUtils.getPref('attrackRefererTracking', false)) {
@@ -1648,7 +1648,7 @@ var CliqzAttrack = {
         return CliqzUtils.getPref('attrackAlertEnabled', false);
     },
     isEnabled: function() {
-        return CliqzUtils.getPref('attrackRemoveTracking', true);
+        return CliqzUtils.getPref('antiTrackTest', false);
     },
     isCookieEnabled: function() {
         return CliqzUtils.getPref('attrackBlockCookieTracking', false);
@@ -2827,7 +2827,8 @@ var CliqzAttrack = {
                     label: 'Enable Anti-tracking',
                     //popup: 'blockedPopupOptions',
                     callback: function() {
-                        CliqzUtils.setPref('attrackRemoveTracking', true);
+                        // CliqzUtils.setPref('attrackRemoveTracking', true);
+                        CliqzUtils.setPref('attrackBlockCookieTracking', true);
                         continuation = 'Congratulations! You have enabled anti-tracking, you are now protected!';
                     }
                 },
