@@ -3089,7 +3089,7 @@ var CliqzAttrack = {
         for (var k in w) {
             var tok = w[k];
             tok = dURIC(dURIC(tok));
-            if (tok.length >=8) keyTokens[md5(k)] = md5(tok);
+            if (tok.length >=8) keyTokens[k] = tok;
         }
         if (Object.keys(keyTokens).length > 0) {
             s = md5(url_parts.hostname).substr(0, 16);
