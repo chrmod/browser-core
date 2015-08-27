@@ -659,21 +659,31 @@
 
 
 /***** LOCAL MOVIE EZ ******/
-#cliqz-results .movie_container {
+#cliqz-results .cqz-cinema-container {
     width: calc(100% - 35px);
     max-width: 700px;
     margin-bottom: 15px;
 }
 
 #cliqz-results .movie_poster,
-#cliqz-results .movie_poster_img {
-  max-width: 80px;
-  border-radius: 3px;
-}
-
-#cliqz-results .movie_poster {
+#cliqz-results .cqz-cinema-image {
     float:left;
     margin-right: 20px;
+}
+
+#cliqz-results .movie_poster,
+#cliqz-results .movie_poster_img {
+    max-width: 80px;
+    max-height: 120px;
+    height: auto;
+    border-radius: 3px;
+}
+
+#cliqz-results .cqz-cinema-image {
+    max-width: 125px;
+    max-height: 125px;
+    height: auto;
+    border-radius: 3px;
 }
 
 #cliqz-popup #cliqz-results .movie_data {

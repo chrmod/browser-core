@@ -18,7 +18,7 @@ var CliqzHandlebars = this.Handlebars;
 var TEMPLATES_PATH = 'chrome://cliqz/content/templates/',
     TEMPLATES = CliqzUtils.TEMPLATES,
     MESSAGE_TEMPLATES = ['footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
-    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
+    PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'partials/timetable-cinema', 'partials/timetable-movie', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],
         [120          , 'ago1Minute' , 1],
