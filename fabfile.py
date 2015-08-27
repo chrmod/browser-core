@@ -16,7 +16,7 @@ import jsstrip
 NAME = "Cliqz"
 PATH_TO_EXTENSION = "cliqz@cliqz.com"
 PATH_TO_EXTENSION_TEMP = "cliqz@cliqz.com_temp"
-PATH_TO_S3_BUCKET = "s3://cdncliqz/update/"
+PATH_TO_S3_BUCKET = "s3://cdncliqz/update/browser/"
 PATH_TO_S3_BETA_BUCKET = "s3://cdncliqz/update/browser/"
 XML_EM_NAMESPACE = "http://www.mozilla.org/2004/em-rdf#"
 AUTO_INSTALLER_URL = "http://localhost:8888/"
@@ -166,8 +166,8 @@ def publish(beta='True', version=None):
         download_link = "https://s3.amazonaws.com/cdncliqz/update/browser/%s" % output_file_name
         download_link_latest_html = "http://cdn2.cliqz.com/update/browser/%s" % output_file_name
     else:
-        download_link = "https://s3.amazonaws.com/cdncliqz/update/%s" % output_file_name
-        download_link_latest_html = "http://cdn2.cliqz.com/update/%s" % output_file_name
+        download_link = "https://s3.amazonaws.com/cdncliqz/update/browser/%s" % output_file_name
+        download_link_latest_html = "http://cdn2.cliqz.com/update/browser/%s" % output_file_name
     output_from_parsed_template = manifest_template.render(version=version,
                                                            download_link=download_link)
     with open(update_manifest_file_name, "wb") as f:
