@@ -504,19 +504,19 @@
       "message":"My Top Hits"
     },
     "adultInfo": {
-        "message": "Explicit content has been hidden."
-    },
-    "adultAction": {
-        "message": "Show unfiltered results?"
+        "message": "Explicit content has been hidden. Show unfiltered results?"
     },
     "adultConservative": {
-      "message":"block"
+      "message":"Block"
     },
     "adultModerate": {
-      "message":"ask"
+      "message":"Ask"
     },
     "adultLiberal": {
-      "message":"always show"
+      "message":"Always show"
+    },
+    "adult_show_once": {
+      "message":"Show Once"
     },
     "yes": {
         "message": "Yes"
@@ -598,12 +598,6 @@
     },
     "updateDismiss":{
         "message": "Dismiss"
-    },
-    "newsToggleLatest":{
-        "message": "Latest"
-    },
-    "newsToggleTrends":{
-        "message": "Trending"
     },
     "topSitesMessage":{
         "message": "Choose a shortcut to one of your favorite sites, or"

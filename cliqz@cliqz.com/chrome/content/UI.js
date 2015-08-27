@@ -458,6 +458,9 @@ var UI = {
             break;
             case ENTER:
                 UI.lastInput = "";
+                if (CliqzUtils.getPref('topSitesV2', false)) {
+                  CLIQZ.Core._shouldDropdownStayOpen = false;
+                }
                 return onEnter(ev, sel);
             break;
             case RIGHT:
@@ -1001,6 +1004,13 @@ function enhanceResults(res){
           } else if(r.data.actions) {
             r.data.btns = r.data.actions;
             r.data.btnExtra = 'action';
+          } else if (r.data && (r.data.template === 'weatherEZ' || r.data.template === 'weatherAlert') && r.data["forecast_url"]) {
+              r.data.btns = [
+                  {
+                      'title_key': 'extended_forecast',
+                      'url': r.data["forecast_url"]
+                  }
+              ]
           } else if(r.data.static && (!r.data.btns)) {   // new Soccer SmartCliqz can contains both dynamic and static data
               r.data.btns = [].concat(r.data.static.actions || []).concat(r.data.static.links || []);
           }
@@ -1099,12 +1109,31 @@ function enhanceResults(res){
           res.results[0].vertical = 'noResult';
         }
 
-        if(level == 'moderate' && adultMessage == 0){
+        if (level == 'moderate' && adultMessage == 0) {
             updateMessageState("show", {
-                "adult": {
-                  "adultConfig": CliqzUtils.getAdultFilterState()
+                "footer-message": {
+                    type: 'cqz-message-alert',
+                    simple_message: CliqzUtils.getLocalizedString('adultInfo'),
+                    telemetry: 'adultFilter',
+                    options: [
+                        {
+                            text: CliqzUtils.getLocalizedString('adult_show_once'),
+                            action: 'adult-showOnce',
+                            state: 'default'
+                        },
+                        {
+                            text: CliqzUtils.getLocalizedString('adultConservative'),
+                            action: 'adult-conservative',
+                            state: 'default'
+                        },
+                        {
+                            text: CliqzUtils.getLocalizedString('adultLiberal'),
+                            action: 'adult-liberal',
+                            state: 'default'
+                        },
+                    ]
                 }
-             });
+            });
         }
     }
     else if (notSupported()) {
@@ -1166,6 +1195,8 @@ function enhanceResults(res){
               ]
             }
         });
+    } else if (CLIQZ.UI.messageCenterMessage) {
+      updateMessageState("show", CLIQZ.UI.messageCenterMessage);
     }
 
     return res;
@@ -1278,103 +1309,118 @@ function urlIndexInHistory(url, urlList) {
     return index;
 }
 
-function messageClick(ev) {
-  var el = ev.target;
-  // Handle adult results
+    function messageClick(ev) {
+        var el = ev.target;
+        // Handle adult results
 
-  while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container") ) {
-      var action = el.getAttribute('cliqz-action');
-      /*********************************/
-      /* BEGIN "Handle message clicks" */
+        while (el && (ev.button == 0 || ev.button == 1) && !CliqzUtils.hasClass(el, "cliqz-message-container")) {
+            var action = el.getAttribute('cliqz-action');
+            /*********************************/
+            /* BEGIN "Handle message clicks" */
 
-      switch (action) {
-        case 'adult':
-          handleAdultClick(ev);
-          break;
-        case 'footer-message-action':
-          // "Cliqz is not optimized for your country" message */
-          var state = ev.originalTarget.getAttribute('state');
-          switch(state) {
-              //not supported country
-              case 'disable-cliqz':
-                  CliqzUtils.setPref("cliqz_core_disabled", true);
-                  updateMessageState("hide");
-                  var enumerator = Services.wm.getEnumerator('navigator:browser');
+            if (action === 'footer-message-action') {
+                // "Cliqz is not optimized for your country" message */
+                var state = ev.originalTarget.getAttribute('state');
 
-                  //remove cliqz from all windows
-                  while (enumerator.hasMoreElements()) {
-                      var win = enumerator.getNext();
-                      win.CLIQZ.Core.unload(true);
-                  }
-                  CliqzUtils.refreshButtons();
-                  break;
-              case 'keep-cliqz':
-                  updateMessageState("hide");
-                  // Lets us know that the user has ignored the warning
-                  CliqzUtils.setPref('ignored_location_warning', true);
-                  break;
+                switch (state) {
+                    //not supported country
+                    case 'disable-cliqz':
+                        CliqzUtils.setPref("cliqz_core_disabled", true);
+                        updateMessageState("hide");
+                        var enumerator = Services.wm.getEnumerator('navigator:browser');
 
-              case 'spellcorrect-revert':
-                var s = CLIQZ.Core.urlbar.value;
-                for(var c in CliqzAutocomplete.spellCorr.correctBack){
-                    s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                        //remove cliqz from all windows
+                        while (enumerator.hasMoreElements()) {
+                            var win = enumerator.getNext();
+                            win.CLIQZ.Core.unload(true);
+                        }
+                        CliqzUtils.refreshButtons();
+                        break;
+                    case 'keep-cliqz':
+                        updateMessageState("hide");
+                        // Lets us know that the user has ignored the warning
+                        CliqzUtils.setPref('ignored_location_warning', true);
+                        break;
+
+                    case 'spellcorrect-revert':
+                        var s = CLIQZ.Core.urlbar.value;
+                        for (var c in CliqzAutocomplete.spellCorr.correctBack) {
+                            s = s.replace(c, CliqzAutocomplete.spellCorr.correctBack[c]);
+                        }
+                        CLIQZ.Core.urlbar.mInputField.setUserInput(s);
+                        CliqzAutocomplete.spellCorr.override = true;
+                        updateMessageState("hide");
+                        break;
+                    case 'spellcorrect-keep':
+                        var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
+                        for (var i = 0; i < spellCorData.length; i++) {
+                            //delete terms that were found in correctBack dictionary. User accepted our correction:-)
+                            for (var c in CliqzAutocomplete.spellCorr.correctBack) {
+                                if (CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
+                                    delete CliqzAutocomplete.spellCorr.correctBack[c];
+                                }
+                            }
+                        }
+
+                        CliqzAutocomplete.spellCorr['userConfirmed'] = true;
+                        updateMessageState("hide");
+                        break;
+
+                    //changelog
+                    case 'update-show':
+                        CLIQZ.Core.openLink(CliqzUtils.CHANGELOG, true);
+                    case 'update-dismiss':
+                        updateMessageState("hide");
+                        CliqzUtils.setPref('changeLogState', 2);
+                        break;
+                    case 'dismiss':
+                        updateMessageState("hide");
+                        var pref = ev.originalTarget.getAttribute("pref");
+                        if (pref && pref != "null")
+                            CliqzUtils.setPref(pref, false);
+                        break;
+                    case 'set':
+                        updateMessageState("hide");
+                        var pref = ev.originalTarget.getAttribute("pref");
+                        var prefVal = ev.originalTarget.getAttribute("prefVal");
+                        if (pref && prefVal && pref != "null" && prefVal != "null")
+                            CliqzUtils.setPref(pref, prefVal);
+                        break;
+                    case 'adult-conservative':
+                    case 'adult-showOnce':
+                    case 'adult-liberal':
+                        //Adult state can be conservative, moderate, liberal
+                        var state = state.split('-')[1],
+                            ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
+                            user_location = CliqzUtils.getPref("config_location");
+
+                        if (state === 'showOnce') {
+                            // Old Logic telemetry, that is why is hardcoded not to break the results
+                            state = 'yes'
+                            adultMessage = 1;
+                        } else {
+                            CliqzUtils.setPref('adultContentFilter', state);
+                        }
+                        updateMessageState("hide");
+                        UI.handleResults();
+                        if (user_location != "de" && !ignored_location_warning)
+                            updateMessageState("show", {
+                                "footer-message": getNotSupported()
+                            });
+                        break;
+                    default:
+                        break;
                 }
-                CLIQZ.Core.urlbar.mInputField.setUserInput(s);
-                CliqzAutocomplete.spellCorr.override = true;
-                updateMessageState("hide");
-                break;
-              case 'spellcorrect-keep':
-                var spellCorData = CliqzAutocomplete.spellCorr.searchTerms;
-                for(var i = 0; i < spellCorData.length; i++) {
-                  //delete terms that were found in correctBack dictionary. User accepted our correction:-)
-                  for(var c in CliqzAutocomplete.spellCorr.correctBack) {
-                    if(CliqzAutocomplete.spellCorr.correctBack[c] === spellCorData[i].correctBack) {
-                      delete CliqzAutocomplete.spellCorr.correctBack[c];
-                    }
-                  }
-                }
-
-                CliqzAutocomplete.spellCorr['userConfirmed'] = true;
-                updateMessageState("hide");
-                break;
-
-              //changelog
-              case 'update-show':
-                  CLIQZ.Core.openLink(CliqzUtils.CHANGELOG, true);
-              case 'update-dismiss':
-                  updateMessageState("hide");
-                  CliqzUtils.setPref('changeLogState', 2);
-                  break;
-              case 'dismiss':
-                  updateMessageState("hide");
-                  var pref = ev.originalTarget.getAttribute("pref");
-                  if (pref && pref != "null")
-                    CliqzUtils.setPref(pref,false);
-                  break;
-               case 'set':
-                  updateMessageState("hide");
-                  var pref = ev.originalTarget.getAttribute("pref");
-                  var prefVal = ev.originalTarget.getAttribute("prefVal");
-                  if (pref && prefVal && pref != "null" && prefVal != "null")
-                    CliqzUtils.setPref(pref,prefVal);
-                  break;
-              default:
-                  break;
-            break;
-          }
-          CliqzUtils.telemetry({
-            type: 'setting',
-            setting: el.getAttribute('cliqz-telemetry'),
-            value: state
-          });
-          setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
-            break;
-        default:
-            break;
-      }
-      /* Propagate event up the DOM tree */
-      el = el.parentElement;
-    }
+                CliqzUtils.telemetry({
+                    type: 'setting',
+                    setting: el.getAttribute('cliqz-telemetry'),
+                    value: state
+                });
+                setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
+            }
+            /* Propagate event up the DOM tree */
+            el = el.parentElement;
+        }
 
     /*  END "Handle message clicks"  */
     /*********************************/
@@ -1512,27 +1558,6 @@ function resultClick(ev){
                 case 'alternative-search-engine':
                     enginesClick(ev);
                     break;
-                case 'news-toggle':
-                    setTimeout(function(){
-                      var newTrending = !document.getElementById('actual', el.parentElement).checked,
-                          trending = JSON.parse(CliqzUtils.getPref('news-toggle-trending', '{}')),
-                          ezID = JSON.parse(el.getAttribute('data-subType')).ez,
-                          oldTrending = trending[ezID];
-
-                      trending[ezID] = newTrending;
-
-                      CliqzUtils.setPref('news-toggle-trending', JSON.stringify(trending));
-
-                      CliqzUtils.telemetry({
-                        type: 'activity',
-                        action: 'news-toggle',
-                        ezID: ezID,
-                        old_setting: oldTrending ? 'trends': 'latest',
-                        new_setting: newTrending ? 'trends': 'latest'
-                      });
-                    }, 0);
-
-                    return;
                 default:
                     break;
             }
@@ -1610,58 +1635,6 @@ function handleNewLocalResults(el) {
       if (container) container.className = container.className.replace('cqz-result-h2','cqz-result-h3').replace('cqz-result-h1','cqz-result-h2');
     }
   }
-}
-
-
-function handleAdultClick(ev){
-    var state = ev.originalTarget.getAttribute('state'),
-        ignored_location_warning = CliqzUtils.getPref("ignored_location_warning"),
-        user_location = CliqzUtils.getPref("config_location");
-
-    switch(state) {
-        case 'yes': //allow in this session
-            adultMessage = 1;
-            UI.handleResults();
-            updateMessageState("hide");
-            if (user_location != "de" && !ignored_location_warning)
-              updateMessageState("show", {
-                  "footer-message": getNotSupported()
-              });
-            break;
-        case 'no':
-            adultMessage = 2;
-            UI.handleResults();
-            updateMessageState("hide");
-            if (user_location != "de" && !ignored_location_warning)
-              updateMessageState("show", {
-                  "footer-message": getNotSupported()
-               });
-            break;
-        default:
-            var rules = CliqzUtils.getAdultFilterState();
-            if(rules[state]){
-                CliqzUtils.setPref('adultContentFilter', state);
-                updateMessageState("hide");
-                UI.handleResults();
-                if (user_location != "de" && !ignored_location_warning)
-                  updateMessageState("show", {
-                      "footer-message": getNotSupported()
-                   });
-            }
-            else {
-                //click on options btn
-            }
-            break;
-
-    }
-    if(state && state != 'options'){ //optionsBtn
-        CliqzUtils.telemetry({
-            type: 'setting',
-            setting: 'adultFilter',
-            value: state
-        });
-    }
-    setTimeout(function(){ CliqzUtils.refreshButtons(); }, 0);
 }
 
 function getResultSelection(){
