@@ -87,9 +87,7 @@
     max-width: 195px;
 }
 
-.tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]), .tabs-newtab-button:hover {
-    background: rgba(255, 255, 255, 0.7);
-}
+.tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]) { background: none; }
 
 .tabs-newtab-button {
     width: 30px;
@@ -175,8 +173,10 @@ window:not([chromehidden~="toolbar"]) #urlbar-wrapper {
     background: #fff !important;
 }
 
-.tabbrowser-tab:not([visuallyselected="true"]):hover {
-    background: rgba(255, 255, 255, 0.7) !important;
+
+.tabbrowser-tab:not([visuallyselected="true"]):hover .tab-content,
+.tabs-newtab-button:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
 }
 
 
