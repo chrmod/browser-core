@@ -3001,7 +3001,7 @@ var CliqzAttrack = {
 
             var b64 = null;
             try {
-                b64 = CliqzUtils.getWindow().atob(tok);
+                b64 = atob(tok);
             } catch(e) {
             }
 
