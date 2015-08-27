@@ -923,11 +923,11 @@ var CliqzHumanWeb = {
 
                         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'suspiciousUrl', 'payload': payload});
 
-                        // Check if we can still send the url as page model as well. 
+                        // Check if we can still send the url as page model as well.
                         // To not drop good URLs.
                         // Onlye send ig they have canonical.
 
-                        
+
                         //delete page_doc['isMU'];
 
                         if (!CliqzHumanWeb.dropLongURL(url)) {
@@ -940,8 +940,8 @@ var CliqzHumanWeb = {
 
                             }
                         }
-                        
-                        
+
+
 
                     }
                     else{
@@ -1135,7 +1135,7 @@ var CliqzHumanWeb = {
 
         onLocationChange: function(aProgress, aRequest, aURI) {
             // New location, means a page loaded on the top window, visible tab
- 
+
             if (aURI.spec == this.tmpURL) return;
             this.tmpURL = aURI.spec;
 
@@ -1687,12 +1687,46 @@ var CliqzHumanWeb = {
         }
         return null;
     },
+    contextFromEvent: null,
+    setContextFromEvent: function(ev) {
+        try {
+            var tar = ev.target;
+
+            var found = false;
+            var count = 0;
+            var def_html = null;
+
+            while(!found) {
+
+                var html = tar.innerHTML;
+
+                if (html.indexOf('http://')!=-1 || html.indexOf('https://')!=-1) {
+                    found = true;
+                    def_html = html;
+                    break;
+                }
+
+                tar = tar.parentNode;
+
+                count+=1;
+                if (count > 4) break;
+            }
+
+            if (found && def_html) {
+                CliqzHumanWeb.contextFromEvent = {'html': def_html, 'ts': (new Date()).getTime()};
+            }
+        }
+        catch(ee) {
+            CliqzHumanWeb.contextFromEvent = null;
+        }
+    },
     captureMouseClickPage: function(ev) {
 
         // if the target is a link of type hash it does not work, it will create a new page without referral
         //
 
         var targetURL = CliqzHumanWeb.getURLFromEvent(ev);
+        CliqzHumanWeb.setContextFromEvent(ev);
 
         if (targetURL!=null) {
 
@@ -2067,7 +2101,7 @@ var CliqzHumanWeb = {
         if ( FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]).exists() ) {
             if (CliqzHumanWeb.dbConn==null) {
                 CliqzHumanWeb.dbConn = Services.storage.openDatabase(FileUtils.getFile("ProfD", ["cliqz.dbhumanweb"]))
-                
+
             }
             CliqzHumanWeb.createTable();
             return;
@@ -2396,7 +2430,7 @@ var CliqzHumanWeb = {
                                 }
                             }
                         });
-                       
+
                         if(setPrivate){
                             CliqzHumanWeb.setAsPrivate(url);
                         }
@@ -2573,7 +2607,7 @@ var CliqzHumanWeb = {
         });
     },
     processUnchecks: function(listOfUncheckedUrls) {
-        
+
         if(listOfUncheckedUrls.length > 1){
             // Notify is the list of unchecked urls recieved is more than one
             // Generate a telemetry signal.
@@ -3062,16 +3096,16 @@ var CliqzHumanWeb = {
 
     // Calculate duplicates
     arr.forEach(function(i, idx) {
-        if (typeof(i) == 'object' && i.action == 'page'){ 
+        if (typeof(i) == 'object' && i.action == 'page'){
             var d = JSON.stringify(i);
-            duplicate[d] = (duplicate[d]||0)+1; 
+            duplicate[d] = (duplicate[d]||0)+1;
         }
     });
 
     Object.keys(duplicate).forEach(function(key){
         if(duplicate[key] > 1){
             duplicates[key] = duplicate[key];
-            
+
         }
 
     })
@@ -3084,14 +3118,14 @@ var CliqzHumanWeb = {
         notificationMsg['payload'] = duplicates;
         CliqzHumanWeb.notification(notificationMsg);
     }
-    
+
   },
   notification: function(payload){
     try {var location = CliqzUtils.getPref('config_location', null)} catch(ee){};
     if(payload && typeof(payload) == 'object'){
         payload['ctry'] = location;
         CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'telemetry', 'payload': payload});
-  
+
     }
     else{
         if (CliqzHumanWeb.debug) CliqzUtils.log("Not a valid object, not sent to notification", CliqzHumanWeb.LOG_KEY);
