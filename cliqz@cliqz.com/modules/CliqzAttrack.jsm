@@ -2206,8 +2206,15 @@ var CliqzAttrack = {
         if (!CliqzAttrack.QSStats) return;
         CliqzAttrack.saveRecord('QSStats', JSON.stringify(CliqzAttrack.QSStats));
     },
+    newUTCDate: function() {
+        var dayHour = CliqzAttrack.getTime();
+        var day =  new Date(Date.UTC(dayHour.substring(0, 4),
+                                     dayHour.substring(4, 6),
+                                     dayHour.substring(6, 8),
+                                     dayHour.substring(8, 10)));
+    },
     saveSafeKey: function() {
-        var day =  new Date();
+        var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - 3);
         var dayCutoff = CliqzAttrack.dateString(day);
         for (var s in CliqzAttrack.safeKey) {
@@ -2226,7 +2233,7 @@ var CliqzAttrack = {
         CliqzAttrack.saveRecord('safeKeyExtVersion', CliqzAttrack.safeKeyExtVersion);
     },
     saveRequestKeyValue: function() {
-        var day =  new Date();
+        var day = CliqzAttrack.newUTCDate();
         day.setDate(day.getDate() - 5);
         var dayCutoff  = CliqzAttrack.dateString(day);
         for (var s in CliqzAttrack.requestKeyValue) {
@@ -3087,7 +3094,7 @@ var CliqzAttrack = {
         return badTokens;
     },
     examineTokens: function(url_parts) {
-        var day = new Date();
+        var day = CliqzAttrack.newUTCDate();
         var today = CliqzAttrack.dateString(day);
         // save appeared tokens with field name
         // mark field name as "safe" if different values appears
