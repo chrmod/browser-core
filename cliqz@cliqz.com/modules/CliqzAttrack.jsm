@@ -10,6 +10,7 @@ var EXPORTED_SYMBOLS = ['CliqzAttrack'];
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
+Cu.import("resource://gre/modules/AddonManager.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
@@ -18,7 +19,6 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
   'chrome://cliqzmodules/content/CliqzHumanWeb.jsm');
 
 
-var nsIAO = Ci.nsIHttpActivityObserver;
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
                 .getService(Components.interfaces.nsIPrefBranch);
@@ -338,6 +338,15 @@ var CliqzAttrack = {
     canvasTraffic : {'observed' : []},
     canvasURL : {},
     whitelist: null,
+    similarAddon: false,
+    similarAddonNames: {
+        "Adblock Plus": true,
+        "Ghostery": true,
+        "Lightbeam": true,
+        "Disconnect": true,
+        "BetterPrivacy": true,
+        "NoScript": true
+    },
     activityDistributor : Components.classes["@mozilla.org/network/http-activity-distributor;1"]
                                 .getService(Components.interfaces.nsIHttpActivityDistributor),
     observerService: Components.classes["@mozilla.org/observer-service;1"]
@@ -817,6 +826,7 @@ var CliqzAttrack = {
 
                 if(url_parts.path.indexOf('/favicon.') == 0 || url.split('#')[0] in CliqzAttrack.favicons) return;
 
+                if (url in reflinks) return;
                 // get cookie data
                 var cookievalue = {},
                     docCookie = '';
@@ -858,8 +868,11 @@ var CliqzAttrack = {
                         req_log.bad_tokens += badTokens.length;
                     }
                 }
+                
+                if (badTokens.length == 0) return;
+
                 // altering request
-                if (!(url in reflinks) && CliqzAttrack.isQSEnabled() && badTokens.length > 0) {
+                if (CliqzAttrack.isQSEnabled()) {
                     CliqzUtils.log("altering request " + url + " " + refstr, 'tokk');
                     CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
 
@@ -1771,15 +1784,13 @@ var CliqzAttrack = {
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
         if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
 
-        // if (CliqzAttrack.cacheHistStats==null) CliqzAttrack.loadHistStats();
-        // if (CliqzAttrack.histLastSent==null) CliqzAttrack.loadHistLastSent();
-
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
         if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
         CliqzAttrack.getPrivateValues();
+        CliqzAttrack.checkInstalledAddons();
 
         var win_id = CliqzUtils.getWindowID();
         CliqzUtils.getWindow().gBrowser.addProgressListener(CliqzAttrack.tab_listener);
@@ -1906,6 +1917,19 @@ var CliqzAttrack = {
             }
         }
 
+    },
+    checkInstalledAddons: function() {
+        if (CliqzUtils.genericPrefs.prefHasUserValue('network.cookie.cookieBehavior')) {
+            CliqzAttrack.similarAddon = true;
+            return;
+        }
+        AddonManager.getAllAddons(function(aAddons) {
+            aAddons.forEach(function(a) {
+                if (a.name in CliqzAttrack.similarAddonNames){
+                    CliqzAttrack.similarAddon = true;
+                }
+            });
+        });
     },
     sendState: function() {
 
@@ -3501,7 +3525,7 @@ var CliqzAttrack = {
                     CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()}
                     var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled};
-                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
+                    CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl, 'addons': CliqzAttrack.similarAddon});
                 }
                 this._staged = [];
                 this._old_tab_idx = {};
