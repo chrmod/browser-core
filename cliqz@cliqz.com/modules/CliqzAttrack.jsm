@@ -2976,7 +2976,7 @@ var CliqzAttrack = {
             while (tok != dURIC(tok)) {
                 tok = dURIC(tok);
             }
-            if (tok.length < 8) return;
+            if (tok.length < 8 || source_url.indexOf(tok) > -1) return;
 
             // Bad values (cookies)
             for (var c in cookievalue) {
