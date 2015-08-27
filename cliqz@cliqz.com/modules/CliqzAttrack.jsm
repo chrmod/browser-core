@@ -2459,6 +2459,7 @@ var CliqzAttrack = {
         var res = [];
         stmt.executeAsync({
             handleResult: function(aResultSet) {
+                if(!(CliqzAttrack)) return;
                 for (let row = aResultSet.getNextRow(); row; row = aResultSet.getNextRow()) {
                     if (row.getResultByName("id")==id) {
                         res.push(row.getResultByName("data"));
@@ -2471,10 +2472,12 @@ var CliqzAttrack = {
                 }
             },
             handleError: function(aError) {
+                if(!(CliqzAttrack)) return;
                 CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
                 callback(null);
             },
             handleCompletion: function(aReason) {
+                if(!(CliqzAttrack)) return;
                 if (res.length == 1) callback(res[0]);
                 else callback(null);
             }
