@@ -28,8 +28,8 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
 //CliqzUtils.setPref('showConsoleLogs', true);
 
 
-CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', true));
-CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', true));
+CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
+CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
 
 if (CliqzUtils.getPref('attrackRefererTracking', false)) {
@@ -383,8 +383,8 @@ var CliqzAttrack = {
     safeKey: null,
     safeKeyExtVersion: null,
     requestKeyValue: null,
-    removeTracking: CliqzUtils.getPref('attrackRemoveTracking', true),
-    removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
+    // removeTracking: CliqzUtils.getPref('attrackRemoveTracking', false),
+    // removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
