@@ -305,6 +305,8 @@ function registerHelpers(){
             case "is":          return lvalue == rvalue;
             case "starts_with": return lvalue.indexOf(rvalue) == 0;
             case "===":         return lvalue === rvalue;
+            case "<":           return lvalue < rvalue;
+            case ">":           return lvalue > rvalue;
         }
     });
 
