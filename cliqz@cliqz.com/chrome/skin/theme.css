@@ -48,11 +48,15 @@
 }
 
 #main-window:not([chromehidden~="toolbar"]) {
-    min-width: 930px;
+    min-width: 940px;
 }
 
 #urlbar-container {
     min-width: 850px;
+    -moz-box-pack: center;
+}
+#urlbar-wrapper {
+    max-width: 850px;
 }
 
 /* ====== Close, minimize & fullscreen btns*/
@@ -61,12 +65,13 @@
     margin-top: 7px;
 }
 
-.tab-background-start, .tab-background-end {
+.tab-background-start,
+.tab-background-end {
     display: none;
 }
 
 .tab-background-middle {
-    margin: 0px;
+    margin: 0;
 }
 
 .tab-content {
@@ -78,9 +83,12 @@
 .tabbrowser-tab {
     margin: 0 2px;
 }
+.tabbrowser-tab:not([pinned]) {
+    max-width: 195px;
+}
 
 .tabbrowser-tab:hover > .tab-stack > .tab-background:not([visuallyselected="true"]), .tabs-newtab-button:hover {
-    background-image: none;
+    background: rgba(255, 255, 255, 0.7);
 }
 
 .tabs-newtab-button {
