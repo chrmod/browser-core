@@ -368,9 +368,12 @@ var CliqzAttrack = {
     stateLastSent: null,
     tokens: null,
     tokensLastSent: null,
-    tokenExtWhitelist: {},
+    tokenExtWhitelist: null,
     tokenExtStats: {'pass': 0, 'block': 0, 'url_pass': 0, 'url_block': 0},
     tokenWhitelistVersion: null,
+    safeKey: null,
+    safeKeyExtVersion: null,
+    requestKeyValue: null,
     removeTracking: CliqzUtils.getPref('attrackRemoveTracking', true),
     removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
     favicons: {
@@ -724,6 +727,10 @@ var CliqzAttrack = {
     httpopenObserver: {
         observe : function(subject, topic, data) {
             if (topic != 'http-on-opening-request') return;
+            if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
+                CliqzUtils.log('QS protection disabled during startup', 'attrack');
+                return;
+            }
 
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var url = '' + aChannel.URI.spec;
