@@ -28,4 +28,4 @@
     {{/with}}
 </div>
 {{>logo}}
-{{>feedback}}
+
