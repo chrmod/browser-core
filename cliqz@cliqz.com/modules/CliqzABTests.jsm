@@ -496,6 +496,8 @@ var CliqzABTests = CliqzABTests || {
             case "1045_A":
             case "1045_B":
                 CliqzUtils.cliqzPrefs.clearUserPref("antiTrackTest");
+                CliqzAttrack.unload();
+                CliqzAttrack.unloadAtBrowser();
                 break;
             case "1046_A":
             case "1047_A":
