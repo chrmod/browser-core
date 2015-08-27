@@ -12,7 +12,7 @@ Cu.import("resource://gre/modules/FileUtils.jsm");
 Cu.import('resource://gre/modules/XPCOMUtils.jsm');
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
-CU.importGlobalProperties(["atob"]);
+Cu.importGlobalProperties(["atob"]);
 
 XPCOMUtils.defineLazyModuleGetter(this, 'CliqzUtils',
   'chrome://cliqzmodules/content/CliqzUtils.jsm');
