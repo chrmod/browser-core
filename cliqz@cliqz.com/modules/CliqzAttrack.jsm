@@ -377,9 +377,12 @@ var CliqzAttrack = {
     stateLastSent: null,
     tokens: null,
     tokensLastSent: null,
-    tokenExtWhitelist: {},
+    tokenExtWhitelist: null,
     tokenExtStats: {'pass': 0, 'block': 0, 'url_pass': 0, 'url_block': 0},
     tokenWhitelistVersion: null,
+    safeKey: null,
+    safeKeyExtVersion: null,
+    requestKeyValue: null,
     removeTracking: CliqzUtils.getPref('attrackRemoveTracking', true),
     removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
     favicons: {
@@ -733,6 +736,10 @@ var CliqzAttrack = {
     httpopenObserver: {
         observe : function(subject, topic, data) {
             if (topic != 'http-on-opening-request') return;
+            if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
+                CliqzUtils.log('QS protection disabled during startup', 'attrack');
+                return;
+            }
 
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var url = '' + aChannel.URI.spec;
@@ -1783,8 +1790,8 @@ var CliqzAttrack = {
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
         if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
 
+		if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
-        if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
@@ -2217,7 +2224,7 @@ var CliqzAttrack = {
             var versioncheck = JSON.parse(req.response);
             // new version available
             if(versioncheck['safekey_version'] != CliqzAttrack.safeKeyExtVersion) {
-                CliqzUtils.log("New version of CliqzAttrack.safeKey available", "attrack");
+                CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ CliqzAttrack.safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
                 if(versioncheck['force_clean'] == true) {
                     CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
                     CliqzAttrack.safeKey = {};
@@ -2230,13 +2237,14 @@ var CliqzAttrack = {
                 CliqzUtils.log("CliqzAttrack.safeKey version up-to-date", "attrack");
             }
             if(versioncheck['token_whitelist_version'] != CliqzAttrack.tokenWhitelistVersion) {
-                CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available", "attrack");
+                CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available ("+ CliqzAttrack.tokenWhitelistVersion +" -> "+ versioncheck['token_whitelist_version'] +")", "attrack");
                 CliqzAttrack.loadRemoteTokenWhitelist();
             } else {
                 CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
             }
         }, function() {
             // on error: just try and load anyway
+            CliqzUtils.log("error checking token list versions", "attrack");
             CliqzAttrack.loadRemoteTokenWhitelist();
             CliqzAttrack.loadRemoteSafeKey();
         });
@@ -2246,6 +2254,8 @@ var CliqzAttrack = {
             function(req){
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(req.response);
                 CliqzAttrack.tokenWhitelistVersion = md5(req.response);
+                CliqzAttrack.saveTokenWhitelist();
+                CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
             });
     },
     loadRemoteSafeKey: function() {
@@ -2265,6 +2275,8 @@ var CliqzAttrack = {
                         }
                     }
                 }
+                CliqzAttrack.saveSafeKey();
+                CliqzUtils.log("Loaded new safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
             });
     },
     loadTokenWhitelist: function() {
@@ -2274,9 +2286,11 @@ var CliqzAttrack = {
             try {
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(data);
                 CliqzAttrack.tokenWhitelistVersion = md5(data);
+                CliqzUtils.log("Loaded existing token whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
             } catch(e) {
                 CliqzAttrack.tokenExtWhitelist = {};
                 CliqzAttrack.tokenWhitelistVersion = null;
+                CliqzUtils.log("Error parsing new whitelist "+ e, "attrack");
             }
         });
     },
@@ -2306,6 +2320,7 @@ var CliqzAttrack = {
         CliqzAttrack.loadRecord('safeKeyExtVersion', function(data) {
             if (data != null)
                 CliqzAttrack.safeKeyExtVersion = data;
+                CliqzUtils.log("Loaded existing safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
             CliqzAttrack.loadRemoteWhitelists();
         });
     },
