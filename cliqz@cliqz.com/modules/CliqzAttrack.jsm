@@ -28,8 +28,8 @@ var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
 //CliqzUtils.setPref('showConsoleLogs', true);
 
 
-CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', true));
-CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', true));
+CliqzUtils.setPref('attrackRemoveTracking', CliqzUtils.getPref('attrackRemoveTracking', false));
+CliqzUtils.setPref('attrackRemoveQueryStringTracking', CliqzUtils.getPref('attrackRemoveQueryStringTracking', false));
 
 
 if (CliqzUtils.getPref('attrackRefererTracking', false)) {
@@ -383,8 +383,8 @@ var CliqzAttrack = {
     safeKey: null,
     safeKeyExtVersion: null,
     requestKeyValue: null,
-    removeTracking: CliqzUtils.getPref('attrackRemoveTracking', true),
-    removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
+    // removeTracking: CliqzUtils.getPref('attrackRemoveTracking', false),
+    // removeQS: CliqzUtils.getPref('attrackRemoveQueryStringTracking', true),
     favicons: {
         // A simple capacity limited set, with least recently used items removed when
         // capcity is full.
@@ -875,7 +875,7 @@ var CliqzAttrack = {
                         req_log.bad_tokens += badTokens.length;
                     }
                 }
-                
+
                 if (badTokens.length == 0) return;
 
                 // altering request
@@ -1275,12 +1275,12 @@ var CliqzAttrack = {
                     // as test, we do not send the hostname as md5
                     var md5_source_hostname = source_url_parts.hostname;
 
-                    if (CliqzAttrack.state[md5_source_hostname]==null) CliqzAttrack.state[md5_source_hostname] = {};
+                    // if (CliqzAttrack.state[md5_source_hostname]==null) CliqzAttrack.state[md5_source_hostname] = {};
 
-                    if (CliqzAttrack.state[md5_source_hostname][url_parts.hostname]==null) CliqzAttrack.state[md5_source_hostname][url_parts.hostname] = {'c': 0, 'v': {}};
+                    // if (CliqzAttrack.state[md5_source_hostname][url_parts.hostname]==null) CliqzAttrack.state[md5_source_hostname][url_parts.hostname] = {'c': 0, 'v': {}};
 
-                    CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['c'] = (CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['c'] || 0) + 1;
-                    CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['v'][url] = cookie_data;
+                    // CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['c'] = (CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['c'] || 0) + 1;
+                    // CliqzAttrack.state[md5_source_hostname][url_parts.hostname]['v'][url] = cookie_data;
 
                     // now, let's kill that cookie and see what happens :-)
                     if (CliqzAttrack.isCookieEnabled()) {
@@ -1507,7 +1507,6 @@ var CliqzAttrack = {
 
 
             // Block toDataURL
-            CliqzUtils.log("XOXOX","XOXOX1234");
             Components.utils.exportFunction(
                 function (){
                     var err = new Error();
@@ -1785,7 +1784,7 @@ var CliqzAttrack = {
         if (CliqzAttrack.debug) CliqzUtils.log("Init function called:", CliqzAttrack.LOG_KEY);
         CliqzAttrack.initDB();
 
-        if (CliqzAttrack.state==null) CliqzAttrack.loadState();
+        // if (CliqzAttrack.state==null) CliqzAttrack.loadState();
         if (CliqzAttrack.tokens==null) CliqzAttrack.loadTokens();
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
@@ -2029,7 +2028,7 @@ var CliqzAttrack = {
             CliqzAttrack.stateLastSent = timestamp;
             CliqzAttrack.saveStateLastSent();
 
-            CliqzAttrack.sendState();
+            // CliqzAttrack.sendState();
 
             // load remote safe key & token whitelist
             CliqzAttrack.loadRemoteWhitelists();
@@ -3193,7 +3192,7 @@ var CliqzAttrack = {
         }
         return false;
     },
-    dateString(date) {
+    dateString: function(date) {
         var yyyy = date.getFullYear().toString();
         var mm = (date.getMonth()+1).toString(); // getMonth() is zero-based
         var dd  = date.getDate().toString();
@@ -3444,7 +3443,8 @@ var CliqzAttrack = {
                  'cookie_allow_oauth',
                  'cookie_block_favicon',
                  'cookie_block_tp1',
-                 'cookie_block_tp2'
+                 'cookie_block_tp2',
+                 'cookie_block_ntp'
                 ],
         // Called when a url is loaded on windowID source.
         // Returns the PageLoadData object for this url.
