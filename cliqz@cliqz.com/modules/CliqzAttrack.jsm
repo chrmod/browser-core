@@ -1520,6 +1520,7 @@ var CliqzAttrack = {
 
                     var req_log = null;
                     req_log = CliqzAttrack.tp_events.get(ref_url, ref_url_parts, source_url, source_url_parts, source_tab);
+                    if(CliqzHumanWeb.state['v'] && CliqzHumanWeb.state['v'][source_url])CliqzHumanWeb.state['v'][source_url]['cvf'] = 1;
 
                     var blockExternalCallee = canvasBlackList.indexOf(externalCallHost);
                     if((pageHostname != externalCallHost) || (blockExternalCallee > -1)){
