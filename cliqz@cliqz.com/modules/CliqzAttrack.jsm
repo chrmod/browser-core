@@ -21,7 +21,7 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
-                .getService(Components.interfaces.nsIPrefBranch);
+        .getService(Components.interfaces.nsIPrefBranch);
 
 //CliqzUtils.setPref('showDebugLogs', true);
 //CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
@@ -352,7 +352,7 @@ var CliqzAttrack = {
     observerService: Components.classes["@mozilla.org/observer-service;1"]
                                 .getService(Components.interfaces.nsIObserverService),
     getTime:function() {
-        try { var ts = CliqzUtils.getPref('config_ts', null)} catch(ee){};
+        var ts = CliqzUtils.getPref('config_ts', null);
         if(!ts){
             var d = null;
             var m = null;
@@ -3220,17 +3220,18 @@ var CliqzAttrack = {
                 .getService(Components.interfaces.nsIWindowMediator);
         var browserEnumerator = wm.getEnumerator("navigator:browser");
 
-        var found = false;
-        while (!found && browserEnumerator.hasMoreElements()) {
+        while (browserEnumerator.hasMoreElements()) {
             var browserWin = browserEnumerator.getNext();
             var tabbrowser = browserWin.gBrowser;
 
             var numTabs = tabbrowser.browsers.length;
             for (var index = 0; index < numTabs; index++) {
                 var currentBrowser = tabbrowser.getBrowserAtIndex(index);
-                var tabURL = currentBrowser.currentURI.spec;
-                if (url == tabURL || url == tabURL.split('#')[0]) {
-                    return true;
+                if (currentBrowser) {
+                    var tabURL = currentBrowser.currentURI.spec;
+                    if (url == tabURL || url == tabURL.split('#')[0]) {
+                        return true;
+                    }
                 }
             }
         }
