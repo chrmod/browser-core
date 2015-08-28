@@ -3425,8 +3425,20 @@ var CliqzAttrack = {
                 var browserWin = browserEnumerator.getNext();
                 var tabbrowser = browserWin.gBrowser;
 
-                if(tabbrowser.getBrowserForOuterWindowID(int_id) != undefined) {
-                    return true;
+                // check if tab is open in this window
+                // on FF>=39 wm.getOuterWindowWithId() behaves differently to on FF<=38 for closed tabs so we first try
+                // gBrowser.getBrowserForOuterWindowID which works on FF>=39, and fall back to wm.getOuterWindowWithId()
+                // for older versions.
+                try {
+                    if(tabbrowser.getBrowserForOuterWindowID(int_id) != undefined) {
+                        return true;
+                    }
+                } catch(e) {
+                    if(wm.getOuterWindowWithId(int_id) == null) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
             }
             return false;
