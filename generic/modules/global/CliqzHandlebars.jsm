@@ -18,7 +18,14 @@ Components.utils.import('chrome://cliqzmodules/content/CliqzAutocomplete.jsm');
 var CliqzHandlebars = Handlebars || this.Handlebars;
 
 var TEMPLATES = CliqzUtils.TEMPLATES,
-    MESSAGE_TEMPLATES = ['footer-message', 'onboarding-callout', 'onboarding-callout-extended', 'confirm_no_00', 'confirm_no_01'],
+    MESSAGE_TEMPLATES = [
+      'footer-message',
+      'onboarding-callout',
+      'onboarding-callout-extended',
+      'confirm_no_00',
+      'confirm_no_01',
+      'slow_connection'
+    ],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
         [0            , '',                , 1],

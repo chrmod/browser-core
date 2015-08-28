@@ -690,7 +690,7 @@
         "message": "From"
     },
     "from_price": {
-      "message": "from"
+        "message": "from"
     },
     "to": {
         "message": "to"
@@ -782,9 +782,6 @@
     "location_permission_prompt": {
       "message": "We'd love to enhance this result with some local info. Share your location with us?"
     },
-    "location_just_once": {
-      "message": "Just this once..."
-    },
     "location_never": {
       "message": "Never. I hate awesome stuff."
     },
@@ -816,7 +813,33 @@
       "message": "No, show me local info"
     },
     "extended_forecast": {
-        "message": "Extended Forecast"
+      "message": "Extended Forecast"
+    },
+    "no_legal_disclaimer": {
+      "message": "without guarantee"
+    },
+    "slow_connection_header_1": {
+      "message": "You’re not you when you're without internet. "
+    },
+    "slow_connection_text_1": {
+      "message": "Please check your connection."
+    },
+    "slow_connection_header_2": {
+      "message": "Time to load remaining: 45266436 hours"
+    },
+    "slow_connection_text_2": {
+      "message": "Please check your connection."
+    },
+    "slow_connection_header_3": {
+      "message": "Hmpf."
+    },
+    "slow_connection_text_3": {
+      "message": "Please check your connection."
+    },
+    "slow_connection_header_4": {
+      "message": "Not our fault!"
+    },
+    "slow_connection_text_4": {
+      "message": "Please check your connection."
     }
-
 }

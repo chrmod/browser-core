@@ -82,7 +82,7 @@ TESTS.UrlBarTest = function (CliqzUtils) {
 
       it('should trigger firefox history search', function () {
         var $pattern = $cliqzResults().find(".cqz-result-box");
-        chai.expect($pattern.attr("url")).to.equal("http://maps.google.de/maps?q=wisen");
+        chai.expect($pattern.attr("url")).to.contain("maps.google.de/maps?q=wisen");
         chai.expect($pattern).to.have.length.above(0);
       });
     });

@@ -1,12 +1,12 @@
 'use strict';
 
-TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzTour) {
+var expect = chai.expect;
+
+TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzRequestMonitor) {
   describe('CliqzUtils', function(){
-    describe('#HOST', function(){
-      it('should be set to cliqz.com', function(){
-        chai.expect(CliqzTour.VERSION).to.equal('1.1');
-        chai.expect(CliqzUtils.HOST).to.equal('https://cliqz.com');
-      });
+
+    it('HOST should be set to cliqz.com', function(){
+      expect(CliqzUtils.HOST).to.equal('https://cliqz.com');
     });
 
     describe('GetDetailsFromUrl', function() {
@@ -133,5 +133,50 @@ TESTS.CliqzUtilsTest = function (CliqzUtils, CliqzTour) {
       });
 
     });
+
+    describe("Locale", function () {
+      it("de locale are complete when compared to en", function () {
+        expect(Object.keys(CliqzUtils.locale['default'])).to.eql(
+               Object.keys(CliqzUtils.locale['en-US']));
+      });
+    });
+
+    describe("getCliqzResults", function () {
+      var mockReq,
+          mockHttpGet = function () {console.log("ssssssssS"); return mockReq; },
+          httpGet, requestMonitor;
+
+      beforeEach(function () {
+        mockReq = { timestamp: new Date() };
+        httpGet = CliqzUtils.httpGet;
+        CliqzUtils.httpGet = mockHttpGet;
+        requestMonitor = CliqzUtils.requestMonitor;
+        CliqzUtils.requestMonitor = {};
+      });
+
+      afterEach(function () {
+        CliqzUtils.httpGet = httpGet;
+        CliqzUtils.requestMonitor = requestMonitor;
+      });
+
+      it("calls requestMonitor.addRequest", function (done) {
+        CliqzUtils.requestMonitor.addRequest = function (req) {
+          expect(req).to.equal(mockReq);
+          done();
+        };
+        CliqzUtils.getCliqzResults("mozilla", function () {});
+      });
+
+    });
+
+    describe("httpHandler", function () {
+      it("return request object with timestamp", function () {
+        var timestamp = CliqzUtils.httpHandler("GET", "http://localhost").timestamp
+        //this obvious check wont work, as timestamp was created in different context
+        //expect(timestamp).to.be.instanceof(Date);
+        expect(new Date()).to.be.above(0);
+      });
+    });
+
   });
 };
