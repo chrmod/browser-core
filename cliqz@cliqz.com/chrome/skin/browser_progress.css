@@ -686,6 +686,24 @@
     border-radius: 3px;
 }
 
+#cliqz-results .local-cinema-result .cinema-showtimes-container { position: relative; padding-top: 3px; }
+#cliqz-results .cinema-showtimes-container .cqz-movie-playing {
+    width: 123px;
+    padding: 4px 0 6px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1em;
+    text-align: center;
+    text-transform: uppercase;
+    transform-origin: left top 0px;
+    transform: rotate(-90deg);
+    background: #ccc;
+}
+#cliqz-results .cinema-showtimes-container .cqz-movie-playing + .cinema-showtimes-table { margin-left: 40px; }
+
 #cliqz-popup #cliqz-results .movie_data {
   padding-right: 60px;
 }
@@ -704,6 +722,8 @@
   text-align: left;
 }
 
+
+#cliqz-results .cqz-rating-holder { margin-right: 10px; }
 #cliqz-results .cqz-rating-star-on {
   color: #FDDD32;
 }
@@ -713,9 +733,6 @@
 }
 
 #cliqz-results .movie_desc {
-  max-height: 150px;
-  padding-left: 10px;
-  overflow: ellipsis;
   white-space:  normal;
 }
 
@@ -724,6 +741,7 @@
   max-width: 650px;
 }
 #cliqz-results .cinema-showtimes-container { height: 145px; }
+#cliqz-results .cqz-cinema-program-btn { background: #333; }
 
 #cliqz-results .cinema-showtimes-table {
     table-layout: fixed;

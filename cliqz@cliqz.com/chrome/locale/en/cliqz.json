@@ -817,6 +817,12 @@
     },
     "extended_forecast": {
         "message": "Extended Forecast"
+    },
+    "cinema_program_btn": {
+        "message": "Cinema Program"
+    },
+    "now_playing_in_cinema": {
+        "message": "Now Playing"
     }
 
 }

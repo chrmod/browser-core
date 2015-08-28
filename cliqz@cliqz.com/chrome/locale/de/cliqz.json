@@ -806,5 +806,11 @@
     },
     "extended_forecast": {
         "message": "Detailiertere Vorhersage"
+    },
+    "cinema_program_btn": {
+        "message": "Kinoprogramm"
+    },
+    "now_playing_in_cinema": {
+        "message": "Aktuelle Filme"
     }
 }

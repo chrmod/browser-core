@@ -1,4 +1,4 @@
-<div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-cinema-result local-cinema-result">
+<div class="{{#ifpref 'share_location' 'no'}}cqz-result-h2{{else}}cqz-result-h1{{/ifpref}} cqz-result-padding local-cinema-result local-movie-result">
     {{#with data}}
         <div class='cqz-cinema-container'>
             <div class='cqz-cinema-image'>
@@ -9,17 +9,9 @@
                 <div class="cqz-result-url cinema_url">{{emphasis friendly_url text 2 true}}</div>
                 <div class="cinema_description cqz-multy-lines-ellipses cqz-line-vis-3">
                     <p>
-              <span>
-                {{#for 0 cinema.rating 1}}
-                    <span class='cqz-rating-star-on'>★</span>
-                {{/for}}
-                  {{#for cinema.rating 5 1}}
-                      <span class='cqz-rating-star-off'>★</span>
-                  {{/for}}
-              </span>
-              <span class="cinema_desc">
-                  {{description}}
-              </span>
+                        <span class="movie_desc">
+                              {{description}}
+                        </span>
                     </p>
                 </div>
             </div>
@@ -37,14 +29,14 @@
                 {{/if}}
             {{/if}}
         </div>
-        {{#if cinema.trailer_url}}
-            <div
-                    arrow-override=''
-                    class="cqz-ez-btn cinema-trailer-btn {{ ../../logo.buttonsClass }}"
-                    url="{{ cinema.trailer_url }}">
-                {{local 'cqz_watch_trailer'}}
-            </div>
-        {{/if}}
+        <p>
+            <a xmlns="http://www.w3.org/1999/xhtml" arrow-override=""
+                 class="cqz-ez-btn cqz-cinema-program-btn"
+                 url="{{ cinema.cinepass_url }}"
+            >
+                {{local 'cinema_program_btn'}}
+            </a>
+        </p>
     {{/with}}
 
     {{>logo}}

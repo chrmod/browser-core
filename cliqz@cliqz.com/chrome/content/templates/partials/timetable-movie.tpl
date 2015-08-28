@@ -1,3 +1,6 @@
+<div class="cqz-movie-playing">
+    {{local 'now_playing_in_cinema'  }}
+</div>
 <table class="cinema-showtimes-table">
     <tr>
         <th class="showtimes-date" colspan="0">

@@ -9,7 +9,7 @@
         <div class="cqz-result-url movie_url">{{emphasis friendly_url text 2 true}}</div>
         <div class="movie_description cqz-multy-lines-ellipses cqz-line-vis-3">
             <p>
-              <span>
+              <span class="cqz-rating-holder">
                 {{#for 0 movie.rating 1}}
                   <span class='cqz-rating-star-on'>★</span>
                 {{/for}}
