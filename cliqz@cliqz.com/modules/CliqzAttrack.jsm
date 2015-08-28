@@ -3434,7 +3434,9 @@ var CliqzAttrack = {
                         return true;
                     }
                 } catch(e) {
-                    if(wm.getOuterWindowWithId(int_id) != null) {
+                    if(wm.getOuterWindowWithId(int_id) == null) {
+                        return false;
+                    } else {
                         return true;
                     }
                 }
