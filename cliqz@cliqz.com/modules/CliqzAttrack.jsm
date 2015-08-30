@@ -22,7 +22,10 @@ XPCOMUtils.defineLazyModuleGetter(this, 'CliqzHumanWeb',
 var nsIHttpChannel = Ci.nsIHttpChannel;
 var genericPrefs = Components.classes['@mozilla.org/preferences-service;1']
         .getService(Components.interfaces.nsIPrefBranch);
-
+var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
+        .createInstance(Components.interfaces.nsIDOMSerializer);
+var domParser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
+        .createInstance(Components.interfaces.nsIDOMParser);
 //CliqzUtils.setPref('showDebugLogs', true);
 //CliqzUtils.setPref('showDebugLogs', CliqzUtils.getPref('showDebugLogs', false));
 //CliqzUtils.setPref('showConsoleLogs', true);
@@ -57,12 +60,6 @@ if (CliqzUtils.getPref('attrackRefererTracking', false)) {
         CliqzUtils.cliqzPrefs.clearUserPref('attrackRefererPreferences');
     }
 }
-
-
-var domSerializer = Components.classes["@mozilla.org/xmlextras/xmlserializer;1"]
-        .createInstance(Components.interfaces.nsIDOMSerializer);
-var domParser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-        .createInstance(Components.interfaces.nsIDOMParser);
 
 
 function dURIC(s) {
@@ -736,6 +733,7 @@ var CliqzAttrack = {
     httpopenObserver: {
         observe : function(subject, topic, data) {
             if (topic != 'http-on-opening-request') return;
+
             if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
                 CliqzUtils.log('QS protection disabled during startup', 'attrack');
                 return;
@@ -745,6 +743,7 @@ var CliqzAttrack = {
             var url = '' + aChannel.URI.spec;
             if (!url || url == '') return;
             var url_parts = CliqzAttrack.parseURL(url);
+            // CliqzUtils.log("RequstName-open: " + url,"sequence");
 
 
             // find the ok tokens fields
@@ -774,7 +773,10 @@ var CliqzAttrack = {
                 source_url_parts = null,
                 source_tab = source.tab;
 
-            var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
+            // @konarkm : Does not look like this being used anywhere in
+            // http-open-request, hence commenting.
+            // var is_xhr = CliqzAttrack.isXHRRequest(aChannel);
+
             var page_load_type = CliqzAttrack.getPageLoadType(aChannel);
             if (source_url == '' || source_url.indexOf('about:')==0) return;
             if(page_load_type == 'fullpage') return;
@@ -1021,6 +1023,7 @@ var CliqzAttrack = {
             var aChannel = subject.QueryInterface(nsIHttpChannel);
             var url = '' + aChannel.URI.spec;
             if (!url || url == '') return;
+            // CliqzUtils.log("RequstName-modify: " + url,"sequence");
 
             var url_parts = CliqzAttrack.parseURL(url);
 
@@ -1616,8 +1619,8 @@ var CliqzAttrack = {
 
             // New location, means a page loaded on the top window, visible tab
 
-            var currwin = CliqzUtils.getWindow();
-            var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
+            // var currwin = CliqzUtils.getWindow();
+            // var _currURL = '' + currwin.gBrowser.selectedBrowser.contentDocument.location;
 
             var activeURL = CliqzHumanWeb.currentURL();
             if ((activeURL.indexOf('about:')!=0) && (activeURL.indexOf('chrome:')!=0)) {
@@ -1679,6 +1682,7 @@ var CliqzAttrack = {
 
         if (CliqzAttrack.counter > 1) {
         // avoid doing anything in the first 2 min,
+        // @konarkm : These are called every 10 secs, do we need such a low threshold ? Or can it be min or 2 ?
             CliqzAttrack.sendStateIfNeeded();
             CliqzAttrack.sendTokensIfNeeded();
             // CliqzAttrack.sendHistStatsIfNeeded();
@@ -1695,11 +1699,15 @@ var CliqzAttrack = {
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.visitCache[keys[i]];
             }
 
+            // @konarkm : Does not look like reloadCache is being populated anywhere.
+            // Commenting it out.
+            /*
             var keys = Object.keys(CliqzAttrack.reloadCache);
             for(var i=0;i<keys.length;i++) {
                 var diff = curr_time - (CliqzAttrack.reloadCache[keys[i]] || 0);
                 if (diff > CliqzAttrack.timeCleaningCache) delete CliqzAttrack.reloadCache[keys[i]];
             }
+            */
 
             var keys = Object.keys(CliqzAttrack.blockedCache);
             for(var i=0;i<keys.length;i++) {
@@ -1721,6 +1729,10 @@ var CliqzAttrack = {
         }
 
 
+        // @konarkm : Not sure if this is used anywhere other then UI, in this version.
+        // Commenting it out looks safe. Else this is called every 10 seconds and loops over all the windows.
+        // This anyways is not an efficient manner. We should be able to do the same from to_event or other stat caches.
+        /*
         var enumerator = Services.wm.getEnumerator('navigator:browser');
         while (enumerator.hasMoreElements()) {
             var win = enumerator.getNext()
@@ -1733,10 +1745,14 @@ var CliqzAttrack = {
                 }
             } catch(e){}
         }
+        */
 
-
+        // @konarkm : Since no UI, in this version.
+        // Commenting looks safe.
+        /*
         CliqzAttrack.renderCookieTraffic();
         CliqzAttrack.renderQSTraffic();
+        */
 
         CliqzAttrack.tp_events.commit();
         CliqzAttrack.tp_events.push();
@@ -1752,7 +1768,9 @@ var CliqzAttrack = {
 
         CliqzAttrack.saveState();
         CliqzAttrack.saveTokens();
-        CliqzAttrack.saveWhitelist();
+        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
+        // CliqzAttrack.saveWhitelist();
+
         // CliqzAttrack.saveHistStats();
 
         CliqzAttrack.pushTelemetry();
@@ -1813,7 +1831,9 @@ var CliqzAttrack = {
         if (CliqzAttrack.tokens==null) CliqzAttrack.loadTokens();
         if (CliqzAttrack.stateLastSent==null) CliqzAttrack.loadStateLastSent();
         if (CliqzAttrack.tokensLastSent==null) CliqzAttrack.loadTokensLastSent();
-        if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
+
+        // @konarkm : We are not keeping any whitelist for now, so commenting it looks safe.
+        // if (CliqzAttrack.whitelist==null) CliqzAttrack.loadWhitelist();
 
 		if (CliqzAttrack.tokenExtWhitelist == null) CliqzAttrack.loadTokenWhitelist();
         if (CliqzAttrack.safeKey == null) CliqzAttrack.loadSafeKey();
@@ -2048,7 +2068,6 @@ var CliqzAttrack = {
 
     },*/
     sendStateIfNeeded: function() {
-
         var timestamp = CliqzHumanWeb.getTime().slice(0,8);
         // day resolution,
 
@@ -2067,7 +2086,6 @@ var CliqzAttrack = {
         }
     },
     sendTokensIfNeeded: function() {
-
         var timestamp = CliqzHumanWeb.getTime().slice(0,10);
         // hour resolution,
 
@@ -2082,23 +2100,6 @@ var CliqzAttrack = {
             CliqzAttrack.sendTokens();
         }
     },
-    /*
-    sendHistStatsIfNeeded: function() {
-
-        var timestamp = CliqzHumanWeb.getTime().slice(0,8);
-        // day resolution,
-
-        if (timestamp != CliqzAttrack.histLastSent) {
-
-            // it's not the same timestamp (day) of the last time that was sent
-            // or the first install (defaults to current timestamp)
-
-            CliqzAttrack.histLastSent = timestamp;
-            CliqzAttrack.saveHistLastSent();
-
-            CliqzAttrack.sendHistStats();
-        }
-    },*/
     applyWhitelistFixtures: function() {
         //CliqzAttrack.whitelist['mail.google.com'] = true;
         // CliqzAttrack.whitelist['googleapis.com'] = true;
@@ -2138,53 +2139,6 @@ var CliqzAttrack = {
             }
         });
     },
-    /*
-    saveHistStats: function() {
-        if (!CliqzAttrack.cacheHistStats) return;
-        CliqzAttrack.saveRecord('hist_stats', JSON.stringify(CliqzAttrack.cacheHistStats));
-    },
-    initHistStats: function() {
-        var h = {};
-
-        h['pl']=0;
-        h['pl_s']=0;
-
-        h['n'] = 0;
-        h['u'] = 0;
-        h['d'] = 0;
-
-        h['no_n'] = 0;
-        h['no_u'] = 0;
-        h['no_d'] = 0;
-
-        h['original'] = {'n': 0, 'p': []};
-        for(var i=0;i<11;i++) h['original']['p'][i]=0;
-        h['cliqz1'] = {'n': 0, 'p': []};
-        for(var i=0;i<11;i++) h['cliqz1']['p'][i]=0;
-
-        h['dom_original'] = {'n': 0, 'p': []};
-        for(var i=0;i<11;i++) h['dom_original']['p'][i]=0;
-        h['dom_cliqz1'] = {'n': 0, 'p': []};
-        for(var i=0;i<11;i++) h['dom_cliqz1']['p'][i]=0;
-
-        return h;
-
-    },
-    loadHistStats: function() {
-        CliqzAttrack.loadRecord('hist_stats', function(data) {
-            if (data==null) {
-                CliqzUtils.log("There was no data on CliqzAttrack.cacheHistStats", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.cacheHistStats = CliqzAttrack.initHistStats();
-            }
-            else {
-                try {
-                    CliqzAttrack.cacheHistStats = JSON.parse(data);
-                } catch(ee) {
-                    CliqzAttrack.tokens = CliqzAttrack.initHistStats();
-                }
-            }
-        });
-    },*/
     saveTokens: function() {
         if (!CliqzAttrack.tokens) return;
         CliqzAttrack.saveRecord('tokens', JSON.stringify(CliqzAttrack.tokens));
@@ -2212,7 +2166,7 @@ var CliqzAttrack = {
                                  dayHour.substring(4, 6),
                                  dayHour.substring(6, 8),
                                  dayHour.substring(8, 10)));
-        
+
     },
     saveSafeKey: function() {
         var day = CliqzAttrack.newUTCDate();
@@ -2426,19 +2380,6 @@ var CliqzAttrack = {
             else CliqzAttrack.tokensLastSent = data;
         });
     },
-    saveHistLastSent: function() {
-        CliqzAttrack.saveRecord('hist_last_send', CliqzAttrack.histLastSent);
-    },
-    loadHistLastSent: function() {
-        CliqzAttrack.loadRecord('hist_last_send', function(data) {
-            if (data==null) {
-                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.histLastSent", CliqzAttrack.LOG_KEY);
-                CliqzAttrack.histLastSent = CliqzHumanWeb.getTime().slice(0,8);
-                CliqzAttrack.saveHistLastSent();
-            }
-            else CliqzAttrack.histLastSent = data;
-        });
-    },
     saveRecord: function(id, data) {
         var st = CliqzAttrack.dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
         st.params.id = id;
@@ -2459,7 +2400,6 @@ var CliqzAttrack = {
 
     },
     loadRecord: function(id, callback) {
-
         var stmt = CliqzAttrack.dbConn.createAsyncStatement("SELECT id, data FROM attrack WHERE id = :id;");
         stmt.params.id = id;
 
