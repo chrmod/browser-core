@@ -2527,12 +2527,6 @@ var CliqzAttrack = {
             (CliqzAttrack.olddbConn.executeSimpleSQLAsync || CliqzAttrack.olddbConn.executeSimpleSQL)('DROP TABLE attrack;');
         }catch(ee){};
     },
-    debugInterface: function() {
-        var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-                    .getService(Components.interfaces.nsIWindowWatcher);
-        try{var win = ww.openWindow(null, "chrome://cliqzmodules/content/debugInterface",
-                        "debugInterface", null, null);}catch(ee){CliqzUtils.log(ee,'debugInterface')}
-    },
     createTable: function(){
 
             var attrack_table = "create table if not exists attrack(\
