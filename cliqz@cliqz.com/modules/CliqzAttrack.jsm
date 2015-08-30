@@ -675,10 +675,11 @@ var CliqzAttrack = {
         }
 
     },
-    getPrivateValues: function() {
+    getPrivateValues: function(window) {
         // creates a list of return values of functions may leak private info
         var p = {};
-        var navigator = CliqzUtils.getWindow().navigator;
+        // var navigator = CliqzUtils.getWindow().navigator;
+        var navigator = window.navigator;
         var badList = ['userAgent', 'buildID', 'oscpu'];
         for (var i = 0; i < badList.length; i++) {
             var val = navigator[badList[i]];
@@ -982,36 +983,6 @@ var CliqzAttrack = {
                 // no refstr: might be able to get a referrer from load context to verify if favicon or extension request
                 // Now this should not happen. Keeping the code block for now. Will remove it after more testing.
                 CliqzUtils.log("THIS CALL DID NOT HAVE A REF","no_refstr");
-
-                /*
-                var lc = CliqzAttrack.getLoadContext(subject);
-                if (lc != null) {
-                    try {
-                        refstr = '' + lc.topWindow.document.documentURI;
-                        var util = lc.topWindow.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-                        source_tab = util.outerWindowID;
-
-                        CliqzUtils.log(refstr +" -> "+ url, "no_refstr");
-
-                        var ref_parts = CliqzAttrack.parseURL(refstr);
-                        if(ref_parts && ref_parts['protocol'] == 'chrome') {
-                            var baseurl = url.split('#')[0];
-                            if(url_parts.path.indexOf('/favicon.') == 0 || baseurl in CliqzAttrack.favicons) {
-                                // favicon, skip
-                                return;
-                            } else {
-                                var req_log = CliqzAttrack.tp_events.get(url, url_parts, refstr, ref_parts, source_tab);
-                                if(req_log) {
-                                    req_log.c++;
-                                    if(url_parts['query'].length > 0) req_log.has_qs++;
-                                    if(url_parts['parameters'].length > 0) req_log.has_ps++;
-                                    if(url_parts['fragment'].length > 0) req_log.has_fragment++;
-                                }
-                            }
-                        }
-                    } catch(e) {}
-                }
-                */
             }
         }
     },
@@ -1299,7 +1270,9 @@ var CliqzAttrack = {
                         // was not enabled, therefore the cookie gets sent
                         // cookie_sent
                         if (req_log) req_log.bad_cookie_sent++;
-                        CliqzAttrack.badCookieSent(url, url_parts, source_url, source_url_parts);
+                        // @konarkm: This is for UI notification.
+                        // Disabling for the release.
+                        //CliqzAttrack.badCookieSent(url, url_parts, source_url, source_url_parts);
                     }
 
                 }
@@ -1335,7 +1308,9 @@ var CliqzAttrack = {
                             // was not enabled, therefore the cookie gets sent
                             // cookie_sent
                             if (req_log) req_log.bad_cookie_sent++;
-                            CliqzAttrack.badCookieSent(url, url_parts, source_url, source_url_parts);
+                            // @konarkm: This is for UI notification.
+                            // Disabling for the release.
+                            // CliqzAttrack.badCookieSent(url, url_parts, source_url, source_url_parts);
 
                         }
                     }
@@ -1840,7 +1815,9 @@ var CliqzAttrack = {
         if (CliqzAttrack.requestKeyValue == null) CliqzAttrack.loadRequestKeyValue();
         if (CliqzAttrack.QSStats == null) CliqzAttrack.loadQSStats();
 
-        CliqzAttrack.getPrivateValues();
+        // @konarkm : Since we already have window, passing it.
+        // Saves from calling CliqzUtils.getWindow() in getPrivateValues();
+        CliqzAttrack.getPrivateValues(window);
         CliqzAttrack.checkInstalledAddons();
 
 
