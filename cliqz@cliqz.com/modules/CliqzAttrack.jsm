@@ -244,7 +244,7 @@ HeaderInfoVisitor.prototype = {
                 return new postData(oHttp.uploadStream);
             }
         } catch (e) {
-            CliqzUtils.log("Got an exception retrieving the post data: [" + e + "]", 'at-post');
+            if (CliqzAttrack.debug) CliqzUtils.log("Got an exception retrieving the post data: [" + e + "]", 'at-post');
             return "crap";
         }
         return null;
@@ -736,7 +736,6 @@ var CliqzAttrack = {
             if (topic != 'http-on-opening-request') return;
 
             if (CliqzAttrack.safeKey == null || CliqzAttrack.requestKeyValue == null || CliqzAttrack.tokenExtWhitelist == null) {
-                CliqzUtils.log('QS protection disabled during startup', 'attrack');
                 return;
             }
 
@@ -813,14 +812,23 @@ var CliqzAttrack = {
                     var doc = source.lc.topWindow.document;
                     if (doc.URL == source_url) {
                         CliqzAttrack.storeDomData(doc);
-                    } else {
+                    }
+                    // @konarkm : Minimize log calls while intercepting calls.
+                    // Ideally should not be here, even with debug check.
+                    /*
+                    else {
                         CliqzUtils.log('Mismatch url !!!', 'tokk');
                     }
+                    */
                 }
                 var reflinks = CliqzAttrack.linksFromDom[source_url] || {};
+
+                // @konarkm : Just iterating, hence commenting.
+                /*
                 if (url in reflinks) {
                     CliqzUtils.log('known url from reflinks: ' + url, 'tokk-kown-url');
                 }
+                */
 
                 // log third party request
                 var req_log = null;
@@ -883,8 +891,10 @@ var CliqzAttrack = {
 
                 // altering request
                 if (CliqzAttrack.isQSEnabled()) {
-                    CliqzUtils.log("altering request " + url + " " + source_url + ' ' + same_gd, 'tokk');
-                    CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
+                    if (CliqzAttrack.debug) {
+                        CliqzUtils.log("altering request " + url + " " + source_url + ' ' + same_gd, 'tokk');
+                        CliqzUtils.log('bad tokens: ' + JSON.stringify(badTokens), 'tokk');
+                    }
 
                     // stats
                     if (CliqzAttrack.QSStats[source_url_parts.hostname] == null) CliqzAttrack.QSStats[source_url_parts.hostname] = {};
@@ -910,7 +920,6 @@ var CliqzAttrack = {
                         }
                     }
 
-                    CliqzUtils.log("new url " + tmp_url + " " + source_url, 'tokk');
 
                     try {
                         aChannel.URI.spec = tmp_url;
@@ -919,7 +928,6 @@ var CliqzAttrack = {
                             req_log.tokens_blocked++;
                         }
                     } catch(error) {
-                        CliqzUtils.log("altering failed, fallback to cancelling: " + error, 'tokk');
                         var ts = Date.now();
                         var blockedItem = {
                             'ts': ts,
@@ -946,18 +954,18 @@ var CliqzAttrack = {
                     }
                     // Now we encounter a 3rd party post request
                     // TODO: make sure it's not user intend
-                    CliqzUtils.log('3rd party post request: ' + url, 'at-post');
+                    if (CliqzAttrack.debug) CliqzUtils.log('3rd party post request: ' + url, 'at-post');
                     var visitor = new HeaderInfoVisitor(aChannel);
                     var requestHeaders = visitor.visitRequest();
                     var postData = visitor.getPostData();
                     if (postData) {
                         if (!postData.binary) { // Don't alter if it's binary
                             var body = postData.body;
-                            CliqzUtils.log(body, 'at-post-old');
+                            if (CliqzAttrack.debug) CliqzUtils.log(body, 'at-post-old');
                             var newBody = CliqzAttrack.checkPostReq(body, badTokens, cookievalue);
 
                             if (newBody != body) {
-                                CliqzUtils.log(newBody, 'at-post-new');
+                                if (CliqzAttrack.debug) CliqzUtils.log(newBody, 'at-post-new');
                                 if (CliqzAttrack.isPostEnabled()) {
                                     aChannel.QueryInterface(Ci.nsIUploadChannel);
                                     aChannel.uploadStream.QueryInterface(Ci.nsISeekableStream)
@@ -973,16 +981,21 @@ var CliqzAttrack = {
                                 // requestHeaders = visitor.visitRequest();
                                 // postData = visitor.getPostData();
                                 // CliqzUtils.log(postData, 'at-post-new');
-                            } else {
+                            }
+                            // @konarkm : Minimize log calls while intercepting calls.
+                            // Ideally should not be here, even with debug check.
+                            /*
+                             else {
                                 CliqzUtils.log('no need to alter', 'at-post');
                             }
+                            */
                         }
                     }
                 }
             } else {
                 // no refstr: might be able to get a referrer from load context to verify if favicon or extension request
                 // Now this should not happen. Keeping the code block for now. Will remove it after more testing.
-                CliqzUtils.log("THIS CALL DID NOT HAVE A REF","no_refstr");
+                if (CliqzAttrack.debug) CliqzUtils.log("THIS CALL DID NOT HAVE A REF","no_refstr");
             }
         }
     },
@@ -2088,7 +2101,7 @@ var CliqzAttrack = {
     loadWhitelist: function() {
         CliqzAttrack.loadRecord('whitelist', function(data) {
             if (data==null) {
-                CliqzUtils.log("There was no data on CliqzAttrack.whitelist", CliqzAttrack.LOG_KEY);
+                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.whitelist", CliqzAttrack.LOG_KEY);
                 CliqzAttrack.whitelist = {};
             }
             else CliqzAttrack.whitelist= JSON.parse(data);
@@ -2104,7 +2117,7 @@ var CliqzAttrack = {
     loadState: function() {
         CliqzAttrack.loadRecord('state', function(data) {
             if (data==null) {
-                CliqzUtils.log("There was no data on CliqzAttrack.state", CliqzAttrack.LOG_KEY);
+                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.state", CliqzAttrack.LOG_KEY);
                 CliqzAttrack.state = {};
             }
             else {
@@ -2195,9 +2208,9 @@ var CliqzAttrack = {
             var versioncheck = JSON.parse(req.response);
             // new version available
             if(versioncheck['safekey_version'] != CliqzAttrack.safeKeyExtVersion) {
-                CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ CliqzAttrack.safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.safeKey available ("+ CliqzAttrack.safeKeyExtVersion +" -> "+ versioncheck['safekey_version'] +")", "attrack");
                 if(versioncheck['force_clean'] == true) {
-                    CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
+                    if (CliqzAttrack.debug) CliqzUtils.log("Force clean CliqzAttrack.safeKey", "attrack");
                     CliqzAttrack.safeKey = {};
                     CliqzAttrack.requestKeyValue = {};
                     CliqzAttrack.saveSafeKey();
@@ -2205,17 +2218,17 @@ var CliqzAttrack = {
                 }
                 CliqzAttrack.loadRemoteSafeKey();
             } else {
-                CliqzUtils.log("CliqzAttrack.safeKey version up-to-date", "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.safeKey version up-to-date", "attrack");
             }
             if(versioncheck['token_whitelist_version'] != CliqzAttrack.tokenWhitelistVersion) {
-                CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available ("+ CliqzAttrack.tokenWhitelistVersion +" -> "+ versioncheck['token_whitelist_version'] +")", "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("New version of CliqzAttrack.tokenExtWhitelist available ("+ CliqzAttrack.tokenWhitelistVersion +" -> "+ versioncheck['token_whitelist_version'] +")", "attrack");
                 CliqzAttrack.loadRemoteTokenWhitelist();
             } else {
-                CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("CliqzAttrack.tokenExtWhitelist version up-to-date", "attrack");
             }
         }, function() {
             // on error: just try and load anyway
-            CliqzUtils.log("error checking token list versions", "attrack");
+            if (CliqzAttrack.debug) CliqzUtils.log("error checking token list versions", "attrack");
             CliqzAttrack.loadRemoteTokenWhitelist();
             CliqzAttrack.loadRemoteSafeKey();
         });
@@ -2226,7 +2239,7 @@ var CliqzAttrack = {
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(req.response);
                 CliqzAttrack.tokenWhitelistVersion = md5(req.response);
                 CliqzAttrack.saveTokenWhitelist();
-                CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
             });
     },
     loadRemoteSafeKey: function() {
@@ -2247,7 +2260,7 @@ var CliqzAttrack = {
                     }
                 }
                 CliqzAttrack.saveSafeKey();
-                CliqzUtils.log("Loaded new safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded new safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
             });
     },
     loadTokenWhitelist: function() {
@@ -2257,11 +2270,11 @@ var CliqzAttrack = {
             try {
                 CliqzAttrack.tokenExtWhitelist = JSON.parse(data);
                 CliqzAttrack.tokenWhitelistVersion = md5(data);
-                CliqzUtils.log("Loaded existing token whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded existing token whitelist version "+ CliqzAttrack.tokenWhitelistVersion, "attrack");
             } catch(e) {
                 CliqzAttrack.tokenExtWhitelist = {};
                 CliqzAttrack.tokenWhitelistVersion = null;
-                CliqzUtils.log("Error parsing new whitelist "+ e, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Error parsing new whitelist "+ e, "attrack");
             }
         });
     },
@@ -2291,7 +2304,7 @@ var CliqzAttrack = {
         CliqzAttrack.loadRecord('safeKeyExtVersion', function(data) {
             if (data != null)
                 CliqzAttrack.safeKeyExtVersion = data;
-                CliqzUtils.log("Loaded existing safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
+                if (CliqzAttrack.debug) CliqzUtils.log("Loaded existing safekey version "+ CliqzAttrack.safeKeyExtVersion, "attrack");
             CliqzAttrack.loadRemoteWhitelists();
         });
     },
@@ -2319,7 +2332,7 @@ var CliqzAttrack = {
     loadTokens: function() {
         CliqzAttrack.loadRecord('tokens', function(data) {
             if (data==null) {
-                CliqzUtils.log("There was no data on CliqzAttrack.tokens", CliqzAttrack.LOG_KEY);
+                if (CliqzAttrack.debug) CliqzUtils.log("There was no data on CliqzAttrack.tokens", CliqzAttrack.LOG_KEY);
                 CliqzAttrack.tokens = {};
             }
             else {
@@ -2365,12 +2378,12 @@ var CliqzAttrack = {
         st.executeAsync({
             handleError: function(aError) {
                 if(CliqzAttrack && CliqzAttrack.debug){
-                    CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
+                    if (CliqzAttrack.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
                 }
             },
             handleCompletion: function(aReason) {
                 if(CliqzAttrack && CliqzAttrack.debug){
-                    CliqzUtils.log("Insertion success", CliqzAttrack.LOG_KEY);
+                    if (CliqzAttrack.debug) CliqzUtils.log("Insertion success", CliqzAttrack.LOG_KEY);
                 }
             }
         });
@@ -2398,7 +2411,7 @@ var CliqzAttrack = {
             },
             handleError: function(aError) {
                 if(!(CliqzAttrack)) return;
-                CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
+                if (CliqzAttrack.debug) CliqzUtils.log("SQL error: " + aError.message, CliqzAttrack.LOG_KEY);
                 callback(null);
             },
             handleCompletion: function(aReason) {
@@ -2941,7 +2954,7 @@ var CliqzAttrack = {
             // Bad values (cookies)
             for (var c in cookievalue) {
                 if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
-                    CliqzUtils.log('same value as cookie ' + val, 'tokk');
+                    if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + val, 'tokk');
                     badTokens.push(val);
                     stats['cookie']++;
                     return;
@@ -2951,7 +2964,7 @@ var CliqzAttrack = {
             // private value (from js function returns)
             for (var c in CliqzAttrack.privateValues) {
                 if ((tok.indexOf(c) > -1 && c.length > 8) || c.indexOf(tok) > -1) {
-                    CliqzUtils.log('same private values ' + val, 'tokk');
+                    if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + val, 'tokk');
                     badTokens.push(val);
                     stats['private']++;
                     return;
@@ -2965,10 +2978,10 @@ var CliqzAttrack = {
             }
 
             if (b64 != null) {
-                CliqzUtils.log(b64, 'tokk-b64');
+                if (CliqzAttrack.debug) CliqzUtils.log(b64, 'tokk-b64');
                 for (var c in cookievalue) {
                     if ((b64.indexOf(c) > -1 && c.length > 8) || c.indexOf(b64) > -1) {
-                        CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
+                        if (CliqzAttrack.debug) CliqzUtils.log('same value as cookie ' + b64, 'tokk-b64');
                         badTokens.push(val);
                         stats['cookie_b64']++;
                         return;
@@ -2976,7 +2989,7 @@ var CliqzAttrack = {
                 }
                 for (var c in CliqzAttrack.privateValues) {
                     if (b64.indexOf(c) > -1 && c.length > 8) {
-                        CliqzUtils.log('same private values ' + b64, 'tokk-b64');
+                        if (CliqzAttrack.debug) CliqzUtils.log('same private values ' + b64, 'tokk-b64');
                         badTokens.push(val);
                         stats['private_b64']++;
                         return;
@@ -3066,7 +3079,7 @@ var CliqzAttrack = {
             for (var i = 0; i < cc.length; i ++) {
                 var r = cc[i];
                 if (body.indexOf(r) > -1) {
-                    CliqzUtils.log('same-cookie (or private str): ' + r, 'at-post');
+                    if (CliqzAttrack.debug) CliqzUtils.log('same-cookie (or private str): ' + r, 'at-post');
                     body = body.replace(r, shuffle(r));
                 }
             }
@@ -3077,7 +3090,7 @@ var CliqzAttrack = {
             for (var i = 0; i < cc.length; i ++) {
                 var r = cc[i];
                 if (body.indexOf(r) > -1) {
-                    CliqzUtils.log('same-bad-token: ' + r, 'at-post');
+                    if (CliqzAttrack.debug) CliqzUtils.log('same-bad-token: ' + r, 'at-post');
                     body = body.replace(r, shuffle(r));
                 }
             }
@@ -3442,7 +3455,7 @@ var CliqzAttrack = {
         // Returns null if the referrer is not valid.
         get: function(url, url_parts, ref, ref_parts, source) {
             if(source == -1 || source === null || source === undefined) {
-                CliqzUtils.log("No source for request, not logging!", "tp_events");
+                if (CliqzAttrack.debug) CliqzUtils.log("No source for request, not logging!", "tp_events");
                 // return a blank stat counter, that won't be staged
                 return this._newStatCounter();
             }
@@ -3451,7 +3464,7 @@ var CliqzAttrack = {
                 if(!ref || !ref_parts || !ref_parts.hostname) {
                     return null;
                 }
-                CliqzUtils.log("No fullpage request for referrer: "+ ref +" -> "+ url , "tp_events");
+                if (CliqzAttrack.debug) CliqzUtils.log("No fullpage request for referrer: "+ ref +" -> "+ url , "tp_events");
                 this._active[source] = new CliqzAttrack.tp_events.PageLoadData(ref, ref_parts.hostname);
             }
 
@@ -3461,11 +3474,11 @@ var CliqzAttrack = {
                 if(source in this._old_tab_idx) {
                     var prev_graph = this._staged[this._old_tab_idx[source]];
                     if(prev_graph.isReferredFrom(ref_parts)) {
-                        CliqzUtils.log("Request for expired tab "+ ref_parts.hostname +" -> "+ url_parts.hostname +" ("+ prev_graph['hostname'] +")", 'tp_events');
+                        if (CliqzAttrack.debug) CliqzUtils.log("Request for expired tab "+ ref_parts.hostname +" -> "+ url_parts.hostname +" ("+ prev_graph['hostname'] +")", 'tp_events');
                         return prev_graph.getTpUrl(url_parts.hostname, url_parts.path);
                     }
                 }
-                CliqzUtils.log("tab/referrer mismatch "+ ref_parts.hostname +" -> "+ url_parts.hostname +" ("+ page_graph['hostname'] +")", 'tp_events');
+                if (CliqzAttrack.debug) CliqzUtils.log("tab/referrer mismatch "+ ref_parts.hostname +" -> "+ url_parts.hostname +" ("+ page_graph['hostname'] +")", 'tp_events');
                 return null;
             }
 
@@ -3489,7 +3502,7 @@ var CliqzAttrack = {
                 var active_tabs = CliqzAttrack.tab_listener.getActiveWindowIDs();
                 for(let k in this._active) {
                     if(active_tabs.indexOf(k) == -1 || force_stage == true) {
-                        CliqzUtils.log('Stage tab '+k, 'tp_events');
+                        if (CliqzAttrack.debug) CliqzUtils.log('Stage tab '+k, 'tp_events');
                         this.stage(k);
                     }
                 }
@@ -3511,7 +3524,7 @@ var CliqzAttrack = {
 
                 // if we still have some data, send the telemetry
                 if(payload_data.length > 0) {
-                    CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
+                    if (CliqzAttrack.debug) CliqzUtils.log('Pushing data for '+ payload_data.length +' requests', 'tp_events');
                     var enabled = {'qs': CliqzAttrack.isQSEnabled(), 'cookie': CliqzAttrack.isCookieEnabled(), 'post': CliqzAttrack.isPostEnabled(), 'fingerprint': CliqzAttrack.isFingerprintingEnabled()};
                     var payl = {'data': payload_data, 'ver': CliqzAttrack.VERSION, 'conf': enabled, 'addons': CliqzAttrack.similarAddon};
                     CliqzHumanWeb.telemetry({'type': CliqzHumanWeb.msgType, 'action': 'attrack.tp_events', 'payload': payl});
