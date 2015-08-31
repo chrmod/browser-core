@@ -272,6 +272,8 @@ var CLIQZEnvironment = {
     },
     //TODO: cache this
     getSearchEngines: function(){
+        var defEngineName = Services.search.defaultEngine.name;
+
         return Services.search.getEngines()
                 .filter(function(e){
                     return !e.hidden && e.iconURI != null;
@@ -279,6 +281,7 @@ var CLIQZEnvironment = {
                 .map(function(e){
                     var r = {
                         name: e.name,
+                        default: e.name == defEngineName,
                         icon: e.iconURI.spec,
                         base_url: e.searchForm,
                         getSubmissionForQuery: function(q){

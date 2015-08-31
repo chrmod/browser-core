@@ -40,5 +40,5 @@
   </div>
   {{>EZ-history}}
   {{>logo}}
-  {{>feedback}}
+
 </div>

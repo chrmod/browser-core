@@ -75,6 +75,9 @@ var historyCallbacks = {};
 var lastHistoryCallbackId = 1;
 
 CLIQZEnvironment = {
+    //default location - office -> ovveride
+    USER_LAT: 48.1517322,
+    USER_LNG: 11.62013,
 	TEMPLATES_PATH: 'generic/static/templates/',
     LOCALE_PATH: 'generic/static/locale/',
     log: function(msg, key){ console.log(key, msg) },
@@ -172,6 +175,7 @@ CLIQZEnvironment = {
     },
     historySearch: function(q, callback, searchParam, sessionStart){
         var callbackId = this.addHistoryCallback(callback);
+
         try {
             var message = {"query": q, "callbackId": callbackId};
             window.webkit.messageHandlers.interOp.postMessage(message)

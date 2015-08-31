@@ -861,7 +861,8 @@ var CliqzUtils = {
           ],
           chosen = new Array();
 
-      var engines = CliqzResultProviders.getSearchEngines();
+      var engines = CliqzResultProviders.getSearchEngines(),
+          defaultName = engines[0].name;
 
       se.forEach(function(def){
         engines.forEach(function(e){
@@ -874,6 +875,7 @@ var CliqzUtils = {
 
               chosen.push(def)
           }
+          if(e.default) defaultName = e.name;
         })
       })
 
@@ -885,7 +887,9 @@ var CliqzUtils = {
                   {
                       template:'noResult',
                       text_line1: CliqzUtils.getLocalizedString('noResultTitle'),
-                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', engines[0].name /* Lucian smarter way to determine the default search Engine*/),
+                      // forwarding the query to the default search engine is not handled by CLIQZ but by Firefox
+                      // we should take care of this specific case differently on alternative platforms
+                      text_line2: CliqzUtils.getLocalizedString('noResultMessage', defaultName),
                       "search_engines": chosen,
                       //use local image in case of no internet connection
                       "cliqz_logo": "chrome://cliqzres/content/skin/img/cliqz.svg"
@@ -896,4 +900,4 @@ var CliqzUtils = {
     }
 };
 
-CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq');
+CliqzUtils.telemetrySeq = CliqzUtils.getPref('telemetrySeq', 0);
