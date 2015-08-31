@@ -808,11 +808,12 @@ var CliqzAttrack = {
 
                 // extract and save tokens
                 CliqzAttrack.extractKeyTokens(url_parts, source_url_parts['hostname']);
-                if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
-                    var doc = source.lc.topWindow.document;
-                    if (doc.URL == source_url) {
-                        CliqzAttrack.storeDomData(doc);
-                    }
+                try{
+                    if (!CliqzAttrack.loadedTabs[source_url] && source.lc) {
+                        var doc = source.lc.topWindow.document;
+                        if (doc.URL == source_url) {
+                            CliqzAttrack.storeDomData(doc);
+                        }
                     // @konarkm : Minimize log calls while intercepting calls.
                     // Ideally should not be here, even with debug check.
                     /*
@@ -820,7 +821,9 @@ var CliqzAttrack = {
                         CliqzUtils.log('Mismatch url !!!', 'tokk');
                     }
                     */
+                    }
                 }
+                catch(ee){};
                 var reflinks = CliqzAttrack.linksFromDom[source_url] || {};
 
                 // @konarkm : Just iterating, hence commenting.
