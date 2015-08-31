@@ -12,7 +12,7 @@
         {{/if}}
     </div>
     <div class="cqz-ez-stock-trend">
-        <span>{{ localize_numbers (floatify data.message.LastTradePriceOnly ) }}</span><span class="{{ data.message.Colour }}"><img
+        <span>{{ localize_numbers (floatify data.message.LastTradePriceOnly ) }} {{data.message.Currency}}</span><span class="{{ data.message.Colour }}"><img
             src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg"
             class="cqz-ez-img-trend"/>{{ localize_numbers (floatify data.message.Change) }} ({{ localize_numbers  (floatify  data.message.PercentChange) }})</span>
     </div>

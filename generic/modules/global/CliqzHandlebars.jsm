@@ -28,7 +28,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
     ],
     PARTIALS = ['url', 'logo', 'EZ-category', 'EZ-history', 'feedback', 'rd-h3-w-rating', 'pcgame_movie_side_snippet', 'cinema_showtimes_partial', 'missing_location'],
     AGO_CEILINGS = [
-        [0            , '',                , 1],
+        [0            , '',1],
         [120          , 'ago1Minute' , 1],
         [3600         , 'agoXMinutes'   , 60],
         [7200         , 'ago1Hour' , 1],
@@ -38,7 +38,7 @@ var TEMPLATES = CliqzUtils.TEMPLATES,
         [4838400      , 'ago1Month'  , 1],
         [29030400     , 'agoXMonths'   , 2419200],
         [58060800     , 'ago1year'   , 1],
-        [2903040000   , 'agoXYears'     , 29030400],
+        [2903040000   , 'agoXYears'     , 29030400]
     ],
     ZERO_CLICK_INFO_PRIO = [["Phone", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/phone.svg"],
                             ["BIC", "http://cdn.cliqz.com/extension/EZ/generic/zeroclick/BIC.svg"],
@@ -203,7 +203,7 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('localize_numbers', function(num) {
-        return (num !== null || typeof(num)!=="undefined" )? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "_"
+        return (CliqzUtils.isNumber(num))? num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) : "-"
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
