@@ -97,7 +97,7 @@ CLIQZEnvironment = {
 
             return e
         });
-    },
+    }
 }
 
 
