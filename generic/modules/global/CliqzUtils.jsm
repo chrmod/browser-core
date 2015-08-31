@@ -56,7 +56,8 @@ var CliqzUtils = {
   LANGS:                          {'de':'de', 'en':'en', 'fr':'fr'},
   IFRAME_SHOW:                    false,
   HOST:                           'https://cliqz.com',
-  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=', //'http://10.0.86.127/mixer?bmresult=http://www.vfl-bochum.de/&loc=49.0123,12.120321,U&q=hypo', //
+  RESULTS_PROVIDER:               'http://10.0.59.229:8080/api/v1/results?q=',
+//  RESULTS_PROVIDER:               'https://newbeta.cliqz.com/api/v1/results?q=',
   RICH_HEADER:                    'https://newbeta.cliqz.com/api/v1/rich-header?path=/map',
   RESULT_PROVIDER_ALWAYS_BM:      false,
   RESULTS_PROVIDER_LOG:           'https://newbeta.cliqz.com/api/v1/logging?q=',
@@ -128,6 +129,10 @@ var CliqzUtils = {
 
     CliqzUtils.requestMonitor = new CliqzRequestMonitor();
     CliqzUtils.log('Initialized', 'CliqzUtils');
+  },
+
+  isNumber: function(n){
+      return !isNaN(parseFloat(n)) && isFinite(n);
   },
   //returns the type only if it is known
   getKnownType: function(type){
