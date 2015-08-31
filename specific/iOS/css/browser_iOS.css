@@ -140,8 +140,13 @@ p { margin-bottom: 20px; }
     background-repeat: no-repeat;
 }
 
+#results {
+	width: 100% !important;
+}
+
 #cliqz-results {
     height: 100%;
+		width: 100% !important;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
