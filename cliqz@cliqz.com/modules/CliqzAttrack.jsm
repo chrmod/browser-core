@@ -1531,6 +1531,7 @@ var CliqzAttrack = {
             );
 
             // Introspect getImageData
+
             /*
             Components.utils.exportFunction(
                 function (sx, sy, sw, sh){
@@ -1742,8 +1743,10 @@ var CliqzAttrack = {
         CliqzAttrack.renderQSTraffic();
         */
 
-        CliqzAttrack.tp_events.commit();
-        CliqzAttrack.tp_events.push();
+        if((CliqzAttrack.counter/CliqzAttrack.tmult) % (2 * 60) == 0) {
+            CliqzAttrack.tp_events.commit();
+            CliqzAttrack.tp_events.push();
+        }
 
     },
     counter: 0,
