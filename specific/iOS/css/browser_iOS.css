@@ -141,12 +141,12 @@ p { margin-bottom: 20px; }
 }
 
 #results {
-		width: 100% !important;
+    width: 100% !important;
 }
 
 #cliqz-results {
     height: 100%;
-		width: 100% !important;
+    width: 100% !important;
     position: relative;
     overflow-x: hidden;
     overflow-y: scroll;
