@@ -856,12 +856,14 @@ var CliqzAttrack = {
                     cookievalue = CliqzAttrack.getCookieValues(docCookie, url);
                 } else {
                     // try to get the document from source
-                    if (source.lc) {
-                        docCookie = source.lc.topWindow.document.cookie;
-                        if (docCookie) {
-                            cookievalue = CliqzAttrack.getCookieValues(docCookie, url);
+                    try {
+                        if (source.lc) {
+                            docCookie = source.lc.topWindow.document.cookie;
+                            if (docCookie) {
+                                cookievalue = CliqzAttrack.getCookieValues(docCookie, url);
+                            }
                         }
-                    }
+                    } catch (e) {}
                 }
                 try {
                     var cookiedata = aChannel.getRequestHeader('Cookie');
