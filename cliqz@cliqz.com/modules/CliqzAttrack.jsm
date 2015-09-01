@@ -2377,6 +2377,7 @@ var CliqzAttrack = {
         });
     },
     saveRecord: function(id, data) {
+        if(!(CliqzAttrack.dbConn)) return;
         var st = CliqzAttrack.dbConn.createStatement("INSERT OR REPLACE INTO attrack (id,data) VALUES (:id, :data)");
         st.params.id = id;
         st.params.data = data;
