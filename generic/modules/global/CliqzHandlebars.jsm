@@ -194,10 +194,25 @@ function registerHelpers(){
     });
 
     Handlebars.registerHelper('localizeNumbers', function(num) {
-        var parsedNum = parseFloat(num),
-            postfix = (num + "").substring((parsedNum + "").length);
-
-        return (!isNaN(parsedNum) && isFinite(parsedNum))? parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix : "-"
+        /*
+        * USE only when you really understand your data!
+        * this function supports localization for: normal number string (e.g. 1.2, 3...), standardized abrv. strings: 12e-4, and
+        * extended form, e.g. 1.2B, 1M etc.
+        * In general, any string in the form xxxyyy where xxx is a standardized string form (recognized by isFinite())
+        * and yyy is an arbitrary string (called postfix) that does not start with a number will be localized
+        * WARNING: numbers in the form such as: 12e3M, which might be seen as 12000 Million, will be parsed incorrectly
+        */
+        try {
+            var parsedNum = parseFloat(num), postfix, dummy = "-";
+            if (!isNaN(parsedNum) && isFinite(parsedNum)) {
+                postfix = isFinite(num) ? "" : (num + "").substring((parsedNum + "").length);
+                return isFinite(parsedNum) ? parsedNum.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code')) + postfix : dummy
+            }
+            return dummy;
+        }
+        catch(e) {
+            return num
+        }
     });
 
     Handlebars.registerHelper('limit_images_shown', function(idx, max_idx){
