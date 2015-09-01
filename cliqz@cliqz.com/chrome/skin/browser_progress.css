@@ -147,11 +147,11 @@
 #cliqz-results .ez-liga-genSM  .ez-liga-teamName{color: #506bb8;}
 #cliqz-results .ez-liga-genSM-game-box {
     position: relative;
-    max-width: 500px;
+    max-width: 650px;
     width: 100%;
     height: 105px;
-    margin: 20px 0px 0px 20px;
-    padding: 20px 20px 20px 20px;
+    margin: 20px 0 0;
+    padding: 20px;
 }
 #cliqz-results .ez-liga-genSM-game-box_live {border-color: #56EAC6; }
 #cliqz-results .ez-liga-genSM-game-box .ez-liga-oneGameScore{position: absolute; top: 85px; width: -moz-calc(100% - 10px); width: calc(100% - 10px);}
@@ -162,13 +162,27 @@
 #cliqz-results .cqz-liga-genSM-des{max-width: 600px;}
 
 #cliqz-results .rotate90 {
-  -moz-transform: rotate(-90deg); transform: rotate(-90deg);
-  -moz-transform-origin: left bottom; transform-origin: left bottom;
+    -moz-transform: rotate(-90deg); transform: rotate(-90deg);
+    -moz-transform-origin: left bottom;
+    transform-origin: left bottom;
 }
 
 /*MAGIC numbers */
-#cliqz-results .ez-liga-genSM-gamestt {background-color: #CCCCCC; line-height: 20px; color: #ffffff; text-align: center; width: 147px;
-    position: absolute; top: 262px; left: 42px;
+#cliqz-results .ez-liga-genSM-gamestt-holder {
+    position: relative;
+    padding-left: 20px;
+    min-width: 400px;
+}
+
+#cliqz-results .ez-liga-genSM-gamestt {
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    width: 147px;
+    line-height: 20px;
+    color: #ffffff;
+    text-align: center;
+    background-color: #CCCCCC;
 }
 
 #cliqz-results .ez-liga-genSM-gamestt_live {background-color: #56EAC6}
