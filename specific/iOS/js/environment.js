@@ -79,10 +79,10 @@ CLIQZEnvironment = {
     USER_LAT: 48.1517322,
     USER_LNG: 11.62013,
     setLocation: function(lat, lng) {
-        USER_LAT = lat;
-        USER_LNG = lng;
+        this.USER_LAT = lat;
+        this.USER_LNG = lng;
     },
-	TEMPLATES_PATH: 'generic/static/templates/',
+	  TEMPLATES_PATH: 'generic/static/templates/',
     LOCALE_PATH: 'generic/static/locale/',
     log: function(msg, key){ console.log(key, msg) },
     getPref: function(k, d){return db[k] || d; },
