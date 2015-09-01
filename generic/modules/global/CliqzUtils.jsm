@@ -132,8 +132,12 @@ var CliqzUtils = {
   },
 
   isNumber: function(n){
+      /*
+      NOTE: this function can't recognize numbers in the form such as: "1.2B", but it can for "1e4". See specification for isFinite()
+       */
       return !isNaN(parseFloat(n)) && isFinite(n);
   },
+
   //returns the type only if it is known
   getKnownType: function(type){
     return VERTICAL_ENCODINGS.hasOwnProperty(type) && type;
