@@ -14,7 +14,7 @@
     <div class="cqz-ez-stock-trend">
         <span>{{ localize_numbers (floatify data.message.LastTradePriceOnly ) }} {{data.message.Currency}}</span><span class="{{ data.message.Colour }}"><img
             src="https://cdn.cliqz.com/extension/EZ/stocks/EZ-stock-arrow-{{ data.message.Colour }}.svg"
-            class="cqz-ez-img-trend"/>{{ localize_numbers (localize_numbers data.message.Change) }} ({{ localize_numbers  (localize_numbers  data.message.PercentChange) }})</span>
+            class="cqz-ez-img-trend"/>{{ localize_numbers (localize_numbers data.message.Change) }} ({{ localize_numbers  (localize_numbers  data.message.PercentChange) }}%)</span>
     </div>
 
     <table class="cliqz-stock-price-table">
