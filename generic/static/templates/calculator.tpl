@@ -1,5 +1,5 @@
 {{!
-    EZ calling that template:
+    EZ calling this template:
         1. Time: time Berlin
         2. Calculator: 1+2
         3. Unit Converter: 10m to cm

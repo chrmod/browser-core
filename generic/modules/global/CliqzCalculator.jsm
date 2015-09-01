@@ -118,15 +118,12 @@ var CliqzCalculator = {
                   break;
               }
           num = Math.round(num1 * float_dec) / float_dec;
+          num = num.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code'));
           if (Math.abs(num - num1) > this.ACCEPT_ERROR)
               result_sign = '\u2248 ';
 
-          if (this.IS_UNIT_CONVERTER){this.CALCULATOR_RES = num + ' ' + this.UNIT_RES}else {this.CALCULATOR_RES = num + ''}
+          this.CALCULATOR_RES = this.IS_UNIT_CONVERTER ? num + ' ' + this.UNIT_RES : this.CALCULATOR_RES = num + '';
       } catch (err) {}
-
-
-       // format number to german style
-       this.CALCULATOR_RES = this.CALCULATOR_RES.replace('.',',');
 
       return Result.cliqzExtra(
                   {
@@ -202,8 +199,9 @@ var CliqzCalculator = {
             var cv = parseFloat(unit1_info[2].val/unit2[2].val);
             this.CALCULATOR_RES = num * cv;
             this.UNIT_RES = unit2[2].names[0];
-//            this.BASE_UNIT_CONVERTER = '1 %s = %s %s'%(unit1_info[2].names[0], cv.toString(), unit2[2].names[0]);
-            this.BASE_UNIT_CONVERTER = '1 ' + unit1_info[2].names[0] + ' = ' + cv.toString() + ' '+  unit2[2].names[0];
+            this.BASE_UNIT_CONVERTER = '1 ' + unit1_info[2].names[0] + ' = '
+                + cv.toLocaleString(CliqzUtils.getLocalizedString('locale_lang_code'))
+                + ' '+  unit2[2].names[0];
 
             return true
         }
